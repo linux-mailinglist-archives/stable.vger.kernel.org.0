@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B82D5B7026
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7079F5B70A2
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233231AbiIMOUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
+        id S232884AbiIMObB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:31:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233543AbiIMOTS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD22965243;
-        Tue, 13 Sep 2022 07:14:01 -0700 (PDT)
+        with ESMTP id S232633AbiIMO3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DB9642C3;
+        Tue, 13 Sep 2022 07:18:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D0A8614C2;
-        Tue, 13 Sep 2022 14:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE6AC433C1;
-        Tue, 13 Sep 2022 14:14:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA516148A;
+        Tue, 13 Sep 2022 14:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E520BC433D7;
+        Tue, 13 Sep 2022 14:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078441;
-        bh=bTOIqGHcoGMJCze9crysSPTuC4OBpIBJRzrBeSjJLpQ=;
+        s=korg; t=1663078723;
+        bh=CWn4DWCZrdE99Iiqu5iA4dHZ/cYt7v+12OBJZMGeZ94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuZ5B5+tXK9VUpBe6n3G5qJr77qJbMCUwbRi0xc2W5PA98vzpH84nJuskmsgJiZAg
-         CFIKHZHoBlGf1dSp7u/hmXa4nI4VF2Zp68ftd/ttOR9UnipuF+1glA/GmcG4aVq8x8
-         MaUi6bU9izU4n6CwL0UjfyNyRVPGXfFZ1xNzGa4k=
+        b=PKITBjgkjy4TeZEZczQRkDm2Qw1iP924L45exbqvBo7SrmU1hv84dxoIEIE+oyp3I
+         3XUye5uxxX71v1kU6v93HEALoHqJguqpIrlwNtzPxiYuE+PzUgyFxo6d3aJcMZkzjt
+         dA1kMljCTpCep2glgQ5+FFmPTIMHrUiwCzPYgxbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sindhu-Devale <sindhu.devale@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 141/192] RDMA/irdma: Return error on MR deregister CQP failure
-Date:   Tue, 13 Sep 2022 16:04:07 +0200
-Message-Id: <20220913140417.043917520@linuxfoundation.org>
+Subject: [PATCH 5.15 057/121] soc: brcmstb: pm-arm: Fix refcount leak and __iomem leak bugs
+Date:   Tue, 13 Sep 2022 16:04:08 +0200
+Message-Id: <20220913140359.806502539@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sindhu-Devale <sindhu.devale@intel.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 6b227bd32db778eddc6f3b22cc72a28dda0f2272 ]
+[ Upstream commit 1085f5080647f0c9f357c270a537869191f7f2a1 ]
 
-The MR deregister CQP can fail if an MW is bound to it.
-Return an appropriate error for this case.
+In brcmstb_pm_probe(), there are two kinds of leak bugs:
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Sindhu-Devale <sindhu.devale@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20220906223244.1119-3-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+(1) we need to add of_node_put() when for_each__matching_node() breaks
+(2) we need to add iounmap() for each iomap in fail path
+
+Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220707015620.306468-1-windhl@126.com
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/utils.c | 13 ++++++++-----
- drivers/infiniband/hw/irdma/verbs.c |  6 +++++-
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/soc/bcm/brcmstb/pm/pm-arm.c | 50 ++++++++++++++++++++++-------
+ 1 file changed, 39 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/utils.c b/drivers/infiniband/hw/irdma/utils.c
-index 7b15faadfef5c..f4d774451160d 100644
---- a/drivers/infiniband/hw/irdma/utils.c
-+++ b/drivers/infiniband/hw/irdma/utils.c
-@@ -590,11 +590,14 @@ static int irdma_wait_event(struct irdma_pci_f *rf,
- 	cqp_error = cqp_request->compl_info.error;
- 	if (cqp_error) {
- 		err_code = -EIO;
--		if (cqp_request->compl_info.maj_err_code == 0xFFFF &&
--		    cqp_request->compl_info.min_err_code == 0x8029) {
--			if (!rf->reset) {
--				rf->reset = true;
--				rf->gen_ops.request_reset(rf);
-+		if (cqp_request->compl_info.maj_err_code == 0xFFFF) {
-+			if (cqp_request->compl_info.min_err_code == 0x8002)
-+				err_code = -EBUSY;
-+			else if (cqp_request->compl_info.min_err_code == 0x8029) {
-+				if (!rf->reset) {
-+					rf->reset = true;
-+					rf->gen_ops.request_reset(rf);
-+				}
- 			}
- 		}
- 	}
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index 4835702871677..e7120d7a5b4c6 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -3001,6 +3001,7 @@ static int irdma_dereg_mr(struct ib_mr *ib_mr, struct ib_udata *udata)
- 	struct irdma_pble_alloc *palloc = &iwpbl->pble_alloc;
- 	struct irdma_cqp_request *cqp_request;
- 	struct cqp_cmds_info *cqp_info;
-+	int status;
+diff --git a/drivers/soc/bcm/brcmstb/pm/pm-arm.c b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+index 70ad0f3dce283..286f5d57c0cab 100644
+--- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
++++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+@@ -684,13 +684,14 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 	const struct of_device_id *of_id = NULL;
+ 	struct device_node *dn;
+ 	void __iomem *base;
+-	int ret, i;
++	int ret, i, s;
  
- 	if (iwmr->type != IRDMA_MEMREG_TYPE_MEM) {
- 		if (iwmr->region) {
-@@ -3031,8 +3032,11 @@ static int irdma_dereg_mr(struct ib_mr *ib_mr, struct ib_udata *udata)
- 	cqp_info->post_sq = 1;
- 	cqp_info->in.u.dealloc_stag.dev = &iwdev->rf->sc_dev;
- 	cqp_info->in.u.dealloc_stag.scratch = (uintptr_t)cqp_request;
--	irdma_handle_cqp_op(iwdev->rf, cqp_request);
-+	status = irdma_handle_cqp_op(iwdev->rf, cqp_request);
- 	irdma_put_cqp_request(&iwdev->rf->cqp, cqp_request);
-+	if (status)
-+		return status;
+ 	/* AON ctrl registers */
+ 	base = brcmstb_ioremap_match(aon_ctrl_dt_ids, 0, NULL);
+ 	if (IS_ERR(base)) {
+ 		pr_err("error mapping AON_CTRL\n");
+-		return PTR_ERR(base);
++		ret = PTR_ERR(base);
++		goto aon_err;
+ 	}
+ 	ctrl.aon_ctrl_base = base;
+ 
+@@ -700,8 +701,10 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 		/* Assume standard offset */
+ 		ctrl.aon_sram = ctrl.aon_ctrl_base +
+ 				     AON_CTRL_SYSTEM_DATA_RAM_OFS;
++		s = 0;
+ 	} else {
+ 		ctrl.aon_sram = base;
++		s = 1;
+ 	}
+ 
+ 	writel_relaxed(0, ctrl.aon_sram + AON_REG_PANIC);
+@@ -711,7 +714,8 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 				     (const void **)&ddr_phy_data);
+ 	if (IS_ERR(base)) {
+ 		pr_err("error mapping DDR PHY\n");
+-		return PTR_ERR(base);
++		ret = PTR_ERR(base);
++		goto ddr_phy_err;
+ 	}
+ 	ctrl.support_warm_boot = ddr_phy_data->supports_warm_boot;
+ 	ctrl.pll_status_offset = ddr_phy_data->pll_status_offset;
+@@ -731,17 +735,20 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 	for_each_matching_node(dn, ddr_shimphy_dt_ids) {
+ 		i = ctrl.num_memc;
+ 		if (i >= MAX_NUM_MEMC) {
++			of_node_put(dn);
+ 			pr_warn("too many MEMCs (max %d)\n", MAX_NUM_MEMC);
+ 			break;
+ 		}
+ 
+ 		base = of_io_request_and_map(dn, 0, dn->full_name);
+ 		if (IS_ERR(base)) {
++			of_node_put(dn);
+ 			if (!ctrl.support_warm_boot)
+ 				break;
+ 
+ 			pr_err("error mapping DDR SHIMPHY %d\n", i);
+-			return PTR_ERR(base);
++			ret = PTR_ERR(base);
++			goto ddr_shimphy_err;
+ 		}
+ 		ctrl.memcs[i].ddr_shimphy_base = base;
+ 		ctrl.num_memc++;
+@@ -752,14 +759,18 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 	for_each_matching_node(dn, brcmstb_memc_of_match) {
+ 		base = of_iomap(dn, 0);
+ 		if (!base) {
++			of_node_put(dn);
+ 			pr_err("error mapping DDR Sequencer %d\n", i);
+-			return -ENOMEM;
++			ret = -ENOMEM;
++			goto brcmstb_memc_err;
+ 		}
+ 
+ 		of_id = of_match_node(brcmstb_memc_of_match, dn);
+ 		if (!of_id) {
+ 			iounmap(base);
+-			return -EINVAL;
++			of_node_put(dn);
++			ret = -EINVAL;
++			goto brcmstb_memc_err;
+ 		}
+ 
+ 		ddr_seq_data = of_id->data;
+@@ -779,21 +790,24 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 	dn = of_find_matching_node(NULL, sram_dt_ids);
+ 	if (!dn) {
+ 		pr_err("SRAM not found\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto brcmstb_memc_err;
+ 	}
+ 
+ 	ret = brcmstb_init_sram(dn);
+ 	of_node_put(dn);
+ 	if (ret) {
+ 		pr_err("error setting up SRAM for PM\n");
+-		return ret;
++		goto brcmstb_memc_err;
+ 	}
+ 
+ 	ctrl.pdev = pdev;
+ 
+ 	ctrl.s3_params = kmalloc(sizeof(*ctrl.s3_params), GFP_KERNEL);
+-	if (!ctrl.s3_params)
+-		return -ENOMEM;
++	if (!ctrl.s3_params) {
++		ret = -ENOMEM;
++		goto s3_params_err;
++	}
+ 	ctrl.s3_params_pa = dma_map_single(&pdev->dev, ctrl.s3_params,
+ 					   sizeof(*ctrl.s3_params),
+ 					   DMA_TO_DEVICE);
+@@ -813,7 +827,21 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+ 
+ out:
+ 	kfree(ctrl.s3_params);
+-
++s3_params_err:
++	iounmap(ctrl.boot_sram);
++brcmstb_memc_err:
++	for (i--; i >= 0; i--)
++		iounmap(ctrl.memcs[i].ddr_ctrl);
++ddr_shimphy_err:
++	for (i = 0; i < ctrl.num_memc; i++)
++		iounmap(ctrl.memcs[i].ddr_shimphy_base);
 +
- 	irdma_free_stag(iwdev, iwmr->stag);
- done:
- 	if (iwpbl->pbl_allocated)
++	iounmap(ctrl.memcs[0].ddr_phy_base);
++ddr_phy_err:
++	iounmap(ctrl.aon_ctrl_base);
++	if (s)
++		iounmap(ctrl.aon_sram);
++aon_err:
+ 	pr_warn("PM: initialization failed with code %d\n", ret);
+ 
+ 	return ret;
 -- 
 2.35.1
 
