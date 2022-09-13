@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D9E5B69F6
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 10:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CAA5B69FB
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 10:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230373AbiIMI6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 04:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37086 "EHLO
+        id S231435AbiIMI60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 04:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230350AbiIMI6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 04:58:22 -0400
+        with ESMTP id S231425AbiIMI6X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 04:58:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DBE3C8DC;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A374843E69;
         Tue, 13 Sep 2022 01:58:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10F7361345;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40F576135B;
         Tue, 13 Sep 2022 08:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED99C433C1;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F9CC433B5;
         Tue, 13 Sep 2022 08:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1663059499;
-        bh=Oc6WoDRTsN2YXtrJHeii3slQl1T1Cqsqme8eYe4nODc=;
+        bh=UesYWvFKNzKIUaFJBsc/VB+FJHKodJ1Cgw5lzNNC0l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSs6PLSgaXtiUrS+7L3CAiMNRarG7ovHpUdoaMrDyOxfuEhuJq4IvZaJxSG0VA8wP
-         LF8Av6IYbPm4fcPfmgyfKm+UyZ/1MU5qQ7hPBykZgCvzA/urBF/MGeIJ2yznpuZp3f
-         2AwPXnyDGxht13kbECWivAeNYPUEwJQ5hzTMyMoUB//KIw3dhzxAsR3pfB42+XAVFM
-         qPF4UUS+nYU0u1n+ZlSX54aR7g5PhBq2O976DLAb2lntuNWzImI677R4m5Rjp+MJ4r
-         58WxVskC9wWrbzDO2hJFZAfv/r6xtwzxVkVhVm7KN1e5WVUz+HECgZemuef7b73qYg
-         N8v0uiKWhSKEg==
+        b=tjGQbFiswH2c+W5sZ9H+PgiDVNeDXoaLU5oJYnrV5gLohCxcDRwm8GQsH92BJ3nDe
+         aioESzTbKLFnOW41jaPY5Ni/5JWPrNqjMWYT9TE4JrCELKRGc2MTKl3cE887iDxidR
+         NG33ZaLEwuPN3TSxJqbudGYFvgNZhwKJ0/Uev8/DPpQImYhyRklxKakAUXWd3b0t6n
+         YpcoGL+DHLwO/HK1Eeca0waIPx1ZNJVmxGVpQs57N5poO5RneeIeXKSQDEUokgyhit
+         +upTObdyoj2DVeYWSC7EOd8Xw5msilZW/PRq0LheuehXxm5iK1Sc+xus0RtsPFw+9X
+         tfnnQVvusjYow==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1oY1kI-0002H2-Cp; Tue, 13 Sep 2022 10:58:18 +0200
+        id 1oY1kI-0002H4-Fl; Tue, 13 Sep 2022 10:58:18 +0200
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Douglas Anderson <dianders@chromium.org>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
@@ -54,9 +54,9 @@ Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
         dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
         freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 01/10] drm/msm: fix use-after-free on probe deferral
-Date:   Tue, 13 Sep 2022 10:53:11 +0200
-Message-Id: <20220913085320.8577-2-johan+linaro@kernel.org>
+Subject: [PATCH v2 02/10] drm/msm/dp: fix memory corruption with too many bridges
+Date:   Tue, 13 Sep 2022 10:53:12 +0200
+Message-Id: <20220913085320.8577-3-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220913085320.8577-1-johan+linaro@kernel.org>
 References: <20220913085320.8577-1-johan+linaro@kernel.org>
@@ -72,34 +72,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The bridge counter was never reset when tearing down the DRM device so
-that stale pointers to deallocated structures would be accessed on the
-next tear down (e.g. after a second late bind deferral).
+Add the missing sanity check on the bridge counter to avoid corrupting
+data beyond the fixed-sized bridge array in case there are ever more
+than eight bridges.
 
-Given enough bridges and a few probe deferrals this could currently also
-lead to data beyond the bridge array being corrupted.
-
-Fixes: d28ea556267c ("drm/msm: properly add and remove internal bridges")
-Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
-Cc: stable@vger.kernel.org      # 3.12
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 8a3b4c17f863 ("drm/msm/dp: employ bridge mechanism for display enable and disable")
+Cc: stable@vger.kernel.org	# 5.17
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/dp/dp_display.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 391d86b54ded..d254fe2507ec 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -241,6 +241,7 @@ static int msm_drm_uninit(struct device *dev)
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 3e284fed8d30..fbe950edaefe 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1604,6 +1604,12 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 		return -EINVAL;
  
- 	for (i = 0; i < priv->num_bridges; i++)
- 		drm_bridge_remove(priv->bridges[i]);
-+	priv->num_bridges = 0;
+ 	priv = dev->dev_private;
++
++	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
++		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
++		return -ENOSPC;
++	}
++
+ 	dp_display->drm_dev = dev;
  
- 	pm_runtime_get_sync(dev);
- 	msm_irq_uninstall(ddev);
+ 	dp_priv = container_of(dp_display, struct dp_display_private, dp_display);
 -- 
 2.35.1
 
