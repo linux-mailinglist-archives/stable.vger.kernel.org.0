@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4E45B7224
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6EC05B7416
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbiIMOuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:50:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
+        id S235429AbiIMPOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234658AbiIMOtW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E232871724;
-        Tue, 13 Sep 2022 07:25:42 -0700 (PDT)
+        with ESMTP id S235582AbiIMPMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:12:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA206785A4;
+        Tue, 13 Sep 2022 07:32:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71C04B80F98;
-        Tue, 13 Sep 2022 14:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39C5C433B5;
-        Tue, 13 Sep 2022 14:25:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F20A614B9;
+        Tue, 13 Sep 2022 14:25:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0220C433D7;
+        Tue, 13 Sep 2022 14:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079119;
-        bh=WUvIG/wjb+NHZ795L5NT+jyIBxzqlNnQlcGfumrnbqA=;
+        s=korg; t=1663079122;
+        bh=ZKmUbdDwejXSkwgft8nsKPNTXVa5RDRarrObMQNeIME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbOdkVFUR1SzKvuYBGr9kH87am/TBGe+aZOWnDku6g8Mm7zrgsfFfmNmez/cuqC80
-         8Jho/8ffaRCh4ciNxqtPZKoBnLlA9+ldG5NLcbjByLin/bEcxGviq+kxM4X9YYO7SY
-         jqgwcIquBAn2WbgpXx4ifI4jidiLw7+uISMGSAcY=
+        b=VPJ0r5gnB73QiKtG/PvLmzE7mdTfJYE2brjFnI9q6MwYoSsA0C3Si81jkp7ODhjS2
+         e8gblFaVzTijnFNMMuvuWbyBRXfCmy03OE+6qMs7GrzTtOA3VJ8MbhZoADFnvRQ8Yl
+         WQeL4m65WkbW2Ak6vud9inyTffIq+mHHdZhi7MUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/108] ieee802154/adf7242: defer destroy_workqueue call
-Date:   Tue, 13 Sep 2022 16:05:42 +0200
-Message-Id: <20220913140354.042864730@linuxfoundation.org>
+Subject: [PATCH 5.4 012/108] wifi: cfg80211: debugfs: fix return type in ht40allow_map_read()
+Date:   Tue, 13 Sep 2022 16:05:43 +0200
+Message-Id: <20220913140354.091247135@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -55,58 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit afe7116f6d3b888778ed6d95e3cf724767b9aedf ]
+[ Upstream commit d776763f48084926b5d9e25507a3ddb7c9243d5e ]
 
-There is a possible race condition (use-after-free) like below
+The return type is supposed to be ssize_t, which is signed long,
+but "r" was declared as unsigned int.  This means that on 64 bit systems
+we return positive values instead of negative error codes.
 
-  (FREE)                     |  (USE)
-  adf7242_remove             |  adf7242_channel
-   cancel_delayed_work_sync  |
-    destroy_workqueue (1)    |   adf7242_cmd_rx
-                             |    mod_delayed_work (2)
-                             |
-
-The root cause for this race is that the upper layer (ieee802154) is
-unaware of this detaching event and the function adf7242_channel can
-be called without any checks.
-
-To fix this, we can add a flag write at the beginning of adf7242_remove
-and add flag check in adf7242_channel. Or we can just defer the
-destructive operation like other commit 3e0588c291d6 ("hamradio: defer
-ax25 kfree after unregister_netdev") which let the
-ieee802154_unregister_hw() to handle the synchronization. This patch
-takes the second option.
-
-Fixes: 58e9683d1475 ("net: ieee802154: adf7242: Fix OCL calibration
-runs")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Link: https://lore.kernel.org/r/20220808034224.12642-1-linma@zju.edu.cn
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: 80a3511d70e8 ("cfg80211: add debugfs HT40 allow map")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YutvOQeJm0UjLhwU@kili
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/adf7242.c | 3 ++-
+ net/wireless/debugfs.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ieee802154/adf7242.c b/drivers/net/ieee802154/adf7242.c
-index 5945ac5f38eea..cb29da961e12b 100644
---- a/drivers/net/ieee802154/adf7242.c
-+++ b/drivers/net/ieee802154/adf7242.c
-@@ -1310,10 +1310,11 @@ static int adf7242_remove(struct spi_device *spi)
+diff --git a/net/wireless/debugfs.c b/net/wireless/debugfs.c
+index 76b845f68ac89..d80b06d669593 100644
+--- a/net/wireless/debugfs.c
++++ b/net/wireless/debugfs.c
+@@ -65,9 +65,10 @@ static ssize_t ht40allow_map_read(struct file *file,
+ {
+ 	struct wiphy *wiphy = file->private_data;
+ 	char *buf;
+-	unsigned int offset = 0, buf_size = PAGE_SIZE, i, r;
++	unsigned int offset = 0, buf_size = PAGE_SIZE, i;
+ 	enum nl80211_band band;
+ 	struct ieee80211_supported_band *sband;
++	ssize_t r;
  
- 	debugfs_remove_recursive(lp->debugfs_root);
- 
-+	ieee802154_unregister_hw(lp->hw);
-+
- 	cancel_delayed_work_sync(&lp->work);
- 	destroy_workqueue(lp->wqueue);
- 
--	ieee802154_unregister_hw(lp->hw);
- 	mutex_destroy(&lp->bmux);
- 	ieee802154_free_hw(lp->hw);
- 
+ 	buf = kzalloc(buf_size, GFP_KERNEL);
+ 	if (!buf)
 -- 
 2.35.1
 
