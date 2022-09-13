@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E325B74E1
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABF95B74F7
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236337AbiIMP3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
+        id S236228AbiIMP3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236548AbiIMP3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1175632E;
-        Tue, 13 Sep 2022 07:39:31 -0700 (PDT)
+        with ESMTP id S236587AbiIMP3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AB7012AE6;
+        Tue, 13 Sep 2022 07:39:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1CA2B80FEF;
-        Tue, 13 Sep 2022 14:37:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C710C433C1;
-        Tue, 13 Sep 2022 14:37:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD3FDB80FB3;
+        Tue, 13 Sep 2022 14:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 273ECC433D6;
+        Tue, 13 Sep 2022 14:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079856;
-        bh=FYzMawFm0/iJq4Jp+STVVe+Ezs1eDH3PxeUV24THizo=;
+        s=korg; t=1663079864;
+        bh=Zz20S2iYhS1C8p2637bUqpeyAzUowHY50lpZhR3aER8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JhcEYhCLjIcKizZyhnC+k8lqd+hrYwDDEaMrU/qaOQaQk1WflXONZ4nu1uEvIlC+d
-         ars57VLU0vojQBvm5/JcxPHhn3lT/CUN1K6lpgNswkBYasfKbT3w08t77oiUlrzv4F
-         Efv0fVyX2Vmd0hITj7Ipfb+Zywz8ufE32/WZWgBA=
+        b=S/lcnBYcHAGp0tPR30/l75KCVrx1RDc1KqwndTcySYa9YCnNuzIT2+B6j/U49hQ+g
+         L8ClIcXqwpeFcwQZX11Gc+6DOw0+4jlqq2Xqb4JLZfDns1fc82tS5VfeenloqJibjj
+         ls81ILG3Gdnp9Z2e+Cy95z6/1EVOdBak6mRqD264=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 4.9 40/42] usb: dwc3: fix PHY disable sequence
-Date:   Tue, 13 Sep 2022 16:08:11 +0200
-Message-Id: <20220913140344.414340526@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 4.9 42/42] SUNRPC: use _bh spinlocking on ->transport_lock
+Date:   Tue, 13 Sep 2022 16:08:13 +0200
+Message-Id: <20220913140344.525654708@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -55,80 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: "NeilBrown" <neilb@suse.de>
 
-commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
+Prior to Linux 5.3, ->transport_lock in sunrpc required the _bh style
+spinlocks (when not called from a bottom-half handler).
 
-Generic PHYs must be powered-off before they can be tore down.
+When upstream 3848e96edf4788f772d83990022fa7023a233d83 was backported to
+stable kernels, the spin_lock/unlock calls should have been changed to
+the _bh version, but this wasn't noted in the patch and didn't happen.
 
-Similarly, suspending legacy PHYs after having powered them off makes no
-sense.
+So convert these lock/unlock calls to the _bh versions.
 
-Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
-dwc3_probe() error-path sequences that got this wrong.
+This patch is required for any stable kernel prior to 5.3 to which the
+above mentioned patch was backported.  Namely 4.9.y, 4.14.y, 4.19.y.
 
-Note that this makes dwc3_core_exit() match the dwc3_core_init() error
-path with respect to powering off the PHYs.
-
-Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
-Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
-Cc: stable@vger.kernel.org      # 4.8
-Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
-[ johan: adjust context to 4.9 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
 ---
- drivers/usb/dwc3/core.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ net/sunrpc/xprt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -602,15 +602,15 @@ static void dwc3_core_exit(struct dwc3 *
- {
- 	dwc3_event_buffers_cleanup(dwc);
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1451,9 +1451,9 @@ static void xprt_destroy(struct rpc_xprt
+ 	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
+ 	 * can only run *before* del_time_sync(), never after.
+ 	 */
+-	spin_lock(&xprt->transport_lock);
++	spin_lock_bh(&xprt->transport_lock);
+ 	del_timer_sync(&xprt->timer);
+-	spin_unlock(&xprt->transport_lock);
++	spin_unlock_bh(&xprt->transport_lock);
  
--	usb_phy_shutdown(dwc->usb2_phy);
--	usb_phy_shutdown(dwc->usb3_phy);
--	phy_exit(dwc->usb2_generic_phy);
--	phy_exit(dwc->usb3_generic_phy);
--
- 	usb_phy_set_suspend(dwc->usb2_phy, 1);
- 	usb_phy_set_suspend(dwc->usb3_phy, 1);
- 	phy_power_off(dwc->usb2_generic_phy);
- 	phy_power_off(dwc->usb3_generic_phy);
-+
-+	usb_phy_shutdown(dwc->usb2_phy);
-+	usb_phy_shutdown(dwc->usb3_phy);
-+	phy_exit(dwc->usb2_generic_phy);
-+	phy_exit(dwc->usb3_generic_phy);
- }
- 
- /**
-@@ -1149,16 +1149,16 @@ static int dwc3_probe(struct platform_de
- err5:
- 	dwc3_event_buffers_cleanup(dwc);
- 
--	usb_phy_shutdown(dwc->usb2_phy);
--	usb_phy_shutdown(dwc->usb3_phy);
--	phy_exit(dwc->usb2_generic_phy);
--	phy_exit(dwc->usb3_generic_phy);
--
- 	usb_phy_set_suspend(dwc->usb2_phy, 1);
- 	usb_phy_set_suspend(dwc->usb3_phy, 1);
- 	phy_power_off(dwc->usb2_generic_phy);
- 	phy_power_off(dwc->usb3_generic_phy);
- 
-+	usb_phy_shutdown(dwc->usb2_phy);
-+	usb_phy_shutdown(dwc->usb3_phy);
-+	phy_exit(dwc->usb2_generic_phy);
-+	phy_exit(dwc->usb3_generic_phy);
-+
- 	dwc3_ulpi_exit(dwc);
- 
- err4:
+ 	rpc_xprt_debugfs_unregister(xprt);
+ 	rpc_destroy_wait_queue(&xprt->binding);
 
 
