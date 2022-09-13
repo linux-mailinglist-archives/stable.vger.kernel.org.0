@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA835B774A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26FDF5B7641
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232347AbiIMRGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:06:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36568 "EHLO
+        id S231705AbiIMQSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 12:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232367AbiIMRGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:06:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ECA383F37;
-        Tue, 13 Sep 2022 08:55:31 -0700 (PDT)
+        with ESMTP id S231254AbiIMQSX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:18:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C780C78217;
+        Tue, 13 Sep 2022 08:13:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4FE5B80F93;
-        Tue, 13 Sep 2022 14:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C47C433B5;
-        Tue, 13 Sep 2022 14:32:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F086F614E5;
+        Tue, 13 Sep 2022 14:36:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1EAC433C1;
+        Tue, 13 Sep 2022 14:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079579;
-        bh=HwcKgcx3YUW4O5fZ2Dy56K8an7bFPB5SAM8Cc7hYdjM=;
+        s=korg; t=1663079812;
+        bh=8qsHYCJV1ZTyzzOv+TkfjsHrwXn5+dFsnO0D33wFLSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JycDiVG3WxZgYxXeB8FI3lh/mBbcrIkej/L1cQ9DOVYTHw4lgT9xRyZp+rRWZpkit
-         cU9f3Wk8215O6D1+EC9gCACSzuJMeogxTi3lBm6yrUp5U94Zk9tCvo3jgwdrMFnV8w
-         tgpm4TvyLu14tg2skmk7Vz0D5tPr1Me3a/60kDLM=
+        b=eNm268IkcoCm6xJA8GzBu8wF4gWgmch1mGZNzs4uJlE861Rp2pjhUev6uTsMGaLRy
+         eAXYK/m2LcOycP6I4nA9N8iAV+Ex6p8PB/kPsI3qy0KkCT/l9W5/CUwdrBQyLJURBL
+         7w3Eo6HkkQDo6q1ng2+LJ9zob0Dkgoog+iuHhR58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 74/79] USB: serial: ch341: fix lost character on LCR updates
-Date:   Tue, 13 Sep 2022 16:07:32 +0200
-Message-Id: <20220913140352.462146395@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 03/42] wifi: cfg80211: debugfs: fix return type in ht40allow_map_read()
+Date:   Tue, 13 Sep 2022 16:07:34 +0200
+Message-Id: <20220913140342.404648165@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 8e83622ae7ca481c76c8fd9579877f6abae64ca2 upstream.
+[ Upstream commit d776763f48084926b5d9e25507a3ddb7c9243d5e ]
 
-Disable LCR updates for pre-0x30 devices which use a different (unknown)
-protocol for line control and where the current register write causes
-the next received character to be lost.
+The return type is supposed to be ssize_t, which is signed long,
+but "r" was declared as unsigned int.  This means that on 64 bit systems
+we return positive values instead of negative error codes.
 
-Note that updating LCR using the INIT command has no effect on these
-devices either.
-
-Reported-by: Jonathan Woithe <jwoithe@just42.net>
-Tested-by: Jonathan Woithe <jwoithe@just42.net>
-Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
-Cc: stable@vger.kernel.org      # 4.10
-Signed-off-by: Johan Hovold <johan@kernel.org>
-[ johan: adjust context to 4.19 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 80a3511d70e8 ("cfg80211: add debugfs HT40 allow map")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YutvOQeJm0UjLhwU@kili
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ch341.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/wireless/debugfs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -96,6 +96,8 @@ struct ch341_private {
- 	u8 mcr;
- 	u8 msr;
- 	u8 lcr;
-+
-+	u8 version;
- };
+diff --git a/net/wireless/debugfs.c b/net/wireless/debugfs.c
+index 5d453916a4179..6a7f4432440a5 100644
+--- a/net/wireless/debugfs.c
++++ b/net/wireless/debugfs.c
+@@ -68,9 +68,10 @@ static ssize_t ht40allow_map_read(struct file *file,
+ {
+ 	struct wiphy *wiphy = file->private_data;
+ 	char *buf;
+-	unsigned int offset = 0, buf_size = PAGE_SIZE, i, r;
++	unsigned int offset = 0, buf_size = PAGE_SIZE, i;
+ 	enum nl80211_band band;
+ 	struct ieee80211_supported_band *sband;
++	ssize_t r;
  
- static void ch341_set_termios(struct tty_struct *tty,
-@@ -181,6 +183,9 @@ static int ch341_set_baudrate_lcr(struct
- 	if (r)
- 		return r;
- 
-+	if (priv->version < 0x30)
-+		return 0;
-+
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x2518, lcr);
- 	if (r)
- 		return r;
-@@ -232,7 +237,9 @@ static int ch341_configure(struct usb_de
- 	r = ch341_control_in(dev, CH341_REQ_READ_VERSION, 0, 0, buffer, size);
- 	if (r < 0)
- 		goto out;
--	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", buffer[0]);
-+
-+	priv->version = buffer[0];
-+	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", priv->version);
- 
- 	r = ch341_control_out(dev, CH341_REQ_SERIAL_INIT, 0, 0);
- 	if (r < 0)
+ 	buf = kzalloc(buf_size, GFP_KERNEL);
+ 	if (!buf)
+-- 
+2.35.1
+
 
 
