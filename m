@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A76815B6F39
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EDE85B6F2C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbiIMOKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
+        id S232770AbiIMOKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:10:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232674AbiIMOJe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:09:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0C357E33;
-        Tue, 13 Sep 2022 07:09:04 -0700 (PDT)
+        with ESMTP id S232684AbiIMOJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:09:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9290C5C370;
+        Tue, 13 Sep 2022 07:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD25C6149A;
-        Tue, 13 Sep 2022 14:09:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1BEFC433C1;
-        Tue, 13 Sep 2022 14:09:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9D5161497;
+        Tue, 13 Sep 2022 14:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC052C433D7;
+        Tue, 13 Sep 2022 14:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078143;
-        bh=150roaC0CNIdd5b+cfmwKH6lTavcFXqnMha7Lc8lO5g=;
+        s=korg; t=1663078146;
+        bh=zneAbTP5pou8p5X4jgg4eabYrBfqHrjpDXDezHwggak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QNV6y5rkjCyM1Bs5r0PBBZ2pNnZaBbGngwF/R02m/B1Uu8qNkYkPI5H3bQMN66xIw
-         J56KnWJUFEdZCcYpdcqmGJg40V6bbbCepWm+Esxg2IqTnhrYG2FDfZ9X0klWJkj6E2
-         16fIOxC3bxnptS1KwkoafPfkOn9+o0ojIwTlGfUY=
+        b=lCNN5MfPQisXjwbp4RUIP/QOL+uxTk3w4WFx3+DGAtFNl/ZEXdmqJ5wfznSyzkrpO
+         xDp+OvLxdyVuXEjAFIyzEoWNubyTuzaaBVDEfZpnSnMfLM//+gHYKyjOliYLVXyRUG
+         TUsBgmqtmemapz30qbjXfl222dW1D7Bnbm2DrPn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Zhe <yuzhe@nfschina.com>,
+        stable@vger.kernel.org, Shigeru Yoshida <syoshida@redhat.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 029/192] fbdev: omapfb: Fix tests for platform_get_irq() failure
-Date:   Tue, 13 Sep 2022 16:02:15 +0200
-Message-Id: <20220913140411.367155335@linuxfoundation.org>
+Subject: [PATCH 5.19 030/192] fbdev: fbcon: Destroy mutex on freeing struct fb_info
+Date:   Tue, 13 Sep 2022 16:02:16 +0200
+Message-Id: <20220913140411.417186133@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -53,41 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Zhe <yuzhe@nfschina.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit acf4c6205e862304681234a6a4375b478af12552 ]
+[ Upstream commit 58559dfc1ebba2ae0c7627dc8f8991ae1984c6e3 ]
 
-The platform_get_irq() returns negative error codes.  It can't actually
-return zero.
+It's needed to destroy bl_curve_mutex on freeing struct fb_info since
+the mutex is embedded in the structure and initialized when it's
+allocated.
 
-Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/omap/omapfb_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbsysfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/video/fbdev/omap/omapfb_main.c b/drivers/video/fbdev/omap/omapfb_main.c
-index 292fcb0a24fc9..6ff237cee7f87 100644
---- a/drivers/video/fbdev/omap/omapfb_main.c
-+++ b/drivers/video/fbdev/omap/omapfb_main.c
-@@ -1643,14 +1643,14 @@ static int omapfb_do_probe(struct platform_device *pdev,
- 		goto cleanup;
- 	}
- 	fbdev->int_irq = platform_get_irq(pdev, 0);
--	if (!fbdev->int_irq) {
-+	if (fbdev->int_irq < 0) {
- 		dev_err(&pdev->dev, "unable to get irq\n");
- 		r = ENXIO;
- 		goto cleanup;
- 	}
+diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
+index c2a60b187467e..4d7f63892dcc4 100644
+--- a/drivers/video/fbdev/core/fbsysfs.c
++++ b/drivers/video/fbdev/core/fbsysfs.c
+@@ -84,6 +84,10 @@ void framebuffer_release(struct fb_info *info)
+ 	if (WARN_ON(refcount_read(&info->count)))
+ 		return;
  
- 	fbdev->ext_irq = platform_get_irq(pdev, 1);
--	if (!fbdev->ext_irq) {
-+	if (fbdev->ext_irq < 0) {
- 		dev_err(&pdev->dev, "unable to get irq\n");
- 		r = ENXIO;
- 		goto cleanup;
++#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
++	mutex_destroy(&info->bl_curve_mutex);
++#endif
++
+ 	kfree(info->apertures);
+ 	kfree(info);
+ }
 -- 
 2.35.1
 
