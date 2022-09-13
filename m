@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9EE05B70EF
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 343BC5B70BD
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbiIMOe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:34:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56502 "EHLO
+        id S233385AbiIMO3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:29:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234114AbiIMOc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16A365C1;
-        Tue, 13 Sep 2022 07:19:34 -0700 (PDT)
+        with ESMTP id S233633AbiIMO2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611EE67CBE;
+        Tue, 13 Sep 2022 07:17:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA0E2B80EFA;
-        Tue, 13 Sep 2022 14:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54607C433C1;
-        Tue, 13 Sep 2022 14:12:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58249614A3;
+        Tue, 13 Sep 2022 14:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6260AC433C1;
+        Tue, 13 Sep 2022 14:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078374;
-        bh=GzpsB0D1JGDYSDIApTtRFPJ6ix4triFWPwcufVL0XhI=;
+        s=korg; t=1663078655;
+        bh=iC7ywnmF/4koE46Zrizjhd5jBBotTGF7L5RV0yUCHUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iccV8TLqZUm/ZqtSqSkkpYZR6H4bFkVsu5q19ekW2+Kfm5J02+fzX79LRiaru7Aa1
-         Fao4xJLRGxyMCzX0C/cyyYTw4DqfVw+bMOPKqyX8uSKe82K304cncuVWz9lGgHXrlb
-         /nq7O0Pvjtak/i3cSX2Cu34u/szDMSlx1TJAYySc=
+        b=sbc9Z3EMsTEVp0Wcsaw4cwhGUeDXC+TtoGpvKAEn2V/8qirW2MDOCuYESpPse7Ich
+         yEKszL4CXtuyZAkU5zSV4fKfXh9mDvp7JR75fRKgL1POoSTlxFZBfXOInW0M9VomgS
+         aYMBXAET2ch2y7BwIX7KMLmBqYcXPQljnxU+7e5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.19 115/192] sch_sfb: Dont assume the skb is still around after enqueueing to child
-Date:   Tue, 13 Sep 2022 16:03:41 +0200
-Message-Id: <20220913140415.705955889@linuxfoundation.org>
+        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 031/121] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+Date:   Tue, 13 Sep 2022 16:03:42 +0200
+Message-Id: <20220913140358.688952781@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Dongxiang Ke <kdx.glider@gmail.com>
 
-[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
+commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
 
-The sch_sfb enqueue() routine assumes the skb is still alive after it has
-been enqueued into a child qdisc, using the data in the skb cb field in the
-increment_qlen() routine after enqueue. However, the skb may in fact have
-been freed, causing a use-after-free in this case. In particular, this
-happens if sch_cake is used as a child of sfb, and the GSO splitting mode
-of CAKE is enabled (in which case the skb will be split into segments and
-the original skb freed).
+There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
+the number of it's interfaces less than 4, an out-of-bounds read bug occurs
+when parsing the interface descriptor for this device.
 
-Fix this by copying the sfb cb data to the stack before enqueueing the skb,
-and using this stack copy in increment_qlen() instead of the skb pointer
-itself.
+Fix this by checking the number of interfaces.
 
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
-Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
+Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_sfb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ sound/usb/stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 3d061a13d7ed2..0d761f454ae8b 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -135,15 +135,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
- 	}
- }
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -1105,7 +1105,7 @@ static int __snd_usb_parse_audio_interfa
+ 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
+ 	 * one misses syncpipe, and does not produce any sound.
+ 	 */
+-	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
++	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
+ 		num = 4;
  
--static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
-+static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
- {
- 	u32 sfbhash;
- 
--	sfbhash = sfb_hash(skb, 0);
-+	sfbhash = cb->hashes[0];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 0, q);
- 
--	sfbhash = sfb_hash(skb, 1);
-+	sfbhash = cb->hashes[1];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 1, q);
- }
-@@ -283,6 +283,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 	struct Qdisc *child = q->qdisc;
- 	struct tcf_proto *fl;
-+	struct sfb_skb_cb cb;
- 	int i;
- 	u32 p_min = ~0;
- 	u32 minqlen = ~0;
-@@ -399,11 +400,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
- 
- enqueue:
-+	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
- 	ret = qdisc_enqueue(skb, child, to_free);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
- 		qdisc_qstats_backlog_inc(sch, skb);
- 		sch->q.qlen++;
--		increment_qlen(skb, q);
-+		increment_qlen(&cb, q);
- 	} else if (net_xmit_drop_count(ret)) {
- 		q->stats.childdrop++;
- 		qdisc_qstats_drop(sch);
--- 
-2.35.1
-
+ 	for (i = 0; i < num; i++) {
 
 
