@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7954F5B754F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD845B7461
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbiIMPjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:39:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
+        id S235779AbiIMPYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236697AbiIMPio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3C22AE9;
-        Tue, 13 Sep 2022 07:44:30 -0700 (PDT)
+        with ESMTP id S233238AbiIMPXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31B76B155;
+        Tue, 13 Sep 2022 07:37:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84953614D2;
-        Tue, 13 Sep 2022 14:28:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB42C433D6;
-        Tue, 13 Sep 2022 14:28:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD594614DF;
+        Tue, 13 Sep 2022 14:30:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5178C433B5;
+        Tue, 13 Sep 2022 14:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079315;
-        bh=K4dGkykxDeQfgG8iJRdoD0/3YR3v+GjHk/N6AhY71Gw=;
+        s=korg; t=1663079404;
+        bh=ULT3UulllkD6PnR0q3ChBNmifBLJcxOxva0bCFFsHCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbZJbz9K+lULo5D5zUQEBEuH2m5uKLn4f6Xyl/ZtWGAb9XO/j1clgce4IX2jzqv+3
-         RgILUdC5J6j+GvDfStMeuFYN3G3jtpVvZ10ropKuGa9g6iSdNH0yzGC629civJVgnP
-         4Q5RuKRKjsnqzoQyVNoisHULdDPIW9hQK7lgDF/U=
+        b=Nt6KT6mAYlrt4vYWy3FEQd0jt7RjULMxlca5tf+BRdgWrjELrkHWXpzoLx91idrbh
+         O8TQqGmY4WKxC0euhRmwUZUP/6e75Kk/TW6LvIRAjIf+C3JUudwwFWButhjRjiEp86
+         budejYEiY4ZWEYnuoRpN1XQw1JKn5HqOYAR8PP1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 060/108] ALSA: seq: Fix data-race at module auto-loading
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/79] Revert "xhci: turn off port power in shutdown"
 Date:   Tue, 13 Sep 2022 16:06:31 +0200
-Message-Id: <20220913140356.202147261@linuxfoundation.org>
+Message-Id: <20220913140349.496982808@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
+[ Upstream commit 8531aa1659f7278d4f2ec7408cc000eaa8d85217 ]
 
-It's been reported that there is a possible data-race accessing to the
-global card_requested[] array at ALSA sequencer core, which is used
-for determining whether to call request_module() for the card or not.
-This data race itself is almost harmless, as it might end up with one
-extra request_module() call for the already loaded module at most.
-But it's still better to fix.
+This reverts commit 83810f84ecf11dfc5a9414a8b762c3501b328185.
 
-This patch addresses the possible data race of card_requested[] and
-client_requested[] arrays by replacing them with bitmask.
-It's an atomic operation and can work without locks.
+Turning off port power in shutdown did cause issues such as a laptop not
+proprly powering off, and some specific usb devies failing to enumerate the
+subsequent boot after a warm reset.
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+So revert this.
+
+Fixes: 83810f84ecf1 ("xhci: turn off port power in shutdown")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220825150840.132216-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_clientmgr.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/usb/host/xhci-hub.c |  2 +-
+ drivers/usb/host/xhci.c     | 15 ++-------------
+ drivers/usb/host/xhci.h     |  2 --
+ 3 files changed, 3 insertions(+), 16 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -121,13 +121,13 @@ struct snd_seq_client *snd_seq_client_us
- 	spin_unlock_irqrestore(&clients_lock, flags);
- #ifdef CONFIG_MODULES
- 	if (!in_interrupt()) {
--		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
--		static char card_requested[SNDRV_CARDS];
-+		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
-+		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
-+
- 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
- 			int idx;
- 			
--			if (!client_requested[clientid]) {
--				client_requested[clientid] = 1;
-+			if (!test_and_set_bit(clientid, client_requested)) {
- 				for (idx = 0; idx < 15; idx++) {
- 					if (seq_client_load[idx] < 0)
- 						break;
-@@ -142,10 +142,8 @@ struct snd_seq_client *snd_seq_client_us
- 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
- 				SNDRV_SEQ_CLIENTS_PER_CARD;
- 			if (card < snd_ecards_limit) {
--				if (! card_requested[card]) {
--					card_requested[card] = 1;
-+				if (!test_and_set_bit(card, card_requested))
- 					snd_request_card(card);
--				}
- 				snd_seq_device_load_drivers();
- 			}
- 		}
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index e40370ed7d8a5..1bb48e53449e6 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -565,7 +565,7 @@ struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd)
+  * It will release and re-aquire the lock while calling ACPI
+  * method.
+  */
+-void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
++static void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
+ 				u16 index, bool on, unsigned long *flags)
+ {
+ 	struct xhci_hub *rhub;
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 677587479d260..a9e72fee87a77 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -774,8 +774,6 @@ static void xhci_stop(struct usb_hcd *hcd)
+ void xhci_shutdown(struct usb_hcd *hcd)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+-	unsigned long flags;
+-	int i;
+ 
+ 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
+ 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
+@@ -791,21 +789,12 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 		del_timer_sync(&xhci->shared_hcd->rh_timer);
+ 	}
+ 
+-	spin_lock_irqsave(&xhci->lock, flags);
++	spin_lock_irq(&xhci->lock);
+ 	xhci_halt(xhci);
+-
+-	/* Power off USB2 ports*/
+-	for (i = 0; i < xhci->usb2_rhub.num_ports; i++)
+-		xhci_set_port_power(xhci, xhci->main_hcd, i, false, &flags);
+-
+-	/* Power off USB3 ports*/
+-	for (i = 0; i < xhci->usb3_rhub.num_ports; i++)
+-		xhci_set_port_power(xhci, xhci->shared_hcd, i, false, &flags);
+-
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+ 		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+-	spin_unlock_irqrestore(&xhci->lock, flags);
++	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+ 
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 3b29dfc6f79e3..3e6cb257fde5a 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2145,8 +2145,6 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue, u16 wIndex,
+ int xhci_hub_status_data(struct usb_hcd *hcd, char *buf);
+ int xhci_find_raw_port_number(struct usb_hcd *hcd, int port1);
+ struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd);
+-void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd, u16 index,
+-			 bool on, unsigned long *flags);
+ 
+ void xhci_hc_died(struct xhci_hcd *xhci);
+ 
+-- 
+2.35.1
+
 
 
