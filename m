@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EA45B73A6
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9525B7451
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235379AbiIMPHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
+        id S236069AbiIMPXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235362AbiIMPGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:06:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEACD753BF;
-        Tue, 13 Sep 2022 07:30:36 -0700 (PDT)
+        with ESMTP id S233852AbiIMPWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE966A4A0;
+        Tue, 13 Sep 2022 07:36:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0D78614CE;
-        Tue, 13 Sep 2022 14:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9F73C433D6;
-        Tue, 13 Sep 2022 14:30:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 265B2614CD;
+        Tue, 13 Sep 2022 14:27:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A3BC433C1;
+        Tue, 13 Sep 2022 14:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079436;
-        bh=eZJOThYP4wm6xfAkQVHsDsG7KU0Di8nivbUXO/0Bf+E=;
+        s=korg; t=1663079277;
+        bh=N54jdVkof+muCPJ5An3tzyobpI6h9WDtXN5V959Xct8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWJHd2RJxGuW7nBTHpRAdzWDUPBpETufbXu8ZqnQSwySTaoLTEVd6Mux4o3Q0MyWg
-         TZS+PbNc2XfwDOXK8RO4p7hea0e4JTc1SXwX9HvnSU21o8EJGDGKHzKGIXAO4VSlrx
-         FrSZJ2B/QJyyMz92W/+atTRyGFWOhKITvcxx4q5s=
+        b=wsaOilIsbJPLhlwm7OZRLgBMFwbXMThKN9JdZ1/tCTWkD66Y0ahEayzuCBGg33jqb
+         ovNJJ8utFJx57EFwnoeTgi+ynHpmoKzHWdoEX16Y8t038OB5zcf8TUKTJc+nx3KZyx
+         Oj64647ddXvc+QeBCdWMhhCaxq/z3XpYuh2icd7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/79] drm/i915/reg: Fix spelling mistake "Unsupport" -> "Unsupported"
+Subject: [PATCH 5.4 072/108] parisc: Add runtime check to prevent PA2.0 kernels on PA1.x machines
 Date:   Tue, 13 Sep 2022 16:06:43 +0200
-Message-Id: <20220913140350.119463132@linuxfoundation.org>
+Message-Id: <20220913140356.713451132@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 233f56745be446b289edac2ba8184c09365c005e ]
+[ Upstream commit 591d2108f3abc4db9f9073cae37cf3591fd250d6 ]
 
-There is a spelling mistake in a gvt_vgpu_err error message. Fix it.
+If a 32-bit kernel was compiled for PA2.0 CPUs, it won't be able to run
+on machines with PA1.x CPUs. Add a check and bail out early if a PA1.x
+machine is detected.
 
-Fixes: 695fbc08d80f ("drm/i915/gvt: replace the gvt_err with gvt_vgpu_err")
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220315202449.2952845-1-colin.i.king@gmail.com
-Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/handlers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/kernel/head.S | 43 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/handlers.c b/drivers/gpu/drm/i915/gvt/handlers.c
-index 94c1089ecf59e..1bde4b618d151 100644
---- a/drivers/gpu/drm/i915/gvt/handlers.c
-+++ b/drivers/gpu/drm/i915/gvt/handlers.c
-@@ -651,7 +651,7 @@ static int update_fdi_rx_iir_status(struct intel_vgpu *vgpu,
- 	else if (FDI_RX_IMR_TO_PIPE(offset) != INVALID_INDEX)
- 		index = FDI_RX_IMR_TO_PIPE(offset);
- 	else {
--		gvt_vgpu_err("Unsupport registers %x\n", offset);
-+		gvt_vgpu_err("Unsupported registers %x\n", offset);
- 		return -EINVAL;
- 	}
+diff --git a/arch/parisc/kernel/head.S b/arch/parisc/kernel/head.S
+index 951a339369dd5..b59a0c3d36921 100644
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
  
+-	.level	PA_ASM_LEVEL
++	.level	1.1
+ 
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -69,6 +69,47 @@ $bss_loop:
+ 	stw,ma          %arg2,4(%r1)
+ 	stw,ma          %arg3,4(%r1)
+ 
++#if !defined(CONFIG_64BIT) && defined(CONFIG_PA20)
++	/* This 32-bit kernel was compiled for PA2.0 CPUs. Check current CPU
++	 * and halt kernel if we detect a PA1.x CPU. */
++	ldi		32,%r10
++	mtctl		%r10,%cr11
++	.level 2.0
++	mfctl,w		%cr11,%r10
++	.level 1.1
++	comib,<>,n	0,%r10,$cpu_ok
++
++	load32		PA(msg1),%arg0
++	ldi		msg1_end-msg1,%arg1
++$iodc_panic:
++	copy		%arg0, %r10
++	copy		%arg1, %r11
++	load32		PA(init_stack),%sp
++#define MEM_CONS 0x3A0
++	ldw		MEM_CONS+32(%r0),%arg0	// HPA
++	ldi		ENTRY_IO_COUT,%arg1
++	ldw		MEM_CONS+36(%r0),%arg2	// SPA
++	ldw		MEM_CONS+8(%r0),%arg3	// layers
++	load32		PA(__bss_start),%r1
++	stw		%r1,-52(%sp)		// arg4
++	stw		%r0,-56(%sp)		// arg5
++	stw		%r10,-60(%sp)		// arg6 = ptr to text
++	stw		%r11,-64(%sp)		// arg7 = len
++	stw		%r0,-68(%sp)		// arg8
++	load32		PA(.iodc_panic_ret), %rp
++	ldw		MEM_CONS+40(%r0),%r1	// ENTRY_IODC
++	bv,n		(%r1)
++.iodc_panic_ret:
++	b .				/* wait endless with ... */
++	or		%r10,%r10,%r10	/* qemu idle sleep */
++msg1:	.ascii "Can't boot kernel which was built for PA8x00 CPUs on this machine.\r\n"
++msg1_end:
++
++$cpu_ok:
++#endif
++
++	.level	PA_ASM_LEVEL
++
+ 	/* Initialize startup VM. Just map first 16/32 MB of memory */
+ 	load32		PA(swapper_pg_dir),%r4
+ 	mtctl		%r4,%cr24	/* Initialize kernel root pointer */
 -- 
 2.35.1
 
