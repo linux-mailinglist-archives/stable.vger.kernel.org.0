@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB895B7173
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D855B7192
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234002AbiIMOgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:36:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42632 "EHLO
+        id S230238AbiIMOog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234185AbiIMOfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:20 -0400
+        with ESMTP id S230195AbiIMOn0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B743865553;
-        Tue, 13 Sep 2022 07:20:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5763C6E2E6;
+        Tue, 13 Sep 2022 07:22:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 200F3B80FBC;
-        Tue, 13 Sep 2022 14:18:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7552FC433D7;
-        Tue, 13 Sep 2022 14:18:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FE27B80FB5;
+        Tue, 13 Sep 2022 14:22:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73081C433D6;
+        Tue, 13 Sep 2022 14:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078725;
-        bh=LnZs86i6HTPON0onMhvYrIUeQVmi1/QNN1eseRf0W5o=;
+        s=korg; t=1663078960;
+        bh=Up5LIPEXCaJUkhECqjxA40RtxLThQNHaLN4RmbE2LX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFjQ4tznF6+l0qKfz5hC1Key2WHlz+8IZBLEmk8kJEOSNc5aQhiylJGnHkwsprB8t
-         hjLNG8vPEXEykyZHdRO+/rFIAKcvkc6YkTvc/+pBx08oFRBBkefiPUDLF40JgmzVyJ
-         V/EM1joFbZE4vw4VRCfVmy9iKKnLZHB8mf2wqtjw=
+        b=Bkfsz6ioLigoFxjy/ImqjCAWwvdjZ1sR/KF5612FzGKR1hVDTP/J5OwWmPPVprqqX
+         5PlRK/LsYEpg8qSvIUgihC0nt0y2/nmR03ebwZItK5BTZof9v919fgUfsgrco6Qkaf
+         c7QFU4YTLuiqfT9cY/IQ+YrtMD+n6++SyHIYn1iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chengchang Tang <tangchengchang@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 058/121] RDMA/hns: Fix supported page size
-Date:   Tue, 13 Sep 2022 16:04:09 +0200
-Message-Id: <20220913140359.847226445@linuxfoundation.org>
+        Daniel Marth <daniel.marth@inso.tuwien.ac.at>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 05/79] efi: libstub: Disable struct randomization
+Date:   Tue, 13 Sep 2022 16:04:10 +0200
+Message-Id: <20220913140350.545417134@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengchang Tang <tangchengchang@huawei.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 55af9d498556f0860eb89ffa7677e8d73f6f643f ]
+commit 1a3887924a7e6edd331be76da7bf4c1e8eab4b1e upstream.
 
-The supported page size for hns is (4K, 128M), not (4K, 2G).
+The EFI stub is a wrapper around the core kernel that makes it look like
+a EFI compatible PE/COFF application to the EFI firmware. EFI
+applications run on top of the EFI runtime, which is heavily based on
+so-called protocols, which are struct types consisting [mostly] of
+function pointer members that are instantiated and recorded in a
+protocol database.
 
-Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
-Link: https://lore.kernel.org/r/20220829105021.1427804-2-liangwenpeng@huawei.com
-Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+These structs look like the ideal randomization candidates to the
+randstruct plugin (as they only carry function pointers), but of course,
+these protocols are contracts between the firmware that exposes them,
+and the EFI applications (including our stubbed kernel) that invoke
+them. This means that struct randomization for EFI protocols is not a
+great idea, and given that the stub shares very little data with the
+core kernel that is represented as a randomizable struct, we're better
+off just disabling it completely here.
+
+Cc: <stable@vger.kernel.org> # v4.14+
+Reported-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
+Tested-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/libstub/Makefile |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-index df4501e77fd17..d3d5b5f57052c 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-@@ -98,7 +98,7 @@
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -37,6 +37,13 @@ KBUILD_CFLAGS			:= $(cflags-y) -Os -DDIS
+ 				   $(call cc-option,-fno-addrsig) \
+ 				   -D__DISABLE_EXPORTS
  
- #define HNS_ROCE_V2_QPC_TIMER_ENTRY_SZ		PAGE_SIZE
- #define HNS_ROCE_V2_CQC_TIMER_ENTRY_SZ		PAGE_SIZE
--#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFFF000
-+#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFF000
- #define HNS_ROCE_V2_MAX_INNER_MTPT_NUM		2
- #define HNS_ROCE_INVALID_LKEY			0x0
- #define HNS_ROCE_INVALID_SGE_LENGTH		0x80000000
--- 
-2.35.1
-
++#
++# struct randomization only makes sense for Linux internal types, which the EFI
++# stub code never touches, so let's turn off struct randomization for the stub
++# altogether
++#
++KBUILD_CFLAGS := $(filter-out $(RANDSTRUCT_CFLAGS), $(KBUILD_CFLAGS))
++
+ # remove SCS flags from all objects in this directory
+ KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
+ 
 
 
