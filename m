@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E02015B7014
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380385B711C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233227AbiIMOUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
+        id S234154AbiIMOfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:35:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233539AbiIMOTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4525642E5;
-        Tue, 13 Sep 2022 07:14:01 -0700 (PDT)
+        with ESMTP id S234356AbiIMOeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:34:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81441D0DB;
+        Tue, 13 Sep 2022 07:19:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3294B80F88;
-        Tue, 13 Sep 2022 14:13:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A606C433D7;
-        Tue, 13 Sep 2022 14:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F32D614D2;
+        Tue, 13 Sep 2022 14:18:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46925C433D6;
+        Tue, 13 Sep 2022 14:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078433;
-        bh=aLUZ1hEZnAI8ceOEToEshW6gOFYq93xZhPWURA1wL3w=;
+        s=korg; t=1663078692;
+        bh=Rirw/bFiPmGRnPlDblleTREFXFCNfTozAJlpW8/c6j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAG17PQPgVDrWe33zbRYI951D2SYGASyDX8TERnMIjnfZw9pew6hC3KL0x8Z4DznI
-         VD8hGJQ2uXBQ1tBDF6ohH74QLWbwSVqwpQVxHd4FrPagKsagGN5oaoLd11JYENeHih
-         bG5lmFmPVjnAYtSRANwQWeTZjV231WIgjgi56n1A=
+        b=CHonDZxhyi4FyXz9pttz8JUA8QzM8f7dipmvAmHfMUb+Bn7lu3SIesbjwrVB4f5Qv
+         Sg4dzTmYwtStjjhj9S0aiTq/wPwXNml7zNK26RuXn3GNMMX9Y/4MMzi27RiRqDJxKM
+         w2uz5Ldi5QD20R6QIZd6Te1YXyIH3+2WPiVogm1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 130/192] IB/core: Fix a nested dead lock as part of ODP flow
-Date:   Tue, 13 Sep 2022 16:03:56 +0200
-Message-Id: <20220913140416.485776187@linuxfoundation.org>
+Subject: [PATCH 5.15 046/121] cgroup: Elide write-locking threadgroup_rwsem when updating csses on an empty subtree
+Date:   Tue, 13 Sep 2022 16:03:57 +0200
+Message-Id: <20220913140359.341799961@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yishai Hadas <yishaih@nvidia.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 85eaeb5058f0f04dffb124c97c86b4f18db0b833 ]
+[ Upstream commit 671c11f0619e5ccb380bcf0f062f69ba95fc974a ]
 
-Fix a nested dead lock as part of ODP flow by using mmput_async().
+cgroup_update_dfl_csses() write-lock the threadgroup_rwsem as updating the
+csses can trigger process migrations. However, if the subtree doesn't
+contain any tasks, there aren't gonna be any cgroup migrations. This
+condition can be trivially detected by testing whether
+mgctx.preloaded_src_csets is empty. Elide write-locking threadgroup_rwsem if
+the subtree is empty.
 
->From the below call trace [1] can see that calling mmput() once we have
-the umem_odp->umem_mutex locked as required by
-ib_umem_odp_map_dma_and_lock() might trigger in the same task the
-exit_mmap()->__mmu_notifier_release()->mlx5_ib_invalidate_range() which
-may dead lock when trying to lock the same mutex.
+After this optimization, the usage pattern of creating a cgroup, enabling
+the necessary controllers, and then seeding it with CLONE_INTO_CGROUP and
+then removing the cgroup after it becomes empty doesn't need to write-lock
+threadgroup_rwsem at all.
 
-Moving to use mmput_async() will solve the problem as the above
-exit_mmap() flow will be called in other task and will be executed once
-the lock will be available.
-
-[1]
-[64843.077665] task:kworker/u133:2  state:D stack:    0 pid:80906 ppid:
-2 flags:0x00004000
-[64843.077672] Workqueue: mlx5_ib_page_fault mlx5_ib_eqe_pf_action [mlx5_ib]
-[64843.077719] Call Trace:
-[64843.077722]  <TASK>
-[64843.077724]  __schedule+0x23d/0x590
-[64843.077729]  schedule+0x4e/0xb0
-[64843.077735]  schedule_preempt_disabled+0xe/0x10
-[64843.077740]  __mutex_lock.constprop.0+0x263/0x490
-[64843.077747]  __mutex_lock_slowpath+0x13/0x20
-[64843.077752]  mutex_lock+0x34/0x40
-[64843.077758]  mlx5_ib_invalidate_range+0x48/0x270 [mlx5_ib]
-[64843.077808]  __mmu_notifier_release+0x1a4/0x200
-[64843.077816]  exit_mmap+0x1bc/0x200
-[64843.077822]  ? walk_page_range+0x9c/0x120
-[64843.077828]  ? __cond_resched+0x1a/0x50
-[64843.077833]  ? mutex_lock+0x13/0x40
-[64843.077839]  ? uprobe_clear_state+0xac/0x120
-[64843.077860]  mmput+0x5f/0x140
-[64843.077867]  ib_umem_odp_map_dma_and_lock+0x21b/0x580 [ib_core]
-[64843.077931]  pagefault_real_mr+0x9a/0x140 [mlx5_ib]
-[64843.077962]  pagefault_mr+0xb4/0x550 [mlx5_ib]
-[64843.077992]  pagefault_single_data_segment.constprop.0+0x2ac/0x560
-[mlx5_ib]
-[64843.078022]  mlx5_ib_eqe_pf_action+0x528/0x780 [mlx5_ib]
-[64843.078051]  process_one_work+0x22b/0x3d0
-[64843.078059]  worker_thread+0x53/0x410
-[64843.078065]  ? process_one_work+0x3d0/0x3d0
-[64843.078073]  kthread+0x12a/0x150
-[64843.078079]  ? set_kthread_struct+0x50/0x50
-[64843.078085]  ret_from_fork+0x22/0x30
-[64843.078093]  </TASK>
-
-Fixes: 36f30e486dce ("IB/core: Improve ODP to use hmm_range_fault()")
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-Link: https://lore.kernel.org/r/74d93541ea533ef7daec6f126deb1072500aeb16.1661251841.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Michal Koutný <mkoutny@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/umem_odp.c | 2 +-
- kernel/fork.c                      | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ kernel/cgroup/cgroup.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
-index 186ed8859920c..d39e16c211e8a 100644
---- a/drivers/infiniband/core/umem_odp.c
-+++ b/drivers/infiniband/core/umem_odp.c
-@@ -462,7 +462,7 @@ int ib_umem_odp_map_dma_and_lock(struct ib_umem_odp *umem_odp, u64 user_virt,
- 		mutex_unlock(&umem_odp->umem_mutex);
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 416dd7db3fb2c..baebd1c7667b7 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2949,12 +2949,11 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	struct cgroup_subsys_state *d_css;
+ 	struct cgroup *dsct;
+ 	struct css_set *src_cset;
++	bool has_tasks;
+ 	int ret;
  
- out_put_mm:
--	mmput(owning_mm);
-+	mmput_async(owning_mm);
- out_put_task:
- 	if (owning_process)
- 		put_task_struct(owning_process);
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 9d44f2d46c696..d587c85f35b1e 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1225,6 +1225,7 @@ void mmput_async(struct mm_struct *mm)
- 		schedule_work(&mm->async_put_work);
+ 	lockdep_assert_held(&cgroup_mutex);
+ 
+-	percpu_down_write(&cgroup_threadgroup_rwsem);
+-
+ 	/* look up all csses currently attached to @cgrp's subtree */
+ 	spin_lock_irq(&css_set_lock);
+ 	cgroup_for_each_live_descendant_pre(dsct, d_css, cgrp) {
+@@ -2965,6 +2964,16 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
  	}
- }
-+EXPORT_SYMBOL_GPL(mmput_async);
- #endif
+ 	spin_unlock_irq(&css_set_lock);
  
- /**
++	/*
++	 * We need to write-lock threadgroup_rwsem while migrating tasks.
++	 * However, if there are no source csets for @cgrp, changing its
++	 * controllers isn't gonna produce any task migrations and the
++	 * write-locking can be skipped safely.
++	 */
++	has_tasks = !list_empty(&mgctx.preloaded_src_csets);
++	if (has_tasks)
++		percpu_down_write(&cgroup_threadgroup_rwsem);
++
+ 	/* NULL dst indicates self on default hierarchy */
+ 	ret = cgroup_migrate_prepare_dst(&mgctx);
+ 	if (ret)
+@@ -2984,7 +2993,8 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	ret = cgroup_migrate_execute(&mgctx);
+ out_finish:
+ 	cgroup_migrate_finish(&mgctx);
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	if (has_tasks)
++		percpu_up_write(&cgroup_threadgroup_rwsem);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
