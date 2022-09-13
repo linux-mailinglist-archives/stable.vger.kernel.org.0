@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA685B711A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B8A5B70D4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234315AbiIMOjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48878 "EHLO
+        id S233594AbiIMOZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234347AbiIMOha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:37:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D44156B8F6;
-        Tue, 13 Sep 2022 07:20:32 -0700 (PDT)
+        with ESMTP id S233790AbiIMOYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D900067147;
+        Tue, 13 Sep 2022 07:16:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5EFEB80EF8;
-        Tue, 13 Sep 2022 14:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F4FEC433D6;
-        Tue, 13 Sep 2022 14:19:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53C42614A8;
+        Tue, 13 Sep 2022 14:16:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE3DC433C1;
+        Tue, 13 Sep 2022 14:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078780;
-        bh=ZBW8fsgcY/SaJBj53/knRDikkHWJzHViAZgVOkos5L0=;
+        s=korg; t=1663078569;
+        bh=xrCHL+BLvlHDlXvusu0C3Y2fmAN2cpBtZ40KfBa73aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKigcAsk0CrZqi4YgrKmZ3Dr+KQ7kkHI6bpZQEXycwCCAsBAYzbnIMx3i4E65WG7m
-         7lTfGBFSVQ/T6QudDwqeQ6AThsPVRf8B8ABI5MeRRogq7KcesI9+T3DSi/zrC5VsNW
-         NI7H8BimxkCr2XhkOc3W3FZayXYhI3dvgJonLi2c=
+        b=1S5t5ayw5LfXLIGTgOvErR+fkGz98CkkBpQn0yjPmQvWIG7i3Y7nIo3vP22CGdKrs
+         bJbyTlDKrKJ7lhUb4qZ0inA/hariCKcPRP/KKUsc0e7aZGCNz999smHXWvjSAEvohs
+         SFyjhsHMVoLZ9uYJTbbnn+6Jlh0kNhkoIbdhhhq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/121] tcp: TX zerocopy should not sense pfmemalloc status
+Subject: [PATCH 5.19 165/192] i40e: Fix ADQ rate limiting for PF
 Date:   Tue, 13 Sep 2022 16:04:31 +0200
-Message-Id: <20220913140400.812073963@linuxfoundation.org>
+Message-Id: <20220913140418.251010088@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,171 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
 
-[ Upstream commit 3261400639463a853ba2b3be8bd009c2a8089775 ]
+[ Upstream commit 45bb006d3c924b1201ed43c87a96b437662dcaa8 ]
 
-We got a recent syzbot report [1] showing a possible misuse
-of pfmemalloc page status in TCP zerocopy paths.
+Fix HW rate limiting for ADQ.
+Fallback to kernel queue selection for ADQ, as it is network stack
+that decides which queue to use for transmit with ADQ configured.
+Reset PF after creation of VMDq2 VSIs required for ADQ, as to
+reprogram TX queue contexts in i40e_configure_tx_ring.
+Without this patch PF would limit TX rate only according to TC0.
 
-Indeed, for pages coming from user space or other layers,
-using page_is_pfmemalloc() is moot, and possibly could give
-false positives.
-
-There has been attempts to make page_is_pfmemalloc() more robust,
-but not using it in the first place in this context is probably better,
-removing cpu cycles.
-
-Note to stable teams :
-
-You need to backport 84ce071e38a6 ("net: introduce
-__skb_fill_page_desc_noacc") as a prereq.
-
-Race is more probable after commit c07aea3ef4d4
-("mm: add a signature in struct page") because page_is_pfmemalloc()
-is now using low order bit from page->lru.next, which can change
-more often than page->index.
-
-Low order bit should never be set for lru.next (when used as an anchor
-in LRU list), so KCSAN report is mostly a false positive.
-
-Backporting to older kernel versions seems not necessary.
-
-[1]
-BUG: KCSAN: data-race in lru_add_fn / tcp_build_frag
-
-write to 0xffffea0004a1d2c8 of 8 bytes by task 18600 on cpu 0:
-__list_add include/linux/list.h:73 [inline]
-list_add include/linux/list.h:88 [inline]
-lruvec_add_folio include/linux/mm_inline.h:105 [inline]
-lru_add_fn+0x440/0x520 mm/swap.c:228
-folio_batch_move_lru+0x1e1/0x2a0 mm/swap.c:246
-folio_batch_add_and_move mm/swap.c:263 [inline]
-folio_add_lru+0xf1/0x140 mm/swap.c:490
-filemap_add_folio+0xf8/0x150 mm/filemap.c:948
-__filemap_get_folio+0x510/0x6d0 mm/filemap.c:1981
-pagecache_get_page+0x26/0x190 mm/folio-compat.c:104
-grab_cache_page_write_begin+0x2a/0x30 mm/folio-compat.c:116
-ext4_da_write_begin+0x2dd/0x5f0 fs/ext4/inode.c:2988
-generic_perform_write+0x1d4/0x3f0 mm/filemap.c:3738
-ext4_buffered_write_iter+0x235/0x3e0 fs/ext4/file.c:270
-ext4_file_write_iter+0x2e3/0x1210
-call_write_iter include/linux/fs.h:2187 [inline]
-new_sync_write fs/read_write.c:491 [inline]
-vfs_write+0x468/0x760 fs/read_write.c:578
-ksys_write+0xe8/0x1a0 fs/read_write.c:631
-__do_sys_write fs/read_write.c:643 [inline]
-__se_sys_write fs/read_write.c:640 [inline]
-__x64_sys_write+0x3e/0x50 fs/read_write.c:640
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-read to 0xffffea0004a1d2c8 of 8 bytes by task 18611 on cpu 1:
-page_is_pfmemalloc include/linux/mm.h:1740 [inline]
-__skb_fill_page_desc include/linux/skbuff.h:2422 [inline]
-skb_fill_page_desc include/linux/skbuff.h:2443 [inline]
-tcp_build_frag+0x613/0xb20 net/ipv4/tcp.c:1018
-do_tcp_sendpages+0x3e8/0xaf0 net/ipv4/tcp.c:1075
-tcp_sendpage_locked net/ipv4/tcp.c:1140 [inline]
-tcp_sendpage+0x89/0xb0 net/ipv4/tcp.c:1150
-inet_sendpage+0x7f/0xc0 net/ipv4/af_inet.c:833
-kernel_sendpage+0x184/0x300 net/socket.c:3561
-sock_sendpage+0x5a/0x70 net/socket.c:1054
-pipe_to_sendpage+0x128/0x160 fs/splice.c:361
-splice_from_pipe_feed fs/splice.c:415 [inline]
-__splice_from_pipe+0x222/0x4d0 fs/splice.c:559
-splice_from_pipe fs/splice.c:594 [inline]
-generic_splice_sendpage+0x89/0xc0 fs/splice.c:743
-do_splice_from fs/splice.c:764 [inline]
-direct_splice_actor+0x80/0xa0 fs/splice.c:931
-splice_direct_to_actor+0x305/0x620 fs/splice.c:886
-do_splice_direct+0xfb/0x180 fs/splice.c:974
-do_sendfile+0x3bf/0x910 fs/read_write.c:1249
-__do_sys_sendfile64 fs/read_write.c:1317 [inline]
-__se_sys_sendfile64 fs/read_write.c:1303 [inline]
-__x64_sys_sendfile64+0x10c/0x150 fs/read_write.c:1303
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-value changed: 0x0000000000000000 -> 0xffffea0004a1d288
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 18611 Comm: syz-executor.4 Not tainted 6.0.0-rc2-syzkaller-00248-ge022620b5d05-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-
-Fixes: c07aea3ef4d4 ("mm: add a signature in struct page")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a9ce82f744dc ("i40e: Enable 'channel' mode in mqprio for TC configs")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h | 21 +++++++++++++++++++++
- net/core/datagram.c    |  2 +-
- net/ipv4/tcp.c         |  2 +-
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 3 +++
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c | 3 ++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index be7cc31d58961..cfb889f66c703 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -2291,6 +2291,27 @@ static inline void skb_fill_page_desc(struct sk_buff *skb, int i,
- 	skb_shinfo(skb)->nr_frags = i + 1;
- }
- 
-+/**
-+ * skb_fill_page_desc_noacc - initialise a paged fragment in an skb
-+ * @skb: buffer containing fragment to be initialised
-+ * @i: paged fragment index to initialise
-+ * @page: the page to use for this fragment
-+ * @off: the offset to the data with @page
-+ * @size: the length of the data
-+ *
-+ * Variant of skb_fill_page_desc() which does not deal with
-+ * pfmemalloc, if page is not owned by us.
-+ */
-+static inline void skb_fill_page_desc_noacc(struct sk_buff *skb, int i,
-+					    struct page *page, int off,
-+					    int size)
-+{
-+	struct skb_shared_info *shinfo = skb_shinfo(skb);
-+
-+	__skb_fill_page_desc_noacc(shinfo, i, page, off, size);
-+	shinfo->nr_frags = i + 1;
-+}
-+
- void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
- 		     int size, unsigned int truesize);
- 
-diff --git a/net/core/datagram.c b/net/core/datagram.c
-index 15ab9ffb27fe9..28e5f921dcaf4 100644
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -677,7 +677,7 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
- 				page_ref_sub(last_head, refs);
- 				refs = 0;
- 			}
--			skb_fill_page_desc(skb, frag++, head, start, size);
-+			skb_fill_page_desc_noacc(skb, frag++, head, start, size);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 45c56832c14fd..1aaf0c5ddf6cf 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -6536,6 +6536,9 @@ static int i40e_configure_queue_channels(struct i40e_vsi *vsi)
+ 			vsi->tc_seid_map[i] = ch->seid;
  		}
- 		if (refs)
- 			page_ref_sub(last_head, refs);
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 0ebef2a5950cd..4f6b897ccf23f 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1002,7 +1002,7 @@ struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
- 		skb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);
- 	} else {
- 		get_page(page);
--		skb_fill_page_desc(skb, i, page, offset, copy);
-+		skb_fill_page_desc_noacc(skb, i, page, offset, copy);
  	}
++
++	/* reset to reconfigure TX queue contexts */
++	i40e_do_reset(vsi->back, I40E_PF_RESET_FLAG, true);
+ 	return ret;
  
- 	if (!(flags & MSG_NO_SHARED_FRAGS))
+ err_free:
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index af69ccc6e8d2f..07f1e209d524d 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -3689,7 +3689,8 @@ u16 i40e_lan_select_queue(struct net_device *netdev,
+ 	u8 prio;
+ 
+ 	/* is DCB enabled at all? */
+-	if (vsi->tc_config.numtc == 1)
++	if (vsi->tc_config.numtc == 1 ||
++	    i40e_is_tc_mqprio_enabled(vsi->back))
+ 		return netdev_pick_tx(netdev, skb, sb_dev);
+ 
+ 	prio = skb->priority;
 -- 
 2.35.1
 
