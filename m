@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5185B72BD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7EDA5B718D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234969AbiIMPB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:01:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37536 "EHLO
+        id S230129AbiIMOoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234908AbiIMO75 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64512765C;
-        Tue, 13 Sep 2022 07:29:13 -0700 (PDT)
+        with ESMTP id S234565AbiIMOn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C496EF38;
+        Tue, 13 Sep 2022 07:23:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A0EC61494;
-        Tue, 13 Sep 2022 14:20:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2CB8C433D6;
-        Tue, 13 Sep 2022 14:20:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE504B80E22;
+        Tue, 13 Sep 2022 14:23:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 482FEC433D6;
+        Tue, 13 Sep 2022 14:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078840;
-        bh=QguUPaIEEvBzn61sjIX+19HWvFui+vi0iCLd0a5G61A=;
+        s=korg; t=1663079015;
+        bh=UI+gRuv3zcDmPY0ND7q4jXM2pRFR+veYZDyYtkFqn/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ni7Dwa/FBO9p5WIr+jR5LnfMKViWavgbuokK2PKkDJARr8nNTZ/4M8GgQNopalQFm
-         wwrvQOkpezWqfoDllLt05vXPSiDyil9ZCKBej5yHXP2nMLuc9GFe33OnNjdMnOby7x
-         LWyvWOq1EjwF/hTIj/shLu+PeX5HyRSg8J6qHeIA=
+        b=pxk4xNudGlRlt5SiVD98GT4DrmEki2HvSHEsDc9j0K/SAvjt5m3P1tbHnQtwzKlCx
+         bszeNT07iJERqyDdXpg7HbyUDtEj9uQXvaDgA/m5PaLnsiFR79c4Uk/lu5E/Ryyv9M
+         SNNTpdodmkEoXoe466uRLApNQmKe39iI5sOZwDG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Ling <gnaygnil@gmail.com>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        syzbot+5fcdbfab6d6744c57418@syzkaller.appspotmail.com,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/121] MIPS: loongson32: ls1c: Fix hang during startup
+Subject: [PATCH 5.10 49/79] netfilter: nf_tables: clean up hook list when offload flags check fails
 Date:   Tue, 13 Sep 2022 16:04:54 +0200
-Message-Id: <20220913140401.777426078@linuxfoundation.org>
+Message-Id: <20220913140352.621056306@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Ling <gnaygnil@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 35508d2424097f9b6a1a17aac94f702767035616 ]
+[ Upstream commit 77972a36ecc4db7fc7c68f0e80714263c5f03f65 ]
 
-The RTCCTRL reg of LS1C is obselete.
-Writing this reg will cause system hang.
+splice back the hook list so nft_chain_release_hook() has a chance to
+release the hooks.
 
-Fixes: 60219c563c9b6 ("MIPS: Add RTC support for Loongson1C board")
-Signed-off-by: Yang Ling <gnaygnil@gmail.com>
-Tested-by: Keguang Zhang <keguang.zhang@gmail.com>
-Acked-by: Keguang Zhang <keguang.zhang@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+BUG: memory leak
+unreferenced object 0xffff88810180b100 (size 96):
+  comm "syz-executor133", pid 3619, jiffies 4294945714 (age 12.690s)
+  hex dump (first 32 bytes):
+    28 64 23 02 81 88 ff ff 28 64 23 02 81 88 ff ff  (d#.....(d#.....
+    90 a8 aa 83 ff ff ff ff 00 00 b5 0f 81 88 ff ff  ................
+  backtrace:
+    [<ffffffff83a8c59b>] kmalloc include/linux/slab.h:600 [inline]
+    [<ffffffff83a8c59b>] nft_netdev_hook_alloc+0x3b/0xc0 net/netfilter/nf_tables_api.c:1901
+    [<ffffffff83a9239a>] nft_chain_parse_netdev net/netfilter/nf_tables_api.c:1998 [inline]
+    [<ffffffff83a9239a>] nft_chain_parse_hook+0x33a/0x530 net/netfilter/nf_tables_api.c:2073
+    [<ffffffff83a9b14b>] nf_tables_addchain.constprop.0+0x10b/0x950 net/netfilter/nf_tables_api.c:2218
+    [<ffffffff83a9c41b>] nf_tables_newchain+0xa8b/0xc60 net/netfilter/nf_tables_api.c:2593
+    [<ffffffff83a3d6a6>] nfnetlink_rcv_batch+0xa46/0xd20 net/netfilter/nfnetlink.c:517
+    [<ffffffff83a3db79>] nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:638 [inline]
+    [<ffffffff83a3db79>] nfnetlink_rcv+0x1f9/0x220 net/netfilter/nfnetlink.c:656
+    [<ffffffff83a13b17>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+    [<ffffffff83a13b17>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
+    [<ffffffff83a13fd6>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
+    [<ffffffff83865ab6>] sock_sendmsg_nosec net/socket.c:714 [inline]
+    [<ffffffff83865ab6>] sock_sendmsg+0x56/0x80 net/socket.c:734
+    [<ffffffff8386601c>] ____sys_sendmsg+0x36c/0x390 net/socket.c:2482
+    [<ffffffff8386a918>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
+    [<ffffffff8386aaa8>] __sys_sendmsg+0x88/0x100 net/socket.c:2565
+    [<ffffffff845e5955>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845e5955>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: d54725cd11a5 ("netfilter: nf_tables: support for multiple devices per netdev hook")
+Reported-by: syzbot+5fcdbfab6d6744c57418@syzkaller.appspotmail.com
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson32/ls1c/board.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/loongson32/ls1c/board.c b/arch/mips/loongson32/ls1c/board.c
-index e9de6da0ce51f..9dcfe9de55b0a 100644
---- a/arch/mips/loongson32/ls1c/board.c
-+++ b/arch/mips/loongson32/ls1c/board.c
-@@ -15,7 +15,6 @@ static struct platform_device *ls1c_platform_devices[] __initdata = {
- static int __init ls1c_platform_init(void)
- {
- 	ls1x_serial_set_uartclk(&ls1x_uart_pdev);
--	ls1x_rtc_set_extclk(&ls1x_rtc_pdev);
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 1b039476e4d6a..b8e7e1c5c08a8 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1971,8 +1971,10 @@ static int nft_basechain_init(struct nft_base_chain *basechain, u8 family,
+ 	chain->flags |= NFT_CHAIN_BASE | flags;
+ 	basechain->policy = NF_ACCEPT;
+ 	if (chain->flags & NFT_CHAIN_HW_OFFLOAD &&
+-	    !nft_chain_offload_support(basechain))
++	    !nft_chain_offload_support(basechain)) {
++		list_splice_init(&basechain->hook_list, &hook->list);
+ 		return -EOPNOTSUPP;
++	}
  
- 	return platform_add_devices(ls1c_platform_devices,
- 				   ARRAY_SIZE(ls1c_platform_devices));
+ 	flow_block_init(&basechain->flow_block);
+ 
 -- 
 2.35.1
 
