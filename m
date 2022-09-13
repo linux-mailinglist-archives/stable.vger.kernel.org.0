@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A42775B7148
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51665B7227
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234283AbiIMOiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39102 "EHLO
+        id S231667AbiIMOpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:45:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234281AbiIMOgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:36:36 -0400
+        with ESMTP id S230380AbiIMOnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E4A1928F;
-        Tue, 13 Sep 2022 07:20:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F118B6E2DC;
+        Tue, 13 Sep 2022 07:22:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5447CB80F62;
-        Tue, 13 Sep 2022 14:19:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95AC6C433D6;
-        Tue, 13 Sep 2022 14:19:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F501B80F01;
+        Tue, 13 Sep 2022 14:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C847BC433D6;
+        Tue, 13 Sep 2022 14:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078778;
-        bh=l2nfi8JHyMeItk0u8t8lhcMaWYblO2aNY0uh6RaqThk=;
+        s=korg; t=1663078975;
+        bh=PgDM3ajWpuFY3hObR9Y+9AgEDoWVeiUNMjT7ZyVTZBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kiO4I0x3Z3PzryJLCMD3+hBes/vAvQSYOq1/aTDlsaQH8nkEZTPErPKvnRTD+w20A
-         V0aEkIKgc5t+AhW/u9otoGV0kKVrSOpPipy8JUD6tGxysl/Ye0RSNbk2r3aMbsuC8M
-         wWM9w71pJYUIG67VvgaiYulLOduA/myTq+4uwfW0=
+        b=dn/D7ujaZ0ReXabIN/HhM/6A/wFVCWinmAPHFXoscYCX4NehwwV7Q30sUXZGTRT3K
+         1G4tVXBkkHg/lqyagfCOjhzhVzH95vGmFCYcZcugpgblASg+tJJ9Jw7tiH2I1pFnlf
+         aLYtIgFcIZ2KD6f4d+UGLi6XianAsQ/9wjn/2HPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 079/121] net: introduce __skb_fill_page_desc_noacc
-Date:   Tue, 13 Sep 2022 16:04:30 +0200
-Message-Id: <20220913140400.770286188@linuxfoundation.org>
+        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 26/79] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+Date:   Tue, 13 Sep 2022 16:04:31 +0200
+Message-Id: <20220913140351.564581137@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Dongxiang Ke <kdx.glider@gmail.com>
 
-[ Upstream commit 84ce071e38a6e25ea3ea91188e5482ac1f17b3af ]
+commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
 
-Managed pages contain pinned userspace pages and controlled by upper
-layers, there is no need in tracking skb->pfmemalloc for them. Introduce
-a helper for filling frags but ignoring page tracking, it'll be needed
-later.
+There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
+the number of it's interfaces less than 4, an out-of-bounds read bug occurs
+when parsing the interface descriptor for this device.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by checking the number of interfaces.
+
+Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
+Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ sound/usb/stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index ae598ed86b50b..be7cc31d58961 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -2232,6 +2232,22 @@ static inline unsigned int skb_pagelen(const struct sk_buff *skb)
- 	return skb_headlen(skb) + __skb_pagelen(skb);
- }
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -1106,7 +1106,7 @@ static int __snd_usb_parse_audio_interfa
+ 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
+ 	 * one misses syncpipe, and does not produce any sound.
+ 	 */
+-	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
++	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
+ 		num = 4;
  
-+static inline void __skb_fill_page_desc_noacc(struct skb_shared_info *shinfo,
-+					      int i, struct page *page,
-+					      int off, int size)
-+{
-+	skb_frag_t *frag = &shinfo->frags[i];
-+
-+	/*
-+	 * Propagate page pfmemalloc to the skb if we can. The problem is
-+	 * that not all callers have unique ownership of the page but rely
-+	 * on page_is_pfmemalloc doing the right thing(tm).
-+	 */
-+	frag->bv_page		  = page;
-+	frag->bv_offset		  = off;
-+	skb_frag_size_set(frag, size);
-+}
-+
- /**
-  * __skb_fill_page_desc - initialise a paged fragment in an skb
-  * @skb: buffer containing fragment to be initialised
-@@ -2248,17 +2264,7 @@ static inline unsigned int skb_pagelen(const struct sk_buff *skb)
- static inline void __skb_fill_page_desc(struct sk_buff *skb, int i,
- 					struct page *page, int off, int size)
- {
--	skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
--
--	/*
--	 * Propagate page pfmemalloc to the skb if we can. The problem is
--	 * that not all callers have unique ownership of the page but rely
--	 * on page_is_pfmemalloc doing the right thing(tm).
--	 */
--	frag->bv_page		  = page;
--	frag->bv_offset		  = off;
--	skb_frag_size_set(frag, size);
--
-+	__skb_fill_page_desc_noacc(skb_shinfo(skb), i, page, off, size);
- 	page = compound_head(page);
- 	if (page_is_pfmemalloc(page))
- 		skb->pfmemalloc	= true;
--- 
-2.35.1
-
+ 	for (i = 0; i < num; i++) {
 
 
