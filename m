@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 587DF5B71B8
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854245B7243
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231392AbiIMOtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:49:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
+        id S234143AbiIMOuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234607AbiIMOtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CD6165AD;
-        Tue, 13 Sep 2022 07:25:01 -0700 (PDT)
+        with ESMTP id S234279AbiIMOsi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E2D717AAA;
+        Tue, 13 Sep 2022 07:25:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FA5CB80FBD;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4001614D4;
+        Tue, 13 Sep 2022 14:25:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E02C1C433C1;
         Tue, 13 Sep 2022 14:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 717D7C43470;
-        Tue, 13 Sep 2022 14:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079098;
-        bh=I+QK/ESWmL/Wj+hKMs0Inox95iz6LZkRH+Tufc3qPmg=;
+        s=korg; t=1663079101;
+        bh=9QA8oLkj1XmUYdLVqkdgiweOcE/VgWb06ZXPT0B5lk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoEHI7XyEElVtzVXJV9QJU0JDttVYBEaLfFXwjJhvRO5cJPwhzfIHwiKfdmO/gfeS
-         0RUxeC2HYxz47g/kTtnaUnU49F6YN8GIvCwsCNn7aPcQ8hQfnSKqV0jZASlCEoeScl
-         s9H9tloC6utv+kocRzoEQWyAqXzhagYD7edCLCJ4=
+        b=Y4uJc9ZFAzum2JCDyQxdEdIm1moxiBtNeAYy5kLN1Cm5JL4nt2P65ftF4iIcwAN4J
+         PwthUDNGyeFIOUWJKwHsT1823IITyhvBVb/HJAwOjDk8x7okGEm895W2McutdLWS2E
+         d5zL/6SrPK+KFdTqmHBSGVuKloT9BtqAORq89MXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
-        Helena Anna Dubel <helena.anna.dubel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 58/79] i40e: Fix kernel crash during module removal
-Date:   Tue, 13 Sep 2022 16:05:03 +0200
-Message-Id: <20220913140353.018779173@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        =?UTF-8?q?Cs=C3=B3k=C3=A1s=20Bence?= <csokas.bence@prolan.hu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>
+Subject: [PATCH 5.10 59/79] net: fec: Use a spinlock to guard `fep->ptp_clk_on`
+Date:   Tue, 13 Sep 2022 16:05:04 +0200
+Message-Id: <20220913140353.063220321@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
 References: <20220913140350.291927556@linuxfoundation.org>
@@ -55,104 +56,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Csókás Bence <csokas.bence@prolan.hu>
 
-[ Upstream commit fb8396aeda5872369a8ed6d2301e2c86e303c520 ]
+[ Upstream commit b353b241f1eb9b6265358ffbe2632fdcb563354f ]
 
-The driver incorrectly frees client instance and subsequent
-i40e module removal leads to kernel crash.
+Mutexes cannot be taken in a non-preemptible context,
+causing a panic in `fec_ptp_save_state()`. Replacing
+`ptp_clk_mutex` by `tmreg_lock` fixes this.
 
-Reproducer:
-1. Do ethtool offline test followed immediately by another one
-host# ethtool -t eth0 offline; ethtool -t eth0 offline
-2. Remove recursively irdma module that also removes i40e module
-host# modprobe -r irdma
-
-Result:
-[ 8675.035651] i40e 0000:3d:00.0 eno1: offline testing starting
-[ 8675.193774] i40e 0000:3d:00.0 eno1: testing finished
-[ 8675.201316] i40e 0000:3d:00.0 eno1: offline testing starting
-[ 8675.358921] i40e 0000:3d:00.0 eno1: testing finished
-[ 8675.496921] i40e 0000:3d:00.0: IRDMA hardware initialization FAILED init_state=2 status=-110
-[ 8686.188955] i40e 0000:3d:00.1: i40e_ptp_stop: removed PHC on eno2
-[ 8686.943890] i40e 0000:3d:00.1: Deleted LAN device PF1 bus=0x3d dev=0x00 func=0x01
-[ 8686.952669] i40e 0000:3d:00.0: i40e_ptp_stop: removed PHC on eno1
-[ 8687.761787] BUG: kernel NULL pointer dereference, address: 0000000000000030
-[ 8687.768755] #PF: supervisor read access in kernel mode
-[ 8687.773895] #PF: error_code(0x0000) - not-present page
-[ 8687.779034] PGD 0 P4D 0
-[ 8687.781575] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[ 8687.785935] CPU: 51 PID: 172891 Comm: rmmod Kdump: loaded Tainted: G        W I        5.19.0+ #2
-[ 8687.794800] Hardware name: Intel Corporation S2600WFD/S2600WFD, BIOS SE5C620.86B.0X.02.0001.051420190324 05/14/2019
-[ 8687.805222] RIP: 0010:i40e_lan_del_device+0x13/0xb0 [i40e]
-[ 8687.810719] Code: d4 84 c0 0f 84 b8 25 01 00 e9 9c 25 01 00 41 bc f4 ff ff ff eb 91 90 0f 1f 44 00 00 41 54 55 53 48 8b 87 58 08 00 00 48 89 fb <48> 8b 68 30 48 89 ef e8 21 8a 0f d5 48 89 ef e8 a9 78 0f d5 48 8b
-[ 8687.829462] RSP: 0018:ffffa604072efce0 EFLAGS: 00010202
-[ 8687.834689] RAX: 0000000000000000 RBX: ffff8f43833b2000 RCX: 0000000000000000
-[ 8687.841821] RDX: 0000000000000000 RSI: ffff8f4b0545b298 RDI: ffff8f43833b2000
-[ 8687.848955] RBP: ffff8f43833b2000 R08: 0000000000000001 R09: 0000000000000000
-[ 8687.856086] R10: 0000000000000000 R11: 000ffffffffff000 R12: ffff8f43833b2ef0
-[ 8687.863218] R13: ffff8f43833b2ef0 R14: ffff915103966000 R15: ffff8f43833b2008
-[ 8687.870342] FS:  00007f79501c3740(0000) GS:ffff8f4adffc0000(0000) knlGS:0000000000000000
-[ 8687.878427] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 8687.884174] CR2: 0000000000000030 CR3: 000000014276e004 CR4: 00000000007706e0
-[ 8687.891306] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 8687.898441] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 8687.905572] PKRU: 55555554
-[ 8687.908286] Call Trace:
-[ 8687.910737]  <TASK>
-[ 8687.912843]  i40e_remove+0x2c0/0x330 [i40e]
-[ 8687.917040]  pci_device_remove+0x33/0xa0
-[ 8687.920962]  device_release_driver_internal+0x1aa/0x230
-[ 8687.926188]  driver_detach+0x44/0x90
-[ 8687.929770]  bus_remove_driver+0x55/0xe0
-[ 8687.933693]  pci_unregister_driver+0x2a/0xb0
-[ 8687.937967]  i40e_exit_module+0xc/0xf48 [i40e]
-
-Two offline tests cause IRDMA driver failure (ETIMEDOUT) and this
-failure is indicated back to i40e_client_subtask() that calls
-i40e_client_del_instance() to free client instance referenced
-by pf->cinst and sets this pointer to NULL. During the module
-removal i40e_remove() calls i40e_lan_del_device() that dereferences
-pf->cinst that is NULL -> crash.
-Do not remove client instance when client open callbacks fails and
-just clear __I40E_CLIENT_INSTANCE_OPENED bit. The driver also needs
-to take care about this situation (when netdev is up and client
-is NOT opened) in i40e_notify_client_of_netdev_close() and
-calls client close callback only when __I40E_CLIENT_INSTANCE_OPENED
-is set.
-
-Fixes: 0ef2d5afb12d ("i40e: KISS the client interface")
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Tested-by: Helena Anna Dubel <helena.anna.dubel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 6a4d7234ae9a ("net: fec: ptp: avoid register access when ipg clock is disabled")
+Fixes: f79959220fa5 ("fec: Restart PPS after link state change")
+Reported-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/all/20220827160922.642zlcd5foopozru@pengutronix.de/
+Signed-off-by: Csókás Bence <csokas.bence@prolan.hu>
+Tested-by: Francesco Dolcini <francesco.dolcini@toradex.com> # Toradex Apalis iMX6
+Link: https://lore.kernel.org/r/20220901140402.64804-1-csokas.bence@prolan.hu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_client.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/fec.h      |  1 -
+ drivers/net/ethernet/freescale/fec_main.c | 17 +++++++-------
+ drivers/net/ethernet/freescale/fec_ptp.c  | 28 ++++++++---------------
+ 3 files changed, 19 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_client.c b/drivers/net/ethernet/intel/i40e/i40e_client.c
-index 32f3facbed1a5..b3cb5d1033260 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_client.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_client.c
-@@ -178,6 +178,10 @@ void i40e_notify_client_of_netdev_close(struct i40e_vsi *vsi, bool reset)
- 			"Cannot locate client instance close routine\n");
- 		return;
- 	}
-+	if (!test_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state)) {
-+		dev_dbg(&pf->pdev->dev, "Client is not open, abort close\n");
-+		return;
-+	}
- 	cdev->client->ops->close(&cdev->lan_info, cdev->client, reset);
- 	clear_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state);
- 	i40e_client_release_qvlist(&cdev->lan_info);
-@@ -374,7 +378,6 @@ void i40e_client_subtask(struct i40e_pf *pf)
- 				/* Remove failed client instance */
- 				clear_bit(__I40E_CLIENT_INSTANCE_OPENED,
- 					  &cdev->state);
--				i40e_client_del_instance(pf);
- 				return;
+diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
+index 6ea98af63b341..e7b23d4a22d0a 100644
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -523,7 +523,6 @@ struct fec_enet_private {
+ 	struct clk *clk_ptp;
+ 
+ 	bool ptp_clk_on;
+-	struct mutex ptp_clk_mutex;
+ 	unsigned int num_tx_queues;
+ 	unsigned int num_rx_queues;
+ 
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index d8bdaf2e5365c..674591751a676 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -1937,6 +1937,7 @@ static void fec_enet_phy_reset_after_clk_enable(struct net_device *ndev)
+ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ {
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
++	unsigned long flags;
+ 	int ret;
+ 
+ 	if (enable) {
+@@ -1945,15 +1946,15 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 			return ret;
+ 
+ 		if (fep->clk_ptp) {
+-			mutex_lock(&fep->ptp_clk_mutex);
++			spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 			ret = clk_prepare_enable(fep->clk_ptp);
+ 			if (ret) {
+-				mutex_unlock(&fep->ptp_clk_mutex);
++				spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 				goto failed_clk_ptp;
+ 			} else {
+ 				fep->ptp_clk_on = true;
  			}
+-			mutex_unlock(&fep->ptp_clk_mutex);
++			spin_unlock_irqrestore(&fep->tmreg_lock, flags);
  		}
+ 
+ 		ret = clk_prepare_enable(fep->clk_ref);
+@@ -1964,10 +1965,10 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 	} else {
+ 		clk_disable_unprepare(fep->clk_enet_out);
+ 		if (fep->clk_ptp) {
+-			mutex_lock(&fep->ptp_clk_mutex);
++			spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 			clk_disable_unprepare(fep->clk_ptp);
+ 			fep->ptp_clk_on = false;
+-			mutex_unlock(&fep->ptp_clk_mutex);
++			spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 		}
+ 		clk_disable_unprepare(fep->clk_ref);
+ 	}
+@@ -1976,10 +1977,10 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 
+ failed_clk_ref:
+ 	if (fep->clk_ptp) {
+-		mutex_lock(&fep->ptp_clk_mutex);
++		spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 		clk_disable_unprepare(fep->clk_ptp);
+ 		fep->ptp_clk_on = false;
+-		mutex_unlock(&fep->ptp_clk_mutex);
++		spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 	}
+ failed_clk_ptp:
+ 	clk_disable_unprepare(fep->clk_enet_out);
+@@ -3665,7 +3666,7 @@ fec_probe(struct platform_device *pdev)
+ 		fep->clk_enet_out = NULL;
+ 
+ 	fep->ptp_clk_on = false;
+-	mutex_init(&fep->ptp_clk_mutex);
++	spin_lock_init(&fep->tmreg_lock);
+ 
+ 	/* clk_ref is optional, depends on board */
+ 	fep->clk_ref = devm_clk_get(&pdev->dev, "enet_clk_ref");
+diff --git a/drivers/net/ethernet/freescale/fec_ptp.c b/drivers/net/ethernet/freescale/fec_ptp.c
+index c5ae673005908..99bd67d3befd0 100644
+--- a/drivers/net/ethernet/freescale/fec_ptp.c
++++ b/drivers/net/ethernet/freescale/fec_ptp.c
+@@ -366,21 +366,19 @@ static int fec_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
+  */
+ static int fec_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
+ {
+-	struct fec_enet_private *adapter =
++	struct fec_enet_private *fep =
+ 	    container_of(ptp, struct fec_enet_private, ptp_caps);
+ 	u64 ns;
+ 	unsigned long flags;
+ 
+-	mutex_lock(&adapter->ptp_clk_mutex);
++	spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 	/* Check the ptp clock */
+-	if (!adapter->ptp_clk_on) {
+-		mutex_unlock(&adapter->ptp_clk_mutex);
++	if (!fep->ptp_clk_on) {
++		spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 		return -EINVAL;
+ 	}
+-	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+-	ns = timecounter_read(&adapter->tc);
+-	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
+-	mutex_unlock(&adapter->ptp_clk_mutex);
++	ns = timecounter_read(&fep->tc);
++	spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 
+ 	*ts = ns_to_timespec64(ns);
+ 
+@@ -405,10 +403,10 @@ static int fec_ptp_settime(struct ptp_clock_info *ptp,
+ 	unsigned long flags;
+ 	u32 counter;
+ 
+-	mutex_lock(&fep->ptp_clk_mutex);
++	spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 	/* Check the ptp clock */
+ 	if (!fep->ptp_clk_on) {
+-		mutex_unlock(&fep->ptp_clk_mutex);
++		spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -418,11 +416,9 @@ static int fec_ptp_settime(struct ptp_clock_info *ptp,
+ 	 */
+ 	counter = ns & fep->cc.mask;
+ 
+-	spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 	writel(counter, fep->hwp + FEC_ATIME);
+ 	timecounter_init(&fep->tc, &fep->cc, ns);
+ 	spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+-	mutex_unlock(&fep->ptp_clk_mutex);
+ 	return 0;
+ }
+ 
+@@ -523,13 +519,11 @@ static void fec_time_keep(struct work_struct *work)
+ 	struct fec_enet_private *fep = container_of(dwork, struct fec_enet_private, time_keep);
+ 	unsigned long flags;
+ 
+-	mutex_lock(&fep->ptp_clk_mutex);
++	spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 	if (fep->ptp_clk_on) {
+-		spin_lock_irqsave(&fep->tmreg_lock, flags);
+ 		timecounter_read(&fep->tc);
+-		spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 	}
+-	mutex_unlock(&fep->ptp_clk_mutex);
++	spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+ 
+ 	schedule_delayed_work(&fep->time_keep, HZ);
+ }
+@@ -604,8 +598,6 @@ void fec_ptp_init(struct platform_device *pdev, int irq_idx)
+ 	}
+ 	fep->ptp_inc = NSEC_PER_SEC / fep->cycle_speed;
+ 
+-	spin_lock_init(&fep->tmreg_lock);
+-
+ 	fec_ptp_start_cyclecounter(ndev);
+ 
+ 	INIT_DELAYED_WORK(&fep->time_keep, fec_time_keep);
 -- 
 2.35.1
 
