@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18CBD5B74B5
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839395B74BE
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236315AbiIMP0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:26:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34102 "EHLO
+        id S236350AbiIMP3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236389AbiIMPYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:24:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0447C77E;
-        Tue, 13 Sep 2022 07:38:21 -0700 (PDT)
+        with ESMTP id S236611AbiIMP3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6C86CD17;
+        Tue, 13 Sep 2022 07:39:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CAFDB80FE9;
-        Tue, 13 Sep 2022 14:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB69C433D7;
-        Tue, 13 Sep 2022 14:35:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7847DB81025;
+        Tue, 13 Sep 2022 14:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEFF0C433B5;
+        Tue, 13 Sep 2022 14:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079760;
-        bh=B4v2k0MQDhnx5OGQ3ksnlEvQQ/YjEEZ8HW8wTgiRqb4=;
+        s=korg; t=1663079872;
+        bh=0cH85VvIYBOZ+pBLS98yG/BMwMyFTJk/yyn7iuR9B+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogoRzYj6SkKTnDXyrAdYyM0SK6Eq4ahYsa7b/QkOSGarRNpOhpfYHKNAKqqqUwngM
-         b340fCS1r5xbiOV6cyvyRHskCMqHt/rL2zEHFMRsveF7x6gJO+nxrXCbKAfDyN6Rcz
-         a9qHFYTZMaazMW8WI5vNoOMIH2fO+T3GP6ixqeMY=
+        b=pCwvpqoHc+i8eQz6qgJPmroQ88KWWJR5o0KM3SaoFDhY31cYRGjaFjTfqoALZCcqR
+         Z0IiLpLSXtp0U69ia9urwgP0wEEtkkJ9wBxww9PXjI/tX00fy994KCIvLtgz95/XFY
+         0DyoYzXu9qCP8KcKGvh1oGxLmnRH+C6VFRyim6j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nagaraj Arankal <nagaraj.p.arankal@hpe.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 55/61] tcp: fix early ETIMEDOUT after spurious non-SACK RTO
-Date:   Tue, 13 Sep 2022 16:07:57 +0200
-Message-Id: <20220913140349.208264349@linuxfoundation.org>
+Subject: [PATCH 4.9 27/42] parisc: Add runtime check to prevent PA2.0 kernels on PA1.x machines
+Date:   Tue, 13 Sep 2022 16:07:58 +0200
+Message-Id: <20220913140343.691058185@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,127 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 686dc2db2a0fdc1d34b424ec2c0a735becd8d62b ]
+[ Upstream commit 591d2108f3abc4db9f9073cae37cf3591fd250d6 ]
 
-Fix a bug reported and analyzed by Nagaraj Arankal, where the handling
-of a spurious non-SACK RTO could cause a connection to fail to clear
-retrans_stamp, causing a later RTO to very prematurely time out the
-connection with ETIMEDOUT.
+If a 32-bit kernel was compiled for PA2.0 CPUs, it won't be able to run
+on machines with PA1.x CPUs. Add a check and bail out early if a PA1.x
+machine is detected.
 
-Here is the buggy scenario, expanding upon Nagaraj Arankal's excellent
-report:
-
-(*1) Send one data packet on a non-SACK connection
-
-(*2) Because no ACK packet is received, the packet is retransmitted
-     and we enter CA_Loss; but this retransmission is spurious.
-
-(*3) The ACK for the original data is received. The transmitted packet
-     is acknowledged.  The TCP timestamp is before the retrans_stamp,
-     so tcp_may_undo() returns true, and tcp_try_undo_loss() returns
-     true without changing state to Open (because tcp_is_sack() is
-     false), and tcp_process_loss() returns without calling
-     tcp_try_undo_recovery().  Normally after undoing a CA_Loss
-     episode, tcp_fastretrans_alert() would see that the connection
-     has returned to CA_Open and fall through and call
-     tcp_try_to_open(), which would set retrans_stamp to 0.  However,
-     for non-SACK connections we hold the connection in CA_Loss, so do
-     not fall through to call tcp_try_to_open() and do not set
-     retrans_stamp to 0. So retrans_stamp is (erroneously) still
-     non-zero.
-
-     At this point the first "retransmission event" has passed and
-     been recovered from. Any future retransmission is a completely
-     new "event". However, retrans_stamp is erroneously still
-     set. (And we are still in CA_Loss, which is correct.)
-
-(*4) After 16 minutes (to correspond with tcp_retries2=15), a new data
-     packet is sent. Note: No data is transmitted between (*3) and
-     (*4) and we disabled keep alives.
-
-     The socket's timeout SHOULD be calculated from this point in
-     time, but instead it's calculated from the prior "event" 16
-     minutes ago (step (*2)).
-
-(*5) Because no ACK packet is received, the packet is retransmitted.
-
-(*6) At the time of the 2nd retransmission, the socket returns
-     ETIMEDOUT, prematurely, because retrans_stamp is (erroneously)
-     too far in the past (set at the time of (*2)).
-
-This commit fixes this bug by ensuring that we reuse in
-tcp_try_undo_loss() the same careful logic for non-SACK connections
-that we have in tcp_try_undo_recovery(). To avoid duplicating logic,
-we factor out that logic into a new
-tcp_is_non_sack_preventing_reopen() helper and call that helper from
-both undo functions.
-
-Fixes: da34ac7626b5 ("tcp: only undo on partial ACKs in CA_Loss")
-Reported-by: Nagaraj Arankal <nagaraj.p.arankal@hpe.com>
-Link: https://lore.kernel.org/all/SJ0PR84MB1847BE6C24D274C46A1B9B0EB27A9@SJ0PR84MB1847.NAMPRD84.PROD.OUTLOOK.COM/
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220903121023.866900-1-ncardwell.kernel@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ arch/parisc/kernel/head.S | 43 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 906d26794d007..c6d49ec38a56a 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2425,6 +2425,21 @@ static inline bool tcp_may_undo(const struct tcp_sock *tp)
- 	return tp->undo_marker && (!tp->undo_retrans || tcp_packet_delayed(tp));
- }
+diff --git a/arch/parisc/kernel/head.S b/arch/parisc/kernel/head.S
+index 9b99eb0712ad1..2f570a5205866 100644
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
  
-+static bool tcp_is_non_sack_preventing_reopen(struct sock *sk)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+
-+	if (tp->snd_una == tp->high_seq && tcp_is_reno(tp)) {
-+		/* Hold old state until something *above* high_seq
-+		 * is ACKed. For Reno it is MUST to prevent false
-+		 * fast retransmits (RFC2582). SACK TCP is safe. */
-+		if (!tcp_any_retrans_done(sk))
-+			tp->retrans_stamp = 0;
-+		return true;
-+	}
-+	return false;
-+}
-+
- /* People celebrate: "We love our President!" */
- static bool tcp_try_undo_recovery(struct sock *sk)
- {
-@@ -2445,14 +2460,8 @@ static bool tcp_try_undo_recovery(struct sock *sk)
+-	.level	PA_ASM_LEVEL
++	.level	1.1
  
- 		NET_INC_STATS(sock_net(sk), mib_idx);
- 	}
--	if (tp->snd_una == tp->high_seq && tcp_is_reno(tp)) {
--		/* Hold old state until something *above* high_seq
--		 * is ACKed. For Reno it is MUST to prevent false
--		 * fast retransmits (RFC2582). SACK TCP is safe. */
--		if (!tcp_any_retrans_done(sk))
--			tp->retrans_stamp = 0;
-+	if (tcp_is_non_sack_preventing_reopen(sk))
- 		return true;
--	}
- 	tcp_set_ca_state(sk, TCP_CA_Open);
- 	tp->is_sack_reneg = 0;
- 	return false;
-@@ -2486,6 +2495,8 @@ static bool tcp_try_undo_loss(struct sock *sk, bool frto_undo)
- 			NET_INC_STATS(sock_net(sk),
- 					LINUX_MIB_TCPSPURIOUSRTOS);
- 		inet_csk(sk)->icsk_retransmits = 0;
-+		if (tcp_is_non_sack_preventing_reopen(sk))
-+			return true;
- 		if (frto_undo || tcp_is_sack(tp)) {
- 			tcp_set_ca_state(sk, TCP_CA_Open);
- 			tp->is_sack_reneg = 0;
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -69,6 +69,47 @@ $bss_loop:
+ 	stw,ma          %arg2,4(%r1)
+ 	stw,ma          %arg3,4(%r1)
+ 
++#if !defined(CONFIG_64BIT) && defined(CONFIG_PA20)
++	/* This 32-bit kernel was compiled for PA2.0 CPUs. Check current CPU
++	 * and halt kernel if we detect a PA1.x CPU. */
++	ldi		32,%r10
++	mtctl		%r10,%cr11
++	.level 2.0
++	mfctl,w		%cr11,%r10
++	.level 1.1
++	comib,<>,n	0,%r10,$cpu_ok
++
++	load32		PA(msg1),%arg0
++	ldi		msg1_end-msg1,%arg1
++$iodc_panic:
++	copy		%arg0, %r10
++	copy		%arg1, %r11
++	load32		PA(init_stack),%sp
++#define MEM_CONS 0x3A0
++	ldw		MEM_CONS+32(%r0),%arg0	// HPA
++	ldi		ENTRY_IO_COUT,%arg1
++	ldw		MEM_CONS+36(%r0),%arg2	// SPA
++	ldw		MEM_CONS+8(%r0),%arg3	// layers
++	load32		PA(__bss_start),%r1
++	stw		%r1,-52(%sp)		// arg4
++	stw		%r0,-56(%sp)		// arg5
++	stw		%r10,-60(%sp)		// arg6 = ptr to text
++	stw		%r11,-64(%sp)		// arg7 = len
++	stw		%r0,-68(%sp)		// arg8
++	load32		PA(.iodc_panic_ret), %rp
++	ldw		MEM_CONS+40(%r0),%r1	// ENTRY_IODC
++	bv,n		(%r1)
++.iodc_panic_ret:
++	b .				/* wait endless with ... */
++	or		%r10,%r10,%r10	/* qemu idle sleep */
++msg1:	.ascii "Can't boot kernel which was built for PA8x00 CPUs on this machine.\r\n"
++msg1_end:
++
++$cpu_ok:
++#endif
++
++	.level	PA_ASM_LEVEL
++
+ 	/* Initialize startup VM. Just map first 16/32 MB of memory */
+ 	load32		PA(swapper_pg_dir),%r4
+ 	mtctl		%r4,%cr24	/* Initialize kernel root pointer */
 -- 
 2.35.1
 
