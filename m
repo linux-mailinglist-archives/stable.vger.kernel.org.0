@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A5975B6FE4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32CB75B7025
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233140AbiIMOUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52314 "EHLO
+        id S233011AbiIMOUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233285AbiIMOSl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:41 -0400
+        with ESMTP id S233139AbiIMOSY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18008642FF;
-        Tue, 13 Sep 2022 07:13:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6272610FDA;
+        Tue, 13 Sep 2022 07:13:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCB57614C4;
-        Tue, 13 Sep 2022 14:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D52E3C433D6;
-        Tue, 13 Sep 2022 14:13:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43BB4614B6;
+        Tue, 13 Sep 2022 14:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BDB7C433C1;
+        Tue, 13 Sep 2022 14:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078382;
-        bh=sMyoQojcLrwPQiRLId1q2CAA2F5uODHLeQKKouA9PPM=;
+        s=korg; t=1663078384;
+        bh=OI4I2cN6EuRYAILR7BIdBmMjdLZtAe/yXapB8JqRc7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUlgCjyxnTreZnwi9etSp/8ZPOshElgGXMCFss7v9d2nQ99BJa/gbLbPNRi+AScVa
-         rS9CsH7ahxfSObnOzEUxmcMj1ZszR2AzF/jEgUfq8iYg7NeEphqa3/ypgfDOXeE1yb
-         GyYfqq+g7Nf2odA6Oe1I+LoBkzSZCim6es09olSU=
+        b=cejLtTIUtQTOM1nmXKHFo8MSlZiDo93S7CmOD37wgHTP3Rszms77mqeihmfqrOKi6
+         AnC02o/38BknDooWS0QQ+GmPNVQdMuxJzhdo/uHil2/fIcCC7OaPZbhwX5Fw/5nalj
+         VnTECiWOS5UtO1d+JU748F8CSGxQ3WIqIeKOpnwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 118/192] tcp: TX zerocopy should not sense pfmemalloc status
-Date:   Tue, 13 Sep 2022 16:03:44 +0200
-Message-Id: <20220913140415.863548926@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Chandan <chandanx.rout@intel.com>
+Subject: [PATCH 5.19 119/192] ice: Fix DMA mappings leak
+Date:   Tue, 13 Sep 2022 16:03:45 +0200
+Message-Id: <20220913140415.912802693@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -56,171 +57,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
 
-[ Upstream commit 3261400639463a853ba2b3be8bd009c2a8089775 ]
+[ Upstream commit 7e753eb675f0523207b184558638ee2eed6c9ac2 ]
 
-We got a recent syzbot report [1] showing a possible misuse
-of pfmemalloc page status in TCP zerocopy paths.
+Fix leak, when user changes ring parameters.
+During reallocation of RX buffers, new DMA mappings are created for
+those buffers. New buffers with different RX ring count should
+substitute older ones, but those buffers were freed in ice_vsi_cfg_rxq
+and reallocated again with ice_alloc_rx_buf. kfree on rx_buf caused
+leak of already mapped DMA.
+Reallocate ZC with xdp_buf struct, when BPF program loads. Reallocate
+back to rx_buf, when BPF program unloads.
+If BPF program is loaded/unloaded and XSK pools are created, reallocate
+RX queues accordingly in XDP_SETUP_XSK_POOL handler.
 
-Indeed, for pages coming from user space or other layers,
-using page_is_pfmemalloc() is moot, and possibly could give
-false positives.
+Steps for reproduction:
+while :
+do
+	for ((i=0; i<=8160; i=i+32))
+	do
+		ethtool -G enp130s0f0 rx $i tx $i
+		sleep 0.5
+		ethtool -g enp130s0f0
+	done
+done
 
-There has been attempts to make page_is_pfmemalloc() more robust,
-but not using it in the first place in this context is probably better,
-removing cpu cycles.
-
-Note to stable teams :
-
-You need to backport 84ce071e38a6 ("net: introduce
-__skb_fill_page_desc_noacc") as a prereq.
-
-Race is more probable after commit c07aea3ef4d4
-("mm: add a signature in struct page") because page_is_pfmemalloc()
-is now using low order bit from page->lru.next, which can change
-more often than page->index.
-
-Low order bit should never be set for lru.next (when used as an anchor
-in LRU list), so KCSAN report is mostly a false positive.
-
-Backporting to older kernel versions seems not necessary.
-
-[1]
-BUG: KCSAN: data-race in lru_add_fn / tcp_build_frag
-
-write to 0xffffea0004a1d2c8 of 8 bytes by task 18600 on cpu 0:
-__list_add include/linux/list.h:73 [inline]
-list_add include/linux/list.h:88 [inline]
-lruvec_add_folio include/linux/mm_inline.h:105 [inline]
-lru_add_fn+0x440/0x520 mm/swap.c:228
-folio_batch_move_lru+0x1e1/0x2a0 mm/swap.c:246
-folio_batch_add_and_move mm/swap.c:263 [inline]
-folio_add_lru+0xf1/0x140 mm/swap.c:490
-filemap_add_folio+0xf8/0x150 mm/filemap.c:948
-__filemap_get_folio+0x510/0x6d0 mm/filemap.c:1981
-pagecache_get_page+0x26/0x190 mm/folio-compat.c:104
-grab_cache_page_write_begin+0x2a/0x30 mm/folio-compat.c:116
-ext4_da_write_begin+0x2dd/0x5f0 fs/ext4/inode.c:2988
-generic_perform_write+0x1d4/0x3f0 mm/filemap.c:3738
-ext4_buffered_write_iter+0x235/0x3e0 fs/ext4/file.c:270
-ext4_file_write_iter+0x2e3/0x1210
-call_write_iter include/linux/fs.h:2187 [inline]
-new_sync_write fs/read_write.c:491 [inline]
-vfs_write+0x468/0x760 fs/read_write.c:578
-ksys_write+0xe8/0x1a0 fs/read_write.c:631
-__do_sys_write fs/read_write.c:643 [inline]
-__se_sys_write fs/read_write.c:640 [inline]
-__x64_sys_write+0x3e/0x50 fs/read_write.c:640
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-read to 0xffffea0004a1d2c8 of 8 bytes by task 18611 on cpu 1:
-page_is_pfmemalloc include/linux/mm.h:1740 [inline]
-__skb_fill_page_desc include/linux/skbuff.h:2422 [inline]
-skb_fill_page_desc include/linux/skbuff.h:2443 [inline]
-tcp_build_frag+0x613/0xb20 net/ipv4/tcp.c:1018
-do_tcp_sendpages+0x3e8/0xaf0 net/ipv4/tcp.c:1075
-tcp_sendpage_locked net/ipv4/tcp.c:1140 [inline]
-tcp_sendpage+0x89/0xb0 net/ipv4/tcp.c:1150
-inet_sendpage+0x7f/0xc0 net/ipv4/af_inet.c:833
-kernel_sendpage+0x184/0x300 net/socket.c:3561
-sock_sendpage+0x5a/0x70 net/socket.c:1054
-pipe_to_sendpage+0x128/0x160 fs/splice.c:361
-splice_from_pipe_feed fs/splice.c:415 [inline]
-__splice_from_pipe+0x222/0x4d0 fs/splice.c:559
-splice_from_pipe fs/splice.c:594 [inline]
-generic_splice_sendpage+0x89/0xc0 fs/splice.c:743
-do_splice_from fs/splice.c:764 [inline]
-direct_splice_actor+0x80/0xa0 fs/splice.c:931
-splice_direct_to_actor+0x305/0x620 fs/splice.c:886
-do_splice_direct+0xfb/0x180 fs/splice.c:974
-do_sendfile+0x3bf/0x910 fs/read_write.c:1249
-__do_sys_sendfile64 fs/read_write.c:1317 [inline]
-__se_sys_sendfile64 fs/read_write.c:1303 [inline]
-__x64_sys_sendfile64+0x10c/0x150 fs/read_write.c:1303
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-value changed: 0x0000000000000000 -> 0xffffea0004a1d288
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 18611 Comm: syz-executor.4 Not tainted 6.0.0-rc2-syzkaller-00248-ge022620b5d05-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-
-Fixes: c07aea3ef4d4 ("mm: add a signature in struct page")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 617f3e1b588c ("ice: xsk: allocate separate memory for XDP SW ring")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Chandan <chandanx.rout@intel.com> (A Contingent Worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h | 21 +++++++++++++++++++++
- net/core/datagram.c    |  2 +-
- net/ipv4/tcp.c         |  2 +-
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_base.c | 17 ------
+ drivers/net/ethernet/intel/ice/ice_main.c |  8 +++
+ drivers/net/ethernet/intel/ice/ice_xsk.c  | 63 +++++++++++++++++++++++
+ drivers/net/ethernet/intel/ice/ice_xsk.h  |  8 +++
+ 4 files changed, 79 insertions(+), 17 deletions(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index b0a1374043f30..63d0a21b63162 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -2587,6 +2587,27 @@ static inline void skb_fill_page_desc(struct sk_buff *skb, int i,
- 	skb_shinfo(skb)->nr_frags = i + 1;
+diff --git a/drivers/net/ethernet/intel/ice/ice_base.c b/drivers/net/ethernet/intel/ice/ice_base.c
+index 136d7911adb48..1e32438081780 100644
+--- a/drivers/net/ethernet/intel/ice/ice_base.c
++++ b/drivers/net/ethernet/intel/ice/ice_base.c
+@@ -7,18 +7,6 @@
+ #include "ice_dcb_lib.h"
+ #include "ice_sriov.h"
+ 
+-static bool ice_alloc_rx_buf_zc(struct ice_rx_ring *rx_ring)
+-{
+-	rx_ring->xdp_buf = kcalloc(rx_ring->count, sizeof(*rx_ring->xdp_buf), GFP_KERNEL);
+-	return !!rx_ring->xdp_buf;
+-}
+-
+-static bool ice_alloc_rx_buf(struct ice_rx_ring *rx_ring)
+-{
+-	rx_ring->rx_buf = kcalloc(rx_ring->count, sizeof(*rx_ring->rx_buf), GFP_KERNEL);
+-	return !!rx_ring->rx_buf;
+-}
+-
+ /**
+  * __ice_vsi_get_qs_contig - Assign a contiguous chunk of queues to VSI
+  * @qs_cfg: gathered variables needed for PF->VSI queues assignment
+@@ -519,11 +507,8 @@ int ice_vsi_cfg_rxq(struct ice_rx_ring *ring)
+ 			xdp_rxq_info_reg(&ring->xdp_rxq, ring->netdev,
+ 					 ring->q_index, ring->q_vector->napi.napi_id);
+ 
+-		kfree(ring->rx_buf);
+ 		ring->xsk_pool = ice_xsk_pool(ring);
+ 		if (ring->xsk_pool) {
+-			if (!ice_alloc_rx_buf_zc(ring))
+-				return -ENOMEM;
+ 			xdp_rxq_info_unreg_mem_model(&ring->xdp_rxq);
+ 
+ 			ring->rx_buf_len =
+@@ -538,8 +523,6 @@ int ice_vsi_cfg_rxq(struct ice_rx_ring *ring)
+ 			dev_info(dev, "Registered XDP mem model MEM_TYPE_XSK_BUFF_POOL on Rx ring %d\n",
+ 				 ring->q_index);
+ 		} else {
+-			if (!ice_alloc_rx_buf(ring))
+-				return -ENOMEM;
+ 			if (!xdp_rxq_info_is_reg(&ring->xdp_rxq))
+ 				/* coverity[check_return] */
+ 				xdp_rxq_info_reg(&ring->xdp_rxq,
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 3d45e075204e3..abc5d2b91f32b 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2898,10 +2898,18 @@ ice_xdp_setup_prog(struct ice_vsi *vsi, struct bpf_prog *prog,
+ 			if (xdp_ring_err)
+ 				NL_SET_ERR_MSG_MOD(extack, "Setting up XDP Tx resources failed");
+ 		}
++		/* reallocate Rx queues that are used for zero-copy */
++		xdp_ring_err = ice_realloc_zc_buf(vsi, true);
++		if (xdp_ring_err)
++			NL_SET_ERR_MSG_MOD(extack, "Setting up XDP Rx resources failed");
+ 	} else if (ice_is_xdp_ena_vsi(vsi) && !prog) {
+ 		xdp_ring_err = ice_destroy_xdp_rings(vsi);
+ 		if (xdp_ring_err)
+ 			NL_SET_ERR_MSG_MOD(extack, "Freeing XDP Tx resources failed");
++		/* reallocate Rx queues that were used for zero-copy */
++		xdp_ring_err = ice_realloc_zc_buf(vsi, false);
++		if (xdp_ring_err)
++			NL_SET_ERR_MSG_MOD(extack, "Freeing XDP Rx resources failed");
+ 	} else {
+ 		/* safe to call even when prog == vsi->xdp_prog as
+ 		 * dev_xdp_install in net/core/dev.c incremented prog's
+diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
+index e48e29258450f..03ce85f6e6df8 100644
+--- a/drivers/net/ethernet/intel/ice/ice_xsk.c
++++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
+@@ -192,6 +192,7 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
+ 	err = ice_vsi_ctrl_one_rx_ring(vsi, false, q_idx, true);
+ 	if (err)
+ 		return err;
++	ice_clean_rx_ring(rx_ring);
+ 
+ 	ice_qvec_toggle_napi(vsi, q_vector, false);
+ 	ice_qp_clean_rings(vsi, q_idx);
+@@ -316,6 +317,62 @@ ice_xsk_pool_enable(struct ice_vsi *vsi, struct xsk_buff_pool *pool, u16 qid)
+ 	return 0;
  }
  
 +/**
-+ * skb_fill_page_desc_noacc - initialise a paged fragment in an skb
-+ * @skb: buffer containing fragment to be initialised
-+ * @i: paged fragment index to initialise
-+ * @page: the page to use for this fragment
-+ * @off: the offset to the data with @page
-+ * @size: the length of the data
++ * ice_realloc_rx_xdp_bufs - reallocate for either XSK or normal buffer
++ * @rx_ring: Rx ring
++ * @pool_present: is pool for XSK present
 + *
-+ * Variant of skb_fill_page_desc() which does not deal with
-+ * pfmemalloc, if page is not owned by us.
++ * Try allocating memory and return ENOMEM, if failed to allocate.
++ * If allocation was successful, substitute buffer with allocated one.
++ * Returns 0 on success, negative on failure
 + */
-+static inline void skb_fill_page_desc_noacc(struct sk_buff *skb, int i,
-+					    struct page *page, int off,
-+					    int size)
++static int
++ice_realloc_rx_xdp_bufs(struct ice_rx_ring *rx_ring, bool pool_present)
 +{
-+	struct skb_shared_info *shinfo = skb_shinfo(skb);
++	size_t elem_size = pool_present ? sizeof(*rx_ring->xdp_buf) :
++					  sizeof(*rx_ring->rx_buf);
++	void *sw_ring = kcalloc(rx_ring->count, elem_size, GFP_KERNEL);
 +
-+	__skb_fill_page_desc_noacc(shinfo, i, page, off, size);
-+	shinfo->nr_frags = i + 1;
++	if (!sw_ring)
++		return -ENOMEM;
++
++	if (pool_present) {
++		kfree(rx_ring->rx_buf);
++		rx_ring->rx_buf = NULL;
++		rx_ring->xdp_buf = sw_ring;
++	} else {
++		kfree(rx_ring->xdp_buf);
++		rx_ring->xdp_buf = NULL;
++		rx_ring->rx_buf = sw_ring;
++	}
++
++	return 0;
 +}
 +
- void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
- 		     int size, unsigned int truesize);
++/**
++ * ice_realloc_zc_buf - reallocate XDP ZC queue pairs
++ * @vsi: Current VSI
++ * @zc: is zero copy set
++ *
++ * Reallocate buffer for rx_rings that might be used by XSK.
++ * XDP requires more memory, than rx_buf provides.
++ * Returns 0 on success, negative on failure
++ */
++int ice_realloc_zc_buf(struct ice_vsi *vsi, bool zc)
++{
++	struct ice_rx_ring *rx_ring;
++	unsigned long q;
++
++	for_each_set_bit(q, vsi->af_xdp_zc_qps,
++			 max_t(int, vsi->alloc_txq, vsi->alloc_rxq)) {
++		rx_ring = vsi->rx_rings[q];
++		if (ice_realloc_rx_xdp_bufs(rx_ring, zc))
++			return -ENOMEM;
++	}
++
++	return 0;
++}
++
+ /**
+  * ice_xsk_pool_setup - enable/disable a buffer pool region depending on its state
+  * @vsi: Current VSI
+@@ -345,11 +402,17 @@ int ice_xsk_pool_setup(struct ice_vsi *vsi, struct xsk_buff_pool *pool, u16 qid)
+ 	if_running = netif_running(vsi->netdev) && ice_is_xdp_ena_vsi(vsi);
  
-diff --git a/net/core/datagram.c b/net/core/datagram.c
-index 50f4faeea76cc..48e82438acb02 100644
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -675,7 +675,7 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
- 				page_ref_sub(last_head, refs);
- 				refs = 0;
- 			}
--			skb_fill_page_desc(skb, frag++, head, start, size);
-+			skb_fill_page_desc_noacc(skb, frag++, head, start, size);
+ 	if (if_running) {
++		struct ice_rx_ring *rx_ring = vsi->rx_rings[qid];
++
+ 		ret = ice_qp_dis(vsi, qid);
+ 		if (ret) {
+ 			netdev_err(vsi->netdev, "ice_qp_dis error = %d\n", ret);
+ 			goto xsk_pool_if_up;
  		}
- 		if (refs)
- 			page_ref_sub(last_head, refs);
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 3d446773ff2a5..ab03977b65781 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1015,7 +1015,7 @@ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
- 		skb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);
- 	} else {
- 		get_page(page);
--		skb_fill_page_desc(skb, i, page, offset, copy);
-+		skb_fill_page_desc_noacc(skb, i, page, offset, copy);
++
++		ret = ice_realloc_rx_xdp_bufs(rx_ring, pool_present);
++		if (ret)
++			goto xsk_pool_if_up;
  	}
  
- 	if (!(flags & MSG_NO_SHARED_FRAGS))
+ 	pool_failure = pool_present ? ice_xsk_pool_enable(vsi, pool, qid) :
+diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.h b/drivers/net/ethernet/intel/ice/ice_xsk.h
+index 21faec8e97db1..4edbe81eb6460 100644
+--- a/drivers/net/ethernet/intel/ice/ice_xsk.h
++++ b/drivers/net/ethernet/intel/ice/ice_xsk.h
+@@ -27,6 +27,7 @@ bool ice_xsk_any_rx_ring_ena(struct ice_vsi *vsi);
+ void ice_xsk_clean_rx_ring(struct ice_rx_ring *rx_ring);
+ void ice_xsk_clean_xdp_ring(struct ice_tx_ring *xdp_ring);
+ bool ice_xmit_zc(struct ice_tx_ring *xdp_ring, u32 budget, int napi_budget);
++int ice_realloc_zc_buf(struct ice_vsi *vsi, bool zc);
+ #else
+ static inline bool
+ ice_xmit_zc(struct ice_tx_ring __always_unused *xdp_ring,
+@@ -72,5 +73,12 @@ ice_xsk_wakeup(struct net_device __always_unused *netdev,
+ 
+ static inline void ice_xsk_clean_rx_ring(struct ice_rx_ring *rx_ring) { }
+ static inline void ice_xsk_clean_xdp_ring(struct ice_tx_ring *xdp_ring) { }
++
++static inline int
++ice_realloc_zc_buf(struct ice_vsi __always_unused *vsi,
++		   bool __always_unused zc)
++{
++	return 0;
++}
+ #endif /* CONFIG_XDP_SOCKETS */
+ #endif /* !_ICE_XSK_H_ */
 -- 
 2.35.1
 
