@@ -2,54 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC61B5B6798
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 08:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE7415B680C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 08:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbiIMGEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 02:04:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45594 "EHLO
+        id S229959AbiIMGlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 02:41:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230174AbiIMGEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 02:04:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9EBD87;
-        Mon, 12 Sep 2022 23:04:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2118C612D0;
-        Tue, 13 Sep 2022 06:04:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58BD7C4347C;
-        Tue, 13 Sep 2022 06:04:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663049068;
-        bh=knxMS0KQcgrZ9mebUrSxnCQF3NlIX6ym4qlT2kMEHDs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mPhwqmHSzRjuhdmk+bNEhrZo+RtjkIWfRTPwW+WJzdnZAVvAocQEV2zMcjTQTezlH
-         PWjxRmdLJXSIsarUPzup4R2w5bLym/zZlMyuKj48LGPFcAJys28wDEKq8BNfJ+OU0m
-         goUIT4wzKg1oT4Z5l/1LPP7SoQN5JgNxaF0Fdj9OQCJtzQRnKGrFQL5t9TCXu3jH1Y
-         OHOPLzu+5NR/ZYIPfzBrQSu/51B6w2ZHxIGyQIf/xarOpEL2sMYpAo6zp0DelU7qoj
-         k0UngkpE84+nVuwqyJMyMoZ48wSjR4e/Gb/ab81cl5BWgSDwwD4DlRZZoXOX+9bBjP
-         emSzR2MpiVRbA==
-Date:   Mon, 12 Sep 2022 23:04:26 -0700
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     Chao Yu <chao@kernel.org>
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
-Subject: Re: [PATCH] f2fs: fix to detect obsolete inner inode during
- fill_super()
-Message-ID: <YyAdapWpgTIXa2R5@google.com>
-References: <20220908105334.98572-1-chao@kernel.org>
- <Yx9SVsxVzNErMDpv@google.com>
- <a03417f6-e4fa-2b1a-34f8-bd5d52c1e853@kernel.org>
+        with ESMTP id S230141AbiIMGlL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 02:41:11 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF36F58511
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 23:41:10 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id z13so2091344edb.13
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 23:41:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=gKNkp5TT0XjbSEmbU4M+B2B1cDxK13/0CThFH853tls=;
+        b=oWWEF/08VQtpBTsplhTEQ87f9wS6PdIe0WOT+m9wrHcVpU1Gbf6/v9mUpGSDwch3nR
+         A0Zib3++wgkeB2Ne5BzvDdzU+eifZFHaQGbgrGEK0/vux33BpwRSjkNkzUNwtnnOeeHH
+         s0dkzYSP2obWbdCHPijdD2H/iA0Pku8Ki4LTg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=gKNkp5TT0XjbSEmbU4M+B2B1cDxK13/0CThFH853tls=;
+        b=hVAJhBF+RQFSAaq+XicH/e4aTLHKKlweLw48ugm7AjC71ZQ9Mf6LHSOG4pajhvFlZC
+         c3+IPqq+T0SmvEWDcMnTPO/pyk6q6skZt7dRfFWWWjRrdCi8tjZv7sd5LtbdVJsKDvn+
+         L07sta2gX33zs2Rpx/ENa4yu0x0NTd0TSmBP6JPeAcbjBLytfaB/o8+rTeN4wtn0NfW2
+         N74nKL9RjZ05FsCCdRO/teOhVD4SnVcvp2RZPEfRA4lce8hON53v4HnZrB1jNNYhY3Ee
+         RfHNwSyKSVc1lNYrTftwrWFCobilEay5h2y57xXzHaAJNzldoLoC6XQGCCzsXt0H05iY
+         aSiw==
+X-Gm-Message-State: ACgBeo2uzGLXwvNQ2LlbtJHwXJnMW/u91uu72AZWL+TNE+08Uz97fG5V
+        YIzYDTOji2886WHYGl5uZehNg+RGDPSFjY5tXJw=
+X-Google-Smtp-Source: AA6agR5O1QXiEW2MnMld63MiKHFk9pxS+OPGKGif/hy17swAfKQDpUg++c4RZGBLf16qZxVIZvKGbQ==
+X-Received: by 2002:a05:6402:3890:b0:451:ef52:8f9e with SMTP id fd16-20020a056402389000b00451ef528f9emr5273443edb.107.1663051269157;
+        Mon, 12 Sep 2022 23:41:09 -0700 (PDT)
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com. [209.85.128.50])
+        by smtp.gmail.com with ESMTPSA id lb26-20020a170907785a00b0073bdf71995dsm5614223ejc.139.2022.09.12.23.41.08
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Sep 2022 23:41:09 -0700 (PDT)
+Received: by mail-wm1-f50.google.com with SMTP id az24-20020a05600c601800b003a842e4983cso8856586wmb.0
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 23:41:08 -0700 (PDT)
+X-Received: by 2002:a05:600c:4e8b:b0:3a5:f5bf:9c5a with SMTP id
+ f11-20020a05600c4e8b00b003a5f5bf9c5amr1199949wmq.85.1663050927147; Mon, 12
+ Sep 2022 23:35:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a03417f6-e4fa-2b1a-34f8-bd5d52c1e853@kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+References: <20220912154046.12900-1-johan+linaro@kernel.org>
+ <20220912154046.12900-5-johan+linaro@kernel.org> <e60f0053-3801-bf33-5841-69f16215fa00@linaro.org>
+In-Reply-To: <e60f0053-3801-bf33-5841-69f16215fa00@linaro.org>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Tue, 13 Sep 2022 07:35:15 +0100
+X-Gmail-Original-Message-ID: <CAD=FV=U8_bjPm3NEOWqzehrx0xFV4U771nTuhhOiM9gKDVCo5g@mail.gmail.com>
+Message-ID: <CAD=FV=U8_bjPm3NEOWqzehrx0xFV4U771nTuhhOiM9gKDVCo5g@mail.gmail.com>
+Subject: Re: [PATCH 4/7] drm/msm/dp: fix aux-bus EP lifetime
+To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, Sean Paul <sean@poorly.run>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        freedreno <freedreno@lists.freedesktop.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,99 +89,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09/13, Chao Yu wrote:
-> On 2022/9/12 23:37, Jaegeuk Kim wrote:
-> > On 09/08, Chao Yu wrote:
-> > > Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
-> > > all the time to fix the below panic.
-> > > 
-> > > Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-> > > Mem abort info:
-> > >    ESR = 0x0000000086000004
-> > >    EC = 0x21: IABT (current EL), IL = 32 bits
-> > >    SET = 0, FnV = 0
-> > >    EA = 0, S1PTW = 0
-> > >    FSC = 0x04: level 0 translation fault
-> > > user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
-> > > [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-> > > Internal error: Oops: 86000004 [#1] PREEMPT SMP
-> > > Modules linked in:
-> > > CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
-> > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-> > > pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> > > pc : 0x0
-> > > lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
-> > > sp : ffff800012783970
-> > > x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
-> > > x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
-> > > x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
-> > > x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
-> > > x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
-> > > x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-> > > x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
-> > > x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
-> > > x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
-> > > x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
-> > > Call trace:
-> > >   0x0
-> > >   set_page_dirty+0x38/0xbc mm/folio-compat.c:62
-> > >   f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
-> > >   do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
-> > >   f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
-> > > 
-> > > The root cause is, quoted from Jaegeuk:
-> > > 
-> > > It turned out there is a bug in reiserfs which doesn't free the root
-> > > inode (ino=2). That leads f2fs to find an ino=2 with the previous
-> > > superblock point used by reiserfs. That stale inode has no valid
-> > > mapping that f2fs can use, result in kernel panic.
-> > > 
-> > > This patch adds sanity check in f2fs_iget() to avoid finding stale
-> > > inode during inner inode initialization.
-> > > 
-> > > Cc: stable@vger.kernel.org
-> > > Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
-> > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> > > Signed-off-by: Chao Yu <chao@kernel.org>
-> > > ---
-> > >   fs/f2fs/inode.c | 11 +++++++++++
-> > >   1 file changed, 11 insertions(+)
-> > > 
-> > > diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-> > > index ccb29034af59..df1a82fbfaf2 100644
-> > > --- a/fs/f2fs/inode.c
-> > > +++ b/fs/f2fs/inode.c
-> > > @@ -493,6 +493,17 @@ struct inode *f2fs_iget_inner(struct super_block *sb, unsigned long ino)
-> > >   	struct inode *inode;
-> > >   	int ret = 0;
-> > > +	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi) ||
-> > > +					ino == F2FS_COMPRESS_INO(sbi)) {
-> > > +		inode = ilookup(sb, ino);
-> > > +		if (inode) {
-> > > +			iput(inode);
-> > > +			f2fs_err(sbi, "there is obsoleted inner inode %lu cached in hash table",
-> > > +					ino);
-> > > +			return ERR_PTR(-EFSCORRUPTED);
-> > 
-> > Well, this does not indicate f2fs is corrupted. I'd rather expect to fix
-> > reiserfs instead of f2fs workaround which hides the bug.
-> 
-> Well, is there a fixing patch for reiserfs? If not, how about applying this
-> patch first, later, we can revert it after reiserfs has been fixed.
+Hi,
 
-I don't feel this is a right way to deal with that. If we think it'd be worth
-checking any stale inode object during f2fs_fill_super, we'd better check any
-cached inode given superblock pointer rather than our inner inodes only.
+On Mon, Sep 12, 2022 at 7:10 PM Dmitry Baryshkov
+<dmitry.baryshkov@linaro.org> wrote:
+>
+> On 12/09/2022 18:40, Johan Hovold wrote:
+> > Device-managed resources allocated post component bind must be tied to
+> > the lifetime of the aggregate DRM device or they will not necessarily be
+> > released when binding of the aggregate device is deferred.
+> >
+> > This can lead resource leaks or failure to bind the aggregate device
+> > when binding is later retried and a second attempt to allocate the
+> > resources is made.
+> >
+> > For the DP aux-bus, an attempt to populate the bus a second time will
+> > simply fail ("DP AUX EP device already populated").
+> >
+> > Fix this by amending the DP aux interface and tying the lifetime of the
+> > EP device to the DRM device rather than DP controller platform device.
+>
+> Doug, could you please take a look?
+>
+> For me this is another reminder/pressure point that we should populate
+> the AUX BUS from the probe(), before binding the components together.
 
-> 
-> Thanks,
-> 
-> > 
-> > > +		}
-> > > +	}
-> > > +
-> > >   	inode = iget_locked(sb, ino);
-> > >   	if (!inode)
-> > >   		return ERR_PTR(-ENOMEM);
-> > > -- 
-> > > 2.25.1
+Aside from the kernel robot complaints, I'm not necessarily convinced.
+I think we know that the AUX DP stuff in MSM-DP is fragile right now
+and Qualcomm has promised to clean it up. This really feels like a
+band-aid and is really a sign that we're populating the AUX DP bus in
+the wrong place in Qualcomm's code. As you said, if we moved this to
+probe(), which is the plan in the promised cleanup, then it wouldn't
+be a problem.
+
+As far as I know Qualcomm has queued this cleanup behind their current
+PSR work (though it's never been clear why both can't be worked on at
+the same time) and the PSR work was stalled because they couldn't
+figure out what caused the glitching I reported. It's still on my nag
+list that I bring up with them every week...
+
+In any case, if a band-aid is urgent, maybe you could just call
+of_dp_aux_populate_bus() directly in Qualcomm code and you could add
+your own devm_add_action_or_reset() on the DRM device.
