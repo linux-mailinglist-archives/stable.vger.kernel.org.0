@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18F625B73E2
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CE25B7437
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232109AbiIMPPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:15:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47156 "EHLO
+        id S231583AbiIMPTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235899AbiIMPOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447146AA0A;
-        Tue, 13 Sep 2022 07:33:43 -0700 (PDT)
+        with ESMTP id S236114AbiIMPTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:19:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E879796A0;
+        Tue, 13 Sep 2022 07:35:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADF8A614E6;
-        Tue, 13 Sep 2022 14:31:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19A8C433D6;
-        Tue, 13 Sep 2022 14:31:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 689F1614BF;
+        Tue, 13 Sep 2022 14:34:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82591C433D6;
+        Tue, 13 Sep 2022 14:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079489;
-        bh=+XPBrIOIZ3AEbHVdiyGfUYR8D1RWCPPH5kCaPunTPDE=;
+        s=korg; t=1663079653;
+        bh=ugfdGp3JBSQjReIJgLxbE+2mLWsveMB2VlQK38ZTsLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vWE/v4rnkK0El4K3kRsc7EW8Jjx+pXFLh3DsiZlfQYYj/6CgThcRwpSsQbXtz2TO
-         C+4KteKGfbVxpdrnIQVE5tCysCQjIN8gyl17XYLdS4hO7gLi9/nxsQ7xIUTSMrCGHI
-         pWyUYoHJBXwu14RGJqOuB6Kpaj915O/dERhP8Jnk=
+        b=WSn6BgQEryL9BgAHjeEIfbBU8UCxEnjkDszY1u/9qO0H//mPwNMIJVxgv5qX/3OU+
+         TcGOOO4FEUdiuw9anOuYWnHA4Wq6mIgyA07X0w/2HVJnoCp8EZYizl0Ea1OzOcBp6J
+         nrP7OqdWAQFW8gqA1Nn3pMm7zHQ7+PBgnzLVDJtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 47/79] ALSA: seq: oss: Fix data-race for max_midi_devs access
-Date:   Tue, 13 Sep 2022 16:07:05 +0200
-Message-Id: <20220913140351.181229954@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 04/61] drm/msm/dsi: Fix number of regulators for msm8996_dsi_cfg
+Date:   Tue, 13 Sep 2022 16:07:06 +0200
+Message-Id: <20220913140346.683132965@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 22dec134dbfa825b963f8a1807ad19b943e46a56 upstream.
+[ Upstream commit 1e00d6ac8a3422765bae37aeac2002dfd3c0bda6 ]
 
-ALSA OSS sequencer refers to a global variable max_midi_devs at
-creating a new port, storing it to its own field.  Meanwhile this
-variable may be changed by other sequencer events at
-snd_seq_oss_midi_check_exit_port() in parallel, which may cause a data
-race.
+3 regulators are listed but the number 2 is specified. Fix it.
 
-OTOH, this data race itself is almost harmless, as the access to the
-MIDI device is done via get_mdev() and it's protected with a refcount,
-hence its presence is guaranteed.
-
-Though, it's sill better to address the data-race from the code sanity
-POV, and this patch adds the proper spinlock for the protection.
-
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB2493pZRXs863w58QWnUTtv3HHfg85aYhLn5HJHCwxqtHQg@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3a3ff88a0fc1 ("drm/msm/dsi: Add 8x96 info in dsi_cfg")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/496318/
+Link: https://lore.kernel.org/r/20220804073608.v4.1.I1056ee3f77f71287f333279efe4c85f88d403f65@changeid
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/oss/seq_oss_midi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/dsi/dsi_cfg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/seq/oss/seq_oss_midi.c
-+++ b/sound/core/seq/oss/seq_oss_midi.c
-@@ -280,7 +280,9 @@ snd_seq_oss_midi_clear_all(void)
- void
- snd_seq_oss_midi_setup(struct seq_oss_devinfo *dp)
- {
-+	spin_lock_irq(&register_lock);
- 	dp->max_mididev = max_midi_devs;
-+	spin_unlock_irq(&register_lock);
- }
- 
- /*
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
+index a5d75c9b3a737..2b8c39a1f7484 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
+@@ -105,7 +105,7 @@ static const char * const dsi_8996_bus_clk_names[] = {
+ static const struct msm_dsi_config msm8996_dsi_cfg = {
+ 	.io_offset = DSI_6G_REG_SHIFT,
+ 	.reg_cfg = {
+-		.num = 2,
++		.num = 3,
+ 		.regs = {
+ 			{"vdda", 18160, 1 },	/* 1.25 V */
+ 			{"vcca", 17000, 32 },	/* 0.925 V */
+-- 
+2.35.1
+
 
 
