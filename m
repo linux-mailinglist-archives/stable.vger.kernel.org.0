@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D9A5B7482
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC425B73C6
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235962AbiIMPYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
+        id S235407AbiIMPHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236149AbiIMPXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE387C744;
-        Tue, 13 Sep 2022 07:37:20 -0700 (PDT)
+        with ESMTP id S235335AbiIMPGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:06:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6704661D9F;
+        Tue, 13 Sep 2022 07:30:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13376614AE;
-        Tue, 13 Sep 2022 14:27:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B265C433C1;
-        Tue, 13 Sep 2022 14:27:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14298B80F62;
+        Tue, 13 Sep 2022 14:30:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7252BC433C1;
+        Tue, 13 Sep 2022 14:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079272;
-        bh=dfDyqLlxuXbKBb/5NhqPmPXHMJv4n+asvD4wRBPWAmM=;
+        s=korg; t=1663079433;
+        bh=aSxfqKGjQO+5c6akFCLE8NVkkykJwaij65nDX3ATclQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T31DPPlng/02p/u9/polrGKROblrEiHuK1Wi2fOqh8Lb4+Cc2eEiM64bf6WOuQ1r4
-         SZ11vIIzOI7U2mE7nP4G/KmL2h7KU2i/wurFK9Hx+s/TUe0l+uDdq/fR/Vp08Ho1F2
-         eJDFBSItayXpNOUsHRfaivk+YA1BrgAZUOnLi530=
+        b=tKlXwZ3WxE/5gwuclV+hzramvLyIbQFKijjed/HrbK9SX7oA1vFngDhmxoeQjpWGh
+         e7ArCJrGfIvWP/PnU5NtnRMz8PSbp+tlHd7BfHZi1d6cT0UXIEGKBuS7c295qDeZ25
+         uv6+nLDk99d3HA/03etgRVJNE5UXSiEM4FoxndQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhenneng Li <lizhenneng@kylinos.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/108] drm/radeon: add a force flush to delay work when radeon
-Date:   Tue, 13 Sep 2022 16:06:41 +0200
-Message-Id: <20220913140356.623816287@linuxfoundation.org>
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>, stable <stable@kernel.org>
+Subject: [PATCH 4.19 24/79] binder: fix UAF of ref->proc caused by race condition
+Date:   Tue, 13 Sep 2022 16:06:42 +0200
+Message-Id: <20220913140350.076872457@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,75 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenneng Li <lizhenneng@kylinos.cn>
+From: Carlos Llamas <cmllamas@google.com>
 
-[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
+commit a0e44c64b6061dda7e00b7c458e4523e2331b739 upstream.
 
-Although radeon card fence and wait for gpu to finish processing current batch rings,
-there is still a corner case that radeon lockup work queue may not be fully flushed,
-and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
-put device in D3hot state.
-Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
-> Configuration and Message requests are the only TLPs accepted by a Function in
-> the D3hot state. All other received Requests must be handled as Unsupported Requests,
-> and all received Completions may optionally be handled as Unexpected Completions.
-This issue will happen in following logs:
-Unable to handle kernel paging request at virtual address 00008800e0008010
-CPU 0 kworker/0:3(131): Oops 0
-pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
-pc is at si_gpu_check_soft_reset+0x3c/0x240
-ra is at si_dma_is_lockup+0x34/0xd0
-v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
-t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
-t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
-s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
-s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
-s6 = fff00007ef07bd98
-a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
-a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
-t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
-t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
-gp = ffffffff81d89690  sp = 00000000aa814126
-Disabling lock debugging due to kernel taint
-Trace:
-[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
-[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
-[<ffffffff80977010>] process_one_work+0x280/0x550
-[<ffffffff80977350>] worker_thread+0x70/0x7c0
-[<ffffffff80977410>] worker_thread+0x130/0x7c0
-[<ffffffff80982040>] kthread+0x200/0x210
-[<ffffffff809772e0>] worker_thread+0x0/0x7c0
-[<ffffffff80981f8c>] kthread+0x14c/0x210
-[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
-[<ffffffff80981e40>] kthread+0x0/0x210
- Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
- <88210000> 4821ed21
-So force lockup work queue flush to fix this problem.
+A transaction of type BINDER_TYPE_WEAK_HANDLE can fail to increment the
+reference for a node. In this case, the target proc normally releases
+the failed reference upon close as expected. However, if the target is
+dying in parallel the call will race with binder_deferred_release(), so
+the target could have released all of its references by now leaving the
+cleanup of the new failed reference unhandled.
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The transaction then ends and the target proc gets released making the
+ref->proc now a dangling pointer. Later on, ref->node is closed and we
+attempt to take spin_lock(&ref->proc->inner_lock), which leads to the
+use-after-free bug reported below. Let's fix this by cleaning up the
+failed reference on the spot instead of relying on the target to do so.
+
+  ==================================================================
+  BUG: KASAN: use-after-free in _raw_spin_lock+0xa8/0x150
+  Write of size 4 at addr ffff5ca207094238 by task kworker/1:0/590
+
+  CPU: 1 PID: 590 Comm: kworker/1:0 Not tainted 5.19.0-rc8 #10
+  Hardware name: linux,dummy-virt (DT)
+  Workqueue: events binder_deferred_func
+  Call trace:
+   dump_backtrace.part.0+0x1d0/0x1e0
+   show_stack+0x18/0x70
+   dump_stack_lvl+0x68/0x84
+   print_report+0x2e4/0x61c
+   kasan_report+0xa4/0x110
+   kasan_check_range+0xfc/0x1a4
+   __kasan_check_write+0x3c/0x50
+   _raw_spin_lock+0xa8/0x150
+   binder_deferred_func+0x5e0/0x9b0
+   process_one_work+0x38c/0x5f0
+   worker_thread+0x9c/0x694
+   kthread+0x188/0x190
+   ret_from_fork+0x10/0x20
+
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Cc: stable <stable@kernel.org> # 4.14+
+Link: https://lore.kernel.org/r/20220801182511.3371447-1-cmllamas@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/android/binder.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 5d017f0aec665..e892582e847b5 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1623,6 +1623,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
- 		if (r) {
- 			/* delay GPU reset to resume */
- 			radeon_fence_driver_force_completion(rdev, i);
-+		} else {
-+			/* finish executing delayed work */
-+			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
- 		}
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1809,6 +1809,18 @@ static int binder_inc_ref_for_node(struc
  	}
- 
--- 
-2.35.1
-
+ 	ret = binder_inc_ref_olocked(ref, strong, target_list);
+ 	*rdata = ref->data;
++	if (ret && ref == new_ref) {
++		/*
++		 * Cleanup the failed reference here as the target
++		 * could now be dead and have already released its
++		 * references by now. Calling on the new reference
++		 * with strong=0 and a tmp_refs will not decrement
++		 * the node. The new_ref gets kfree'd below.
++		 */
++		binder_cleanup_ref_olocked(new_ref);
++		ref = NULL;
++	}
++
+ 	binder_proc_unlock(proc);
+ 	if (new_ref && ref != new_ref)
+ 		/*
 
 
