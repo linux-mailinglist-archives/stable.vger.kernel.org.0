@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EAC25B6FC1
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5996A5B6FAE
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232974AbiIMOPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
+        id S232968AbiIMOOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:14:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233058AbiIMOOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:14:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64F560520;
-        Tue, 13 Sep 2022 07:10:47 -0700 (PDT)
+        with ESMTP id S232604AbiIMON6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:13:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F5C606BD;
+        Tue, 13 Sep 2022 07:10:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8D2D1CE126A;
-        Tue, 13 Sep 2022 14:10:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6003DC43147;
-        Tue, 13 Sep 2022 14:10:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9B8CB80EF7;
+        Tue, 13 Sep 2022 14:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35E57C433D6;
+        Tue, 13 Sep 2022 14:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078237;
-        bh=fs1NE+R8dgmjtfsp91/WD1nsUfPU13sE7t+lAua2ids=;
+        s=korg; t=1663078240;
+        bh=2e8DGinRPwln+bx/cYQ+p2GpkgxOWCvNc5B0LerR980=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/GKKdMUhEOmUqvbg/mLDI30LS8Bs8IDpZ8Ja9kyjLgNyDXZhqJlIBKszuZ1PstVZ
-         v59MyIw0gIGmcBMP9t0ANxKcuYiXshMHAAAJLl5c0QCBwZj+Ye+SkkG1N9tafOUeLa
-         Wiu7YfHdgKP8p6fcWRD8XLr/OQXRbgBKKDwJYCNk=
+        b=niQpdwwjEASEfLsZwzDrt7T2ChxAl64llPJ9jcfbMdWeKBGEK8jwkRL7X4+vA9Crl
+         1cDf3tqg5NdX+YFSEiMT3PX3Z337bAqd2xWjrYY5Nvmj8G7raO/gJzpOqHSVQh7lMw
+         2q1vNTwVctKgNukvD0XwXW7NRdg5poGHN/4bCJYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 063/192] smb3: missing inode locks in zero range
-Date:   Tue, 13 Sep 2022 16:02:49 +0200
-Message-Id: <20220913140413.093111719@linuxfoundation.org>
+Subject: [PATCH 5.19 064/192] spi: bitbang: Fix lsb-first Rx
+Date:   Tue, 13 Sep 2022 16:02:50 +0200
+Message-Id: <20220913140413.152339198@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -54,116 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit c919c164fc87bcca8e80b3b9224492fa5b6455ba ]
+[ Upstream commit 46f7ac3d7892e808c9ba01c39da6bb85cda26ecd ]
 
-smb3 fallocate zero range was not grabbing the inode or filemap_invalidate
-locks so could have race with pagemap reinstantiating the page.
+Shifting the recieved bit by "bits" inserts it at the top of the
+*currently remaining* Tx data, so we end up accumulating the whole
+transfer into bit 0 of the output word. Oops.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+For the algorithm to work as intended, we need to remember where the
+top of the *original* word was, and shift Rx to there.
+
+Fixes: 1847e3046c52 ("spi: gpio: Implement LSB First bitbang support")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/28324d8622da80461cce35a82859b003d6f6c4b0.1659538737.git.robin.murphy@arm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 55 ++++++++++++++++++++++++++---------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ drivers/spi/spi-bitbang-txrx.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 33357846a01b1..e8a8daa82ed76 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3590,26 +3590,43 @@ get_smb2_acl(struct cifs_sb_info *cifs_sb,
- 	return pntsd;
- }
- 
-+static long smb3_zero_data(struct file *file, struct cifs_tcon *tcon,
-+			     loff_t offset, loff_t len, unsigned int xid)
-+{
-+	struct cifsFileInfo *cfile = file->private_data;
-+	struct file_zero_data_information fsctl_buf;
-+
-+	cifs_dbg(FYI, "Offset %lld len %lld\n", offset, len);
-+
-+	fsctl_buf.FileOffset = cpu_to_le64(offset);
-+	fsctl_buf.BeyondFinalZero = cpu_to_le64(offset + len);
-+
-+	return SMB2_ioctl(xid, tcon, cfile->fid.persistent_fid,
-+			  cfile->fid.volatile_fid, FSCTL_SET_ZERO_DATA,
-+			  (char *)&fsctl_buf,
-+			  sizeof(struct file_zero_data_information),
-+			  0, NULL, NULL);
-+}
-+
- static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- 			    loff_t offset, loff_t len, bool keep_size)
+diff --git a/drivers/spi/spi-bitbang-txrx.h b/drivers/spi/spi-bitbang-txrx.h
+index 267342dfa7388..2dcbe166df63e 100644
+--- a/drivers/spi/spi-bitbang-txrx.h
++++ b/drivers/spi/spi-bitbang-txrx.h
+@@ -116,6 +116,7 @@ bitbang_txrx_le_cpha0(struct spi_device *spi,
  {
- 	struct cifs_ses *ses = tcon->ses;
--	struct inode *inode;
--	struct cifsInodeInfo *cifsi;
-+	struct inode *inode = file_inode(file);
-+	struct cifsInodeInfo *cifsi = CIFS_I(inode);
- 	struct cifsFileInfo *cfile = file->private_data;
--	struct file_zero_data_information fsctl_buf;
- 	long rc;
- 	unsigned int xid;
- 	__le64 eof;
+ 	/* if (cpol == 0) this is SPI_MODE_0; else this is SPI_MODE_2 */
  
- 	xid = get_xid();
- 
--	inode = d_inode(cfile->dentry);
--	cifsi = CIFS_I(inode);
--
- 	trace_smb3_zero_enter(xid, cfile->fid.persistent_fid, tcon->tid,
- 			      ses->Suid, offset, len);
- 
-+	inode_lock(inode);
-+	filemap_invalidate_lock(inode->i_mapping);
-+
- 	/*
- 	 * We zero the range through ioctl, so we need remove the page caches
- 	 * first, otherwise the data may be inconsistent with the server.
-@@ -3617,26 +3634,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- 	truncate_pagecache_range(inode, offset, offset + len - 1);
- 
- 	/* if file not oplocked can't be sure whether asking to extend size */
--	if (!CIFS_CACHE_READ(cifsi))
--		if (keep_size == false) {
--			rc = -EOPNOTSUPP;
--			trace_smb3_zero_err(xid, cfile->fid.persistent_fid,
--				tcon->tid, ses->Suid, offset, len, rc);
--			free_xid(xid);
--			return rc;
--		}
--
--	cifs_dbg(FYI, "Offset %lld len %lld\n", offset, len);
--
--	fsctl_buf.FileOffset = cpu_to_le64(offset);
--	fsctl_buf.BeyondFinalZero = cpu_to_le64(offset + len);
-+	rc = -EOPNOTSUPP;
-+	if (keep_size == false && !CIFS_CACHE_READ(cifsi))
-+		goto zero_range_exit;
- 
--	rc = SMB2_ioctl(xid, tcon, cfile->fid.persistent_fid,
--			cfile->fid.volatile_fid, FSCTL_SET_ZERO_DATA,
--			(char *)&fsctl_buf,
--			sizeof(struct file_zero_data_information),
--			0, NULL, NULL);
--	if (rc)
-+	rc = smb3_zero_data(file, tcon, offset, len, xid);
-+	if (rc < 0)
- 		goto zero_range_exit;
- 
- 	/*
-@@ -3649,6 +3652,8 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
++	u8 rxbit = bits - 1;
+ 	u32 oldbit = !(word & 1);
+ 	/* clock starts at inactive polarity */
+ 	for (; likely(bits); bits--) {
+@@ -135,7 +136,7 @@ bitbang_txrx_le_cpha0(struct spi_device *spi,
+ 		/* sample LSB (from slave) on leading edge */
+ 		word >>= 1;
+ 		if ((flags & SPI_MASTER_NO_RX) == 0)
+-			word |= getmiso(spi) << (bits - 1);
++			word |= getmiso(spi) << rxbit;
+ 		setsck(spi, cpol);
  	}
+ 	return word;
+@@ -148,6 +149,7 @@ bitbang_txrx_le_cpha1(struct spi_device *spi,
+ {
+ 	/* if (cpol == 0) this is SPI_MODE_1; else this is SPI_MODE_3 */
  
-  zero_range_exit:
-+	filemap_invalidate_unlock(inode->i_mapping);
-+	inode_unlock(inode);
- 	free_xid(xid);
- 	if (rc)
- 		trace_smb3_zero_err(xid, cfile->fid.persistent_fid, tcon->tid,
++	u8 rxbit = bits - 1;
+ 	u32 oldbit = !(word & 1);
+ 	/* clock starts at inactive polarity */
+ 	for (; likely(bits); bits--) {
+@@ -168,7 +170,7 @@ bitbang_txrx_le_cpha1(struct spi_device *spi,
+ 		/* sample LSB (from slave) on trailing edge */
+ 		word >>= 1;
+ 		if ((flags & SPI_MASTER_NO_RX) == 0)
+-			word |= getmiso(spi) << (bits - 1);
++			word |= getmiso(spi) << rxbit;
+ 	}
+ 	return word;
+ }
 -- 
 2.35.1
 
