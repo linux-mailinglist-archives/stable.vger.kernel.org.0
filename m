@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 956CC5B741A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6FD5B7407
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235647AbiIMPOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42638 "EHLO
+        id S235791AbiIMPSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235798AbiIMPNx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F4CE786D4;
-        Tue, 13 Sep 2022 07:33:34 -0700 (PDT)
+        with ESMTP id S232215AbiIMPRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:17:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117442654C;
+        Tue, 13 Sep 2022 07:34:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63E5EB80ECE;
-        Tue, 13 Sep 2022 14:33:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAA77C433D6;
-        Tue, 13 Sep 2022 14:33:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78218614A8;
+        Tue, 13 Sep 2022 14:34:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A3EC433D6;
+        Tue, 13 Sep 2022 14:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079606;
-        bh=ELc75oE5bzpmDnbQtxYYX875CwBCIPaZsO8BHKttdkI=;
+        s=korg; t=1663079670;
+        bh=cvrnkMDrCx/9uSbW8vjSxlgM/zSoFk03KZdXYfrkIn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+mLwYGDvG6bTUHQcfs6/7QwTd6iZVWBatQchylODAJiit1ieLpfRL4YoDALLv2L1
-         G0jj7MGx/ZfdiaSpbXKOHWwV6RtUFUAe2RxZBBKqPVndPIvlCM8qsbjH8cZZnExP4N
-         KWIzNH36IDg7Wq6WAZNYJbiBCNK2fRp7hnQuTRBg=
+        b=n4JoRGDP+Jata0d5FB/yBqz2JNKF1n2roHfoExbhY3dPnnmVQaAMHgZaV+IAyJj2F
+         Iugps+RTcUpdF8iJUj4CS1Vi1GMkX7hgnN/xtUYghfErkBeydCKDdKM6dV0BL4AiYh
+         4zj2cVzdobmZvQbCekfHetdAICD5lVqgc+2K7nNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 65/79] netfilter: nf_conntrack_irc: Fix forged IP logic
-Date:   Tue, 13 Sep 2022 16:07:23 +0200
-Message-Id: <20220913140352.023847282@linuxfoundation.org>
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 22/61] USB: serial: option: add support for Cinterion MV32-WA/WB RmNet mode
+Date:   Tue, 13 Sep 2022 16:07:24 +0200
+Message-Id: <20220913140347.618295577@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Slark Xiao <slark_xiao@163.com>
 
-[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
+commit 8ffe20d08f2c95d702c453020d03a4c568a988f0 upstream.
 
-Ensure the match happens in the right direction, previously the
-destination used was the server, not the NAT host, as the comment
-shows the code intended.
+We added PIDs for MV32-WA/WB MBIM mode before, now we need to add
+support for RmNet mode.
 
-Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
-it can appear in a DCC message, so consider port 0 also forged.
+Test evidence as below:
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=03 Dev#=  3 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00f3 Rev=05.04
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00F3 USB Mobile Broadband
+S:  SerialNumber=d7b4be8d
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=03 Dev#= 10 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00f4 Rev=05.04
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00F4 USB Mobile Broadband
+S:  SerialNumber=d095087d
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+[ johan: sort entries ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index 4099f4d79bae7..b7436935b57d0 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -187,8 +187,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -442,6 +442,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
+ #define CINTERION_PRODUCT_MV32_WA		0x00f1
+ #define CINTERION_PRODUCT_MV32_WB		0x00f2
++#define CINTERION_PRODUCT_MV32_WA_RMNET		0x00f3
++#define CINTERION_PRODUCT_MV32_WB_RMNET		0x00f4
  
- 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
- 			tuple = &ct->tuplehash[dir].tuple;
--			if (tuple->src.u3.ip != dcc_ip &&
--			    tuple->dst.u3.ip != dcc_ip) {
-+			if ((tuple->src.u3.ip != dcc_ip &&
-+			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
-+			    dcc_port == 0) {
- 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
- 						     &tuple->src.u3.ip,
- 						     &dcc_ip, dcc_port);
--- 
-2.35.1
-
+ /* Olivetti products */
+ #define OLIVETTI_VENDOR_ID			0x0b3c
+@@ -2004,8 +2006,12 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(0)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
+ 	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA_RMNET, 0xff),
++	  .driver_info = RSVD(0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
+ 	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB_RMNET, 0xff),
++	  .driver_info = RSVD(0) },
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
 
 
