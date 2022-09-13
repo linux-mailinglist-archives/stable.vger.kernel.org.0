@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21AF65B7013
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 621CC5B7113
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233322AbiIMOUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52788 "EHLO
+        id S234276AbiIMOgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:36:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233718AbiIMOTu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14AB642D3;
-        Tue, 13 Sep 2022 07:14:25 -0700 (PDT)
+        with ESMTP id S234179AbiIMOfQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 377F3647DF;
+        Tue, 13 Sep 2022 07:20:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37179B80EFE;
-        Tue, 13 Sep 2022 14:14:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B46BC433D6;
-        Tue, 13 Sep 2022 14:14:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 025826148A;
+        Tue, 13 Sep 2022 14:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16AF1C433D6;
+        Tue, 13 Sep 2022 14:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078464;
-        bh=6aA7CnVTcpXodXHxy4KVbkMf2SFC+nIXweQBADRBJnw=;
+        s=korg; t=1663078761;
+        bh=KZQ+u5u1w5wfBI8kc8XsKC4wm0yPOaDU3mOXcY8OnCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uK6x42GTfP7aov+9Dqo8PBmJw7Oxx9he2c3koBUFCq9g83EeHAtZIBwbIrTLuPo5A
-         Tu8+DUAPT6uP/65Aa9aejaBclE1pDjYZkG6OAwHQHqhHbmP6/wnaJIuL/INB+wrf4O
-         kPtL0XdC9PkDHyg2VcTinDRtUpb8iHDVyY9aD/uo=
+        b=iny2wxUb7tlnGLzYmgv+rMmvxO5gzeK/IAgKm4r0ZbA0Ydzl+mxJqnrwoStUVV/YE
+         XHG30bPszPpzKNXnf0F7bD+Rm7F/S1KmgwUnuyC18zJPbO5t3wC3XDnP0odhOp73rq
+         XfnPqUB/7G2W9Itai7KLs0bwR/2aJ1Xx7SxzjSQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 149/192] io_uring: recycle kbuf recycle on tw requeue
-Date:   Tue, 13 Sep 2022 16:04:15 +0200
-Message-Id: <20220913140417.446810476@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 065/121] ARM: dts: at91: sama5d27_wlsom1: dont keep ldo2 enabled all the time
+Date:   Tue, 13 Sep 2022 16:04:16 +0200
+Message-Id: <20220913140400.158162339@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 336d28a8f38013a069f2d46e73aaa1880ef17a47 ]
+[ Upstream commit 617a0d9fe6867bf5b3b7272629cd780c27c877d9 ]
 
-When we queue a request via tw for execution it's not going to be
-executed immediately, so when io_queue_async() hits IO_APOLL_READY
-and queues a tw but doesn't try to recycle/consume the buffer some other
-request may try to use the the buffer.
+ldo2 is not used by any consumer on sama5d27_wlsom1 board, thus
+don't keep it enabled all the time.
 
-Fixes: c7fb19428d67 ("io_uring: add support for ring mapped supplied buffers")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/a19bc9e211e3184215a58e129b62f440180e9212.1662480490.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 5d4c3cfb63fe ("ARM: dts: at91: sama5d27_wlsom1: add SAMA5D27 wlsom1 and wlsom1-ek")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220826083927.3107272-8-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/at91-sama5d27_wlsom1.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index cd155b7e1346d..effe3570a051f 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -8260,6 +8260,7 @@ static void io_queue_async(struct io_kiocb *req, int ret)
+diff --git a/arch/arm/boot/dts/at91-sama5d27_wlsom1.dtsi b/arch/arm/boot/dts/at91-sama5d27_wlsom1.dtsi
+index 70513caf3e8d0..a818e8ebd638f 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_wlsom1.dtsi
++++ b/arch/arm/boot/dts/at91-sama5d27_wlsom1.dtsi
+@@ -169,7 +169,6 @@
+ 				regulator-name = "LDO2";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <3300000>;
+-				regulator-always-on;
  
- 	switch (io_arm_poll_handler(req, 0)) {
- 	case IO_APOLL_READY:
-+		io_kbuf_recycle(req, 0);
- 		io_req_task_queue(req);
- 		break;
- 	case IO_APOLL_ABORTED:
+ 				regulator-state-standby {
+ 					regulator-on-in-suspend;
 -- 
 2.35.1
 
