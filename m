@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F755B73EE
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF905B7215
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235557AbiIMPO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50754 "EHLO
+        id S230350AbiIMOtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235551AbiIMPMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:12:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DA43642ED;
-        Tue, 13 Sep 2022 07:32:40 -0700 (PDT)
+        with ESMTP id S231308AbiIMOsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50454C625;
+        Tue, 13 Sep 2022 07:24:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECDF4614AD;
-        Tue, 13 Sep 2022 14:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1838CC433D6;
-        Tue, 13 Sep 2022 14:16:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C35AB80F6F;
+        Tue, 13 Sep 2022 14:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6197C433D6;
+        Tue, 13 Sep 2022 14:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078582;
-        bh=JdyY+3rs1YcamYFY6HEViqccXIHq0b/i1cdsWROpoBs=;
+        s=korg; t=1663079018;
+        bh=1jS7lZ4MEjDQmopBnisfmndMJSQPPn+ToR1lJO8xBUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTCDZUiznssSRVZ5t5z46Nm+HIlqdV9mRulm7S2UI8i/Uhea6Yg/DJQA5WXeUC/PR
-         za0enx5H3UFHI31hh7QrIHOR15eeZuDrq4nzXu9biDi78XYNpuBdTFpf+68C+XqQ47
-         usWZODV8z7HXohDgqAaQwyawbpQruGV2Dls5v/Dk=
+        b=pWogglnp+2e4AfNNY0qBL2qhS1X2o1GJCCKEIrluOoWWP5wbAMjlVbyJivcLcgzng
+         aPmzd4bquG9mIr/Llr398+n+ZSzaB9z3sZzvfLuefLfnEYhTRLlq/4egtUHan0OW1m
+         gXMDVNxFyu5bwWOz9lhukjk/HN+Ffp5VTtDWUgHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.19 189/192] iommu/virtio: Fix interaction with VFIO
+        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 50/79] netfilter: nf_conntrack_irc: Fix forged IP logic
 Date:   Tue, 13 Sep 2022 16:04:55 +0200
-Message-Id: <20220913140419.484866059@linuxfoundation.org>
+Message-Id: <20220913140352.668535270@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: David Leadbeater <dgl@dgl.cx>
 
-commit 91c98fe7941499e4127cdc359c30841b873dd43a upstream.
+[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
 
-Commit e8ae0e140c05 ("vfio: Require that devices support DMA cache
-coherence") requires IOMMU drivers to advertise
-IOMMU_CAP_CACHE_COHERENCY, in order to be used by VFIO. Since VFIO does
-not provide to userspace the ability to maintain coherency through cache
-invalidations, it requires hardware coherency. Advertise the capability
-in order to restore VFIO support.
+Ensure the match happens in the right direction, previously the
+destination used was the server, not the NAT host, as the comment
+shows the code intended.
 
-The meaning of IOMMU_CAP_CACHE_COHERENCY also changed from "IOMMU can
-enforce cache coherent DMA transactions" to "IOMMU_CACHE is supported".
-While virtio-iommu cannot enforce coherency (of PCIe no-snoop
-transactions), it does support IOMMU_CACHE.
+Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
+it can appear in a DCC message, so consider port 0 also forged.
 
-We can distinguish different cases of non-coherent DMA:
-
-(1) When accesses from a hardware endpoint are not coherent. The host
-    would describe such a device using firmware methods ('dma-coherent'
-    in device-tree, '_CCA' in ACPI), since they are also needed without
-    a vIOMMU. In this case mappings are created without IOMMU_CACHE.
-    virtio-iommu doesn't need any additional support. It sends the same
-    requests as for coherent devices.
-
-(2) When the physical IOMMU supports non-cacheable mappings. Supporting
-    those would require a new feature in virtio-iommu, new PROBE request
-    property and MAP flags. Device drivers would use a new API to
-    discover this since it depends on the architecture and the physical
-    IOMMU.
-
-(3) When the hardware supports PCIe no-snoop. It is possible for
-    assigned PCIe devices to issue no-snoop transactions, and the
-    virtio-iommu specification is lacking any mention of this.
-
-    Arm platforms don't necessarily support no-snoop, and those that do
-    cannot enforce coherency of no-snoop transactions. Device drivers
-    must be careful about assuming that no-snoop transactions won't end
-    up cached; see commit e02f5c1bb228 ("drm: disable uncached DMA
-    optimization for ARM and arm64"). On x86 platforms, the host may or
-    may not enforce coherency of no-snoop transactions with the physical
-    IOMMU. But according to the above commit, on x86 a driver which
-    assumes that no-snoop DMA is compatible with uncached CPU mappings
-    will also work if the host enforces coherency.
-
-    Although these issues are not specific to virtio-iommu, it could be
-    used to facilitate discovery and configuration of no-snoop. This
-    would require a new feature bit, PROBE property and ATTACH/MAP
-    flags.
-
-Cc: stable@vger.kernel.org
-Fixes: e8ae0e140c05 ("vfio: Require that devices support DMA cache coherence")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20220825154622.86759-1-jean-philippe@linaro.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
+Signed-off-by: David Leadbeater <dgl@dgl.cx>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/virtio-iommu.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/netfilter/nf_conntrack_irc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 08eeafc9529f..80151176ba12 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -1006,7 +1006,18 @@ static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
- 	return iommu_fwspec_add_ids(dev, args->args, 1);
- }
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index e40988a2f22fb..26245419ef4a9 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -185,8 +185,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
  
-+static bool viommu_capable(enum iommu_cap cap)
-+{
-+	switch (cap) {
-+	case IOMMU_CAP_CACHE_COHERENCY:
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
- static struct iommu_ops viommu_ops = {
-+	.capable		= viommu_capable,
- 	.domain_alloc		= viommu_domain_alloc,
- 	.probe_device		= viommu_probe_device,
- 	.probe_finalize		= viommu_probe_finalize,
+ 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
+ 			tuple = &ct->tuplehash[dir].tuple;
+-			if (tuple->src.u3.ip != dcc_ip &&
+-			    tuple->dst.u3.ip != dcc_ip) {
++			if ((tuple->src.u3.ip != dcc_ip &&
++			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
++			    dcc_port == 0) {
+ 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
+ 						     &tuple->src.u3.ip,
+ 						     &dcc_ip, dcc_port);
 -- 
-2.37.3
+2.35.1
 
 
 
