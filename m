@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE145B70C4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4835B717A
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233039AbiIMO0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:26:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
+        id S234440AbiIMOkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbiIMOY3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFF861B3E;
-        Tue, 13 Sep 2022 07:16:18 -0700 (PDT)
+        with ESMTP id S234739AbiIMOjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:39:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56FE6D55B;
+        Tue, 13 Sep 2022 07:21:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3354D614AA;
-        Tue, 13 Sep 2022 14:14:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D038C433C1;
-        Tue, 13 Sep 2022 14:14:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D0C5B80EFD;
+        Tue, 13 Sep 2022 14:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D55A3C433D7;
+        Tue, 13 Sep 2022 14:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078481;
-        bh=tK8jLGZFxiUqU/KoBQfv11nDAqZn1XjBbRjfZ2PNCcY=;
+        s=korg; t=1663078827;
+        bh=RzE8TxGjDi2S04MdtkRS+uoCo8hNUqW9GhKvr1kBV10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPGyl6M1xVp0Zr1sF/aCGLL8WMYm4XjI0xw3tzwrNRDDSbgjtOvBaOcstMDu03PoT
-         rYcdAuwBrL8j3SjRWgCTC9AJO0wtgsbi9j1Fa13GROBPjC1ck3HHbJm6lwlWTCOnXN
-         T0MhjWP2WWn3AwZ39dqiWJ8s8G3+e3r8b33exy94=
+        b=Rf5fTv2SSC7uboIUvUEu3AK4+O587dvlO2nyeyk05xuuBYNxw070OnIgxK0evn+Zr
+         jXGm/qMVudBwjtHmzQqEK6zRPo/2ygVGvjmu0uML7GrUef34YsfHk7lDC5WPWyoKsy
+         DqYEQOpX2zttxiQ371dobFSLr4DTWtk6N8HVtRF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandru Gagniuc <mr.nuke.me@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.19 156/192] hwmon: (tps23861) fix byte order in resistance register
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 071/121] ALSA: usb-audio: Inform the delayed registration more properly
 Date:   Tue, 13 Sep 2022 16:04:22 +0200
-Message-Id: <20220913140417.798773592@linuxfoundation.org>
+Message-Id: <20220913140400.417409378@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1f05f65bddd6958d25b133f886da49c1d4bff3fa upstream.
+[ Upstream commit 7e1afce5866e02b45bf88c27dd7de1b9dfade1cc ]
 
-The tps23861 registers are little-endian, and regmap_read_bulk() does
-not do byte order conversion. On BE machines, the bytes were swapped,
-and the interpretation of the resistance value was incorrect.
+The info message that was added in the commit a4aad5636c72 ("ALSA:
+usb-audio: Inform devices that need delayed registration") is actually
+useful to know the need for the delayed registration.  However, it
+turned out that this doesn't catch the all cases; namely, this warned
+only when a PCM stream is attached onto the existing PCM instance, but
+it doesn't count for a newly created PCM instance.  This made
+confusion as if there were no further delayed registration.
 
-To make it work on both big and little-endian machines, use
-le16_to_cpu() to convert the resitance register to host byte order.
+This patch moves the check to the code path for either adding a stream
+or creating a PCM instance.  Also, make it simpler by checking the
+card->registered flag instead of querying each snd_device state.
 
-Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
-Fixes: fff7b8ab22554 ("hwmon: add Texas Instruments TPS23861 driver")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220905142806.110598-1-mr.nuke.me@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a4aad5636c72 ("ALSA: usb-audio: Inform devices that need delayed registration")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216082
+Link: https://lore.kernel.org/r/20220831125901.4660-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tps23861.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ sound/usb/stream.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/hwmon/tps23861.c
-+++ b/drivers/hwmon/tps23861.c
-@@ -489,18 +489,20 @@ static char *tps23861_port_poe_plus_stat
- 
- static int tps23861_port_resistance(struct tps23861_data *data, int port)
- {
--	u16 regval;
-+	unsigned int raw_val;
-+	__le16 regval;
- 
- 	regmap_bulk_read(data->regmap,
- 			 PORT_1_RESISTANCE_LSB + PORT_N_RESISTANCE_LSB_OFFSET * (port - 1),
- 			 &regval,
- 			 2);
- 
--	switch (FIELD_GET(PORT_RESISTANCE_RSN_MASK, regval)) {
-+	raw_val = le16_to_cpu(regval);
-+	switch (FIELD_GET(PORT_RESISTANCE_RSN_MASK, raw_val)) {
- 	case PORT_RESISTANCE_RSN_OTHER:
--		return (FIELD_GET(PORT_RESISTANCE_MASK, regval) * RESISTANCE_LSB) / 10000;
-+		return (FIELD_GET(PORT_RESISTANCE_MASK, raw_val) * RESISTANCE_LSB) / 10000;
- 	case PORT_RESISTANCE_RSN_LOW:
--		return (FIELD_GET(PORT_RESISTANCE_MASK, regval) * RESISTANCE_LSB_LOW) / 10000;
-+		return (FIELD_GET(PORT_RESISTANCE_MASK, raw_val) * RESISTANCE_LSB_LOW) / 10000;
- 	case PORT_RESISTANCE_RSN_SHORT:
- 	case PORT_RESISTANCE_RSN_OPEN:
- 	default:
+diff --git a/sound/usb/stream.c b/sound/usb/stream.c
+index 40ce8a1cb318a..f10f4e6d3fb85 100644
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -495,6 +495,10 @@ static int __snd_usb_add_audio_stream(struct snd_usb_audio *chip,
+ 			return 0;
+ 		}
+ 	}
++
++	if (chip->card->registered)
++		chip->need_delayed_register = true;
++
+ 	/* look for an empty stream */
+ 	list_for_each_entry(as, &chip->pcm_list, list) {
+ 		if (as->fmt_type != fp->fmt_type)
+@@ -502,9 +506,6 @@ static int __snd_usb_add_audio_stream(struct snd_usb_audio *chip,
+ 		subs = &as->substream[stream];
+ 		if (subs->ep_num)
+ 			continue;
+-		if (snd_device_get_state(chip->card, as->pcm) !=
+-		    SNDRV_DEV_BUILD)
+-			chip->need_delayed_register = true;
+ 		err = snd_pcm_new_stream(as->pcm, stream, 1);
+ 		if (err < 0)
+ 			return err;
+-- 
+2.35.1
+
 
 
