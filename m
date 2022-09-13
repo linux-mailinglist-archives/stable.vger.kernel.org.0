@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB84A5B73FA
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DFE5B74D5
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235775AbiIMPTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56992 "EHLO
+        id S233603AbiIMP2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:28:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235896AbiIMPSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:18:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED094B55;
-        Tue, 13 Sep 2022 07:35:14 -0700 (PDT)
+        with ESMTP id S236179AbiIMP1B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:27:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360007D7BA;
+        Tue, 13 Sep 2022 07:38:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B061F614AA;
-        Tue, 13 Sep 2022 14:35:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7498C433D6;
-        Tue, 13 Sep 2022 14:35:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CABEBB80F9D;
+        Tue, 13 Sep 2022 14:36:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FFF4C433D7;
+        Tue, 13 Sep 2022 14:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079714;
-        bh=sZQYElcGS/DOQWicjtPM/97X2vpvcYwfPlGU+gxOP9w=;
+        s=korg; t=1663079799;
+        bh=0PyzWKGgacvE+hrA7uAAPic9Xb5y/v5fYZvJrGxE2Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LmtAZTigs6ppO2dqeGd/fzazjWuriBCwRtIP2npJGJ1YvN1JSPAU0hI/UWcj80Qj4
-         n/hX3Xm861HxNhoeL9Nt4FCcCszNwATm8av044N8ZQqIBg2jTzgyaKElmmvvPq3xOD
-         QpluW7p/PwPu1pdY07vXTE4hoQu/gb+ip4GwJFa8=
+        b=yBUJAR/tCzJHT7YOOtlsAE7fKI38Y5gmkcI3cFBnX4ZgYkVAN6X3DBuuYm9XAT/+U
+         avNoucH3afzMDTSRiFhJq5m9CeYLr3OqpfJlaoFbKNoielWcb5pIr7BzCK05F2B7gM
+         QylisbVxc1DhLoMX7y8WjKViIP8u/MuIYrWVUwoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 46/61] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
-Date:   Tue, 13 Sep 2022 16:07:48 +0200
-Message-Id: <20220913140348.774214734@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Krishna Kurapati <quic_kriskura@quicinc.com>
+Subject: [PATCH 4.9 18/42] usb: gadget: mass_storage: Fix cdrom data transfers on MAC-OS
+Date:   Tue, 13 Sep 2022 16:07:49 +0200
+Message-Id: <20220913140343.184916758@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongxiang Ke <kdx.glider@gmail.com>
+From: Krishna Kurapati <quic_kriskura@quicinc.com>
 
-commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
+commit 9d4dc16ec71bd6368548e9743223e449b4377fc7 upstream.
 
-There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
-the number of it's interfaces less than 4, an out-of-bounds read bug occurs
-when parsing the interface descriptor for this device.
+During cdrom emulation, the response to read_toc command must contain
+the cdrom address as the number of sectors (2048 byte sized blocks)
+represented either as an absolute value (when MSF bit is '0') or in
+terms of PMin/PSec/PFrame (when MSF bit is set to '1'). Incase of
+cdrom, the fsg_lun_open call sets the sector size to 2048 bytes.
 
-Fix this by checking the number of interfaces.
+When MAC OS sends a read_toc request with MSF set to '1', the
+store_cdrom_address assumes that the address being provided is the
+LUN size represented in 512 byte sized blocks instead of 2048. It
+tries to modify the address further to convert it to 2048 byte sized
+blocks and store it in MSF format. This results in data transfer
+failures as the cdrom address being provided in the read_toc response
+is incorrect.
 
-Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
-Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3f565a363cee ("usb: gadget: storage: adapt logic block size to bound block devices")
+Cc: stable@vger.kernel.org
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Krishna Kurapati <quic_kriskura@quicinc.com>
+Link: https://lore.kernel.org/r/1661570110-19127-1-git-send-email-quic_kriskura@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/storage_common.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -502,7 +502,7 @@ int snd_usb_parse_audio_interface(struct
- 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
- 	 * one misses syncpipe, and does not produce any sound.
- 	 */
--	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
-+	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
- 		num = 4;
- 
- 	for (i = 0; i < num; i++) {
+--- a/drivers/usb/gadget/function/storage_common.c
++++ b/drivers/usb/gadget/function/storage_common.c
+@@ -298,8 +298,10 @@ EXPORT_SYMBOL_GPL(fsg_lun_fsync_sub);
+ void store_cdrom_address(u8 *dest, int msf, u32 addr)
+ {
+ 	if (msf) {
+-		/* Convert to Minutes-Seconds-Frames */
+-		addr >>= 2;		/* Convert to 2048-byte frames */
++		/*
++		 * Convert to Minutes-Seconds-Frames.
++		 * Sector size is already set to 2048 bytes.
++		 */
+ 		addr += 2*75;		/* Lead-in occupies 2 seconds */
+ 		dest[3] = addr % 75;	/* Frames */
+ 		addr /= 75;
 
 
