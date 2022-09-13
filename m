@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FAB5B7150
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E3E5B7203
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbiIMOe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:34:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
+        id S233140AbiIMOuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234077AbiIMOcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25AB85F7FD;
-        Tue, 13 Sep 2022 07:19:25 -0700 (PDT)
+        with ESMTP id S234575AbiIMOtD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0515B71714;
+        Tue, 13 Sep 2022 07:25:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BC53B80F9F;
-        Tue, 13 Sep 2022 14:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83BDC433C1;
-        Tue, 13 Sep 2022 14:17:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15001B80F2B;
+        Tue, 13 Sep 2022 14:13:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8212EC433C1;
+        Tue, 13 Sep 2022 14:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078664;
-        bh=oEjjcuEVG/iH/4Ku0spJKcB+eo0FIehX99DbWEpnbjU=;
+        s=korg; t=1663078389;
+        bh=SyFQie/gvul2pEjKKXd4UsW6X9h5wZm0EQz3P2BT5Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGPBlkMReebXtUjM/VYO8PGaIz6jQESd7MLYKY7oma8fz/9Ohq5ZQiKZ5Iak9h9Uk
-         R5fFj/M2f0g6Zx2K6e5G37hoj/i/DJ+6TCBfoaM7RL2Me1+A6P7kJlcgx7ZX7tby+f
-         IgTbL++WzKBWc04n509oZ5hi8gUK++KDkIyN/MJo=
+        b=Hsk82jr9PzoQC3iiHoySOKwJvBaPfElmCNf79eFLP6lRy7s2w11dnZoSJj0UWMdKl
+         FH6m4ZJ7jNajIGHQQis4XKRv7HolZTVxXrDGlTkJQLYS8ZLx2i9EudSCpJRDllWrnk
+         wP8A88Pkf8kkWp+L1KZtJjUXmAvjQ7GGqHRLFFZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luboslav Pivarc <lpivarc@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.15 034/121] vfio/type1: Unpin zero pages
-Date:   Tue, 13 Sep 2022 16:03:45 +0200
-Message-Id: <20220913140358.820473968@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.19 120/192] ice: use bitmap_free instead of devm_kfree
+Date:   Tue, 13 Sep 2022 16:03:46 +0200
+Message-Id: <20220913140415.962205784@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
 
-commit 873aefb376bbc0ed1dd2381ea1d6ec88106fdbd4 upstream.
+[ Upstream commit 59ac325557b6c14f1f793b90d3946bc145ffa085 ]
 
-There's currently a reference count leak on the zero page.  We increment
-the reference via pin_user_pages_remote(), but the page is later handled
-as an invalid/reserved page, therefore it's not accounted against the
-user and not unpinned by our put_pfn().
+pf->avail_txqs was allocated using bitmap_zalloc, bitmap_free should be
+used to free this memory.
 
-Introducing special zero page handling in put_pfn() would resolve the
-leak, but without accounting of the zero page, a single user could
-still create enough mappings to generate a reference count overflow.
-
-The zero page is always resident, so for our purposes there's no reason
-to keep it pinned.  Therefore, add a loop to walk pages returned from
-pin_user_pages_remote() and unpin any zero pages.
-
-Cc: stable@vger.kernel.org
-Reported-by: Luboslav Pivarc <lpivarc@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/166182871735.3518559.8884121293045337358.stgit@omen
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 78b5713ac1241 ("ice: Alloc queue management bitmaps and arrays dynamically")
+Signed-off-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_type1.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -561,6 +561,18 @@ static int vaddr_get_pfns(struct mm_stru
- 	ret = pin_user_pages_remote(mm, vaddr, npages, flags | FOLL_LONGTERM,
- 				    pages, NULL, NULL);
- 	if (ret > 0) {
-+		int i;
-+
-+		/*
-+		 * The zero page is always resident, we don't need to pin it
-+		 * and it falls into our invalid/reserved test so we don't
-+		 * unpin in put_pfn().  Unpin all zero pages in the batch here.
-+		 */
-+		for (i = 0 ; i < ret; i++) {
-+			if (unlikely(is_zero_pfn(page_to_pfn(pages[i]))))
-+				unpin_user_page(pages[i]);
-+		}
-+
- 		*pfn = page_to_pfn(pages[0]);
- 		goto done;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index abc5d2b91f32b..4c6bb7482b362 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -3912,7 +3912,7 @@ static int ice_init_pf(struct ice_pf *pf)
+ 
+ 	pf->avail_rxqs = bitmap_zalloc(pf->max_pf_rxqs, GFP_KERNEL);
+ 	if (!pf->avail_rxqs) {
+-		devm_kfree(ice_pf_to_dev(pf), pf->avail_txqs);
++		bitmap_free(pf->avail_txqs);
+ 		pf->avail_txqs = NULL;
+ 		return -ENOMEM;
  	}
+-- 
+2.35.1
+
 
 
