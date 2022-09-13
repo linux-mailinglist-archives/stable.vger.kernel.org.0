@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F5A5B7426
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC085B748F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235211AbiIMPPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51968 "EHLO
+        id S235915AbiIMPWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235909AbiIMPOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E7756AA18;
-        Tue, 13 Sep 2022 07:33:43 -0700 (PDT)
+        with ESMTP id S235783AbiIMPVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:21:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6687B286;
+        Tue, 13 Sep 2022 07:36:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA696614C1;
-        Tue, 13 Sep 2022 14:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F28C433D6;
-        Tue, 13 Sep 2022 14:33:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96067B80FF0;
+        Tue, 13 Sep 2022 14:34:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01310C433D6;
+        Tue, 13 Sep 2022 14:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079609;
-        bh=H1D+QZ2N+wLEuEAv5V5d0q1lZVLlwm/5xn6mWBLYCTw=;
+        s=korg; t=1663079698;
+        bh=M85DBPo+sC6ssrj+uPVSPX8PREwvyuTPkPj0UmY4iNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ke9zG8riVLmOdE9+1U4yXHn70KFEXeNQ3e1IyY5b1GIrOHvbTsY47lcsVO3nriwYC
-         zuozjld4Y8mr9J2/RJNvPZ745N9rRdxQ1LwOVTHsODS7bd/0tDwxU5cU80902Vkn7X
-         wkWf/Ba5n6LAVVXVb84QLFEadrvkwuFUjuihNoiI=
+        b=ZWOiE4qsNEo6uuatiFBaMnwQCNDj1wpNTdJD97ujP/tm1Bln/Rpgoys/dSArkIAWx
+         mohIaUyPbTWBCUsoxtnoKLKXmnP3MAwYUXkZDh9v1kp6DXJWtOUjhFTxrQ49Vkm8ES
+         Olx9bEHUdDqJqXH5W/g5cX8MlBeDGurzyBvIeIhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 4.19 66/79] sch_sfb: Dont assume the skb is still around after enqueueing to child
-Date:   Tue, 13 Sep 2022 16:07:24 +0200
-Message-Id: <20220913140352.078322905@linuxfoundation.org>
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 4.14 23/61] usb: dwc2: fix wrong order of phy_power_on and phy_init
+Date:   Tue, 13 Sep 2022 16:07:25 +0200
+Message-Id: <20220913140347.666168775@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
+commit f9b995b49a07bd0d43b0e490f59be84415c745ae upstream.
 
-The sch_sfb enqueue() routine assumes the skb is still alive after it has
-been enqueued into a child qdisc, using the data in the skb cb field in the
-increment_qlen() routine after enqueue. However, the skb may in fact have
-been freed, causing a use-after-free in this case. In particular, this
-happens if sch_cake is used as a child of sfb, and the GSO splitting mode
-of CAKE is enabled (in which case the skb will be split into segments and
-the original skb freed).
+Since 1599069a62c6 ("phy: core: Warn when phy_power_on is called before
+phy_init") the driver complains. In my case (Amlogic SoC) the warning
+is: phy phy-fe03e000.phy.2: phy_power_on was called before phy_init
+So change the order of the two calls. The same change has to be done
+to the order of phy_exit() and phy_power_off().
 
-Fix this by copying the sfb cb data to the stack before enqueueing the skb,
-and using this stack copy in increment_qlen() instead of the skb pointer
-itself.
-
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
-Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 09a75e857790 ("usb: dwc2: refactor common low-level hw code to platform.c")
+Cc: stable@vger.kernel.org
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/dfcc6b40-2274-4e86-e73c-5c5e6aa3e046@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_sfb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/dwc2/platform.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 81d205acb1b6a..38cf065156951 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -139,15 +139,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
- 	}
- }
- 
--static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
-+static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
- {
- 	u32 sfbhash;
- 
--	sfbhash = sfb_hash(skb, 0);
-+	sfbhash = cb->hashes[0];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 0, q);
- 
--	sfbhash = sfb_hash(skb, 1);
-+	sfbhash = cb->hashes[1];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 1, q);
- }
-@@ -287,6 +287,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 	struct Qdisc *child = q->qdisc;
- 	struct tcf_proto *fl;
-+	struct sfb_skb_cb cb;
- 	int i;
- 	u32 p_min = ~0;
- 	u32 minqlen = ~0;
-@@ -403,11 +404,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -141,9 +141,9 @@ static int __dwc2_lowlevel_hw_enable(str
+ 	} else if (hsotg->plat && hsotg->plat->phy_init) {
+ 		ret = hsotg->plat->phy_init(pdev, hsotg->plat->phy_type);
+ 	} else {
+-		ret = phy_power_on(hsotg->phy);
++		ret = phy_init(hsotg->phy);
+ 		if (ret == 0)
+-			ret = phy_init(hsotg->phy);
++			ret = phy_power_on(hsotg->phy);
  	}
  
- enqueue:
-+	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
- 	ret = qdisc_enqueue(skb, child, to_free);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
- 		qdisc_qstats_backlog_inc(sch, skb);
- 		sch->q.qlen++;
--		increment_qlen(skb, q);
-+		increment_qlen(&cb, q);
- 	} else if (net_xmit_drop_count(ret)) {
- 		q->stats.childdrop++;
- 		qdisc_qstats_drop(sch);
--- 
-2.35.1
-
+ 	return ret;
+@@ -175,9 +175,9 @@ static int __dwc2_lowlevel_hw_disable(st
+ 	} else if (hsotg->plat && hsotg->plat->phy_exit) {
+ 		ret = hsotg->plat->phy_exit(pdev, hsotg->plat->phy_type);
+ 	} else {
+-		ret = phy_exit(hsotg->phy);
++		ret = phy_power_off(hsotg->phy);
+ 		if (ret == 0)
+-			ret = phy_power_off(hsotg->phy);
++			ret = phy_exit(hsotg->phy);
+ 	}
+ 	if (ret)
+ 		return ret;
 
 
