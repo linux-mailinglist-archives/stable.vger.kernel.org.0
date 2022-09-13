@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 772185B71D2
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E03C05B7009
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232787AbiIMOuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:50:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
+        id S232617AbiIMOUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234601AbiIMOtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCF96714B;
-        Tue, 13 Sep 2022 07:25:41 -0700 (PDT)
+        with ESMTP id S233184AbiIMOSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC59647C3;
+        Tue, 13 Sep 2022 07:13:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26C73B80F10;
-        Tue, 13 Sep 2022 14:11:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EF2AC433D7;
-        Tue, 13 Sep 2022 14:11:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C8D6614A3;
+        Tue, 13 Sep 2022 14:11:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F695C433D6;
+        Tue, 13 Sep 2022 14:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078312;
-        bh=CWn4DWCZrdE99Iiqu5iA4dHZ/cYt7v+12OBJZMGeZ94=;
+        s=korg; t=1663078315;
+        bh=XuX/fvFW/AlPtJEKuENNJQoG8fV30cxp81OnAz5wQkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D86byUoAk8+wz6ncJjp84hG3Y/gt/alGAqBMVM+BMRd+1/ix/LVeL/oJUSdc+hkop
-         OYlQlFawFgiVVcFjLaNcywV22Jq3w8MqgcbtYmjEe4wPHFn3TBcNMWBJDbQAlxb2R9
-         EQC5GSBGvfNDoYCaXRZEAwgF6wNfNWbZzrXRoha4=
+        b=cNFULmsTRADbvLLKh8MvVC7uz6j4w7qGtHO9eYDkwjNCVePKI+bvIorMNUIlGcKMc
+         oAnSpnk2ZFu1Uop+A1j8ynsDx8Hv29GLQYEn4J62eBG7GdlmkHoCRaCzN9LIf4g12V
+         slBuDnbvZifl/E2EqSdaMOza93euFz3PlEPzQIsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Chengchang Tang <tangchengchang@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 091/192] soc: brcmstb: pm-arm: Fix refcount leak and __iomem leak bugs
-Date:   Tue, 13 Sep 2022 16:03:17 +0200
-Message-Id: <20220913140414.498714443@linuxfoundation.org>
+Subject: [PATCH 5.19 092/192] RDMA/hns: Fix supported page size
+Date:   Tue, 13 Sep 2022 16:03:18 +0200
+Message-Id: <20220913140414.549080447@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -54,161 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Chengchang Tang <tangchengchang@huawei.com>
 
-[ Upstream commit 1085f5080647f0c9f357c270a537869191f7f2a1 ]
+[ Upstream commit 55af9d498556f0860eb89ffa7677e8d73f6f643f ]
 
-In brcmstb_pm_probe(), there are two kinds of leak bugs:
+The supported page size for hns is (4K, 128M), not (4K, 2G).
 
-(1) we need to add of_node_put() when for_each__matching_node() breaks
-(2) we need to add iounmap() for each iomap in fail path
-
-Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220707015620.306468-1-windhl@126.com
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
+Link: https://lore.kernel.org/r/20220829105021.1427804-2-liangwenpeng@huawei.com
+Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/brcmstb/pm/pm-arm.c | 50 ++++++++++++++++++++++-------
- 1 file changed, 39 insertions(+), 11 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/bcm/brcmstb/pm/pm-arm.c b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-index 70ad0f3dce283..286f5d57c0cab 100644
---- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-+++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-@@ -684,13 +684,14 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 	const struct of_device_id *of_id = NULL;
- 	struct device_node *dn;
- 	void __iomem *base;
--	int ret, i;
-+	int ret, i, s;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+index 7ffb7824d2689..2d7e91004e3c7 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+@@ -83,7 +83,7 @@
  
- 	/* AON ctrl registers */
- 	base = brcmstb_ioremap_match(aon_ctrl_dt_ids, 0, NULL);
- 	if (IS_ERR(base)) {
- 		pr_err("error mapping AON_CTRL\n");
--		return PTR_ERR(base);
-+		ret = PTR_ERR(base);
-+		goto aon_err;
- 	}
- 	ctrl.aon_ctrl_base = base;
- 
-@@ -700,8 +701,10 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 		/* Assume standard offset */
- 		ctrl.aon_sram = ctrl.aon_ctrl_base +
- 				     AON_CTRL_SYSTEM_DATA_RAM_OFS;
-+		s = 0;
- 	} else {
- 		ctrl.aon_sram = base;
-+		s = 1;
- 	}
- 
- 	writel_relaxed(0, ctrl.aon_sram + AON_REG_PANIC);
-@@ -711,7 +714,8 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 				     (const void **)&ddr_phy_data);
- 	if (IS_ERR(base)) {
- 		pr_err("error mapping DDR PHY\n");
--		return PTR_ERR(base);
-+		ret = PTR_ERR(base);
-+		goto ddr_phy_err;
- 	}
- 	ctrl.support_warm_boot = ddr_phy_data->supports_warm_boot;
- 	ctrl.pll_status_offset = ddr_phy_data->pll_status_offset;
-@@ -731,17 +735,20 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 	for_each_matching_node(dn, ddr_shimphy_dt_ids) {
- 		i = ctrl.num_memc;
- 		if (i >= MAX_NUM_MEMC) {
-+			of_node_put(dn);
- 			pr_warn("too many MEMCs (max %d)\n", MAX_NUM_MEMC);
- 			break;
- 		}
- 
- 		base = of_io_request_and_map(dn, 0, dn->full_name);
- 		if (IS_ERR(base)) {
-+			of_node_put(dn);
- 			if (!ctrl.support_warm_boot)
- 				break;
- 
- 			pr_err("error mapping DDR SHIMPHY %d\n", i);
--			return PTR_ERR(base);
-+			ret = PTR_ERR(base);
-+			goto ddr_shimphy_err;
- 		}
- 		ctrl.memcs[i].ddr_shimphy_base = base;
- 		ctrl.num_memc++;
-@@ -752,14 +759,18 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 	for_each_matching_node(dn, brcmstb_memc_of_match) {
- 		base = of_iomap(dn, 0);
- 		if (!base) {
-+			of_node_put(dn);
- 			pr_err("error mapping DDR Sequencer %d\n", i);
--			return -ENOMEM;
-+			ret = -ENOMEM;
-+			goto brcmstb_memc_err;
- 		}
- 
- 		of_id = of_match_node(brcmstb_memc_of_match, dn);
- 		if (!of_id) {
- 			iounmap(base);
--			return -EINVAL;
-+			of_node_put(dn);
-+			ret = -EINVAL;
-+			goto brcmstb_memc_err;
- 		}
- 
- 		ddr_seq_data = of_id->data;
-@@ -779,21 +790,24 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 	dn = of_find_matching_node(NULL, sram_dt_ids);
- 	if (!dn) {
- 		pr_err("SRAM not found\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto brcmstb_memc_err;
- 	}
- 
- 	ret = brcmstb_init_sram(dn);
- 	of_node_put(dn);
- 	if (ret) {
- 		pr_err("error setting up SRAM for PM\n");
--		return ret;
-+		goto brcmstb_memc_err;
- 	}
- 
- 	ctrl.pdev = pdev;
- 
- 	ctrl.s3_params = kmalloc(sizeof(*ctrl.s3_params), GFP_KERNEL);
--	if (!ctrl.s3_params)
--		return -ENOMEM;
-+	if (!ctrl.s3_params) {
-+		ret = -ENOMEM;
-+		goto s3_params_err;
-+	}
- 	ctrl.s3_params_pa = dma_map_single(&pdev->dev, ctrl.s3_params,
- 					   sizeof(*ctrl.s3_params),
- 					   DMA_TO_DEVICE);
-@@ -813,7 +827,21 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
- 
- out:
- 	kfree(ctrl.s3_params);
--
-+s3_params_err:
-+	iounmap(ctrl.boot_sram);
-+brcmstb_memc_err:
-+	for (i--; i >= 0; i--)
-+		iounmap(ctrl.memcs[i].ddr_ctrl);
-+ddr_shimphy_err:
-+	for (i = 0; i < ctrl.num_memc; i++)
-+		iounmap(ctrl.memcs[i].ddr_shimphy_base);
-+
-+	iounmap(ctrl.memcs[0].ddr_phy_base);
-+ddr_phy_err:
-+	iounmap(ctrl.aon_ctrl_base);
-+	if (s)
-+		iounmap(ctrl.aon_sram);
-+aon_err:
- 	pr_warn("PM: initialization failed with code %d\n", ret);
- 
- 	return ret;
+ #define HNS_ROCE_V2_QPC_TIMER_ENTRY_SZ		PAGE_SIZE
+ #define HNS_ROCE_V2_CQC_TIMER_ENTRY_SZ		PAGE_SIZE
+-#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFFF000
++#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFF000
+ #define HNS_ROCE_V2_MAX_INNER_MTPT_NUM		2
+ #define HNS_ROCE_INVALID_LKEY			0x0
+ #define HNS_ROCE_INVALID_SGE_LENGTH		0x80000000
 -- 
 2.35.1
 
