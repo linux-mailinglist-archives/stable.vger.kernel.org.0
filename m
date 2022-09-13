@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDA05B6F31
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D42305B6F35
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232749AbiIMOKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:10:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
+        id S232483AbiIMOKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232386AbiIMOJP (ORCPT
+        with ESMTP id S232659AbiIMOJP (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:09:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF995A152;
-        Tue, 13 Sep 2022 07:08:55 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5615AA22;
+        Tue, 13 Sep 2022 07:09:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CE1A6149A;
-        Tue, 13 Sep 2022 14:08:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33FCEC433C1;
-        Tue, 13 Sep 2022 14:08:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1899B80EFA;
+        Tue, 13 Sep 2022 14:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B541C433C1;
+        Tue, 13 Sep 2022 14:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078134;
-        bh=NyZYEkqcXaZfqxjTZ50hQOYGRdfmSqXY3CvuyG/rMX4=;
+        s=korg; t=1663078137;
+        bh=TP1PAUh22etwcVEsjLpwRR+RTa1C6UM/k0FrZreC9Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcQHCHDNPjhzKZixtf8K2ti6SIxcK2BCdS/bxRwZt+32kFMzRkJi3JkL+DE+dH4Bm
-         GTJTQYIDDHQupqhlR5BAFbyR+pzWrYJcLhOgDJ4PypkHdwQBSSP4COoz5+062zGNIw
-         eY7ZuPMfF570HsscGh+RjwudLBCWNYcwwEM/kxOA=
+        b=plxs2MEg1+QjfXuGZJv5xkzRBvdtTaX/05eALV3dGZrSIy34l9+oHDIBcAdNVuN15
+         8E+izwFVIcSyHYtHYnaGxsGkNJKm90qv9UrKw1/jgaSLPZD7BmqnrFZYwz+J1U9BRo
+         BETTRQFaLMPsAzbue/wliaCWfim98BepeJosniz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Li Zhong <floridsleeves@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 026/192] cpufreq: check only freq_table in __resolve_freq()
-Date:   Tue, 13 Sep 2022 16:02:12 +0200
-Message-Id: <20220913140411.214707255@linuxfoundation.org>
+Subject: [PATCH 5.19 027/192] net/core/skbuff: Check the return value of skb_copy_bits()
+Date:   Tue, 13 Sep 2022 16:02:13 +0200
+Message-Id: <20220913140411.264395978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -55,39 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: lily <floridsleeves@gmail.com>
 
-[ Upstream commit 6ca7076fbfaeccce173aeab832d76b9e49e1034b ]
+[ Upstream commit c624c58e08b15105662b9ab9be23d14a6b945a49 ]
 
-There is no need to check if the cpufreq driver implements callback
-cpufreq_driver::target_index. The logic in the __resolve_freq uses
-the frequency table available in the policy. It doesn't matter if the
-driver provides 'target_index' or 'target' callback. It just has to
-populate the 'policy->freq_table'.
+skb_copy_bits() could fail, which requires a check on the return
+value.
 
-Thus, check only frequency table during the frequency resolving call.
-
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Li Zhong <floridsleeves@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skbuff.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 2cad427741647..f9fd1b6c15d42 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -532,7 +532,7 @@ static unsigned int __resolve_freq(struct cpufreq_policy *policy,
- 
- 	target_freq = clamp_val(target_freq, policy->min, policy->max);
- 
--	if (!cpufreq_driver->target_index)
-+	if (!policy->freq_table)
- 		return target_freq;
- 
- 	idx = cpufreq_frequency_table_target(policy, target_freq, relation);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index bebf58464d667..4b2b07a9422cf 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -4179,9 +4179,8 @@ struct sk_buff *skb_segment(struct sk_buff *head_skb,
+ 				SKB_GSO_CB(nskb)->csum_start =
+ 					skb_headroom(nskb) + doffset;
+ 			} else {
+-				skb_copy_bits(head_skb, offset,
+-					      skb_put(nskb, len),
+-					      len);
++				if (skb_copy_bits(head_skb, offset, skb_put(nskb, len), len))
++					goto err;
+ 			}
+ 			continue;
+ 		}
 -- 
 2.35.1
 
