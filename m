@@ -2,67 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A56275B64AD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 02:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04385B653C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 03:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbiIMAxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 20:53:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56984 "EHLO
+        id S229482AbiIMBvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 21:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbiIMAxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 20:53:23 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3A72229B
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 17:53:22 -0700 (PDT)
+        with ESMTP id S229630AbiIMBvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 21:51:45 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060FE4F6B8;
+        Mon, 12 Sep 2022 18:51:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663030402; x=1694566402;
+  t=1663033904; x=1694569904;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=zlooSZEu66Dsap4iMZFdWDOm0F8C9gPOI5QrpZIoMWo=;
-  b=SEEtvoCDMQrfPMij253FaYa81ImsQnvm5k6CL7dveb7mTtenzPOsxaX+
-   Lbm5xX/Qv5T7Ji9o162i+t3/Mg5vnLPvFjmUP2cSXV3RGPklM0hbukQ7b
-   xUpan8AE5yx1y8rTx1LhDw/AMjQ3+H5mCxK7SYd8CQUY/cvA9T+E3L5WK
-   476ODbJKOF0FjFJmlvNk/0gTwKl1gYqoiKWjXyFKiEs7CWunM3SkT2G6d
-   CfMNo3LMk2bEY6hw52TbVoOypRI1JFQrsn9n4aM3D6QRsRB4v30nwn0Ek
-   +fHm5BhfZVOSgiboLKSNdC8sYBFwOLXNExMDkQt7qK9ScsWDpxH2ODjdp
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10468"; a="324246111"
+  bh=2NGc7hvIE92RCbTENDH1MmBHPouANN1/L78mTjXfFAs=;
+  b=Ipln9n8efswqVqwMMrHaQesMo1oQGb4OS82Xl17QJWW6U4fHmdH3TN18
+   cb5KWaI3MQdy6kWwvnRyS43+R3IWBu/n2Z3JuIvQKsM/vxwF4TOI39eko
+   LIJGTRValOAr0zsGnFGzQHOKx4y0pK2GFsGtPm60gpqRuzeIrNYbRTf8v
+   OEGIydVJmaKXj3+MzuNHLhuf7ISqVKHLmnwjm200PDrE6GKIp9h9wOkjB
+   P1OX07xzKGOyLX3UvchDcHVueJsgOb+thFI3TwxitjXBBaY8twE9/1CFc
+   5iCdFjwpzLuHU3AW8O9fvzDfkVEzYPpE74Qmnuh0sA/YVyhdkC9AyEnyd
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10468"; a="298811072"
 X-IronPort-AV: E=Sophos;i="5.93,311,1654585200"; 
-   d="asc'?scan'208";a="324246111"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Sep 2022 17:53:22 -0700
+   d="scan'208";a="298811072"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Sep 2022 18:51:43 -0700
+X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,311,1654585200"; 
-   d="asc'?scan'208";a="678337541"
-Received: from sho10-mobl1.amr.corp.intel.com (HELO desk) ([10.251.9.78])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Sep 2022 17:53:21 -0700
-Date:   Mon, 12 Sep 2022 17:53:20 -0700
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, peterz@infradead.org,
-        stable@vger.kernel.org,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: Re: FAILED: patch "[PATCH] x86/nospec: Fix i386 RSB stuffing" failed
- to apply to 5.10-stable tree
-Message-ID: <20220913005320.74lddsftgrm3myza@desk>
-References: <166176181110563@kroah.com>
- <3e14d81d0576aed9583d07fbd14e6a502f2d4739.camel@decadent.org.uk>
- <YxB+xgcz9QD5BK77@kroah.com>
- <ff8d3521a32e1a425af32711856d0d8fdfa84d2b.camel@decadent.org.uk>
- <Yxc4CeyDS2tWLXfo@kroah.com>
- <3fb3cc8cb6bfab9dc52e351c56a31c233051c9b0.camel@decadent.org.uk>
- <20220906212010.rfvxzkt25nwakfad@desk>
- <4c8251e607ad3248bf6309069a3d7c577c4da7a5.camel@decadent.org.uk>
- <20220908060949.dcybz74j3wm7pzrg@desk>
- <61fd8fab49c19340656b2b5fbad5bc1e9f73d955.camel@decadent.org.uk>
+   d="scan'208";a="741990614"
+Received: from lkp-server02.sh.intel.com (HELO 4011df4f4fd3) ([10.239.97.151])
+  by orsmga004.jf.intel.com with ESMTP; 12 Sep 2022 18:51:39 -0700
+Received: from kbuild by 4011df4f4fd3 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1oXv5O-00034d-1T;
+        Tue, 13 Sep 2022 01:51:38 +0000
+Date:   Tue, 13 Sep 2022 09:51:37 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Johan Hovold <johan+linaro@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@gmail.com>
+Cc:     kbuild-all@lists.01.org, dri-devel@lists.freedesktop.org,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        David Airlie <airlied@linux.ie>, linux-arm-msm@vger.kernel.org,
+        Bjorn Andersson <andersson@kernel.org>,
+        linux-kernel@vger.kernel.org,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org, freedreno@lists.freedesktop.org,
+        Sean Paul <sean@poorly.run>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 4/7] drm/msm/dp: fix aux-bus EP lifetime
+Message-ID: <202209130930.yrI8pQGL-lkp@intel.com>
+References: <20220912154046.12900-5-johan+linaro@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yktssuvtcvz2zqik"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <61fd8fab49c19340656b2b5fbad5bc1e9f73d955.camel@decadent.org.uk>
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+In-Reply-To: <20220912154046.12900-5-johan+linaro@kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -71,73 +79,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Johan,
 
---yktssuvtcvz2zqik
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I love your patch! Yet something to improve:
 
-On Thu, Sep 08, 2022 at 02:44:33PM +0200, Ben Hutchings wrote:
-> On Wed, 2022-09-07 at 23:09 -0700, Pawan Gupta wrote:
-> > On Wed, Sep 07, 2022 at 02:23:58AM +0200, Ben Hutchings wrote:
-> > > > > - The added mitigation, for PBRSB, requires removing any RET
-> > > > > instructions executed between VM exit and the RSB filling.  In th=
-ese
-> > > > > older branches that hasn't been done, so the mitigation doesn't w=
-ork.
-> > > >=20
-> > > > I checked 4.19 and 5.4, I don't see any RET between VM-exit and RSB
-> > > > filling. Could you please point me to any specific instance you are
-> > > > seeing?
-> > >=20
-> > > Yes, you're right.  The backported versions avoid this problem.  They
-> > > are quite different from the upstream commit - and I would have
-> > > appreciated some explanation of this in their commit messages.
-> >=20
-> > Ahh right, I will keep in mind next time.
-> >=20
-> > > So, let's try again to move forward.  I've attached a backport for 4.=
-19
-> > > and 5.4 (only tested with the latter so far).
-> >=20
-> > I am not understanding why lfence in single-entry-fill sequence is okay
-> > on 32-bit kernels?
-> >=20
-> > #define __FILL_ONE_RETURN                               \
-> >         __FILL_RETURN_SLOT                              \
-> >         add     $(BITS_PER_LONG/8), %_ASM_SP;           \
-> >         lfence;
->=20
-> This isn't exactly about whether the kernel is 32-bit vs 64-bit, it's
-> about whether the code may run on a processor that lacks support for
-> LFENCE (part of SSE2).
->=20
-> - SSE2 is architectural on x86_64, so 64-bit kernels can use LFENCE
-> unconditionally.
-> - PBRSB doesn't affect any of those old processors, so its mitigation
-> can use LFENCE unconditionally.  (Those procesors don't support VMX
-> either.)
+[auto build test ERROR on next-20220912]
+[also build test ERROR on v6.0-rc5]
+[cannot apply to drm-misc/drm-misc-next drm/drm-next drm-intel/for-linux-next drm-tip/drm-tip linus/master v6.0-rc5 v6.0-rc4 v6.0-rc3]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Thanks Ben.
+url:    https://github.com/intel-lab-lkp/linux/commits/Johan-Hovold/drm-msm-probe-deferral-fixes/20220912-234351
+base:    044b771be9c5de9d817dfafb829d2f049c71c3b4
+config: arc-allyesconfig (https://download.01.org/0day-ci/archive/20220913/202209130930.yrI8pQGL-lkp@intel.com/config)
+compiler: arceb-elf-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/458c96e19570036b3dd6e48d91f0bf6f67b996fa
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Johan-Hovold/drm-msm-probe-deferral-fixes/20220912-234351
+        git checkout 458c96e19570036b3dd6e48d91f0bf6f67b996fa
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=arc SHELL=/bin/bash
 
---yktssuvtcvz2zqik
-Content-Type: application/pgp-signature; name="signature.asc"
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
 
------BEGIN PGP SIGNATURE-----
+All errors (new ones prefixed by >>):
 
-iQIzBAABCAAdFiEEhLB5DdoLvdxF3TZu/KkigcHMTKMFAmMf1IAACgkQ/KkigcHM
-TKO+Jw/+Kp//MHRhB1sEiNiApB9biAE8S/1VrdzxYZVwLf2K2Q09cuhHtZJdKe3B
-+yEfmfyu+YxEWZwRVLm0Hz+cMOkHxJv87WWLQvXeaTuQ3Pun8nMpdCoyQUCfFcOE
-EwEO/boW4pNrlk1Nx0PGNXIk2jG5u0sxqiS3qyQRvkfZZ8E4dFJF9RYSshqxdqdt
-xHKJZQVdJ5MpdAvJ0it9c2yDVG0D31V6wa+6bgSOZAbY6enQP4R4zuGpYJ8KEEe6
-2xC6+A9Pl5f73Qu6TIcoF8Q0OB/3FmvvaFw54c7H+Sy24Fr61yDJvPxVpUcl7yji
-xRAXHc36jFADqU17ZVDLzXWCWIaE66NcuSIUZC98DCqQC4kQ2eIlrS4JyvXEkEqf
-ylPRxJxAfhRhDJW5Nhi4UyF8H5pNJcKNRmOZiPy4gZo5jchM8gl4s9dH5wCwomhP
-WPbOcFy4do2TifJFUghTyseLe25qtpQcad4XPlNWW6jmdndGl/BOw8YenLbRmOVL
-PovuzO3/iuLdriZhYpAay9zSDHH5Xzuy7aK/kXoe4KDZU3fRXYgtQvNxic4piBr4
-jk/oAsVv0FejpQ9d0jPwdefrggtu+w4mwE3mYNsGkixuDJcE7LMBr0FzY/udFDWk
-PIFzTkwSwNs4yHm0WeDmQmD4DuhT+T68x/gO27tfzJh6nefOUHg=
-=Nh6S
------END PGP SIGNATURE-----
+   drivers/gpu/drm/bridge/ti-sn65dsi86.c: In function 'ti_sn_aux_probe':
+>> drivers/gpu/drm/bridge/ti-sn65dsi86.c:632:50: error: passing argument 1 of 'devm_of_dp_aux_populate_ep_devices' from incompatible pointer type [-Werror=incompatible-pointer-types]
+     632 |         ret = devm_of_dp_aux_populate_ep_devices(&pdata->aux);
+         |                                                  ^~~~~~~~~~~
+         |                                                  |
+         |                                                  struct drm_dp_aux *
+   In file included from drivers/gpu/drm/bridge/ti-sn65dsi86.c:26:
+   include/drm/display/drm_dp_aux_bus.h:64:69: note: expected 'struct device *' but argument is of type 'struct drm_dp_aux *'
+      64 | static inline int devm_of_dp_aux_populate_ep_devices(struct device *dev, struct drm_dp_aux *aux)
+         |                                                      ~~~~~~~~~~~~~~~^~~
+>> drivers/gpu/drm/bridge/ti-sn65dsi86.c:632:15: error: too few arguments to function 'devm_of_dp_aux_populate_ep_devices'
+     632 |         ret = devm_of_dp_aux_populate_ep_devices(&pdata->aux);
+         |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/drm/display/drm_dp_aux_bus.h:64:19: note: declared here
+      64 | static inline int devm_of_dp_aux_populate_ep_devices(struct device *dev, struct drm_dp_aux *aux)
+         |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+--
+   drivers/gpu/drm/bridge/analogix/anx7625.c: In function 'anx7625_i2c_probe':
+>> drivers/gpu/drm/bridge/analogix/anx7625.c:2654:44: error: passing argument 1 of 'devm_of_dp_aux_populate_ep_devices' from incompatible pointer type [-Werror=incompatible-pointer-types]
+    2654 |         devm_of_dp_aux_populate_ep_devices(&platform->aux);
+         |                                            ^~~~~~~~~~~~~~
+         |                                            |
+         |                                            struct drm_dp_aux *
+   In file included from drivers/gpu/drm/bridge/analogix/anx7625.c:24:
+   include/drm/display/drm_dp_aux_bus.h:64:69: note: expected 'struct device *' but argument is of type 'struct drm_dp_aux *'
+      64 | static inline int devm_of_dp_aux_populate_ep_devices(struct device *dev, struct drm_dp_aux *aux)
+         |                                                      ~~~~~~~~~~~~~~~^~~
+>> drivers/gpu/drm/bridge/analogix/anx7625.c:2654:9: error: too few arguments to function 'devm_of_dp_aux_populate_ep_devices'
+    2654 |         devm_of_dp_aux_populate_ep_devices(&platform->aux);
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/drm/display/drm_dp_aux_bus.h:64:19: note: declared here
+      64 | static inline int devm_of_dp_aux_populate_ep_devices(struct device *dev, struct drm_dp_aux *aux)
+         |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
 
---yktssuvtcvz2zqik--
+
+vim +/devm_of_dp_aux_populate_ep_devices +632 drivers/gpu/drm/bridge/ti-sn65dsi86.c
+
+77674e722f4b27 Laurent Pinchart 2021-06-24  620  
+77674e722f4b27 Laurent Pinchart 2021-06-24  621  static int ti_sn_aux_probe(struct auxiliary_device *adev,
+77674e722f4b27 Laurent Pinchart 2021-06-24  622  			   const struct auxiliary_device_id *id)
+77674e722f4b27 Laurent Pinchart 2021-06-24  623  {
+77674e722f4b27 Laurent Pinchart 2021-06-24  624  	struct ti_sn65dsi86 *pdata = dev_get_drvdata(adev->dev.parent);
+77674e722f4b27 Laurent Pinchart 2021-06-24  625  	int ret;
+77674e722f4b27 Laurent Pinchart 2021-06-24  626  
+77674e722f4b27 Laurent Pinchart 2021-06-24  627  	pdata->aux.name = "ti-sn65dsi86-aux";
+77674e722f4b27 Laurent Pinchart 2021-06-24  628  	pdata->aux.dev = &adev->dev;
+77674e722f4b27 Laurent Pinchart 2021-06-24  629  	pdata->aux.transfer = ti_sn_aux_transfer;
+77674e722f4b27 Laurent Pinchart 2021-06-24  630  	drm_dp_aux_init(&pdata->aux);
+77674e722f4b27 Laurent Pinchart 2021-06-24  631  
+77674e722f4b27 Laurent Pinchart 2021-06-24 @632  	ret = devm_of_dp_aux_populate_ep_devices(&pdata->aux);
+77674e722f4b27 Laurent Pinchart 2021-06-24  633  	if (ret)
+77674e722f4b27 Laurent Pinchart 2021-06-24  634  		return ret;
+77674e722f4b27 Laurent Pinchart 2021-06-24  635  
+77674e722f4b27 Laurent Pinchart 2021-06-24  636  	/*
+77674e722f4b27 Laurent Pinchart 2021-06-24  637  	 * The eDP to MIPI bridge parts don't work until the AUX channel is
+77674e722f4b27 Laurent Pinchart 2021-06-24  638  	 * setup so we don't add it in the main driver probe, we add it now.
+77674e722f4b27 Laurent Pinchart 2021-06-24  639  	 */
+77674e722f4b27 Laurent Pinchart 2021-06-24  640  	return ti_sn65dsi86_add_aux_device(pdata, &pdata->bridge_aux, "bridge");
+77674e722f4b27 Laurent Pinchart 2021-06-24  641  }
+77674e722f4b27 Laurent Pinchart 2021-06-24  642  
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
