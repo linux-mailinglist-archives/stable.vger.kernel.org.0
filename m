@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EDD15B7579
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB93D5B74BA
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234194AbiIMPpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57558 "EHLO
+        id S236299AbiIMP3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235839AbiIMPog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:44:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE042ACA;
-        Tue, 13 Sep 2022 07:48:38 -0700 (PDT)
+        with ESMTP id S236571AbiIMP3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D985B796;
+        Tue, 13 Sep 2022 07:39:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5058B614A3;
-        Tue, 13 Sep 2022 14:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69395C433C1;
-        Tue, 13 Sep 2022 14:37:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DE6EB81029;
+        Tue, 13 Sep 2022 14:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4541C433C1;
+        Tue, 13 Sep 2022 14:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079861;
-        bh=3mnMXcJ1JR2zRL724pWgzy9GrDeUP+GY3DLcHW2IKn4=;
+        s=korg; t=1663079867;
+        bh=b06b0l8kwYRi7e3XNh/w/6ReSmTYreK4a3sgVSKi4b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQqp0QizyqjisFo01CiqSjHFZEIBFkZqSW/HFbmqUY+q/WTa9s6MLf+NnhN/0g8EM
-         7bXbf3sLG/2xDKrBFjHEfhEA2NYbCmu6N7+phqdZyHPeFprY5FG5V+yjYc2C6dXW/I
-         U5XSIxvGybZKxawkvrlKFlLCrGTFHjJmr8EBXDa8=
+        b=uX2LYjWFbGoU/6tg7CaLR72UD9Srw4SmEUp2MFCln4fu3b3OTiOoO4wkND/3kk8pR
+         RsnpOmLPL+1ATNtTpneM59GaL2HEM8p1I7QJx8eQ8gz23fLcj9ZAkejCkWmOnB7vbp
+         l4NHAk/Ul0ft4K9hdu3inpi8ED2+5w5bGe7X0+NY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yee Lee <yee.lee@mediatek.com>
-Subject: [PATCH 4.9 24/42] Revert "mm: kmemleak: take a full lowmem check in kmemleak_*_phys()"
-Date:   Tue, 13 Sep 2022 16:07:55 +0200
-Message-Id: <20220913140343.512632876@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Zhenneng Li <lizhenneng@kylinos.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 25/42] drm/radeon: add a force flush to delay work when radeon
+Date:   Tue, 13 Sep 2022 16:07:56 +0200
+Message-Id: <20220913140343.578497793@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -52,85 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yee Lee <yee.lee@mediatek.com>
+From: Zhenneng Li <lizhenneng@kylinos.cn>
 
-This reverts commit 23c2d497de21f25898fbea70aeb292ab8acc8c94.
+[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
 
-Commit 23c2d497de21 ("mm: kmemleak: take a full lowmem check in
-kmemleak_*_phys()") brought false leak alarms on some archs like arm64
-that does not init pfn boundary in early booting. The final solution
-lands on linux-6.0: commit 0c24e061196c ("mm: kmemleak: add rbtree and
-store physical address for objects allocated with PA").
+Although radeon card fence and wait for gpu to finish processing current batch rings,
+there is still a corner case that radeon lockup work queue may not be fully flushed,
+and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
+put device in D3hot state.
+Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
+> Configuration and Message requests are the only TLPs accepted by a Function in
+> the D3hot state. All other received Requests must be handled as Unsupported Requests,
+> and all received Completions may optionally be handled as Unexpected Completions.
+This issue will happen in following logs:
+Unable to handle kernel paging request at virtual address 00008800e0008010
+CPU 0 kworker/0:3(131): Oops 0
+pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
+pc is at si_gpu_check_soft_reset+0x3c/0x240
+ra is at si_dma_is_lockup+0x34/0xd0
+v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
+t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
+t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
+s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
+s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
+s6 = fff00007ef07bd98
+a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
+a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
+t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
+t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
+gp = ffffffff81d89690  sp = 00000000aa814126
+Disabling lock debugging due to kernel taint
+Trace:
+[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
+[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
+[<ffffffff80977010>] process_one_work+0x280/0x550
+[<ffffffff80977350>] worker_thread+0x70/0x7c0
+[<ffffffff80977410>] worker_thread+0x130/0x7c0
+[<ffffffff80982040>] kthread+0x200/0x210
+[<ffffffff809772e0>] worker_thread+0x0/0x7c0
+[<ffffffff80981f8c>] kthread+0x14c/0x210
+[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
+[<ffffffff80981e40>] kthread+0x0/0x210
+ Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
+ <88210000> 4821ed21
+So force lockup work queue flush to fix this problem.
 
-Revert this commit before linux-6.0. The original issue of invalid PA
-can be mitigated by additional check in devicetree.
-
-The false alarm report is as following: Kmemleak output: (Qemu/arm64)
-unreferenced object 0xffff0000c0170a00 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294892404 (age 126.208s)
-  hex dump (first 32 bytes):
- 62 61 73 65 00 00 00 00 00 00 00 00 00 00 00 00  base............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<(____ptrval____)>] __kmalloc_track_caller+0x1b0/0x2e4
-    [<(____ptrval____)>] kstrdup_const+0x8c/0xc4
-    [<(____ptrval____)>] kvasprintf_const+0xbc/0xec
-    [<(____ptrval____)>] kobject_set_name_vargs+0x58/0xe4
-    [<(____ptrval____)>] kobject_add+0x84/0x100
-    [<(____ptrval____)>] __of_attach_node_sysfs+0x78/0xec
-    [<(____ptrval____)>] of_core_init+0x68/0x104
-    [<(____ptrval____)>] driver_init+0x28/0x48
-    [<(____ptrval____)>] do_basic_setup+0x14/0x28
-    [<(____ptrval____)>] kernel_init_freeable+0x110/0x178
-    [<(____ptrval____)>] kernel_init+0x20/0x1a0
-    [<(____ptrval____)>] ret_from_fork+0x10/0x20
-
-This pacth is also applicable to linux-5.17.y/linux-5.18.y/linux-5.19.y
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yee Lee <yee.lee@mediatek.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/radeon/radeon_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1130,7 +1130,7 @@ EXPORT_SYMBOL(kmemleak_no_scan);
- void __ref kmemleak_alloc_phys(phys_addr_t phys, size_t size, int min_count,
- 			       gfp_t gfp)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_alloc(__va(phys), size, min_count, gfp);
- }
- EXPORT_SYMBOL(kmemleak_alloc_phys);
-@@ -1141,7 +1141,7 @@ EXPORT_SYMBOL(kmemleak_alloc_phys);
-  */
- void __ref kmemleak_free_part_phys(phys_addr_t phys, size_t size)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_free_part(__va(phys), size);
- }
- EXPORT_SYMBOL(kmemleak_free_part_phys);
-@@ -1152,7 +1152,7 @@ EXPORT_SYMBOL(kmemleak_free_part_phys);
-  */
- void __ref kmemleak_not_leak_phys(phys_addr_t phys)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_not_leak(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_not_leak_phys);
-@@ -1163,7 +1163,7 @@ EXPORT_SYMBOL(kmemleak_not_leak_phys);
-  */
- void __ref kmemleak_ignore_phys(phys_addr_t phys)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_ignore(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_ignore_phys);
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index 82b01123c3868..227c4733de2ea 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1661,6 +1661,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
+ 		if (r) {
+ 			/* delay GPU reset to resume */
+ 			radeon_fence_driver_force_completion(rdev, i);
++		} else {
++			/* finish executing delayed work */
++			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
+ 		}
+ 	}
+ 
+-- 
+2.35.1
+
 
 
