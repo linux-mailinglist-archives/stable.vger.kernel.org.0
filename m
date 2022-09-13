@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00CA25B7313
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA195B7344
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234568AbiIMPBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38328 "EHLO
+        id S235243AbiIMPFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:05:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234664AbiIMO7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E871372FC2;
-        Tue, 13 Sep 2022 07:28:59 -0700 (PDT)
+        with ESMTP id S235437AbiIMPE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A602474DE5;
+        Tue, 13 Sep 2022 07:30:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81CEC614B7;
-        Tue, 13 Sep 2022 14:28:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EDB8C433D6;
-        Tue, 13 Sep 2022 14:28:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F00E4614C1;
+        Tue, 13 Sep 2022 14:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED75C433D6;
+        Tue, 13 Sep 2022 14:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079338;
-        bh=1q4b74Z+OMERgkqLs97thdIQj8eOG+EX/fszz3JzVT4=;
+        s=korg; t=1663079341;
+        bh=civBiXs5blTaL9ds5FtStWNScm/e7AOBfl2bHSnVqY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tT1NkFfKrJ991A2BKrJBOnnW3u+EyvhX3sPiASv1suR8/vzkgDw2jmdWYRsS6J2PY
-         ZARFoDx2HCx5IrBhYUOObXY4yQGWiKkf23a/1fYR787HDWFCdswfP5J+8c0/G5bML3
-         upcrSyGutqEW7rYVRieIEyFnnvXwLnv5S8ncOWcg=
+        b=m12UXoMzYsPVwERMHUGjemBAzb4JFxUKIuJWaS6bcm4lq/33ax+6i0dnGRIAH3A86
+         lyvJElEe4vT/5BFNkwrtbMs6+FjMYkkcXIgyEgwGLqU4CMiJTzxXN6GEzhEkFfxwLl
+         +iBx0tryxaI0iccbjPf2d67GEpO+D4EWg7ElC+PI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        stable@vger.kernel.org, Jeffrey E Altman <jaltman@auristor.com>,
         David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 096/108] rxrpc: Fix an insufficiently large sglist in rxkad_verify_packet_2()
-Date:   Tue, 13 Sep 2022 16:07:07 +0200
-Message-Id: <20220913140357.748413634@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 097/108] afs: Use the operation issue time instead of the reply time for callbacks
+Date:   Tue, 13 Sep 2022 16:07:08 +0200
+Message-Id: <20220913140357.790574282@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -56,54 +56,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 0d40f728e28393a8817d1fcae923dfa3409e488c ]
+[ Upstream commit 7903192c4b4a82d792cb0dc5e2779a2efe60d45b ]
 
-rxkad_verify_packet_2() has a small stack-allocated sglist of 4 elements,
-but if that isn't sufficient for the number of fragments in the socket
-buffer, we try to allocate an sglist large enough to hold all the
-fragments.
+rxrpc and kafs between them try to use the receive timestamp on the first
+data packet (ie. the one with sequence number 1) as a base from which to
+calculate the time at which callback promise and lock expiration occurs.
 
-However, for large packets with a lot of fragments, this isn't sufficient
-and we need at least one additional fragment.
+However, we don't know how long it took for the server to send us the reply
+from it having completed the basic part of the operation - it might then,
+for instance, have to send a bunch of a callback breaks, depending on the
+particular operation.
 
-The problem manifests as skb_to_sgvec() returning -EMSGSIZE and this then
-getting returned by userspace.  Most of the time, this isn't a problem as
-rxrpc sets a limit of 5692, big enough for 4 jumbo subpackets to be glued
-together; occasionally, however, the server will ignore the reported limit
-and give a packet that's a lot bigger - say 19852 bytes with ->nr_frags
-being 7.  skb_to_sgvec() then tries to return a "zeroth" fragment that
-seems to occur before the fragments counted by ->nr_frags and we hit the
-end of the sglist too early.
+Fix this by using the time at which the operation is issued on the client
+as a base instead.  That should never be longer than the server's idea of
+the expiry time.
 
-Note that __skb_to_sgvec() also has an skb_walk_frags() loop that is
-recursive up to 24 deep.  I'm not sure if I need to take account of that
-too - or if there's an easy way of counting those frags too.
-
-Fix this by counting an extra frag and allocating a larger sglist based on
-that.
-
-Fixes: d0d5c0cd1e71 ("rxrpc: Use skb_unshare() rather than skb_cow_data()")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Fixes: 781070551c26 ("afs: Fix calculation of callback expiry time")
+Fixes: 2070a3e44962 ("rxrpc: Allow the reply time to be obtained on a client call")
+Suggested-by: Jeffrey E Altman <jaltman@auristor.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/rxkad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/flock.c     | 2 +-
+ fs/afs/fsclient.c  | 2 +-
+ fs/afs/internal.h  | 3 +--
+ fs/afs/rxrpc.c     | 7 +------
+ fs/afs/yfsclient.c | 3 +--
+ 5 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/net/rxrpc/rxkad.c b/net/rxrpc/rxkad.c
-index 52a24d4ef5d8a..2ba61971f6231 100644
---- a/net/rxrpc/rxkad.c
-+++ b/net/rxrpc/rxkad.c
-@@ -451,7 +451,7 @@ static int rxkad_verify_packet_2(struct rxrpc_call *call, struct sk_buff *skb,
- 	 * directly into the target buffer.
- 	 */
- 	sg = _sg;
--	nsg = skb_shinfo(skb)->nr_frags;
-+	nsg = skb_shinfo(skb)->nr_frags + 1;
- 	if (nsg <= 4) {
- 		nsg = 4;
- 	} else {
+diff --git a/fs/afs/flock.c b/fs/afs/flock.c
+index d5e5a6ddc8478..0fa05998a24d2 100644
+--- a/fs/afs/flock.c
++++ b/fs/afs/flock.c
+@@ -75,7 +75,7 @@ void afs_lock_op_done(struct afs_call *call)
+ 	if (call->error == 0) {
+ 		spin_lock(&vnode->lock);
+ 		trace_afs_flock_ev(vnode, NULL, afs_flock_timestamp, 0);
+-		vnode->locked_at = call->reply_time;
++		vnode->locked_at = call->issue_time;
+ 		afs_schedule_lock_extension(vnode);
+ 		spin_unlock(&vnode->lock);
+ 	}
+diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
+index 5c2729fc07e52..254580b1dc74c 100644
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -136,7 +136,7 @@ static void xdr_decode_AFSFetchStatus(const __be32 **_bp,
+ 
+ static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
+ {
+-	return ktime_divns(call->reply_time, NSEC_PER_SEC) + expiry;
++	return ktime_divns(call->issue_time, NSEC_PER_SEC) + expiry;
+ }
+ 
+ static void xdr_decode_AFSCallBack(const __be32 **_bp,
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index c3ad582f9fd0e..8d6582713fe72 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -159,7 +159,6 @@ struct afs_call {
+ 	bool			need_attention;	/* T if RxRPC poked us */
+ 	bool			async;		/* T if asynchronous */
+ 	bool			upgrade;	/* T to request service upgrade */
+-	bool			have_reply_time; /* T if have got reply_time */
+ 	bool			intr;		/* T if interruptible */
+ 	bool			unmarshalling_error; /* T if an unmarshalling error occurred */
+ 	u16			service_id;	/* Actual service ID (after upgrade) */
+@@ -173,7 +172,7 @@ struct afs_call {
+ 		} __attribute__((packed));
+ 		__be64		tmp64;
+ 	};
+-	ktime_t			reply_time;	/* Time of first reply packet */
++	ktime_t			issue_time;	/* Time of issue of operation */
+ };
+ 
+ struct afs_call_type {
+diff --git a/fs/afs/rxrpc.c b/fs/afs/rxrpc.c
+index 6adab30a83993..49fcce6529a60 100644
+--- a/fs/afs/rxrpc.c
++++ b/fs/afs/rxrpc.c
+@@ -428,6 +428,7 @@ void afs_make_call(struct afs_addr_cursor *ac, struct afs_call *call, gfp_t gfp)
+ 	if (call->max_lifespan)
+ 		rxrpc_kernel_set_max_life(call->net->socket, rxcall,
+ 					  call->max_lifespan);
++	call->issue_time = ktime_get_real();
+ 
+ 	/* send the request */
+ 	iov[0].iov_base	= call->request;
+@@ -532,12 +533,6 @@ static void afs_deliver_to_call(struct afs_call *call)
+ 			return;
+ 		}
+ 
+-		if (!call->have_reply_time &&
+-		    rxrpc_kernel_get_reply_time(call->net->socket,
+-						call->rxcall,
+-						&call->reply_time))
+-			call->have_reply_time = true;
+-
+ 		ret = call->type->deliver(call);
+ 		state = READ_ONCE(call->state);
+ 		if (ret == 0 && call->unmarshalling_error)
+diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
+index 3b19b009452a2..fa85b359f325b 100644
+--- a/fs/afs/yfsclient.c
++++ b/fs/afs/yfsclient.c
+@@ -241,8 +241,7 @@ static void xdr_decode_YFSCallBack(const __be32 **_bp,
+ 	struct afs_callback *cb = &scb->callback;
+ 	ktime_t cb_expiry;
+ 
+-	cb_expiry = call->reply_time;
+-	cb_expiry = ktime_add(cb_expiry, xdr_to_u64(x->expiration_time) * 100);
++	cb_expiry = ktime_add(call->issue_time, xdr_to_u64(x->expiration_time) * 100);
+ 	cb->expires_at	= ktime_divns(cb_expiry, NSEC_PER_SEC);
+ 	scb->have_cb	= true;
+ 	*_bp += xdr_size(x);
 -- 
 2.35.1
 
