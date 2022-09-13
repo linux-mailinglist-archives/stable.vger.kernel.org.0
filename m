@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F92B5B753F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:37:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A8C5B72D1
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236519AbiIMPho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:37:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46380 "EHLO
+        id S234749AbiIMO7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236545AbiIMPhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:37:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB4F80033;
-        Tue, 13 Sep 2022 07:43:24 -0700 (PDT)
+        with ESMTP id S234964AbiIMO5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:57:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA9B62AB2;
+        Tue, 13 Sep 2022 07:28:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24F3361494;
-        Tue, 13 Sep 2022 14:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EFA9C433C1;
-        Tue, 13 Sep 2022 14:31:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 293AD614AA;
+        Tue, 13 Sep 2022 14:28:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40445C433C1;
+        Tue, 13 Sep 2022 14:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079466;
-        bh=uNSfD+YJSHbwEa+qX173I2UYx9SbLW3ewT0J92EAxuE=;
+        s=korg; t=1663079292;
+        bh=lpazVn+TDsYK5GKA9iWWyLBDb2pAAjMWK2hSETqYsOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9UyOyLmD6S+iIX4l39b1GtgqVWtcbNQUrRay+pAWyP2NRDrCpXIYEXQB/UiOePaj
-         X4hw96eIQLMRZCwpJ77FJL8VYniiZPgLsFojzFTgYX7wsKe1xiXOQC39+frtFtvdTx
-         JtjILM/HmwIZtXIUoufT3PLpAm6HFczYBmVN4u+I=
+        b=ONgky8Gox61f3C0/96gA5vKfHqoi0m4A42ZfDz62Iv5whBMRh6awycS1gK6w+ReVa
+         5zK4FdZ+MLt2CvOTf8KXMYYmu/Bknm5Z56vtXSHXorIYAIXhRxUPHJs9dIswNUms5G
+         eLsFbjyhVCsyj6aAvxny0Nsf0vtu2sIYjnHZAUtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/79] hwmon: (gpio-fan) Fix array out of bounds access
+        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 077/108] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
 Date:   Tue, 13 Sep 2022 16:06:48 +0200
-Message-Id: <20220913140350.348204695@linuxfoundation.org>
+Message-Id: <20220913140356.943689456@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit f233d2be38dbbb22299192292983037f01ab363c ]
+commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
 
-The driver does not check if the cooling state passed to
-gpio_fan_set_cur_state() exceeds the maximum cooling state as
-stored in fan_data->num_speeds. Since the cooling state is later
-used as an array index in set_fan_speed(), an array out of bounds
-access can occur.
-This can be exploited by setting the state of the thermal cooling device
-to arbitrary values, causing for example a kernel oops when unavailable
-memory is accessed this way.
+The voice allocator sometimes begins allocating from near the end of the
+array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
+accesses the newly allocated voices as if it never wrapped around.
 
-Example kernel oops:
-[  807.987276] Unable to handle kernel paging request at virtual address ffffff80d0588064
-[  807.987369] Mem abort info:
-[  807.987398]   ESR = 0x96000005
-[  807.987428]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  807.987477]   SET = 0, FnV = 0
-[  807.987507]   EA = 0, S1PTW = 0
-[  807.987536]   FSC = 0x05: level 1 translation fault
-[  807.987570] Data abort info:
-[  807.987763]   ISV = 0, ISS = 0x00000005
-[  807.987801]   CM = 0, WnR = 0
-[  807.987832] swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000001165000
-[  807.987872] [ffffff80d0588064] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
-[  807.987961] Internal error: Oops: 96000005 [#1] PREEMPT SMP
-[  807.987992] Modules linked in: cmac algif_hash aes_arm64 algif_skcipher af_alg bnep hci_uart btbcm bluetooth ecdh_generic ecc 8021q garp stp llc snd_soc_hdmi_codec brcmfmac vc4 brcmutil cec drm_kms_helper snd_soc_core cfg80211 snd_compress bcm2835_codec(C) snd_pcm_dmaengine syscopyarea bcm2835_isp(C) bcm2835_v4l2(C) sysfillrect v4l2_mem2mem bcm2835_mmal_vchiq(C) raspberrypi_hwmon sysimgblt videobuf2_dma_contig videobuf2_vmalloc fb_sys_fops videobuf2_memops rfkill videobuf2_v4l2 videobuf2_common i2c_bcm2835 snd_bcm2835(C) videodev snd_pcm snd_timer snd mc vc_sm_cma(C) gpio_fan uio_pdrv_genirq uio drm fuse drm_panel_orientation_quirks backlight ip_tables x_tables ipv6
-[  807.988508] CPU: 0 PID: 1321 Comm: bash Tainted: G         C        5.15.56-v8+ #1575
-[  807.988548] Hardware name: Raspberry Pi 3 Model B Rev 1.2 (DT)
-[  807.988574] pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  807.988608] pc : set_fan_speed.part.5+0x34/0x80 [gpio_fan]
-[  807.988654] lr : gpio_fan_set_cur_state+0x34/0x50 [gpio_fan]
-[  807.988691] sp : ffffffc008cf3bd0
-[  807.988710] x29: ffffffc008cf3bd0 x28: ffffff80019edac0 x27: 0000000000000000
-[  807.988762] x26: 0000000000000000 x25: 0000000000000000 x24: ffffff800747c920
-[  807.988787] x23: 000000000000000a x22: ffffff800369f000 x21: 000000001999997c
-[  807.988854] x20: ffffff800369f2e8 x19: ffffff8002ae8080 x18: 0000000000000000
-[  807.988877] x17: 0000000000000000 x16: 0000000000000000 x15: 000000559e271b70
-[  807.988938] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-[  807.988960] x11: 0000000000000000 x10: ffffffc008cf3c20 x9 : ffffffcfb60c741c
-[  807.989018] x8 : 000000000000000a x7 : 00000000ffffffc9 x6 : 0000000000000009
-[  807.989040] x5 : 000000000000002a x4 : 0000000000000000 x3 : ffffff800369f2e8
-[  807.989062] x2 : 000000000000e780 x1 : 0000000000000001 x0 : ffffff80d0588060
-[  807.989084] Call trace:
-[  807.989091]  set_fan_speed.part.5+0x34/0x80 [gpio_fan]
-[  807.989113]  gpio_fan_set_cur_state+0x34/0x50 [gpio_fan]
-[  807.989199]  cur_state_store+0x84/0xd0
-[  807.989221]  dev_attr_store+0x20/0x38
-[  807.989262]  sysfs_kf_write+0x4c/0x60
-[  807.989282]  kernfs_fop_write_iter+0x130/0x1c0
-[  807.989298]  new_sync_write+0x10c/0x190
-[  807.989315]  vfs_write+0x254/0x378
-[  807.989362]  ksys_write+0x70/0xf8
-[  807.989379]  __arm64_sys_write+0x24/0x30
-[  807.989424]  invoke_syscall+0x4c/0x110
-[  807.989442]  el0_svc_common.constprop.3+0xfc/0x120
-[  807.989458]  do_el0_svc+0x2c/0x90
-[  807.989473]  el0_svc+0x24/0x60
-[  807.989544]  el0t_64_sync_handler+0x90/0xb8
-[  807.989558]  el0t_64_sync+0x1a0/0x1a4
-[  807.989579] Code: b9403801 f9402800 7100003f 8b35cc00 (b9400416)
-[  807.989627] ---[ end trace 8ded4c918658445b ]---
+This results in out of bounds access if the first voice has a high enough
+index so that first_voice + requested_voice_count > NUM_G (64).
+The more voices are requested, the more likely it is for this to occur.
 
-Fix this by checking the cooling state and return an error if it
-exceeds the maximum cooling state.
+This was initially discovered using PipeWire, however it can be reproduced
+by calling aplay multiple times with 16 channels:
+aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
 
-Tested on a Raspberry Pi 3.
+UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
+index 65 is out of range for type 'snd_emu10k1_voice [64]'
+CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
+Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+ubsan_epilogue+0x9/0x3f
+__ubsan_handle_out_of_bounds.cold+0x44/0x49
+snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
+snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
+snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
+? exit_to_user_mode_prepare+0x35/0x170
+? do_syscall_64+0x69/0x90
+? syscall_exit_to_user_mode+0x26/0x50
+? do_syscall_64+0x69/0x90
+? exit_to_user_mode_prepare+0x35/0x170
+snd_pcm_ioctl+0x27/0x40 [snd_pcm]
+__x64_sys_ioctl+0x95/0xd0
+do_syscall_64+0x5c/0x90
+? do_syscall_64+0x69/0x90
+? do_syscall_64+0x69/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Fixes: b5cf88e46bad ("(gpio-fan): Add thermal control hooks")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20220830011101.178843-1-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/gpio-fan.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/emu10k1/emupcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/gpio-fan.c b/drivers/hwmon/gpio-fan.c
-index a3974cddef079..534a175a6e4cf 100644
---- a/drivers/hwmon/gpio-fan.c
-+++ b/drivers/hwmon/gpio-fan.c
-@@ -404,6 +404,9 @@ static int gpio_fan_set_cur_state(struct thermal_cooling_device *cdev,
- 	if (!fan_data)
- 		return -EINVAL;
- 
-+	if (state >= fan_data->num_speed)
-+		return -EINVAL;
-+
- 	set_fan_speed(fan_data, state);
- 	return 0;
- }
--- 
-2.35.1
-
+--- a/sound/pci/emu10k1/emupcm.c
++++ b/sound/pci/emu10k1/emupcm.c
+@@ -123,7 +123,7 @@ static int snd_emu10k1_pcm_channel_alloc
+ 	epcm->voices[0]->epcm = epcm;
+ 	if (voices > 1) {
+ 		for (i = 1; i < voices; i++) {
+-			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
++			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
+ 			epcm->voices[i]->epcm = epcm;
+ 		}
+ 	}
 
 
