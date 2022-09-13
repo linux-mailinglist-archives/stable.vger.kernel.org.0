@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D8F5B747F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967755B738D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233700AbiIMPY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55710 "EHLO
+        id S235355AbiIMPGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236017AbiIMPW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B487C31F;
-        Tue, 13 Sep 2022 07:37:15 -0700 (PDT)
+        with ESMTP id S234874AbiIMPEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D4465802;
+        Tue, 13 Sep 2022 07:30:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6294614E3;
-        Tue, 13 Sep 2022 14:30:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E34DDC433D6;
-        Tue, 13 Sep 2022 14:30:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07DEEB80F99;
+        Tue, 13 Sep 2022 14:27:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AEBDC433C1;
+        Tue, 13 Sep 2022 14:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079414;
-        bh=hTIDCkkY+yz035+KYOS7FOKTLAS//Yd9joPVGfX1drQ=;
+        s=korg; t=1663079256;
+        bh=Fl2Giew66XqwbEuil+L3lWo7xPrcCZo3t0Rz+/OmeNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2IRC1V7f1pivTex3EnKzJRgFe1PXdvdXkS64xWUhJT6C5HRzEzj7evITpYrAld/L
-         CyqQjQfamrcQNX1JdcTvU77JonM2zDBRbavv6YATXsKORThONK7nO/Sv/PRFbwP1A0
-         wwI/Rq8ryBVDPEmaj7kTlcJLMBMVlBv2qU8VHHGE=
+        b=JQg9iZAwtSqVpesbmp016ZnFda6g92gKWDrMyk3DfIm7FadT67CIL0jm5RIgGXH5u
+         Eue/URfyMdNqyal9TSEK6aSX/4PxrVvr88YM234mrIGxNsfh+BFVjVPMxtIvn4PAY0
+         8aEez6jXmVf6CortbDyQWbPl+hSW6aCnJP3jBcdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/79] tcp: annotate data-race around challenge_timestamp
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        stable <stable@kernel.org>,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 5.4 064/108] usb: dwc3: disable USB core PHY management
 Date:   Tue, 13 Sep 2022 16:06:35 +0200
-Message-Id: <20220913140349.707980737@linuxfoundation.org>
+Message-Id: <20220913140356.370574658@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 8c70521238b7863c2af607e20bcba20f974c969b ]
+commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
 
-challenge_timestamp can be read an written by concurrent threads.
+The dwc3 driver manages its PHYs itself so the USB core PHY management
+needs to be disabled.
 
-This was expected, but we need to annotate the race to avoid potential issues.
+Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
+host: xhci-plat: add platform data support") and f768e718911e ("usb:
+host: xhci-plat: add priv quirk for skip PHY initialization") to
+propagate the setting for now.
 
-Following patch moves challenge_timestamp and challenge_count
-to per-netns storage to provide better isolation.
-
-Fixes: 354e4aa391ed ("tcp: RFC 5961 5.2 Blind Data Injection Attack Mitigation")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to struct usb_hcd")
+Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into the HCD core")
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Cc: stable <stable@kernel.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ johan: adjust context to 5.15 ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/host.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index e1d065ea5a158..0be9d5d3c032f 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -3468,11 +3468,11 @@ static void tcp_send_challenge_ack(struct sock *sk, const struct sk_buff *skb)
+--- a/drivers/usb/dwc3/host.c
++++ b/drivers/usb/dwc3/host.c
+@@ -9,8 +9,13 @@
  
- 	/* Then check host-wide RFC 5961 rate limit. */
- 	now = jiffies / HZ;
--	if (now != challenge_timestamp) {
-+	if (now != READ_ONCE(challenge_timestamp)) {
- 		u32 ack_limit = READ_ONCE(net->ipv4.sysctl_tcp_challenge_ack_limit);
- 		u32 half = (ack_limit + 1) >> 1;
+ #include <linux/platform_device.h>
  
--		challenge_timestamp = now;
-+		WRITE_ONCE(challenge_timestamp, now);
- 		WRITE_ONCE(challenge_count, half + prandom_u32_max(ack_limit));
++#include "../host/xhci-plat.h"
+ #include "core.h"
+ 
++static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
++	.quirks = XHCI_SKIP_PHY_INIT,
++};
++
+ static int dwc3_host_get_irq(struct dwc3 *dwc)
+ {
+ 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
+@@ -85,6 +90,11 @@ int dwc3_host_init(struct dwc3 *dwc)
+ 		goto err;
  	}
- 	count = READ_ONCE(challenge_count);
--- 
-2.35.1
-
+ 
++	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
++					sizeof(dwc3_xhci_plat_priv));
++	if (ret)
++		goto err;
++
+ 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
+ 
+ 	if (dwc->usb3_lpm_capable)
 
 
