@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB125B71DF
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C7A5B718F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233069AbiIMOrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:47:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46544 "EHLO
+        id S230192AbiIMOof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232304AbiIMOqR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:46:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EDB66F252;
-        Tue, 13 Sep 2022 07:24:20 -0700 (PDT)
+        with ESMTP id S232051AbiIMOm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881F26E88B;
+        Tue, 13 Sep 2022 07:22:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEBC5614D1;
-        Tue, 13 Sep 2022 14:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B6CC433C1;
-        Tue, 13 Sep 2022 14:24:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F679B80F1A;
+        Tue, 13 Sep 2022 14:20:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF58AC433C1;
+        Tue, 13 Sep 2022 14:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079046;
-        bh=y2qWzrFfahicfsBuM+hsEfMX5QUzq/PC38YkE8OGKNs=;
+        s=korg; t=1663078853;
+        bh=QxTU32UgUc4bDHoxqPIsENUxvy6OgdxzOwguF1x6ojw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thFs74gSQamn+fLx1+nmkD//rUIIGCAh4jwKOOCT8RTDte1KDBoLHJtV9Ycex6tlz
-         qGkHaqxijHbZwL3tRPid8a2B0cEONukPWXYiCNiMLfUBvNvvmjaUnkJmyRoemrvY78
-         uWTC6M+52K/aKp9gFkJZyz4bshrp968lI9r8u+N4=
+        b=SE/Eu9XKAbanIIiez0FPYOHKcuZc3g4bdr27CFJtZWa6h/phhjlbN7mZ4SUde+zd5
+         Qc7bZ32ZE23rFWbWMQgU5euzWWYkmvHvCT2lgAj558PgKBJ6w0UCDzb9ByGxV58KOI
+         tpbdXuiZzU6nzxksbpacW3bl5Oe5LdfKPKelDG48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey E Altman <jaltman@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 54/79] afs: Use the operation issue time instead of the reply time for callbacks
+        stable@vger.kernel.org, John Sperbeck <jsperbeck@google.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 108/121] iommu/amd: use full 64-bit value in build_completion_wait()
 Date:   Tue, 13 Sep 2022 16:04:59 +0200
-Message-Id: <20220913140352.841720589@linuxfoundation.org>
+Message-Id: <20220913140401.984422152@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,122 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: John Sperbeck <jsperbeck@google.com>
 
-[ Upstream commit 7903192c4b4a82d792cb0dc5e2779a2efe60d45b ]
+[ Upstream commit 94a568ce32038d8ff9257004bb4632e60eb43a49 ]
 
-rxrpc and kafs between them try to use the receive timestamp on the first
-data packet (ie. the one with sequence number 1) as a base from which to
-calculate the time at which callback promise and lock expiration occurs.
+We started using a 64 bit completion value.  Unfortunately, we only
+stored the low 32-bits, so a very large completion value would never
+be matched in iommu_completion_wait().
 
-However, we don't know how long it took for the server to send us the reply
-from it having completed the basic part of the operation - it might then,
-for instance, have to send a bunch of a callback breaks, depending on the
-particular operation.
-
-Fix this by using the time at which the operation is issued on the client
-as a base instead.  That should never be longer than the server's idea of
-the expiry time.
-
-Fixes: 781070551c26 ("afs: Fix calculation of callback expiry time")
-Fixes: 2070a3e44962 ("rxrpc: Allow the reply time to be obtained on a client call")
-Suggested-by: Jeffrey E Altman <jaltman@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: c69d89aff393 ("iommu/amd: Use 4K page for completion wait write-back semaphore")
+Signed-off-by: John Sperbeck <jsperbeck@google.com>
+Link: https://lore.kernel.org/r/20220801192229.3358786-1-jsperbeck@google.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/flock.c     | 2 +-
- fs/afs/fsclient.c  | 2 +-
- fs/afs/internal.h  | 3 +--
- fs/afs/rxrpc.c     | 7 +------
- fs/afs/yfsclient.c | 3 +--
- 5 files changed, 5 insertions(+), 12 deletions(-)
+ drivers/iommu/amd/iommu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/flock.c b/fs/afs/flock.c
-index cb3054c7843ea..466ad609f2057 100644
---- a/fs/afs/flock.c
-+++ b/fs/afs/flock.c
-@@ -76,7 +76,7 @@ void afs_lock_op_done(struct afs_call *call)
- 	if (call->error == 0) {
- 		spin_lock(&vnode->lock);
- 		trace_afs_flock_ev(vnode, NULL, afs_flock_timestamp, 0);
--		vnode->locked_at = call->reply_time;
-+		vnode->locked_at = call->issue_time;
- 		afs_schedule_lock_extension(vnode);
- 		spin_unlock(&vnode->lock);
- 	}
-diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
-index 1d95ed9dd86e6..0048a32cb040e 100644
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -130,7 +130,7 @@ static void xdr_decode_AFSFetchStatus(const __be32 **_bp,
- 
- static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
- {
--	return ktime_divns(call->reply_time, NSEC_PER_SEC) + expiry;
-+	return ktime_divns(call->issue_time, NSEC_PER_SEC) + expiry;
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index e23e70af718f1..7154fb551ddc9 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -852,7 +852,8 @@ static void build_completion_wait(struct iommu_cmd *cmd,
+ 	memset(cmd, 0, sizeof(*cmd));
+ 	cmd->data[0] = lower_32_bits(paddr) | CMD_COMPL_WAIT_STORE_MASK;
+ 	cmd->data[1] = upper_32_bits(paddr);
+-	cmd->data[2] = data;
++	cmd->data[2] = lower_32_bits(data);
++	cmd->data[3] = upper_32_bits(data);
+ 	CMD_SET_TYPE(cmd, CMD_COMPL_WAIT);
  }
  
- static void xdr_decode_AFSCallBack(const __be32 **_bp,
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index dc08a3d9b3a8b..637cbe549397c 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -135,7 +135,6 @@ struct afs_call {
- 	bool			need_attention;	/* T if RxRPC poked us */
- 	bool			async;		/* T if asynchronous */
- 	bool			upgrade;	/* T to request service upgrade */
--	bool			have_reply_time; /* T if have got reply_time */
- 	bool			intr;		/* T if interruptible */
- 	bool			unmarshalling_error; /* T if an unmarshalling error occurred */
- 	u16			service_id;	/* Actual service ID (after upgrade) */
-@@ -149,7 +148,7 @@ struct afs_call {
- 		} __attribute__((packed));
- 		__be64		tmp64;
- 	};
--	ktime_t			reply_time;	/* Time of first reply packet */
-+	ktime_t			issue_time;	/* Time of issue of operation */
- };
- 
- struct afs_call_type {
-diff --git a/fs/afs/rxrpc.c b/fs/afs/rxrpc.c
-index efe0fb3ad8bdc..535d28b44bca3 100644
---- a/fs/afs/rxrpc.c
-+++ b/fs/afs/rxrpc.c
-@@ -429,6 +429,7 @@ void afs_make_call(struct afs_addr_cursor *ac, struct afs_call *call, gfp_t gfp)
- 	if (call->max_lifespan)
- 		rxrpc_kernel_set_max_life(call->net->socket, rxcall,
- 					  call->max_lifespan);
-+	call->issue_time = ktime_get_real();
- 
- 	/* send the request */
- 	iov[0].iov_base	= call->request;
-@@ -533,12 +534,6 @@ static void afs_deliver_to_call(struct afs_call *call)
- 			return;
- 		}
- 
--		if (!call->have_reply_time &&
--		    rxrpc_kernel_get_reply_time(call->net->socket,
--						call->rxcall,
--						&call->reply_time))
--			call->have_reply_time = true;
--
- 		ret = call->type->deliver(call);
- 		state = READ_ONCE(call->state);
- 		if (ret == 0 && call->unmarshalling_error)
-diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
-index bd787e71a657f..5b2ef5ffd716f 100644
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -239,8 +239,7 @@ static void xdr_decode_YFSCallBack(const __be32 **_bp,
- 	struct afs_callback *cb = &scb->callback;
- 	ktime_t cb_expiry;
- 
--	cb_expiry = call->reply_time;
--	cb_expiry = ktime_add(cb_expiry, xdr_to_u64(x->expiration_time) * 100);
-+	cb_expiry = ktime_add(call->issue_time, xdr_to_u64(x->expiration_time) * 100);
- 	cb->expires_at	= ktime_divns(cb_expiry, NSEC_PER_SEC);
- 	scb->have_cb	= true;
- 	*_bp += xdr_size(x);
 -- 
 2.35.1
 
