@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C32075B688F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 09:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F445B68AC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 09:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbiIMHUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 03:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54262 "EHLO
+        id S229763AbiIMHbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 03:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230124AbiIMHUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 03:20:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3413B962;
-        Tue, 13 Sep 2022 00:20:43 -0700 (PDT)
+        with ESMTP id S229886AbiIMHbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 03:31:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB2958B4B;
+        Tue, 13 Sep 2022 00:31:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90DC861336;
-        Tue, 13 Sep 2022 07:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E09D6C433C1;
-        Tue, 13 Sep 2022 07:20:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB420B80E20;
+        Tue, 13 Sep 2022 07:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931EBC433C1;
+        Tue, 13 Sep 2022 07:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663053642;
-        bh=8E4O++2S6FWEnxjwuILlmwZ5txcSLR8D7sk53WBMDXQ=;
+        s=k20201202; t=1663054274;
+        bh=vilETUvw2g1sd91EdUM1pQ5GKS9RICQuFAfvW/iSAq8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DbfN+Zsij52xBRMio9UjMnddcvrW6l9KE1bas+PuyClOTdyacgCwG7an4RMBeFzgq
-         ZkmufTzGX5eXiWuUaeu60mAi6OuZ/eofEFLww/gnvV28K02ZOqeVzU1jDiJpgZ+kBR
-         e4HsovoyZhSSU7WfsnpwNEsRFJ7OS+J9NTRwS1lbBnN8a+QkUCKdK+uqAN5pmLwPbL
-         RahtWxI+J/aAuBwYRPhi449p37AjDnVGuSGY2ZtO2qDn8fW4E9HxEOJLwPc6qg9vZJ
-         1n/dpiaPWA9L2Qy6akJJFp424t4k9GnNptI+XZHTxWnqTc7YsFCa71oldb5vsEgiQ5
-         29EgLxVTHYqIA==
+        b=vBogiI3O3oHQ7kMwgYuvOS6HuFwJ8FODKbCq/8DRFwDqy8O4jzb4OpiZSJotm0VR6
+         czck5pd5BSOlTLoD0X3QvVa9lHZfBD/vA/OgBMCupFbYUPsWS5JfcK/hutyTtg4+UK
+         PCbM8RakfylK0fVfmI2z+uOQKRmjVJxlNIP3ekUrS+MP3WISwEfYtlHgbCQyGyNbON
+         T9OPYWUK+ZggSPyiVzEkZDGogVrPPH9f5G36q/C0Qo8TadbNCvT0PG7Bjrd+vmMji9
+         zZEXIwmPVt/TgLVzvK38QzTjHougDI0aOCA1nCFUiheV1RYha+KUWlCxtUFfbPVPmG
+         LTel/kiDN0M7w==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1oY0Do-0000nJ-Jh; Tue, 13 Sep 2022 09:20:40 +0200
-Date:   Tue, 13 Sep 2022 09:20:40 +0200
+        id 1oY0O1-0000s7-3p; Tue, 13 Sep 2022 09:31:13 +0200
+Date:   Tue, 13 Sep 2022 09:31:13 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Steev Klimaszewski <steev@kali.org>
-Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
+To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
         Douglas Anderson <dianders@chromium.org>,
         Rob Clark <robdclark@gmail.com>,
         Andrzej Hajda <andrzej.hajda@intel.com>,
@@ -55,17 +54,15 @@ Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
         freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 4/7] drm/msm/dp: fix aux-bus EP lifetime
-Message-ID: <YyAvSKTBGdVIjaHW@hovoldconsulting.com>
+Subject: Re: [PATCH 1/7] drm/msm: fix use-after-free on probe deferral
+Message-ID: <YyAxwQmN9SDrWa7n@hovoldconsulting.com>
 References: <20220912154046.12900-1-johan+linaro@kernel.org>
- <20220912154046.12900-5-johan+linaro@kernel.org>
- <e60f0053-3801-bf33-5841-69f16215fa00@linaro.org>
- <69526798-93df-a4f9-c385-c9bf490cc709@kali.org>
+ <20220912154046.12900-2-johan+linaro@kernel.org>
+ <518564a8-5206-80cc-8306-50296de43abf@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <69526798-93df-a4f9-c385-c9bf490cc709@kali.org>
+In-Reply-To: <518564a8-5206-80cc-8306-50296de43abf@linaro.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -76,52 +73,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 12, 2022 at 04:55:58PM -0500, Steev Klimaszewski wrote:
+On Mon, Sep 12, 2022 at 08:52:44PM +0300, Dmitry Baryshkov wrote:
+> On 12/09/2022 18:40, Johan Hovold wrote:
+> > The bridge counter was never reset when tearing down the DRM device so
+> > that stale pointers to deallocated structures would be accessed on the
+> > next tear down (e.g. after a second late bind deferral).
+> > 
+> > Given enough bridges and a few probe deferrals this could currently also
+> > lead to data beyond the bridge array being corrupted.
+> > 
+> > Fixes: d28ea556267c ("drm/msm: properly add and remove internal bridges")
+> > Cc: stable@vger.kernel.org      # 5.19
 > 
-> On 9/12/22 1:10 PM, Dmitry Baryshkov wrote:
-> > On 12/09/2022 18:40, Johan Hovold wrote:
-> >> Device-managed resources allocated post component bind must be tied to
-> >> the lifetime of the aggregate DRM device or they will not necessarily be
-> >> released when binding of the aggregate device is deferred.
-> >>
-> >> This can lead resource leaks or failure to bind the aggregate device
-> >> when binding is later retried and a second attempt to allocate the
-> >> resources is made.
-> >>
-> >> For the DP aux-bus, an attempt to populate the bus a second time will
-> >> simply fail ("DP AUX EP device already populated").
-> >>
-> >> Fix this by amending the DP aux interface and tying the lifetime of the
-> >> EP device to the DRM device rather than DP controller platform device.
-> >
-> > Doug, could you please take a look?
-> >
-> > For me this is another reminder/pressure point that we should populate 
-> > the AUX BUS from the probe(), before binding the components together.
-> >
-> >>
-> >> Fixes: c3bf8e21b38a ("drm/msm/dp: Add eDP support via aux_bus")
-> >> Cc: stable@vger.kernel.org      # 5.19
-> >> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> >> ---
-> >>   drivers/gpu/drm/bridge/parade-ps8640.c   | 2 +-
-> >>   drivers/gpu/drm/display/drm_dp_aux_bus.c | 5 +++--
-> >>   drivers/gpu/drm/msm/dp/dp_display.c      | 3 ++-
-> >>   include/drm/display/drm_dp_aux_bus.h     | 6 +++---
-> >>   4 files changed, 9 insertions(+), 7 deletions(-)
+> Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
+> Cc: stable@vger.kernel.org # 3.12
 
-> This breaks builds which have ti-sn65dsi86 included:
-> 
-> drivers/gpu/drm/bridge/ti-sn65dsi86.c:628:50: error: passing argument 1 
-> of 'devm_of_dp_aux_populate_ep_devices' from incompatible argument type.
-> 
-> As well,
-> 
-> drivers/gpu/drm/bridge/ti-sn65dsi86.c:628:15: error: too few arguments 
-> to function 'devm_of_dp_aux_populate_ep_devices'
+The use after free was introduced in 5.19, and the next patch takes care
+of the possible overflow of the bridges array that has been around since
+3.12.
 
-Thanks for reporting this. I messed up and apparently only grepped for
-devm_of_dp_aux_populate_bus() and not the
-devm_of_dp_aux_populate_ep_devices() wrapper when searching for users.
+But sure, this oversight has been there since 3.12. I'll reconsider
+adding the other Fixes tag. The stable team struggles with context
+changes apparently so not sure it's worth backporting, though.
+
+> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> 
+> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> > ---
+> >   drivers/gpu/drm/msm/msm_drv.c | 1 +
+> >   1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+> > index 391d86b54ded..d254fe2507ec 100644
+> > --- a/drivers/gpu/drm/msm/msm_drv.c
+> > +++ b/drivers/gpu/drm/msm/msm_drv.c
+> > @@ -241,6 +241,7 @@ static int msm_drm_uninit(struct device *dev)
+> >   
+> >   	for (i = 0; i < priv->num_bridges; i++)
+> >   		drm_bridge_remove(priv->bridges[i]);
+> > +	priv->num_bridges = 0;
+> >   
+> >   	pm_runtime_get_sync(dev);
+> >   	msm_irq_uninstall(ddev);
 
 Johan
