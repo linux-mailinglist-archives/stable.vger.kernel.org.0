@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD855B70BC
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1AFB5B722E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbiIMO0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:26:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42242 "EHLO
+        id S231166AbiIMOtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233744AbiIMO0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:26:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2593666119;
-        Tue, 13 Sep 2022 07:16:35 -0700 (PDT)
+        with ESMTP id S234485AbiIMOsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1882B66A7A;
+        Tue, 13 Sep 2022 07:25:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7726A614C1;
-        Tue, 13 Sep 2022 14:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 793C0C433C1;
-        Tue, 13 Sep 2022 14:15:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83AE7614C6;
+        Tue, 13 Sep 2022 14:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFB9C433D7;
+        Tue, 13 Sep 2022 14:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078516;
-        bh=u+CvDUsNpVz+9oYCk/2VKdoyai1LQT9d8/3maTue2ZQ=;
+        s=korg; t=1663079035;
+        bh=JtseD01ATePGId3VLyjVyOqQP9WnZXcf8aOBoKLHlgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yv3vmXGCEnLeM/ybCWdj2Jh3vY0VUGPoDHTSuEiQkUV2++8A0eokmtR3f+rWpYkzL
-         qk9a+1y9xcp4b1HdfjATL9BV7I3y7+4nqRtLmGE5Fefi+vuBY1NZSd5icDSICw9qAA
-         /jxMYY9sx2D4GcGozSxvmFnrWAcIAk9ESAh3JS0s=
+        b=CHdk35BXm8Qgnov6e1/p42MJMG5NzAtN1KFbX9U8mw1TgbFcuqGkTUmEJoSlmZ9Dh
+         E2nTtbR6Mg5IffURJkUarnZ6wWQzhWMHJ5/Gs6viyMg8NBxYL7VNchiOfIhebhVJFc
+         7y10HWri2/ALvN73PQ4LFb2aZduDDmPOxSOpDF/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 5.19 171/192] time64.h: consolidate uses of PSEC_PER_NSEC
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 32/79] scsi: lpfc: Add missing destroy_workqueue() in error path
 Date:   Tue, 13 Sep 2022 16:04:37 +0200
-Message-Id: <20220913140418.552441455@linuxfoundation.org>
+Message-Id: <20220913140351.855398260@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,109 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 837ced3a1a5d8bb1a637dd584711f31ae6b54d93 ]
+commit da6d507f5ff328f346b3c50e19e19993027b8ffd upstream.
 
-Time-sensitive networking code needs to work with PTP times expressed in
-nanoseconds, and with packet transmission times expressed in
-picoseconds, since those would be fractional at higher than gigabit
-speed when expressed in nanoseconds.
+Add the missing destroy_workqueue() before return from
+lpfc_sli4_driver_resource_setup() in the error path.
 
-Convert the existing uses in tc-taprio and the ocelot/felix DSA driver
-to a PSEC_PER_NSEC macro. This macro is placed in include/linux/time64.h
-as opposed to its relatives (PSEC_PER_SEC etc) from include/vdso/time64.h
-because the vDSO library does not (yet) need/use it.
-
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com> # for the vDSO parts
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 11afdc6526de ("net: dsa: felix: tc-taprio intervals smaller than MTU should send at least one packet")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220823044237.285643-1-yangyingliang@huawei.com
+Fixes: 3cee98db2610 ("scsi: lpfc: Fix crash on driver unload in wq free")
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c | 5 +++--
- include/linux/time64.h                 | 3 +++
- net/sched/sch_taprio.c                 | 5 +++--
- 3 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_init.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
-index f1767a6b9271c..4cce71243080e 100644
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -16,6 +16,7 @@
- #include <linux/iopoll.h>
- #include <linux/mdio.h>
- #include <linux/pci.h>
-+#include <linux/time.h>
- #include "felix.h"
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -6670,7 +6670,7 @@ lpfc_sli4_driver_resource_setup(struct l
+ 	/* Allocate device driver memory */
+ 	rc = lpfc_mem_alloc(phba, SGL_ALIGN_SZ);
+ 	if (rc)
+-		return -ENOMEM;
++		goto out_destroy_workqueue;
  
- #define VSC9959_NUM_PORTS		6
-@@ -1592,7 +1593,7 @@ static void vsc9959_tas_guard_bands_update(struct ocelot *ocelot, int port)
- 		u32 max_sdu;
- 
- 		if (min_gate_len[tc] == U64_MAX /* Gate always open */ ||
--		    min_gate_len[tc] * 1000 > needed_bit_time_ps) {
-+		    min_gate_len[tc] * PSEC_PER_NSEC > needed_bit_time_ps) {
- 			/* Setting QMAXSDU_CFG to 0 disables oversized frame
- 			 * dropping.
- 			 */
-@@ -1606,7 +1607,7 @@ static void vsc9959_tas_guard_bands_update(struct ocelot *ocelot, int port)
- 			 * frame, make sure to enable oversize frame dropping
- 			 * for frames larger than the smallest that would fit.
- 			 */
--			max_sdu = div_u64(min_gate_len[tc] * 1000,
-+			max_sdu = div_u64(min_gate_len[tc] * PSEC_PER_NSEC,
- 					  picos_per_byte);
- 			/* A TC gate may be completely closed, which is a
- 			 * special case where all packets are oversized.
-diff --git a/include/linux/time64.h b/include/linux/time64.h
-index 81b9686a20799..2fb8232cff1d5 100644
---- a/include/linux/time64.h
-+++ b/include/linux/time64.h
-@@ -20,6 +20,9 @@ struct itimerspec64 {
- 	struct timespec64 it_value;
- };
- 
-+/* Parameters used to convert the timespec values: */
-+#define PSEC_PER_NSEC			1000L
-+
- /* Located here for timespec[64]_valid_strict */
- #define TIME64_MAX			((s64)~((u64)1 << 63))
- #define TIME64_MIN			(-TIME64_MAX - 1)
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index b9c71a304d399..0b941dd63d268 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -18,6 +18,7 @@
- #include <linux/module.h>
- #include <linux/spinlock.h>
- #include <linux/rcupdate.h>
-+#include <linux/time.h>
- #include <net/netlink.h>
- #include <net/pkt_sched.h>
- #include <net/pkt_cls.h>
-@@ -176,7 +177,7 @@ static ktime_t get_interval_end_time(struct sched_gate_list *sched,
- 
- static int length_to_duration(struct taprio_sched *q, int len)
- {
--	return div_u64(len * atomic64_read(&q->picos_per_byte), 1000);
-+	return div_u64(len * atomic64_read(&q->picos_per_byte), PSEC_PER_NSEC);
+ 	/* IF Type 2 ports get initialized now. */
+ 	if (bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) >=
+@@ -7076,6 +7076,9 @@ out_free_bsmbx:
+ 	lpfc_destroy_bootstrap_mbox(phba);
+ out_free_mem:
+ 	lpfc_mem_free(phba);
++out_destroy_workqueue:
++	destroy_workqueue(phba->wq);
++	phba->wq = NULL;
+ 	return rc;
  }
  
- /* Returns the entry corresponding to next available interval. If
-@@ -551,7 +552,7 @@ static struct sk_buff *taprio_peek(struct Qdisc *sch)
- static void taprio_set_budget(struct taprio_sched *q, struct sched_entry *entry)
- {
- 	atomic_set(&entry->budget,
--		   div64_u64((u64)entry->interval * 1000,
-+		   div64_u64((u64)entry->interval * PSEC_PER_NSEC,
- 			     atomic64_read(&q->picos_per_byte)));
- }
- 
--- 
-2.35.1
-
 
 
