@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C09BD5B7453
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281F05B7483
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235889AbiIMPWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:22:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49418 "EHLO
+        id S236018AbiIMPW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:22:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235897AbiIMPVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:21:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B727B2A5;
-        Tue, 13 Sep 2022 07:36:23 -0700 (PDT)
+        with ESMTP id S235899AbiIMPWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A56D7C1CD;
+        Tue, 13 Sep 2022 07:36:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42086B80FE1;
-        Tue, 13 Sep 2022 14:35:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87577C433C1;
-        Tue, 13 Sep 2022 14:35:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FC89614C0;
+        Tue, 13 Sep 2022 14:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50318C433B5;
+        Tue, 13 Sep 2022 14:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079708;
-        bh=9BgiPP6OCpWvSkGqFHD61EJ8AiegDO/o1o7/clXSep4=;
+        s=korg; t=1663079711;
+        bh=c+8isZ6YTFjQhAE68z6WOk1AgkqlsJDOpn1OWpRm7yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2TxUfLfoMnJdS6rbbutrldXM2e0d/J+Mq6Sa2omjUGMcUa4narZ/MSeLHA70MsOZs
-         m0Hbz9RyNxSIziFjQ4hKD0qHaF6pQF5iQ55ybbXL72wxQQ4cm3rSrFDsaWKXlQQkDZ
-         83mQeRHohbBNeeBrm4UrmVjiBgdFwQt55fMeQL4E=
+        b=RBuQVhVxt5cI0/Vw2sIypmb2xpvKCM8n4Dof1BXIZwd00S/eptn8Pga4eyuyu4+H4
+         5Kl/0J4mukJ92YZvhZry+jYmNOPzkKehcq9rcVj82W5qu01LwEqXPEJHyVC/ojsqyp
+         DImCPvokHwsb8JSz4EgaO282u5+0SOpSK5aG/XEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        stable@vger.kernel.org,
+        Pattara Teerapong <pteerapong@chromium.org>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 44/61] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
-Date:   Tue, 13 Sep 2022 16:07:46 +0200
-Message-Id: <20220913140348.674888319@linuxfoundation.org>
+Subject: [PATCH 4.14 45/61] ALSA: aloop: Fix random zeros in capture data when using jiffies timer
+Date:   Tue, 13 Sep 2022 16:07:47 +0200
+Message-Id: <20220913140348.726635924@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
 References: <20220913140346.422813036@linuxfoundation.org>
@@ -53,66 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tasos Sahanidis <tasos@tasossah.com>
+From: Pattara Teerapong <pteerapong@chromium.org>
 
-commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
+commit 3e48940abee88b8dbbeeaf8a07e7b2b6be1271b3 upstream.
 
-The voice allocator sometimes begins allocating from near the end of the
-array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
-accesses the newly allocated voices as if it never wrapped around.
+In loopback_jiffies_timer_pos_update(), we are getting jiffies twice.
+First time for playback, second time for capture. Jiffies can be updated
+between these two calls and if the capture jiffies is larger, extra zeros
+will be filled in the capture buffer.
 
-This results in out of bounds access if the first voice has a high enough
-index so that first_voice + requested_voice_count > NUM_G (64).
-The more voices are requested, the more likely it is for this to occur.
+Change to get jiffies once and use it for both playback and capture.
 
-This was initially discovered using PipeWire, however it can be reproduced
-by calling aplay multiple times with 16 channels:
-aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
-
-UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
-index 65 is out of range for type 'snd_emu10k1_voice [64]'
-CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
-Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-ubsan_epilogue+0x9/0x3f
-__ubsan_handle_out_of_bounds.cold+0x44/0x49
-snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
-snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
-snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
-? exit_to_user_mode_prepare+0x35/0x170
-? do_syscall_64+0x69/0x90
-? syscall_exit_to_user_mode+0x26/0x50
-? do_syscall_64+0x69/0x90
-? exit_to_user_mode_prepare+0x35/0x170
-snd_pcm_ioctl+0x27/0x40 [snd_pcm]
-__x64_sys_ioctl+0x95/0xd0
-do_syscall_64+0x5c/0x90
-? do_syscall_64+0x69/0x90
-? do_syscall_64+0x69/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Signed-off-by: Pattara Teerapong <pteerapong@chromium.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
+Link: https://lore.kernel.org/r/20220901144036.4049060-1-pteerapong@chromium.org
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/emu10k1/emupcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/drivers/aloop.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -137,7 +137,7 @@ static int snd_emu10k1_pcm_channel_alloc
- 	epcm->voices[0]->epcm = epcm;
- 	if (voices > 1) {
- 		for (i = 1; i < voices; i++) {
--			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
-+			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
- 			epcm->voices[i]->epcm = epcm;
- 		}
+--- a/sound/drivers/aloop.c
++++ b/sound/drivers/aloop.c
+@@ -477,17 +477,18 @@ static unsigned int loopback_pos_update(
+ 			cable->streams[SNDRV_PCM_STREAM_PLAYBACK];
+ 	struct loopback_pcm *dpcm_capt =
+ 			cable->streams[SNDRV_PCM_STREAM_CAPTURE];
+-	unsigned long delta_play = 0, delta_capt = 0;
++	unsigned long delta_play = 0, delta_capt = 0, cur_jiffies;
+ 	unsigned int running, count1, count2;
+ 
++	cur_jiffies = jiffies;
+ 	running = cable->running ^ cable->pause;
+ 	if (running & (1 << SNDRV_PCM_STREAM_PLAYBACK)) {
+-		delta_play = jiffies - dpcm_play->last_jiffies;
++		delta_play = cur_jiffies - dpcm_play->last_jiffies;
+ 		dpcm_play->last_jiffies += delta_play;
  	}
+ 
+ 	if (running & (1 << SNDRV_PCM_STREAM_CAPTURE)) {
+-		delta_capt = jiffies - dpcm_capt->last_jiffies;
++		delta_capt = cur_jiffies - dpcm_capt->last_jiffies;
+ 		dpcm_capt->last_jiffies += delta_capt;
+ 	}
+ 
 
 
