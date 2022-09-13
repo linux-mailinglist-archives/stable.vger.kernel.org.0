@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A92745B731C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9D95B739F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbiIMPCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
+        id S235278AbiIMPGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234922AbiIMO76 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3345273910;
-        Tue, 13 Sep 2022 07:29:13 -0700 (PDT)
+        with ESMTP id S234975AbiIMPEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 860B274DCC;
+        Tue, 13 Sep 2022 07:30:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1E4FB80F62;
-        Tue, 13 Sep 2022 14:27:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FC86C433D7;
-        Tue, 13 Sep 2022 14:26:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3907A614DA;
+        Tue, 13 Sep 2022 14:30:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CDC8C433D6;
+        Tue, 13 Sep 2022 14:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079219;
-        bh=hUKpbBurnIADYBB48INuVb65uF3BAve/dnb4RurZ+E4=;
+        s=korg; t=1663079421;
+        bh=d8/BjMjVzY/n7XeMlWP1JgbELelWC0FaNED4myX5wmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5psg8uJ/cAQ6fNkt3CGLvQHkJ+ocftvlmdQayoPt/PcBfpC6hqCIijifFM8orybt
-         CfuuThgimKag7X+O1KPzOrcrIdi8JCwtCKTC3aIELyVNejLQxT1EthQsfzaPElgjb1
-         BDC34sZL0sTzBBGiL/fZAcP1x2bmvpQuPdLIeAKU=
+        b=mXn7Y6D+9rkxH8csv3hoX2Z+CwRkIyLKxsLLvfuH4khgryIXTSqEXTOgCFz139zPt
+         eoa2Q7sbcxA72S2X4hpM7MEsMf24Khhd0/SjWyd1ttG/XP3SUX2142YbsHwcEZZJ7P
+         ZJckrO8ArdEF7JQKzi/h+iAcLG4HlAhDhVu+SNYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thierry GUIBERT <thierry.guibert@croix-rouge.fr>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.4 049/108] USB: cdc-acm: Add Icom PMR F3400 support (0c26:0020)
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.19 02/79] efi: capsule-loader: Fix use-after-free in efi_capsule_write
 Date:   Tue, 13 Sep 2022 16:06:20 +0200
-Message-Id: <20220913140355.744154181@linuxfoundation.org>
+Message-Id: <20220913140348.959636664@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-commit a10bc71729b236fe36de0d8e4d35c959fd8dec3a upstream.
+commit 9cb636b5f6a8cc6d1b50809ec8f8d33ae0c84c95 upstream.
 
-Supports for ICOM F3400 and ICOM F4400 PMR radios in CDC-ACM driver
-enabling the AT serial port.
-The Vendor Id is 0x0C26
-The Product ID is 0x0020
+A race condition may occur if the user calls close() on another thread
+during a write() operation on the device node of the efi capsule.
 
-Output of lsusb :
-Bus 001 Device 009: ID 0c26:0020 Prolific Technology Inc. ICOM Radio
-Couldn't open device, some information will be missing
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            2 Communications
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0c26 Prolific Technology Inc.
-  idProduct          0x0020
-  bcdDevice            0.00
-  iManufacturer           1 ICOM Inc.
-  iProduct                2 ICOM Radio
-  iSerial                 3 *obfuscated*
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0030
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval              12
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
+This is a race condition that occurs between the efi_capsule_write() and
+efi_capsule_flush() functions of efi_capsule_fops, which ultimately
+results in UAF.
 
-Signed-off-by: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220819081702.84118-1-thierry.guibert@croix-rouge.fr
+So, the page freeing process is modified to be done in
+efi_capsule_release() instead of efi_capsule_flush().
+
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/all/20220907102920.GA88602@ubuntu/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/firmware/efi/capsule-loader.c |   31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1843,6 +1843,9 @@ static const struct usb_device_id acm_id
- 	{ USB_DEVICE(0x09d8, 0x0320), /* Elatec GmbH TWN3 */
- 	.driver_info = NO_UNION_NORMAL, /* has misplaced union descriptor */
- 	},
-+	{ USB_DEVICE(0x0c26, 0x0020), /* Icom ICF3400 Serie */
-+	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
-+	},
- 	{ USB_DEVICE(0x0ca6, 0xa050), /* Castles VEGA3000 */
- 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
- 	},
+--- a/drivers/firmware/efi/capsule-loader.c
++++ b/drivers/firmware/efi/capsule-loader.c
+@@ -244,29 +244,6 @@ failed:
+ }
+ 
+ /**
+- * efi_capsule_flush - called by file close or file flush
+- * @file: file pointer
+- * @id: not used
+- *
+- *	If a capsule is being partially uploaded then calling this function
+- *	will be treated as upload termination and will free those completed
+- *	buffer pages and -ECANCELED will be returned.
+- **/
+-static int efi_capsule_flush(struct file *file, fl_owner_t id)
+-{
+-	int ret = 0;
+-	struct capsule_info *cap_info = file->private_data;
+-
+-	if (cap_info->index > 0) {
+-		pr_err("capsule upload not complete\n");
+-		efi_free_all_buff_pages(cap_info);
+-		ret = -ECANCELED;
+-	}
+-
+-	return ret;
+-}
+-
+-/**
+  * efi_capsule_release - called by file close
+  * @inode: not used
+  * @file: file pointer
+@@ -278,6 +255,13 @@ static int efi_capsule_release(struct in
+ {
+ 	struct capsule_info *cap_info = file->private_data;
+ 
++	if (cap_info->index > 0 &&
++	    (cap_info->header.headersize == 0 ||
++	     cap_info->count < cap_info->total_size)) {
++		pr_err("capsule upload not complete\n");
++		efi_free_all_buff_pages(cap_info);
++	}
++
+ 	kfree(cap_info->pages);
+ 	kfree(cap_info->phys);
+ 	kfree(file->private_data);
+@@ -325,7 +309,6 @@ static const struct file_operations efi_
+ 	.owner = THIS_MODULE,
+ 	.open = efi_capsule_open,
+ 	.write = efi_capsule_write,
+-	.flush = efi_capsule_flush,
+ 	.release = efi_capsule_release,
+ 	.llseek = no_llseek,
+ };
 
 
