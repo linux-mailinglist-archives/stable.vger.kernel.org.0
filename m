@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB575B7176
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B9D5B70AF
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbiIMOma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:42:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59690 "EHLO
+        id S233259AbiIMO3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:29:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234347AbiIMOlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E5E76DF96;
-        Tue, 13 Sep 2022 07:22:19 -0700 (PDT)
+        with ESMTP id S233766AbiIMO2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A52863F24;
+        Tue, 13 Sep 2022 07:17:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93872614CA;
-        Tue, 13 Sep 2022 14:12:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E6AC433D6;
-        Tue, 13 Sep 2022 14:12:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CD4E614D5;
+        Tue, 13 Sep 2022 14:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92602C433C1;
+        Tue, 13 Sep 2022 14:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078372;
-        bh=QZkttdey2IZbuHhI/iymCpT7oKPDrJqvupu9s4uBL/M=;
+        s=korg; t=1663078650;
+        bh=t1P3kWJlr3FRz90YArACEMVnqBprOqufRoCxhUOe9P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5VtojKVdv4/PBcrAcyoK1h3Jdzdv9wV80r3rryetexVpPbx6KrxkwMSYjbboml/x
-         bDNSeEv8UUE7pUpXC+UdtDK2k/KeJDD4sbPhTL1zZQHv+fOm36vxN92WlbTpcMhZn1
-         MqpKm3pmuTYQiYvOYkrU/Qn/BTNVbUhkaPqmoIBc=
+        b=r/LbCkDyxRddW4cZQN0q3oakkfLhXZ8wiS8JUTWS79QH9bZ5TvQRBh7tc/FesG7w2
+         E5YyOMLt9A4CcAXDUot3Ibj9xVC3Bpt6cN7IhM1xfRIMb0oLIDJt72IgH2fl3h7tk1
+         NVwFXkoacNmFlfWrSBqVM9eZ/+X5l1wI3Wytlk+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 114/192] Revert "net: phy: meson-gxl: improve link-up behavior"
+        stable@vger.kernel.org,
+        Pattara Teerapong <pteerapong@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 029/121] ALSA: aloop: Fix random zeros in capture data when using jiffies timer
 Date:   Tue, 13 Sep 2022 16:03:40 +0200
-Message-Id: <20220913140415.654612788@linuxfoundation.org>
+Message-Id: <20220913140358.602158670@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Pattara Teerapong <pteerapong@chromium.org>
 
-[ Upstream commit 7fdc77665f3d45c9da7c6edd4beadee9790f43aa ]
+commit 3e48940abee88b8dbbeeaf8a07e7b2b6be1271b3 upstream.
 
-This reverts commit 2c87c6f9fbddc5b84d67b2fa3f432fcac6d99d93.
-Meanwhile it turned out that the following commit is the proper
-workaround for the issue that 2c87c6f9fbdd tries to address.
-a3a57bf07de2 ("net: stmmac: work around sporadic tx issue on link-up")
-It's nor clear why the to be reverted commit helped for one user,
-for others it didn't make a difference.
+In loopback_jiffies_timer_pos_update(), we are getting jiffies twice.
+First time for playback, second time for capture. Jiffies can be updated
+between these two calls and if the capture jiffies is larger, extra zeros
+will be filled in the capture buffer.
 
-Fixes: 2c87c6f9fbdd ("net: phy: meson-gxl: improve link-up behavior")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/8deeeddc-6b71-129b-1918-495a12dc11e3@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Change to get jiffies once and use it for both playback and capture.
+
+Signed-off-by: Pattara Teerapong <pteerapong@chromium.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220901144036.4049060-1-pteerapong@chromium.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/meson-gxl.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ sound/drivers/aloop.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
-index 73f7962a37d33..c49062ad72c6c 100644
---- a/drivers/net/phy/meson-gxl.c
-+++ b/drivers/net/phy/meson-gxl.c
-@@ -243,13 +243,7 @@ static irqreturn_t meson_gxl_handle_interrupt(struct phy_device *phydev)
- 	    irq_status == INTSRC_ENERGY_DETECT)
- 		return IRQ_HANDLED;
+--- a/sound/drivers/aloop.c
++++ b/sound/drivers/aloop.c
+@@ -605,17 +605,18 @@ static unsigned int loopback_jiffies_tim
+ 			cable->streams[SNDRV_PCM_STREAM_PLAYBACK];
+ 	struct loopback_pcm *dpcm_capt =
+ 			cable->streams[SNDRV_PCM_STREAM_CAPTURE];
+-	unsigned long delta_play = 0, delta_capt = 0;
++	unsigned long delta_play = 0, delta_capt = 0, cur_jiffies;
+ 	unsigned int running, count1, count2;
  
--	/* Give PHY some time before MAC starts sending data. This works
--	 * around an issue where network doesn't come up properly.
--	 */
--	if (!(irq_status & INTSRC_LINK_DOWN))
--		phy_queue_state_machine(phydev, msecs_to_jiffies(100));
--	else
--		phy_trigger_machine(phydev);
-+	phy_trigger_machine(phydev);
++	cur_jiffies = jiffies;
+ 	running = cable->running ^ cable->pause;
+ 	if (running & (1 << SNDRV_PCM_STREAM_PLAYBACK)) {
+-		delta_play = jiffies - dpcm_play->last_jiffies;
++		delta_play = cur_jiffies - dpcm_play->last_jiffies;
+ 		dpcm_play->last_jiffies += delta_play;
+ 	}
  
- 	return IRQ_HANDLED;
- }
--- 
-2.35.1
-
+ 	if (running & (1 << SNDRV_PCM_STREAM_CAPTURE)) {
+-		delta_capt = jiffies - dpcm_capt->last_jiffies;
++		delta_capt = cur_jiffies - dpcm_capt->last_jiffies;
+ 		dpcm_capt->last_jiffies += delta_capt;
+ 	}
+ 
 
 
