@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7D65B7222
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B0C5B7269
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:55:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbiIMOo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60926 "EHLO
+        id S234483AbiIMOz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231600AbiIMOn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:26 -0400
+        with ESMTP id S234632AbiIMOxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:53:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FB66E883;
-        Tue, 13 Sep 2022 07:23:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 675CE72B67;
+        Tue, 13 Sep 2022 07:26:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DD17B80FAC;
-        Tue, 13 Sep 2022 14:21:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB192C4314B;
-        Tue, 13 Sep 2022 14:21:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63DB1B80F9B;
+        Tue, 13 Sep 2022 14:24:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6708C433C1;
+        Tue, 13 Sep 2022 14:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078881;
-        bh=5Ac6h/yAdlkrk31PwU418awnqFyqpgZ6RqQIz3z6cgs=;
+        s=korg; t=1663079051;
+        bh=KaSwSIgk7nDDYsYLWWwE5uYh50byIm2BzbB5QmW7AQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B01snsd+46u+wBFSFV4vCxdbjIuNpTOTU9E2YzKedqmEYr5c8AHRXfP6FYS7p7i6Q
-         +mcogtgDKfx2esq2ddWyxxrqCLamXBgAwn03mmRmFzSK0HGUj0/sC3r3Pqo2GFjJ3s
-         nGLiUtRX2RVpNaAEDCbegEbbtH07tz42aZuDrA4U=
+        b=blC/FieGI/43U538PcmeScjC+K8P5Zl8CVpBPhFSkPUDox+fJCIHS0lg05QVFcgtj
+         HoFRUUAWnEUUjMzaDWRAEvorP7TTK30s3U/rxtjwdblOHiMQFUDb0SHbt1fLnthyWF
+         3QdCiGfKitI97Ezkfg07aq/Sgw/npQ1ezPGX61T8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ionela Voinescu <ionela.voinescu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 118/121] arm64: errata: add detection for AMEVCNTR01 incrementing incorrectly
+        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
+        Chris Mi <cmi@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 64/79] RDMA/mlx5: Set local port to one when accessing counters
 Date:   Tue, 13 Sep 2022 16:05:09 +0200
-Message-Id: <20220913140402.435841961@linuxfoundation.org>
+Message-Id: <20220913140353.293777543@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,190 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ionela Voinescu <ionela.voinescu@arm.com>
+From: Chris Mi <cmi@nvidia.com>
 
-commit e89d120c4b720e232cc6a94f0fcbd59c15d41489 upstream.
+[ Upstream commit 74b30b3ad5cec95d2647e796d10137438a098bc1 ]
 
-The AMU counter AMEVCNTR01 (constant counter) should increment at the same
-rate as the system counter. On affected Cortex-A510 cores, AMEVCNTR01
-increments incorrectly giving a significantly higher output value. This
-results in inaccurate task scheduler utilization tracking and incorrect
-feedback on CPU frequency.
+When accessing Ports Performance Counters Register (PPCNT),
+local port must be one if it is Function-Per-Port HCA that
+HCA_CAP.num_ports is 1.
 
-Work around this problem by returning 0 when reading the affected counter
-in key locations that results in disabling all users of this counter from
-using it either for frequency invariance or as FFH reference counter. This
-effect is the same to firmware disabling affected counters.
+The offending patch can change the local port to other values
+when accessing PPCNT after enabling switchdev mode. The following
+syndrome will be printed:
 
-Details on how the two features are affected by this erratum:
+ # cat /sys/class/infiniband/rdmap4s0f0/ports/2/counters/*
+ # dmesg
+ mlx5_core 0000:04:00.0: mlx5_cmd_check:756:(pid 12450): ACCESS_REG(0x805) op_mod(0x1) failed, status bad parameter(0x3), syndrome (0x1e5585)
 
- - AMU counters will not be used for frequency invariance for affected
-   CPUs and CPUs in the same cpufreq policy. AMUs can still be used for
-   frequency invariance for unaffected CPUs in the system. Although
-   unlikely, if no alternative method can be found to support frequency
-   invariance for affected CPUs (cpufreq based or solution based on
-   platform counters) frequency invariance will be disabled. Please check
-   the chapter on frequency invariance at
-   Documentation/scheduler/sched-capacity.rst for details of its effect.
+Fix it by setting local port to one for Function-Per-Port HCA.
 
- - Given that FFH can be used to fetch either the core or constant counter
-   values, restrictions are lifted regarding any of these counters
-   returning a valid (!0) value. Therefore FFH is considered supported
-   if there is a least one CPU that support AMUs, independent of any
-   counters being disabled or affected by this erratum. Clarifying
-   comments are now added to the cpc_ffh_supported(), cpu_read_constcnt()
-   and cpu_read_corecnt() functions.
-
-The above is achieved through adding a new erratum: ARM64_ERRATUM_2457168.
-
-Signed-off-by: Ionela Voinescu <ionela.voinescu@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20220819103050.24211-1-ionela.voinescu@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 210b1f78076f ("IB/mlx5: When not in dual port RoCE mode, use provided port as native")
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Link: https://lore.kernel.org/r/6c5086c295c76211169e58dbd610fb0402360bab.1661763459.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/arm64/silicon-errata.rst |    2 ++
- arch/arm64/Kconfig                     |   17 +++++++++++++++++
- arch/arm64/kernel/cpu_errata.c         |    9 +++++++++
- arch/arm64/kernel/cpufeature.c         |    5 ++++-
- arch/arm64/kernel/topology.c           |   32 ++++++++++++++++++++++++++++++--
- arch/arm64/tools/cpucaps               |    1 +
- 6 files changed, 63 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx5/mad.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -94,6 +94,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A510     | #2441009        | ARM64_ERRATUM_2441009       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A510     | #2457168        | ARM64_ERRATUM_2457168       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Neoverse-N1     | #1188873,1418040| ARM64_ERRATUM_1418040       |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Neoverse-N1     | #1349291        | N/A                         |
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -683,6 +683,23 @@ config ARM64_ERRATUM_2441009
- 
- 	  If unsure, say Y.
- 
-+config ARM64_ERRATUM_2457168
-+	bool "Cortex-A510: 2457168: workaround for AMEVCNTR01 incrementing incorrectly"
-+	depends on ARM64_AMU_EXTN
-+	default y
-+	help
-+	  This option adds the workaround for ARM Cortex-A510 erratum 2457168.
-+
-+	  The AMU counter AMEVCNTR01 (constant counter) should increment at the same rate
-+	  as the system counter. On affected Cortex-A510 cores AMEVCNTR01 increments
-+	  incorrectly giving a significantly higher output value.
-+
-+	  Work around this problem by returning 0 when reading the affected counter in
-+	  key locations that results in disabling all users of this counter. This effect
-+	  is the same to firmware disabling affected counters.
-+
-+	  If unsure, say Y.
-+
- config CAVIUM_ERRATUM_22375
- 	bool "Cavium erratum 22375, 24313"
- 	default y
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -551,6 +551,15 @@ const struct arm64_cpu_capabilities arm6
- 		ERRATA_MIDR_ALL_VERSIONS(MIDR_NVIDIA_CARMEL),
- 	},
- #endif
-+#ifdef CONFIG_ARM64_ERRATUM_2457168
-+	{
-+		.desc = "ARM erratum 2457168",
-+		.capability = ARM64_WORKAROUND_2457168,
-+		.type = ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE,
-+		/* Cortex-A510 r0p0-r1p1 */
-+		CAP_MIDR_RANGE(MIDR_CORTEX_A510, 0, 0, 1, 1)
-+	},
-+#endif
- 	{
+diff --git a/drivers/infiniband/hw/mlx5/mad.c b/drivers/infiniband/hw/mlx5/mad.c
+index 9bb9bb058932f..cca7a4a6bd82d 100644
+--- a/drivers/infiniband/hw/mlx5/mad.c
++++ b/drivers/infiniband/hw/mlx5/mad.c
+@@ -166,6 +166,12 @@ static int process_pma_cmd(struct mlx5_ib_dev *dev, u8 port_num,
+ 		mdev = dev->mdev;
+ 		mdev_port_num = 1;
  	}
- };
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1736,7 +1736,10 @@ static void cpu_amu_enable(struct arm64_
- 		pr_info("detected CPU%d: Activity Monitors Unit (AMU)\n",
- 			smp_processor_id());
- 		cpumask_set_cpu(smp_processor_id(), &amu_cpus);
--		update_freq_counters_refs();
++	if (MLX5_CAP_GEN(dev->mdev, num_ports) == 1) {
++		/* set local port to one for Function-Per-Port HCA. */
++		mdev = dev->mdev;
++		mdev_port_num = 1;
++	}
 +
-+		/* 0 reference values signal broken/disabled counters */
-+		if (!this_cpu_has_cap(ARM64_WORKAROUND_2457168))
-+			update_freq_counters_refs();
- 	}
- }
- 
---- a/arch/arm64/kernel/topology.c
-+++ b/arch/arm64/kernel/topology.c
-@@ -308,12 +308,25 @@ core_initcall(init_amu_fie);
- 
- static void cpu_read_corecnt(void *val)
- {
-+	/*
-+	 * A value of 0 can be returned if the current CPU does not support AMUs
-+	 * or if the counter is disabled for this CPU. A return value of 0 at
-+	 * counter read is properly handled as an error case by the users of the
-+	 * counter.
-+	 */
- 	*(u64 *)val = read_corecnt();
- }
- 
- static void cpu_read_constcnt(void *val)
- {
--	*(u64 *)val = read_constcnt();
-+	/*
-+	 * Return 0 if the current CPU is affected by erratum 2457168. A value
-+	 * of 0 is also returned if the current CPU does not support AMUs or if
-+	 * the counter is disabled. A return value of 0 at counter read is
-+	 * properly handled as an error case by the users of the counter.
-+	 */
-+	*(u64 *)val = this_cpu_has_cap(ARM64_WORKAROUND_2457168) ?
-+		      0UL : read_constcnt();
- }
- 
- static inline
-@@ -340,7 +353,22 @@ int counters_read_on_cpu(int cpu, smp_ca
-  */
- bool cpc_ffh_supported(void)
- {
--	return freq_counters_valid(get_cpu_with_amu_feat());
-+	int cpu = get_cpu_with_amu_feat();
-+
-+	/*
-+	 * FFH is considered supported if there is at least one present CPU that
-+	 * supports AMUs. Using FFH to read core and reference counters for CPUs
-+	 * that do not support AMUs, have counters disabled or that are affected
-+	 * by errata, will result in a return value of 0.
-+	 *
-+	 * This is done to allow any enabled and valid counters to be read
-+	 * through FFH, knowing that potentially returning 0 as counter value is
-+	 * properly handled by the users of these counters.
-+	 */
-+	if ((cpu >= nr_cpu_ids) || !cpumask_test_cpu(cpu, cpu_present_mask))
-+		return false;
-+
-+	return true;
- }
- 
- int cpc_read_ffh(int cpu, struct cpc_reg *reg, u64 *val)
---- a/arch/arm64/tools/cpucaps
-+++ b/arch/arm64/tools/cpucaps
-@@ -54,6 +54,7 @@ WORKAROUND_1418040
- WORKAROUND_1463225
- WORKAROUND_1508412
- WORKAROUND_1542419
-+WORKAROUND_2457168
- WORKAROUND_CAVIUM_23154
- WORKAROUND_CAVIUM_27456
- WORKAROUND_CAVIUM_30115
+ 	/* Declaring support of extended counters */
+ 	if (in_mad->mad_hdr.attr_id == IB_PMA_CLASS_PORT_INFO) {
+ 		struct ib_class_port_info cpi = {};
+-- 
+2.35.1
+
 
 
