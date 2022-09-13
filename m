@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 281F05B7483
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D685B74D3
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236018AbiIMPW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
+        id S236428AbiIMP2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235899AbiIMPWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A56D7C1CD;
-        Tue, 13 Sep 2022 07:36:55 -0700 (PDT)
+        with ESMTP id S236149AbiIMP1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:27:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2BF6BD6A;
+        Tue, 13 Sep 2022 07:38:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FC89614C0;
-        Tue, 13 Sep 2022 14:35:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50318C433B5;
-        Tue, 13 Sep 2022 14:35:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16E5E61495;
+        Tue, 13 Sep 2022 14:36:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35AF8C433D7;
+        Tue, 13 Sep 2022 14:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079711;
-        bh=c+8isZ6YTFjQhAE68z6WOk1AgkqlsJDOpn1OWpRm7yg=;
+        s=korg; t=1663079794;
+        bh=vMW+pqOmhVGx/UWY7SCss0U4zHeQ5mDNhUutEPbJDZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBuQVhVxt5cI0/Vw2sIypmb2xpvKCM8n4Dof1BXIZwd00S/eptn8Pga4eyuyu4+H4
-         5Kl/0J4mukJ92YZvhZry+jYmNOPzkKehcq9rcVj82W5qu01LwEqXPEJHyVC/ojsqyp
-         DImCPvokHwsb8JSz4EgaO282u5+0SOpSK5aG/XEk=
+        b=oEUVfoO2vpDFhqdYiSDibJTLK3mWuKLwBGpgjinvV5evY2S8C2j81CZD4ClgWR9NG
+         CWUZ5nWS1RRpEebJqY7DCL8UNfGfynPEvA5idbjdja/2OYQ/XjPjgv7sdrF0aPVRhn
+         /t+EJA5uoo9AXpPPuEZ9u9kYrnOs1QD12Klmc9n8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pattara Teerapong <pteerapong@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 45/61] ALSA: aloop: Fix random zeros in capture data when using jiffies timer
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.9 16/42] s390: fix nospec table alignments
 Date:   Tue, 13 Sep 2022 16:07:47 +0200
-Message-Id: <20220913140348.726635924@linuxfoundation.org>
+Message-Id: <20220913140343.085198775@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pattara Teerapong <pteerapong@chromium.org>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 3e48940abee88b8dbbeeaf8a07e7b2b6be1271b3 upstream.
+commit c9305b6c1f52060377c72aebe3a701389e9f3172 upstream.
 
-In loopback_jiffies_timer_pos_update(), we are getting jiffies twice.
-First time for playback, second time for capture. Jiffies can be updated
-between these two calls and if the capture jiffies is larger, extra zeros
-will be filled in the capture buffer.
+Add proper alignment for .nospec_call_table and .nospec_return_table in
+vmlinux.
 
-Change to get jiffies once and use it for both playback and capture.
+[hca@linux.ibm.com]: The problem with the missing alignment of the nospec
+tables exist since a long time, however only since commit e6ed91fd0768
+("s390/alternatives: remove padding generation code") and with
+CONFIG_RELOCATABLE=n the kernel may also crash at boot time.
 
-Signed-off-by: Pattara Teerapong <pteerapong@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220901144036.4049060-1-pteerapong@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The above named commit reduced the size of struct alt_instr by one byte,
+so its new size is 11 bytes. Therefore depending on the number of cpu
+alternatives the size of the __alt_instructions array maybe odd, which
+again also causes that the addresses of the nospec tables will be odd.
+
+If the address of __nospec_call_start is odd and the kernel is compiled
+With CONFIG_RELOCATABLE=n the compiler may generate code that loads the
+address of __nospec_call_start with a 'larl' instruction.
+
+This will generate incorrect code since the 'larl' instruction only works
+with even addresses. In result the members of the nospec tables will be
+accessed with an off-by-one offset, which subsequently may lead to
+addressing exceptions within __nospec_revert().
+
+Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Link: https://lore.kernel.org/r/8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org
+Cc: <stable@vger.kernel.org> # 4.16
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/aloop.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/s390/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/drivers/aloop.c
-+++ b/sound/drivers/aloop.c
-@@ -477,17 +477,18 @@ static unsigned int loopback_pos_update(
- 			cable->streams[SNDRV_PCM_STREAM_PLAYBACK];
- 	struct loopback_pcm *dpcm_capt =
- 			cable->streams[SNDRV_PCM_STREAM_CAPTURE];
--	unsigned long delta_play = 0, delta_capt = 0;
-+	unsigned long delta_play = 0, delta_capt = 0, cur_jiffies;
- 	unsigned int running, count1, count2;
- 
-+	cur_jiffies = jiffies;
- 	running = cable->running ^ cable->pause;
- 	if (running & (1 << SNDRV_PCM_STREAM_PLAYBACK)) {
--		delta_play = jiffies - dpcm_play->last_jiffies;
-+		delta_play = cur_jiffies - dpcm_play->last_jiffies;
- 		dpcm_play->last_jiffies += delta_play;
- 	}
- 
- 	if (running & (1 << SNDRV_PCM_STREAM_CAPTURE)) {
--		delta_capt = jiffies - dpcm_capt->last_jiffies;
-+		delta_capt = cur_jiffies - dpcm_capt->last_jiffies;
- 		dpcm_capt->last_jiffies += delta_capt;
- 	}
- 
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -125,6 +125,7 @@ SECTIONS
+ 	/*
+ 	 * Table with the patch locations to undo expolines
+ 	*/
++	. = ALIGN(4);
+ 	.nospec_call_table : {
+ 		__nospec_call_start = . ;
+ 		*(.s390_indirect*)
 
 
