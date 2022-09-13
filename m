@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 508D15B7363
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2033D5B7507
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235450AbiIMPIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:08:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S236592AbiIMPcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:32:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235175AbiIMPHI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:07:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F422E696FF;
-        Tue, 13 Sep 2022 07:30:51 -0700 (PDT)
+        with ESMTP id S236450AbiIMPbw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:31:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFDE27E32F;
+        Tue, 13 Sep 2022 07:40:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95309614E9;
-        Tue, 13 Sep 2022 14:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9A0C433D7;
-        Tue, 13 Sep 2022 14:30:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B16CAB80F79;
+        Tue, 13 Sep 2022 14:27:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24AF0C433D7;
+        Tue, 13 Sep 2022 14:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079451;
-        bh=4q8krE1FsncwNTfSC0uky0pPAGgOhmkWebSZonlFBbA=;
+        s=korg; t=1663079227;
+        bh=jadoyS5Jys6NwC2j2TPXHDv5rg9uq2urJQhz5GjqPsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaafyqCvDfx5/Ji7aBxIN32Cdx4ZD+ILGnHsShYenW/Uw+eGnArBZgT2S6EB27z+Y
-         B8yETRyUMu3egwJ3W1NNXkichgzZXAfqOn2J99qJWR7td+J6IrOIePSE+NJwdqGpiv
-         JGfmusZkaduh9tBM8xWo/HrDSH8Z9Mw7gwbwZ8b0=
+        b=gM0qpB9xO9+4WqpoltIj4f5HkmN/DAA9O4jZWJXYadFrBby5hx1ZQBEiBtwc1rrRD
+         0N9pN2AoZtAnQyfCppghdJqVfdDnvLiegL2CypwKAbPiSS0Wkkb6BuX2rYi7Qfh2Io
+         gWTa3PYNwgg5sQoivXqL5uqYnUIYZPZJ0K7QTTKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Fengwei Yin <fengwei.yin@intel.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 05/79] fs: only do a memory barrier for the first set_buffer_uptodate()
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 052/108] s390: fix nospec table alignments
 Date:   Tue, 13 Sep 2022 16:06:23 +0200
-Message-Id: <20220913140349.115062208@linuxfoundation.org>
+Message-Id: <20220913140355.869723357@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
+commit c9305b6c1f52060377c72aebe3a701389e9f3172 upstream.
 
-Commit d4252071b97d ("add barriers to buffer_uptodate and
-set_buffer_uptodate") added proper memory barriers to the buffer head
-BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
-will be guaranteed to actually see initialized state.
+Add proper alignment for .nospec_call_table and .nospec_return_table in
+vmlinux.
 
-However, that commit didn't _just_ add the memory barrier, it also ended
-up dropping the "was it already set" logic that the BUFFER_FNS() macro
-had.
+[hca@linux.ibm.com]: The problem with the missing alignment of the nospec
+tables exist since a long time, however only since commit e6ed91fd0768
+("s390/alternatives: remove padding generation code") and with
+CONFIG_RELOCATABLE=n the kernel may also crash at boot time.
 
-That's conceptually the right thing for a generic "this is a memory
-barrier" operation, but in the case of the buffer contents, we really
-only care about the memory barrier for the _first_ time we set the bit,
-in that the only memory ordering protection we need is to avoid anybody
-seeing uninitialized memory contents.
+The above named commit reduced the size of struct alt_instr by one byte,
+so its new size is 11 bytes. Therefore depending on the number of cpu
+alternatives the size of the __alt_instructions array maybe odd, which
+again also causes that the addresses of the nospec tables will be odd.
 
-Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
-and would require some other proper lock (typically BH_Lock or the folio
-lock).  A reader that races with somebody invalidating the buffer head
-isn't an issue wrt the memory ordering, it's a serialization issue.
+If the address of __nospec_call_start is odd and the kernel is compiled
+With CONFIG_RELOCATABLE=n the compiler may generate code that loads the
+address of __nospec_call_start with a 'larl' instruction.
 
-Now, you'd think that the buffer head operations don't matter in this
-day and age (and I certainly thought so), but apparently some loads
-still end up being heavy users of buffer heads.  In particular, the
-kernel test robot reported that not having this bit access optimization
-in place caused a noticeable direct IO performance regression on ext4:
+This will generate incorrect code since the 'larl' instruction only works
+with even addresses. In result the members of the nospec tables will be
+accessed with an off-by-one offset, which subsequently may lead to
+addressing exceptions within __nospec_revert().
 
-  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
-
-although you presumably need a fast disk and a lot of cores to actually
-notice.
-
-Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Fengwei Yin <fengwei.yin@intel.com>
-Cc: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Link: https://lore.kernel.org/r/8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org
+Cc: <stable@vger.kernel.org> # 4.16
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/buffer_head.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/s390/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -137,6 +137,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
- static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
- {
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -124,6 +124,7 @@ SECTIONS
  	/*
-+	 * If somebody else already set this uptodate, they will
-+	 * have done the memory barrier, and a reader will thus
-+	 * see *some* valid buffer state.
-+	 *
-+	 * Any other serialization (with IO errors or whatever that
-+	 * might clear the bit) has to come from other state (eg BH_Lock).
-+	 */
-+	if (test_bit(BH_Uptodate, &bh->b_state))
-+		return;
-+
-+	/*
- 	 * make it consistent with folio_mark_uptodate
- 	 * pairs with smp_load_acquire in buffer_uptodate
- 	 */
+ 	 * Table with the patch locations to undo expolines
+ 	*/
++	. = ALIGN(4);
+ 	.nospec_call_table : {
+ 		__nospec_call_start = . ;
+ 		*(.s390_indirect*)
 
 
