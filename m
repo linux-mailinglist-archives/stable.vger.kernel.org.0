@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A87585B7118
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EF7B5B7004
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234213AbiIMOfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:35:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46462 "EHLO
+        id S233553AbiIMOXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:23:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233988AbiIMOef (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:34:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4817A6053A;
-        Tue, 13 Sep 2022 07:20:03 -0700 (PDT)
+        with ESMTP id S233448AbiIMOXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBCD765267;
+        Tue, 13 Sep 2022 07:15:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 684AE614C0;
-        Tue, 13 Sep 2022 14:18:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58887C433C1;
-        Tue, 13 Sep 2022 14:18:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 52F67CE1272;
+        Tue, 13 Sep 2022 14:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA99C433C1;
+        Tue, 13 Sep 2022 14:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078689;
-        bh=tZN3IDs+UnwYCgalvUoDqz0Q4xbcT88unav2bMnv0xQ=;
+        s=korg; t=1663078394;
+        bh=4+LYtmP0CxGzLyk+tSZ/mf0FX8enKExZdAUzuzz+Om0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plj6U8thBFGzIqCFCz6NNiFZAfsl4L/skOk65koOtowPl7vblKax2KPrRTPHYBiJK
-         cb8AkyGUFJwaGv0uAk3tJfmAFbot4HhRZNkY3SwNBvP0xWBaKBpCKW2TfOXJDkl06/
-         vFq8gbRheeDFWf/1YdyMMhOEsQL14437oqQHIR4g=
+        b=gaQbRnYHiOR9FCMt9aXiBICOc4IUGppHBsR6VdA5sZ2Y5QfPkWpyIVMrHCmMPTPzr
+         6+yOmgVBJa045WAB2WdK2SyzYeCNJdfKQ6aqRcyhYOtVH4snr2CvWtgOGGZvPk/1nX
+         HFcwo6NooJnaQZg2QOl4eh9Fd5YRDtPxVSt053wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Major Chen <major.chen@samsung.com>,
-        stable <stable@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Kuyo Chang <kuyo.chang@mediatek.com>
-Subject: [PATCH 5.15 037/121] sched/debug: fix dentry leak in update_sched_domain_debugfs
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Patryk Piotrowski <patryk.piotrowski@intel.com>,
+        SlawomirX Laba <slawomirx.laba@intel.com>,
+        Vitaly Grinberg <vgrinber@redhat.com>,
+        Ivan Vecera <ivecera@redhat.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 122/192] iavf: Detach device during reset task
 Date:   Tue, 13 Sep 2022 16:03:48 +0200
-Message-Id: <20220913140358.952197808@linuxfoundation.org>
+Message-Id: <20220913140416.072792672@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,49 +59,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Ivan Vecera <ivecera@redhat.com>
 
-commit c2e406596571659451f4b95e37ddfd5a8ef1d0dc upstream.
+[ Upstream commit aa626da947e9cd30c4cf727493903e1adbb2c0a0 ]
 
-Kuyo reports that the pattern of using debugfs_remove(debugfs_lookup())
-leaks a dentry and with a hotplug stress test, the machine eventually
-runs out of memory.
+iavf_reset_task() takes crit_lock at the beginning and holds
+it during whole call. The function subsequently calls
+iavf_init_interrupt_scheme() that grabs RTNL. Problem occurs
+when userspace initiates during the reset task any ndo callback
+that runs under RTNL like iavf_open() because some of that
+functions tries to take crit_lock. This leads to classic A-B B-A
+deadlock scenario.
 
-Fix this up by using the newly created debugfs_lookup_and_remove() call
-instead which properly handles the dentry reference counting logic.
+To resolve this situation the device should be detached in
+iavf_reset_task() prior taking crit_lock to avoid subsequent
+ndos running under RTNL and reattach the device at the end.
 
-Cc: Major Chen <major.chen@samsung.com>
-Cc: stable <stable@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Valentin Schneider <vschneid@redhat.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Reported-by: Kuyo Chang <kuyo.chang@mediatek.com>
-Tested-by: Kuyo Chang <kuyo.chang@mediatek.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220902123107.109274-2-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 62fe2a865e6d ("i40evf: add missing rtnl_lock() around i40evf_set_interrupt_capability")
+Cc: Jacob Keller <jacob.e.keller@intel.com>
+Cc: Patryk Piotrowski <patryk.piotrowski@intel.com>
+Cc: SlawomirX Laba <slawomirx.laba@intel.com>
+Tested-by: Vitaly Grinberg <vgrinber@redhat.com>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -416,7 +416,7 @@ void update_sched_domain_debugfs(void)
- 		char buf[32];
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 6d159334da9ec..981c43b204ff4 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2789,6 +2789,11 @@ static void iavf_reset_task(struct work_struct *work)
+ 	int i = 0, err;
+ 	bool running;
  
- 		snprintf(buf, sizeof(buf), "cpu%d", cpu);
--		debugfs_remove(debugfs_lookup(buf, sd_dentry));
-+		debugfs_lookup_and_remove(buf, sd_dentry);
- 		d_cpu = debugfs_create_dir(buf, sd_dentry);
++	/* Detach interface to avoid subsequent NDO callbacks */
++	rtnl_lock();
++	netif_device_detach(netdev);
++	rtnl_unlock();
++
+ 	/* When device is being removed it doesn't make sense to run the reset
+ 	 * task, just return in such a case.
+ 	 */
+@@ -2796,7 +2801,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 		if (adapter->state != __IAVF_REMOVE)
+ 			queue_work(iavf_wq, &adapter->reset_task);
  
- 		i = 0;
+-		return;
++		goto reset_finish;
+ 	}
+ 
+ 	while (!mutex_trylock(&adapter->client_lock))
+@@ -2866,7 +2871,6 @@ static void iavf_reset_task(struct work_struct *work)
+ 
+ 	if (running) {
+ 		netif_carrier_off(netdev);
+-		netif_tx_stop_all_queues(netdev);
+ 		adapter->link_up = false;
+ 		iavf_napi_disable_all(adapter);
+ 	}
+@@ -2996,7 +3000,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 	mutex_unlock(&adapter->client_lock);
+ 	mutex_unlock(&adapter->crit_lock);
+ 
+-	return;
++	goto reset_finish;
+ reset_err:
+ 	if (running) {
+ 		set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
+@@ -3007,6 +3011,10 @@ static void iavf_reset_task(struct work_struct *work)
+ 	mutex_unlock(&adapter->client_lock);
+ 	mutex_unlock(&adapter->crit_lock);
+ 	dev_err(&adapter->pdev->dev, "failed to allocate resources during reinit\n");
++reset_finish:
++	rtnl_lock();
++	netif_device_attach(netdev);
++	rtnl_unlock();
+ }
+ 
+ /**
+-- 
+2.35.1
+
 
 
