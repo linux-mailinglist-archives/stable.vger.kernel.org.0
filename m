@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA85D5B7072
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5975B6FE4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233797AbiIMO3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55982 "EHLO
+        id S233140AbiIMOUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233901AbiIMO2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91694696C5;
-        Tue, 13 Sep 2022 07:17:45 -0700 (PDT)
+        with ESMTP id S233285AbiIMOSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18008642FF;
+        Tue, 13 Sep 2022 07:13:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AC7E614D6;
-        Tue, 13 Sep 2022 14:17:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 259D6C433D6;
-        Tue, 13 Sep 2022 14:17:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCB57614C4;
+        Tue, 13 Sep 2022 14:13:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D52E3C433D6;
+        Tue, 13 Sep 2022 14:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078661;
-        bh=KAQNNwhHGi/oFnB6JdG9CeVbc8sA1N98qSSDSfnaNpI=;
+        s=korg; t=1663078382;
+        bh=sMyoQojcLrwPQiRLId1q2CAA2F5uODHLeQKKouA9PPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/NhOSwu5qwof0A1r67JpXe9RIMFdhInoC2djAYSjtVGuH6SpmJDAEH8B9oINHxn2
-         Kp9VNNoitbK5zUDyOipBhQfnYwg1q8qMTTmQHcR3LTTuA4ci4aNK1zft/7cQLNNee6
-         3Ut4tZ1VcUzh+6MjN6LAlTMhpd7a7wPjqcZHnBhs=
+        b=TUlgCjyxnTreZnwi9etSp/8ZPOshElgGXMCFss7v9d2nQ99BJa/gbLbPNRi+AScVa
+         rS9CsH7ahxfSObnOzEUxmcMj1ZszR2AzF/jEgUfq8iYg7NeEphqa3/ypgfDOXeE1yb
+         GyYfqq+g7Nf2odA6Oe1I+LoBkzSZCim6es09olSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 033/121] btrfs: zoned: set pseudo max append zone limit in zone emulation mode
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 118/192] tcp: TX zerocopy should not sense pfmemalloc status
 Date:   Tue, 13 Sep 2022 16:03:44 +0200
-Message-Id: <20220913140358.775326883@linuxfoundation.org>
+Message-Id: <20220913140415.863548926@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +56,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit cac5c44c48c9fb9cc31bea15ebd9ef0c6462314f upstream.
+[ Upstream commit 3261400639463a853ba2b3be8bd009c2a8089775 ]
 
-The commit 7d7672bc5d10 ("btrfs: convert count_max_extents() to use
-fs_info->max_extent_size") introduced a division by
-fs_info->max_extent_size. This max_extent_size is initialized with max
-zone append limit size of the device btrfs runs on. However, in zone
-emulation mode, the device is not zoned then its zone append limit is
-zero. This resulted in zero value of fs_info->max_extent_size and caused
-zero division error.
+We got a recent syzbot report [1] showing a possible misuse
+of pfmemalloc page status in TCP zerocopy paths.
 
-Fix the error by setting non-zero pseudo value to max append zone limit
-in zone emulation mode. Set the pseudo value based on max_segments as
-suggested in the commit c2ae7b772ef4 ("btrfs: zoned: revive
-max_zone_append_bytes").
+Indeed, for pages coming from user space or other layers,
+using page_is_pfmemalloc() is moot, and possibly could give
+false positives.
 
-Fixes: 7d7672bc5d10 ("btrfs: convert count_max_extents() to use fs_info->max_extent_size")
-CC: stable@vger.kernel.org # 5.12+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There has been attempts to make page_is_pfmemalloc() more robust,
+but not using it in the first place in this context is probably better,
+removing cpu cycles.
+
+Note to stable teams :
+
+You need to backport 84ce071e38a6 ("net: introduce
+__skb_fill_page_desc_noacc") as a prereq.
+
+Race is more probable after commit c07aea3ef4d4
+("mm: add a signature in struct page") because page_is_pfmemalloc()
+is now using low order bit from page->lru.next, which can change
+more often than page->index.
+
+Low order bit should never be set for lru.next (when used as an anchor
+in LRU list), so KCSAN report is mostly a false positive.
+
+Backporting to older kernel versions seems not necessary.
+
+[1]
+BUG: KCSAN: data-race in lru_add_fn / tcp_build_frag
+
+write to 0xffffea0004a1d2c8 of 8 bytes by task 18600 on cpu 0:
+__list_add include/linux/list.h:73 [inline]
+list_add include/linux/list.h:88 [inline]
+lruvec_add_folio include/linux/mm_inline.h:105 [inline]
+lru_add_fn+0x440/0x520 mm/swap.c:228
+folio_batch_move_lru+0x1e1/0x2a0 mm/swap.c:246
+folio_batch_add_and_move mm/swap.c:263 [inline]
+folio_add_lru+0xf1/0x140 mm/swap.c:490
+filemap_add_folio+0xf8/0x150 mm/filemap.c:948
+__filemap_get_folio+0x510/0x6d0 mm/filemap.c:1981
+pagecache_get_page+0x26/0x190 mm/folio-compat.c:104
+grab_cache_page_write_begin+0x2a/0x30 mm/folio-compat.c:116
+ext4_da_write_begin+0x2dd/0x5f0 fs/ext4/inode.c:2988
+generic_perform_write+0x1d4/0x3f0 mm/filemap.c:3738
+ext4_buffered_write_iter+0x235/0x3e0 fs/ext4/file.c:270
+ext4_file_write_iter+0x2e3/0x1210
+call_write_iter include/linux/fs.h:2187 [inline]
+new_sync_write fs/read_write.c:491 [inline]
+vfs_write+0x468/0x760 fs/read_write.c:578
+ksys_write+0xe8/0x1a0 fs/read_write.c:631
+__do_sys_write fs/read_write.c:643 [inline]
+__se_sys_write fs/read_write.c:640 [inline]
+__x64_sys_write+0x3e/0x50 fs/read_write.c:640
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+read to 0xffffea0004a1d2c8 of 8 bytes by task 18611 on cpu 1:
+page_is_pfmemalloc include/linux/mm.h:1740 [inline]
+__skb_fill_page_desc include/linux/skbuff.h:2422 [inline]
+skb_fill_page_desc include/linux/skbuff.h:2443 [inline]
+tcp_build_frag+0x613/0xb20 net/ipv4/tcp.c:1018
+do_tcp_sendpages+0x3e8/0xaf0 net/ipv4/tcp.c:1075
+tcp_sendpage_locked net/ipv4/tcp.c:1140 [inline]
+tcp_sendpage+0x89/0xb0 net/ipv4/tcp.c:1150
+inet_sendpage+0x7f/0xc0 net/ipv4/af_inet.c:833
+kernel_sendpage+0x184/0x300 net/socket.c:3561
+sock_sendpage+0x5a/0x70 net/socket.c:1054
+pipe_to_sendpage+0x128/0x160 fs/splice.c:361
+splice_from_pipe_feed fs/splice.c:415 [inline]
+__splice_from_pipe+0x222/0x4d0 fs/splice.c:559
+splice_from_pipe fs/splice.c:594 [inline]
+generic_splice_sendpage+0x89/0xc0 fs/splice.c:743
+do_splice_from fs/splice.c:764 [inline]
+direct_splice_actor+0x80/0xa0 fs/splice.c:931
+splice_direct_to_actor+0x305/0x620 fs/splice.c:886
+do_splice_direct+0xfb/0x180 fs/splice.c:974
+do_sendfile+0x3bf/0x910 fs/read_write.c:1249
+__do_sys_sendfile64 fs/read_write.c:1317 [inline]
+__se_sys_sendfile64 fs/read_write.c:1303 [inline]
+__x64_sys_sendfile64+0x10c/0x150 fs/read_write.c:1303
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0x0000000000000000 -> 0xffffea0004a1d288
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 18611 Comm: syz-executor.4 Not tainted 6.0.0-rc2-syzkaller-00248-ge022620b5d05-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+
+Fixes: c07aea3ef4d4 ("mm: add a signature in struct page")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/zoned.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ include/linux/skbuff.h | 21 +++++++++++++++++++++
+ net/core/datagram.c    |  2 +-
+ net/ipv4/tcp.c         |  2 +-
+ 3 files changed, 23 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -392,10 +392,19 @@ int btrfs_get_dev_zone_info(struct btrfs
- 	 * since btrfs adds the pages one by one to a bio, and btrfs cannot
- 	 * increase the metadata reservation even if it increases the number of
- 	 * extents, it is safe to stick with the limit.
-+	 *
-+	 * With the zoned emulation, we can have non-zoned device on the zoned
-+	 * mode. In this case, we don't have a valid max zone append size. So,
-+	 * use max_segments * PAGE_SIZE as the pseudo max_zone_append_size.
- 	 */
--	zone_info->max_zone_append_size =
--		min_t(u64, (u64)bdev_max_zone_append_sectors(bdev) << SECTOR_SHIFT,
--		      (u64)bdev_max_segments(bdev) << PAGE_SHIFT);
-+	if (bdev_is_zoned(bdev)) {
-+		zone_info->max_zone_append_size = min_t(u64,
-+			(u64)bdev_max_zone_append_sectors(bdev) << SECTOR_SHIFT,
-+			(u64)bdev_max_segments(bdev) << PAGE_SHIFT);
-+	} else {
-+		zone_info->max_zone_append_size =
-+			(u64)bdev_max_segments(bdev) << PAGE_SHIFT;
-+	}
- 	if (!IS_ALIGNED(nr_sectors, zone_sectors))
- 		zone_info->nr_zones++;
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index b0a1374043f30..63d0a21b63162 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2587,6 +2587,27 @@ static inline void skb_fill_page_desc(struct sk_buff *skb, int i,
+ 	skb_shinfo(skb)->nr_frags = i + 1;
+ }
  
++/**
++ * skb_fill_page_desc_noacc - initialise a paged fragment in an skb
++ * @skb: buffer containing fragment to be initialised
++ * @i: paged fragment index to initialise
++ * @page: the page to use for this fragment
++ * @off: the offset to the data with @page
++ * @size: the length of the data
++ *
++ * Variant of skb_fill_page_desc() which does not deal with
++ * pfmemalloc, if page is not owned by us.
++ */
++static inline void skb_fill_page_desc_noacc(struct sk_buff *skb, int i,
++					    struct page *page, int off,
++					    int size)
++{
++	struct skb_shared_info *shinfo = skb_shinfo(skb);
++
++	__skb_fill_page_desc_noacc(shinfo, i, page, off, size);
++	shinfo->nr_frags = i + 1;
++}
++
+ void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
+ 		     int size, unsigned int truesize);
+ 
+diff --git a/net/core/datagram.c b/net/core/datagram.c
+index 50f4faeea76cc..48e82438acb02 100644
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -675,7 +675,7 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
+ 				page_ref_sub(last_head, refs);
+ 				refs = 0;
+ 			}
+-			skb_fill_page_desc(skb, frag++, head, start, size);
++			skb_fill_page_desc_noacc(skb, frag++, head, start, size);
+ 		}
+ 		if (refs)
+ 			page_ref_sub(last_head, refs);
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 3d446773ff2a5..ab03977b65781 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1015,7 +1015,7 @@ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 		skb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);
+ 	} else {
+ 		get_page(page);
+-		skb_fill_page_desc(skb, i, page, offset, copy);
++		skb_fill_page_desc_noacc(skb, i, page, offset, copy);
+ 	}
+ 
+ 	if (!(flags & MSG_NO_SHARED_FRAGS))
+-- 
+2.35.1
+
 
 
