@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB535B71AA
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0595B7165
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231714AbiIMOt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        id S232974AbiIMOjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:39:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234531AbiIMOsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607BA6F551;
-        Tue, 13 Sep 2022 07:25:22 -0700 (PDT)
+        with ESMTP id S234292AbiIMOiI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:38:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374556BCFA;
+        Tue, 13 Sep 2022 07:20:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C68A2614CE;
-        Tue, 13 Sep 2022 14:24:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB73DC433D6;
-        Tue, 13 Sep 2022 14:23:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8086B80FBD;
+        Tue, 13 Sep 2022 14:20:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47622C433D6;
+        Tue, 13 Sep 2022 14:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079040;
-        bh=+fk9TLqEpNx7WuHZZ2zSbxmR6htfifbuU340iivay+g=;
+        s=korg; t=1663078804;
+        bh=421CXfGyWKaHoPTBniDK3uktGVnaGF0Eg++IBY2VVPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=akl5FqE/8bc4vG/yjmiEzuYhZS088AV9t/F0+ap1fc2TxqMEYAmK2/UMi6vKHVUwN
-         P6GoyS2ldUmbJhoPR85AALlXoRUtGBgzQAjicXMkAn293ErIJtLIa+eKn07RzNTO+K
-         rFsLy0BX1xMVJPB3ZdpjqPtXiHG7dXXcizlWxPCE=
+        b=SE2rqT+IaUT+T6PtiRK7OeZsqwvmfy4Dg8yTk6QnDLKt/rO3f93MWarYlB6YZD8Rh
+         WEGxMxA//CZCvzYEVnMWRiiW8AJbYR4JsqNdm4KDW+49/azBwgl0wT5PsmV+t6nIEW
+         NpAT5bY5OjHxybBuxucf/9VeCBFEq2rq4gJ4IHRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Imran Khan <imran.f.khan@oracle.com>,
-        Xuewen Yan <xuewen.yan@unisoc.com>
-Subject: [PATCH 5.10 34/79] cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/121] IB/core: Fix a nested dead lock as part of ODP flow
 Date:   Tue, 13 Sep 2022 16:04:39 +0200
-Message-Id: <20220913140351.945201247@linuxfoundation.org>
+Message-Id: <20220913140401.146920262@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,205 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Yishai Hadas <yishaih@nvidia.com>
 
-[ Upstream commit 4f7e7236435ca0abe005c674ebd6892c6e83aeb3 ]
+[ Upstream commit 85eaeb5058f0f04dffb124c97c86b4f18db0b833 ]
 
-Bringing up a CPU may involve creating and destroying tasks which requires
-read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-cpus_read_lock(). However, cpuset's ->attach(), which may be called with
-thredagroup_rwsem write-locked, also wants to disable CPU hotplug and
-acquires cpus_read_lock(), leading to a deadlock.
+Fix a nested dead lock as part of ODP flow by using mmput_async().
 
-Fix it by guaranteeing that ->attach() is always called with CPU hotplug
-disabled and removing cpus_read_lock() call from cpuset_attach().
+>From the below call trace [1] can see that calling mmput() once we have
+the umem_odp->umem_mutex locked as required by
+ib_umem_odp_map_dma_and_lock() might trigger in the same task the
+exit_mmap()->__mmu_notifier_release()->mlx5_ib_invalidate_range() which
+may dead lock when trying to lock the same mutex.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reviewed-and-tested-by: Imran Khan <imran.f.khan@oracle.com>
-Reported-and-tested-by: Xuewen Yan <xuewen.yan@unisoc.com>
-Fixes: 05c7b7a92cc8 ("cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug")
-Cc: stable@vger.kernel.org # v5.17+
+Moving to use mmput_async() will solve the problem as the above
+exit_mmap() flow will be called in other task and will be executed once
+the lock will be available.
+
+[1]
+[64843.077665] task:kworker/u133:2  state:D stack:    0 pid:80906 ppid:
+2 flags:0x00004000
+[64843.077672] Workqueue: mlx5_ib_page_fault mlx5_ib_eqe_pf_action [mlx5_ib]
+[64843.077719] Call Trace:
+[64843.077722]  <TASK>
+[64843.077724]  __schedule+0x23d/0x590
+[64843.077729]  schedule+0x4e/0xb0
+[64843.077735]  schedule_preempt_disabled+0xe/0x10
+[64843.077740]  __mutex_lock.constprop.0+0x263/0x490
+[64843.077747]  __mutex_lock_slowpath+0x13/0x20
+[64843.077752]  mutex_lock+0x34/0x40
+[64843.077758]  mlx5_ib_invalidate_range+0x48/0x270 [mlx5_ib]
+[64843.077808]  __mmu_notifier_release+0x1a4/0x200
+[64843.077816]  exit_mmap+0x1bc/0x200
+[64843.077822]  ? walk_page_range+0x9c/0x120
+[64843.077828]  ? __cond_resched+0x1a/0x50
+[64843.077833]  ? mutex_lock+0x13/0x40
+[64843.077839]  ? uprobe_clear_state+0xac/0x120
+[64843.077860]  mmput+0x5f/0x140
+[64843.077867]  ib_umem_odp_map_dma_and_lock+0x21b/0x580 [ib_core]
+[64843.077931]  pagefault_real_mr+0x9a/0x140 [mlx5_ib]
+[64843.077962]  pagefault_mr+0xb4/0x550 [mlx5_ib]
+[64843.077992]  pagefault_single_data_segment.constprop.0+0x2ac/0x560
+[mlx5_ib]
+[64843.078022]  mlx5_ib_eqe_pf_action+0x528/0x780 [mlx5_ib]
+[64843.078051]  process_one_work+0x22b/0x3d0
+[64843.078059]  worker_thread+0x53/0x410
+[64843.078065]  ? process_one_work+0x3d0/0x3d0
+[64843.078073]  kthread+0x12a/0x150
+[64843.078079]  ? set_kthread_struct+0x50/0x50
+[64843.078085]  ret_from_fork+0x22/0x30
+[64843.078093]  </TASK>
+
+Fixes: 36f30e486dce ("IB/core: Improve ODP to use hmm_range_fault()")
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+Link: https://lore.kernel.org/r/74d93541ea533ef7daec6f126deb1072500aeb16.1661251841.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup.c | 77 +++++++++++++++++++++++++++++-------------
- kernel/cgroup/cpuset.c |  3 +-
- 2 files changed, 55 insertions(+), 25 deletions(-)
+ drivers/infiniband/core/umem_odp.c | 2 +-
+ kernel/fork.c                      | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 1072843b25709..684c16849eff3 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2304,6 +2304,47 @@ int task_cgroup_path(struct task_struct *task, char *buf, size_t buflen)
- }
- EXPORT_SYMBOL_GPL(task_cgroup_path);
+diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
+index 7a47343d11f9f..b052de1b9ccb9 100644
+--- a/drivers/infiniband/core/umem_odp.c
++++ b/drivers/infiniband/core/umem_odp.c
+@@ -463,7 +463,7 @@ int ib_umem_odp_map_dma_and_lock(struct ib_umem_odp *umem_odp, u64 user_virt,
+ 		mutex_unlock(&umem_odp->umem_mutex);
  
-+/**
-+ * cgroup_attach_lock - Lock for ->attach()
-+ * @lock_threadgroup: whether to down_write cgroup_threadgroup_rwsem
-+ *
-+ * cgroup migration sometimes needs to stabilize threadgroups against forks and
-+ * exits by write-locking cgroup_threadgroup_rwsem. However, some ->attach()
-+ * implementations (e.g. cpuset), also need to disable CPU hotplug.
-+ * Unfortunately, letting ->attach() operations acquire cpus_read_lock() can
-+ * lead to deadlocks.
-+ *
-+ * Bringing up a CPU may involve creating and destroying tasks which requires
-+ * read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-+ * cpus_read_lock(). If we call an ->attach() which acquires the cpus lock while
-+ * write-locking threadgroup_rwsem, the locking order is reversed and we end up
-+ * waiting for an on-going CPU hotplug operation which in turn is waiting for
-+ * the threadgroup_rwsem to be released to create new tasks. For more details:
-+ *
-+ *   http://lkml.kernel.org/r/20220711174629.uehfmqegcwn2lqzu@wubuntu
-+ *
-+ * Resolve the situation by always acquiring cpus_read_lock() before optionally
-+ * write-locking cgroup_threadgroup_rwsem. This allows ->attach() to assume that
-+ * CPU hotplug is disabled on entry.
-+ */
-+static void cgroup_attach_lock(bool lock_threadgroup)
-+{
-+	cpus_read_lock();
-+	if (lock_threadgroup)
-+		percpu_down_write(&cgroup_threadgroup_rwsem);
-+}
-+
-+/**
-+ * cgroup_attach_unlock - Undo cgroup_attach_lock()
-+ * @lock_threadgroup: whether to up_write cgroup_threadgroup_rwsem
-+ */
-+static void cgroup_attach_unlock(bool lock_threadgroup)
-+{
-+	if (lock_threadgroup)
-+		percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cpus_read_unlock();
-+}
-+
+ out_put_mm:
+-	mmput(owning_mm);
++	mmput_async(owning_mm);
+ out_put_task:
+ 	if (owning_process)
+ 		put_task_struct(owning_process);
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 89475c994ca91..908ba3c93893f 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1153,6 +1153,7 @@ void mmput_async(struct mm_struct *mm)
+ 		schedule_work(&mm->async_put_work);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(mmput_async);
+ #endif
+ 
  /**
-  * cgroup_migrate_add_task - add a migration target task to a migration context
-  * @task: target task
-@@ -2780,8 +2821,7 @@ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
- }
- 
- struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
--					     bool *locked)
--	__acquires(&cgroup_threadgroup_rwsem)
-+					     bool *threadgroup_locked)
- {
- 	struct task_struct *tsk;
- 	pid_t pid;
-@@ -2798,12 +2838,8 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
- 	 * Therefore, we can skip the global lock.
- 	 */
- 	lockdep_assert_held(&cgroup_mutex);
--	if (pid || threadgroup) {
--		percpu_down_write(&cgroup_threadgroup_rwsem);
--		*locked = true;
--	} else {
--		*locked = false;
--	}
-+	*threadgroup_locked = pid || threadgroup;
-+	cgroup_attach_lock(*threadgroup_locked);
- 
- 	rcu_read_lock();
- 	if (pid) {
-@@ -2834,17 +2870,14 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
- 	goto out_unlock_rcu;
- 
- out_unlock_threadgroup:
--	if (*locked) {
--		percpu_up_write(&cgroup_threadgroup_rwsem);
--		*locked = false;
--	}
-+	cgroup_attach_unlock(*threadgroup_locked);
-+	*threadgroup_locked = false;
- out_unlock_rcu:
- 	rcu_read_unlock();
- 	return tsk;
- }
- 
--void cgroup_procs_write_finish(struct task_struct *task, bool locked)
--	__releases(&cgroup_threadgroup_rwsem)
-+void cgroup_procs_write_finish(struct task_struct *task, bool threadgroup_locked)
- {
- 	struct cgroup_subsys *ss;
- 	int ssid;
-@@ -2852,8 +2885,8 @@ void cgroup_procs_write_finish(struct task_struct *task, bool locked)
- 	/* release reference from cgroup_procs_write_start() */
- 	put_task_struct(task);
- 
--	if (locked)
--		percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock(threadgroup_locked);
-+
- 	for_each_subsys(ss, ssid)
- 		if (ss->post_attach)
- 			ss->post_attach();
-@@ -2930,8 +2963,7 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	 * write-locking can be skipped safely.
- 	 */
- 	has_tasks = !list_empty(&mgctx.preloaded_src_csets);
--	if (has_tasks)
--		percpu_down_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_lock(has_tasks);
- 
- 	/* NULL dst indicates self on default hierarchy */
- 	ret = cgroup_migrate_prepare_dst(&mgctx);
-@@ -2952,8 +2984,7 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	ret = cgroup_migrate_execute(&mgctx);
- out_finish:
- 	cgroup_migrate_finish(&mgctx);
--	if (has_tasks)
--		percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock(has_tasks);
- 	return ret;
- }
- 
-@@ -4809,13 +4840,13 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
- 	struct task_struct *task;
- 	const struct cred *saved_cred;
- 	ssize_t ret;
--	bool locked;
-+	bool threadgroup_locked;
- 
- 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
- 	if (!dst_cgrp)
- 		return -ENODEV;
- 
--	task = cgroup_procs_write_start(buf, true, &locked);
-+	task = cgroup_procs_write_start(buf, true, &threadgroup_locked);
- 	ret = PTR_ERR_OR_ZERO(task);
- 	if (ret)
- 		goto out_unlock;
-@@ -4841,7 +4872,7 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
- 	ret = cgroup_attach_task(dst_cgrp, task, true);
- 
- out_finish:
--	cgroup_procs_write_finish(task, locked);
-+	cgroup_procs_write_finish(task, threadgroup_locked);
- out_unlock:
- 	cgroup_kn_unlock(of->kn);
- 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index c51863b63f93a..b7830f1f1f3a5 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2212,7 +2212,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 	cgroup_taskset_first(tset, &css);
- 	cs = css_cs(css);
- 
--	cpus_read_lock();
-+	lockdep_assert_cpus_held();	/* see cgroup_attach_lock() */
- 	percpu_down_write(&cpuset_rwsem);
- 
- 	/* prepare for attach */
-@@ -2268,7 +2268,6 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 		wake_up(&cpuset_attach_wq);
- 
- 	percpu_up_write(&cpuset_rwsem);
--	cpus_read_unlock();
- }
- 
- /* The various types of files and directories in a cpuset file system */
 -- 
 2.35.1
 
