@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B36625B716D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A9635B71EF
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234208AbiIMOlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:41:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
+        id S230519AbiIMOoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234441AbiIMOkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:40:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2B36D57E;
-        Tue, 13 Sep 2022 07:21:51 -0700 (PDT)
+        with ESMTP id S234485AbiIMOnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D025FF61;
+        Tue, 13 Sep 2022 07:23:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15CF06149A;
-        Tue, 13 Sep 2022 14:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C1EAC433D6;
-        Tue, 13 Sep 2022 14:20:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4718EB80F01;
+        Tue, 13 Sep 2022 14:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86792C433D6;
+        Tue, 13 Sep 2022 14:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078837;
-        bh=dowIBB/GIP3oLAHFW8IvKxJycSBw8huMxMSJIGACm/g=;
+        s=korg; t=1663078989;
+        bh=MwsHQc3uWoUbyndXOnzRD7slKc7OkYglxxOZJ8zhHts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NkdjCjFHNRy+7+sj+ci7Cv5Uem44EXHQ4yT8g7Vt8aSxAB6WF7e7JTnxlC6JJmzf1
-         sZQZvG4T8N1pGxpxmoJow3jIeo25t6H92zqcClMPI4LUnOf714QKca4ik+4ds9NFjc
-         asK7jtVnPEo40sk8rXhYd8Nsnnzfw056BiuSdcQo=
+        b=H8pmpOP1fG2wlcA+gFLm3CX/Hnqh1dEhFiKkuco/00xoqdE/INvVrRZmvLGAXBBK2
+         943BMXciyzcDOMFTqVp25yTed0jIjlokuEi4dB+F+aORwyFsdULjyPDSMlzt1CF5X8
+         956/yyI950MObuRYU2paYPHg30PL5G5cU3dfC/PI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Dennis Maisenbacher <dennis.maisenbacher@wdc.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/121] nvmet: fix mar and mor off-by-one errors
+        stable@vger.kernel.org, Michael Guralnik <michaelgur@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 40/79] RDMA/cma: Fix arguments order in net device validation
 Date:   Tue, 13 Sep 2022 16:04:45 +0200
-Message-Id: <20220913140401.398486262@linuxfoundation.org>
+Message-Id: <20220913140352.236013769@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Maisenbacher <dennis.maisenbacher@wdc.com>
+From: Michael Guralnik <michaelgur@nvidia.com>
 
-[ Upstream commit b7e97872a65e1d57b4451769610554c131f37a0a ]
+[ Upstream commit 27cfde795a96aef1e859a5480489944b95421e46 ]
 
-Maximum Active Resources (MAR) and Maximum Open Resources (MOR) are 0's
-based vales where a value of 0xffffffff indicates that there is no limit.
+Fix the order of source and destination addresses when resolving the
+route between server and client to validate use of correct net device.
 
-Decrement the values that are returned by bdev_max_open_zones and
-bdev_max_active_zones as the block layer helpers are not 0's based.
-A 0 returned by the block layer helpers indicates no limit, thus convert
-it to 0xffffffff (U32_MAX).
+The reverse order we had so far didn't actually validate the net device
+as the server would try to resolve the route to itself, thus always
+getting the server's net device.
 
-Fixes: aaf2e048af27 ("nvmet: add ZBD over ZNS backend support")
-Suggested-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Dennis Maisenbacher <dennis.maisenbacher@wdc.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The issue was discovered when running cm applications on a single host
+between 2 interfaces with same subnet and source based routing rules.
+When resolving the reverse route the source based route rules were
+ignored.
+
+Fixes: f887f2ac87c2 ("IB/cma: Validate routing of incoming requests")
+Link: https://lore.kernel.org/r/1c1ec2277a131d277ebcceec987fd338d35b775f.1661251872.git.leonro@nvidia.com
+Signed-off-by: Michael Guralnik <michaelgur@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/zns.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/cma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/zns.c b/drivers/nvme/target/zns.c
-index 235553337fb2d..1466698751c55 100644
---- a/drivers/nvme/target/zns.c
-+++ b/drivers/nvme/target/zns.c
-@@ -100,6 +100,7 @@ void nvmet_execute_identify_cns_cs_ns(struct nvmet_req *req)
- 	struct nvme_id_ns_zns *id_zns;
- 	u64 zsze;
- 	u16 status;
-+	u32 mar, mor;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 3c40aa50cd60c..b5fa19a033c0a 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1722,8 +1722,8 @@ cma_ib_id_from_event(struct ib_cm_id *cm_id,
+ 		}
  
- 	if (le32_to_cpu(req->cmd->identify.nsid) == NVME_NSID_ALL) {
- 		req->error_loc = offsetof(struct nvme_identify, nsid);
-@@ -126,8 +127,20 @@ void nvmet_execute_identify_cns_cs_ns(struct nvmet_req *req)
- 	zsze = (bdev_zone_sectors(req->ns->bdev) << 9) >>
- 					req->ns->blksize_shift;
- 	id_zns->lbafe[0].zsze = cpu_to_le64(zsze);
--	id_zns->mor = cpu_to_le32(bdev_max_open_zones(req->ns->bdev));
--	id_zns->mar = cpu_to_le32(bdev_max_active_zones(req->ns->bdev));
-+
-+	mor = bdev_max_open_zones(req->ns->bdev);
-+	if (!mor)
-+		mor = U32_MAX;
-+	else
-+		mor--;
-+	id_zns->mor = cpu_to_le32(mor);
-+
-+	mar = bdev_max_active_zones(req->ns->bdev);
-+	if (!mar)
-+		mar = U32_MAX;
-+	else
-+		mar--;
-+	id_zns->mar = cpu_to_le32(mar);
- 
- done:
- 	status = nvmet_copy_to_sgl(req, 0, id_zns, sizeof(*id_zns));
+ 		if (!validate_net_dev(*net_dev,
+-				 (struct sockaddr *)&req->listen_addr_storage,
+-				 (struct sockaddr *)&req->src_addr_storage)) {
++				 (struct sockaddr *)&req->src_addr_storage,
++				 (struct sockaddr *)&req->listen_addr_storage)) {
+ 			id_priv = ERR_PTR(-EHOSTUNREACH);
+ 			goto err;
+ 		}
 -- 
 2.35.1
 
