@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E69B65B750F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 664A45B7401
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236438AbiIMPcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
+        id S235633AbiIMPOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234707AbiIMPbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:31:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0765C78599;
-        Tue, 13 Sep 2022 07:40:05 -0700 (PDT)
+        with ESMTP id S235762AbiIMPNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002C4786DF;
+        Tue, 13 Sep 2022 07:33:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C1BAB8100C;
-        Tue, 13 Sep 2022 14:35:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D458C433D7;
-        Tue, 13 Sep 2022 14:35:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C93B7614E9;
+        Tue, 13 Sep 2022 14:32:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAEF3C433D6;
+        Tue, 13 Sep 2022 14:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079734;
-        bh=gIiL6T4LvaFLNHSvjDxv/6KecjXwYvhUtfdxuCANdKg=;
+        s=korg; t=1663079577;
+        bh=03FPAWqRDDXD6zO7/j4hVdm8z2IOL/rQTzpJQKo/Wag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZogGtYbcdmWCvcOs/nqZMafDSFIwnMEaJjDgxv6oXF4etOVQZO/zyzkcjMTx6VqM
-         4cziIigCKcG/GNmiIMBKPMDWqZodgyRN/4r8qiZ8wvCLHFIL9C43+5H0J9Tx3BnSCS
-         L3An3bFKPmBz2irS5WFiElJmx5lNPhIShCC9DmB0=
+        b=nQcRgui6jv7xJry5vj/D/1FYgreMoz3sqbHv/oDBDun4tV1W2gUteznJUwyGeZEFO
+         1eCmQr/Cbq8j71J8pheo3+mtc2QLbsyitHu+4uVMXbz2pQi9U6tD2hCEGrt+SJ8Apc
+         XhXC8qEtGwv974t3wfzoW3kzvGM3B70C4bOisug8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Rondreis <linhaoguo86@gmail.com>
-Subject: [PATCH 4.14 28/61] USB: core: Prevent nested device-reset calls
-Date:   Tue, 13 Sep 2022 16:07:30 +0200
-Message-Id: <20220913140347.905656775@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 73/79] usb: dwc3: fix PHY disable sequence
+Date:   Tue, 13 Sep 2022 16:07:31 +0200
+Message-Id: <20220913140352.419102957@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,130 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9c6d778800b921bde3bff3cff5003d1650f942d1 upstream.
+From: Johan Hovold <johan+linaro@kernel.org>
 
-Automatic kernel fuzzing revealed a recursive locking violation in
-usb-storage:
+commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
 
-============================================
-WARNING: possible recursive locking detected
-5.18.0 #3 Not tainted
---------------------------------------------
-kworker/1:3/1205 is trying to acquire lock:
-ffff888018638db8 (&us_interface_key[i]){+.+.}-{3:3}, at:
-usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
+Generic PHYs must be powered-off before they can be tore down.
 
-but task is already holding lock:
-ffff888018638db8 (&us_interface_key[i]){+.+.}-{3:3}, at:
-usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
+Similarly, suspending legacy PHYs after having powered them off makes no
+sense.
 
-...
+Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
+dwc3_probe() error-path sequences that got this wrong.
 
-stack backtrace:
-CPU: 1 PID: 1205 Comm: kworker/1:3 Not tainted 5.18.0 #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.13.0-1ubuntu1.1 04/01/2014
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
-print_deadlock_bug kernel/locking/lockdep.c:2988 [inline]
-check_deadlock kernel/locking/lockdep.c:3031 [inline]
-validate_chain kernel/locking/lockdep.c:3816 [inline]
-__lock_acquire.cold+0x152/0x3ca kernel/locking/lockdep.c:5053
-lock_acquire kernel/locking/lockdep.c:5665 [inline]
-lock_acquire+0x1ab/0x520 kernel/locking/lockdep.c:5630
-__mutex_lock_common kernel/locking/mutex.c:603 [inline]
-__mutex_lock+0x14f/0x1610 kernel/locking/mutex.c:747
-usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
-usb_reset_device+0x37d/0x9a0 drivers/usb/core/hub.c:6109
-r871xu_dev_remove+0x21a/0x270 drivers/staging/rtl8712/usb_intf.c:622
-usb_unbind_interface+0x1bd/0x890 drivers/usb/core/driver.c:458
-device_remove drivers/base/dd.c:545 [inline]
-device_remove+0x11f/0x170 drivers/base/dd.c:537
-__device_release_driver drivers/base/dd.c:1222 [inline]
-device_release_driver_internal+0x1a7/0x2f0 drivers/base/dd.c:1248
-usb_driver_release_interface+0x102/0x180 drivers/usb/core/driver.c:627
-usb_forced_unbind_intf+0x4d/0xa0 drivers/usb/core/driver.c:1118
-usb_reset_device+0x39b/0x9a0 drivers/usb/core/hub.c:6114
+Note that this makes dwc3_core_exit() match the dwc3_core_init() error
+path with respect to powering off the PHYs.
 
-This turned out not to be an error in usb-storage but rather a nested
-device reset attempt.  That is, as the rtl8712 driver was being
-unbound from a composite device in preparation for an unrelated USB
-reset (that driver does not have pre_reset or post_reset callbacks),
-its ->remove routine called usb_reset_device() -- thus nesting one
-reset call within another.
-
-Performing a reset as part of disconnect processing is a questionable
-practice at best.  However, the bug report points out that the USB
-core does not have any protection against nested resets.  Adding a
-reset_in_progress flag and testing it will prevent such errors in the
-future.
-
-Link: https://lore.kernel.org/all/CAB7eexKUpvX-JNiLzhXBDWgfg2T9e9_0Tw4HQ6keN==voRbP0g@mail.gmail.com/
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YwkflDxvg0KWqyZK@rowland.harvard.edu
+Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
+Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
+Cc: stable@vger.kernel.org      # 4.8
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ johan: adjust context to 4.19 ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   10 ++++++++++
- include/linux/usb.h    |    2 ++
- 2 files changed, 12 insertions(+)
+ drivers/usb/dwc3/core.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5737,6 +5737,11 @@ re_enumerate_no_bos:
-  * the reset is over (using their post_reset method).
-  *
-  * Return: The same as for usb_reset_and_verify_device().
-+ * However, if a reset is already in progress (for instance, if a
-+ * driver doesn't have pre_ or post_reset() callbacks, and while
-+ * being unbound or re-bound during the ongoing reset its disconnect()
-+ * or probe() routine tries to perform a second, nested reset), the
-+ * routine returns -EINPROGRESS.
-  *
-  * Note:
-  * The caller must own the device lock.  For example, it's safe to use
-@@ -5770,6 +5775,10 @@ int usb_reset_device(struct usb_device *
- 		return -EISDIR;
- 	}
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -673,15 +673,16 @@ static void dwc3_core_exit(struct dwc3 *
+ {
+ 	dwc3_event_buffers_cleanup(dwc);
  
-+	if (udev->reset_in_progress)
-+		return -EINPROGRESS;
-+	udev->reset_in_progress = 1;
++	usb_phy_set_suspend(dwc->usb2_phy, 1);
++	usb_phy_set_suspend(dwc->usb3_phy, 1);
++	phy_power_off(dwc->usb2_generic_phy);
++	phy_power_off(dwc->usb3_generic_phy);
 +
- 	port_dev = hub->ports[udev->portnum - 1];
+ 	usb_phy_shutdown(dwc->usb2_phy);
+ 	usb_phy_shutdown(dwc->usb3_phy);
+ 	phy_exit(dwc->usb2_generic_phy);
+ 	phy_exit(dwc->usb3_generic_phy);
  
- 	/*
-@@ -5834,6 +5843,7 @@ int usb_reset_device(struct usb_device *
+-	usb_phy_set_suspend(dwc->usb2_phy, 1);
+-	usb_phy_set_suspend(dwc->usb3_phy, 1);
+-	phy_power_off(dwc->usb2_generic_phy);
+-	phy_power_off(dwc->usb3_generic_phy);
+ 	clk_bulk_disable(dwc->num_clks, dwc->clks);
+ 	clk_bulk_unprepare(dwc->num_clks, dwc->clks);
+ 	reset_control_assert(dwc->reset);
+@@ -1509,16 +1510,16 @@ err5:
+ 	dwc3_debugfs_exit(dwc);
+ 	dwc3_event_buffers_cleanup(dwc);
  
- 	usb_autosuspend_device(udev);
- 	memalloc_noio_restore(noio_flag);
-+	udev->reset_in_progress = 0;
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(usb_reset_device);
---- a/include/linux/usb.h
-+++ b/include/linux/usb.h
-@@ -568,6 +568,7 @@ struct usb3_lpm_parameters {
-  * @level: number of USB hub ancestors
-  * @can_submit: URBs may be submitted
-  * @persist_enabled:  USB_PERSIST enabled for this device
-+ * @reset_in_progress: the device is being reset
-  * @have_langid: whether string_langid is valid
-  * @authorized: policy has said we can use it;
-  *	(user space) policy determines if we authorize this device to be
-@@ -646,6 +647,7 @@ struct usb_device {
+-	usb_phy_shutdown(dwc->usb2_phy);
+-	usb_phy_shutdown(dwc->usb3_phy);
+-	phy_exit(dwc->usb2_generic_phy);
+-	phy_exit(dwc->usb3_generic_phy);
+-
+ 	usb_phy_set_suspend(dwc->usb2_phy, 1);
+ 	usb_phy_set_suspend(dwc->usb3_phy, 1);
+ 	phy_power_off(dwc->usb2_generic_phy);
+ 	phy_power_off(dwc->usb3_generic_phy);
  
- 	unsigned can_submit:1;
- 	unsigned persist_enabled:1;
-+	unsigned reset_in_progress:1;
- 	unsigned have_langid:1;
- 	unsigned authorized:1;
- 	unsigned authenticated:1;
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
++
+ 	dwc3_ulpi_exit(dwc);
+ 
+ err4:
 
 
