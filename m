@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC085B748F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FDB25B73F7
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235915AbiIMPWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:22:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40832 "EHLO
+        id S235684AbiIMPPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235783AbiIMPVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:21:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6687B286;
-        Tue, 13 Sep 2022 07:36:19 -0700 (PDT)
+        with ESMTP id S235910AbiIMPOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC4B78BC7;
+        Tue, 13 Sep 2022 07:33:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96067B80FF0;
-        Tue, 13 Sep 2022 14:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01310C433D6;
-        Tue, 13 Sep 2022 14:34:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25A89614AD;
+        Tue, 13 Sep 2022 14:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D609C433C1;
+        Tue, 13 Sep 2022 14:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079698;
-        bh=M85DBPo+sC6ssrj+uPVSPX8PREwvyuTPkPj0UmY4iNM=;
+        s=korg; t=1663079611;
+        bh=MTcVN1WOatZFsoYttHT+VVPnuXzejU8/DkpUg8VI4rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWOiE4qsNEo6uuatiFBaMnwQCNDj1wpNTdJD97ujP/tm1Bln/Rpgoys/dSArkIAWx
-         mohIaUyPbTWBCUsoxtnoKLKXmnP3MAwYUXkZDh9v1kp6DXJWtOUjhFTxrQ49Vkm8ES
-         Olx9bEHUdDqJqXH5W/g5cX8MlBeDGurzyBvIeIhw=
+        b=lIMfAsaiHhudJzGpUKLyB//z4xgnikBEoVJd3DrxNCLO7HDo/E5TVAXpTeneoPU/a
+         9BMsKgURwRKfj8xXdNaGP2GZnCbfoi7h4QjwtVWNCwTYCKqvyj8WDSZjGhUW8HM0Ij
+         lCfQS8nsH683WTzsPx0kA/k2Rj8IUAZzlCjYP2uU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 4.14 23/61] usb: dwc2: fix wrong order of phy_power_on and phy_init
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 67/79] tipc: fix shift wrapping bug in map_get()
 Date:   Tue, 13 Sep 2022 16:07:25 +0200
-Message-Id: <20220913140347.666168775@linuxfoundation.org>
+Message-Id: <20220913140352.132312070@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f9b995b49a07bd0d43b0e490f59be84415c745ae upstream.
+[ Upstream commit e2b224abd9bf45dcb55750479fc35970725a430b ]
 
-Since 1599069a62c6 ("phy: core: Warn when phy_power_on is called before
-phy_init") the driver complains. In my case (Amlogic SoC) the warning
-is: phy phy-fe03e000.phy.2: phy_power_on was called before phy_init
-So change the order of the two calls. The same change has to be done
-to the order of phy_exit() and phy_power_off().
+There is a shift wrapping bug in this code so anything thing above
+31 will return false.
 
-Fixes: 09a75e857790 ("usb: dwc2: refactor common low-level hw code to platform.c")
-Cc: stable@vger.kernel.org
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/dfcc6b40-2274-4e86-e73c-5c5e6aa3e046@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 35c55c9877f8 ("tipc: add neighbor monitoring framework")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/platform.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/tipc/monitor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -141,9 +141,9 @@ static int __dwc2_lowlevel_hw_enable(str
- 	} else if (hsotg->plat && hsotg->plat->phy_init) {
- 		ret = hsotg->plat->phy_init(pdev, hsotg->plat->phy_type);
- 	} else {
--		ret = phy_power_on(hsotg->phy);
-+		ret = phy_init(hsotg->phy);
- 		if (ret == 0)
--			ret = phy_init(hsotg->phy);
-+			ret = phy_power_on(hsotg->phy);
- 	}
+diff --git a/net/tipc/monitor.c b/net/tipc/monitor.c
+index 7b6c1c5c30dc8..0268857a3cfed 100644
+--- a/net/tipc/monitor.c
++++ b/net/tipc/monitor.c
+@@ -130,7 +130,7 @@ static void map_set(u64 *up_map, int i, unsigned int v)
  
- 	return ret;
-@@ -175,9 +175,9 @@ static int __dwc2_lowlevel_hw_disable(st
- 	} else if (hsotg->plat && hsotg->plat->phy_exit) {
- 		ret = hsotg->plat->phy_exit(pdev, hsotg->plat->phy_type);
- 	} else {
--		ret = phy_exit(hsotg->phy);
-+		ret = phy_power_off(hsotg->phy);
- 		if (ret == 0)
--			ret = phy_power_off(hsotg->phy);
-+			ret = phy_exit(hsotg->phy);
- 	}
- 	if (ret)
- 		return ret;
+ static int map_get(u64 up_map, int i)
+ {
+-	return (up_map & (1 << i)) >> i;
++	return (up_map & (1ULL << i)) >> i;
+ }
+ 
+ static struct tipc_peer *peer_prev(struct tipc_peer *peer)
+-- 
+2.35.1
+
 
 
