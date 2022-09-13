@@ -2,62 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A625B6C47
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 13:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BF75B6C4F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 13:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231633AbiIMLTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 07:19:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S231793AbiIMLWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 07:22:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbiIMLTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 07:19:00 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31A058099
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 04:18:58 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id 29so17072050edv.2
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 04:18:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date;
-        bh=P6wave/tXDncPIKF3r+8WNt1F5X9ewnQjiJNZ7NO2Ps=;
-        b=Lv9+gMXSGKRy4Sj6m2IRkOZaVJQCIcuhNKv04VCsDFXJf01jluUPejgXV2kLhoXi31
-         gg74Pz45CEqpLv4Gt8JIvRtmRFHdKv7nfbJ9xaWtbuseXKffS5DhuUoQpLtXueIeITdC
-         tiU1PDBYR6D+ELmiN+FEYxcrjzy9tzWszQUh6S9UTtU8SkZGXWfMm1gOi6NJPYxiIxQ5
-         wcmb3i8B9AimvXNGSewdNlYAGjB2WVtOBNGIGqDa0HBOKhEX8aZpz6eqg7htRwGR507R
-         1MWCW08Dv3bFc9xyVx3R/QdrZIiDPjiIMHSKPwcq3PUAeIr/1kfithuPeq5PT5/JfQoN
-         wKIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date;
-        bh=P6wave/tXDncPIKF3r+8WNt1F5X9ewnQjiJNZ7NO2Ps=;
-        b=g4eDnDDm8+Ll0OB0M2vRImNWk3HylcOzB1ze+Y5LMiStup7LPdfEoR/G/PAn9IyCgZ
-         0HX+aM8/FjqQrk2ozT8g4NHBEMbZK6GU1L24CSuxfI3cyNNxvfMUJg8A77NSZtvi15RH
-         x5S4niCrKizgdrcbXldHFlKIaQKlOHYA8Hu9VcKqq4Wv4/+juZCiV4w8w9uHN4aeGc/q
-         R5CC79Xr8Y3ToCiYVesoJA+5/YFvXSIa2inhx6j3mUNtaCrTHxxdzYZ7fx6UOhOIutJd
-         zW/+jLcVLxdv0HCdmonkfcKM5puNL2X/OQhGWueKMj8u/HnHDuJZTFFyKuaxgYquvw9t
-         TjOw==
-X-Gm-Message-State: ACgBeo2L73wH+Rb3z3upBZwCmFHg28ZVmSF6S0M8M8dL8os+JuZaHHIl
-        sOeqLffBGbSAJrXIIWNi7U/Ybut0KXmQ+WhBoyte1gJJboP8dg==
-X-Google-Smtp-Source: AA6agR5FvaIQ4v3Dl7zkSFjzAh4HRviiUaXdsekzrHpTq+6/EaKTwiaM0L/jrhYpTMVw0q9ai4ory/2UGYQtfMPMeo8=
-X-Received: by 2002:a05:6402:2989:b0:44e:90d0:b9ff with SMTP id
- eq9-20020a056402298900b0044e90d0b9ffmr25379489edb.110.1663067936248; Tue, 13
- Sep 2022 04:18:56 -0700 (PDT)
+        with ESMTP id S231459AbiIMLWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 07:22:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E5C5B07B;
+        Tue, 13 Sep 2022 04:22:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9404361423;
+        Tue, 13 Sep 2022 11:22:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702E2C433D6;
+        Tue, 13 Sep 2022 11:22:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1663068137;
+        bh=x7WF+7CA3nXQtMjuos5fNmT7nAaca1B5/qu1yeepwtg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=F/s9MYK59kxZOxQDTYWZtYoHg/0eXRQULs+dywiK1jiqhzTrvjGdtTDTpLZpNq6VC
+         bBooUkbGncBMZitCCxnbeF2KIrf4rIvbsgRro0D+VrdwKajpudlN2avGfRXVuVAvin
+         W+Ina20aYM3jmxw7EIUCYvWXalBb1WQrRjPtWFb8=
+Date:   Tue, 13 Sep 2022 13:22:40 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Stefan Agner <stefan@agner.ch>
+Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 247/779] drm/meson: encoder_hdmi: switch to bridge
+ DRM_BRIDGE_ATTACH_NO_CONNECTOR
+Message-ID: <YyBoACiWvW1UnfQA@kroah.com>
+References: <20220815180337.130757997@linuxfoundation.org>
+ <20220815180347.894058731@linuxfoundation.org>
+ <892a917454bd0bbfe8a4d34a5170fe50@agner.ch>
+ <685b64f60375b69c5c790286f1386be3@agner.ch>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 13 Sep 2022 16:48:44 +0530
-Message-ID: <CA+G9fYtro2f2u3Wug7YS7kC=iVGWsee+Vnvm4U20+xXsYVjK5w@mail.gmail.com>
-Subject: stable-rc: 5.4: cgroup.c:2404:2: error: implicit declaration of
- function 'cpus_read_lock' [-Werror,-Wimplicit-function-declaration]
-To:     linux-stable <stable@vger.kernel.org>, lkft-triage@lists.linaro.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Imran Khan <imran.f.khan@oracle.com>,
-        Xuewen Yan <xuewen.yan@unisoc.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <685b64f60375b69c5c790286f1386be3@agner.ch>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -66,66 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On stable-rc 5.4 arm and arm64 builds failed due to following errors / warnings.
+On Mon, Sep 12, 2022 at 08:48:24PM +0200, Stefan Agner wrote:
+> On 2022-09-12 18:08, Stefan Agner wrote:
+> > On 2022-08-15 19:58, Greg Kroah-Hartman wrote:
+> >> From: Neil Armstrong <narmstrong@baylibre.com>
+> >>
+> >> [ Upstream commit 0af5e0b41110e2da872030395231ab19c45be931 ]
+> >>
+> >> This implements the necessary change to no more use the embedded
+> >> connector in dw-hdmi and use the dedicated bridge connector driver
+> >> by passing DRM_BRIDGE_ATTACH_NO_CONNECTOR to the bridge attach call.
+> >>
+> >> The necessary connector properties are added to handle the same
+> >> functionalities as the embedded dw-hdmi connector, i.e. the HDR
+> >> metadata, the CEC notifier & other flags.
+> >>
+> >> The dw-hdmi output_port is set to 1 in order to look for a connector
+> >> next bridge in order to get DRM_BRIDGE_ATTACH_NO_CONNECTOR working.
+> > 
+> > HDMI on ODROID-N2+ was working with v5.15.60, and stopped working with
+> > v5.15.61. Reverting this commit (and two dependent refcount leak) to be
+> > the culprit. Reverting just the refcount leaks is not enough to get HDMI
+> > working, so I assume it is this commit.
+> > 
+> > I haven't investigated much beyond that, maybe its simple a case of a
+> > missing kernel configuration? DRM_DISPLAY_CONNECTOR is compiled, and the
+> > module display_connector is loaded, so that part seemed to have worked.
+> > 
+> > Any ideas welcome.
+> > 
+> > FWIW, I track the issue in the HAOS tracker at
+> > https://github.com/home-assistant/operating-system/issues/2120.
+> 
+> It seems that backporting commit 7cd70656d128 ("drm/bridge:
+> display-connector: implement bus fmts callbacks") fixes the problem
+> without reverting this commit.
+> 
+> @Greg, can we backport this commit as well?
 
-kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function
-'cpus_read_lock' [-Werror,-Wimplicit-function-declaration]
-        cpus_read_lock();
-        ^
-kernel/cgroup/cgroup.c:2404:2: note: did you mean 'cpuset_read_lock'?
-include/linux/cpuset.h:58:13: note: 'cpuset_read_lock' declared here
-extern void cpuset_read_lock(void);
-            ^
-kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function
-'cpus_read_unlock' [-Werror,-Wimplicit-function-declaration]
-        cpus_read_unlock();
-        ^
-kernel/cgroup/cgroup.c:2417:2: note: did you mean 'cpuset_read_unlock'?
-include/linux/cpuset.h:59:13: note: 'cpuset_read_unlock' declared here
-extern void cpuset_read_unlock(void);
-            ^
-2 errors generated.
+sure, now queued up, thanks.
 
-drivers/gpu/drm/drm_lock.c:363:6: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-         */     mutex_lock(&dev->struct_mutex);
-                ^
-drivers/gpu/drm/drm_lock.c:357:2: note: previous statement is here
-        if (!drm_core_check_feature(dev, DRIVER_LEGACY))
-        ^
-1 warning generated.
-
-Build link:
- - https://builds.tuxbuild.com/2EfrNYbejRQczhhqndawRkHARHZ/
-
-
-Steps to reproduce:
--------------------
-# To install tuxmake on your system globally:
-# sudo pip3 install -U tuxmake
-#
-
-tuxmake --runtime podman --target-arch arm64 --toolchain clang-nightly
---kconfig defconfig LLVM=1 LLVM_IAS=1
-
-Following patch might be the reason for these build errors:
----
-cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock
-[ Upstream commit 4f7e7236435ca0abe005c674ebd6892c6e83aeb3 ]
-
-Bringing up a CPU may involve creating and destroying tasks which requires
-read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-cpus_read_lock(). However, cpuset's ->attach(), which may be called with
-thredagroup_rwsem write-locked, also wants to disable CPU hotplug and
-acquires cpus_read_lock(), leading to a deadlock.
-
-Fix it by guaranteeing that ->attach() is always called with CPU hotplug
-disabled and removing cpus_read_lock() call from cpuset_attach().
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reviewed-and-tested-by: Imran Khan <imran.f.khan@oracle.com>
-Reported-and-tested-by: Xuewen Yan <xuewen.yan@unisoc.com>
-Fixes: 05c7b7a92cc8 ("cgroup/cpuset: Fix a race between
-cpuset_attach() and cpu hotplug")
-Cc: stable@vger.kernel.org # v5.17+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+greg k-h
