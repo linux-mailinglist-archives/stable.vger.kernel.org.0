@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 891545B7330
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B355B7405
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234242AbiIMPEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:04:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38058 "EHLO
+        id S235625AbiIMPOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235215AbiIMPDg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E851FCC8;
-        Tue, 13 Sep 2022 07:29:51 -0700 (PDT)
+        with ESMTP id S235760AbiIMPNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE8A78BC1;
+        Tue, 13 Sep 2022 07:33:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05477B80F9E;
-        Tue, 13 Sep 2022 14:29:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EAE4C433C1;
-        Tue, 13 Sep 2022 14:29:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FB18614DD;
+        Tue, 13 Sep 2022 14:31:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2973CC433D6;
+        Tue, 13 Sep 2022 14:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079376;
-        bh=SfvzTJ4WeoBbw9Hfggp0tFaceFbe8jFTh3KgrszErTE=;
+        s=korg; t=1663079471;
+        bh=0IlhPDcg+N1l9IGYJ4pYlrDwi/O4Kivf2evnYygpIEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfLWBkYmLhPhZBuKNDNWts1FH10GqmVMittQ3PbwaeFRvbiEZmIFItzcK8xq5gb5S
-         /WT3weELJqfQYd6VErDx7K29aMpoxdxArPpQiP+LQoFnuRX6HhTdTiDclkL5w2UAt2
-         eVHXN6fT3GxJ450iSqjvRE9dGy4qFri4pG3HCEms=
+        b=V5V/ciNKGKWjWg0ZV9iZMoFFs5uetJh4iRTHFCORphlwQpA6Lm3OVSVRLP5BxPsNs
+         Od/STPeO4MQtoR9ThKciHGiBgiAAxuMqjmqx8RuRnyX4/XDxFO06q3UanNSiyDOv3u
+         /9yoUk/yiObWYuSYc0/Il/1x7vxEeV33Ldn7A7YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/108] cgroup: Elide write-locking threadgroup_rwsem when updating csses on an empty subtree
-Date:   Tue, 13 Sep 2022 16:06:57 +0200
-Message-Id: <20220913140357.317124315@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        stable <stable@kernel.org>,
+        Witold Lipieta <witold.lipieta@thaumatec.com>
+Subject: [PATCH 4.19 40/79] usb-storage: Add ignore-residue quirk for NXP PN7462AU
+Date:   Tue, 13 Sep 2022 16:06:58 +0200
+Message-Id: <20220913140350.845038185@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Witold Lipieta <witold.lipieta@thaumatec.com>
 
-[ Upstream commit 671c11f0619e5ccb380bcf0f062f69ba95fc974a ]
+commit 2aa48857ad52236a9564c71183d6cc8893becd41 upstream.
 
-cgroup_update_dfl_csses() write-lock the threadgroup_rwsem as updating the
-csses can trigger process migrations. However, if the subtree doesn't
-contain any tasks, there aren't gonna be any cgroup migrations. This
-condition can be trivially detected by testing whether
-mgctx.preloaded_src_csets is empty. Elide write-locking threadgroup_rwsem if
-the subtree is empty.
+This is USB mass storage primary boot loader for code download on
+NXP PN7462AU.
 
-After this optimization, the usage pattern of creating a cgroup, enabling
-the necessary controllers, and then seeding it with CLONE_INTO_CGROUP and
-then removing the cgroup after it becomes empty doesn't need to write-lock
-threadgroup_rwsem at all.
+Without the quirk it is impossible to write whole memory at once as
+device restarts during the write due to bogus residue values reported.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Witold Lipieta <witold.lipieta@thaumatec.com>
+Link: https://lore.kernel.org/r/20220809112911.462776-1-witold.lipieta@thaumatec.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/usb/storage/unusual_devs.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index bc9ee9a18c1e8..c2af09b4bca62 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2985,12 +2985,11 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	struct cgroup_subsys_state *d_css;
- 	struct cgroup *dsct;
- 	struct css_set *src_cset;
-+	bool has_tasks;
- 	int ret;
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2294,6 +2294,13 @@ UNUSUAL_DEV( 0x1e74, 0x4621, 0x0000, 0x0
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BULK_IGNORE_TAG | US_FL_MAX_SECTORS_64 ),
  
- 	lockdep_assert_held(&cgroup_mutex);
- 
--	percpu_down_write(&cgroup_threadgroup_rwsem);
--
- 	/* look up all csses currently attached to @cgrp's subtree */
- 	spin_lock_irq(&css_set_lock);
- 	cgroup_for_each_live_descendant_pre(dsct, d_css, cgrp) {
-@@ -3001,6 +3000,16 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	}
- 	spin_unlock_irq(&css_set_lock);
- 
-+	/*
-+	 * We need to write-lock threadgroup_rwsem while migrating tasks.
-+	 * However, if there are no source csets for @cgrp, changing its
-+	 * controllers isn't gonna produce any task migrations and the
-+	 * write-locking can be skipped safely.
-+	 */
-+	has_tasks = !list_empty(&mgctx.preloaded_src_csets);
-+	if (has_tasks)
-+		percpu_down_write(&cgroup_threadgroup_rwsem);
++/* Reported by Witold Lipieta <witold.lipieta@thaumatec.com> */
++UNUSUAL_DEV( 0x1fc9, 0x0117, 0x0100, 0x0100,
++		"NXP Semiconductors",
++		"PN7462AU",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_RESIDUE ),
 +
- 	/* NULL dst indicates self on default hierarchy */
- 	ret = cgroup_migrate_prepare_dst(&mgctx);
- 	if (ret)
-@@ -3020,7 +3029,8 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	ret = cgroup_migrate_execute(&mgctx);
- out_finish:
- 	cgroup_migrate_finish(&mgctx);
--	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	if (has_tasks)
-+		percpu_up_write(&cgroup_threadgroup_rwsem);
- 	return ret;
- }
- 
--- 
-2.35.1
-
+ /* Supplied with some Castlewood ORB removable drives */
+ UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x9999,
+ 		"Double-H Technology",
 
 
