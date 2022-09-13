@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3E25B7083
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6455B7019
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233754AbiIMO2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:28:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54638 "EHLO
+        id S233110AbiIMOV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:21:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233744AbiIMO1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:27:40 -0400
+        with ESMTP id S233098AbiIMOUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:20:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A5B62A84;
-        Tue, 13 Sep 2022 07:17:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07630248E5;
+        Tue, 13 Sep 2022 07:14:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F08EF614B6;
-        Tue, 13 Sep 2022 14:17:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B399C433C1;
-        Tue, 13 Sep 2022 14:17:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D968F614AC;
+        Tue, 13 Sep 2022 14:13:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC90FC433D6;
+        Tue, 13 Sep 2022 14:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078625;
-        bh=clkQyZKh5bH63+URz0rVRixmIuxpZVkeNeCIrGtcjM0=;
+        s=korg; t=1663078420;
+        bh=gpm1ByLfsEDJWIlmi/tBZgTLgOCOMYfq9j3J97asn98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6+X/bTJHZR0r8qlh8RQ7AxMy2Tgw2fB+s2xeQvGaH+I1h2beznyamUtWq6Vy94RW
-         yNyx71QtUqXJH3KgECmsnQaMvciHvOHTE8vh4AhKXqv5ROnhxHh2VHBTvQy2CCq9/c
-         /WR+0UAfydr+F7b7ooW1639m+NBRC/NuqzESv2Bs=
+        b=akipqeu/1AXm4rx5/iSzaXhMBajBBdRRwdUJMO1Y5po8324Xo/8kSbwNS+jSLadvF
+         tEAyHZHb9tV7DUYwcA9qmpRd+td7XW84pAlTmq62rvBv385FwVaGT5c5AzIiCTL/Ul
+         L8L3A782dFl16zxUQQ62AYUM3AuPbeLV7IMvFuFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/121] cpufreq: check only freq_table in __resolve_freq()
+Subject: [PATCH 5.19 106/192] netfilter: nf_conntrack_irc: Fix forged IP logic
 Date:   Tue, 13 Sep 2022 16:03:32 +0200
-Message-Id: <20220913140358.254160115@linuxfoundation.org>
+Message-Id: <20220913140415.250325071@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: David Leadbeater <dgl@dgl.cx>
 
-[ Upstream commit 6ca7076fbfaeccce173aeab832d76b9e49e1034b ]
+[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
 
-There is no need to check if the cpufreq driver implements callback
-cpufreq_driver::target_index. The logic in the __resolve_freq uses
-the frequency table available in the policy. It doesn't matter if the
-driver provides 'target_index' or 'target' callback. It just has to
-populate the 'policy->freq_table'.
+Ensure the match happens in the right direction, previously the
+destination used was the server, not the NAT host, as the comment
+shows the code intended.
 
-Thus, check only frequency table during the frequency resolving call.
+Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
+it can appear in a DCC message, so consider port 0 also forged.
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
+Signed-off-by: David Leadbeater <dgl@dgl.cx>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_irc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index cddf7e13c2322..799431d287ee8 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -532,7 +532,7 @@ static unsigned int __resolve_freq(struct cpufreq_policy *policy,
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index 1796c456ac98b..992decbcaa5c1 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -194,8 +194,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
  
- 	target_freq = clamp_val(target_freq, policy->min, policy->max);
- 
--	if (!cpufreq_driver->target_index)
-+	if (!policy->freq_table)
- 		return target_freq;
- 
- 	idx = cpufreq_frequency_table_target(policy, target_freq, relation);
+ 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
+ 			tuple = &ct->tuplehash[dir].tuple;
+-			if (tuple->src.u3.ip != dcc_ip &&
+-			    tuple->dst.u3.ip != dcc_ip) {
++			if ((tuple->src.u3.ip != dcc_ip &&
++			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
++			    dcc_port == 0) {
+ 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
+ 						     &tuple->src.u3.ip,
+ 						     &dcc_ip, dcc_port);
 -- 
 2.35.1
 
