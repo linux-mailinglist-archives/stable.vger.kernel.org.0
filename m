@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 478255B7306
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCA85B7548
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231726AbiIMPEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
+        id S232065AbiIMPjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:39:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235030AbiIMPCO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:02:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A07BC0;
-        Tue, 13 Sep 2022 07:29:26 -0700 (PDT)
+        with ESMTP id S232060AbiIMPiT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D48B16F249;
+        Tue, 13 Sep 2022 07:44:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F857B80F6F;
-        Tue, 13 Sep 2022 14:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16850C433C1;
-        Tue, 13 Sep 2022 14:29:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B480B614B5;
+        Tue, 13 Sep 2022 14:31:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0DA3C433D6;
+        Tue, 13 Sep 2022 14:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079344;
-        bh=XZ7QZ5fLq/vpZtWqyZMpef7Tz7QP4R97XcrSYVDojN8=;
+        s=korg; t=1663079502;
+        bh=AMvkWcumkyw9/k0EQQQuY6LBmsfboRqftOvewoCknF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQUMqmEjjX2eJ/M/i+YrmEvtcr1jhQ3AlEKUM4vbdsrpVsGpQxqSoallziT1iGIyU
-         k+LDNACaezqEkDfBxcs7wY0Dc6mxtQY5FP3vL7i2uj7q7dxPpLeDColvGblK8ZOH9h
-         Vt5YW+3wZGkrK3ODfzeL7ngJC6QTTHkpQwSdi7+I=
+        b=YRW6twSggyTVCRhUYEtRCqVrgl5CpXYQ3nN5JJ8Ux/shAc3N3RKcJlv08QrXyFA0t
+         6U1s0l/9ormHJnS9vw6SqDhnsaaLhcGK35xAN9UzhRpE3rMc+s9fsks6GTarlvNvSa
+         TQV11e+S539qqxuZbhUgccm9Y6dlllvXtDDwV1PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.4 098/108] sch_sfb: Dont assume the skb is still around after enqueueing to child
+        stable@vger.kernel.org, Li Qiong <liqiong@nfschina.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 51/79] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
 Date:   Tue, 13 Sep 2022 16:07:09 +0200
-Message-Id: <20220913140357.832371776@linuxfoundation.org>
+Message-Id: <20220913140351.370430390@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Li Qiong <liqiong@nfschina.com>
 
-[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
+[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
 
-The sch_sfb enqueue() routine assumes the skb is still alive after it has
-been enqueued into a child qdisc, using the data in the skb cb field in the
-increment_qlen() routine after enqueue. However, the skb may in fact have
-been freed, causing a use-after-free in this case. In particular, this
-happens if sch_cake is used as a child of sfb, and the GSO splitting mode
-of CAKE is enabled (in which case the skb will be split into segments and
-the original skb freed).
+As the possible failure of the kmalloc(), it should be better
+to fix this error path, check and return '-ENOMEM' error code.
 
-Fix this by copying the sfb cb data to the stack before enqueueing the skb,
-and using this stack copy in increment_qlen() instead of the skb pointer
-itself.
-
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
-Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Li Qiong <liqiong@nfschina.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_sfb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/parisc/ccio-dma.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 4074c50ac3d73..085fe06da2a68 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -135,15 +135,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
+diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
+index 6efab7a06c5fc..73ee74d6e7a3d 100644
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1390,15 +1390,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
  	}
  }
  
--static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
-+static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
+-static void __init ccio_init_resources(struct ioc *ioc)
++static int __init ccio_init_resources(struct ioc *ioc)
  {
- 	u32 sfbhash;
+ 	struct resource *res = ioc->mmio_region;
+ 	char *name = kmalloc(14, GFP_KERNEL);
+-
++	if (unlikely(!name))
++		return -ENOMEM;
+ 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
  
--	sfbhash = sfb_hash(skb, 0);
-+	sfbhash = cb->hashes[0];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 0, q);
- 
--	sfbhash = sfb_hash(skb, 1);
-+	sfbhash = cb->hashes[1];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 1, q);
+ 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
+ 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
++	return 0;
  }
-@@ -283,6 +283,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 	struct Qdisc *child = q->qdisc;
- 	struct tcf_proto *fl;
-+	struct sfb_skb_cb cb;
- 	int i;
- 	u32 p_min = ~0;
- 	u32 minqlen = ~0;
-@@ -399,11 +400,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
  
- enqueue:
-+	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
- 	ret = qdisc_enqueue(skb, child, to_free);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
- 		qdisc_qstats_backlog_inc(sch, skb);
- 		sch->q.qlen++;
--		increment_qlen(skb, q);
-+		increment_qlen(&cb, q);
- 	} else if (net_xmit_drop_count(ret)) {
- 		q->stats.childdrop++;
- 		qdisc_qstats_drop(sch);
+ static int new_ioc_area(struct resource *res, unsigned long size,
+@@ -1552,7 +1554,10 @@ static int __init ccio_probe(struct parisc_device *dev)
+ 		return -ENOMEM;
+ 	}
+ 	ccio_ioc_init(ioc);
+-	ccio_init_resources(ioc);
++	if (ccio_init_resources(ioc)) {
++		kfree(ioc);
++		return -ENOMEM;
++	}
+ 	hppa_dma_ops = &ccio_ops;
+ 	dev->dev.platform_data = kzalloc(sizeof(struct pci_hba_data), GFP_KERNEL);
+ 
 -- 
 2.35.1
 
