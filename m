@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3B65B7390
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE145B70C4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235307AbiIMPGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54044 "EHLO
+        id S233039AbiIMO0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:26:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235469AbiIMPEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C66D74DC5;
-        Tue, 13 Sep 2022 07:30:19 -0700 (PDT)
+        with ESMTP id S233356AbiIMOY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFF861B3E;
+        Tue, 13 Sep 2022 07:16:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77070B80D87;
-        Tue, 13 Sep 2022 14:22:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9419C433D7;
-        Tue, 13 Sep 2022 14:22:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3354D614AA;
+        Tue, 13 Sep 2022 14:14:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D038C433C1;
+        Tue, 13 Sep 2022 14:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078930;
-        bh=uMnuKfIJU2kTxieP2bCi1WBOw945m2ux2YOfHbvJ4eg=;
+        s=korg; t=1663078481;
+        bh=tK8jLGZFxiUqU/KoBQfv11nDAqZn1XjBbRjfZ2PNCcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqPgxuPH2hbBuhHEVu8LnwsBmseRKAdqLrEk4OpqHiP43T4PwuToJgg5YKlAKqwi0
-         dS4DugEQ/v8qrsZxXAqhwILJllQqxU4cSlkkHI+gBu8JelTTANNCAUyA3al8HVgqLb
-         mkt8wkxk0IF38vibdd1mgVlE1D5t0gJpwfUtA9Bw=
+        b=IPGyl6M1xVp0Zr1sF/aCGLL8WMYm4XjI0xw3tzwrNRDDSbgjtOvBaOcstMDu03PoT
+         rYcdAuwBrL8j3SjRWgCTC9AJO0wtgsbi9j1Fa13GROBPjC1ck3HHbJm6lwlWTCOnXN
+         T0MhjWP2WWn3AwZ39dqiWJ8s8G3+e3r8b33exy94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhenneng Li <lizhenneng@kylinos.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/79] drm/radeon: add a force flush to delay work when radeon
-Date:   Tue, 13 Sep 2022 16:04:21 +0200
-Message-Id: <20220913140351.076460262@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandru Gagniuc <mr.nuke.me@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.19 156/192] hwmon: (tps23861) fix byte order in resistance register
+Date:   Tue, 13 Sep 2022 16:04:22 +0200
+Message-Id: <20220913140417.798773592@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,75 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenneng Li <lizhenneng@kylinos.cn>
+From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
 
-[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
+commit 1f05f65bddd6958d25b133f886da49c1d4bff3fa upstream.
 
-Although radeon card fence and wait for gpu to finish processing current batch rings,
-there is still a corner case that radeon lockup work queue may not be fully flushed,
-and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
-put device in D3hot state.
-Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
-> Configuration and Message requests are the only TLPs accepted by a Function in
-> the D3hot state. All other received Requests must be handled as Unsupported Requests,
-> and all received Completions may optionally be handled as Unexpected Completions.
-This issue will happen in following logs:
-Unable to handle kernel paging request at virtual address 00008800e0008010
-CPU 0 kworker/0:3(131): Oops 0
-pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
-pc is at si_gpu_check_soft_reset+0x3c/0x240
-ra is at si_dma_is_lockup+0x34/0xd0
-v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
-t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
-t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
-s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
-s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
-s6 = fff00007ef07bd98
-a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
-a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
-t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
-t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
-gp = ffffffff81d89690  sp = 00000000aa814126
-Disabling lock debugging due to kernel taint
-Trace:
-[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
-[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
-[<ffffffff80977010>] process_one_work+0x280/0x550
-[<ffffffff80977350>] worker_thread+0x70/0x7c0
-[<ffffffff80977410>] worker_thread+0x130/0x7c0
-[<ffffffff80982040>] kthread+0x200/0x210
-[<ffffffff809772e0>] worker_thread+0x0/0x7c0
-[<ffffffff80981f8c>] kthread+0x14c/0x210
-[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
-[<ffffffff80981e40>] kthread+0x0/0x210
- Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
- <88210000> 4821ed21
-So force lockup work queue flush to fix this problem.
+The tps23861 registers are little-endian, and regmap_read_bulk() does
+not do byte order conversion. On BE machines, the bytes were swapped,
+and the interpretation of the resistance value was incorrect.
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To make it work on both big and little-endian machines, use
+le16_to_cpu() to convert the resitance register to host byte order.
+
+Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Fixes: fff7b8ab22554 ("hwmon: add Texas Instruments TPS23861 driver")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220905142806.110598-1-mr.nuke.me@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/tps23861.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 266e3cbbd09bd..8287410f471fb 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1623,6 +1623,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
- 		if (r) {
- 			/* delay GPU reset to resume */
- 			radeon_fence_driver_force_completion(rdev, i);
-+		} else {
-+			/* finish executing delayed work */
-+			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
- 		}
- 	}
+--- a/drivers/hwmon/tps23861.c
++++ b/drivers/hwmon/tps23861.c
+@@ -489,18 +489,20 @@ static char *tps23861_port_poe_plus_stat
  
--- 
-2.35.1
-
+ static int tps23861_port_resistance(struct tps23861_data *data, int port)
+ {
+-	u16 regval;
++	unsigned int raw_val;
++	__le16 regval;
+ 
+ 	regmap_bulk_read(data->regmap,
+ 			 PORT_1_RESISTANCE_LSB + PORT_N_RESISTANCE_LSB_OFFSET * (port - 1),
+ 			 &regval,
+ 			 2);
+ 
+-	switch (FIELD_GET(PORT_RESISTANCE_RSN_MASK, regval)) {
++	raw_val = le16_to_cpu(regval);
++	switch (FIELD_GET(PORT_RESISTANCE_RSN_MASK, raw_val)) {
+ 	case PORT_RESISTANCE_RSN_OTHER:
+-		return (FIELD_GET(PORT_RESISTANCE_MASK, regval) * RESISTANCE_LSB) / 10000;
++		return (FIELD_GET(PORT_RESISTANCE_MASK, raw_val) * RESISTANCE_LSB) / 10000;
+ 	case PORT_RESISTANCE_RSN_LOW:
+-		return (FIELD_GET(PORT_RESISTANCE_MASK, regval) * RESISTANCE_LSB_LOW) / 10000;
++		return (FIELD_GET(PORT_RESISTANCE_MASK, raw_val) * RESISTANCE_LSB_LOW) / 10000;
+ 	case PORT_RESISTANCE_RSN_SHORT:
+ 	case PORT_RESISTANCE_RSN_OPEN:
+ 	default:
 
 
