@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D01D75B700B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282A15B709D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233156AbiIMOUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
+        id S234035AbiIMObq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:31:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233300AbiIMOSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12316647C9;
-        Tue, 13 Sep 2022 07:13:21 -0700 (PDT)
+        with ESMTP id S233776AbiIMO3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707DD6A49B;
+        Tue, 13 Sep 2022 07:18:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DAF9614AA;
-        Tue, 13 Sep 2022 14:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E5FC433D6;
-        Tue, 13 Sep 2022 14:12:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BED49B80FA6;
+        Tue, 13 Sep 2022 14:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34613C433C1;
+        Tue, 13 Sep 2022 14:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078330;
-        bh=W0IUbpfa6isdMD/ApcmvRRHVl5lwzEVmULFwTukoxn0=;
+        s=korg; t=1663078674;
+        bh=EAJCYjhkJNORUUDynnZRYb9oNFCXK83WLB1Yzw2xubg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4b08iiBhe65vLTlLmUoSawM+yWcJKB/xlOKKRSpsIa7gKrx9sqbrYpJCAFEuw6+L
-         JVTM9AIIN4ThLJ8DuWs/zaVGkSQBf9qVAHMees5gxgiFRRqdrttyqGGXR5sNMztQz7
-         1xWnUddFt0db1buzYi3aGsfz+CZ0rIKT5vW/jHBg=
+        b=txkdR64NRg0h8ncG7Ehf9J3DEVyW8tFhA7IwqgoRQLJiiGGZku0LQJbZUUECz6B/F
+         eHjTGYjTWlKI8RvCtg8ilYHot19cfxFJ/NXtcjGNZQO/LFdGf88iuxVGU2nmobw5Eo
+         YVt60bAd2yIDhetgLqiqkyVjGI32PxY0RForgSu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frederic Schumacher <frederic.schumacher@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        stable@vger.kernel.org, Candice Li <candice.li@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 097/192] ARM: at91: pm: fix DDR recalibration when resuming from backup and self-refresh
+Subject: [PATCH 5.15 012/121] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
 Date:   Tue, 13 Sep 2022 16:03:23 +0200
-Message-Id: <20220913140414.800469982@linuxfoundation.org>
+Message-Id: <20220913140357.858242921@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit 7a94b83a7dc551607b6c4400df29151e6a951f07 ]
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-On SAMA7G5, when resuming from backup and self-refresh, the bootloader
-performs DDR PHY recalibration by restoring the value of ZQ0SR0 (stored
-in RAM by Linux before going to backup and self-refresh). It has been
-discovered that the current procedure doesn't work for all possible values
-that might go to ZQ0SR0 due to hardware bug. The workaround to this is to
-avoid storing some values in ZQ0SR0. Thus Linux will read the ZQ0SR0
-register and cache its value in RAM after processing it (using
-modified_gray_code array). The bootloader will restore the processed value.
+No need to set up rb when no gfx rings.
 
-Fixes: d2d4716d8384 ("ARM: at91: pm: save ddr phy calibration data to securam")
-Suggested-by: Frederic Schumacher <frederic.schumacher@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220826083927.3107272-4-claudiu.beznea@microchip.com
+Signed-off-by: Candice Li <candice.li@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/pm.c      | 36 ++++++++++++++++++++++++++++++++----
- include/soc/at91/sama7-ddr.h |  4 ++++
- 2 files changed, 36 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index df6d673e83d56..f4501dea98b04 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -541,9 +541,41 @@ extern u32 at91_pm_suspend_in_sram_sz;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index db27fcf87cd04..16cbae04078ad 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2624,7 +2624,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
  
- static int at91_suspend_finish(unsigned long val)
- {
-+	unsigned char modified_gray_code[] = {
-+		0x00, 0x01, 0x02, 0x03, 0x06, 0x07, 0x04, 0x05, 0x0c, 0x0d,
-+		0x0e, 0x0f, 0x0a, 0x0b, 0x08, 0x09, 0x18, 0x19, 0x1a, 0x1b,
-+		0x1e, 0x1f, 0x1c, 0x1d, 0x14, 0x15, 0x16, 0x17, 0x12, 0x13,
-+		0x10, 0x11,
-+	};
-+	unsigned int tmp, index;
- 	int i;
+ 	gfx_v9_0_tiling_mode_table_init(adev);
  
- 	if (soc_pm.data.mode == AT91_PM_BACKUP && soc_pm.data.ramc_phy) {
-+		/*
-+		 * Bootloader will perform DDR recalibration and will try to
-+		 * restore the ZQ0SR0 with the value saved here. But the
-+		 * calibration is buggy and restoring some values from ZQ0SR0
-+		 * is forbidden and risky thus we need to provide processed
-+		 * values for these (modified gray code values).
-+		 */
-+		tmp = readl(soc_pm.data.ramc_phy + DDR3PHY_ZQ0SR0);
-+
-+		/* Store pull-down output impedance select. */
-+		index = (tmp >> DDR3PHY_ZQ0SR0_PDO_OFF) & 0x1f;
-+		soc_pm.bu->ddr_phy_calibration[0] = modified_gray_code[index];
-+
-+		/* Store pull-up output impedance select. */
-+		index = (tmp >> DDR3PHY_ZQ0SR0_PUO_OFF) & 0x1f;
-+		soc_pm.bu->ddr_phy_calibration[0] |= modified_gray_code[index];
-+
-+		/* Store pull-down on-die termination impedance select. */
-+		index = (tmp >> DDR3PHY_ZQ0SR0_PDODT_OFF) & 0x1f;
-+		soc_pm.bu->ddr_phy_calibration[0] |= modified_gray_code[index];
-+
-+		/* Store pull-up on-die termination impedance select. */
-+		index = (tmp >> DDR3PHY_ZQ0SRO_PUODT_OFF) & 0x1f;
-+		soc_pm.bu->ddr_phy_calibration[0] |= modified_gray_code[index];
-+
- 		/*
- 		 * The 1st 8 words of memory might get corrupted in the process
- 		 * of DDR PHY recalibration; it is saved here in securam and it
-@@ -1066,10 +1098,6 @@ static int __init at91_pm_backup_init(void)
- 		of_scan_flat_dt(at91_pm_backup_scan_memcs, &located);
- 		if (!located)
- 			goto securam_fail;
--
--		/* DDR3PHY_ZQ0SR0 */
--		soc_pm.bu->ddr_phy_calibration[0] = readl(soc_pm.data.ramc_phy +
--							  0x188);
- 	}
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
  
- 	return 0;
-diff --git a/include/soc/at91/sama7-ddr.h b/include/soc/at91/sama7-ddr.h
-index 2706bc48c0764..6ce3bd22f6c69 100644
---- a/include/soc/at91/sama7-ddr.h
-+++ b/include/soc/at91/sama7-ddr.h
-@@ -38,6 +38,10 @@
- #define		DDR3PHY_DSGCR_ODTPDD_ODT0	(1 << 20)	/* ODT[0] Power Down Driver */
- 
- #define DDR3PHY_ZQ0SR0				(0x188)		/* ZQ status register 0 */
-+#define DDR3PHY_ZQ0SR0_PDO_OFF			(0)		/* Pull-down output impedance select offset */
-+#define DDR3PHY_ZQ0SR0_PUO_OFF			(5)		/* Pull-up output impedance select offset */
-+#define DDR3PHY_ZQ0SR0_PDODT_OFF		(10)		/* Pull-down on-die termination impedance select offset */
-+#define DDR3PHY_ZQ0SRO_PUODT_OFF		(15)		/* Pull-up on-die termination impedance select offset */
- 
- #define	DDR3PHY_DX0DLLCR			(0x1CC)		/* DDR3PHY DATX8 DLL Control Register */
- #define	DDR3PHY_DX1DLLCR			(0x20C)		/* DDR3PHY DATX8 DLL Control Register */
 -- 
 2.35.1
 
