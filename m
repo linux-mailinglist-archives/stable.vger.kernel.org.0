@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6475B74AE
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 550CF5B7412
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236328AbiIMP1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55948 "EHLO
+        id S235657AbiIMPOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236311AbiIMP0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:26:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CEE7DF4B;
-        Tue, 13 Sep 2022 07:38:35 -0700 (PDT)
+        with ESMTP id S235838AbiIMPN7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF761786F8;
+        Tue, 13 Sep 2022 07:33:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8631CB80FE3;
-        Tue, 13 Sep 2022 14:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFADC433C1;
-        Tue, 13 Sep 2022 14:34:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB15614D8;
+        Tue, 13 Sep 2022 14:33:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2908AC433C1;
+        Tue, 13 Sep 2022 14:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079673;
-        bh=JYuxi9O3FdJnifusqhvtJkC+4XphOyrht8mntGp0LCI=;
+        s=korg; t=1663079582;
+        bh=tFKe29vBsrtAsOOzBfGmnkFi9oNi877R8GhDW+yP4ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCDqudbAM2Fxy9sT82X0MEDvtjf6rWOCqV0RO8AKYkNLM4BXKVhNfthbahBNlvkHw
-         rzLrYFBaj92m/Plj78l12/OgndJpwXuMPAr84r4BEZl25VgxG+2YNmnhmjBVkDNKa9
-         klBTzWqENSOVTfoqfJ7z4mRbK6EId+yBLq9t5YII=
+        b=DBiXmeFvs9mWKBEUNxWdz5v8QlX0WkzXNdNveAHfuOxm2MosOERBlgT3whtLX9jMr
+         Fa1K2mzP0D0D+zd+bUulAN1GuZDiKAtb6KHn1rHu/cAlN1hjM4TpejHoe2XWrF2V45
+         eiEpnZDFzOCb9XO5SryzUr6nXLN6rRHeQGxDCTIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.14 31/61] net: mac802154: Fix a condition in the receive path
+        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 75/79] USB: serial: ch341: fix disabled rx timer on older devices
 Date:   Tue, 13 Sep 2022 16:07:33 +0200
-Message-Id: <20220913140348.048092061@linuxfoundation.org>
+Message-Id: <20220913140352.508538258@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit f0da47118c7e93cdbbc6fb403dd729a5f2c90ee3 upstream.
+commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
 
-Upon reception, a packet must be categorized, either it's destination is
-the host, or it is another host. A packet with no destination addressing
-fields may be valid in two situations:
-- the packet has no source field: only ACKs are built like that, we
-  consider the host as the destination.
-- the packet has a valid source field: it is directed to the PAN
-  coordinator, as for know we don't have this information we consider we
-  are not the PAN coordinator.
+At least one older CH341 appears to have the RX timer enable bit
+inverted so that setting it disables the RX timer and prevents the FIFO
+from emptying until it is full.
 
-There was likely a copy/paste error made during a previous cleanup
-because the if clause is now containing exactly the same condition as in
-the switch case, which can never be true. In the past the destination
-address was used in the switch and the source address was used in the
-if, which matches what the spec says.
+Only set the RX timer enable bit for devices with version newer than
+0x27 (even though this probably affects all pre-0x30 devices).
 
-Cc: stable@vger.kernel.org
-Fixes: ae531b9475f6 ("ieee802154: use ieee802154_addr instead of *_sa variants")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/r/20220826142954.254853-1-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[ johan: backport to 5.4 ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac802154/rx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/ch341.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/mac802154/rx.c
-+++ b/net/mac802154/rx.c
-@@ -52,7 +52,7 @@ ieee802154_subif_frame(struct ieee802154
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -176,8 +176,12 @@ static int ch341_set_baudrate_lcr(struct
+ 	/*
+ 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
+ 	 * has been received unless bit 7 is set.
++	 *
++	 * At least one device with version 0x27 appears to have this bit
++	 * inverted.
+ 	 */
+-	a |= BIT(7);
++	if (priv->version > 0x27)
++		a |= BIT(7);
  
- 	switch (mac_cb(skb)->dest.mode) {
- 	case IEEE802154_ADDR_NONE:
--		if (mac_cb(skb)->dest.mode != IEEE802154_ADDR_NONE)
-+		if (hdr->source.mode != IEEE802154_ADDR_NONE)
- 			/* FIXME: check if we are PAN coordinator */
- 			skb->pkt_type = PACKET_OTHERHOST;
- 		else
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x1312, a);
+ 	if (r)
 
 
