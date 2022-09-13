@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8F95B7396
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7FF55B71C4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235572AbiIMPLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:11:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
+        id S233269AbiIMOrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235800AbiIMPJY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:09:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEC877544;
-        Tue, 13 Sep 2022 07:32:06 -0700 (PDT)
+        with ESMTP id S232761AbiIMOqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:46:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82C460ED;
+        Tue, 13 Sep 2022 07:24:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D623B80EF8;
-        Tue, 13 Sep 2022 14:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C027FC433C1;
-        Tue, 13 Sep 2022 14:21:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A930614CA;
+        Tue, 13 Sep 2022 14:24:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212CCC433C1;
+        Tue, 13 Sep 2022 14:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078886;
-        bh=DCbveamGbgtaYN1SY5j/jewkUNGShxwvdYSd92uBLLE=;
+        s=korg; t=1663079058;
+        bh=QFxcuUOpA9xehk6U9WmXvglORaUuTszDl0vhLdZly6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBk7lqiScNrAMFE6LQQAeko8Ff2m7+tJhI9mdR8njL94i9aq1Ci/l8SrwCyVsVOmK
-         sF/Ly2vnN2TZa/J9C/pYpBwBIsHd8jbhpSBSQiqgDZM88hGq/C3QZ2rAifGfXh+z+o
-         zur6UB9Di1qL8m94D5MtzwZOmbHbtUed3H85qXaw=
+        b=jrDXMOTe01k8XTlZiLWRoaiwmDRXNwGEc4vdjNiVFdcu92UIifdJ2qo1ucywIjA2k
+         z+mAsCZp8y0XzPjR/DzrH7IB/5fzDeEjH2x+tGfNpN9iLQSxfmG1Vxhie9Nwha/fy1
+         7j2JcgjsqLxZ0QcjkqG4I8wAbJ60YgH3O7QBCa8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jisheng Zhang <jszhang@kernel.org>
-Subject: [PATCH 5.15 120/121] perf machine: Use path__join() to compose a path instead of snprintf(dir, /, filename)
-Date:   Tue, 13 Sep 2022 16:05:11 +0200
-Message-Id: <20220913140402.519862310@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nagaraj Arankal <nagaraj.p.arankal@hpe.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 67/79] tcp: fix early ETIMEDOUT after spurious non-SACK RTO
+Date:   Tue, 13 Sep 2022 16:05:12 +0200
+Message-Id: <20220913140353.418536205@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +58,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Neal Cardwell <ncardwell@google.com>
 
-commit 9d5f0c36438eeae7566ca383b2b673179e3cc613 upstream.
+[ Upstream commit 686dc2db2a0fdc1d34b424ec2c0a735becd8d62b ]
 
-Its more intention revealing, and if we're interested in the odd cases
-where this may end up truncating we can do debug checks at one
-centralized place.
+Fix a bug reported and analyzed by Nagaraj Arankal, where the handling
+of a spurious non-SACK RTO could cause a connection to fail to clear
+retrans_stamp, causing a later RTO to very prematurely time out the
+connection with ETIMEDOUT.
 
-Motivation, of all the container builds, fedora rawhide started
-complaining of:
+Here is the buggy scenario, expanding upon Nagaraj Arankal's excellent
+report:
 
-  util/machine.c: In function ‘machine__create_modules’:
-  util/machine.c:1419:50: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size between 0 and 4095 [-Werror=format-truncation=]
-   1419 |                 snprintf(path, sizeof(path), "%s/%s", dir_name, dent->d_name);
-        |                                                  ^~
-  In file included from /usr/include/stdio.h:894,
-                   from util/branch.h:9,
-                   from util/callchain.h:8,
-                   from util/machine.c:7:
-  In function ‘snprintf’,
-      inlined from ‘maps__set_modules_path_dir’ at util/machine.c:1419:3,
-      inlined from ‘machine__set_modules_path’ at util/machine.c:1473:9,
-      inlined from ‘machine__create_modules’ at util/machine.c:1519:7:
-  /usr/include/bits/stdio2.h:71:10: note: ‘__builtin___snprintf_chk’ output between 2 and 4352 bytes into a destination of size 4096
+(*1) Send one data packet on a non-SACK connection
 
-There are other places where we should use path__join(), but lets get rid of
-this one first.
+(*2) Because no ACK packet is received, the packet is retransmitted
+     and we enter CA_Loss; but this retransmission is spurious.
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Link: Link: https://lore.kernel.org/r/YebZKjwgfdOz0lAs@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(*3) The ACK for the original data is received. The transmitted packet
+     is acknowledged.  The TCP timestamp is before the retrans_stamp,
+     so tcp_may_undo() returns true, and tcp_try_undo_loss() returns
+     true without changing state to Open (because tcp_is_sack() is
+     false), and tcp_process_loss() returns without calling
+     tcp_try_undo_recovery().  Normally after undoing a CA_Loss
+     episode, tcp_fastretrans_alert() would see that the connection
+     has returned to CA_Open and fall through and call
+     tcp_try_to_open(), which would set retrans_stamp to 0.  However,
+     for non-SACK connections we hold the connection in CA_Loss, so do
+     not fall through to call tcp_try_to_open() and do not set
+     retrans_stamp to 0. So retrans_stamp is (erroneously) still
+     non-zero.
+
+     At this point the first "retransmission event" has passed and
+     been recovered from. Any future retransmission is a completely
+     new "event". However, retrans_stamp is erroneously still
+     set. (And we are still in CA_Loss, which is correct.)
+
+(*4) After 16 minutes (to correspond with tcp_retries2=15), a new data
+     packet is sent. Note: No data is transmitted between (*3) and
+     (*4) and we disabled keep alives.
+
+     The socket's timeout SHOULD be calculated from this point in
+     time, but instead it's calculated from the prior "event" 16
+     minutes ago (step (*2)).
+
+(*5) Because no ACK packet is received, the packet is retransmitted.
+
+(*6) At the time of the 2nd retransmission, the socket returns
+     ETIMEDOUT, prematurely, because retrans_stamp is (erroneously)
+     too far in the past (set at the time of (*2)).
+
+This commit fixes this bug by ensuring that we reuse in
+tcp_try_undo_loss() the same careful logic for non-SACK connections
+that we have in tcp_try_undo_recovery(). To avoid duplicating logic,
+we factor out that logic into a new
+tcp_is_non_sack_preventing_reopen() helper and call that helper from
+both undo functions.
+
+Fixes: da34ac7626b5 ("tcp: only undo on partial ACKs in CA_Loss")
+Reported-by: Nagaraj Arankal <nagaraj.p.arankal@hpe.com>
+Link: https://lore.kernel.org/all/SJ0PR84MB1847BE6C24D274C46A1B9B0EB27A9@SJ0PR84MB1847.NAMPRD84.PROD.OUTLOOK.COM/
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220903121023.866900-1-ncardwell.kernel@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/machine.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_input.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/tools/perf/util/machine.c
-+++ b/tools/perf/util/machine.c
-@@ -16,6 +16,7 @@
- #include "map_symbol.h"
- #include "branch.h"
- #include "mem-events.h"
-+#include "path.h"
- #include "srcline.h"
- #include "symbol.h"
- #include "sort.h"
-@@ -1407,7 +1408,7 @@ static int maps__set_modules_path_dir(st
- 		struct stat st;
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index e62500d6fe0d0..4ecd85b1e806c 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2496,6 +2496,21 @@ static inline bool tcp_may_undo(const struct tcp_sock *tp)
+ 	return tp->undo_marker && (!tp->undo_retrans || tcp_packet_delayed(tp));
+ }
  
- 		/*sshfs might return bad dent->d_type, so we have to stat*/
--		snprintf(path, sizeof(path), "%s/%s", dir_name, dent->d_name);
-+		path__join(path, sizeof(path), dir_name, dent->d_name);
- 		if (stat(path, &st))
- 			continue;
- 
++static bool tcp_is_non_sack_preventing_reopen(struct sock *sk)
++{
++	struct tcp_sock *tp = tcp_sk(sk);
++
++	if (tp->snd_una == tp->high_seq && tcp_is_reno(tp)) {
++		/* Hold old state until something *above* high_seq
++		 * is ACKed. For Reno it is MUST to prevent false
++		 * fast retransmits (RFC2582). SACK TCP is safe. */
++		if (!tcp_any_retrans_done(sk))
++			tp->retrans_stamp = 0;
++		return true;
++	}
++	return false;
++}
++
+ /* People celebrate: "We love our President!" */
+ static bool tcp_try_undo_recovery(struct sock *sk)
+ {
+@@ -2518,14 +2533,8 @@ static bool tcp_try_undo_recovery(struct sock *sk)
+ 	} else if (tp->rack.reo_wnd_persist) {
+ 		tp->rack.reo_wnd_persist--;
+ 	}
+-	if (tp->snd_una == tp->high_seq && tcp_is_reno(tp)) {
+-		/* Hold old state until something *above* high_seq
+-		 * is ACKed. For Reno it is MUST to prevent false
+-		 * fast retransmits (RFC2582). SACK TCP is safe. */
+-		if (!tcp_any_retrans_done(sk))
+-			tp->retrans_stamp = 0;
++	if (tcp_is_non_sack_preventing_reopen(sk))
+ 		return true;
+-	}
+ 	tcp_set_ca_state(sk, TCP_CA_Open);
+ 	tp->is_sack_reneg = 0;
+ 	return false;
+@@ -2561,6 +2570,8 @@ static bool tcp_try_undo_loss(struct sock *sk, bool frto_undo)
+ 			NET_INC_STATS(sock_net(sk),
+ 					LINUX_MIB_TCPSPURIOUSRTOS);
+ 		inet_csk(sk)->icsk_retransmits = 0;
++		if (tcp_is_non_sack_preventing_reopen(sk))
++			return true;
+ 		if (frto_undo || tcp_is_sack(tp)) {
+ 			tcp_set_ca_state(sk, TCP_CA_Open);
+ 			tp->is_sack_reneg = 0;
+-- 
+2.35.1
+
 
 
