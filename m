@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F1315B70A4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B08D05B7185
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231652AbiIMO3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54818 "EHLO
+        id S233043AbiIMOnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233790AbiIMO1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:27:45 -0400
+        with ESMTP id S232835AbiIMOmL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956A467C81;
-        Tue, 13 Sep 2022 07:17:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1761B6E2CA;
+        Tue, 13 Sep 2022 07:22:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11161614AE;
-        Tue, 13 Sep 2022 14:16:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D007C433C1;
-        Tue, 13 Sep 2022 14:16:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C545614B4;
+        Tue, 13 Sep 2022 14:22:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26143C433C1;
+        Tue, 13 Sep 2022 14:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078564;
-        bh=nZlTkWxulH2UpdsCFOA3yRVT5nN7ysECwwHbj4rH5Yo=;
+        s=korg; t=1663078953;
+        bh=lpazVn+TDsYK5GKA9iWWyLBDb2pAAjMWK2hSETqYsOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pu6jXDWaEStngFhy6R+sVgvsMGxEfIrRhMHq5okpQnc5kREX9M7LfJDZZutJiTSEQ
-         xMDvkAUuU6JbetqVBMPwZy/jvuiGmJ9QTM2rLWsxdSFpogHzeUsUfWFCi5C0Ge7gBO
-         Vl4u8PW6cL2nqYUPw/sfAmcolqcuB3oIYcfbcY/w=
+        b=hByN9vM8ZtHC69TWedeYEDwJVH+48spxO3BUGCnG1dkLs38ZKTdxzS5iHN3ZmoZPL
+         DHdR3IDWlMH/NMjWV5as0ekOBV5B8RN8zXhajPjBzIB14HS4dngA9GpcxAoUcFBRU+
+         SIpdyaRmPpcvRdAq+86cCIzsGInzH6SLbrlG444I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 163/192] kbuild: disable header exports for UML in a straightforward way
+        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 24/79] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
 Date:   Tue, 13 Sep 2022 16:04:29 +0200
-Message-Id: <20220913140418.152401588@linuxfoundation.org>
+Message-Id: <20220913140351.468002012@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit 1b620d539ccc18a1aca1613d9ff078115a7891a1 ]
+commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
 
-Previously 'make ARCH=um headers' stopped because of missing
-arch/um/include/uapi/asm/Kbuild.
+The voice allocator sometimes begins allocating from near the end of the
+array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
+accesses the newly allocated voices as if it never wrapped around.
 
-The error is not shown since commit ed102bf2afed ("um: Fix W=1
-missing-include-dirs warnings") added arch/um/include/uapi/asm/Kbuild.
+This results in out of bounds access if the first voice has a high enough
+index so that first_voice + requested_voice_count > NUM_G (64).
+The more voices are requested, the more likely it is for this to occur.
 
-Hard-code the unsupported architecture, so it works like before.
+This was initially discovered using PipeWire, however it can be reproduced
+by calling aplay multiple times with 16 channels:
+aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
 
-Fixes: ed102bf2afed ("um: Fix W=1 missing-include-dirs warnings")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
+index 65 is out of range for type 'snd_emu10k1_voice [64]'
+CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
+Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+ubsan_epilogue+0x9/0x3f
+__ubsan_handle_out_of_bounds.cold+0x44/0x49
+snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
+snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
+snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
+? exit_to_user_mode_prepare+0x35/0x170
+? do_syscall_64+0x69/0x90
+? syscall_exit_to_user_mode+0x26/0x50
+? do_syscall_64+0x69/0x90
+? exit_to_user_mode_prepare+0x35/0x170
+snd_pcm_ioctl+0x27/0x40 [snd_pcm]
+__x64_sys_ioctl+0x95/0xd0
+do_syscall_64+0x5c/0x90
+? do_syscall_64+0x69/0x90
+? do_syscall_64+0x69/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/pci/emu10k1/emupcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Makefile b/Makefile
-index e361c6230e9e5..2acd87dd62591 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1286,8 +1286,7 @@ hdr-inst := -f $(srctree)/scripts/Makefile.headersinst obj
- 
- PHONY += headers
- headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
--	$(if $(wildcard $(srctree)/arch/$(SRCARCH)/include/uapi/asm/Kbuild),, \
--	  $(error Headers not exportable for the $(SRCARCH) architecture))
-+	$(if $(filter um, $(SRCARCH)), $(error Headers not exportable for UML))
- 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
- 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
- 
--- 
-2.35.1
-
+--- a/sound/pci/emu10k1/emupcm.c
++++ b/sound/pci/emu10k1/emupcm.c
+@@ -123,7 +123,7 @@ static int snd_emu10k1_pcm_channel_alloc
+ 	epcm->voices[0]->epcm = epcm;
+ 	if (voices > 1) {
+ 		for (i = 1; i < voices; i++) {
+-			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
++			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
+ 			epcm->voices[i]->epcm = epcm;
+ 		}
+ 	}
 
 
