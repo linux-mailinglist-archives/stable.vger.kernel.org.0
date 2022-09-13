@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 014665B747E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F62B5B7496
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235985AbiIMPYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
+        id S236024AbiIMPYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236218AbiIMPXy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:54 -0400
+        with ESMTP id S236292AbiIMPYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:24:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9207C776;
-        Tue, 13 Sep 2022 07:37:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA7E7CA86;
+        Tue, 13 Sep 2022 07:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66BCCB80FF2;
-        Tue, 13 Sep 2022 14:35:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEF43C433D7;
-        Tue, 13 Sep 2022 14:35:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30F59B80FC9;
+        Tue, 13 Sep 2022 14:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8137AC433D6;
+        Tue, 13 Sep 2022 14:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079727;
-        bh=2hBL8XigB4HHBKerBlukkri/okODgJyoejnjyoF4k9U=;
+        s=korg; t=1663079730;
+        bh=wbhwPkgVfB0u/ecYJDpzWyQrjPmGXlonw19X6uHaZ7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cxy8gO0xlwArwt6xptp8KgdtN0CcOqBRSuo2YOipFINF62qpn6OTVLkq9d4lMjzxZ
-         IeNqsKKQHOlaznSTN1z8h53l6TNxrBEbJ0jqZG/9QKN5v6JRxedu3UwXnUWjgcuUh5
-         d1KXPspxDIo9OOm29w5GcwZ5BqJ3gjCcNBlAYv4s=
+        b=G6InT2Cy+yXBKvFeUgj3ujnPXC7320pL+wqHwJlpwauiWssveWgYRQxNUAuXdrsID
+         m/df/FMT02HiiafY0p48OGdR5FL37G35PETOHhZHpoCfMsrlJ3J4C/esKa4AgQy1Xc
+         LR/sGJ+fTCmySzc93MaHPNpLKfR0zE9TbkyyPx6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Witold Lipieta <witold.lipieta@thaumatec.com>
-Subject: [PATCH 4.14 25/61] usb-storage: Add ignore-residue quirk for NXP PN7462AU
-Date:   Tue, 13 Sep 2022 16:07:27 +0200
-Message-Id: <20220913140347.759074778@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 26/61] s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
+Date:   Tue, 13 Sep 2022 16:07:28 +0200
+Message-Id: <20220913140347.807108405@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
 References: <20220913140346.422813036@linuxfoundation.org>
@@ -54,40 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Witold Lipieta <witold.lipieta@thaumatec.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 2aa48857ad52236a9564c71183d6cc8893becd41 upstream.
+commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c upstream.
 
-This is USB mass storage primary boot loader for code download on
-NXP PN7462AU.
+The alignment check in prepare_hugepage_range() is wrong for 2 GB
+hugepages, it only checks for 1 MB hugepage alignment.
 
-Without the quirk it is impossible to write whole memory at once as
-device restarts during the write due to bogus residue values reported.
+This can result in kernel crash in __unmap_hugepage_range() at the
+BUG_ON(start & ~huge_page_mask(h)) alignment check, for mappings
+created with MAP_FIXED at unaligned address.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Witold Lipieta <witold.lipieta@thaumatec.com>
-Link: https://lore.kernel.org/r/20220809112911.462776-1-witold.lipieta@thaumatec.com
+Fix this by correctly handling multiple hugepage sizes, similar to the
+generic version of prepare_hugepage_range().
+
+Fixes: d08de8e2d867 ("s390/mm: add support for 2GB hugepages")
+Cc: <stable@vger.kernel.org> # 4.8+
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/s390/include/asm/hugetlb.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2313,6 +2313,13 @@ UNUSUAL_DEV( 0x1e74, 0x4621, 0x0000, 0x0
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_BULK_IGNORE_TAG | US_FL_MAX_SECTORS_64 ),
- 
-+/* Reported by Witold Lipieta <witold.lipieta@thaumatec.com> */
-+UNUSUAL_DEV( 0x1fc9, 0x0117, 0x0100, 0x0100,
-+		"NXP Semiconductors",
-+		"PN7462AU",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_RESIDUE ),
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -30,9 +30,11 @@ pte_t huge_ptep_get_and_clear(struct mm_
+ static inline int prepare_hugepage_range(struct file *file,
+ 			unsigned long addr, unsigned long len)
+ {
+-	if (len & ~HPAGE_MASK)
++	struct hstate *h = hstate_file(file);
 +
- /* Supplied with some Castlewood ORB removable drives */
- UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x9999,
- 		"Double-H Technology",
++	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+-	if (addr & ~HPAGE_MASK)
++	if (addr & ~huge_page_mask(h))
+ 		return -EINVAL;
+ 	return 0;
+ }
 
 
