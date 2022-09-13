@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A185C5B71B5
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9748F5B73E1
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbiIMOpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59548 "EHLO
+        id S233421AbiIMPOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232490AbiIMOnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5D86E8A1;
-        Tue, 13 Sep 2022 07:23:00 -0700 (PDT)
+        with ESMTP id S235678AbiIMPNa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9CB6A4AA;
+        Tue, 13 Sep 2022 07:32:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69061B80F99;
-        Tue, 13 Sep 2022 14:21:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE421C433D6;
-        Tue, 13 Sep 2022 14:21:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33039614C5;
+        Tue, 13 Sep 2022 14:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E581C433D7;
+        Tue, 13 Sep 2022 14:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078891;
-        bh=vsGgolk2OaZZ7DlCcPkY5d1cR/C6iDKiS2+Kjwya+ZI=;
+        s=korg; t=1663078997;
+        bh=F4/WLsRyy07YolkegJmcY9GWhvPc3z+yHZ+ideYcFvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdQYh6EuZlmgdyAHdQQuSOn45P48UWWqz4qT1rWPU+ASACS+02M6zrTznOiFC/E6d
-         lutxcmK65HiuhD+pq22BBaNX2C4Kh6PGpaMiNoIfOcLq6CAoqii1a2f0Ec+AuoBjm+
-         GLcHLksJpB8loSzfcAtT+1neITuTdqZgQ1M4dAyU=
+        b=NJbIIWFG4ojJ2w1clOMrEal8G+tHRvtFBkLHV5kJKdzKNQifD0ZTEh2hkFQKMBq8a
+         cJWFvgoqtzuFnhhRvl3ykf/6jzNQCDnrKssoM1JSh4Ndc9fDHb3n41EOLG0inDAfi9
+         /yuBnSy8ETaGxmdPL20TbRDbCQUSjeOQETRkHgFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sindhu-Devale <sindhu.devale@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
+        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/121] RDMA/irdma: Return correct WC error for bind operation failure
-Date:   Tue, 13 Sep 2022 16:04:47 +0200
-Message-Id: <20220913140401.482093083@linuxfoundation.org>
+Subject: [PATCH 5.10 43/79] RDMA/hns: Fix wrong fixed value of qp->rq.wqe_shift
+Date:   Tue, 13 Sep 2022 16:04:48 +0200
+Message-Id: <20220913140352.369810620@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sindhu-Devale <sindhu.devale@intel.com>
+From: Wenpeng Liang <liangwenpeng@huawei.com>
 
-[ Upstream commit dcb23bbb1de7e009875fdfac2b8a9808a9319cc6 ]
+[ Upstream commit 0c8b5d6268d92d141bfd64d21c870d295a84dee1 ]
 
-When a QP and a MR on a local host are in different PDs, the HW generates
-an asynchronous event (AE). The same AE is generated when a QP and a MW
-are in different PDs during a bind operation. Return the more appropriate
-IBV_WC_MW_BIND_ERR for the latter case by checking the OP type from the
-CQE in error.
+The value of qp->rq.wqe_shift of HIP08 is always determined by the number
+of sge. So delete the wrong branch.
 
-Fixes: 551c46edc769 ("RDMA/irdma: Add user/kernel shared libraries")
-Signed-off-by: Sindhu-Devale <sindhu.devale@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20220906223244.1119-4-shiraz.saleem@intel.com
+Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
+Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
+Link: https://lore.kernel.org/r/20220829105021.1427804-3-liangwenpeng@huawei.com
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/uk.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/uk.c b/drivers/infiniband/hw/irdma/uk.c
-index 9b544a3b12886..7e6c3ba8df6ab 100644
---- a/drivers/infiniband/hw/irdma/uk.c
-+++ b/drivers/infiniband/hw/irdma/uk.c
-@@ -1068,6 +1068,7 @@ irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq, struct irdma_cq_poll_info *info)
- 	enum irdma_status_code ret_code;
- 	bool move_cq_head = true;
- 	u8 polarity;
-+	u8 op_type;
- 	bool ext_valid;
- 	__le64 *ext_cqe;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 291e06d631505..6fe98af7741b5 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -386,11 +386,8 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
  
-@@ -1250,7 +1251,6 @@ irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq, struct irdma_cq_poll_info *info)
- 			do {
- 				__le64 *sw_wqe;
- 				u64 wqe_qword;
--				u8 op_type;
- 				u32 tail;
+ 	hr_qp->rq.max_gs = roundup_pow_of_two(max(1U, cap->max_recv_sge));
  
- 				tail = qp->sq_ring.tail;
-@@ -1267,6 +1267,8 @@ irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq, struct irdma_cq_poll_info *info)
- 					break;
- 				}
- 			} while (1);
-+			if (op_type == IRDMA_OP_TYPE_BIND_MW && info->minor_err == FLUSH_PROT_ERR)
-+				info->minor_err = FLUSH_MW_BIND_ERR;
- 			qp->sq_flush_seen = true;
- 			if (!IRDMA_RING_MORE_WORK(qp->sq_ring))
- 				qp->sq_flush_complete = true;
+-	if (hr_dev->caps.max_rq_sg <= HNS_ROCE_SGE_IN_WQE)
+-		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz);
+-	else
+-		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz *
+-					    hr_qp->rq.max_gs);
++	hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz *
++				    hr_qp->rq.max_gs);
+ 
+ 	hr_qp->rq.wqe_cnt = cnt;
+ 	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_RQ_INLINE)
 -- 
 2.35.1
 
