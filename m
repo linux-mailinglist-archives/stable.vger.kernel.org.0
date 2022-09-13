@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 940815B6F75
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC26F5B6F77
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232834AbiIMOMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:12:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54554 "EHLO
+        id S232797AbiIMOM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232894AbiIMOMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:12:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D40205F4;
-        Tue, 13 Sep 2022 07:09:50 -0700 (PDT)
+        with ESMTP id S232570AbiIMOMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:12:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA5B2FFFB;
+        Tue, 13 Sep 2022 07:09:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A865614A3;
-        Tue, 13 Sep 2022 14:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8CA5C433C1;
-        Tue, 13 Sep 2022 14:09:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0DE3B80EF4;
+        Tue, 13 Sep 2022 14:09:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A99BC433D7;
+        Tue, 13 Sep 2022 14:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078189;
-        bh=t/IuHrlcFJzD4wEDVvMD5tRh3tZgRHNPMtfF5B5TnTg=;
+        s=korg; t=1663078191;
+        bh=y3Y5g5RO47iod1MXAA3F9GaMjTHJamxs9vmHWmTV2mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmyPIQzGdmleFK8uCd5NOLRZKyyTo5H1sVWN+824OpwES+Gexn71u+H+nvXNeK7tG
-         K/m2D1+HL6Q/05/z8LSVsLuKayTXdXVPSO4Os0uEaekxYsRmIbcDhh9ZQ6eyGE8InZ
-         xhjj32b1zcLHPsw66rPADgSk3eXiUDsyCqvKNm5g=
+        b=eiedTmq0LzOMUfcNfXEJ/STVHGXCsfGuihhnUcINQaFaKRpc+DhFXJ8oHnNvbhBL2
+         AOqHz0LK3ckJfm2UovSp7wyqP8RT8q4BtArpFkgGRufxbQV4QVunOhvLWY2VImleN/
+         2ay9iUIHXI33XCtjSbmp5kLMnoAS1BZIvhQmt8Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Qiong <liqiong@nfschina.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 020/192] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
-Date:   Tue, 13 Sep 2022 16:02:06 +0200
-Message-Id: <20220913140410.928286933@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 021/192] parisc: Add runtime check to prevent PA2.0 kernels on PA1.x machines
+Date:   Tue, 13 Sep 2022 16:02:07 +0200
+Message-Id: <20220913140410.977355254@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -53,56 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Qiong <liqiong@nfschina.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
+[ Upstream commit 591d2108f3abc4db9f9073cae37cf3591fd250d6 ]
 
-As the possible failure of the kmalloc(), it should be better
-to fix this error path, check and return '-ENOMEM' error code.
+If a 32-bit kernel was compiled for PA2.0 CPUs, it won't be able to run
+on machines with PA1.x CPUs. Add a check and bail out early if a PA1.x
+machine is detected.
 
-Signed-off-by: Li Qiong <liqiong@nfschina.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parisc/ccio-dma.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/parisc/kernel/head.S | 43 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index 9be007c9420f9..f69ab90b5e22d 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1380,15 +1380,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
- 	}
- }
+diff --git a/arch/parisc/kernel/head.S b/arch/parisc/kernel/head.S
+index e0a9e96576221..fd15fd4bbb61b 100644
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/init.h>
+ #include <linux/pgtable.h>
  
--static void __init ccio_init_resources(struct ioc *ioc)
-+static int __init ccio_init_resources(struct ioc *ioc)
- {
- 	struct resource *res = ioc->mmio_region;
- 	char *name = kmalloc(14, GFP_KERNEL);
--
-+	if (unlikely(!name))
-+		return -ENOMEM;
- 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
+-	.level	PA_ASM_LEVEL
++	.level	1.1
  
- 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
- 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
-+	return 0;
- }
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -70,6 +70,47 @@ $bss_loop:
+ 	stw,ma          %arg2,4(%r1)
+ 	stw,ma          %arg3,4(%r1)
  
- static int new_ioc_area(struct resource *res, unsigned long size,
-@@ -1543,7 +1545,10 @@ static int __init ccio_probe(struct parisc_device *dev)
- 		return -ENOMEM;
- 	}
- 	ccio_ioc_init(ioc);
--	ccio_init_resources(ioc);
-+	if (ccio_init_resources(ioc)) {
-+		kfree(ioc);
-+		return -ENOMEM;
-+	}
- 	hppa_dma_ops = &ccio_ops;
- 
- 	hba = kzalloc(sizeof(*hba), GFP_KERNEL);
++#if !defined(CONFIG_64BIT) && defined(CONFIG_PA20)
++	/* This 32-bit kernel was compiled for PA2.0 CPUs. Check current CPU
++	 * and halt kernel if we detect a PA1.x CPU. */
++	ldi		32,%r10
++	mtctl		%r10,%cr11
++	.level 2.0
++	mfctl,w		%cr11,%r10
++	.level 1.1
++	comib,<>,n	0,%r10,$cpu_ok
++
++	load32		PA(msg1),%arg0
++	ldi		msg1_end-msg1,%arg1
++$iodc_panic:
++	copy		%arg0, %r10
++	copy		%arg1, %r11
++	load32		PA(init_stack),%sp
++#define MEM_CONS 0x3A0
++	ldw		MEM_CONS+32(%r0),%arg0	// HPA
++	ldi		ENTRY_IO_COUT,%arg1
++	ldw		MEM_CONS+36(%r0),%arg2	// SPA
++	ldw		MEM_CONS+8(%r0),%arg3	// layers
++	load32		PA(__bss_start),%r1
++	stw		%r1,-52(%sp)		// arg4
++	stw		%r0,-56(%sp)		// arg5
++	stw		%r10,-60(%sp)		// arg6 = ptr to text
++	stw		%r11,-64(%sp)		// arg7 = len
++	stw		%r0,-68(%sp)		// arg8
++	load32		PA(.iodc_panic_ret), %rp
++	ldw		MEM_CONS+40(%r0),%r1	// ENTRY_IODC
++	bv,n		(%r1)
++.iodc_panic_ret:
++	b .				/* wait endless with ... */
++	or		%r10,%r10,%r10	/* qemu idle sleep */
++msg1:	.ascii "Can't boot kernel which was built for PA8x00 CPUs on this machine.\r\n"
++msg1_end:
++
++$cpu_ok:
++#endif
++
++	.level	PA_ASM_LEVEL
++
+ 	/* Initialize startup VM. Just map first 16/32 MB of memory */
+ 	load32		PA(swapper_pg_dir),%r4
+ 	mtctl		%r4,%cr24	/* Initialize kernel root pointer */
 -- 
 2.35.1
 
