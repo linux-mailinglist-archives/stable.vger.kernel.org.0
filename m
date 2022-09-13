@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 172E45B748B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A35355B7400
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbiIMPYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
+        id S235658AbiIMPOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236044AbiIMPXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C6697C74F;
-        Tue, 13 Sep 2022 07:37:22 -0700 (PDT)
+        with ESMTP id S235844AbiIMPN7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFD278BEF;
+        Tue, 13 Sep 2022 07:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D95BB614A3;
-        Tue, 13 Sep 2022 14:36:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0DBFC433D6;
-        Tue, 13 Sep 2022 14:36:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B92614E2;
+        Tue, 13 Sep 2022 14:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AFC5C433C1;
+        Tue, 13 Sep 2022 14:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079817;
-        bh=AQoDADaLPKvNoQ0TH0wMcQHRuHBQaajr4jYWAN6BNKw=;
+        s=korg; t=1663079590;
+        bh=vhBPoo9+TLK9+hQbWq1b8y3SJghTY07Qom1m3j2Diu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1d0bkPvjE2YjukTE10guc1zs17mdJgCj0FgfN4VhVkRXSKoSyd7bb3pGv1UJ7Olwv
-         4GiFGLq20WX7Jn++8zclW3fcQwZpRHricRmmsy48AuWxnoQNyBFSgqKVPEYXaUXgJ1
-         /cIxdHJ4/aN0LQqIUJY7mClY6UdNajTMDNAub2/8=
+        b=wqQgsaPTnZYVUakymKyWY8a2i+pV+IGB9oj5NAiYmsYY0uSUckJ9kn1sQPInI8wYJ
+         owtrI4OoscEql7sVHfgwC4PN2nzkkTozkYvxpdDWOs3VmohGEpAIAUDIFiD60vIH3L
+         yVxyXKR75owa/1eC89Oe5U4YLwH6Z+me7oxHJVZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Zheng Wang <hackerzheng666@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.9 05/42] staging: rtl8712: fix use after free bugs
+        stable@vger.kernel.org, Yang Ling <gnaygnil@gmail.com>,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 78/79] MIPS: loongson32: ls1c: Fix hang during startup
 Date:   Tue, 13 Sep 2022 16:07:36 +0200
-Message-Id: <20220913140342.516250467@linuxfoundation.org>
+Message-Id: <20220913140352.641002229@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yang Ling <gnaygnil@gmail.com>
 
-commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
+[ Upstream commit 35508d2424097f9b6a1a17aac94f702767035616 ]
 
-_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
-functions don't do anything except free the "pcmd" pointer.  It
-results in a use after free.  Delete them.
+The RTCCTRL reg of LS1C is obselete.
+Writing this reg will cause system hang.
 
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Cc: stable <stable@kernel.org>
-Reported-by: Zheng Wang <hackerzheng666@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 60219c563c9b6 ("MIPS: Add RTC support for Loongson1C board")
+Signed-off-by: Yang Ling <gnaygnil@gmail.com>
+Tested-by: Keguang Zhang <keguang.zhang@gmail.com>
+Acked-by: Keguang Zhang <keguang.zhang@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
- 1 file changed, 36 deletions(-)
+ arch/mips/loongson32/ls1c/board.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -128,34 +128,6 @@ static void r871x_internal_cmd_hdl(struc
- 	kfree(pdrvcmd->pbuf);
- }
- 
--static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
--static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
+diff --git a/arch/mips/loongson32/ls1c/board.c b/arch/mips/loongson32/ls1c/board.c
+index eb2d913c694fd..2d9675a6782c3 100644
+--- a/arch/mips/loongson32/ls1c/board.c
++++ b/arch/mips/loongson32/ls1c/board.c
+@@ -19,7 +19,6 @@ static struct platform_device *ls1c_platform_devices[] __initdata = {
+ static int __init ls1c_platform_init(void)
  {
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
-@@ -224,14 +196,6 @@ static struct cmd_obj *cmd_hdl_filter(st
- 	pcmd_r = NULL;
+ 	ls1x_serial_set_uartclk(&ls1x_uart_pdev);
+-	ls1x_rtc_set_extclk(&ls1x_rtc_pdev);
  
- 	switch (pcmd->cmdcode) {
--	case GEN_CMD_CODE(_Read_MACREG):
--		read_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
--	case GEN_CMD_CODE(_Write_MACREG):
--		write_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
- 	case GEN_CMD_CODE(_Read_BBREG):
- 		read_bbreg_hdl(padapter, (u8 *)pcmd);
- 		break;
+ 	return platform_add_devices(ls1c_platform_devices,
+ 				   ARRAY_SIZE(ls1c_platform_devices));
+-- 
+2.35.1
+
 
 
