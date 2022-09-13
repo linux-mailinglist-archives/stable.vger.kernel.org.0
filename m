@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 015145B7593
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 771635B7333
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233329AbiIMPvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:51:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57916 "EHLO
+        id S234871AbiIMPEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233578AbiIMPum (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:50:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5AFC8A1FD;
-        Tue, 13 Sep 2022 07:52:21 -0700 (PDT)
+        with ESMTP id S235254AbiIMPDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E52E12AE8;
+        Tue, 13 Sep 2022 07:30:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBD6FB80EB7;
-        Tue, 13 Sep 2022 14:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 532E9C433D6;
-        Tue, 13 Sep 2022 14:32:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8E76B80F1A;
+        Tue, 13 Sep 2022 14:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 198D7C433C1;
+        Tue, 13 Sep 2022 14:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079551;
-        bh=8x86kb3UCsPU4xUj131z4xdrX7ebEKME9z7ELKz3Ox4=;
+        s=korg; t=1663079391;
+        bh=qCVth4/8yW7umEyG9bOFYKwyaYG5yoB7+h3QeJB41SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rI+Du0Kis3koGJI7e4DV/2i5NFiy+BloHpXRmsGDPz3MpAlERcxZKVloClwS358MF
-         bTdrGyxn0sHM3Q/MPjdV+225/2Ns4ZSuDirb5LO+zXUn7iwN94IrFtheaJoYG50FaI
-         O3IcHBTsEw+SMAyLEYuvLt2oW45AYtCFC78UFUjA=
+        b=vu8qtabrWj6dmokDx5BrQTpMwwVb2IMu7n7hJdEjKN6hdzSvGpd3WTaNonBhZuHAr
+         dRCxIj9wlnHmZTMFrX4+qvw5TohM2hxrrWk/R73+P5bHqYYrHfbKv9Bvkr4/YIYG7t
+         enreVNolcJnLa9K1g3iwT4gd5MgMKCXEs6162uL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglin Tan <yonglin.tan@outlook.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 35/79] USB: serial: option: add Quectel EM060K modem
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.4 082/108] nvmet: fix a use-after-free
 Date:   Tue, 13 Sep 2022 16:06:53 +0200
-Message-Id: <20220913140350.599157629@linuxfoundation.org>
+Message-Id: <20220913140357.151512934@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglin Tan <yonglin.tan@outlook.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit f766f3abe6dbc9bf8b56a5d53c87e5a17942c154 upstream.
+commit 6a02a61e81c231cc5c680c5dbf8665275147ac52 upstream.
 
-Add usb product id entry for the Quectel EM060K module.
+Fix the following use-after-free complaint triggered by blktests nvme/004:
 
-"MBIM mode": DIAG + NMEA + AT + MODEM + MBIM + QDSS
+BUG: KASAN: user-memory-access in blk_mq_complete_request_remote+0xac/0x350
+Read of size 4 at addr 0000607bd1835943 by task kworker/13:1/460
+Workqueue: nvmet-wq nvme_loop_execute_work [nvme_loop]
+Call Trace:
+ show_stack+0x52/0x58
+ dump_stack_lvl+0x49/0x5e
+ print_report.cold+0x36/0x1e2
+ kasan_report+0xb9/0xf0
+ __asan_load4+0x6b/0x80
+ blk_mq_complete_request_remote+0xac/0x350
+ nvme_loop_queue_response+0x1df/0x275 [nvme_loop]
+ __nvmet_req_complete+0x132/0x4f0 [nvmet]
+ nvmet_req_complete+0x15/0x40 [nvmet]
+ nvmet_execute_io_connect+0x18a/0x1f0 [nvmet]
+ nvme_loop_execute_work+0x20/0x30 [nvme_loop]
+ process_one_work+0x56e/0xa70
+ worker_thread+0x2d1/0x640
+ kthread+0x183/0x1c0
+ ret_from_fork+0x1f/0x30
 
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  8 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=030b Rev= 5.04
-S:  Manufacturer=Quectel
-S:  Product=EM060K-GL
-S:  SerialNumber=89fb57db
-C:* #Ifs= 7 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 8 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 8 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=88(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 9 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 9 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#=12 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=70 Driver=(none)
-E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
-[ johan: mention QDSS port and sort entries ]
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/nvme/target/core.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -253,6 +253,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_BG96			0x0296
- #define QUECTEL_PRODUCT_EP06			0x0306
- #define QUECTEL_PRODUCT_EM05G			0x030a
-+#define QUECTEL_PRODUCT_EM060K			0x030b
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
-@@ -1142,6 +1143,9 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
- 	  .driver_info = RSVD(6) | ZLP },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x40) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -709,6 +709,8 @@ static void nvmet_set_error(struct nvmet
+ 
+ static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
+ {
++	struct nvmet_ns *ns = req->ns;
++
+ 	if (!req->sq->sqhd_disabled)
+ 		nvmet_update_sq_head(req);
+ 	req->cqe->sq_id = cpu_to_le16(req->sq->qid);
+@@ -719,9 +721,9 @@ static void __nvmet_req_complete(struct
+ 
+ 	trace_nvmet_req_complete(req);
+ 
+-	if (req->ns)
+-		nvmet_put_namespace(req->ns);
+ 	req->ops->queue_response(req);
++	if (ns)
++		nvmet_put_namespace(ns);
+ }
+ 
+ void nvmet_req_complete(struct nvmet_req *req, u16 status)
 
 
