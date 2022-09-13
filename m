@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21DF55B74FE
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E065B74AA
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236501AbiIMPal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:30:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
+        id S236317AbiIMP3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236689AbiIMP3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50186E2D;
-        Tue, 13 Sep 2022 07:39:52 -0700 (PDT)
+        with ESMTP id S236383AbiIMP2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638FF7E006;
+        Tue, 13 Sep 2022 07:39:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06796B80F91;
-        Tue, 13 Sep 2022 14:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D396C433C1;
-        Tue, 13 Sep 2022 14:38:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB5BDB81015;
+        Tue, 13 Sep 2022 14:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A768C433D6;
+        Tue, 13 Sep 2022 14:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079885;
-        bh=2jMSUEghuLlu/1D6x2idR7tJj/F/ZgljozPqFgP5Eq4=;
+        s=korg; t=1663079832;
+        bh=j3mm+5ftkKBM9jkSvpuIjuAE+kdUVLGUV9i9lxkAxOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y3HqdwspAoKvlwfWPCbQg56Ujfs3lWcsDTmqw6X+tclWtSiPU8Wsfkn4zg7yhg+xr
-         OtLeNAEr9/VgPiSQGexhdLlR1BPXXEEh00VKdSBCToKf1FBCa/reYWRsIiDbobLEJF
-         frPq7NQQxKVZX0L0VaWoMGWwba+rgxJmzFUz0xE4=
+        b=SmT2ncFNxzVObi7P4Ni9hnfoPMCwnHIa0vbXnMCkcRaDVT+F04WVLlMA+xKN3ptbi
+         11vMEGPKGOecPRE3M1RYVTrMhrt1eFvYLFZuJNo4/TCVt6NM2nuX7NXT6uZdUKBBCv
+         PtKJXJD213fzO3Iks/I4IO+ik+00PLkEvZOjPJDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 22/42] ALSA: seq: Fix data-race at module auto-loading
-Date:   Tue, 13 Sep 2022 16:07:53 +0200
-Message-Id: <20220913140343.398413497@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Fengwei Yin <fengwei.yin@intel.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 23/42] fs: only do a memory barrier for the first set_buffer_uptodate()
+Date:   Tue, 13 Sep 2022 16:07:54 +0200
+Message-Id: <20220913140343.461661642@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -53,62 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
+commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
 
-It's been reported that there is a possible data-race accessing to the
-global card_requested[] array at ALSA sequencer core, which is used
-for determining whether to call request_module() for the card or not.
-This data race itself is almost harmless, as it might end up with one
-extra request_module() call for the already loaded module at most.
-But it's still better to fix.
+Commit d4252071b97d ("add barriers to buffer_uptodate and
+set_buffer_uptodate") added proper memory barriers to the buffer head
+BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
+will be guaranteed to actually see initialized state.
 
-This patch addresses the possible data race of card_requested[] and
-client_requested[] arrays by replacing them with bitmask.
-It's an atomic operation and can work without locks.
+However, that commit didn't _just_ add the memory barrier, it also ended
+up dropping the "was it already set" logic that the BUFFER_FNS() macro
+had.
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+That's conceptually the right thing for a generic "this is a memory
+barrier" operation, but in the case of the buffer contents, we really
+only care about the memory barrier for the _first_ time we set the bit,
+in that the only memory ordering protection we need is to avoid anybody
+seeing uninitialized memory contents.
+
+Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
+and would require some other proper lock (typically BH_Lock or the folio
+lock).  A reader that races with somebody invalidating the buffer head
+isn't an issue wrt the memory ordering, it's a serialization issue.
+
+Now, you'd think that the buffer head operations don't matter in this
+day and age (and I certainly thought so), but apparently some loads
+still end up being heavy users of buffer heads.  In particular, the
+kernel test robot reported that not having this bit access optimization
+in place caused a noticeable direct IO performance regression on ext4:
+
+  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
+
+although you presumably need a fast disk and a lot of cores to actually
+notice.
+
+Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Fengwei Yin <fengwei.yin@intel.com>
+Cc: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq/seq_clientmgr.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ include/linux/buffer_head.h |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -136,13 +136,13 @@ struct snd_seq_client *snd_seq_client_us
- 	spin_unlock_irqrestore(&clients_lock, flags);
- #ifdef CONFIG_MODULES
- 	if (!in_interrupt()) {
--		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
--		static char card_requested[SNDRV_CARDS];
-+		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
-+		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
+--- a/include/linux/buffer_head.h
++++ b/include/linux/buffer_head.h
+@@ -133,6 +133,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
+ static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
+ {
+ 	/*
++	 * If somebody else already set this uptodate, they will
++	 * have done the memory barrier, and a reader will thus
++	 * see *some* valid buffer state.
++	 *
++	 * Any other serialization (with IO errors or whatever that
++	 * might clear the bit) has to come from other state (eg BH_Lock).
++	 */
++	if (test_bit(BH_Uptodate, &bh->b_state))
++		return;
 +
- 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
- 			int idx;
- 			
--			if (!client_requested[clientid]) {
--				client_requested[clientid] = 1;
-+			if (!test_and_set_bit(clientid, client_requested)) {
- 				for (idx = 0; idx < 15; idx++) {
- 					if (seq_client_load[idx] < 0)
- 						break;
-@@ -157,10 +157,8 @@ struct snd_seq_client *snd_seq_client_us
- 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
- 				SNDRV_SEQ_CLIENTS_PER_CARD;
- 			if (card < snd_ecards_limit) {
--				if (! card_requested[card]) {
--					card_requested[card] = 1;
-+				if (!test_and_set_bit(card, card_requested))
- 					snd_request_card(card);
--				}
- 				snd_seq_device_load_drivers();
- 			}
- 		}
++	/*
+ 	 * make it consistent with folio_mark_uptodate
+ 	 * pairs with smp_load_acquire in buffer_uptodate
+ 	 */
 
 
