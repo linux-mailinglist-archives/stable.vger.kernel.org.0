@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAB45B7404
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821765B7328
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235586AbiIMPO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42638 "EHLO
+        id S232287AbiIMPEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235669AbiIMPN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA43786D6;
-        Tue, 13 Sep 2022 07:33:05 -0700 (PDT)
+        with ESMTP id S235111AbiIMPCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:02:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E2C55B1;
+        Tue, 13 Sep 2022 07:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5803614EC;
-        Tue, 13 Sep 2022 14:32:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF472C433B5;
-        Tue, 13 Sep 2022 14:32:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 943E9B80F9B;
+        Tue, 13 Sep 2022 14:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 116E7C433C1;
+        Tue, 13 Sep 2022 14:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079528;
-        bh=+BWtEheS0cucPhtYcwHqN0Ms/BuehtDS9BrPRX2Kow0=;
+        s=korg; t=1663079349;
+        bh=qkNQUjOVzLY6FmCy6KRlbslRy2+pPFpxRitCc/NGS1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/7C/dxmZ7royD5lsyuQ3T6+/Vr3XpyW6X8H+smSkt4q2L4+S4+EnUiKtCN1xbKMW
-         34AB5QEYkDVOAxx/j+joNWQ5jwXOdEBHkyB0gW3Tulrm88tE43Uwg/878KZYTEgGvI
-         MPtQrNNp82WcJV4dT//MGBIi2ATT3fGu/1GCuNy8=
+        b=mY6vO5yOuWnA96Q7MRsOzSTj6kvsiSYDycbGemAcMob41s4sIuD6GkqjMkRRfmOrx
+         0gY7cZaWgGINBOljQUQnF+by3J53gCUzRf12dvDK8CTWYRm0KnSzsizZxfhXtai9Vz
+         nWxpYibfSOHMkHwP3u0R01xJ7a419HU5An5Ll7VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Bruno Goncalves <bgoncalv@redhat.com>
-Subject: [PATCH 4.19 53/79] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
+        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
+        Helena Anna Dubel <helena.anna.dubel@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 100/108] i40e: Fix kernel crash during module removal
 Date:   Tue, 13 Sep 2022 16:07:11 +0200
-Message-Id: <20220913140351.469490864@linuxfoundation.org>
+Message-Id: <20220913140357.914821621@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Ivan Vecera <ivecera@redhat.com>
 
-[ Upstream commit e75d18cecbb3805895d8ed64da4f78575ec96043 ]
+[ Upstream commit fb8396aeda5872369a8ed6d2301e2c86e303c520 ]
 
-Though acpi_find_last_cache_level() always returned signed value and the
-document states it will return any errors caused by lack of a PPTT table,
-it never returned negative values before.
+The driver incorrectly frees client instance and subsequent
+i40e module removal leads to kernel crash.
 
-Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
-however changed it by returning -ENOENT if no PPTT was found. The value
-returned from acpi_find_last_cache_level() is then assigned to unsigned
-fw_level.
+Reproducer:
+1. Do ethtool offline test followed immediately by another one
+host# ethtool -t eth0 offline; ethtool -t eth0 offline
+2. Remove recursively irdma module that also removes i40e module
+host# modprobe -r irdma
 
-It will result in the number of cache leaves calculated incorrectly as
-a huge value which will then cause the following warning from __alloc_pages
-as the order would be great than MAX_ORDER because of incorrect and huge
-cache leaves value.
+Result:
+[ 8675.035651] i40e 0000:3d:00.0 eno1: offline testing starting
+[ 8675.193774] i40e 0000:3d:00.0 eno1: testing finished
+[ 8675.201316] i40e 0000:3d:00.0 eno1: offline testing starting
+[ 8675.358921] i40e 0000:3d:00.0 eno1: testing finished
+[ 8675.496921] i40e 0000:3d:00.0: IRDMA hardware initialization FAILED init_state=2 status=-110
+[ 8686.188955] i40e 0000:3d:00.1: i40e_ptp_stop: removed PHC on eno2
+[ 8686.943890] i40e 0000:3d:00.1: Deleted LAN device PF1 bus=0x3d dev=0x00 func=0x01
+[ 8686.952669] i40e 0000:3d:00.0: i40e_ptp_stop: removed PHC on eno1
+[ 8687.761787] BUG: kernel NULL pointer dereference, address: 0000000000000030
+[ 8687.768755] #PF: supervisor read access in kernel mode
+[ 8687.773895] #PF: error_code(0x0000) - not-present page
+[ 8687.779034] PGD 0 P4D 0
+[ 8687.781575] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[ 8687.785935] CPU: 51 PID: 172891 Comm: rmmod Kdump: loaded Tainted: G        W I        5.19.0+ #2
+[ 8687.794800] Hardware name: Intel Corporation S2600WFD/S2600WFD, BIOS SE5C620.86B.0X.02.0001.051420190324 05/14/2019
+[ 8687.805222] RIP: 0010:i40e_lan_del_device+0x13/0xb0 [i40e]
+[ 8687.810719] Code: d4 84 c0 0f 84 b8 25 01 00 e9 9c 25 01 00 41 bc f4 ff ff ff eb 91 90 0f 1f 44 00 00 41 54 55 53 48 8b 87 58 08 00 00 48 89 fb <48> 8b 68 30 48 89 ef e8 21 8a 0f d5 48 89 ef e8 a9 78 0f d5 48 8b
+[ 8687.829462] RSP: 0018:ffffa604072efce0 EFLAGS: 00010202
+[ 8687.834689] RAX: 0000000000000000 RBX: ffff8f43833b2000 RCX: 0000000000000000
+[ 8687.841821] RDX: 0000000000000000 RSI: ffff8f4b0545b298 RDI: ffff8f43833b2000
+[ 8687.848955] RBP: ffff8f43833b2000 R08: 0000000000000001 R09: 0000000000000000
+[ 8687.856086] R10: 0000000000000000 R11: 000ffffffffff000 R12: ffff8f43833b2ef0
+[ 8687.863218] R13: ffff8f43833b2ef0 R14: ffff915103966000 R15: ffff8f43833b2008
+[ 8687.870342] FS:  00007f79501c3740(0000) GS:ffff8f4adffc0000(0000) knlGS:0000000000000000
+[ 8687.878427] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 8687.884174] CR2: 0000000000000030 CR3: 000000014276e004 CR4: 00000000007706e0
+[ 8687.891306] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 8687.898441] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 8687.905572] PKRU: 55555554
+[ 8687.908286] Call Trace:
+[ 8687.910737]  <TASK>
+[ 8687.912843]  i40e_remove+0x2c0/0x330 [i40e]
+[ 8687.917040]  pci_device_remove+0x33/0xa0
+[ 8687.920962]  device_release_driver_internal+0x1aa/0x230
+[ 8687.926188]  driver_detach+0x44/0x90
+[ 8687.929770]  bus_remove_driver+0x55/0xe0
+[ 8687.933693]  pci_unregister_driver+0x2a/0xb0
+[ 8687.937967]  i40e_exit_module+0xc/0xf48 [i40e]
 
-  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
-  |  Modules linked in:
-  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
-  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  |  pc : __alloc_pages+0x74/0x314
-  |  lr : alloc_pages+0xe8/0x318
-  |  Call trace:
-  |   __alloc_pages+0x74/0x314
-  |   alloc_pages+0xe8/0x318
-  |   kmalloc_order_trace+0x68/0x1dc
-  |   __kmalloc+0x240/0x338
-  |   detect_cache_attributes+0xe0/0x56c
-  |   update_siblings_masks+0x38/0x284
-  |   store_cpu_topology+0x78/0x84
-  |   smp_prepare_cpus+0x48/0x134
-  |   kernel_init_freeable+0xc4/0x14c
-  |   kernel_init+0x2c/0x1b4
-  |   ret_from_fork+0x10/0x20
+Two offline tests cause IRDMA driver failure (ETIMEDOUT) and this
+failure is indicated back to i40e_client_subtask() that calls
+i40e_client_del_instance() to free client instance referenced
+by pf->cinst and sets this pointer to NULL. During the module
+removal i40e_remove() calls i40e_lan_del_device() that dereferences
+pf->cinst that is NULL -> crash.
+Do not remove client instance when client open callbacks fails and
+just clear __I40E_CLIENT_INSTANCE_OPENED bit. The driver also needs
+to take care about this situation (when netdev is up and client
+is NOT opened) in i40e_notify_client_of_netdev_close() and
+calls client close callback only when __I40E_CLIENT_INSTANCE_OPENED
+is set.
 
-Fix the same by changing fw_level to be signed integer and return the
-error from init_cache_level() early in case of error.
-
-Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 0ef2d5afb12d ("i40e: KISS the client interface")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Tested-by: Helena Anna Dubel <helena.anna.dubel@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cacheinfo.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_client.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
-index d17414cbb89a8..473935695efb7 100644
---- a/arch/arm64/kernel/cacheinfo.c
-+++ b/arch/arm64/kernel/cacheinfo.c
-@@ -47,7 +47,8 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 
- int init_cache_level(unsigned int cpu)
- {
--	unsigned int ctype, level, leaves, fw_level;
-+	unsigned int ctype, level, leaves;
-+	int fw_level;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 
- 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
-@@ -65,6 +66,9 @@ int init_cache_level(unsigned int cpu)
- 	else
- 		fw_level = acpi_find_last_cache_level(cpu);
- 
-+	if (fw_level < 0)
-+		return fw_level;
-+
- 	if (level < fw_level) {
- 		/*
- 		 * some external caches not specified in CLIDR_EL1
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_client.c b/drivers/net/ethernet/intel/i40e/i40e_client.c
+index 5706abb3c0eaa..10125b02d1543 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_client.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_client.c
+@@ -178,6 +178,10 @@ void i40e_notify_client_of_netdev_close(struct i40e_vsi *vsi, bool reset)
+ 			"Cannot locate client instance close routine\n");
+ 		return;
+ 	}
++	if (!test_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state)) {
++		dev_dbg(&pf->pdev->dev, "Client is not open, abort close\n");
++		return;
++	}
+ 	cdev->client->ops->close(&cdev->lan_info, cdev->client, reset);
+ 	clear_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state);
+ 	i40e_client_release_qvlist(&cdev->lan_info);
+@@ -376,7 +380,6 @@ void i40e_client_subtask(struct i40e_pf *pf)
+ 				/* Remove failed client instance */
+ 				clear_bit(__I40E_CLIENT_INSTANCE_OPENED,
+ 					  &cdev->state);
+-				i40e_client_del_instance(pf);
+ 				return;
+ 			}
+ 		}
 -- 
 2.35.1
 
