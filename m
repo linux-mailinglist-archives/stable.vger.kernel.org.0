@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8348F5B7369
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EE45B731D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235416AbiIMPHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35494 "EHLO
+        id S234567AbiIMO6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235361AbiIMPGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:06:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672A974DC9;
-        Tue, 13 Sep 2022 07:30:36 -0700 (PDT)
+        with ESMTP id S234751AbiIMO4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:56:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F1173318;
+        Tue, 13 Sep 2022 07:27:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2333BB80F1A;
-        Tue, 13 Sep 2022 14:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8835AC433D6;
-        Tue, 13 Sep 2022 14:30:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DC08614AA;
+        Tue, 13 Sep 2022 14:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7997C433D6;
+        Tue, 13 Sep 2022 14:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079428;
-        bh=fVTPf3kZWUEOzXkJeJsw7Qw1cjNO7q4MAtA0lzT95Qs=;
+        s=korg; t=1663079270;
+        bh=J6bY75iJ1h9Z6yJ8vIVGtMGTgX8TS40R6GyThvgxfUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PD7QvzD3rywL1xBJ6C/lWaOkPluZhga8Qb/eDJOHp7dpLj8BEujG229zZZ0zq/by5
-         di5pU4knr7CX5NZQ9ORSbk683iJ3Z21EDOWcphcrp7JQXM0insykqolmi3WdUSEFGO
-         Qp+JpxzY6kWe6pmuQyv4XMLOcdoFuERAoTyxSKQ0=
+        b=knPfcQ0qF9aXocJoEEFzqIjUSjbZsAblO034c0+862fnPBvz8TX5wUIJOmNIvB7zY
+         SK57zSTHmGIRrI3y1W03vtr7UguVDjZu4vidasPxdo1cHKrVBTj/8lfWPE5f2Iu6X9
+         OLcUwpDQ/rs5YwNsrrzGgjlIVwjjQwmXwZikZOUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
-        stable <stable@kernel.org>,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 22/79] vt: Clear selection before changing the font
+        stable@vger.kernel.org, Candice Li <candice.li@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 069/108] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
 Date:   Tue, 13 Sep 2022 16:06:40 +0200
-Message-Id: <20220913140349.970511449@linuxfoundation.org>
+Message-Id: <20220913140356.583163802@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Candice Li <candice.li@amd.com>
 
-commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-When changing the console font with ioctl(KDFONTOP) the new font size
-can be bigger than the previous font. A previous selection may thus now
-be outside of the new screen size and thus trigger out-of-bounds
-accesses to graphics memory if the selection is removed in
-vc_do_resize().
+No need to set up rb when no gfx rings.
 
-Prevent such out-of-memory accesses by dropping the selection before the
-various con_font_set() console handlers are called.
-
-Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
-Cc: stable <stable@kernel.org>
-Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Candice Li <candice.li@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4518,9 +4518,11 @@ static int con_font_set(struct vc_data *
- 	console_lock();
- 	if (vc->vc_mode != KD_TEXT)
- 		rc = -EINVAL;
--	else if (vc->vc_sw->con_font_set)
-+	else if (vc->vc_sw->con_font_set) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	kfree(font.data);
-@@ -4547,9 +4549,11 @@ static int con_font_default(struct vc_da
- 		console_unlock();
- 		return -EINVAL;
- 	}
--	if (vc->vc_sw->con_font_default)
-+	if (vc->vc_sw->con_font_default) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_default(vc, &font, s);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	if (!rc) {
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 5906a8951a6c6..685a2df01d096 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2472,7 +2472,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
+ 
+ 	gfx_v9_0_tiling_mode_table_init(adev);
+ 
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
+ 
+-- 
+2.35.1
+
 
 
