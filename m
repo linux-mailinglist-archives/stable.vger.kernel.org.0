@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32EE95B717F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10E9B5B7262
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234109AbiIMOjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42920 "EHLO
+        id S231221AbiIMOzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:55:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234293AbiIMOiI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:38:08 -0400
+        with ESMTP id S234520AbiIMOwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:52:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998571A06C;
-        Tue, 13 Sep 2022 07:20:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA19672862;
+        Tue, 13 Sep 2022 07:26:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32995B80F97;
-        Tue, 13 Sep 2022 14:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7077C433C1;
-        Tue, 13 Sep 2022 14:15:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB9D6B80F63;
+        Tue, 13 Sep 2022 14:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4688BC433D6;
+        Tue, 13 Sep 2022 14:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078509;
-        bh=Z0bdRwJRx2hRph/ehR3joONAbjxa+dBUIaXZ3nA3/24=;
+        s=korg; t=1663079027;
+        bh=jQCjhAuq4MYXaN2FV0uEHPja8Iz3wHeP1C5BLT6RLIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJ8iN8Rc16isRM6vCLkpRluabZXRxGSw6hMPd0pwKsZgTlAEnkE/yjOslUpdYsKrK
-         yL/eiQQLlFJeCJwxD4oTI1BT27hW3m27QuC3kJpGMH011BHxUIOVGzKHU3ezeQlfOL
-         4Sd++twvnjgASHVWA/CnC08/Nu5VWrXYKpUEJHJY=
+        b=jPkSwRnueVaL3e1PuZCeKGHHZWjy6yZw2P2hqvO8VHWUbqk+uhxmhdUAEDKvD5xrs
+         3fcD9gO+95273HUqjqSgNiS2Mx0qXUI9XB//YENa4bQSmtl4Fv06o3A7zh6wFrb6U3
+         uVI8O7JE+U1ZWY5a3ZZ97ye0vVAmdbDgmxNsjKxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Gao <chao.gao@intel.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 168/192] swiotlb: avoid potential left shift overflow
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.10 29/79] nvmet: fix a use-after-free
 Date:   Tue, 13 Sep 2022 16:04:34 +0200
-Message-Id: <20220913140418.402401555@linuxfoundation.org>
+Message-Id: <20220913140351.708709951@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Gao <chao.gao@intel.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 3f0461613ebcdc8c4073e235053d06d5aa58750f ]
+commit 6a02a61e81c231cc5c680c5dbf8665275147ac52 upstream.
 
-The second operand passed to slot_addr() is declared as int or unsigned int
-in all call sites. The left-shift to get the offset of a slot can overflow
-if swiotlb size is larger than 4G.
+Fix the following use-after-free complaint triggered by blktests nvme/004:
 
-Convert the macro to an inline function and declare the second argument as
-phys_addr_t to avoid the potential overflow.
+BUG: KASAN: user-memory-access in blk_mq_complete_request_remote+0xac/0x350
+Read of size 4 at addr 0000607bd1835943 by task kworker/13:1/460
+Workqueue: nvmet-wq nvme_loop_execute_work [nvme_loop]
+Call Trace:
+ show_stack+0x52/0x58
+ dump_stack_lvl+0x49/0x5e
+ print_report.cold+0x36/0x1e2
+ kasan_report+0xb9/0xf0
+ __asan_load4+0x6b/0x80
+ blk_mq_complete_request_remote+0xac/0x350
+ nvme_loop_queue_response+0x1df/0x275 [nvme_loop]
+ __nvmet_req_complete+0x132/0x4f0 [nvmet]
+ nvmet_req_complete+0x15/0x40 [nvmet]
+ nvmet_execute_io_connect+0x18a/0x1f0 [nvmet]
+ nvme_loop_execute_work+0x20/0x30 [nvme_loop]
+ process_one_work+0x56e/0xa70
+ worker_thread+0x2d1/0x640
+ kthread+0x183/0x1c0
+ ret_from_fork+0x1f/0x30
 
-Fixes: 26a7e094783d ("swiotlb: refactor swiotlb_tbl_map_single")
-Signed-off-by: Chao Gao <chao.gao@intel.com>
-Reviewed-by: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: stable@vger.kernel.org
+Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/swiotlb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvme/target/core.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 5830dce6081b3..ce34d50f7a9bb 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -464,7 +464,10 @@ static void swiotlb_bounce(struct device *dev, phys_addr_t tlb_addr, size_t size
- 	}
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -730,6 +730,8 @@ static void nvmet_set_error(struct nvmet
+ 
+ static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
+ {
++	struct nvmet_ns *ns = req->ns;
++
+ 	if (!req->sq->sqhd_disabled)
+ 		nvmet_update_sq_head(req);
+ 	req->cqe->sq_id = cpu_to_le16(req->sq->qid);
+@@ -740,9 +742,9 @@ static void __nvmet_req_complete(struct
+ 
+ 	trace_nvmet_req_complete(req);
+ 
+-	if (req->ns)
+-		nvmet_put_namespace(req->ns);
+ 	req->ops->queue_response(req);
++	if (ns)
++		nvmet_put_namespace(ns);
  }
  
--#define slot_addr(start, idx)	((start) + ((idx) << IO_TLB_SHIFT))
-+static inline phys_addr_t slot_addr(phys_addr_t start, phys_addr_t idx)
-+{
-+	return start + (idx << IO_TLB_SHIFT);
-+}
- 
- /*
-  * Carefully handle integer overflow which can occur when boundary_mask == ~0UL.
--- 
-2.35.1
-
+ void nvmet_req_complete(struct nvmet_req *req, u16 status)
 
 
