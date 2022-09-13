@@ -2,170 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8256E5B76A5
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E01595B7662
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbiIMQoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 12:44:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
+        id S229887AbiIMQXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 12:23:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbiIMQoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:44:24 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4593BC2B;
-        Tue, 13 Sep 2022 08:39:00 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28DEBKHs007317;
-        Tue, 13 Sep 2022 14:53:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Q97aEngNRdvGPLm2q/BFnsSsYf87cDWPq/dqfDKCPCg=;
- b=mT4I68SmOLgwI8qFT5NONdAOSb6ZJllMuv/LwsWtF4agEWC5NWkieD1HRdODy8i/YK8S
- EyuHh+ptravL1D27ZdlQg/MHZQF3JKzugnAY06BAWHH2ZQ6EnogNbSVFBfiavoUM2xTA
- 82/9FiQvH3z29qxWqaJCMSPDsN+hJn6a7jkMPywmTgUGsYa/NeasKP6gMn6rArk0tkue
- nxhNAU/ikMFkInEHniPmXAWMi6hbhG9MWUPXTLiRS/b6GwPbXeHp28B2UDjgHsAAyLt5
- l9uF4b1NDEPPmotfLP6svfnFwNSakFzkevNdUZAkh8xQIvux2gM4l3Y+BrJrHPbhSE7q Ag== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jjtfjv8ac-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:53:53 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28DDAXXG016041;
-        Tue, 13 Sep 2022 14:53:52 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jjtfjv89x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:53:52 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28DEpsbA025296;
-        Tue, 13 Sep 2022 14:53:52 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma01dal.us.ibm.com with ESMTP id 3jgj7a1tj7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:53:52 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28DErosY9896500
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Sep 2022 14:53:50 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ADF70124052;
-        Tue, 13 Sep 2022 14:53:50 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 247DB124053;
-        Tue, 13 Sep 2022 14:53:50 +0000 (GMT)
-Received: from [9.160.74.225] (unknown [9.160.74.225])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Sep 2022 14:53:50 +0000 (GMT)
-Message-ID: <7c222f64-3f06-5184-31c3-be557051c6fa@linux.ibm.com>
-Date:   Tue, 13 Sep 2022 10:53:49 -0400
+        with ESMTP id S231891AbiIMQXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:23:07 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBD8A925A
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 08:17:55 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1oY7e1-0005K2-JO; Tue, 13 Sep 2022 17:16:13 +0200
+Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1oY7e1-0001yU-1A; Tue, 13 Sep 2022 17:16:13 +0200
+Date:   Tue, 13 Sep 2022 17:16:12 +0200
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        linux-kernel@vger.kernel.org, linux-amarula@amarulasolutions.com,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, dmaengine@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3] dmaengine: mxs: fix driver registering
+Message-ID: <20220913151612.GI12909@pengutronix.de>
+References: <20220614101751.3636028-1-dario.binacchi@amarulasolutions.com>
+ <Yqs3E0ipEpsCT2T2@matsya>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 2/2] s390/vfio-ap: fix unlinking of queues from the
- mdev
-Content-Language: en-US
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, stable@vger.kernel.org
-References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
- <20220823150643.427737-3-akrowiak@linux.ibm.com>
- <20220913160708.50466335.pasic@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220913160708.50466335.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3TVdiP9lvKgp6_vFTTZrHYdcdqxd8fvD
-X-Proofpoint-ORIG-GUID: BELhWXQtiocM6owscKt1yentPVpm78O7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-13_06,2022-09-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 mlxscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
- malwarescore=0 adultscore=0 spamscore=0 impostorscore=0 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209130066
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yqs3E0ipEpsCT2T2@matsya>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Vinod,
 
-On 9/13/22 10:07 AM, Halil Pasic wrote:
-> On Tue, 23 Aug 2022 11:06:43 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> The vfio_ap_mdev_unlink_adapter and vfio_ap_mdev_unlink_domain functions
->> add the associated vfio_ap_queue objects to the hashtable that links them
->> to the matrix mdev to which their APQN is assigned. In order to unlink
->> them, they must be deleted from the hashtable; if not, they will continue
->> to be reset whenever userspace closes the mdev fd or removes the mdev.
->> This patch fixes that issue.
-> I'm not so sure about that!
->
->> Cc: stable@vger.kernel.org
->> Fixes: 70aeefe574cb ("s390/vfio-ap: reset queues after adapter/domain unassignment")
->> Reported-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 6 ++----
->>   1 file changed, 2 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index ee82207b4e60..2493926b5dfb 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -1049,8 +1049,7 @@ static void vfio_ap_mdev_unlink_adapter(struct ap_matrix_mdev *matrix_mdev,
->>   		if (q && qtable) {
->>   			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
->>   			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
->> -				hash_add(qtable->queues, &q->mdev_qnode,
->> -					 q->apqn);
-> Careful qtable->queues is not supposed to be the same as
-> matrix_mdev->qtable.queues it is rather a function local
-> qtable that you use to know which queues were unlinked and
-> need resetting.
+On Thu, Jun 16, 2022 at 06:58:43AM -0700, Vinod Koul wrote:
+> On 14-06-22, 12:17, Dario Binacchi wrote:
+> > Driver registration fails on SOC imx8mn as its supplier, the clock
+> > control module, is not ready. Since platform_driver_probe(), as
+> > reported by its description, is incompatible with deferred probing,
+> > we have to use platform_driver_register().
+> > 
+> > Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+> > Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+> > Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> > Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+> > Cc: stable@vger.kernel.org
+> > 
+> > ---
+> > 
+> > Changes in v3:
+> > - Restore __init in front of mxs_dma_init() definition.
+> > 
+> > Changes in v2:
+> > - Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
+> > 
+> >  drivers/dma/mxs-dma.c | 9 +++------
+> >  1 file changed, 3 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+> > index 994fc4d2aca4..6e90540fedc4 100644
+> > --- a/drivers/dma/mxs-dma.c
+> > +++ b/drivers/dma/mxs-dma.c
+> > @@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(struct of_phandle_args *dma_spec,
+> >  				     ofdma->of_node);
+> >  }
+> >  
+> > -static int __init mxs_dma_probe(struct platform_device *pdev)
+> > +static int mxs_dma_probe(struct platform_device *pdev)
+> 
+> why drop __init here, if there is a reason for that please split this
+> change and document such reason...
 
+The reason for dropping __init comes with this patch. With
+platform_driver_probe() the probe function is called only once, during
+init time. The problem with platform_driver_probe() is that the probe
+function will never be called again when it initially returns
+-EPROBE_DEFER. That's a problem for Dario: The clock is not yet
+available, the driver defers probe and will never be probed again
+when the clock is finally available.
 
-You are correct. This patch is unnecessary.
+With platform_driver_register() to which this patch switches to the
+probe function can be called at any time, thus __init has to be removed.
 
+For what it's worth:
 
->
-> Have a look at vfio_ap_mdev_hot_unplug_adapter()
->
->> +				vfio_ap_unlink_queue_fr_mdev(q);
-> IMHO this change is completely bogous. BTW
-> vfio_ap_unlink_apqn_fr_mdev() a couple of lines above in the source
-> (not seen in diff context) calls vfio_ap_unlink_queue_fr_mdev().
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
 
+for this patch.
 
-After further review, this patch is not only bogus, it is not necessary.
+Sascha
 
+> 
+> >  {
+> >  	struct device_node *np = pdev->dev.of_node;
+> >  	const struct mxs_dma_type *dma_type;
+> > @@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_driver = {
+> >  		.name	= "mxs-dma",
+> >  		.of_match_table = mxs_dma_dt_ids,
+> >  	},
+> > +	.probe = mxs_dma_probe,
+> >  };
+> >  
+> > -static int __init mxs_dma_module_init(void)
+> > -{
+> > -	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+> > -}
+> > -subsys_initcall(mxs_dma_module_init);
+> > +module_platform_driver(mxs_dma_driver);
+> > -- 
+> > 2.32.0
+> 
+> -- 
+> ~Vinod
+> 
 
->
->>   		}
->>   	}
->>   }
->> @@ -1236,8 +1235,7 @@ static void vfio_ap_mdev_unlink_domain(struct ap_matrix_mdev *matrix_mdev,
->>   		if (q && qtable) {
->>   			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
->>   			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
->> -				hash_add(qtable->queues, &q->mdev_qnode,
->> -					 q->apqn);
->> +				vfio_ap_unlink_queue_fr_mdev(q);
-> Same as above...
->
-> Regards,
-> Halil
->
->>   		}
->>   	}
->>   }
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
