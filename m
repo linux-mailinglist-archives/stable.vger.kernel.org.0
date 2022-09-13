@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7096E5B6F2A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B255B6F44
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232463AbiIMOJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:09:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50738 "EHLO
+        id S232698AbiIMOJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232400AbiIMOIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:08:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6473F5926E;
-        Tue, 13 Sep 2022 07:08:32 -0700 (PDT)
+        with ESMTP id S232504AbiIMOJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:09:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379CD5A3F8;
+        Tue, 13 Sep 2022 07:08:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5440A6149A;
-        Tue, 13 Sep 2022 14:08:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CFCC433D6;
-        Tue, 13 Sep 2022 14:08:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B08BB80EF7;
+        Tue, 13 Sep 2022 14:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1FCAC433D6;
+        Tue, 13 Sep 2022 14:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078110;
-        bh=4q8krE1FsncwNTfSC0uky0pPAGgOhmkWebSZonlFBbA=;
+        s=korg; t=1663078113;
+        bh=LXXESQFZeMiM+LvQ0dyQmg95VatyXmUWdzh/vp/CRJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZoUyRxdUmBD8Ym+GfHVMnYX/+K+YJfCH8TxL2z79U/7ZhDdMpjrBifh+aOvbcAhf
-         N7xFtJSS9/dTG0ZIJ+igg79URI9JIIU1HgNlWKDErjU1uHkzH3bc+zoD1VHh3teBAE
-         1yT5Ey37iSFis7QRVvlpcPA3BcHt0ntOx1b87B5U=
+        b=pN6Rsb/k7McalivOg4za69vLBHsL27JsReivfnseXt25OLLpynFypYB0ScpEvAuGC
+         qv7JLNS/OpWXT6T019W9AhV9wBCnijU3s6S+dBWGY0tlvdMs9apDfagcMzFJN1vnMM
+         jxDYBP7EoIFLOHsF8Sp7Qmrc2CIJTIK8IgUgo7/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Fengwei Yin <fengwei.yin@intel.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.19 006/192] fs: only do a memory barrier for the first set_buffer_uptodate()
-Date:   Tue, 13 Sep 2022 16:01:52 +0200
-Message-Id: <20220913140410.318879112@linuxfoundation.org>
+        stable@vger.kernel.org, Mathew McBride <matt@traverse.com.au>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.19 007/192] soc: fsl: select FSL_GUTS driver for DPIO
+Date:   Tue, 13 Sep 2022 16:01:53 +0200
+Message-Id: <20220913140410.360737792@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -56,72 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Mathew McBride <matt@traverse.com.au>
 
-commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
+commit 9a472613f5bccf1b36837423495ae592a9c5182f upstream.
 
-Commit d4252071b97d ("add barriers to buffer_uptodate and
-set_buffer_uptodate") added proper memory barriers to the buffer head
-BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
-will be guaranteed to actually see initialized state.
+The soc/fsl/dpio driver will perform a soc_device_match()
+to determine the optimal cache settings for a given CPU core.
 
-However, that commit didn't _just_ add the memory barrier, it also ended
-up dropping the "was it already set" logic that the BUFFER_FNS() macro
-had.
+If FSL_GUTS is not enabled, this search will fail and
+the driver will not configure cache stashing for the given
+DPIO, and a string of "unknown SoC" messages will appear:
 
-That's conceptually the right thing for a generic "this is a memory
-barrier" operation, but in the case of the buffer contents, we really
-only care about the memory barrier for the _first_ time we set the bit,
-in that the only memory ordering protection we need is to avoid anybody
-seeing uninitialized memory contents.
+fsl_mc_dpio dpio.7: unknown SoC version
+fsl_mc_dpio dpio.6: unknown SoC version
+fsl_mc_dpio dpio.5: unknown SoC version
 
-Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
-and would require some other proper lock (typically BH_Lock or the folio
-lock).  A reader that races with somebody invalidating the buffer head
-isn't an issue wrt the memory ordering, it's a serialization issue.
-
-Now, you'd think that the buffer head operations don't matter in this
-day and age (and I certainly thought so), but apparently some loads
-still end up being heavy users of buffer heads.  In particular, the
-kernel test robot reported that not having this bit access optimization
-in place caused a noticeable direct IO performance regression on ext4:
-
-  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
-
-although you presumably need a fast disk and a lot of cores to actually
-notice.
-
-Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Fengwei Yin <fengwei.yin@intel.com>
-Cc: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 51da14e96e9b ("soc: fsl: dpio: configure cache stashing destination")
+Signed-off-by: Mathew McBride <matt@traverse.com.au>
+Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220901052149.23873-2-matt@traverse.com.au'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/buffer_head.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/soc/fsl/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -137,6 +137,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
- static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
- {
- 	/*
-+	 * If somebody else already set this uptodate, they will
-+	 * have done the memory barrier, and a reader will thus
-+	 * see *some* valid buffer state.
-+	 *
-+	 * Any other serialization (with IO errors or whatever that
-+	 * might clear the bit) has to come from other state (eg BH_Lock).
-+	 */
-+	if (test_bit(BH_Uptodate, &bh->b_state))
-+		return;
-+
-+	/*
- 	 * make it consistent with folio_mark_uptodate
- 	 * pairs with smp_load_acquire in buffer_uptodate
- 	 */
+--- a/drivers/soc/fsl/Kconfig
++++ b/drivers/soc/fsl/Kconfig
+@@ -24,6 +24,7 @@ config FSL_MC_DPIO
+         tristate "QorIQ DPAA2 DPIO driver"
+         depends on FSL_MC_BUS
+         select SOC_BUS
++        select FSL_GUTS
+         select DIMLIB
+         help
+ 	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
 
 
