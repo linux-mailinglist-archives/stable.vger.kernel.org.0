@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDBA05B72D2
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D175B72E6
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234832AbiIMO4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51208 "EHLO
+        id S234877AbiIMO4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235057AbiIMOzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:55:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDD967455;
-        Tue, 13 Sep 2022 07:27:27 -0700 (PDT)
+        with ESMTP id S235066AbiIMOzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:55:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710ED72FDF;
+        Tue, 13 Sep 2022 07:27:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DBF0614AA;
-        Tue, 13 Sep 2022 14:27:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9815DC433C1;
-        Tue, 13 Sep 2022 14:27:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A6F061497;
+        Tue, 13 Sep 2022 14:27:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2DDC433C1;
+        Tue, 13 Sep 2022 14:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079243;
-        bh=YLvaDxd/FE79/q/Iy23pWP/PXEWDZnOJVJRIS3CaBTU=;
+        s=korg; t=1663079245;
+        bh=CIDHk/8G8t16DqU+hCPOXVd+IMcvaQRlHuc2b5TIu7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPkzLSzH1HycxLkA0Ho+CcccvprpR27smPpC82k9PeNMKfmxgVI6IaN56YNN8EMBy
-         R+a+LTb2DLN0NVB1pMvyTeOx7+ANYTmM5VTwEekMjD6bsCbCWcYyzGJYRZhipRhfiu
-         IIHqnOzjdcv/83cjYeqMx90GLq3ZdMRjmN4z1Sbk=
+        b=pmenMikcb2eG2YLyoLfiHN5N/63eOj86SWB4RqJlY4ghJykahmOlPEf/h8KCgcC7o
+         EyNRnVAgQd2t5vqgXRh6OO3c77WcZm7KGcOmQuYUT43R9ua+tihI6e0xIiPEhfFIur
+         RrKkXeBVRBZP77d0gkKd1MlCvD5omTU0ZAUo33Qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 032/108] usb: dwc3: qcom: fix use-after-free on runtime-PM wakeup
-Date:   Tue, 13 Sep 2022 16:06:03 +0200
-Message-Id: <20220913140355.026878071@linuxfoundation.org>
+Subject: [PATCH 5.4 033/108] drm/i915/reg: Fix spelling mistake "Unsupport" -> "Unsupported"
+Date:   Tue, 13 Sep 2022 16:06:04 +0200
+Message-Id: <20220913140355.069591608@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -55,80 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit a872ab303d5ddd4c965f9cd868677781a33ce35a ]
+[ Upstream commit 233f56745be446b289edac2ba8184c09365c005e ]
 
-The Qualcomm dwc3 runtime-PM implementation checks the xhci
-platform-device pointer in the wakeup-interrupt handler to determine
-whether the controller is in host mode and if so triggers a resume.
+There is a spelling mistake in a gvt_vgpu_err error message. Fix it.
 
-After a role switch in OTG mode the xhci platform-device would have been
-freed and the next wakeup from runtime suspend would access the freed
-memory.
-
-Note that role switching is executed from a freezable workqueue, which
-guarantees that the pointer is stable during suspend.
-
-Also note that runtime PM has been broken since commit 2664deb09306
-("usb: dwc3: qcom: Honor wakeup enabled/disabled state"), which
-incidentally also prevents this issue from being triggered.
-
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Cc: stable@vger.kernel.org      # 4.18
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220804151001.23612-5-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 695fbc08d80f ("drm/i915/gvt: replace the gvt_err with gvt_vgpu_err")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220315202449.2952845-1-colin.i.king@gmail.com
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c | 14 +++++++++++++-
- drivers/usb/dwc3/host.c      |  1 +
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gvt/handlers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index 7874b97e33227..aed35276e0e0c 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -190,6 +190,14 @@ static int dwc3_qcom_register_extcon(struct dwc3_qcom *qcom)
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/i915/gvt/handlers.c b/drivers/gpu/drm/i915/gvt/handlers.c
+index 245c20d36f1b2..45ffccdcd50e7 100644
+--- a/drivers/gpu/drm/i915/gvt/handlers.c
++++ b/drivers/gpu/drm/i915/gvt/handlers.c
+@@ -654,7 +654,7 @@ static int update_fdi_rx_iir_status(struct intel_vgpu *vgpu,
+ 	else if (FDI_RX_IMR_TO_PIPE(offset) != INVALID_INDEX)
+ 		index = FDI_RX_IMR_TO_PIPE(offset);
+ 	else {
+-		gvt_vgpu_err("Unsupport registers %x\n", offset);
++		gvt_vgpu_err("Unsupported registers %x\n", offset);
+ 		return -EINVAL;
+ 	}
  
-+/* Only usable in contexts where the role can not change. */
-+static bool dwc3_qcom_is_host(struct dwc3_qcom *qcom)
-+{
-+	struct dwc3 *dwc = platform_get_drvdata(qcom->dwc3);
-+
-+	return dwc->xhci;
-+}
-+
- static void dwc3_qcom_disable_interrupts(struct dwc3_qcom *qcom)
- {
- 	if (qcom->hs_phy_irq) {
-@@ -297,7 +305,11 @@ static irqreturn_t qcom_dwc3_resume_irq(int irq, void *data)
- 	if (qcom->pm_suspended)
- 		return IRQ_HANDLED;
- 
--	if (dwc->xhci)
-+	/*
-+	 * This is safe as role switching is done from a freezable workqueue
-+	 * and the wakeup interrupts are disabled as part of resume.
-+	 */
-+	if (dwc3_qcom_is_host(qcom))
- 		pm_runtime_resume(&dwc->xhci->dev);
- 
- 	return IRQ_HANDLED;
-diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
-index fa252870c926f..38bcb079ffc74 100644
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -128,4 +128,5 @@ int dwc3_host_init(struct dwc3 *dwc)
- void dwc3_host_exit(struct dwc3 *dwc)
- {
- 	platform_device_unregister(dwc->xhci);
-+	dwc->xhci = NULL;
- }
 -- 
 2.35.1
 
