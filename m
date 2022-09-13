@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0B05B70CF
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7D05B7450
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbiIMOZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:25:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40734 "EHLO
+        id S233745AbiIMPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233802AbiIMOYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07AC567153;
-        Tue, 13 Sep 2022 07:16:12 -0700 (PDT)
+        with ESMTP id S235898AbiIMPW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F07BC6B150;
+        Tue, 13 Sep 2022 07:37:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E392B614B6;
-        Tue, 13 Sep 2022 14:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04BB0C433D6;
-        Tue, 13 Sep 2022 14:14:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2390B80FB3;
+        Tue, 13 Sep 2022 14:22:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2B3C433C1;
+        Tue, 13 Sep 2022 14:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078474;
-        bh=0WUSAHzDPnUJpssAr6xyDkhaDThbrR9BMKnWYqJ6Iw4=;
+        s=korg; t=1663078927;
+        bh=1wO7DfF498rD4O38iH/xjTcXglbbaRIhBSXhOTVpHoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDbEt3hGkgU6fWrqVwS7E6Fjuxbv/5fO1hLlMzVfaL/C3V1rNcYPxeop95EJRE8/m
-         xECj683wqrwOz4OObk30z6nUsE2XaJILR7Wgbk2zL/iejX999vjLmcPoTmjm8RBDiQ
-         nPPNYDt0YLqj4Vz0v/Lt4cmbttNDzCvzBDxYWr9M=
+        b=khRU6WdCMu75XtZ+gJTTGNR3gC04mRewe2//wkMPgW03b8k4aVe77QMP6gOCYsY27
+         hG3YpOL5FsMsAzCOcFJ3iOx/LjPMa7aVkTniOFtjBmPSj8zFN2L/7Z+kkeTTxPUyXU
+         WcQXryOlZ3NBAjXnRVM8o1jDex8U+hKObWTeIIw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Candice Li <candice.li@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 153/192] perf dlfilter dlfilter-show-cycles: Fix types for print format
-Date:   Tue, 13 Sep 2022 16:04:19 +0200
-Message-Id: <20220913140417.647477709@linuxfoundation.org>
+Subject: [PATCH 5.10 15/79] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
+Date:   Tue, 13 Sep 2022 16:04:20 +0200
+Message-Id: <20220913140351.034170919@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit 1706623e940347ad23fdf77910eca4905dc37f91 ]
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-Avoid compiler warning about format %llu that expects long long unsigned
-int but argument has type __u64.
+No need to set up rb when no gfx rings.
 
-Reported-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Fixes: c3afd6e50fce824f ("perf dlfilter: Add dlfilter-show-cycles")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20220905074735.4513-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Candice Li <candice.li@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/dlfilters/dlfilter-show-cycles.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/dlfilters/dlfilter-show-cycles.c b/tools/perf/dlfilters/dlfilter-show-cycles.c
-index 9eccc97bff82f..6d47298ebe9f6 100644
---- a/tools/perf/dlfilters/dlfilter-show-cycles.c
-+++ b/tools/perf/dlfilters/dlfilter-show-cycles.c
-@@ -98,9 +98,9 @@ int filter_event_early(void *data, const struct perf_dlfilter_sample *sample, vo
- static void print_vals(__u64 cycles, __u64 delta)
- {
- 	if (delta)
--		printf("%10llu %10llu ", cycles, delta);
-+		printf("%10llu %10llu ", (unsigned long long)cycles, (unsigned long long)delta);
- 	else
--		printf("%10llu %10s ", cycles, "");
-+		printf("%10llu %10s ", (unsigned long long)cycles, "");
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 405bb3efa2a96..38f4c7474487b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2570,7 +2570,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
  
- int filter_event(void *data, const struct perf_dlfilter_sample *sample, void *ctx)
+ 	gfx_v9_0_tiling_mode_table_init(adev);
+ 
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
+ 
 -- 
 2.35.1
 
