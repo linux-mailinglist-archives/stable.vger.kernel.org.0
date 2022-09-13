@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 216F15B721D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 665495B711E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231252AbiIMOqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:46:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
+        id S233100AbiIMOjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231167AbiIMOop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:44:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 553136F26C;
-        Tue, 13 Sep 2022 07:24:02 -0700 (PDT)
+        with ESMTP id S234211AbiIMOhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:37:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A715C6B65D;
+        Tue, 13 Sep 2022 07:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50C746149A;
-        Tue, 13 Sep 2022 14:22:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 676ABC433D7;
-        Tue, 13 Sep 2022 14:22:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08010B80D87;
+        Tue, 13 Sep 2022 14:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704C2C433C1;
+        Tue, 13 Sep 2022 14:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078932;
-        bh=F4JNBWRRsruom+7qycrtF3bC1w50tyrEdpDUdXtc/3k=;
+        s=korg; t=1663078829;
+        bh=sJERrPUAwCBI0ASN54+KpYx7+Q3ky4neYCJzCXJ+fOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZ/x0Fdel7GhwYi/+F5W1zulaJ8iGUMnpvUPGW7dfkNRTTWRO/kfdlq6ysf3GhvRE
-         Mmn83LOxQZQPR1JhUm0Y9emm6tu08DNH9meOn7igSknm/9U3YsYNX8coSc7c7Jp65W
-         RCZ9QAzcAMSWZO25D8Xi79nED0KJI7LaUIkHtHTc=
+        b=u1q6r0pNEyuWWVFay3/TtAsdS7lR/+FpUCPURjltvWYm2jvn7HjuBRKS71xvldu2W
+         ccyMGEtQFonDnczIHzXyLWFINYGF5gC8SC16var7Yv+dEWOV5EOFx0ZHZ7qPU2jvVH
+         FhkTDwtigG3p5ZtvqbyGyKTPuCmVkBDSZNX2CksE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Qiong <liqiong@nfschina.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/79] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
-Date:   Tue, 13 Sep 2022 16:04:22 +0200
-Message-Id: <20220913140351.129225955@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 072/121] ALSA: usb-audio: Register card again for iface over delayed_register option
+Date:   Tue, 13 Sep 2022 16:04:23 +0200
+Message-Id: <20220913140400.465277446@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Qiong <liqiong@nfschina.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
+[ Upstream commit 2027f114686e0f3f1f39971964dfc618637c88c2 ]
 
-As the possible failure of the kmalloc(), it should be better
-to fix this error path, check and return '-ENOMEM' error code.
+When the delayed registration is specified via either delayed_register
+option or the quirk, we delay the invocation of snd_card_register()
+until the given interface.  But if a wrong value has been set there
+and there are more interfaces over the given interface number,
+snd_card_register() call would be missing for those interfaces.
 
-Signed-off-by: Li Qiong <liqiong@nfschina.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+This patch catches up those missing calls by fixing the comparison of
+the interface number.  Now the call is skipped only if the processed
+interface is less than the given interface, instead of the exact
+match.
+
+Fixes: b70038ef4fea ("ALSA: usb-audio: Add delayed_register option")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216082
+Link: https://lore.kernel.org/r/20220831125901.4660-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parisc/ccio-dma.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ sound/usb/card.c   | 2 +-
+ sound/usb/quirks.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index b916fab9b1618..ffd5000c23d39 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1380,15 +1380,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index ff5f8de1bc540..713b84d8d42f1 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -698,7 +698,7 @@ static bool check_delayed_register_option(struct snd_usb_audio *chip, int iface)
+ 		if (delayed_register[i] &&
+ 		    sscanf(delayed_register[i], "%x:%x", &id, &inum) == 2 &&
+ 		    id == chip->usb_id)
+-			return inum != iface;
++			return iface < inum;
  	}
- }
  
--static void __init ccio_init_resources(struct ioc *ioc)
-+static int __init ccio_init_resources(struct ioc *ioc)
- {
- 	struct resource *res = ioc->mmio_region;
- 	char *name = kmalloc(14, GFP_KERNEL);
--
-+	if (unlikely(!name))
-+		return -ENOMEM;
- 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
+ 	return false;
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 9bfead5efc4c1..5b4d8f5eade20 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1764,7 +1764,7 @@ bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface)
  
- 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
- 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
-+	return 0;
- }
+ 	for (q = registration_quirks; q->usb_id; q++)
+ 		if (chip->usb_id == q->usb_id)
+-			return iface != q->interface;
++			return iface < q->interface;
  
- static int new_ioc_area(struct resource *res, unsigned long size,
-@@ -1543,7 +1545,10 @@ static int __init ccio_probe(struct parisc_device *dev)
- 		return -ENOMEM;
- 	}
- 	ccio_ioc_init(ioc);
--	ccio_init_resources(ioc);
-+	if (ccio_init_resources(ioc)) {
-+		kfree(ioc);
-+		return -ENOMEM;
-+	}
- 	hppa_dma_ops = &ccio_ops;
- 
- 	hba = kzalloc(sizeof(*hba), GFP_KERNEL);
+ 	/* Register as normal */
+ 	return false;
 -- 
 2.35.1
 
