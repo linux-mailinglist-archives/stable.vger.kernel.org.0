@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF905B7215
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 904E95B71B6
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230350AbiIMOtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:49:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
+        id S234549AbiIMOuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:50:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbiIMOsX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50454C625;
-        Tue, 13 Sep 2022 07:24:57 -0700 (PDT)
+        with ESMTP id S234716AbiIMOtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B772671713;
+        Tue, 13 Sep 2022 07:25:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C35AB80F6F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBFF0614A1;
+        Tue, 13 Sep 2022 14:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111DFC433D6;
         Tue, 13 Sep 2022 14:23:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6197C433D6;
-        Tue, 13 Sep 2022 14:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079018;
-        bh=1jS7lZ4MEjDQmopBnisfmndMJSQPPn+ToR1lJO8xBUA=;
+        s=korg; t=1663079020;
+        bh=rOFZ/tyfp46rKkFDIEIxYIl8JuoXw4gA+39s6JhWeu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWogglnp+2e4AfNNY0qBL2qhS1X2o1GJCCKEIrluOoWWP5wbAMjlVbyJivcLcgzng
-         aPmzd4bquG9mIr/Llr398+n+ZSzaB9z3sZzvfLuefLfnEYhTRLlq/4egtUHan0OW1m
-         gXMDVNxFyu5bwWOz9lhukjk/HN+Ffp5VTtDWUgHI=
+        b=rQClm+720mrsm0Jtvnue2C3iToh7CXOPYZmkgGsB1b1QARi+63V/uvm2Fg2GoYbr3
+         oevF25S1hIevECrbQuDO8X3W6F1oeVuOJMA4iR6BClFHDzQv4Ca/ECbwTpAY28UpNu
+         uzpBdPOgTfPU3EsIkA1Ov4nwkBN0CYVzB7UToZFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 50/79] netfilter: nf_conntrack_irc: Fix forged IP logic
-Date:   Tue, 13 Sep 2022 16:04:55 +0200
-Message-Id: <20220913140352.668535270@linuxfoundation.org>
+Subject: [PATCH 5.10 51/79] ALSA: usb-audio: Inform the delayed registration more properly
+Date:   Tue, 13 Sep 2022 16:04:56 +0200
+Message-Id: <20220913140352.710747355@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
 References: <20220913140350.291927556@linuxfoundation.org>
@@ -54,41 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
+[ Upstream commit 7e1afce5866e02b45bf88c27dd7de1b9dfade1cc ]
 
-Ensure the match happens in the right direction, previously the
-destination used was the server, not the NAT host, as the comment
-shows the code intended.
+The info message that was added in the commit a4aad5636c72 ("ALSA:
+usb-audio: Inform devices that need delayed registration") is actually
+useful to know the need for the delayed registration.  However, it
+turned out that this doesn't catch the all cases; namely, this warned
+only when a PCM stream is attached onto the existing PCM instance, but
+it doesn't count for a newly created PCM instance.  This made
+confusion as if there were no further delayed registration.
 
-Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
-it can appear in a DCC message, so consider port 0 also forged.
+This patch moves the check to the code path for either adding a stream
+or creating a PCM instance.  Also, make it simpler by checking the
+card->registered flag instead of querying each snd_device state.
 
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: a4aad5636c72 ("ALSA: usb-audio: Inform devices that need delayed registration")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216082
+Link: https://lore.kernel.org/r/20220831125901.4660-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/usb/stream.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index e40988a2f22fb..26245419ef4a9 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -185,8 +185,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 
- 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
- 			tuple = &ct->tuplehash[dir].tuple;
--			if (tuple->src.u3.ip != dcc_ip &&
--			    tuple->dst.u3.ip != dcc_ip) {
-+			if ((tuple->src.u3.ip != dcc_ip &&
-+			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
-+			    dcc_port == 0) {
- 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
- 						     &tuple->src.u3.ip,
- 						     &dcc_ip, dcc_port);
+diff --git a/sound/usb/stream.c b/sound/usb/stream.c
+index 7711184a0d0bf..c4f4585f9b851 100644
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -496,6 +496,10 @@ static int __snd_usb_add_audio_stream(struct snd_usb_audio *chip,
+ 			return 0;
+ 		}
+ 	}
++
++	if (chip->card->registered)
++		chip->need_delayed_register = true;
++
+ 	/* look for an empty stream */
+ 	list_for_each_entry(as, &chip->pcm_list, list) {
+ 		if (as->fmt_type != fp->fmt_type)
+@@ -503,9 +507,6 @@ static int __snd_usb_add_audio_stream(struct snd_usb_audio *chip,
+ 		subs = &as->substream[stream];
+ 		if (subs->ep_num)
+ 			continue;
+-		if (snd_device_get_state(chip->card, as->pcm) !=
+-		    SNDRV_DEV_BUILD)
+-			chip->need_delayed_register = true;
+ 		err = snd_pcm_new_stream(as->pcm, stream, 1);
+ 		if (err < 0)
+ 			return err;
 -- 
 2.35.1
 
