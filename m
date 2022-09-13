@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC215B74F8
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7954F5B754F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236263AbiIMP3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
+        id S232123AbiIMPjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:39:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236415AbiIMP21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED9147DF7D;
-        Tue, 13 Sep 2022 07:39:08 -0700 (PDT)
+        with ESMTP id S236697AbiIMPio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3C22AE9;
+        Tue, 13 Sep 2022 07:44:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49B14614B7;
-        Tue, 13 Sep 2022 14:30:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D2FC433D6;
-        Tue, 13 Sep 2022 14:30:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84953614D2;
+        Tue, 13 Sep 2022 14:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB42C433D6;
+        Tue, 13 Sep 2022 14:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079401;
-        bh=+JRUnhSsb3qZnjCJWE7V6Qy4eCV8rMWMOG6/1fnFw8Y=;
+        s=korg; t=1663079315;
+        bh=K4dGkykxDeQfgG8iJRdoD0/3YR3v+GjHk/N6AhY71Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyIgdVgdKCdGCqy10r83g3KtLn6NJP9VZzHYw6jv35tZWPb4sLuvkYr4xQidUt5eg
-         mSSZ022arcuKlkSo2nqN3ElOkT3/HFDjyqlT6A5deJl4WTFWFgZ5vlvSG/9JJAHweI
-         u1b3+hD4HyCdfxNZN/DZCLnsC47gaZGLz16ndcwQ=
+        b=RbZJbz9K+lULo5D5zUQEBEuH2m5uKLn4f6Xyl/ZtWGAb9XO/j1clgce4IX2jzqv+3
+         RgILUdC5J6j+GvDfStMeuFYN3G3jtpVvZ10ropKuGa9g6iSdNH0yzGC629civJVgnP
+         4Q5RuKRKjsnqzoQyVNoisHULdDPIW9hQK7lgDF/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/79] wifi: cfg80211: debugfs: fix return type in ht40allow_map_read()
-Date:   Tue, 13 Sep 2022 16:06:30 +0200
-Message-Id: <20220913140349.443475434@linuxfoundation.org>
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 060/108] ALSA: seq: Fix data-race at module auto-loading
+Date:   Tue, 13 Sep 2022 16:06:31 +0200
+Message-Id: <20220913140356.202147261@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit d776763f48084926b5d9e25507a3ddb7c9243d5e ]
+commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
 
-The return type is supposed to be ssize_t, which is signed long,
-but "r" was declared as unsigned int.  This means that on 64 bit systems
-we return positive values instead of negative error codes.
+It's been reported that there is a possible data-race accessing to the
+global card_requested[] array at ALSA sequencer core, which is used
+for determining whether to call request_module() for the card or not.
+This data race itself is almost harmless, as it might end up with one
+extra request_module() call for the already loaded module at most.
+But it's still better to fix.
 
-Fixes: 80a3511d70e8 ("cfg80211: add debugfs HT40 allow map")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YutvOQeJm0UjLhwU@kili
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch addresses the possible data race of card_requested[] and
+client_requested[] arrays by replacing them with bitmask.
+It's an atomic operation and can work without locks.
+
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
+Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/debugfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/core/seq/seq_clientmgr.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/net/wireless/debugfs.c b/net/wireless/debugfs.c
-index 30fc6eb352bcc..e6410487e25da 100644
---- a/net/wireless/debugfs.c
-+++ b/net/wireless/debugfs.c
-@@ -68,9 +68,10 @@ static ssize_t ht40allow_map_read(struct file *file,
- {
- 	struct wiphy *wiphy = file->private_data;
- 	char *buf;
--	unsigned int offset = 0, buf_size = PAGE_SIZE, i, r;
-+	unsigned int offset = 0, buf_size = PAGE_SIZE, i;
- 	enum nl80211_band band;
- 	struct ieee80211_supported_band *sband;
-+	ssize_t r;
- 
- 	buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (!buf)
--- 
-2.35.1
-
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -121,13 +121,13 @@ struct snd_seq_client *snd_seq_client_us
+ 	spin_unlock_irqrestore(&clients_lock, flags);
+ #ifdef CONFIG_MODULES
+ 	if (!in_interrupt()) {
+-		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
+-		static char card_requested[SNDRV_CARDS];
++		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
++		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
++
+ 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
+ 			int idx;
+ 			
+-			if (!client_requested[clientid]) {
+-				client_requested[clientid] = 1;
++			if (!test_and_set_bit(clientid, client_requested)) {
+ 				for (idx = 0; idx < 15; idx++) {
+ 					if (seq_client_load[idx] < 0)
+ 						break;
+@@ -142,10 +142,8 @@ struct snd_seq_client *snd_seq_client_us
+ 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
+ 				SNDRV_SEQ_CLIENTS_PER_CARD;
+ 			if (card < snd_ecards_limit) {
+-				if (! card_requested[card]) {
+-					card_requested[card] = 1;
++				if (!test_and_set_bit(card, card_requested))
+ 					snd_request_card(card);
+-				}
+ 				snd_seq_device_load_drivers();
+ 			}
+ 		}
 
 
