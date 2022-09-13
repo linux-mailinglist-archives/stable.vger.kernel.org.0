@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68B585B71BD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB685B715D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230301AbiIMOoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40846 "EHLO
+        id S231334AbiIMOmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:42:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234446AbiIMOnf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72736E8AF;
-        Tue, 13 Sep 2022 07:23:02 -0700 (PDT)
+        with ESMTP id S231512AbiIMOmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B21D6DF90;
+        Tue, 13 Sep 2022 07:22:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D455614B0;
-        Tue, 13 Sep 2022 14:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ABD9C433D7;
-        Tue, 13 Sep 2022 14:21:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75C12B80F3B;
+        Tue, 13 Sep 2022 14:21:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2897C433D6;
+        Tue, 13 Sep 2022 14:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078860;
-        bh=/S2v/qI81B/+SK+yIQFjFhc3VMKsPvqNAN/wYyruoTU=;
+        s=korg; t=1663078863;
+        bh=e/NuIymlSXx+JrAmLYk6cJaM4wxQWWYlVF6glh+g7VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRr2BMbLUbButMYOSOwMBPIofQyG5Q5scOYQaAHZ8y29oVHTIXQsaTSaJl5QvYYIZ
-         AnyBfWsRtyGmA/JTV5zDH3vNBDRDNA+r9SX9lNUaBcffZQVhFXBPwUUPJ/2Z3I/GlL
-         ESsta0wbrDq9n4NAb42ym4X1PG93/Gvzp8zQJBQQ=
+        b=Z8cJVlvO73ZrqbCH9E6fSAH4qt2wSxHMR3FyPmH5t7ic0qatEx/4wZEzt8peR4Kf5
+         f59g74PHwA6378CU1vqzJQR+TDkJRp8QAUREfjSfPB/84r7vSjXVe8F7BS7CVaoQN7
+         NFCxfZXwv6vTtwQOEtmMYnqmsCPMWnrgQwwMj7hI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 111/121] hwmon: (mr75203) update pvt->v_num and vm_num to the actual number of used sensors
-Date:   Tue, 13 Sep 2022 16:05:02 +0200
-Message-Id: <20220913140402.117853724@linuxfoundation.org>
+Subject: [PATCH 5.15 112/121] hwmon: (mr75203) fix voltage equation for negative source input
+Date:   Tue, 13 Sep 2022 16:05:03 +0200
+Message-Id: <20220913140402.167210474@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
 References: <20220913140357.323297659@linuxfoundation.org>
@@ -57,37 +57,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eliav Farber <farbere@amazon.com>
 
-[ Upstream commit bb9195bd6664d94d71647631593e09f705ff5edd ]
+[ Upstream commit 227a3a2fc31d8e4bb9c88d4804e19530af245b1b ]
 
-This issue is relevant when "intel,vm-map" is set in device-tree, and
-defines a lower number of VMs than actually supported.
+According to Moortec Embedded Voltage Monitor (MEVM) series 3 data
+sheet, the minimum input signal is -100mv and maximum input signal
+is +1000mv.
 
-This change is needed for all places that use pvt->v_num or vm_num
-later on in the code.
+The equation used to convert the digital word to voltage uses mixed
+types (*val signed and n unsigned), and on 64 bit machines also has
+different size, since sizeof(u32) = 4 and sizeof(long) = 8.
+
+So when measuring a negative input, n will be small enough, such that
+PVT_N_CONST * n < PVT_R_CONST, and the result of
+(PVT_N_CONST * n - PVT_R_CONST) will overflow to a very big positive
+32 bit number. Then when storing the result in *val it will be the same
+value just in 64 bit (instead of it representing a negative number which
+will what happen when sizeof(long) = 4).
+
+When -1023 <= (PVT_N_CONST * n - PVT_R_CONST) <= -1
+dividing the number by 1024 should result of in 0, but because ">> 10"
+is used, and the sign bit is used to fill the vacated bit positions, it
+results in -1 (0xf...fffff) which is wrong.
+
+This change fixes the sign problem and supports negative values by
+casting n to long and replacing the shift right with div operation.
 
 Fixes: 9d823351a337 ("hwmon: Add hardware monitoring driver for Moortec MR75203 PVT controller")
 Signed-off-by: Eliav Farber <farbere@amazon.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220908152449.35457-4-farbere@amazon.com
+Link: https://lore.kernel.org/r/20220908152449.35457-5-farbere@amazon.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/mr75203.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/mr75203.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hwmon/mr75203.c b/drivers/hwmon/mr75203.c
-index 36cbc86033ce9..6e6aa61ea632b 100644
+index 6e6aa61ea632b..630d596d4317f 100644
 --- a/drivers/hwmon/mr75203.c
 +++ b/drivers/hwmon/mr75203.c
-@@ -605,6 +605,8 @@ static int mr75203_probe(struct platform_device *pdev)
- 				if (pvt->vm_idx[i] >= vm_num ||
- 				    pvt->vm_idx[i] == 0xff) {
- 					num = i;
-+					pvt->v_num = i;
-+					vm_num = i;
- 					break;
- 				}
- 		}
+@@ -201,8 +201,18 @@ static int pvt_read_in(struct device *dev, u32 attr, int channel, long *val)
+ 			return ret;
+ 
+ 		n &= SAMPLE_DATA_MSK;
+-		/* Convert the N bitstream count into voltage */
+-		*val = (PVT_N_CONST * n - PVT_R_CONST) >> PVT_CONV_BITS;
++		/*
++		 * Convert the N bitstream count into voltage.
++		 * To support negative voltage calculation for 64bit machines
++		 * n must be cast to long, since n and *val differ both in
++		 * signedness and in size.
++		 * Division is used instead of right shift, because for signed
++		 * numbers, the sign bit is used to fill the vacated bit
++		 * positions, and if the number is negative, 1 is used.
++		 * BIT(x) may not be used instead of (1 << x) because it's
++		 * unsigned.
++		 */
++		*val = (PVT_N_CONST * (long)n - PVT_R_CONST) / (1 << PVT_CONV_BITS);
+ 
+ 		return 0;
+ 	default:
 -- 
 2.35.1
 
