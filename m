@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2465B7149
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E895B70B9
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234219AbiIMOfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40736 "EHLO
+        id S233641AbiIMOZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234112AbiIMOey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:34:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4901865542;
-        Tue, 13 Sep 2022 07:20:09 -0700 (PDT)
+        with ESMTP id S233783AbiIMOYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAE3136;
+        Tue, 13 Sep 2022 07:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E052B80FA1;
-        Tue, 13 Sep 2022 14:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E622BC433D6;
-        Tue, 13 Sep 2022 14:18:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD1E9614C9;
+        Tue, 13 Sep 2022 14:14:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E45A4C433C1;
+        Tue, 13 Sep 2022 14:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078705;
-        bh=ysDHgRV0xLmN+RI1iJE8p7h816Gooaa+M1YwDcwNEmA=;
+        s=korg; t=1663078494;
+        bh=RTsgS/dWZ26ksw0pvX8+Z5l1Fr6rjNYtwTNY720+CgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1edj/mGS0aRr1dwWqxniUDHDWd5qmSKLh6aBsOsXDvj0TiIg6UmTT9deCmRZchKK
-         cwwX2u4tL+lCV4FIBSBgm8USmAAPYsk6KVtNx5U5+4zmVSKf3fskPNxi7tE4Em+xlE
-         FlMZYD47NfqCPNTL4sannswsuU2cTKQwAQN9kZ54=
+        b=p34PB7IVmNxI4/cDQ+vGP9NxKFBlyRzV9MkC4D8ulPtj/mP2ElQLHYqXwSXwr/pGx
+         W6mOUD+I8Akmndfq9NiN6djc4tyTno7dsenu37xQeTt45YtspyLCOsYmYcB3DVcDpW
+         JDJH9LUcycIOsUrCJ/ig3g1mOiH6IvL8xNmWtIoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Aleksei Marov <aleksei.marov@ionos.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 051/121] RDMA/rtrs-srv: Pass the correct number of entries for dma mapped SGL
+        stable@vger.kernel.org,
+        Jonathan Nicklin <jnicklin@blockbridge.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 136/192] nvme-tcp: fix regression that causes sporadic requests to time out
 Date:   Tue, 13 Sep 2022 16:04:02 +0200
-Message-Id: <20220913140359.553981890@linuxfoundation.org>
+Message-Id: <20220913140416.790157493@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 56c310de0b4b3aca1c4fdd9c1093fc48372a7335 ]
+[ Upstream commit 3770a42bb8ceb856877699257a43c0585a5d2996 ]
 
-ib_dma_map_sg() augments the SGL into a 'dma mapped SGL'. This process
-may change the number of entries and the lengths of each entry.
+When we queue requests, we strive to batch as much as possible and also
+signal the network stack that more data is about to be sent over a socket
+with MSG_SENDPAGE_NOTLAST. This flag looks at the pending requests queued
+as well as queue->more_requests that is derived from the block layer
+last-in-batch indication.
 
-Code that touches dma_address is iterating over the 'dma mapped SGL'
-and must use dma_nents which returned from ib_dma_map_sg().
+We set more_request=true when we flush the request directly from
+.queue_rq submission context (in nvme_tcp_send_all), however this is
+wrongly assuming that no other requests may be queued during the
+execution of nvme_tcp_send_all.
 
-We should use the return count from ib_dma_map_sg for futher usage.
+Due to this, a race condition may happen where:
 
-Fixes: 9cb837480424e ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20220818105355.110344-4-haris.iqbal@ionos.com
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Reviewed-by: Aleksei Marov <aleksei.marov@ionos.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+ 1. request X is queued as !last-in-batch
+ 2. request X submission context calls nvme_tcp_send_all directly
+ 3. nvme_tcp_send_all is preempted and schedules to a different cpu
+ 4. request Y is queued as last-in-batch
+ 5. nvme_tcp_send_all context sends request X+Y, however signals for
+    both MSG_SENDPAGE_NOTLAST because queue->more_requests=true.
+
+==> none of the requests is pushed down to the wire as the network
+stack is waiting for more data, both requests timeout.
+
+To fix this, we eliminate queue->more_requests and only rely on
+the queue req_list and send_list to be not-empty.
+
+Fixes: 122e5b9f3d37 ("nvme-tcp: optimize network stack with setting msg flags according to batch size")
+Reported-by: Jonathan Nicklin <jnicklin@blockbridge.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Tested-by: Jonathan Nicklin <jnicklin@blockbridge.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/nvme/host/tcp.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 1ca31b919e987..733116554e0bc 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -600,7 +600,7 @@ static int map_cont_bufs(struct rtrs_srv_path *srv_path)
- 		struct sg_table *sgt = &srv_mr->sgt;
- 		struct scatterlist *s;
- 		struct ib_mr *mr;
--		int nr, chunks;
-+		int nr, nr_sgt, chunks;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 40bd68ba1040a..daa0e160e1212 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -121,7 +121,6 @@ struct nvme_tcp_queue {
+ 	struct mutex		send_mutex;
+ 	struct llist_head	req_list;
+ 	struct list_head	send_list;
+-	bool			more_requests;
  
- 		chunks = chunks_per_mr * mri;
- 		if (!always_invalidate)
-@@ -615,19 +615,19 @@ static int map_cont_bufs(struct rtrs_srv_path *srv_path)
- 			sg_set_page(s, srv->chunks[chunks + i],
- 				    max_chunk_size, 0);
+ 	/* recv state */
+ 	void			*pdu;
+@@ -318,7 +317,7 @@ static inline void nvme_tcp_send_all(struct nvme_tcp_queue *queue)
+ static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
+ {
+ 	return !list_empty(&queue->send_list) ||
+-		!llist_empty(&queue->req_list) || queue->more_requests;
++		!llist_empty(&queue->req_list);
+ }
  
--		nr = ib_dma_map_sg(srv_path->s.dev->ib_dev, sgt->sgl,
-+		nr_sgt = ib_dma_map_sg(srv_path->s.dev->ib_dev, sgt->sgl,
- 				   sgt->nents, DMA_BIDIRECTIONAL);
--		if (nr < sgt->nents) {
--			err = nr < 0 ? nr : -EINVAL;
-+		if (!nr_sgt) {
-+			err = -EINVAL;
- 			goto free_sg;
- 		}
- 		mr = ib_alloc_mr(srv_path->s.dev->ib_pd, IB_MR_TYPE_MEM_REG,
--				 sgt->nents);
-+				 nr_sgt);
- 		if (IS_ERR(mr)) {
- 			err = PTR_ERR(mr);
- 			goto unmap_sg;
- 		}
--		nr = ib_map_mr_sg(mr, sgt->sgl, sgt->nents,
-+		nr = ib_map_mr_sg(mr, sgt->sgl, nr_sgt,
- 				  NULL, max_chunk_size);
- 		if (nr < 0 || nr < sgt->nents) {
- 			err = nr < 0 ? nr : -EINVAL;
-@@ -646,7 +646,7 @@ static int map_cont_bufs(struct rtrs_srv_path *srv_path)
- 			}
- 		}
- 		/* Eventually dma addr for each chunk can be cached */
--		for_each_sg(sgt->sgl, s, sgt->orig_nents, i)
-+		for_each_sg(sgt->sgl, s, nr_sgt, i)
- 			srv_path->dma_addr[chunks + i] = sg_dma_address(s);
+ static inline void nvme_tcp_queue_request(struct nvme_tcp_request *req,
+@@ -337,9 +336,7 @@ static inline void nvme_tcp_queue_request(struct nvme_tcp_request *req,
+ 	 */
+ 	if (queue->io_cpu == raw_smp_processor_id() &&
+ 	    sync && empty && mutex_trylock(&queue->send_mutex)) {
+-		queue->more_requests = !last;
+ 		nvme_tcp_send_all(queue);
+-		queue->more_requests = false;
+ 		mutex_unlock(&queue->send_mutex);
+ 	}
  
- 		ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
 -- 
 2.35.1
 
