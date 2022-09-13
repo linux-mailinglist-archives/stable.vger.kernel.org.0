@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4D25B741F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB445B7413
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235801AbiIMPTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
+        id S235809AbiIMPTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235951AbiIMPSi (ORCPT
+        with ESMTP id S235952AbiIMPSi (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:18:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0606D79A41;
-        Tue, 13 Sep 2022 07:35:25 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0759F79A4F;
+        Tue, 13 Sep 2022 07:35:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEF40614CF;
-        Tue, 13 Sep 2022 14:34:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1EB1C433D6;
-        Tue, 13 Sep 2022 14:34:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEDD1B80EFA;
+        Tue, 13 Sep 2022 14:33:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C34CC433C1;
+        Tue, 13 Sep 2022 14:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079644;
-        bh=wvX/8tER1vYek1vzOBoKyRvWRfxfMD8tTbBrb7D4Zgg=;
+        s=korg; t=1663079603;
+        bh=eHBm7y0fVUA8Gl2U1lMAhWBmoOpB3KW/PvPqGbc644w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wrm/V0EfKX9qPpW1tri+F3NVMia8SuPe/WK9/EfzkZKLdvYfxowermCQfyZcv6wCx
-         yQXMN+DqhZPyzZ/v2+gRG5w8zPqRhHEWLV5OyQu+72FUZugVHC+vw3nrQh8ZlFGb/a
-         dJzN9WQQcQhixsweEtFoRGoEcIvQLVjilRToXw80=
+        b=isfCVlHHCLptsnpQn6+G2ZvWF6dzHViE9Vkn21hauyCRSVX34HgoMpOodPWlfo1Al
+         1fd6Zq6y7XgfmalUTx/YM/h0MySisbShUss7zOVwYiHKJwdBT6v5Fch7EVZSp+qOQ/
+         OmQeoicTIXH2Cj4QTaVfZ0jJ9G+ShWhkBroCQHUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 19/61] USB: serial: cp210x: add Decagon UCA device id
-Date:   Tue, 13 Sep 2022 16:07:21 +0200
-Message-Id: <20220913140347.478966094@linuxfoundation.org>
+        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 64/79] netfilter: br_netfilter: Drop dst references before setting.
+Date:   Tue, 13 Sep 2022 16:07:22 +0200
+Message-Id: <20220913140351.979662545@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Harsh Modi <harshmodi@google.com>
 
-commit ceb4038472a4803e7046ed488b03d11551991514 upstream.
+[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
 
-Add the device id for Decagon Devices USB Cable Adapter.
+The IPv6 path already drops dst in the daddr changed case, but the IPv4
+path does not. This change makes the two code paths consistent.
 
-Link: https://lore.kernel.org/r/trinity-819f9db2-d3e1-40e9-a669-9c245817c046-1661523546680@msvc-mesg-web108
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Further, it is possible that there is already a metadata_dst allocated from
+ingress that might already be attached to skbuff->dst while following
+the bridge path. If it is not released before setting a new
+metadata_dst, it will be leaked. This is similar to what is done in
+bpf_set_tunnel_key() or ip6_route_input().
+
+It is important to note that the memory being leaked is not the dst
+being set in the bridge code, but rather memory allocated from some
+other code path that is not being freed correctly before the skb dst is
+overwritten.
+
+An example of the leakage fixed by this commit found using kmemleak:
+
+unreferenced object 0xffff888010112b00 (size 256):
+  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
+    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
+  backtrace:
+    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
+    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
+    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
+    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
+    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
+    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
+    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
+    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
+    [<00000000a879497d>] process_backlog+0x93/0x190
+    [<00000000e41ade9f>] __napi_poll+0x28/0x170
+    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
+    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
+    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
+    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
+    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
+    [<000000008942add0>] native_safe_halt+0x13/0x20
+
+Florian Westphal says: "Original code was likely fine because nothing
+ever did set a skb->dst entry earlier than bridge in those days."
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Harsh Modi <harshmodi@google.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/bridge/br_netfilter_hooks.c | 2 ++
+ net/bridge/br_netfilter_ipv6.c  | 1 +
+ 2 files changed, 3 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -134,6 +134,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
- 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
- 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
-+	{ USB_DEVICE(0x10C4, 0x8414) }, /* Decagon USB Cable Adapter */
- 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
- 	{ USB_DEVICE(0x10C4, 0x846E) }, /* BEI USB Sensor Interface (VCP) */
- 	{ USB_DEVICE(0x10C4, 0x8470) }, /* Juniper Networks BX Series System Console */
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 55c7cdf5e7b83..35642dc96852a 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -385,6 +385,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 				/* - Bridged-and-DNAT'ed traffic doesn't
+ 				 *   require ip_forwarding. */
+ 				if (rt->dst.dev == dev) {
++					skb_dst_drop(skb);
+ 					skb_dst_set(skb, &rt->dst);
+ 					goto bridged_dnat;
+ 				}
+@@ -414,6 +415,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
+ 
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index 09d5e0c7b3ba4..995d86777e7cb 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -201,6 +201,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
+ 
+-- 
+2.35.1
+
 
 
