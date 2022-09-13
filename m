@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 112E75B76FF
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:00:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C855B763B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:18:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbiIMRAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:00:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
+        id S232252AbiIMQSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 12:18:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232138AbiIMQ7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:59:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3BFC12F0;
-        Tue, 13 Sep 2022 08:51:23 -0700 (PDT)
+        with ESMTP id S232363AbiIMQR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:17:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F9978218;
+        Tue, 13 Sep 2022 08:13:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C4E8B80FEA;
-        Tue, 13 Sep 2022 14:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE58C433C1;
-        Tue, 13 Sep 2022 14:34:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A471614D3;
+        Tue, 13 Sep 2022 14:36:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E296C433C1;
+        Tue, 13 Sep 2022 14:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079686;
-        bh=6oKrQHMbUouvKFesVC5x9+vlDyMIL0qPZFyN2v0YdeI=;
+        s=korg; t=1663079778;
+        bh=qrPdVakPiVxnhLPaPvRPEDfXlnH+En01EAUaYp/+zrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7lCGrGAtkGEtkFhu25YQvzlpRoH32xPHtcrBZDEDd47vn6ReJ1UnO2JSgO/d2jVD
-         h8MCUBxY1S1GU2idWUFLqxzXmHX9gjCG3XE8wVlEbeFnbuDB52hS1dqta3uCfsKo3q
-         poCxBbAHZZ6/tTkZTpdFEzZKJOdVJiSViVR2FRdk=
+        b=NNzSuwIQJw5JaTlU+C9C0lHrx2/He8/byMc4A0IfwERbKuwo3e2Y+WBtcewdbTgYF
+         ifqxFjMbYoU7FCqwbJe9Vqbb0kW/O2VMNjBPm6VTn8OaXop7oeFfX4XjO6xkfdc9KF
+         66haQIGhtD+Kc+j2zOPgaP3jVr6VTSeQCMMzIkUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Fengwei Yin <fengwei.yin@intel.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 36/61] fs: only do a memory barrier for the first set_buffer_uptodate()
-Date:   Tue, 13 Sep 2022 16:07:38 +0200
-Message-Id: <20220913140348.298766987@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 10/42] USB: serial: cp210x: add Decagon UCA device id
+Date:   Tue, 13 Sep 2022 16:07:41 +0200
+Message-Id: <20220913140342.791971764@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
+commit ceb4038472a4803e7046ed488b03d11551991514 upstream.
 
-Commit d4252071b97d ("add barriers to buffer_uptodate and
-set_buffer_uptodate") added proper memory barriers to the buffer head
-BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
-will be guaranteed to actually see initialized state.
+Add the device id for Decagon Devices USB Cable Adapter.
 
-However, that commit didn't _just_ add the memory barrier, it also ended
-up dropping the "was it already set" logic that the BUFFER_FNS() macro
-had.
-
-That's conceptually the right thing for a generic "this is a memory
-barrier" operation, but in the case of the buffer contents, we really
-only care about the memory barrier for the _first_ time we set the bit,
-in that the only memory ordering protection we need is to avoid anybody
-seeing uninitialized memory contents.
-
-Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
-and would require some other proper lock (typically BH_Lock or the folio
-lock).  A reader that races with somebody invalidating the buffer head
-isn't an issue wrt the memory ordering, it's a serialization issue.
-
-Now, you'd think that the buffer head operations don't matter in this
-day and age (and I certainly thought so), but apparently some loads
-still end up being heavy users of buffer heads.  In particular, the
-kernel test robot reported that not having this bit access optimization
-in place caused a noticeable direct IO performance regression on ext4:
-
-  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
-
-although you presumably need a fast disk and a lot of cores to actually
-notice.
-
-Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Fengwei Yin <fengwei.yin@intel.com>
-Cc: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/trinity-819f9db2-d3e1-40e9-a669-9c245817c046-1661523546680@msvc-mesg-web108
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/buffer_head.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -134,6 +134,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
- static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
- {
- 	/*
-+	 * If somebody else already set this uptodate, they will
-+	 * have done the memory barrier, and a reader will thus
-+	 * see *some* valid buffer state.
-+	 *
-+	 * Any other serialization (with IO errors or whatever that
-+	 * might clear the bit) has to come from other state (eg BH_Lock).
-+	 */
-+	if (test_bit(BH_Uptodate, &bh->b_state))
-+		return;
-+
-+	/*
- 	 * make it consistent with folio_mark_uptodate
- 	 * pairs with smp_load_acquire in buffer_uptodate
- 	 */
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -128,6 +128,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
+ 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
+ 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
++	{ USB_DEVICE(0x10C4, 0x8414) }, /* Decagon USB Cable Adapter */
+ 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
+ 	{ USB_DEVICE(0x10C4, 0x846E) }, /* BEI USB Sensor Interface (VCP) */
+ 	{ USB_DEVICE(0x10C4, 0x8470) }, /* Juniper Networks BX Series System Console */
 
 
