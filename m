@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3C15B74C2
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B1D05B746E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbiIMP3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59196 "EHLO
+        id S235991AbiIMPYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233537AbiIMP2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:03 -0400
+        with ESMTP id S236212AbiIMPXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB577E00F;
-        Tue, 13 Sep 2022 07:39:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E492F7C76D;
+        Tue, 13 Sep 2022 07:37:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72883614CA;
-        Tue, 13 Sep 2022 14:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83218C433D6;
-        Tue, 13 Sep 2022 14:37:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC4C614B2;
+        Tue, 13 Sep 2022 14:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B8EC433D6;
+        Tue, 13 Sep 2022 14:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079842;
-        bh=BLBfV+1nH+k/x9oc66dvDyZereog3bqBuCBlo+jNS6o=;
+        s=korg; t=1663079845;
+        bh=qp9sJ4HEq5Md2IUIQHJCUdCQwwxXTwpuwjFmU978NYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHuEwBfYS7R8klPiny/7bXpjvZ7hLCGxOTTstBILhw5RNag47tYohN9Yn8xubIKm/
-         5pEhzqo55VnX1fbaJDinQR8h9dsQQS6+x7CfXc6t7c/S6U/s+wTi50RSIENES0QYQa
-         J95DRxG6Y7RF5YWw7dL5K6kXt2uYjfjUhrTESiaU=
+        b=yVEGhrlNMOkKBG4dbG+btZzkhZttbSvA3e1lAJl85Oed/lo3jlLz41XjBY3pjZVwm
+         zYHBXk5uClUzS2m+40e4pc7Y9d/o4rky4uZylpqYE4axDcpY1j9A7U1wHLlIyRhwJP
+         lb5cHgblIsM40nsqaZBSng8OgQKwkI/2YeeEc7Hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/42] netfilter: nf_conntrack_irc: Fix forged IP logic
-Date:   Tue, 13 Sep 2022 16:08:06 +0200
-Message-Id: <20220913140344.151883075@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
+Subject: [PATCH 4.9 36/42] sch_sfb: Dont assume the skb is still around after enqueueing to child
+Date:   Tue, 13 Sep 2022 16:08:07 +0200
+Message-Id: <20220913140344.198422215@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -54,41 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
+[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
 
-Ensure the match happens in the right direction, previously the
-destination used was the server, not the NAT host, as the comment
-shows the code intended.
+The sch_sfb enqueue() routine assumes the skb is still alive after it has
+been enqueued into a child qdisc, using the data in the skb cb field in the
+increment_qlen() routine after enqueue. However, the skb may in fact have
+been freed, causing a use-after-free in this case. In particular, this
+happens if sch_cake is used as a child of sfb, and the GSO splitting mode
+of CAKE is enabled (in which case the skb will be split into segments and
+the original skb freed).
 
-Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
-it can appear in a DCC message, so consider port 0 also forged.
+Fix this by copying the sfb cb data to the stack before enqueueing the skb,
+and using this stack copy in increment_qlen() instead of the skb pointer
+itself.
 
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
+Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/sched/sch_sfb.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index 1972a149f9583..c6a8bdc3a226d 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -187,8 +187,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index bc176bd48c026..592189427a09f 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -137,15 +137,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
+ 	}
+ }
  
- 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
- 			tuple = &ct->tuplehash[dir].tuple;
--			if (tuple->src.u3.ip != dcc_ip &&
--			    tuple->dst.u3.ip != dcc_ip) {
-+			if ((tuple->src.u3.ip != dcc_ip &&
-+			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
-+			    dcc_port == 0) {
- 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
- 						     &tuple->src.u3.ip,
- 						     &dcc_ip, dcc_port);
+-static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
++static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
+ {
+ 	u32 sfbhash;
+ 
+-	sfbhash = sfb_hash(skb, 0);
++	sfbhash = cb->hashes[0];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 0, q);
+ 
+-	sfbhash = sfb_hash(skb, 1);
++	sfbhash = cb->hashes[1];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 1, q);
+ }
+@@ -283,6 +283,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	struct sfb_sched_data *q = qdisc_priv(sch);
+ 	struct Qdisc *child = q->qdisc;
+ 	struct tcf_proto *fl;
++	struct sfb_skb_cb cb;
+ 	int i;
+ 	u32 p_min = ~0;
+ 	u32 minqlen = ~0;
+@@ -399,11 +400,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	}
+ 
+ enqueue:
++	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+ 		qdisc_qstats_backlog_inc(sch, skb);
+ 		sch->q.qlen++;
+-		increment_qlen(skb, q);
++		increment_qlen(&cb, q);
+ 	} else if (net_xmit_drop_count(ret)) {
+ 		q->stats.childdrop++;
+ 		qdisc_qstats_drop(sch);
 -- 
 2.35.1
 
