@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 354545B73C5
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C215B7346
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235279AbiIMPJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:09:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S235258AbiIMPFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:05:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235586AbiIMPIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:08:47 -0400
+        with ESMTP id S235447AbiIMPE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C4676749;
-        Tue, 13 Sep 2022 07:31:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41371A1BF;
+        Tue, 13 Sep 2022 07:30:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76AA1614E7;
-        Tue, 13 Sep 2022 14:30:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86388C433D6;
-        Tue, 13 Sep 2022 14:30:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B041F61414;
+        Tue, 13 Sep 2022 14:28:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A7FC433C1;
+        Tue, 13 Sep 2022 14:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079406;
-        bh=F7eNZoNKrqXsRar6frmRBa5KEyH/yBkWG+Jmxl7oVps=;
+        s=korg; t=1663079321;
+        bh=3PfSelEa4MEVsI+JJBE451z1V1ZOGqS2BljCPbdag0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rlkPbHByglUcvZq96wHSfAFn9AUedsLUDLcfk1j82HMoTlYyW0i2j/bGa4OkjxrKw
-         2AK8nVP6qblVOzkwoLRblkbHT2qulXw9E6zutlie+MwyxODRqsHjKfwQW7R2Q9UT4L
-         6jsRlXxSYrmfLFPYD0YV5o5J6z4Zvv2IC34QXVrA=
+        b=kYM+Iriy/5HlsJOdrVP0Dsfx52CS0gjMXFa5uiKGWStUJllyv9XBT4GJXn1zfxcyF
+         V8TCTprAe0P0Haj2cO78gC8C9g0XKWq3Mj1TKElZsoMX4Uho69Wz7czELVFahLPB4e
+         IITA+rbDGiJzSU9BYy2jPXklBeZUvVHn1MdLsT8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/79] ethernet: rocker: fix sleep in atomic context bug in neigh_timer_handler
-Date:   Tue, 13 Sep 2022 16:06:32 +0200
-Message-Id: <20220913140349.548343910@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 062/108] btrfs: harden identification of a stale device
+Date:   Tue, 13 Sep 2022 16:06:33 +0200
+Message-Id: <20220913140356.286481668@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit c0955bf957be4bead01fae1d791476260da7325d ]
+commit 770c79fb65506fc7c16459855c3839429f46cb32 upstream.
 
-The function neigh_timer_handler() is a timer handler that runs in an
-atomic context. When used by rocker, neigh_timer_handler() calls
-"kzalloc(.., GFP_KERNEL)" that may sleep. As a result, the sleep in
-atomic context bug will happen. One of the processes is shown below:
+Identifying and removing the stale device from the fs_uuids list is done
+by btrfs_free_stale_devices().  btrfs_free_stale_devices() in turn
+depends on device_path_matched() to check if the device appears in more
+than one btrfs_device structure.
 
-ofdpa_fib4_add()
- ...
- neigh_add_timer()
+The matching of the device happens by its path, the device path. However,
+when device mapper is in use, the dm device paths are nothing but a link
+to the actual block device, which leads to the device_path_matched()
+failing to match.
 
-(wait a timer)
+Fix this by matching the dev_t as provided by lookup_bdev() instead of
+plain string compare of the device paths.
 
-neigh_timer_handler()
- neigh_release()
-  neigh_destroy()
-   rocker_port_neigh_destroy()
-    rocker_world_port_neigh_destroy()
-     ofdpa_port_neigh_destroy()
-      ofdpa_port_ipv4_neigh()
-       kzalloc(sizeof(.., GFP_KERNEL) //may sleep
-
-This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
-GFP_ATOMIC in order to mitigate the bug.
-
-Fixes: 00fc0c51e35b ("rocker: Change world_ops API and implementation to be switchdev independant")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/rocker/rocker_ofdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/volumes.c |   44 +++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 37 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-index 6473cc68c2d5c..4039e1fc6e92a 100644
---- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
-+++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-@@ -1276,7 +1276,7 @@ static int ofdpa_port_ipv4_neigh(struct ofdpa_port *ofdpa_port,
- 	bool removing;
- 	int err = 0;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -713,15 +713,47 @@ static void pending_bios_fn(struct btrfs
+ 	run_scheduled_bios(device);
+ }
  
--	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
- 	if (!entry)
- 		return -ENOMEM;
+-static bool device_path_matched(const char *path, struct btrfs_device *device)
++/*
++ * Check if the device in the path matches the device in the given struct device.
++ *
++ * Returns:
++ *   true  If it is the same device.
++ *   false If it is not the same device or on error.
++ */
++static bool device_matched(const struct btrfs_device *device, const char *path)
+ {
+-	int found;
++	char *device_name;
++	struct block_device *bdev_old;
++	struct block_device *bdev_new;
++
++	/*
++	 * If we are looking for a device with the matching dev_t, then skip
++	 * device without a name (a missing device).
++	 */
++	if (!device->name)
++		return false;
++
++	device_name = kzalloc(BTRFS_PATH_NAME_MAX, GFP_KERNEL);
++	if (!device_name)
++		return false;
  
--- 
-2.35.1
-
+ 	rcu_read_lock();
+-	found = strcmp(rcu_str_deref(device->name), path);
++	scnprintf(device_name, BTRFS_PATH_NAME_MAX, "%s", rcu_str_deref(device->name));
+ 	rcu_read_unlock();
+ 
+-	return found == 0;
++	bdev_old = lookup_bdev(device_name);
++	kfree(device_name);
++	if (IS_ERR(bdev_old))
++		return false;
++
++	bdev_new = lookup_bdev(path);
++	if (IS_ERR(bdev_new))
++		return false;
++
++	if (bdev_old == bdev_new)
++		return true;
++
++	return false;
+ }
+ 
+ /*
+@@ -754,9 +786,7 @@ static int btrfs_free_stale_devices(cons
+ 					 &fs_devices->devices, dev_list) {
+ 			if (skip_device && skip_device == device)
+ 				continue;
+-			if (path && !device->name)
+-				continue;
+-			if (path && !device_path_matched(path, device))
++			if (path && !device_matched(device, path))
+ 				continue;
+ 			if (fs_devices->opened) {
+ 				/* for an already deleted device return 0 */
 
 
