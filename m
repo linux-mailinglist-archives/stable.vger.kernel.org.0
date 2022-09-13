@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F12995B7011
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57BEB5B7071
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233235AbiIMOUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52498 "EHLO
+        id S233700AbiIMO3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233546AbiIMOTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:19 -0400
+        with ESMTP id S233838AbiIMO2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDC1B65547;
-        Tue, 13 Sep 2022 07:14:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B17A67CB1;
+        Tue, 13 Sep 2022 07:17:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB023614BD;
-        Tue, 13 Sep 2022 14:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFE3C433D6;
-        Tue, 13 Sep 2022 14:12:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0318614A8;
+        Tue, 13 Sep 2022 14:17:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC2BEC433D6;
+        Tue, 13 Sep 2022 14:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078364;
-        bh=ENOFx+2hCkzle9QLjIch9KzpL1Yqyo5Dw+rB4EmSoz0=;
+        s=korg; t=1663078644;
+        bh=qRQW+muWBPSl7sHCwotcWqrZn+BiLWa7TJMN3kN75d4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4ChxNGOBKlzJ/0FNtCFhEYLj53cf0iX4DxMxQcs637fr4+sogQjtbdO1d8FytNjo
-         VJ0XDDqMoNV6Bwef2vMwQR6NWiKto+w5cfrwqPrg4HiaGizeLGoV7CstXcs+Ac7N8v
-         MKZwEMj1+Pe74UqZgcOo2MQMYeRJppWZ7LhU+yC4=
+        b=KIpt7JkDcq2M+lrnxzcNvSaGLguuE7Ubfm+prw9tOaAhcRnM097FbnokC5PDTV8Hd
+         BwOp84cPcjuWEX64JD686USL7+kCai6KZq8TxrsxFplQveBhZDZ5vTqckP/atjgjbK
+         MwGBPUdXKZDMh9x5VIWs8F2wfLfaj/Ald+X1rKXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 111/192] rxrpc: Fix an insufficiently large sglist in rxkad_verify_packet_2()
-Date:   Tue, 13 Sep 2022 16:03:37 +0200
-Message-Id: <20220913140415.504632548@linuxfoundation.org>
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Subject: [PATCH 5.15 027/121] ALSA: pcm: oss: Fix race at SNDCTL_DSP_SYNC
+Date:   Tue, 13 Sep 2022 16:03:38 +0200
+Message-Id: <20220913140358.515208714@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 0d40f728e28393a8817d1fcae923dfa3409e488c ]
+commit 8423f0b6d513b259fdab9c9bf4aaa6188d054c2d upstream.
 
-rxkad_verify_packet_2() has a small stack-allocated sglist of 4 elements,
-but if that isn't sufficient for the number of fragments in the socket
-buffer, we try to allocate an sglist large enough to hold all the
-fragments.
+There is a small race window at snd_pcm_oss_sync() that is called from
+OSS PCM SNDCTL_DSP_SYNC ioctl; namely the function calls
+snd_pcm_oss_make_ready() at first, then takes the params_lock mutex
+for the rest.  When the stream is set up again by another thread
+between them, it leads to inconsistency, and may result in unexpected
+results such as NULL dereference of OSS buffer as a fuzzer spotted
+recently.
 
-However, for large packets with a lot of fragments, this isn't sufficient
-and we need at least one additional fragment.
+The fix is simply to cover snd_pcm_oss_make_ready() call into the same
+params_lock mutex with snd_pcm_oss_make_ready_locked() variant.
 
-The problem manifests as skb_to_sgvec() returning -EMSGSIZE and this then
-getting returned by userspace.  Most of the time, this isn't a problem as
-rxrpc sets a limit of 5692, big enough for 4 jumbo subpackets to be glued
-together; occasionally, however, the server will ignore the reported limit
-and give a packet that's a lot bigger - say 19852 bytes with ->nr_frags
-being 7.  skb_to_sgvec() then tries to return a "zeroth" fragment that
-seems to occur before the fragments counted by ->nr_frags and we hit the
-end of the sglist too early.
-
-Note that __skb_to_sgvec() also has an skb_walk_frags() loop that is
-recursive up to 24 deep.  I'm not sure if I need to take account of that
-too - or if there's an easy way of counting those frags too.
-
-Fix this by counting an extra frag and allocating a larger sglist based on
-that.
-
-Fixes: d0d5c0cd1e71 ("rxrpc: Use skb_unshare() rather than skb_cow_data()")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAFcO6XN7JDM4xSXGhtusQfS2mSBcx50VJKwQpCq=WeLt57aaZA@mail.gmail.com
+Link: https://lore.kernel.org/r/20220905060714.22549-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/rxkad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/oss/pcm_oss.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/rxkad.c b/net/rxrpc/rxkad.c
-index 08aab5c01437d..db47844f4ac99 100644
---- a/net/rxrpc/rxkad.c
-+++ b/net/rxrpc/rxkad.c
-@@ -540,7 +540,7 @@ static int rxkad_verify_packet_2(struct rxrpc_call *call, struct sk_buff *skb,
- 	 * directly into the target buffer.
- 	 */
- 	sg = _sg;
--	nsg = skb_shinfo(skb)->nr_frags;
-+	nsg = skb_shinfo(skb)->nr_frags + 1;
- 	if (nsg <= 4) {
- 		nsg = 4;
- 	} else {
--- 
-2.35.1
-
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1664,14 +1664,14 @@ static int snd_pcm_oss_sync(struct snd_p
+ 		runtime = substream->runtime;
+ 		if (atomic_read(&substream->mmap_count))
+ 			goto __direct;
+-		err = snd_pcm_oss_make_ready(substream);
+-		if (err < 0)
+-			return err;
+ 		atomic_inc(&runtime->oss.rw_ref);
+ 		if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
+ 			atomic_dec(&runtime->oss.rw_ref);
+ 			return -ERESTARTSYS;
+ 		}
++		err = snd_pcm_oss_make_ready_locked(substream);
++		if (err < 0)
++			goto unlock;
+ 		format = snd_pcm_oss_format_from(runtime->oss.format);
+ 		width = snd_pcm_format_physical_width(format);
+ 		if (runtime->oss.buffer_used > 0) {
 
 
