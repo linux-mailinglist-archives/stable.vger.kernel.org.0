@@ -2,179 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF745B6776
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 07:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC61B5B6798
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 08:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbiIMFne (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 01:43:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53174 "EHLO
+        id S230165AbiIMGEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 02:04:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230097AbiIMFnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 01:43:31 -0400
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08BE57227
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 22:43:30 -0700 (PDT)
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28D5Sbkb028582;
-        Tue, 13 Sep 2022 05:43:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=date : from : to :
- cc : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=qcppdkim1; bh=Plc9WRxWy6CZQF4VjMiLDLKiQHVNGoNQCf+eqc0HDtI=;
- b=A96tintGrt+3fnP1rGw8/QPhxwESGc/MnhENhEHCbh8C/dTvmyrrkzTRRBKM6ac4tYdB
- 4D/IHNeSeSYxLqch1bKhDF9GfmPTzsMQYE2Gldwie9WHzCcUz9QXndXxU3dc1n67Kw18
- /v0S2+RHc5w3AGnKSDeVK/fh3VtNh5aRSscOeQNlfqHVo6IX441g41ZmSN790F7OyxWp
- czMV49SsOPLXglPpWTD7kf4k94QzOu9Q9YIeiCTaT3TUldycUxWDPc1dT1BFou4mK9jc
- 7bOEoMHaIJ2L5fnKagkVRlX/OoG2Ki2g6SQH4jun1VGAnYgN5W3ubauy0qlRi1oW8T4Q kA== 
-Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3jjh9tgc8p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 05:43:24 +0000
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-        by NALASPPMTA03.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 28D5hOqS029458
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 05:43:24 GMT
-Received: from jackp-linux.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.29; Mon, 12 Sep 2022 22:43:23 -0700
-Date:   Mon, 12 Sep 2022 22:43:06 -0700
-From:   Jack Pham <quic_jackp@quicinc.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <jleng@ambarella.com>, <stable@kernel.org>,
-        <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] usb: gadget: f_uac2: fix superspeed
- transfer" failed to apply to 5.15-stable tree
-Message-ID: <20220913054306.GA31201@jackp-linux.qualcomm.com>
-References: <1662463814122169@kroah.com>
+        with ESMTP id S230174AbiIMGEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 02:04:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9EBD87;
+        Mon, 12 Sep 2022 23:04:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2118C612D0;
+        Tue, 13 Sep 2022 06:04:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58BD7C4347C;
+        Tue, 13 Sep 2022 06:04:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663049068;
+        bh=knxMS0KQcgrZ9mebUrSxnCQF3NlIX6ym4qlT2kMEHDs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mPhwqmHSzRjuhdmk+bNEhrZo+RtjkIWfRTPwW+WJzdnZAVvAocQEV2zMcjTQTezlH
+         PWjxRmdLJXSIsarUPzup4R2w5bLym/zZlMyuKj48LGPFcAJys28wDEKq8BNfJ+OU0m
+         goUIT4wzKg1oT4Z5l/1LPP7SoQN5JgNxaF0Fdj9OQCJtzQRnKGrFQL5t9TCXu3jH1Y
+         OHOPLzu+5NR/ZYIPfzBrQSu/51B6w2ZHxIGyQIf/xarOpEL2sMYpAo6zp0DelU7qoj
+         k0UngkpE84+nVuwqyJMyMoZ48wSjR4e/Gb/ab81cl5BWgSDwwD4DlRZZoXOX+9bBjP
+         emSzR2MpiVRbA==
+Date:   Mon, 12 Sep 2022 23:04:26 -0700
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
+Subject: Re: [PATCH] f2fs: fix to detect obsolete inner inode during
+ fill_super()
+Message-ID: <YyAdapWpgTIXa2R5@google.com>
+References: <20220908105334.98572-1-chao@kernel.org>
+ <Yx9SVsxVzNErMDpv@google.com>
+ <a03417f6-e4fa-2b1a-34f8-bd5d52c1e853@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1662463814122169@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: RdrNlOFiz0LhDla2Rot6V5W23mZKhL8W
-X-Proofpoint-GUID: RdrNlOFiz0LhDla2Rot6V5W23mZKhL8W
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-13_02,2022-09-12_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- adultscore=0 lowpriorityscore=0 malwarescore=0 mlxlogscore=917 spamscore=0
- priorityscore=1501 clxscore=1011 bulkscore=0 impostorscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2209130025
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <a03417f6-e4fa-2b1a-34f8-bd5d52c1e853@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 01:30:14PM +0200, gregkh@linuxfoundation.org wrote:
+On 09/13, Chao Yu wrote:
+> On 2022/9/12 23:37, Jaegeuk Kim wrote:
+> > On 09/08, Chao Yu wrote:
+> > > Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
+> > > all the time to fix the below panic.
+> > > 
+> > > Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+> > > Mem abort info:
+> > >    ESR = 0x0000000086000004
+> > >    EC = 0x21: IABT (current EL), IL = 32 bits
+> > >    SET = 0, FnV = 0
+> > >    EA = 0, S1PTW = 0
+> > >    FSC = 0x04: level 0 translation fault
+> > > user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
+> > > [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+> > > Internal error: Oops: 86000004 [#1] PREEMPT SMP
+> > > Modules linked in:
+> > > CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
+> > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+> > > pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> > > pc : 0x0
+> > > lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
+> > > sp : ffff800012783970
+> > > x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
+> > > x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
+> > > x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
+> > > x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
+> > > x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
+> > > x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+> > > x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
+> > > x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
+> > > x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
+> > > x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
+> > > Call trace:
+> > >   0x0
+> > >   set_page_dirty+0x38/0xbc mm/folio-compat.c:62
+> > >   f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
+> > >   do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
+> > >   f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
+> > > 
+> > > The root cause is, quoted from Jaegeuk:
+> > > 
+> > > It turned out there is a bug in reiserfs which doesn't free the root
+> > > inode (ino=2). That leads f2fs to find an ino=2 with the previous
+> > > superblock point used by reiserfs. That stale inode has no valid
+> > > mapping that f2fs can use, result in kernel panic.
+> > > 
+> > > This patch adds sanity check in f2fs_iget() to avoid finding stale
+> > > inode during inner inode initialization.
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
+> > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> > > Signed-off-by: Chao Yu <chao@kernel.org>
+> > > ---
+> > >   fs/f2fs/inode.c | 11 +++++++++++
+> > >   1 file changed, 11 insertions(+)
+> > > 
+> > > diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+> > > index ccb29034af59..df1a82fbfaf2 100644
+> > > --- a/fs/f2fs/inode.c
+> > > +++ b/fs/f2fs/inode.c
+> > > @@ -493,6 +493,17 @@ struct inode *f2fs_iget_inner(struct super_block *sb, unsigned long ino)
+> > >   	struct inode *inode;
+> > >   	int ret = 0;
+> > > +	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi) ||
+> > > +					ino == F2FS_COMPRESS_INO(sbi)) {
+> > > +		inode = ilookup(sb, ino);
+> > > +		if (inode) {
+> > > +			iput(inode);
+> > > +			f2fs_err(sbi, "there is obsoleted inner inode %lu cached in hash table",
+> > > +					ino);
+> > > +			return ERR_PTR(-EFSCORRUPTED);
+> > 
+> > Well, this does not indicate f2fs is corrupted. I'd rather expect to fix
+> > reiserfs instead of f2fs workaround which hides the bug.
 > 
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Well, is there a fixing patch for reiserfs? If not, how about applying this
+> patch first, later, we can revert it after reiserfs has been fixed.
 
-Ah ok, for 5.15 this patch doesn't apply due to broken indentation that
-was later fixed.  So could we also backport commit 18d6b39ee895 ("usb:
-gadget: f_uac2: clean up some inconsistent indenting") first or should
-this patch just be fixed up to apply standalone?
+I don't feel this is a right way to deal with that. If we think it'd be worth
+checking any stale inode object during f2fs_fill_super, we'd better check any
+cached inode given superblock pointer rather than our inner inodes only.
 
-Jack
-
-> ------------------ original commit in Linus's tree ------------------
 > 
-> From f511aef2ebe5377d4c263842f2e0c0b8e274e8e5 Mon Sep 17 00:00:00 2001
-> From: Jing Leng <jleng@ambarella.com>
-> Date: Wed, 20 Jul 2022 18:48:15 -0700
-> Subject: [PATCH] usb: gadget: f_uac2: fix superspeed transfer
+> Thanks,
 > 
-> On page 362 of the USB3.2 specification (
-> https://usb.org/sites/default/files/usb_32_20210125.zip),
-> The 'SuperSpeed Endpoint Companion Descriptor' shall only be returned
-> by Enhanced SuperSpeed devices that are operating at Gen X speed.
-> Each endpoint described in an interface is followed by a 'SuperSpeed
-> Endpoint Companion Descriptor'.
-> 
-> If users use SuperSpeed UDC, host can't recognize the device if endpoint
-> doesn't have 'SuperSpeed Endpoint Companion Descriptor' followed.
-> 
-> Currently in the uac2 driver code:
-> 1. ss_epout_desc_comp follows ss_epout_desc;
-> 2. ss_epin_fback_desc_comp follows ss_epin_fback_desc;
-> 3. ss_epin_desc_comp follows ss_epin_desc;
-> 4. Only ss_ep_int_desc endpoint doesn't have 'SuperSpeed Endpoint
-> Companion Descriptor' followed, so we should add it.
-> 
-> Fixes: eaf6cbe09920 ("usb: gadget: f_uac2: add volume and mute support")
-> Cc: stable <stable@kernel.org>
-> Signed-off-by: Jing Leng <jleng@ambarella.com>
-> Signed-off-by: Jack Pham <quic_jackp@quicinc.com>
-> Link: https://lore.kernel.org/r/20220721014815.14453-1-quic_jackp@quicinc.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
-> index 1905a8d8e0c9..08726e4c68a5 100644
-> --- a/drivers/usb/gadget/function/f_uac2.c
-> +++ b/drivers/usb/gadget/function/f_uac2.c
-> @@ -291,6 +291,12 @@ static struct usb_endpoint_descriptor ss_ep_int_desc = {
->  	.bInterval = 4,
->  };
->  
-> +static struct usb_ss_ep_comp_descriptor ss_ep_int_desc_comp = {
-> +	.bLength = sizeof(ss_ep_int_desc_comp),
-> +	.bDescriptorType = USB_DT_SS_ENDPOINT_COMP,
-> +	.wBytesPerInterval = cpu_to_le16(6),
-> +};
-> +
->  /* Audio Streaming OUT Interface - Alt0 */
->  static struct usb_interface_descriptor std_as_out_if0_desc = {
->  	.bLength = sizeof std_as_out_if0_desc,
-> @@ -604,7 +610,8 @@ static struct usb_descriptor_header *ss_audio_desc[] = {
->  	(struct usb_descriptor_header *)&in_feature_unit_desc,
->  	(struct usb_descriptor_header *)&io_out_ot_desc,
->  
-> -  (struct usb_descriptor_header *)&ss_ep_int_desc,
-> +	(struct usb_descriptor_header *)&ss_ep_int_desc,
-> +	(struct usb_descriptor_header *)&ss_ep_int_desc_comp,
->  
->  	(struct usb_descriptor_header *)&std_as_out_if0_desc,
->  	(struct usb_descriptor_header *)&std_as_out_if1_desc,
-> @@ -800,6 +807,7 @@ static void setup_headers(struct f_uac2_opts *opts,
->  	struct usb_ss_ep_comp_descriptor *epout_desc_comp = NULL;
->  	struct usb_ss_ep_comp_descriptor *epin_desc_comp = NULL;
->  	struct usb_ss_ep_comp_descriptor *epin_fback_desc_comp = NULL;
-> +	struct usb_ss_ep_comp_descriptor *ep_int_desc_comp = NULL;
->  	struct usb_endpoint_descriptor *epout_desc;
->  	struct usb_endpoint_descriptor *epin_desc;
->  	struct usb_endpoint_descriptor *epin_fback_desc;
-> @@ -827,6 +835,7 @@ static void setup_headers(struct f_uac2_opts *opts,
->  		epin_fback_desc = &ss_epin_fback_desc;
->  		epin_fback_desc_comp = &ss_epin_fback_desc_comp;
->  		ep_int_desc = &ss_ep_int_desc;
-> +		ep_int_desc_comp = &ss_ep_int_desc_comp;
->  	}
->  
->  	i = 0;
-> @@ -855,8 +864,11 @@ static void setup_headers(struct f_uac2_opts *opts,
->  	if (EPOUT_EN(opts))
->  		headers[i++] = USBDHDR(&io_out_ot_desc);
->  
-> -	if (FUOUT_EN(opts) || FUIN_EN(opts))
-> +	if (FUOUT_EN(opts) || FUIN_EN(opts)) {
->  		headers[i++] = USBDHDR(ep_int_desc);
-> +		if (ep_int_desc_comp)
-> +			headers[i++] = USBDHDR(ep_int_desc_comp);
-> +	}
->  
->  	if (EPOUT_EN(opts)) {
->  		headers[i++] = USBDHDR(&std_as_out_if0_desc);
-> 
+> > 
+> > > +		}
+> > > +	}
+> > > +
+> > >   	inode = iget_locked(sb, ino);
+> > >   	if (!inode)
+> > >   		return ERR_PTR(-ENOMEM);
+> > > -- 
+> > > 2.25.1
