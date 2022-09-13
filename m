@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A57AE5B732D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 986675B73BD
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232830AbiIMPEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:04:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48488 "EHLO
+        id S235479AbiIMPME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:12:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235057AbiIMPDQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D36B73B0;
-        Tue, 13 Sep 2022 07:29:44 -0700 (PDT)
+        with ESMTP id S235531AbiIMPLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:11:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A037377E8A;
+        Tue, 13 Sep 2022 07:32:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2927DB80FBC;
-        Tue, 13 Sep 2022 14:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7288DC433C1;
-        Tue, 13 Sep 2022 14:29:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD9EAB80D87;
+        Tue, 13 Sep 2022 14:32:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DD3EC433C1;
+        Tue, 13 Sep 2022 14:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079351;
-        bh=00iZ6bvz/69wZ0JiR2KqD0rgb6QaCmzy1HgetsWSBL8=;
+        s=korg; t=1663079530;
+        bh=gU0OH3XIhcADfT31F2l53Sglvesw+5FFs/Nss/7JBTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fac/cf63quVNOnsQ+uwyhKSuvl/0fLJniJsVlsU3FIIoZPkhMpm8YIPHw42V4SUbu
-         ki9A5TxkdkOe1hpBSw9XYWGed1QeGXTHrBM1c0FUisNRBGCfgMvR39Pm/rOp/l7NfT
-         k6J7/jbDVYRnOz/A852chuMUm40TiQ7H5hlPhl3E=
+        b=SZlxiioVjxr44+BE9hOEzGQJPIIrRqc3pDOVw2gI3bfaXieM6pnhPC/PnHBA+ceRi
+         PUjCBoBBdvre1AlHaGsW3xMGbgGrJHTZihN4i+PyV2OXrFlz6yGg10xt3fDyMh5Owa
+         JDUiMxYZyomaoaWVQHdKgF+6JvFTMLdnXs8ajmIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-rdma@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 101/108] RDMA/siw: Pass a pointer to virt_to_page()
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 54/79] arm64/signal: Raise limit on stack frames
 Date:   Tue, 13 Sep 2022 16:07:12 +0200
-Message-Id: <20220913140357.957720068@linuxfoundation.org>
+Message-Id: <20220913140351.514320304@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 0d1b756acf60da5004c1e20ca4462f0c257bf6e1 ]
+[ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
 
-Functions that work on a pointer to virtual memory such as
-virt_to_pfn() and users of that function such as
-virt_to_page() are supposed to pass a pointer to virtual
-memory, ideally a (void *) or other pointer. However since
-many architectures implement virt_to_pfn() as a macro,
-this function becomes polymorphic and accepts both a
-(unsigned long) and a (void *).
+The signal code has a limit of 64K on the size of a stack frame that it
+will generate, if this limit is exceeded then a process will be killed if
+it receives a signal. Unfortunately with the advent of SME this limit is
+too small - the maximum possible size of the ZA register alone is 64K. This
+is not an issue for practical systems at present but is easily seen using
+virtual platforms.
 
-If we instead implement a proper virt_to_pfn(void *addr)
-function the following happens (occurred on arch/arm):
+Raise the limit to 256K, this is substantially more than could be used by
+any current architecture extension.
 
-drivers/infiniband/sw/siw/siw_qp_tx.c:32:23: warning: incompatible
-  integer to pointer conversion passing 'dma_addr_t' (aka 'unsigned int')
-  to parameter of type 'const void *' [-Wint-conversion]
-drivers/infiniband/sw/siw/siw_qp_tx.c:32:37: warning: passing argument
-  1 of 'virt_to_pfn' makes pointer from integer without a cast
-  [-Wint-conversion]
-drivers/infiniband/sw/siw/siw_qp_tx.c:538:36: warning: incompatible
-  integer to pointer conversion passing 'unsigned long long'
-  to parameter of type 'const void *' [-Wint-conversion]
-
-Fix this with an explicit cast. In one case where the SIW
-SGE uses an unaligned u64 we need a double cast modifying the
-virtual address (va) to a platform-specific uintptr_t before
-casting to a (void *).
-
-Fixes: b9be6f18cf9e ("rdma/siw: transmit path")
-Cc: linux-rdma@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220902215918.603761-1-linus.walleij@linaro.org
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220817182324.638214-2-broonie@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_qp_tx.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/arm64/kernel/signal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
-index 424918eb1cd4a..5e6d96bd2eb12 100644
---- a/drivers/infiniband/sw/siw/siw_qp_tx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
-@@ -29,7 +29,7 @@ static struct page *siw_get_pblpage(struct siw_mem *mem, u64 addr, int *idx)
- 	dma_addr_t paddr = siw_pbl_get_buffer(pbl, offset, NULL, idx);
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index ca565853dea64..bd9b36ab35f0f 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -101,7 +101,7 @@ static size_t sigframe_size(struct rt_sigframe_user_layout const *user)
+  * not taken into account.  This limit is not a guarantee and is
+  * NOT ABI.
+  */
+-#define SIGFRAME_MAXSZ SZ_64K
++#define SIGFRAME_MAXSZ SZ_256K
  
- 	if (paddr)
--		return virt_to_page(paddr);
-+		return virt_to_page((void *)paddr);
- 
- 	return NULL;
- }
-@@ -523,13 +523,23 @@ static int siw_tx_hdt(struct siw_iwarp_tx *c_tx, struct socket *s)
- 					kunmap(p);
- 				}
- 			} else {
--				u64 va = sge->laddr + sge_off;
-+				/*
-+				 * Cast to an uintptr_t to preserve all 64 bits
-+				 * in sge->laddr.
-+				 */
-+				uintptr_t va = (uintptr_t)(sge->laddr + sge_off);
- 
--				page_array[seg] = virt_to_page(va & PAGE_MASK);
-+				/*
-+				 * virt_to_page() takes a (void *) pointer
-+				 * so cast to a (void *) meaning it will be 64
-+				 * bits on a 64 bit platform and 32 bits on a
-+				 * 32 bit platform.
-+				 */
-+				page_array[seg] = virt_to_page((void *)(va & PAGE_MASK));
- 				if (do_crc)
- 					crypto_shash_update(
- 						c_tx->mpa_crc_hd,
--						(void *)(uintptr_t)va,
-+						(void *)va,
- 						plen);
- 			}
- 
+ static int __sigframe_alloc(struct rt_sigframe_user_layout *user,
+ 			    unsigned long *offset, size_t size, bool extend)
 -- 
 2.35.1
 
