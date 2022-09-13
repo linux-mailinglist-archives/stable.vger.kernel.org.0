@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DA55B707B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA7D5B720E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233837AbiIMO34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44366 "EHLO
+        id S231623AbiIMOtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234037AbiIMO3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511F719C3C;
-        Tue, 13 Sep 2022 07:18:17 -0700 (PDT)
+        with ESMTP id S234473AbiIMOsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A687B6F546;
+        Tue, 13 Sep 2022 07:25:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 982D7CE1276;
-        Tue, 13 Sep 2022 14:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D08C433D7;
-        Tue, 13 Sep 2022 14:18:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 575BEB80EFE;
+        Tue, 13 Sep 2022 14:14:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB63BC433C1;
+        Tue, 13 Sep 2022 14:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078695;
-        bh=A0qsj/Cg5UZo4oF1sBCD9D5O52VzN+ufFhFreEkRo7E=;
+        s=korg; t=1663078484;
+        bh=hzHlMCpsGdkKTK0zWkUiYLwjSnS2cs+6PTOMwwjV36o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x00/QEdNFQM51byo2m8Jw/ZNcHgbgksaErrnXJQSAv6UNX+LS8DRH0mS5nIe+WvHN
-         2SuxmUBVHLKB2dGbhCNfMdN6aua0Uqv/CAa5CgIS6LedpfbsWP8sp5+933ylZv8jdp
-         ELsAuUCTaz9A7sP0743tNzOxllpQaq0ySH+PuHPk=
+        b=1Y65BphkXOiWidwIvQXWli0bquotHl85G9zu5RCEOuZsM44h6hRuY0d+GmLqpV1xl
+         SJzS/WL9WsS60JuRgOgeN4h7sAQxsi8SGD67OSNxbgMJFthiJGBUTvuHvXDfq6F4TB
+         TMQ/NF481LyOCS6nrNnHJZsHnt71qPIB1pdev6W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Imran Khan <imran.f.khan@oracle.com>,
-        Xuewen Yan <xuewen.yan@unisoc.com>
-Subject: [PATCH 5.15 047/121] cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 132/192] btrfs: zoned: fix mounting with conventional zones
 Date:   Tue, 13 Sep 2022 16:03:58 +0200
-Message-Id: <20220913140359.383124989@linuxfoundation.org>
+Message-Id: <20220913140416.588500662@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,205 +55,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit 4f7e7236435ca0abe005c674ebd6892c6e83aeb3 ]
+[ Upstream commit 6ca64ac2763149fb66c0b4bf12f5e0977a88e51d ]
 
-Bringing up a CPU may involve creating and destroying tasks which requires
-read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-cpus_read_lock(). However, cpuset's ->attach(), which may be called with
-thredagroup_rwsem write-locked, also wants to disable CPU hotplug and
-acquires cpus_read_lock(), leading to a deadlock.
+Since commit 6a921de58992 ("btrfs: zoned: introduce
+space_info->active_total_bytes"), we're only counting the bytes of a
+block group on an active zone as usable for metadata writes. But on a
+SMR drive, we don't have active zones and short circuit some of the
+logic.
 
-Fix it by guaranteeing that ->attach() is always called with CPU hotplug
-disabled and removing cpus_read_lock() call from cpuset_attach().
+This leads to an error on mount, because we cannot reserve space for
+metadata writes.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reviewed-and-tested-by: Imran Khan <imran.f.khan@oracle.com>
-Reported-and-tested-by: Xuewen Yan <xuewen.yan@unisoc.com>
-Fixes: 05c7b7a92cc8 ("cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug")
-Cc: stable@vger.kernel.org # v5.17+
+Fix this by also setting the BLOCK_GROUP_FLAG_ZONE_IS_ACTIVE bit in the
+block-group's runtime flag if the zone is a conventional zone.
+
+Fixes: 6a921de58992 ("btrfs: zoned: introduce space_info->active_total_bytes")
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup.c | 77 +++++++++++++++++++++++++++++-------------
- kernel/cgroup/cpuset.c |  3 +-
- 2 files changed, 55 insertions(+), 25 deletions(-)
+ fs/btrfs/zoned.c | 81 ++++++++++++++++++++++++------------------------
+ 1 file changed, 40 insertions(+), 41 deletions(-)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index baebd1c7667b7..75c3881af0784 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2345,6 +2345,47 @@ int task_cgroup_path(struct task_struct *task, char *buf, size_t buflen)
- }
- EXPORT_SYMBOL_GPL(task_cgroup_path);
- 
-+/**
-+ * cgroup_attach_lock - Lock for ->attach()
-+ * @lock_threadgroup: whether to down_write cgroup_threadgroup_rwsem
-+ *
-+ * cgroup migration sometimes needs to stabilize threadgroups against forks and
-+ * exits by write-locking cgroup_threadgroup_rwsem. However, some ->attach()
-+ * implementations (e.g. cpuset), also need to disable CPU hotplug.
-+ * Unfortunately, letting ->attach() operations acquire cpus_read_lock() can
-+ * lead to deadlocks.
-+ *
-+ * Bringing up a CPU may involve creating and destroying tasks which requires
-+ * read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-+ * cpus_read_lock(). If we call an ->attach() which acquires the cpus lock while
-+ * write-locking threadgroup_rwsem, the locking order is reversed and we end up
-+ * waiting for an on-going CPU hotplug operation which in turn is waiting for
-+ * the threadgroup_rwsem to be released to create new tasks. For more details:
-+ *
-+ *   http://lkml.kernel.org/r/20220711174629.uehfmqegcwn2lqzu@wubuntu
-+ *
-+ * Resolve the situation by always acquiring cpus_read_lock() before optionally
-+ * write-locking cgroup_threadgroup_rwsem. This allows ->attach() to assume that
-+ * CPU hotplug is disabled on entry.
-+ */
-+static void cgroup_attach_lock(bool lock_threadgroup)
-+{
-+	cpus_read_lock();
-+	if (lock_threadgroup)
-+		percpu_down_write(&cgroup_threadgroup_rwsem);
-+}
-+
-+/**
-+ * cgroup_attach_unlock - Undo cgroup_attach_lock()
-+ * @lock_threadgroup: whether to up_write cgroup_threadgroup_rwsem
-+ */
-+static void cgroup_attach_unlock(bool lock_threadgroup)
-+{
-+	if (lock_threadgroup)
-+		percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cpus_read_unlock();
-+}
-+
- /**
-  * cgroup_migrate_add_task - add a migration target task to a migration context
-  * @task: target task
-@@ -2821,8 +2862,7 @@ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
- }
- 
- struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
--					     bool *locked)
--	__acquires(&cgroup_threadgroup_rwsem)
-+					     bool *threadgroup_locked)
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 4949e0d82923d..1386362fad3b8 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1187,7 +1187,7 @@ int btrfs_ensure_empty_zones(struct btrfs_device *device, u64 start, u64 size)
+  * offset.
+  */
+ static int calculate_alloc_pointer(struct btrfs_block_group *cache,
+-				   u64 *offset_ret)
++				   u64 *offset_ret, bool new)
  {
- 	struct task_struct *tsk;
- 	pid_t pid;
-@@ -2839,12 +2879,8 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
- 	 * Therefore, we can skip the global lock.
- 	 */
- 	lockdep_assert_held(&cgroup_mutex);
--	if (pid || threadgroup) {
--		percpu_down_write(&cgroup_threadgroup_rwsem);
--		*locked = true;
--	} else {
--		*locked = false;
--	}
-+	*threadgroup_locked = pid || threadgroup;
-+	cgroup_attach_lock(*threadgroup_locked);
+ 	struct btrfs_fs_info *fs_info = cache->fs_info;
+ 	struct btrfs_root *root;
+@@ -1197,6 +1197,21 @@ static int calculate_alloc_pointer(struct btrfs_block_group *cache,
+ 	int ret;
+ 	u64 length;
  
- 	rcu_read_lock();
- 	if (pid) {
-@@ -2875,17 +2911,14 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
- 	goto out_unlock_rcu;
- 
- out_unlock_threadgroup:
--	if (*locked) {
--		percpu_up_write(&cgroup_threadgroup_rwsem);
--		*locked = false;
--	}
-+	cgroup_attach_unlock(*threadgroup_locked);
-+	*threadgroup_locked = false;
- out_unlock_rcu:
- 	rcu_read_unlock();
- 	return tsk;
- }
- 
--void cgroup_procs_write_finish(struct task_struct *task, bool locked)
--	__releases(&cgroup_threadgroup_rwsem)
-+void cgroup_procs_write_finish(struct task_struct *task, bool threadgroup_locked)
- {
- 	struct cgroup_subsys *ss;
- 	int ssid;
-@@ -2893,8 +2926,8 @@ void cgroup_procs_write_finish(struct task_struct *task, bool locked)
- 	/* release reference from cgroup_procs_write_start() */
- 	put_task_struct(task);
- 
--	if (locked)
--		percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock(threadgroup_locked);
++	/*
++	 * Avoid  tree lookups for a new block group, there's no use for it.
++	 * It must always be 0.
++	 *
++	 * Also, we have a lock chain of extent buffer lock -> chunk mutex.
++	 * For new a block group, this function is called from
++	 * btrfs_make_block_group() which is already taking the chunk mutex.
++	 * Thus, we cannot call calculate_alloc_pointer() which takes extent
++	 * buffer locks to avoid deadlock.
++	 */
++	if (new) {
++		*offset_ret = 0;
++		return 0;
++	}
 +
- 	for_each_subsys(ss, ssid)
- 		if (ss->post_attach)
- 			ss->post_attach();
-@@ -2971,8 +3004,7 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	 * write-locking can be skipped safely.
- 	 */
- 	has_tasks = !list_empty(&mgctx.preloaded_src_csets);
--	if (has_tasks)
--		percpu_down_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_lock(has_tasks);
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+@@ -1332,6 +1347,13 @@ int btrfs_load_block_group_zone_info(struct btrfs_block_group *cache, bool new)
+ 		else
+ 			num_conventional++;
  
- 	/* NULL dst indicates self on default hierarchy */
- 	ret = cgroup_migrate_prepare_dst(&mgctx);
-@@ -2993,8 +3025,7 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 	ret = cgroup_migrate_execute(&mgctx);
- out_finish:
- 	cgroup_migrate_finish(&mgctx);
--	if (has_tasks)
--		percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock(has_tasks);
- 	return ret;
- }
++		/*
++		 * Consider a zone as active if we can allow any number of
++		 * active zones.
++		 */
++		if (!device->zone_info->max_active_zones)
++			__set_bit(i, active);
++
+ 		if (!is_sequential) {
+ 			alloc_offsets[i] = WP_CONVENTIONAL;
+ 			continue;
+@@ -1398,45 +1420,23 @@ int btrfs_load_block_group_zone_info(struct btrfs_block_group *cache, bool new)
+ 			__set_bit(i, active);
+ 			break;
+ 		}
+-
+-		/*
+-		 * Consider a zone as active if we can allow any number of
+-		 * active zones.
+-		 */
+-		if (!device->zone_info->max_active_zones)
+-			__set_bit(i, active);
+ 	}
  
-@@ -4942,13 +4973,13 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
- 	struct task_struct *task;
- 	const struct cred *saved_cred;
- 	ssize_t ret;
--	bool locked;
-+	bool threadgroup_locked;
+ 	if (num_sequential > 0)
+ 		cache->seq_zone = true;
  
- 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
- 	if (!dst_cgrp)
- 		return -ENODEV;
+ 	if (num_conventional > 0) {
+-		/*
+-		 * Avoid calling calculate_alloc_pointer() for new BG. It
+-		 * is no use for new BG. It must be always 0.
+-		 *
+-		 * Also, we have a lock chain of extent buffer lock ->
+-		 * chunk mutex.  For new BG, this function is called from
+-		 * btrfs_make_block_group() which is already taking the
+-		 * chunk mutex. Thus, we cannot call
+-		 * calculate_alloc_pointer() which takes extent buffer
+-		 * locks to avoid deadlock.
+-		 */
+-
+ 		/* Zone capacity is always zone size in emulation */
+ 		cache->zone_capacity = cache->length;
+-		if (new) {
+-			cache->alloc_offset = 0;
+-			goto out;
+-		}
+-		ret = calculate_alloc_pointer(cache, &last_alloc);
+-		if (ret || map->num_stripes == num_conventional) {
+-			if (!ret)
+-				cache->alloc_offset = last_alloc;
+-			else
+-				btrfs_err(fs_info,
++		ret = calculate_alloc_pointer(cache, &last_alloc, new);
++		if (ret) {
++			btrfs_err(fs_info,
+ 			"zoned: failed to determine allocation offset of bg %llu",
+-					  cache->start);
++				  cache->start);
++			goto out;
++		} else if (map->num_stripes == num_conventional) {
++			cache->alloc_offset = last_alloc;
++			cache->zone_is_active = 1;
+ 			goto out;
+ 		}
+ 	}
+@@ -1504,13 +1504,6 @@ int btrfs_load_block_group_zone_info(struct btrfs_block_group *cache, bool new)
+ 		goto out;
+ 	}
  
--	task = cgroup_procs_write_start(buf, threadgroup, &locked);
-+	task = cgroup_procs_write_start(buf, threadgroup, &threadgroup_locked);
- 	ret = PTR_ERR_OR_ZERO(task);
- 	if (ret)
- 		goto out_unlock;
-@@ -4974,7 +5005,7 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
- 	ret = cgroup_attach_task(dst_cgrp, task, threadgroup);
+-	if (cache->zone_is_active) {
+-		btrfs_get_block_group(cache);
+-		spin_lock(&fs_info->zone_active_bgs_lock);
+-		list_add_tail(&cache->active_bg_list, &fs_info->zone_active_bgs);
+-		spin_unlock(&fs_info->zone_active_bgs_lock);
+-	}
+-
+ out:
+ 	if (cache->alloc_offset > fs_info->zone_size) {
+ 		btrfs_err(fs_info,
+@@ -1535,10 +1528,16 @@ int btrfs_load_block_group_zone_info(struct btrfs_block_group *cache, bool new)
+ 		ret = -EIO;
+ 	}
  
- out_finish:
--	cgroup_procs_write_finish(task, locked);
-+	cgroup_procs_write_finish(task, threadgroup_locked);
- out_unlock:
- 	cgroup_kn_unlock(of->kn);
- 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 9c5b659db63f4..3213d3c8ea0a8 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2249,7 +2249,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 	cgroup_taskset_first(tset, &css);
- 	cs = css_cs(css);
- 
--	cpus_read_lock();
-+	lockdep_assert_cpus_held();	/* see cgroup_attach_lock() */
- 	percpu_down_write(&cpuset_rwsem);
- 
- 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
-@@ -2303,7 +2303,6 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 		wake_up(&cpuset_attach_wq);
- 
- 	percpu_up_write(&cpuset_rwsem);
--	cpus_read_unlock();
- }
- 
- /* The various types of files and directories in a cpuset file system */
+-	if (!ret)
++	if (!ret) {
+ 		cache->meta_write_pointer = cache->alloc_offset + cache->start;
+-
+-	if (ret) {
++		if (cache->zone_is_active) {
++			btrfs_get_block_group(cache);
++			spin_lock(&fs_info->zone_active_bgs_lock);
++			list_add_tail(&cache->active_bg_list,
++				      &fs_info->zone_active_bgs);
++			spin_unlock(&fs_info->zone_active_bgs_lock);
++		}
++	} else {
+ 		kfree(cache->physical_map);
+ 		cache->physical_map = NULL;
+ 	}
 -- 
 2.35.1
 
