@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4913B5B73C8
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292B45B7434
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235427AbiIMPMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:12:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42382 "EHLO
+        id S235233AbiIMPTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231210AbiIMPLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:11:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71BF078580;
-        Tue, 13 Sep 2022 07:32:32 -0700 (PDT)
+        with ESMTP id S235681AbiIMPSI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:18:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC1357224;
+        Tue, 13 Sep 2022 07:35:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5983CB80ECE;
-        Tue, 13 Sep 2022 14:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D5FC433D6;
-        Tue, 13 Sep 2022 14:32:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3759614AA;
+        Tue, 13 Sep 2022 14:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156B7C433D6;
+        Tue, 13 Sep 2022 14:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079549;
-        bh=qOPfv6rN3G08Au0xWngt92uuyIDREJjHLEVh3jzqV5I=;
+        s=korg; t=1663079303;
+        bh=KunAitdqsNAr8OHLeGsc+rfXUt+DkWrQu4cvq4FpV7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUPt5L2k8dhCn8a2xUEJHhdeaNek9IZRmKNvtc8AILhxRBVqyFcjJGJkJTTqNfnuD
-         OK8lWRZJjNq42ue9zBM+I46rB+ifV7PadJ5s9PM76aaw0cGhnnyv6t1I9FZfBdE+Fl
-         wo9Y+ecFpleHxn9ccVFAhvLQdp7L7SaFj3nnxOyU=
+        b=QeRW3xgsmkvXAYd24nHJL8EjDeqDGyI5y+sAgCxz5YlPa3/ekQfn4td5A3e8IYkFw
+         WulLqZGLVf2Ys7ALoxRyA33L6N3j1ydRSRhFbU9cTqrFR7OYiI4PUymafh0nULM/e7
+         wf/B1tt5nV0OQxCVlY+gt0fT8HILshBlSih///iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan Xinyu <sdlyyxy@bupt.edu.cn>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 34/79] USB: serial: option: add support for OPPO R11 diag port
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Kuyo Chang <kuyo.chang@mediatek.com>
+Subject: [PATCH 5.4 081/108] debugfs: add debugfs_lookup_and_remove()
 Date:   Tue, 13 Sep 2022 16:06:52 +0200
-Message-Id: <20220913140350.554841999@linuxfoundation.org>
+Message-Id: <20220913140357.110806115@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Xinyu <sdlyyxy@bupt.edu.cn>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 8d5fc280392735e4441b35de14f2f4860fa8d83c upstream.
+commit dec9b2f1e0455a151a7293c367da22ab973f713e upstream.
 
-Add support for OPPO R11 USB diag serial port to option driver. This
-phone uses Qualcomm Snapdragon 660 SoC.
+There is a very common pattern of using
+debugfs_remove(debufs_lookup(..)) which results in a dentry leak of the
+dentry that was looked up.  Instead of having to open-code the correct
+pattern of calling dput() on the dentry, create
+debugfs_lookup_and_remove() to handle this pattern automatically and
+properly without any memory leaks.
 
-usb-devices output:
-T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22d9 ProdID=276c Rev=04.04
-S:  Manufacturer=OPPO
-S:  Product=SDM660-MTP _SN:09C6BCA7
-S:  SerialNumber=beb2c403
-C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
-
-Signed-off-by: Yan Xinyu <sdlyyxy@bupt.edu.cn>
-Link: https://lore.kernel.org/r/20220714102037.4113889-1-sdlyyxy@bupt.edu.cn
-Link: https://lore.kernel.org/r/Yt1WfSZk03Plpnan@hovoldconsulting.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable <stable@kernel.org>
+Reported-by: Kuyo Chang <kuyo.chang@mediatek.com>
+Tested-by: Kuyo Chang <kuyo.chang@mediatek.com>
+Link: https://lore.kernel.org/r/YxIaQ8cSinDR881k@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/debugfs/inode.c      |   22 ++++++++++++++++++++++
+ include/linux/debugfs.h |    6 ++++++
+ 2 files changed, 28 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -573,6 +573,10 @@ static void option_instat_callback(struc
- #define WETELECOM_PRODUCT_6802			0x6802
- #define WETELECOM_PRODUCT_WMD300		0x6803
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -743,6 +743,28 @@ void debugfs_remove(struct dentry *dentr
+ EXPORT_SYMBOL_GPL(debugfs_remove);
  
-+/* OPPO products */
-+#define OPPO_VENDOR_ID				0x22d9
-+#define OPPO_PRODUCT_R11			0x276c
+ /**
++ * debugfs_lookup_and_remove - lookup a directory or file and recursively remove it
++ * @name: a pointer to a string containing the name of the item to look up.
++ * @parent: a pointer to the parent dentry of the item.
++ *
++ * This is the equlivant of doing something like
++ * debugfs_remove(debugfs_lookup(..)) but with the proper reference counting
++ * handled for the directory being looked up.
++ */
++void debugfs_lookup_and_remove(const char *name, struct dentry *parent)
++{
++	struct dentry *dentry;
 +
++	dentry = debugfs_lookup(name, parent);
++	if (!dentry)
++		return;
++
++	debugfs_remove(dentry);
++	dput(dentry);
++}
++EXPORT_SYMBOL_GPL(debugfs_lookup_and_remove);
++
++/**
+  * debugfs_remove_recursive - recursively removes a directory
+  * @dentry: a pointer to a the dentry of the directory to be removed.  If this
+  *          parameter is NULL or an error value, nothing will be done.
+--- a/include/linux/debugfs.h
++++ b/include/linux/debugfs.h
+@@ -85,6 +85,8 @@ struct dentry *debugfs_create_automount(
+ void debugfs_remove(struct dentry *dentry);
+ void debugfs_remove_recursive(struct dentry *dentry);
  
- /* Device flags */
++void debugfs_lookup_and_remove(const char *name, struct dentry *parent);
++
+ const struct file_operations *debugfs_real_fops(const struct file *filp);
  
-@@ -2155,6 +2159,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+ int debugfs_file_get(struct dentry *dentry);
+@@ -216,6 +218,10 @@ static inline void debugfs_remove(struct
+ static inline void debugfs_remove_recursive(struct dentry *dentry)
+ { }
+ 
++static inline void debugfs_lookup_and_remove(const char *name,
++					     struct dentry *parent)
++{ }
++
+ const struct file_operations *debugfs_real_fops(const struct file *filp);
+ 
+ static inline int debugfs_file_get(struct dentry *dentry)
 
 
