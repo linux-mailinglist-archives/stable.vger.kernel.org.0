@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E11D5B6F79
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 543BA5B6F36
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232898AbiIMONQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:13:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36404 "EHLO
+        id S232730AbiIMOKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:10:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232736AbiIMOMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:12:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA3459272;
-        Tue, 13 Sep 2022 07:10:04 -0700 (PDT)
+        with ESMTP id S232634AbiIMOJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:09:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4907A59262;
+        Tue, 13 Sep 2022 07:08:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7209461497;
-        Tue, 13 Sep 2022 14:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83628C433C1;
-        Tue, 13 Sep 2022 14:09:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA7EB80EF7;
+        Tue, 13 Sep 2022 14:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989B8C433D6;
+        Tue, 13 Sep 2022 14:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078198;
-        bh=QBsjK9oGm5O9r4YTpxdmvu68qWH0C2oAEG1TyScOEnA=;
+        s=korg; t=1663078125;
+        bh=Gf6K69+lkv4ZJgkil7/pyHJXXMnEeC5gYZJ9LHoQ7lU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/uQh16tnoG8liAYBjMYjFqW+O15U/j+mIOS0l1tWgKWsn+W3yJBxDlDNoNlNr4q7
-         g2yGreJuuC4GgrWGgvXIfVNuUm8Bxesci4XrQvLhQzTwr1xxRbO7KxVBpCbmnExIr5
-         EzUJ9VywS6p1Bu7skxtKtMcBTHGyPhnLTZEg1gNw=
+        b=YJcd5CvOkE3M9UTGNWpDzgbBlet8aMQ/+nq9U/5ICl1ejSXmu+4BnIvsW3T5QRviR
+         dJf4c1B9lP64X1A21wXwLOsugsVY9Y6PWgHhl8namahmLdTZJmRW9USqGySlZMOmrB
+         sBT2vJIqdAndbAs+QNElUgs7awz3122BURKIxQM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YiPeng Chai <YiPeng.Chai@amd.com>,
+        stable@vger.kernel.org, Candice Li <candice.li@amd.com>,
         Hawking Zhang <Hawking.Zhang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 014/192] drm/amdgpu: fix hive reference leak when adding xgmi device
-Date:   Tue, 13 Sep 2022 16:02:00 +0200
-Message-Id: <20220913140410.649837380@linuxfoundation.org>
+Subject: [PATCH 5.19 015/192] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
+Date:   Tue, 13 Sep 2022 16:02:01 +0200
+Message-Id: <20220913140410.690792657@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -55,39 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiPeng Chai <YiPeng.Chai@amd.com>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit f5994da72ba124a3d0463672fdfbec073e3bb72f ]
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-Only amdgpu_get_xgmi_hive but no amdgpu_put_xgmi_hive
-which will leak the hive reference.
+No need to set up rb when no gfx rings.
 
-Signed-off-by: YiPeng Chai <YiPeng.Chai@amd.com>
+Signed-off-by: Candice Li <candice.li@amd.com>
 Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 3adebb63680e0..ea2b74c0fd229 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2482,12 +2482,14 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
- 			if (!hive->reset_domain ||
- 			    !amdgpu_reset_get_reset_domain(hive->reset_domain)) {
- 				r = -ENOENT;
-+				amdgpu_put_xgmi_hive(hive);
- 				goto init_failed;
- 			}
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 5349ca4d19e38..6d8ff3b099422 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2587,7 +2587,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
  
- 			/* Drop the early temporary reset domain we created for device */
- 			amdgpu_reset_put_reset_domain(adev->reset_domain);
- 			adev->reset_domain = hive->reset_domain;
-+			amdgpu_put_xgmi_hive(hive);
- 		}
- 	}
+ 	gfx_v9_0_tiling_mode_table_init(adev);
+ 
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
  
 -- 
 2.35.1
