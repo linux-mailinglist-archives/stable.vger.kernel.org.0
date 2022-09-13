@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75E095B713D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B6F5B70B2
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbiIMOmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:42:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
+        id S233779AbiIMO1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:27:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232632AbiIMOle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B4EA6CF7F;
-        Tue, 13 Sep 2022 07:22:20 -0700 (PDT)
+        with ESMTP id S233763AbiIMO0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:26:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3488361D80;
+        Tue, 13 Sep 2022 07:17:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C39CB80FA0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04DDC614B3;
+        Tue, 13 Sep 2022 14:15:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED2C8C433D6;
         Tue, 13 Sep 2022 14:15:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FE4C433D7;
-        Tue, 13 Sep 2022 14:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078537;
-        bh=5xW9K4lgNx1ZoGh7DfLEWCB95jRLepwiG5mVzvMe5So=;
+        s=korg; t=1663078539;
+        bh=WGaXiGtqgHgRtcWmM+ueCPynVJnTPIDS2BAH7VQdfcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00qXHvi9Sak7l5cC7PdZlVTXukhHg9y+s/MiOBqhBRC9gDXJPCRTGeC8RzsTKK8sR
-         KP91hIQkxhuq2kpxWbJK1IxUFKL1MuSih1EoFNpwVbv2ED5LJPVSQsocSWNNpMaJ8L
-         YGKhoXOuSaE0jUeaYxibpycYRGCM5xzmAPok5obE=
+        b=SGwbi2Nq+wOxtRZ/UZARjO6FGagDY6f904KuX9hnGH2xJpiBn3xVxKJr8ILxSTd+z
+         QI4RZipzOBTMC54mkmmbnD/fzQhGLqqrgVEuB8sMst43C1A3ZXRNbCmkZtcZ7xsUpk
+         pb2p4HFvutCXldPGzADi84Oe9Ae9ZHafKGhuCUmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 178/192] iommu/vt-d: Fix possible recursive locking in intel_iommu_init()
-Date:   Tue, 13 Sep 2022 16:04:44 +0200
-Message-Id: <20220913140418.914135026@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 179/192] perf evlist: Always use arch_evlist__add_default_attrs()
+Date:   Tue, 13 Sep 2022 16:04:45 +0200
+Message-Id: <20220913140418.963060947@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -55,168 +61,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 9cd4f1434479f1ac25c440c421fbf52069079914 ]
+[ Upstream commit a9c1ecdabc4f2ef04ef5334b8deb3a5c5910136d ]
 
-The global rwsem dmar_global_lock was introduced by commit 3a5670e8ac932
-("iommu/vt-d: Introduce a rwsem to protect global data structures"). It
-is used to protect DMAR related global data from DMAR hotplug operations.
+Current perf stat uses the evlist__add_default_attrs() to add the
+generic default attrs, and uses arch_evlist__add_default_attrs() to add
+the Arch specific default attrs, e.g., Topdown for x86.
 
-The dmar_global_lock used in the intel_iommu_init() might cause recursive
-locking issue, for example, intel_iommu_get_resv_regions() is taking the
-dmar_global_lock from within a section where intel_iommu_init() already
-holds it via probe_acpi_namespace_devices().
+It works well for the non-hybrid platforms. However, for a hybrid
+platform, the hard code generic default attrs don't work.
 
-Using dmar_global_lock in intel_iommu_init() could be relaxed since it is
-unlikely that any IO board must be hot added before the IOMMU subsystem is
-initialized. This eliminates the possible recursive locking issue by moving
-down DMAR hotplug support after the IOMMU is initialized and removing the
-uses of dmar_global_lock in intel_iommu_init().
+Uses arch_evlist__add_default_attrs() to replace the
+evlist__add_default_attrs(). The arch_evlist__add_default_attrs() is
+modified to invoke the same __evlist__add_default_attrs() for the
+generic default attrs. No functional change.
 
-Fixes: d5692d4af08cd ("iommu/vt-d: Fix suspicious RCU usage in probe_acpi_namespace_devices()")
-Reported-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/894db0ccae854b35c73814485569b634237b5538.1657034828.git.robin.murphy@arm.com
-Link: https://lore.kernel.org/r/20220718235325.3952426-1-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Add default_null_attrs[] to indicate the arch specific attrs.
+No functional change for the arch specific default attrs either.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220721065706.2886112-4-zhengjun.xing@linux.intel.com
+Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Stable-dep-of: f0c86a2bae4f ("perf stat: Fix L2 Topdown metrics disappear for raw events")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/dmar.c  |  7 +++++++
- drivers/iommu/intel/iommu.c | 27 ++-------------------------
- include/linux/dmar.h        |  4 +++-
- 3 files changed, 12 insertions(+), 26 deletions(-)
+ tools/perf/arch/x86/util/evlist.c | 7 ++++++-
+ tools/perf/builtin-stat.c         | 6 +++++-
+ tools/perf/util/evlist.c          | 9 +++++++--
+ tools/perf/util/evlist.h          | 7 +++++--
+ 4 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 64b14ac4c7b02..fc8c1420c0b69 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -2368,6 +2368,13 @@ static int dmar_device_hotplug(acpi_handle handle, bool insert)
- 	if (!dmar_in_use())
+diff --git a/tools/perf/arch/x86/util/evlist.c b/tools/perf/arch/x86/util/evlist.c
+index 68f681ad54c1e..777bdf182a582 100644
+--- a/tools/perf/arch/x86/util/evlist.c
++++ b/tools/perf/arch/x86/util/evlist.c
+@@ -8,8 +8,13 @@
+ #define TOPDOWN_L1_EVENTS	"{slots,topdown-retiring,topdown-bad-spec,topdown-fe-bound,topdown-be-bound}"
+ #define TOPDOWN_L2_EVENTS	"{slots,topdown-retiring,topdown-bad-spec,topdown-fe-bound,topdown-be-bound,topdown-heavy-ops,topdown-br-mispredict,topdown-fetch-lat,topdown-mem-bound}"
+ 
+-int arch_evlist__add_default_attrs(struct evlist *evlist)
++int arch_evlist__add_default_attrs(struct evlist *evlist,
++				   struct perf_event_attr *attrs,
++				   size_t nr_attrs)
+ {
++	if (nr_attrs)
++		return __evlist__add_default_attrs(evlist, attrs, nr_attrs);
++
+ 	if (!pmu_have_event("cpu", "slots"))
  		return 0;
  
-+	/*
-+	 * It's unlikely that any I/O board is hot added before the IOMMU
-+	 * subsystem is initialized.
-+	 */
-+	if (IS_ENABLED(CONFIG_INTEL_IOMMU) && !intel_iommu_enabled)
-+		return -EOPNOTSUPP;
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 5f0333a8acd8a..5aacb7ed8c24a 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -1778,6 +1778,9 @@ static int add_default_attributes(void)
+ 	(PERF_COUNT_HW_CACHE_OP_PREFETCH	<<  8) |
+ 	(PERF_COUNT_HW_CACHE_RESULT_MISS	<< 16)				},
+ };
 +
- 	if (dmar_detect_dsm(handle, DMAR_DSM_FUNC_DRHD)) {
- 		tmp = handle;
- 	} else {
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 5c0dce78586aa..936def2f416a2 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -3123,13 +3123,7 @@ static int __init init_dmars(void)
++	struct perf_event_attr default_null_attrs[] = {};
++
+ 	/* Set attrs if no event is selected and !null_run: */
+ 	if (stat_config.null_run)
+ 		return 0;
+@@ -1959,7 +1962,8 @@ static int add_default_attributes(void)
+ 			return -1;
  
- #ifdef CONFIG_INTEL_IOMMU_SVM
- 		if (pasid_supported(iommu) && ecap_prs(iommu->ecap)) {
--			/*
--			 * Call dmar_alloc_hwirq() with dmar_global_lock held,
--			 * could cause possible lock race condition.
--			 */
--			up_write(&dmar_global_lock);
- 			ret = intel_svm_enable_prq(iommu);
--			down_write(&dmar_global_lock);
- 			if (ret)
- 				goto free_iommu;
- 		}
-@@ -4035,7 +4029,6 @@ int __init intel_iommu_init(void)
- 	force_on = (!intel_iommu_tboot_noforce && tboot_force_iommu()) ||
- 		    platform_optin_force_iommu();
- 
--	down_write(&dmar_global_lock);
- 	if (dmar_table_init()) {
- 		if (force_on)
- 			panic("tboot: Failed to initialize DMAR table\n");
-@@ -4048,16 +4041,6 @@ int __init intel_iommu_init(void)
- 		goto out_free_dmar;
+ 		stat_config.topdown_level = TOPDOWN_MAX_LEVEL;
+-		if (arch_evlist__add_default_attrs(evsel_list) < 0)
++		/* Platform specific attrs */
++		if (evlist__add_default_attrs(evsel_list, default_null_attrs) < 0)
+ 			return -1;
  	}
  
--	up_write(&dmar_global_lock);
--
--	/*
--	 * The bus notifier takes the dmar_global_lock, so lockdep will
--	 * complain later when we register it under the lock.
--	 */
--	dmar_register_bus_notifier();
--
--	down_write(&dmar_global_lock);
--
- 	if (!no_iommu)
- 		intel_iommu_debugfs_init();
- 
-@@ -4105,11 +4088,9 @@ int __init intel_iommu_init(void)
- 		pr_err("Initialization failed\n");
- 		goto out_free_dmar;
- 	}
--	up_write(&dmar_global_lock);
- 
- 	init_iommu_pm_ops();
- 
--	down_read(&dmar_global_lock);
- 	for_each_active_iommu(iommu, drhd) {
- 		/*
- 		 * The flush queue implementation does not perform
-@@ -4127,13 +4108,11 @@ int __init intel_iommu_init(void)
- 				       "%s", iommu->name);
- 		iommu_device_register(&iommu->iommu, &intel_iommu_ops, NULL);
- 	}
--	up_read(&dmar_global_lock);
- 
- 	bus_set_iommu(&pci_bus_type, &intel_iommu_ops);
- 	if (si_domain && !hw_pass_through)
- 		register_memory_notifier(&intel_iommu_memory_nb);
- 
--	down_read(&dmar_global_lock);
- 	if (probe_acpi_namespace_devices())
- 		pr_warn("ACPI name space devices didn't probe correctly\n");
- 
-@@ -4144,17 +4123,15 @@ int __init intel_iommu_init(void)
- 
- 		iommu_disable_protect_mem_regions(iommu);
- 	}
--	up_read(&dmar_global_lock);
--
--	pr_info("Intel(R) Virtualization Technology for Directed I/O\n");
- 
- 	intel_iommu_enabled = 1;
-+	dmar_register_bus_notifier();
-+	pr_info("Intel(R) Virtualization Technology for Directed I/O\n");
- 
- 	return 0;
- 
- out_free_dmar:
- 	intel_iommu_free_dmars();
--	up_write(&dmar_global_lock);
- 	return ret;
+diff --git a/tools/perf/util/evlist.c b/tools/perf/util/evlist.c
+index 48af7d379d822..efa5f006b5c61 100644
+--- a/tools/perf/util/evlist.c
++++ b/tools/perf/util/evlist.c
+@@ -342,9 +342,14 @@ int __evlist__add_default_attrs(struct evlist *evlist, struct perf_event_attr *a
+ 	return evlist__add_attrs(evlist, attrs, nr_attrs);
  }
  
-diff --git a/include/linux/dmar.h b/include/linux/dmar.h
-index cbd714a198a0a..f3a3d95df5325 100644
---- a/include/linux/dmar.h
-+++ b/include/linux/dmar.h
-@@ -69,6 +69,7 @@ struct dmar_pci_notify_info {
- 
- extern struct rw_semaphore dmar_global_lock;
- extern struct list_head dmar_drhd_units;
-+extern int intel_iommu_enabled;
- 
- #define for_each_drhd_unit(drhd)					\
- 	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-@@ -92,7 +93,8 @@ extern struct list_head dmar_drhd_units;
- static inline bool dmar_rcu_check(void)
+-__weak int arch_evlist__add_default_attrs(struct evlist *evlist __maybe_unused)
++__weak int arch_evlist__add_default_attrs(struct evlist *evlist,
++					  struct perf_event_attr *attrs,
++					  size_t nr_attrs)
  {
- 	return rwsem_is_locked(&dmar_global_lock) ||
--	       system_state == SYSTEM_BOOTING;
-+	       system_state == SYSTEM_BOOTING ||
-+	       (IS_ENABLED(CONFIG_INTEL_IOMMU) && !intel_iommu_enabled);
+-	return 0;
++	if (!nr_attrs)
++		return 0;
++
++	return __evlist__add_default_attrs(evlist, attrs, nr_attrs);
  }
  
- #define	dmar_rcu_dereference(p)	rcu_dereference_check((p), dmar_rcu_check())
+ struct evsel *evlist__find_tracepoint_by_id(struct evlist *evlist, int id)
+diff --git a/tools/perf/util/evlist.h b/tools/perf/util/evlist.h
+index 1bde9ccf4e7da..129095c0fe6d3 100644
+--- a/tools/perf/util/evlist.h
++++ b/tools/perf/util/evlist.h
+@@ -107,10 +107,13 @@ static inline int evlist__add_default(struct evlist *evlist)
+ int __evlist__add_default_attrs(struct evlist *evlist,
+ 				     struct perf_event_attr *attrs, size_t nr_attrs);
+ 
++int arch_evlist__add_default_attrs(struct evlist *evlist,
++				   struct perf_event_attr *attrs,
++				   size_t nr_attrs);
++
+ #define evlist__add_default_attrs(evlist, array) \
+-	__evlist__add_default_attrs(evlist, array, ARRAY_SIZE(array))
++	arch_evlist__add_default_attrs(evlist, array, ARRAY_SIZE(array))
+ 
+-int arch_evlist__add_default_attrs(struct evlist *evlist);
+ struct evsel *arch_evlist__leader(struct list_head *list);
+ 
+ int evlist__add_dummy(struct evlist *evlist);
 -- 
 2.35.1
 
