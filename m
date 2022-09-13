@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BE45B7106
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B1A5B715E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234349AbiIMOhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
+        id S234255AbiIMOhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:37:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234116AbiIMOfy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:54 -0400
+        with ESMTP id S234143AbiIMOgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:36:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94FE6B16F;
-        Tue, 13 Sep 2022 07:20:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D00F6B643;
+        Tue, 13 Sep 2022 07:20:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3B9D614A3;
-        Tue, 13 Sep 2022 14:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC80C433D6;
-        Tue, 13 Sep 2022 14:19:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CCC3614AC;
+        Tue, 13 Sep 2022 14:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36682C433D6;
+        Tue, 13 Sep 2022 14:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078743;
-        bh=kDMmMf1yRrffTbIUOjmtO+5HpD0fMGY6x05p67h0Ru0=;
+        s=korg; t=1663078745;
+        bh=AD+dgFqZkrdywkWlK+ggxBMoUeeiLnpnjPuftBO4RsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZN4XPZ8rAZAYKGRY1Wif2LdXI0VZFt0hUCVJMdQ7z5CcDMNv83+ATkij0nBqNtng
-         tkB1MMdCN+Z9p0VNg1vre1hiKlxSITwWa1UP1D1BBH8UPQPXm1staA6KoQMCwEKuYJ
-         SZybRcbldsoec9ZvYCCl1tuW4FBAbvidr0jj75fE=
+        b=GVpBhmfXF/sA7KBmRcEY7HZUSv7ICf/92QtAnWRkap+sSwIiJWvN9ytNazCs7d06p
+         jG/WKVwAuPTQtFMhfTnlj02L+RZUMrAjFVZ5/evoFA9DxUMkh7pDZzunjeCeiHh3NX
+         b+7NSrE+3QODKdXQE+thcKObMl5QOBInitNh7dj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Aaron Ma <aaron.ma@canonical.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.15 040/121] drm/i915: Implement WaEdpLinkRateDataReload
-Date:   Tue, 13 Sep 2022 16:03:51 +0200
-Message-Id: <20220913140359.079997709@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 041/121] scsi: mpt3sas: Fix use-after-free warning
+Date:   Tue, 13 Sep 2022 16:03:52 +0200
+Message-Id: <20220913140359.126966217@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
 References: <20220913140357.323297659@linuxfoundation.org>
@@ -57,87 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-commit 672d6ca758651f0ec12cd0d59787067a5bde1c96 upstream.
+commit 991df3dd5144f2e6b1c38b8d20ed3d4d21e20b34 upstream.
 
-A lot of modern laptops use the Parade PS8461E MUX for eDP
-switching. The MUX can operate in jitter cleaning mode or
-redriver mode, the first one resulting in higher link
-quality. The jitter cleaning mode needs to know the link
-rate used and the MUX achieves this by snooping the
-LINK_BW_SET, LINK_RATE_SELECT and SUPPORTED_LINK_RATES
-DPCD accesses.
+Fix the following use-after-free warning which is observed during
+controller reset:
 
-When the MUX is powered down (seems this can happen whenever
-the display is turned off) it loses track of the snooped
-link rates so when we do the LINK_RATE_SELECT write it no
-longer knowns which link rate we're selecting, and thus it
-falls back to the lower quality redriver mode. This results
-in unstable high link rates (eg. usually 8.1Gbps link rate
-no longer works correctly).
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 23 PID: 5399 at lib/refcount.c:28 refcount_warn_saturate+0xa6/0xf0
 
-In order to avoid all that let's re-snoop SUPPORTED_LINK_RATES
-from the sink at the start of every link training.
-
-Unfortunately we don't have a way to detect the presence of
-the MUX. It looks like the set of laptops equipped with this
-MUX is fairly large and contains devices from multiple
-manufacturers. It may also still be growing with new models.
-So a quirk doesn't seem like a very easily maintainable
-option, thus we shall attempt to do this unconditionally on
-all machines that use LINK_RATE_SELECT. Hopefully this extra
-DPCD read doesn't cause issues for any unaffected machine.
-If that turns out to be the case we'll need to convert this
-into a quirk in the future.
-
-Cc: stable@vger.kernel.org
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6205
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220902070319.15395-1-ville.syrjala@linux.intel.com
-Tested-by: Aaron Ma <aaron.ma@canonical.com>
-Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 25899c590cb5ba9b9f284c6ca8e7e9086793d641)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://lore.kernel.org/r/20220906134908.1039-2-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp_link_training.c |   22 ++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-@@ -475,6 +475,28 @@ intel_dp_prepare_link_train(struct intel
- 	intel_dp_compute_rate(intel_dp, crtc_state->port_clock,
- 			      &link_bw, &rate_select);
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3670,6 +3670,7 @@ static struct fw_event_work *dequeue_nex
+ 		fw_event = list_first_entry(&ioc->fw_event_list,
+ 				struct fw_event_work, list);
+ 		list_del_init(&fw_event->list);
++		fw_event_work_put(fw_event);
+ 	}
+ 	spin_unlock_irqrestore(&ioc->fw_event_lock, flags);
  
-+	/*
-+	 * WaEdpLinkRateDataReload
-+	 *
-+	 * Parade PS8461E MUX (used on varius TGL+ laptops) needs
-+	 * to snoop the link rates reported by the sink when we
-+	 * use LINK_RATE_SET in order to operate in jitter cleaning
-+	 * mode (as opposed to redriver mode). Unfortunately it
-+	 * loses track of the snooped link rates when powered down,
-+	 * so we need to make it re-snoop often. Without this high
-+	 * link rates are not stable.
-+	 */
-+	if (!link_bw) {
-+		struct intel_connector *connector = intel_dp->attached_connector;
-+		__le16 sink_rates[DP_MAX_SUPPORTED_RATES];
-+
-+		drm_dbg_kms(&i915->drm, "[CONNECTOR:%d:%s] Reloading eDP link rates\n",
-+			    connector->base.base.id, connector->base.name);
-+
-+		drm_dp_dpcd_read(&intel_dp->aux, DP_SUPPORTED_LINK_RATES,
-+				 sink_rates, sizeof(sink_rates));
-+	}
-+
- 	if (link_bw)
- 		drm_dbg_kms(&i915->drm,
- 			    "Using LINK_BW_SET value %02x\n", link_bw);
+@@ -3751,7 +3752,6 @@ _scsih_fw_event_cleanup_queue(struct MPT
+ 		if (cancel_work_sync(&fw_event->work))
+ 			fw_event_work_put(fw_event);
+ 
+-		fw_event_work_put(fw_event);
+ 	}
+ 	ioc->fw_events_cleanup = 0;
+ }
 
 
