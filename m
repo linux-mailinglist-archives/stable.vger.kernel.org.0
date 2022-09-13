@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5C15B7183
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6CD5B7046
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232924AbiIMOnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59476 "EHLO
+        id S233405AbiIMOYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:24:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230129AbiIMOmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:10 -0400
+        with ESMTP id S233683AbiIMOX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627BC52DDA;
-        Tue, 13 Sep 2022 07:22:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DBD659FC;
+        Tue, 13 Sep 2022 07:15:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EFDFB80E22;
-        Tue, 13 Sep 2022 14:22:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F39C433D7;
-        Tue, 13 Sep 2022 14:22:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64E22B80F98;
+        Tue, 13 Sep 2022 14:15:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C998AC433B5;
+        Tue, 13 Sep 2022 14:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078938;
-        bh=fPid+q0GoEnpfhUVAoMELTMnsoxydhxBhddicCiYKQ8=;
+        s=korg; t=1663078532;
+        bh=N2FyX9dFkbWb3Hsc+KI8JegjR/gdsORGOpT+he8/EzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvNaLRHU0b8ut+e+E0/ECtaKYEPZL7BYhw3JKy9wjZ86bUh4Dk6fbVNc7/3fev4XV
-         aEmyylU53Vl7EEYdsiS7vY3Kc0JUNWCTULnpwWIkfS2KMYxkI6vAFt1fE7elLRpUMM
-         YCssvMt25PJfWTg1epasAqj8lrQbB7Z0tafxtUi0=
+        b=Ne+hEoQvmcWi3rQKfD6yMIMIcIveR3Co/VkXDc3eXb/fAQxbgeh+P6Ss9cJ9Pmh4j
+         WCZW4qOMG3PQX/jeo0f3YmJ5THsqCltYsBxaYPAI4ipYC+Zcx8yqZxKcNLHxUcC+er
+         ybS0U0NDnKiihCTOdbrTDr7s9DOuQbir6UcYPz/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Bruno Goncalves <bgoncalv@redhat.com>
-Subject: [PATCH 5.10 19/79] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
-Date:   Tue, 13 Sep 2022 16:04:24 +0200
-Message-Id: <20220913140351.230431132@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.19 159/192] lsm,io_uring: add LSM hooks for the new uring_cmd file op
+Date:   Tue, 13 Sep 2022 16:04:25 +0200
+Message-Id: <20220913140417.951467472@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit e75d18cecbb3805895d8ed64da4f78575ec96043 ]
+commit 2a5840124009f133bd09fd855963551fb2cefe22 upstream.
 
-Though acpi_find_last_cache_level() always returned signed value and the
-document states it will return any errors caused by lack of a PPTT table,
-it never returned negative values before.
+io-uring cmd support was added through ee692a21e9bf ("fs,io_uring:
+add infrastructure for uring-cmd"), this extended the struct
+file_operations to allow a new command which each subsystem can use
+to enable command passthrough. Add an LSM specific for the command
+passthrough which enables LSMs to inspect the command details.
 
-Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
-however changed it by returning -ENOENT if no PPTT was found. The value
-returned from acpi_find_last_cache_level() is then assigned to unsigned
-fw_level.
+This was discussed long ago without no clear pointer for something
+conclusive, so this enables LSMs to at least reject this new file
+operation.
 
-It will result in the number of cache leaves calculated incorrectly as
-a huge value which will then cause the following warning from __alloc_pages
-as the order would be great than MAX_ORDER because of incorrect and huge
-cache leaves value.
+[0] https://lkml.kernel.org/r/8adf55db-7bab-f59d-d612-ed906b948d19@schaufler-ca.com
 
-  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
-  |  Modules linked in:
-  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
-  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  |  pc : __alloc_pages+0x74/0x314
-  |  lr : alloc_pages+0xe8/0x318
-  |  Call trace:
-  |   __alloc_pages+0x74/0x314
-  |   alloc_pages+0xe8/0x318
-  |   kmalloc_order_trace+0x68/0x1dc
-  |   __kmalloc+0x240/0x338
-  |   detect_cache_attributes+0xe0/0x56c
-  |   update_siblings_masks+0x38/0x284
-  |   store_cpu_topology+0x78/0x84
-  |   smp_prepare_cpus+0x48/0x134
-  |   kernel_init_freeable+0xc4/0x14c
-  |   kernel_init+0x2c/0x1b4
-  |   ret_from_fork+0x10/0x20
-
-Fix the same by changing fw_level to be signed integer and return the
-error from init_cache_level() early in case of error.
-
-Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cacheinfo.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/lsm_hook_defs.h |    1 +
+ include/linux/lsm_hooks.h     |    3 +++
+ include/linux/security.h      |    5 +++++
+ io_uring/io_uring.c           |    4 ++++
+ security/security.c           |    4 ++++
+ 5 files changed, 17 insertions(+)
 
-diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
-index 587543c6c51cb..97c42be71338a 100644
---- a/arch/arm64/kernel/cacheinfo.c
-+++ b/arch/arm64/kernel/cacheinfo.c
-@@ -45,7 +45,8 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
- 
- int init_cache_level(unsigned int cpu)
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -406,4 +406,5 @@ LSM_HOOK(int, 0, perf_event_write, struc
+ #ifdef CONFIG_IO_URING
+ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
+ LSM_HOOK(int, 0, uring_sqpoll, void)
++LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
+ #endif /* CONFIG_IO_URING */
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1575,6 +1575,9 @@
+  *      Check whether the current task is allowed to spawn a io_uring polling
+  *      thread (IORING_SETUP_SQPOLL).
+  *
++ * @uring_cmd:
++ *      Check whether the file_operations uring_cmd is allowed to run.
++ *
+  */
+ union security_list_options {
+ 	#define LSM_HOOK(RET, DEFAULT, NAME, ...) RET (*NAME)(__VA_ARGS__);
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -2051,6 +2051,7 @@ static inline int security_perf_event_wr
+ #ifdef CONFIG_SECURITY
+ extern int security_uring_override_creds(const struct cred *new);
+ extern int security_uring_sqpoll(void);
++extern int security_uring_cmd(struct io_uring_cmd *ioucmd);
+ #else
+ static inline int security_uring_override_creds(const struct cred *new)
  {
--	unsigned int ctype, level, leaves, fw_level;
-+	unsigned int ctype, level, leaves;
-+	int fw_level;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+@@ -2060,6 +2061,10 @@ static inline int security_uring_sqpoll(
+ {
+ 	return 0;
+ }
++static inline int security_uring_cmd(struct io_uring_cmd *ioucmd)
++{
++	return 0;
++}
+ #endif /* CONFIG_SECURITY */
+ #endif /* CONFIG_IO_URING */
  
- 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
-@@ -63,6 +64,9 @@ int init_cache_level(unsigned int cpu)
- 	else
- 		fw_level = acpi_find_last_cache_level(cpu);
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -4878,6 +4878,10 @@ static int io_uring_cmd(struct io_kiocb
+ 	if (!req->file->f_op->uring_cmd)
+ 		return -EOPNOTSUPP;
  
-+	if (fw_level < 0)
-+		return fw_level;
++	ret = security_uring_cmd(ioucmd);
++	if (ret)
++		return ret;
 +
- 	if (level < fw_level) {
- 		/*
- 		 * some external caches not specified in CLIDR_EL1
--- 
-2.35.1
-
+ 	if (ctx->flags & IORING_SETUP_SQE128)
+ 		issue_flags |= IO_URING_F_SQE128;
+ 	if (ctx->flags & IORING_SETUP_CQE32)
+--- a/security/security.c
++++ b/security/security.c
+@@ -2654,4 +2654,8 @@ int security_uring_sqpoll(void)
+ {
+ 	return call_int_hook(uring_sqpoll, 0);
+ }
++int security_uring_cmd(struct io_uring_cmd *ioucmd)
++{
++	return call_int_hook(uring_cmd, 0, ioucmd);
++}
+ #endif /* CONFIG_IO_URING */
 
 
