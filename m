@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6CD5B7046
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A899B5B70EB
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233405AbiIMOYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40176 "EHLO
+        id S232711AbiIMOeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:34:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233683AbiIMOX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DBD659FC;
-        Tue, 13 Sep 2022 07:15:53 -0700 (PDT)
+        with ESMTP id S234120AbiIMOc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51C610D0;
+        Tue, 13 Sep 2022 07:19:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64E22B80F98;
-        Tue, 13 Sep 2022 14:15:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C998AC433B5;
-        Tue, 13 Sep 2022 14:15:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60A19614D1;
+        Tue, 13 Sep 2022 14:19:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C2B1C433C1;
+        Tue, 13 Sep 2022 14:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078532;
-        bh=N2FyX9dFkbWb3Hsc+KI8JegjR/gdsORGOpT+he8/EzU=;
+        s=korg; t=1663078763;
+        bh=ENOFx+2hCkzle9QLjIch9KzpL1Yqyo5Dw+rB4EmSoz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ne+hEoQvmcWi3rQKfD6yMIMIcIveR3Co/VkXDc3eXb/fAQxbgeh+P6Ss9cJ9Pmh4j
-         WCZW4qOMG3PQX/jeo0f3YmJ5THsqCltYsBxaYPAI4ipYC+Zcx8yqZxKcNLHxUcC+er
-         ybS0U0NDnKiihCTOdbrTDr7s9DOuQbir6UcYPz/k=
+        b=GTfycWwQvPY2eh3R6GzgO4lpqwCUHDE0nkeL+cVQaFCNbLA+EJVZz82HT8pUhET/b
+         J0auNOWLvVo8eS7XHEUdOgA9SAAEhP//q+rxx1kMaSDGPMtUF+8DlpulV19awo3l8K
+         +P0hKrtCnxlhaChpw0bH4M9MVEGqTJTDIuk+0uJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.19 159/192] lsm,io_uring: add LSM hooks for the new uring_cmd file op
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 074/121] rxrpc: Fix an insufficiently large sglist in rxkad_verify_packet_2()
 Date:   Tue, 13 Sep 2022 16:04:25 +0200
-Message-Id: <20220913140417.951467472@linuxfoundation.org>
+Message-Id: <20220913140400.552008622@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: David Howells <dhowells@redhat.com>
 
-commit 2a5840124009f133bd09fd855963551fb2cefe22 upstream.
+[ Upstream commit 0d40f728e28393a8817d1fcae923dfa3409e488c ]
 
-io-uring cmd support was added through ee692a21e9bf ("fs,io_uring:
-add infrastructure for uring-cmd"), this extended the struct
-file_operations to allow a new command which each subsystem can use
-to enable command passthrough. Add an LSM specific for the command
-passthrough which enables LSMs to inspect the command details.
+rxkad_verify_packet_2() has a small stack-allocated sglist of 4 elements,
+but if that isn't sufficient for the number of fragments in the socket
+buffer, we try to allocate an sglist large enough to hold all the
+fragments.
 
-This was discussed long ago without no clear pointer for something
-conclusive, so this enables LSMs to at least reject this new file
-operation.
+However, for large packets with a lot of fragments, this isn't sufficient
+and we need at least one additional fragment.
 
-[0] https://lkml.kernel.org/r/8adf55db-7bab-f59d-d612-ed906b948d19@schaufler-ca.com
+The problem manifests as skb_to_sgvec() returning -EMSGSIZE and this then
+getting returned by userspace.  Most of the time, this isn't a problem as
+rxrpc sets a limit of 5692, big enough for 4 jumbo subpackets to be glued
+together; occasionally, however, the server will ignore the reported limit
+and give a packet that's a lot bigger - say 19852 bytes with ->nr_frags
+being 7.  skb_to_sgvec() then tries to return a "zeroth" fragment that
+seems to occur before the fragments counted by ->nr_frags and we hit the
+end of the sglist too early.
 
-Cc: stable@vger.kernel.org
-Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Acked-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that __skb_to_sgvec() also has an skb_walk_frags() loop that is
+recursive up to 24 deep.  I'm not sure if I need to take account of that
+too - or if there's an easy way of counting those frags too.
+
+Fix this by counting an extra frag and allocating a larger sglist based on
+that.
+
+Fixes: d0d5c0cd1e71 ("rxrpc: Use skb_unshare() rather than skb_cow_data()")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/lsm_hook_defs.h |    1 +
- include/linux/lsm_hooks.h     |    3 +++
- include/linux/security.h      |    5 +++++
- io_uring/io_uring.c           |    4 ++++
- security/security.c           |    4 ++++
- 5 files changed, 17 insertions(+)
+ net/rxrpc/rxkad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -406,4 +406,5 @@ LSM_HOOK(int, 0, perf_event_write, struc
- #ifdef CONFIG_IO_URING
- LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
- LSM_HOOK(int, 0, uring_sqpoll, void)
-+LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
- #endif /* CONFIG_IO_URING */
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1575,6 +1575,9 @@
-  *      Check whether the current task is allowed to spawn a io_uring polling
-  *      thread (IORING_SETUP_SQPOLL).
-  *
-+ * @uring_cmd:
-+ *      Check whether the file_operations uring_cmd is allowed to run.
-+ *
-  */
- union security_list_options {
- 	#define LSM_HOOK(RET, DEFAULT, NAME, ...) RET (*NAME)(__VA_ARGS__);
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -2051,6 +2051,7 @@ static inline int security_perf_event_wr
- #ifdef CONFIG_SECURITY
- extern int security_uring_override_creds(const struct cred *new);
- extern int security_uring_sqpoll(void);
-+extern int security_uring_cmd(struct io_uring_cmd *ioucmd);
- #else
- static inline int security_uring_override_creds(const struct cred *new)
- {
-@@ -2060,6 +2061,10 @@ static inline int security_uring_sqpoll(
- {
- 	return 0;
- }
-+static inline int security_uring_cmd(struct io_uring_cmd *ioucmd)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_SECURITY */
- #endif /* CONFIG_IO_URING */
- 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -4878,6 +4878,10 @@ static int io_uring_cmd(struct io_kiocb
- 	if (!req->file->f_op->uring_cmd)
- 		return -EOPNOTSUPP;
- 
-+	ret = security_uring_cmd(ioucmd);
-+	if (ret)
-+		return ret;
-+
- 	if (ctx->flags & IORING_SETUP_SQE128)
- 		issue_flags |= IO_URING_F_SQE128;
- 	if (ctx->flags & IORING_SETUP_CQE32)
---- a/security/security.c
-+++ b/security/security.c
-@@ -2654,4 +2654,8 @@ int security_uring_sqpoll(void)
- {
- 	return call_int_hook(uring_sqpoll, 0);
- }
-+int security_uring_cmd(struct io_uring_cmd *ioucmd)
-+{
-+	return call_int_hook(uring_cmd, 0, ioucmd);
-+}
- #endif /* CONFIG_IO_URING */
+diff --git a/net/rxrpc/rxkad.c b/net/rxrpc/rxkad.c
+index 08aab5c01437d..db47844f4ac99 100644
+--- a/net/rxrpc/rxkad.c
++++ b/net/rxrpc/rxkad.c
+@@ -540,7 +540,7 @@ static int rxkad_verify_packet_2(struct rxrpc_call *call, struct sk_buff *skb,
+ 	 * directly into the target buffer.
+ 	 */
+ 	sg = _sg;
+-	nsg = skb_shinfo(skb)->nr_frags;
++	nsg = skb_shinfo(skb)->nr_frags + 1;
+ 	if (nsg <= 4) {
+ 		nsg = 4;
+ 	} else {
+-- 
+2.35.1
+
 
 
