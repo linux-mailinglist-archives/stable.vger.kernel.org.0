@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 475CE5B70ED
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F1315B70A4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233118AbiIMOeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43120 "EHLO
+        id S231652AbiIMO3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:29:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234144AbiIMOd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:33:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960406577;
-        Tue, 13 Sep 2022 07:19:34 -0700 (PDT)
+        with ESMTP id S233790AbiIMO1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:27:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956A467C81;
+        Tue, 13 Sep 2022 07:17:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07436B80F3B;
-        Tue, 13 Sep 2022 14:19:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53175C433C1;
-        Tue, 13 Sep 2022 14:19:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11161614AE;
+        Tue, 13 Sep 2022 14:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D007C433C1;
+        Tue, 13 Sep 2022 14:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078772;
-        bh=GzpsB0D1JGDYSDIApTtRFPJ6ix4triFWPwcufVL0XhI=;
+        s=korg; t=1663078564;
+        bh=nZlTkWxulH2UpdsCFOA3yRVT5nN7ysECwwHbj4rH5Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gpThaKtQ4NMbokQGc8f5QGe0FnLdUjCvagCxUoFITpuDQcRliFKP6xJbkrKRFfNf2
-         jnJbXy8WurbxUEuRDY9tCcoxvoRYi3D5i6qBaCZPqs1TAyJ9NvciJWNDWCn/LhaiKh
-         3c8CqCz1K9RccPS19hWo3rxE4hmMjTPk0crinrx4=
+        b=Pu6jXDWaEStngFhy6R+sVgvsMGxEfIrRhMHq5okpQnc5kREX9M7LfJDZZutJiTSEQ
+         xMDvkAUuU6JbetqVBMPwZy/jvuiGmJ9QTM2rLWsxdSFpogHzeUsUfWFCi5C0Ge7gBO
+         Vl4u8PW6cL2nqYUPw/sfAmcolqcuB3oIYcfbcY/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.15 077/121] sch_sfb: Dont assume the skb is still around after enqueueing to child
-Date:   Tue, 13 Sep 2022 16:04:28 +0200
-Message-Id: <20220913140400.681549249@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 163/192] kbuild: disable header exports for UML in a straightforward way
+Date:   Tue, 13 Sep 2022 16:04:29 +0200
+Message-Id: <20220913140418.152401588@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
+[ Upstream commit 1b620d539ccc18a1aca1613d9ff078115a7891a1 ]
 
-The sch_sfb enqueue() routine assumes the skb is still alive after it has
-been enqueued into a child qdisc, using the data in the skb cb field in the
-increment_qlen() routine after enqueue. However, the skb may in fact have
-been freed, causing a use-after-free in this case. In particular, this
-happens if sch_cake is used as a child of sfb, and the GSO splitting mode
-of CAKE is enabled (in which case the skb will be split into segments and
-the original skb freed).
+Previously 'make ARCH=um headers' stopped because of missing
+arch/um/include/uapi/asm/Kbuild.
 
-Fix this by copying the sfb cb data to the stack before enqueueing the skb,
-and using this stack copy in increment_qlen() instead of the skb pointer
-itself.
+The error is not shown since commit ed102bf2afed ("um: Fix W=1
+missing-include-dirs warnings") added arch/um/include/uapi/asm/Kbuild.
 
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
-Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Hard-code the unsupported architecture, so it works like before.
+
+Fixes: ed102bf2afed ("um: Fix W=1 missing-include-dirs warnings")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_sfb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 3d061a13d7ed2..0d761f454ae8b 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -135,15 +135,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
- 	}
- }
+diff --git a/Makefile b/Makefile
+index e361c6230e9e5..2acd87dd62591 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1286,8 +1286,7 @@ hdr-inst := -f $(srctree)/scripts/Makefile.headersinst obj
  
--static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
-+static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
- {
- 	u32 sfbhash;
+ PHONY += headers
+ headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
+-	$(if $(wildcard $(srctree)/arch/$(SRCARCH)/include/uapi/asm/Kbuild),, \
+-	  $(error Headers not exportable for the $(SRCARCH) architecture))
++	$(if $(filter um, $(SRCARCH)), $(error Headers not exportable for UML))
+ 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
+ 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
  
--	sfbhash = sfb_hash(skb, 0);
-+	sfbhash = cb->hashes[0];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 0, q);
- 
--	sfbhash = sfb_hash(skb, 1);
-+	sfbhash = cb->hashes[1];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 1, q);
- }
-@@ -283,6 +283,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 	struct Qdisc *child = q->qdisc;
- 	struct tcf_proto *fl;
-+	struct sfb_skb_cb cb;
- 	int i;
- 	u32 p_min = ~0;
- 	u32 minqlen = ~0;
-@@ -399,11 +400,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
- 
- enqueue:
-+	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
- 	ret = qdisc_enqueue(skb, child, to_free);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
- 		qdisc_qstats_backlog_inc(sch, skb);
- 		sch->q.qlen++;
--		increment_qlen(skb, q);
-+		increment_qlen(&cb, q);
- 	} else if (net_xmit_drop_count(ret)) {
- 		q->stats.childdrop++;
- 		qdisc_qstats_drop(sch);
 -- 
 2.35.1
 
