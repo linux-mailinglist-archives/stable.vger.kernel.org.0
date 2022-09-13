@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C3F5B7338
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DC65B73E5
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbiIMPE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49998 "EHLO
+        id S235516AbiIMPOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235306AbiIMPED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:03 -0400
+        with ESMTP id S232990AbiIMPMi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:12:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B143C3123D;
-        Tue, 13 Sep 2022 07:29:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8912577E9E;
+        Tue, 13 Sep 2022 07:32:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D68C0B80FC0;
-        Tue, 13 Sep 2022 14:29:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54581C4314D;
-        Tue, 13 Sep 2022 14:29:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D388B80F6F;
+        Tue, 13 Sep 2022 14:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4325C433C1;
+        Tue, 13 Sep 2022 14:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079381;
-        bh=W6mz/4aUOCmFU+fZ0Hl3r5TRNfIk2dRA5A63NJtEndE=;
+        s=korg; t=1663079474;
+        bh=wbhwPkgVfB0u/ecYJDpzWyQrjPmGXlonw19X6uHaZ7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h9pmURXq+ZnjvwIR0ZxfiRW+gdMGOI7j1hebEslCS24PQDh2GMoCeUX1dcPLBLOv
-         uE7RSUDGLhj8yN+QfkgITQGT1sSNU9LUubLrSSt33h+f5r5zfjFNFeimi+HfC2kbSE
-         HucCEAq1ZMqYeNMowH8JRtx//7tI/BQv666GXHrc=
+        b=rgLM9NhKeX+VytBn9hvXyrS60sgEYWbM48/c68WFliCbtUHgSLILscCoJ4H4t5XII
+         Gx/boem3nJB0rZwabTKTG+VU7KsOCgQtGfNAwKka8pLlxX+uMv4FHP5mIovCyclYv/
+         F1KNbBvrzIgEykfmEQc/REMi1lWl+wamWeyT2Z6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/108] smb3: missing inode locks in punch hole
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 41/79] s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
 Date:   Tue, 13 Sep 2022 16:06:59 +0200
-Message-Id: <20220913140357.402911770@linuxfoundation.org>
+Message-Id: <20220913140350.893428702@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-[ Upstream commit ba0803050d610d5072666be727bca5e03e55b242 ]
+commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c upstream.
 
-smb3 fallocate punch hole was not grabbing the inode or filemap_invalidate
-locks so could have race with pagemap reinstantiating the page.
+The alignment check in prepare_hugepage_range() is wrong for 2 GB
+hugepages, it only checks for 1 MB hugepage alignment.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can result in kernel crash in __unmap_hugepage_range() at the
+BUG_ON(start & ~huge_page_mask(h)) alignment check, for mappings
+created with MAP_FIXED at unaligned address.
+
+Fix this by correctly handling multiple hugepage sizes, similar to the
+generic version of prepare_hugepage_range().
+
+Fixes: d08de8e2d867 ("s390/mm: add support for 2GB hugepages")
+Cc: <stable@vger.kernel.org> # 4.8+
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/hugetlb.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 6ae281cff0d50..6039b0cdfe04e 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3051,7 +3051,7 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 			    loff_t offset, loff_t len)
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -30,9 +30,11 @@ pte_t huge_ptep_get_and_clear(struct mm_
+ static inline int prepare_hugepage_range(struct file *file,
+ 			unsigned long addr, unsigned long len)
  {
--	struct inode *inode;
-+	struct inode *inode = file_inode(file);
- 	struct cifsFileInfo *cfile = file->private_data;
- 	struct file_zero_data_information fsctl_buf;
- 	long rc;
-@@ -3060,14 +3060,12 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 
- 	xid = get_xid();
- 
--	inode = d_inode(cfile->dentry);
--
-+	inode_lock(inode);
- 	/* Need to make file sparse, if not already, before freeing range. */
- 	/* Consider adding equivalent for compressed since it could also work */
- 	if (!smb2_set_sparse(xid, tcon, cfile, inode, set_sparse)) {
- 		rc = -EOPNOTSUPP;
--		free_xid(xid);
--		return rc;
-+		goto out;
- 	}
- 
- 	/*
-@@ -3086,6 +3084,8 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 			true /* is_fctl */, (char *)&fsctl_buf,
- 			sizeof(struct file_zero_data_information),
- 			CIFSMaxBufSize, NULL, NULL);
-+out:
-+	inode_unlock(inode);
- 	free_xid(xid);
- 	return rc;
+-	if (len & ~HPAGE_MASK)
++	struct hstate *h = hstate_file(file);
++
++	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+-	if (addr & ~HPAGE_MASK)
++	if (addr & ~huge_page_mask(h))
+ 		return -EINVAL;
+ 	return 0;
  }
--- 
-2.35.1
-
 
 
