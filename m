@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB9F5B7111
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B82D5B7026
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234127AbiIMOfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41044 "EHLO
+        id S233231AbiIMOUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234337AbiIMOeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:34:03 -0400
+        with ESMTP id S233543AbiIMOTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E36D100;
-        Tue, 13 Sep 2022 07:19:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD22965243;
+        Tue, 13 Sep 2022 07:14:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A23D614AE;
-        Tue, 13 Sep 2022 14:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74981C433C1;
-        Tue, 13 Sep 2022 14:18:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D0A8614C2;
+        Tue, 13 Sep 2022 14:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE6AC433C1;
+        Tue, 13 Sep 2022 14:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078720;
-        bh=H9j1S5WO1PTxyUbgXXYFWPH+ln1MJ7nZt4QuhPFMriw=;
+        s=korg; t=1663078441;
+        bh=bTOIqGHcoGMJCze9crysSPTuC4OBpIBJRzrBeSjJLpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VR3KCYMaI6zGMO0wgFlURrpR3H8OJYEugxpLBEHTNZOutjrTnjQfmXokJ4bmMhDOp
-         rffxP5j+6/lyw4s8lemah6f3O4QU+tKCO/xO2fAvaHW4OA2ok8E3ylKrQcKjRI3+aY
-         RO2YzGCd1P5vZZ2dtmnjESsUpLFIn6YPPRsDenmQ=
+        b=PuZ5B5+tXK9VUpBe6n3G5qJr77qJbMCUwbRi0xc2W5PA98vzpH84nJuskmsgJiZAg
+         CFIKHZHoBlGf1dSp7u/hmXa4nI4VF2Zp68ftd/ttOR9UnipuF+1glA/GmcG4aVq8x8
+         MaUi6bU9izU4n6CwL0UjfyNyRVPGXfFZ1xNzGa4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Guralnik <michaelgur@nvidia.com>,
+        stable@vger.kernel.org, Sindhu-Devale <sindhu.devale@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/121] RDMA/cma: Fix arguments order in net device validation
+Subject: [PATCH 5.19 141/192] RDMA/irdma: Return error on MR deregister CQP failure
 Date:   Tue, 13 Sep 2022 16:04:07 +0200
-Message-Id: <20220913140359.765596252@linuxfoundation.org>
+Message-Id: <20220913140417.043917520@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Guralnik <michaelgur@nvidia.com>
+From: Sindhu-Devale <sindhu.devale@intel.com>
 
-[ Upstream commit 27cfde795a96aef1e859a5480489944b95421e46 ]
+[ Upstream commit 6b227bd32db778eddc6f3b22cc72a28dda0f2272 ]
 
-Fix the order of source and destination addresses when resolving the
-route between server and client to validate use of correct net device.
+The MR deregister CQP can fail if an MW is bound to it.
+Return an appropriate error for this case.
 
-The reverse order we had so far didn't actually validate the net device
-as the server would try to resolve the route to itself, thus always
-getting the server's net device.
-
-The issue was discovered when running cm applications on a single host
-between 2 interfaces with same subnet and source based routing rules.
-When resolving the reverse route the source based route rules were
-ignored.
-
-Fixes: f887f2ac87c2 ("IB/cma: Validate routing of incoming requests")
-Link: https://lore.kernel.org/r/1c1ec2277a131d277ebcceec987fd338d35b775f.1661251872.git.leonro@nvidia.com
-Signed-off-by: Michael Guralnik <michaelgur@nvidia.com>
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Signed-off-by: Sindhu-Devale <sindhu.devale@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20220906223244.1119-3-shiraz.saleem@intel.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/irdma/utils.c | 13 ++++++++-----
+ drivers/infiniband/hw/irdma/verbs.c |  6 +++++-
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index a814dabcdff43..0da66dd40d6a8 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1718,8 +1718,8 @@ cma_ib_id_from_event(struct ib_cm_id *cm_id,
+diff --git a/drivers/infiniband/hw/irdma/utils.c b/drivers/infiniband/hw/irdma/utils.c
+index 7b15faadfef5c..f4d774451160d 100644
+--- a/drivers/infiniband/hw/irdma/utils.c
++++ b/drivers/infiniband/hw/irdma/utils.c
+@@ -590,11 +590,14 @@ static int irdma_wait_event(struct irdma_pci_f *rf,
+ 	cqp_error = cqp_request->compl_info.error;
+ 	if (cqp_error) {
+ 		err_code = -EIO;
+-		if (cqp_request->compl_info.maj_err_code == 0xFFFF &&
+-		    cqp_request->compl_info.min_err_code == 0x8029) {
+-			if (!rf->reset) {
+-				rf->reset = true;
+-				rf->gen_ops.request_reset(rf);
++		if (cqp_request->compl_info.maj_err_code == 0xFFFF) {
++			if (cqp_request->compl_info.min_err_code == 0x8002)
++				err_code = -EBUSY;
++			else if (cqp_request->compl_info.min_err_code == 0x8029) {
++				if (!rf->reset) {
++					rf->reset = true;
++					rf->gen_ops.request_reset(rf);
++				}
+ 			}
  		}
+ 	}
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index 4835702871677..e7120d7a5b4c6 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -3001,6 +3001,7 @@ static int irdma_dereg_mr(struct ib_mr *ib_mr, struct ib_udata *udata)
+ 	struct irdma_pble_alloc *palloc = &iwpbl->pble_alloc;
+ 	struct irdma_cqp_request *cqp_request;
+ 	struct cqp_cmds_info *cqp_info;
++	int status;
  
- 		if (!validate_net_dev(*net_dev,
--				 (struct sockaddr *)&req->listen_addr_storage,
--				 (struct sockaddr *)&req->src_addr_storage)) {
-+				 (struct sockaddr *)&req->src_addr_storage,
-+				 (struct sockaddr *)&req->listen_addr_storage)) {
- 			id_priv = ERR_PTR(-EHOSTUNREACH);
- 			goto err;
- 		}
+ 	if (iwmr->type != IRDMA_MEMREG_TYPE_MEM) {
+ 		if (iwmr->region) {
+@@ -3031,8 +3032,11 @@ static int irdma_dereg_mr(struct ib_mr *ib_mr, struct ib_udata *udata)
+ 	cqp_info->post_sq = 1;
+ 	cqp_info->in.u.dealloc_stag.dev = &iwdev->rf->sc_dev;
+ 	cqp_info->in.u.dealloc_stag.scratch = (uintptr_t)cqp_request;
+-	irdma_handle_cqp_op(iwdev->rf, cqp_request);
++	status = irdma_handle_cqp_op(iwdev->rf, cqp_request);
+ 	irdma_put_cqp_request(&iwdev->rf->cqp, cqp_request);
++	if (status)
++		return status;
++
+ 	irdma_free_stag(iwdev, iwmr->stag);
+ done:
+ 	if (iwpbl->pbl_allocated)
 -- 
 2.35.1
 
