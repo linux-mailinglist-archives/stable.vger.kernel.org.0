@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3465B7101
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 953CC5B7301
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230039AbiIMOmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:42:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
+        id S232326AbiIMO7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231177AbiIMOlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:31 -0400
+        with ESMTP id S235062AbiIMO7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E61D6DAE1;
-        Tue, 13 Sep 2022 07:22:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A6A67CB0;
+        Tue, 13 Sep 2022 07:28:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A950614C1;
-        Tue, 13 Sep 2022 14:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86B08C433C1;
-        Tue, 13 Sep 2022 14:20:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8EF0614CC;
+        Tue, 13 Sep 2022 14:20:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D9E0C433D6;
+        Tue, 13 Sep 2022 14:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078855;
-        bh=C/HDZ6JjjGmV0Muuso1uMKjhiELoFUQN4W/GK07HmlU=;
+        s=korg; t=1663078858;
+        bh=tpfvlFFXB8h22ykFC8JnISA5KF2dIsFU0f/6O3YlmGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYwvkHI8Mofsa9Vfyc0sUVx8w8El2iP/z69SH4qGJqcrTARG3OJUJPGcP06IrgY3o
-         7IPGcclt4MV1R0AfPYNUzWS7W3zipT2myFraUz5rMlXR4JkEjjxVvE1EaRBvfYS3Lx
-         zW4mCA/aoCcnGJ8+uJDqMqRTXmDoUPez2Ngsujw8=
+        b=b85OwzYdZLbIQLY4WqhrqGSbNTcfsQ7Rq/sJGg4HzgiUcpoPJA8qDOye01Zlo5RCD
+         uLSRiUo56Q18ck+Ue3jS4TV48A0vPPiDPrhvh8B6K6Qezxk0Bzzf4yaQko3HcGysqP
+         vxAmgtu2QntQF2QBCkT9c3wj+t3F38CV8e2ZPtBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Eliav Farber <farbere@amazon.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 109/121] s390/boot: fix absolute zero lowcore corruption on boot
-Date:   Tue, 13 Sep 2022 16:05:00 +0200
-Message-Id: <20220913140402.029966827@linuxfoundation.org>
+Subject: [PATCH 5.15 110/121] hwmon: (mr75203) fix VM sensor allocation when "intel,vm-map" not defined
+Date:   Tue, 13 Sep 2022 16:05:01 +0200
+Message-Id: <20220913140402.075695444@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
 References: <20220913140357.323297659@linuxfoundation.org>
@@ -55,52 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Eliav Farber <farbere@amazon.com>
 
-[ Upstream commit 12dd19c159659ec9050f45dc8a2ff3c3917f4be3 ]
+[ Upstream commit 81114fc3d27bf5b06b2137d2fd2b63da656a8b90 ]
 
-Crash dump always starts on CPU0. In case CPU0 is offline the
-prefix page is not installed and the absolute zero lowcore is
-used. However, struct lowcore::mcesad is never assigned and
-stays zero. That leads to __machine_kdump() -> save_vx_regs()
-call silently stores vector registers to the absolute lowcore
-at 0x11b0 offset.
+Bug - in case "intel,vm-map" is missing in device-tree ,'num' is set
+to 0, and no voltage channel infos are allocated.
 
-Fixes: a62bc0739253 ("s390/kdump: add support for vector extension")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+The reason num is set to 0 when "intel,vm-map" is missing is to set the
+entire pvt->vm_idx[] with incremental channel numbers, but it didn't
+take into consideration that same num is used later in devm_kcalloc().
+
+If "intel,vm-map" does exist there is no need to set the unspecified
+channels with incremental numbers, because the unspecified channels
+can't be accessed in pvt_read_in() which is the only other place besides
+the probe functions that uses pvt->vm_idx[].
+
+This change fixes the bug by moving the incremental channel numbers
+setting to be done only if "intel,vm-map" property is defined (starting
+loop from 0), and removing 'num = 0'.
+
+Fixes: 9d823351a337 ("hwmon: Add hardware monitoring driver for Moortec MR75203 PVT controller")
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220908152449.35457-3-farbere@amazon.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/nmi.c   | 2 +-
- arch/s390/kernel/setup.c | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwmon/mr75203.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
-index a50f2ff1b00e8..383b4799b6dd3 100644
---- a/arch/s390/kernel/nmi.c
-+++ b/arch/s390/kernel/nmi.c
-@@ -62,7 +62,7 @@ static inline unsigned long nmi_get_mcesa_size(void)
-  * The structure is required for machine check happening early in
-  * the boot process.
-  */
--static struct mcesa boot_mcesa __initdata __aligned(MCESA_MAX_SIZE);
-+static struct mcesa boot_mcesa __aligned(MCESA_MAX_SIZE);
+diff --git a/drivers/hwmon/mr75203.c b/drivers/hwmon/mr75203.c
+index 1ba1e31459690..36cbc86033ce9 100644
+--- a/drivers/hwmon/mr75203.c
++++ b/drivers/hwmon/mr75203.c
+@@ -594,7 +594,12 @@ static int mr75203_probe(struct platform_device *pdev)
+ 		ret = device_property_read_u8_array(dev, "intel,vm-map",
+ 						    pvt->vm_idx, vm_num);
+ 		if (ret) {
+-			num = 0;
++			/*
++			 * Incase intel,vm-map property is not defined, we
++			 * assume incremental channel numbers.
++			 */
++			for (i = 0; i < vm_num; i++)
++				pvt->vm_idx[i] = i;
+ 		} else {
+ 			for (i = 0; i < vm_num; i++)
+ 				if (pvt->vm_idx[i] >= vm_num ||
+@@ -604,13 +609,6 @@ static int mr75203_probe(struct platform_device *pdev)
+ 				}
+ 		}
  
- void __init nmi_alloc_boot_cpu(struct lowcore *lc)
- {
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 6b1a8697fae8d..4dfe37b068898 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -484,6 +484,7 @@ static void __init setup_lowcore_dat_off(void)
- 	put_abs_lowcore(restart_data, lc->restart_data);
- 	put_abs_lowcore(restart_source, lc->restart_source);
- 	put_abs_lowcore(restart_psw, lc->restart_psw);
-+	put_abs_lowcore(mcesad, lc->mcesad);
- 
- 	lc->spinlock_lockval = arch_spin_lockval(0);
- 	lc->spinlock_index = 0;
+-		/*
+-		 * Incase intel,vm-map property is not defined, we assume
+-		 * incremental channel numbers.
+-		 */
+-		for (i = num; i < vm_num; i++)
+-			pvt->vm_idx[i] = i;
+-
+ 		in_config = devm_kcalloc(dev, num + 1,
+ 					 sizeof(*in_config), GFP_KERNEL);
+ 		if (!in_config)
 -- 
 2.35.1
 
