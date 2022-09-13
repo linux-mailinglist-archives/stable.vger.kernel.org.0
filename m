@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26FDF5B7641
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112E75B76FF
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231705AbiIMQSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 12:18:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60360 "EHLO
+        id S232130AbiIMRAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:00:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231254AbiIMQSX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:18:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C780C78217;
-        Tue, 13 Sep 2022 08:13:56 -0700 (PDT)
+        with ESMTP id S232138AbiIMQ7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:59:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3BFC12F0;
+        Tue, 13 Sep 2022 08:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F086F614E5;
-        Tue, 13 Sep 2022 14:36:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1EAC433C1;
-        Tue, 13 Sep 2022 14:36:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C4E8B80FEA;
+        Tue, 13 Sep 2022 14:34:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE58C433C1;
+        Tue, 13 Sep 2022 14:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079812;
-        bh=8qsHYCJV1ZTyzzOv+TkfjsHrwXn5+dFsnO0D33wFLSc=;
+        s=korg; t=1663079686;
+        bh=6oKrQHMbUouvKFesVC5x9+vlDyMIL0qPZFyN2v0YdeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNm268IkcoCm6xJA8GzBu8wF4gWgmch1mGZNzs4uJlE861Rp2pjhUev6uTsMGaLRy
-         eAXYK/m2LcOycP6I4nA9N8iAV+Ex6p8PB/kPsI3qy0KkCT/l9W5/CUwdrBQyLJURBL
-         7w3Eo6HkkQDo6q1ng2+LJ9zob0Dkgoog+iuHhR58=
+        b=Z7lCGrGAtkGEtkFhu25YQvzlpRoH32xPHtcrBZDEDd47vn6ReJ1UnO2JSgO/d2jVD
+         h8MCUBxY1S1GU2idWUFLqxzXmHX9gjCG3XE8wVlEbeFnbuDB52hS1dqta3uCfsKo3q
+         poCxBbAHZZ6/tTkZTpdFEzZKJOdVJiSViVR2FRdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 03/42] wifi: cfg80211: debugfs: fix return type in ht40allow_map_read()
-Date:   Tue, 13 Sep 2022 16:07:34 +0200
-Message-Id: <20220913140342.404648165@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Fengwei Yin <fengwei.yin@intel.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 36/61] fs: only do a memory barrier for the first set_buffer_uptodate()
+Date:   Tue, 13 Sep 2022 16:07:38 +0200
+Message-Id: <20220913140348.298766987@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit d776763f48084926b5d9e25507a3ddb7c9243d5e ]
+commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
 
-The return type is supposed to be ssize_t, which is signed long,
-but "r" was declared as unsigned int.  This means that on 64 bit systems
-we return positive values instead of negative error codes.
+Commit d4252071b97d ("add barriers to buffer_uptodate and
+set_buffer_uptodate") added proper memory barriers to the buffer head
+BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
+will be guaranteed to actually see initialized state.
 
-Fixes: 80a3511d70e8 ("cfg80211: add debugfs HT40 allow map")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YutvOQeJm0UjLhwU@kili
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, that commit didn't _just_ add the memory barrier, it also ended
+up dropping the "was it already set" logic that the BUFFER_FNS() macro
+had.
+
+That's conceptually the right thing for a generic "this is a memory
+barrier" operation, but in the case of the buffer contents, we really
+only care about the memory barrier for the _first_ time we set the bit,
+in that the only memory ordering protection we need is to avoid anybody
+seeing uninitialized memory contents.
+
+Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
+and would require some other proper lock (typically BH_Lock or the folio
+lock).  A reader that races with somebody invalidating the buffer head
+isn't an issue wrt the memory ordering, it's a serialization issue.
+
+Now, you'd think that the buffer head operations don't matter in this
+day and age (and I certainly thought so), but apparently some loads
+still end up being heavy users of buffer heads.  In particular, the
+kernel test robot reported that not having this bit access optimization
+in place caused a noticeable direct IO performance regression on ext4:
+
+  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
+
+although you presumably need a fast disk and a lot of cores to actually
+notice.
+
+Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Fengwei Yin <fengwei.yin@intel.com>
+Cc: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/debugfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/buffer_head.h |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/net/wireless/debugfs.c b/net/wireless/debugfs.c
-index 5d453916a4179..6a7f4432440a5 100644
---- a/net/wireless/debugfs.c
-+++ b/net/wireless/debugfs.c
-@@ -68,9 +68,10 @@ static ssize_t ht40allow_map_read(struct file *file,
+--- a/include/linux/buffer_head.h
++++ b/include/linux/buffer_head.h
+@@ -134,6 +134,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
+ static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
  {
- 	struct wiphy *wiphy = file->private_data;
- 	char *buf;
--	unsigned int offset = 0, buf_size = PAGE_SIZE, i, r;
-+	unsigned int offset = 0, buf_size = PAGE_SIZE, i;
- 	enum nl80211_band band;
- 	struct ieee80211_supported_band *sband;
-+	ssize_t r;
- 
- 	buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (!buf)
--- 
-2.35.1
-
+ 	/*
++	 * If somebody else already set this uptodate, they will
++	 * have done the memory barrier, and a reader will thus
++	 * see *some* valid buffer state.
++	 *
++	 * Any other serialization (with IO errors or whatever that
++	 * might clear the bit) has to come from other state (eg BH_Lock).
++	 */
++	if (test_bit(BH_Uptodate, &bh->b_state))
++		return;
++
++	/*
+ 	 * make it consistent with folio_mark_uptodate
+ 	 * pairs with smp_load_acquire in buffer_uptodate
+ 	 */
 
 
