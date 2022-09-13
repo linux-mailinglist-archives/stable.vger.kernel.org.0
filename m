@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B1D05B746E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CADA5B7471
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235991AbiIMPYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58396 "EHLO
+        id S235953AbiIMPYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236212AbiIMPXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E492F7C76D;
-        Tue, 13 Sep 2022 07:37:29 -0700 (PDT)
+        with ESMTP id S236134AbiIMPXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6597D7C305;
+        Tue, 13 Sep 2022 07:37:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC4C614B2;
-        Tue, 13 Sep 2022 14:37:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B8EC433D6;
-        Tue, 13 Sep 2022 14:37:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69C2B614D6;
+        Tue, 13 Sep 2022 14:37:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 779A4C433D6;
+        Tue, 13 Sep 2022 14:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079845;
-        bh=qp9sJ4HEq5Md2IUIQHJCUdCQwwxXTwpuwjFmU978NYs=;
+        s=korg; t=1663079847;
+        bh=4+equcMSVsvlDigrHSBn3+6PX2um0qAua8MysF0xSW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVEGhrlNMOkKBG4dbG+btZzkhZttbSvA3e1lAJl85Oed/lo3jlLz41XjBY3pjZVwm
-         zYHBXk5uClUzS2m+40e4pc7Y9d/o4rky4uZylpqYE4axDcpY1j9A7U1wHLlIyRhwJP
-         lb5cHgblIsM40nsqaZBSng8OgQKwkI/2YeeEc7Hs=
+        b=fyI2aLIJ2/EHujR9hHuXzUlIL7cDw3PEzYil+rzuxNaunTy9T9KJ0/42veA+L6yTq
+         q1Gnt0PaeaQPEtHIAdzb58DF/KJJ2vIPDAgXzONM3B96DAA1s/IekoI93ZVVQnUAyg
+         eNxiiGsLUnXXTlg3UE9/S9pPQpPgw5eCYfLUuF6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 4.9 36/42] sch_sfb: Dont assume the skb is still around after enqueueing to child
-Date:   Tue, 13 Sep 2022 16:08:07 +0200
-Message-Id: <20220913140344.198422215@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 37/42] tipc: fix shift wrapping bug in map_get()
+Date:   Tue, 13 Sep 2022 16:08:08 +0200
+Message-Id: <20220913140344.252776985@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -55,76 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
+[ Upstream commit e2b224abd9bf45dcb55750479fc35970725a430b ]
 
-The sch_sfb enqueue() routine assumes the skb is still alive after it has
-been enqueued into a child qdisc, using the data in the skb cb field in the
-increment_qlen() routine after enqueue. However, the skb may in fact have
-been freed, causing a use-after-free in this case. In particular, this
-happens if sch_cake is used as a child of sfb, and the GSO splitting mode
-of CAKE is enabled (in which case the skb will be split into segments and
-the original skb freed).
+There is a shift wrapping bug in this code so anything thing above
+31 will return false.
 
-Fix this by copying the sfb cb data to the stack before enqueueing the skb,
-and using this stack copy in increment_qlen() instead of the skb pointer
-itself.
-
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
-Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Fixes: 35c55c9877f8 ("tipc: add neighbor monitoring framework")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_sfb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/tipc/monitor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index bc176bd48c026..592189427a09f 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -137,15 +137,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
- 	}
- }
+diff --git a/net/tipc/monitor.c b/net/tipc/monitor.c
+index e1f4538b16532..7efcbd11a907a 100644
+--- a/net/tipc/monitor.c
++++ b/net/tipc/monitor.c
+@@ -130,7 +130,7 @@ static void map_set(u64 *up_map, int i, unsigned int v)
  
--static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
-+static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
+ static int map_get(u64 up_map, int i)
  {
- 	u32 sfbhash;
- 
--	sfbhash = sfb_hash(skb, 0);
-+	sfbhash = cb->hashes[0];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 0, q);
- 
--	sfbhash = sfb_hash(skb, 1);
-+	sfbhash = cb->hashes[1];
- 	if (sfbhash)
- 		increment_one_qlen(sfbhash, 1, q);
+-	return (up_map & (1 << i)) >> i;
++	return (up_map & (1ULL << i)) >> i;
  }
-@@ -283,6 +283,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 	struct Qdisc *child = q->qdisc;
- 	struct tcf_proto *fl;
-+	struct sfb_skb_cb cb;
- 	int i;
- 	u32 p_min = ~0;
- 	u32 minqlen = ~0;
-@@ -399,11 +400,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
  
- enqueue:
-+	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
- 	ret = qdisc_enqueue(skb, child, to_free);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
- 		qdisc_qstats_backlog_inc(sch, skb);
- 		sch->q.qlen++;
--		increment_qlen(skb, q);
-+		increment_qlen(&cb, q);
- 	} else if (net_xmit_drop_count(ret)) {
- 		q->stats.childdrop++;
- 		qdisc_qstats_drop(sch);
+ static struct tipc_peer *peer_prev(struct tipc_peer *peer)
 -- 
 2.35.1
 
