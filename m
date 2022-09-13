@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AA55B72F8
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3B65B7390
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234801AbiIMO7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45948 "EHLO
+        id S235307AbiIMPGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234829AbiIMO47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:56:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4101A73319;
-        Tue, 13 Sep 2022 07:27:51 -0700 (PDT)
+        with ESMTP id S235469AbiIMPEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C66D74DC5;
+        Tue, 13 Sep 2022 07:30:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1ED614D2;
-        Tue, 13 Sep 2022 14:20:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57632C433C1;
-        Tue, 13 Sep 2022 14:20:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77070B80D87;
+        Tue, 13 Sep 2022 14:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9419C433D7;
+        Tue, 13 Sep 2022 14:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078824;
-        bh=B+tXHmShi2K/eDzM41fWdvTpBinpQU1npj0mHyqDyUE=;
+        s=korg; t=1663078930;
+        bh=uMnuKfIJU2kTxieP2bCi1WBOw945m2ux2YOfHbvJ4eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IkpkthNktIMzHRyslD1/mA6henKO2uFwjGJtgQ7MwTGSQGZaME4hmfNXnOtXv+A7n
-         xTT4rk0J5tKkdF959J9AHRtP9bbDhpa1CA3XXzE/9qwCclfDROO7DHaBvLmITRZ3jx
-         Rvkc3CMcyQfgX3HFXzJX3qNvY5eKC/syc6Ff6qSs=
+        b=GqPgxuPH2hbBuhHEVu8LnwsBmseRKAdqLrEk4OpqHiP43T4PwuToJgg5YKlAKqwi0
+         dS4DugEQ/v8qrsZxXAqhwILJllQqxU4cSlkkHI+gBu8JelTTANNCAUyA3al8HVgqLb
+         mkt8wkxk0IF38vibdd1mgVlE1D5t0gJpwfUtA9Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Zhenneng Li <lizhenneng@kylinos.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/121] RDMA/srp: Set scmnd->result only when scmnd is not NULL
+Subject: [PATCH 5.10 16/79] drm/radeon: add a force flush to delay work when radeon
 Date:   Tue, 13 Sep 2022 16:04:21 +0200
-Message-Id: <20220913140400.374728274@linuxfoundation.org>
+Message-Id: <20220913140351.076460262@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangx.jy@fujitsu.com <yangx.jy@fujitsu.com>
+From: Zhenneng Li <lizhenneng@kylinos.cn>
 
-[ Upstream commit 12f35199a2c0551187edbf8eb01379f0598659fa ]
+[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
 
-This change fixes the following kernel NULL pointer dereference
-which is reproduced by blktests srp/007 occasionally.
+Although radeon card fence and wait for gpu to finish processing current batch rings,
+there is still a corner case that radeon lockup work queue may not be fully flushed,
+and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
+put device in D3hot state.
+Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
+> Configuration and Message requests are the only TLPs accepted by a Function in
+> the D3hot state. All other received Requests must be handled as Unsupported Requests,
+> and all received Completions may optionally be handled as Unexpected Completions.
+This issue will happen in following logs:
+Unable to handle kernel paging request at virtual address 00008800e0008010
+CPU 0 kworker/0:3(131): Oops 0
+pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
+pc is at si_gpu_check_soft_reset+0x3c/0x240
+ra is at si_dma_is_lockup+0x34/0xd0
+v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
+t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
+t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
+s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
+s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
+s6 = fff00007ef07bd98
+a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
+a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
+t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
+t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
+gp = ffffffff81d89690  sp = 00000000aa814126
+Disabling lock debugging due to kernel taint
+Trace:
+[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
+[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
+[<ffffffff80977010>] process_one_work+0x280/0x550
+[<ffffffff80977350>] worker_thread+0x70/0x7c0
+[<ffffffff80977410>] worker_thread+0x130/0x7c0
+[<ffffffff80982040>] kthread+0x200/0x210
+[<ffffffff809772e0>] worker_thread+0x0/0x7c0
+[<ffffffff80981f8c>] kthread+0x14c/0x210
+[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
+[<ffffffff80981e40>] kthread+0x0/0x210
+ Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
+ <88210000> 4821ed21
+So force lockup work queue flush to fix this problem.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000170
-PGD 0 P4D 0
-Oops: 0002 [#1] PREEMPT SMP NOPTI
-CPU: 0 PID: 9 Comm: kworker/0:1H Kdump: loaded Not tainted 6.0.0-rc1+ #37
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-29-g6a62e0cb0dfe-prebuilt.qemu.org 04/01/2014
-Workqueue:  0x0 (kblockd)
-RIP: 0010:srp_recv_done+0x176/0x500 [ib_srp]
-Code: 00 4d 85 ff 0f 84 52 02 00 00 48 c7 82 80 02 00 00 00 00 00 00 4c 89 df 4c 89 14 24 e8 53 d3 4a f6 4c 8b 14 24 41 0f b6 42 13 <41> 89 87 70 01 00 00 41 0f b6 52 12 f6 c2 02 74 44 41 8b 42 1c b9
-RSP: 0018:ffffaef7c0003e28 EFLAGS: 00000282
-RAX: 0000000000000000 RBX: ffff9bc9486dea60 RCX: 0000000000000000
-RDX: 0000000000000102 RSI: ffffffffb76bbd0e RDI: 00000000ffffffff
-RBP: ffff9bc980099a00 R08: 0000000000000001 R09: 0000000000000001
-R10: ffff9bca53ef0000 R11: ffff9bc980099a10 R12: ffff9bc956e14000
-R13: ffff9bc9836b9cb0 R14: ffff9bc9557b4480 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff9bc97ec00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000170 CR3: 0000000007e04000 CR4: 00000000000006f0
-Call Trace:
- <IRQ>
- __ib_process_cq+0xb7/0x280 [ib_core]
- ib_poll_handler+0x2b/0x130 [ib_core]
- irq_poll_softirq+0x93/0x150
- __do_softirq+0xee/0x4b8
- irq_exit_rcu+0xf7/0x130
- sysvec_apic_timer_interrupt+0x8e/0xc0
- </IRQ>
-
-Fixes: ad215aaea4f9 ("RDMA/srp: Make struct scsi_cmnd and struct srp_request adjacent")
-Link: https://lore.kernel.org/r/20220831081626.18712-1-yangx.jy@fujitsu.com
-Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
-Acked-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 5d416ec228717..473b3a08cf96d 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -1955,7 +1955,8 @@ static void srp_process_rsp(struct srp_rdma_ch *ch, struct srp_rsp *rsp)
- 		if (scmnd) {
- 			req = scsi_cmd_priv(scmnd);
- 			scmnd = srp_claim_req(ch, req, NULL, scmnd);
--		} else {
-+		}
-+		if (!scmnd) {
- 			shost_printk(KERN_ERR, target->scsi_host,
- 				     "Null scmnd for RSP w/tag %#016llx received on ch %td / QP %#x\n",
- 				     rsp->tag, ch - target->ch, ch->qp->qp_num);
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index 266e3cbbd09bd..8287410f471fb 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1623,6 +1623,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
+ 		if (r) {
+ 			/* delay GPU reset to resume */
+ 			radeon_fence_driver_force_completion(rdev, i);
++		} else {
++			/* finish executing delayed work */
++			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
+ 		}
+ 	}
+ 
 -- 
 2.35.1
 
