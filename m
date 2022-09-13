@@ -2,79 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF94D5B7BFD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 22:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F7275B7BF1
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 22:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229503AbiIMUHm convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 13 Sep 2022 16:07:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38540 "EHLO
+        id S230224AbiIMUD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 16:03:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiIMUHl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 16:07:41 -0400
-X-Greylist: delayed 8400 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 13 Sep 2022 13:07:39 PDT
-Received: from mail.mumnet.com.ua (mail.mumnet.com.ua [94.153.196.146])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A394D61734
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 13:07:39 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.mumnet.com.ua (Postfix) with ESMTP id BC2DE4207034;
-        Tue, 13 Sep 2022 20:15:56 +0300 (EEST)
-Received: from mail.mumnet.com.ua ([127.0.0.1])
-        by localhost (mail.mumnet.com.ua [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id mIu3DtkJfcmw; Tue, 13 Sep 2022 20:15:56 +0300 (EEST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.mumnet.com.ua (Postfix) with ESMTP id 8D34742013AD;
-        Tue, 13 Sep 2022 19:54:37 +0300 (EEST)
-X-Virus-Scanned: amavisd-new at mail.mumnet.com.ua
-Received: from mail.mumnet.com.ua ([127.0.0.1])
-        by localhost (mail.mumnet.com.ua [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 3qBh2fSG_Zyq; Tue, 13 Sep 2022 19:54:37 +0300 (EEST)
-Received: from [192.168.0.104] (unknown [45.144.113.126])
-        by mail.mumnet.com.ua (Postfix) with ESMTPSA id BA8724208AF7;
-        Tue, 13 Sep 2022 19:21:31 +0300 (EEST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230006AbiIMUDj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 16:03:39 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2216E659D1
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 13:02:12 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id t3so12941314ply.2
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 13:02:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=l0dj+3Ovsh72VR8b6mpYEl1GpUZxqOUo2nBqMYtEBic=;
+        b=kChLMXOqqc7WCWiLVcJa1JWTY08tfdxz0/Ixko4KoqoY1MYfUL5PIXyApOvWsnXFU7
+         HqnpalKAtCvVQ+e+N1XPkTGVjhVNEa6FQQU+nwbkYN8SlWdfAk4CdONWjAn8ivzjuZpN
+         4GFjO/DuyaJhp1YI7feesSfmRhccxOmBG6F60=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=l0dj+3Ovsh72VR8b6mpYEl1GpUZxqOUo2nBqMYtEBic=;
+        b=gJQS5qvfORLbQqeu2zwlSYFdpbF5u+9sQo/LCuSq08iV70EUPmoDm6iQSsVwbdEMjD
+         pgU9tKcVVX0T8tC5yNSqFbTn0gpyr9jnSu1D8d62VEmH3zJwFdTzLXos2FzRErThXdLy
+         iUsFn+72kVJ7pJrIR6lOURQ1SWDNvWbyuWAg1HUttrCGkKSyzpeW6bBXzTsDc0Ze/QI4
+         KFblTVfZ+kiUKxiqpbAw+ZaH58GxyS5bog9BLO4Ilb5k1uH2x3vlixWxl7fB6N2AXAb8
+         eAlk+FbhWVaLrvv2tBWthBZpNi8ZtciEC8e24RWlhajmosZdkJIQDyYphVZawBKsVI5s
+         v5Zw==
+X-Gm-Message-State: ACgBeo2DTAQFwjWcRQv0XJ4ZtNvoQGNlS7XCxfnmrYHdporEo89gnPnG
+        FvHDyXW5PCNRQWYld7sZubQQDNgh0kkghg==
+X-Google-Smtp-Source: AA6agR4U//ZGs2+QixqZoI/oDBd0iR3oAAy9naUwBqzrTmd9Z2eOdUZf1FqwB/GeKszauOMZtDs3LA==
+X-Received: by 2002:a17:902:e54e:b0:178:5371:5199 with SMTP id n14-20020a170902e54e00b0017853715199mr1786201plf.59.1663099303178;
+        Tue, 13 Sep 2022 13:01:43 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:c6e2:a019:5c54:fb4c])
+        by smtp.gmail.com with UTF8SMTPSA id z129-20020a626587000000b00537e1b30793sm8550660pfb.11.2022.09.13.13.01.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Sep 2022 13:01:42 -0700 (PDT)
+From:   Brian Norris <briannorris@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        <linux-kernel@vger.kernel.org>,
+        Brian Norris <briannorris@chromium.org>
+Subject: [PATCH 5.15.y] tracefs: Only clobber mode/uid/gid on remount if asked
+Date:   Tue, 13 Sep 2022 12:44:33 -0700
+Message-Id: <20220913194433.3628619-1-briannorris@chromium.org>
+X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: =?utf-8?q?Wichtige_Mitteilung=3B_=E2=82=AC_2=2C000=2C000=2700_EUR?=
-To:     Recipients <yuriy.lischuk@mumnet.com.ua>
-From:   "William Kruger" <yuriy.lischuk@mumnet.com.ua>
-Date:   Tue, 13 Sep 2022 09:21:20 -0700
-Reply-To: krugerwilliamhome@gmail.com
-Message-Id: <20220913162131.BA8724208AF7@mail.mumnet.com.ua>
-X-Spam-Status: Yes, score=7.1 required=5.0 tests=BAYES_99,BAYES_999,
-        FREEMAIL_FORGED_REPLYTO,LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Report: *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
-        *      [score: 0.9995]
-        *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
-        *      [score: 0.9995]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
-        *  1.4 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo, Schatz,
+commit 47311db8e8f33011d90dee76b39c8886120cdda4 upstream.
 
-Wir grüßen euch im Namen des Herrn. Diese Nachricht wurde Ihnen als Benachrichtigung gesendet, dass Sie ausgewählt wurden, von unserem Wohltätigkeitsprojekt zu profitieren, das darauf abzielt, Leben zu berühren und denen zu helfen, die wir auf der ganzen Welt können, wie Gott uns gesegnet hat.
+Users may have explicitly configured their tracefs permissions; we
+shouldn't overwrite those just because a second mount appeared.
 
-Ich habe am 12. August 2020 den Powerball-Jackpot in Höhe von 168,5 Millionen US-Dollar gewonnen und mich freiwillig entschieden, einen Teil davon für wohltätige Zwecke zu spenden. In diesem Projekt versuche ich, Menschen zufällig aus verschiedenen Quellen und auf verschiedene Arten zu erreichen, um das Leben aus verschiedenen Blickwinkeln zu berühren. Daher erhalten Sie hier eine Botschaft.
+Only clobber if the options were provided at mount time.
 
-Sie wurden als einer der glücklichen Empfänger aufgeführt, die 2 Millionen € (€ 2,000,000'00 EUR) erhalten haben. Diese Spende wird an Sie ausgezahlt, um Ihnen zu ermöglichen, Ihre Probleme zu stärken, und um uns vor allem dabei zu helfen, uns großzügig zu helfen, den weniger privilegierten, Waisen- und Wohltätigkeitsorganisationen in Ihrer Nähe die Hand zu reichen.
+Note: the previous behavior was especially surprising in the presence of
+automounted /sys/kernel/debug/tracing/.
 
-Zu überprüfen Um https://powerball-megamillions.com/news/florida-winner-claims-168-million-states-14th-powerball-jackpot 
+Existing behavior:
 
-Wenden Sie sich an mich, um zu erfahren, wie Sie die Spende erhalten. Kontaktieren Sie mich jetzt hier unter: office@krugerwilliamorg.com
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
 
-Vielen Dank
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwx------
 
-William Kruger
+  ## Unexpected: the automount changed mode for other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwx------
+
+New behavior (after this change):
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwxr-xr-x
+
+  ## Expected: the automount does not change other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+This fixes a single line of context that makes the "clean" cherry-pick
+not work.
+
+This patch also applies to 5.10, 5.4, and probably others, if I tested
+correctly.
+
+ fs/tracefs/inode.c | 31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
+
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index f2625a372a3a..066e8344934d 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -141,6 +141,8 @@ struct tracefs_mount_opts {
+ 	kuid_t uid;
+ 	kgid_t gid;
+ 	umode_t mode;
++	/* Opt_* bitfield. */
++	unsigned int opts;
+ };
+ 
+ enum {
+@@ -241,6 +243,7 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ 	kgid_t gid;
+ 	char *p;
+ 
++	opts->opts = 0;
+ 	opts->mode = TRACEFS_DEFAULT_MODE;
+ 
+ 	while ((p = strsep(&data, ",")) != NULL) {
+@@ -275,24 +278,36 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ 		 * but traditionally tracefs has ignored all mount options
+ 		 */
+ 		}
++
++		opts->opts |= BIT(token);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int tracefs_apply_options(struct super_block *sb)
++static int tracefs_apply_options(struct super_block *sb, bool remount)
+ {
+ 	struct tracefs_fs_info *fsi = sb->s_fs_info;
+ 	struct inode *inode = sb->s_root->d_inode;
+ 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 
+-	inode->i_mode &= ~S_IALLUGO;
+-	inode->i_mode |= opts->mode;
++	/*
++	 * On remount, only reset mode/uid/gid if they were provided as mount
++	 * options.
++	 */
++
++	if (!remount || opts->opts & BIT(Opt_mode)) {
++		inode->i_mode &= ~S_IALLUGO;
++		inode->i_mode |= opts->mode;
++	}
+ 
+-	inode->i_uid = opts->uid;
++	if (!remount || opts->opts & BIT(Opt_uid))
++		inode->i_uid = opts->uid;
+ 
+-	/* Set all the group ids to the mount option */
+-	set_gid(sb->s_root, opts->gid);
++	if (!remount || opts->opts & BIT(Opt_gid)) {
++		/* Set all the group ids to the mount option */
++		set_gid(sb->s_root, opts->gid);
++	}
+ 
+ 	return 0;
+ }
+@@ -307,7 +322,7 @@ static int tracefs_remount(struct super_block *sb, int *flags, char *data)
+ 	if (err)
+ 		goto fail;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, true);
+ 
+ fail:
+ 	return err;
+@@ -359,7 +374,7 @@ static int trace_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	sb->s_op = &tracefs_super_operations;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, false);
+ 
+ 	return 0;
+ 
+-- 
+2.37.2.789.g6183377224-goog
+
