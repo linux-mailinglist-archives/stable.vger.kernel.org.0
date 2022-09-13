@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E015B7558
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F131E5B72F0
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236632AbiIMPkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
+        id S234096AbiIMPEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236852AbiIMPjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:39:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6093651A12;
-        Tue, 13 Sep 2022 07:45:06 -0700 (PDT)
+        with ESMTP id S234812AbiIMPB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:01:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63EAE2672;
+        Tue, 13 Sep 2022 07:29:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A491E61414;
-        Tue, 13 Sep 2022 14:31:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC139C433D6;
-        Tue, 13 Sep 2022 14:31:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50FC3B80FA0;
+        Tue, 13 Sep 2022 14:28:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD711C433C1;
+        Tue, 13 Sep 2022 14:28:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079484;
-        bh=exZdNZWzP0dOHve55ZJWQ3kh4qj940fegArBrUQhtkE=;
+        s=korg; t=1663079331;
+        bh=QTp3V9Wc+uq3amx3hHuUJmzK2gSdZQ6neKfpllqGLLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yewirD50/S39mrY2EGyJ8Yu1IQM3TjS1Hm8sXKelEN4kvu+v9sreiYDOqb3+a1CjB
-         7sy99+7I8TPa05tEVgcvzalYmVUg6u6ust7A/G6lCO1BGXXHGGwITt9EdCkDgTkqef
-         MCLYLS5cLc7hwViyyJ61KhIZN1Mta20aCMvxkI2c=
+        b=Xd8yCiZMvT3stRBkt6gbNJ3Icfh9dMR0+vPNNlxYRheokkrvkgYPM2+8EhGaIeydp
+         4KfQmNFBYOCM1KnWhy4WnvrsxrlXykOjsVdjELew+Z5iYxOAfTbwVa5yK2ElsyYAnB
+         c/kdiGvp6TYEdzBVVrCOiwoyG/9QL20bSsyDUlxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com,
-        Siddh Raman Pant <code@siddh.me>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 45/79] wifi: mac80211: Dont finalize CSA in IBSS mode if state is disconnected
-Date:   Tue, 13 Sep 2022 16:07:03 +0200
-Message-Id: <20220913140351.090213867@linuxfoundation.org>
+        Chengchang Tang <tangchengchang@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 093/108] RDMA/hns: Fix supported page size
+Date:   Tue, 13 Sep 2022 16:07:04 +0200
+Message-Id: <20220913140357.612325692@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Chengchang Tang <tangchengchang@huawei.com>
 
-commit 15bc8966b6d3a5b9bfe4c9facfa02f2b69b1e5f0 upstream.
+[ Upstream commit 55af9d498556f0860eb89ffa7677e8d73f6f643f ]
 
-When we are not connected to a channel, sending channel "switch"
-announcement doesn't make any sense.
+The supported page size for hns is (4K, 128M), not (4K, 2G).
 
-The BSS list is empty in that case. This causes the for loop in
-cfg80211_get_bss() to be bypassed, so the function returns NULL
-(check line 1424 of net/wireless/scan.c), causing the WARN_ON()
-in ieee80211_ibss_csa_beacon() to get triggered (check line 500
-of net/mac80211/ibss.c), which was consequently reported on the
-syzkaller dashboard.
-
-Thus, check if we have an existing connection before generating
-the CSA beacon in ieee80211_ibss_finish_csa().
-
-Cc: stable@vger.kernel.org
-Fixes: cd7760e62c2a ("mac80211: add support for CSA in IBSS mode")
-Link: https://syzkaller.appspot.com/bug?id=05603ef4ae8926761b678d2939a3b2ad28ab9ca6
-Reported-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Tested-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20220814151512.9985-1-code@siddh.me
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
+Link: https://lore.kernel.org/r/20220829105021.1427804-2-liangwenpeng@huawei.com
+Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/ibss.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/ibss.c
-+++ b/net/mac80211/ibss.c
-@@ -544,6 +544,10 @@ int ieee80211_ibss_finish_csa(struct iee
- 
- 	sdata_assert_lock(sdata);
- 
-+	/* When not connected/joined, sending CSA doesn't make sense. */
-+	if (ifibss->state != IEEE80211_IBSS_MLME_JOINED)
-+		return -ENOLINK;
-+
- 	/* update cfg80211 bss information with the new channel */
- 	if (!is_zero_ether_addr(ifibss->bssid)) {
- 		cbss = cfg80211_get_bss(sdata->local->hw.wiphy,
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+index 76a14db7028dd..b9ab3ca3079c7 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+@@ -89,7 +89,7 @@
+ #define HNS_ROCE_V2_SCCC_ENTRY_SZ		32
+ #define HNS_ROCE_V2_QPC_TIMER_ENTRY_SZ		PAGE_SIZE
+ #define HNS_ROCE_V2_CQC_TIMER_ENTRY_SZ		PAGE_SIZE
+-#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFFF000
++#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFF000
+ #define HNS_ROCE_V2_MAX_INNER_MTPT_NUM		2
+ #define HNS_ROCE_INVALID_LKEY			0x100
+ #define HNS_ROCE_CMQ_TX_TIMEOUT			30000
+-- 
+2.35.1
+
 
 
