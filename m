@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCEEE5B754B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 448AA5B72E2
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232187AbiIMPje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:39:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
+        id S234767AbiIMO7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236753AbiIMPiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82EF71AF2D;
-        Tue, 13 Sep 2022 07:44:49 -0700 (PDT)
+        with ESMTP id S235116AbiIMO7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0922060C2;
+        Tue, 13 Sep 2022 07:28:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8079E614B4;
-        Tue, 13 Sep 2022 14:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9AAC433D6;
-        Tue, 13 Sep 2022 14:31:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7080614B7;
+        Tue, 13 Sep 2022 14:28:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6612C433C1;
+        Tue, 13 Sep 2022 14:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079491;
-        bh=2jMSUEghuLlu/1D6x2idR7tJj/F/ZgljozPqFgP5Eq4=;
+        s=korg; t=1663079336;
+        bh=1jS7lZ4MEjDQmopBnisfmndMJSQPPn+ToR1lJO8xBUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HieWeZp0RAec1A4LZa3ab0HdyiWN8yKznt6K3fM/SijUvxGzV1NzILBkqyfo8XTF/
-         qOClnQgBebCDkW1h9IC87J0HvyOmVwBWMp/1z6KyNQu/+mD6sSQZpgRpZJhTblH5TA
-         fv12aIzGjQag+h6pSRMUbTF4EraYlxCLpaCVdObM=
+        b=rq2ykc9zBab9JtHXHIrVkcKAnPjiSa5qA2JdpHr2XjRCNY//Dzu/7sbysdZDPrZr+
+         QzvzP+fhui9oF715uwuTtDefdTBjpneUvJoeftEAKKqg4S2yahGGQF8aw9ocQKgJN7
+         0amXPLqXRg9AJEcUcTccxnLPjbi0bzMhtto7B1GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 48/79] ALSA: seq: Fix data-race at module auto-loading
+        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 095/108] netfilter: nf_conntrack_irc: Fix forged IP logic
 Date:   Tue, 13 Sep 2022 16:07:06 +0200
-Message-Id: <20220913140351.223767914@linuxfoundation.org>
+Message-Id: <20220913140357.701345854@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Leadbeater <dgl@dgl.cx>
 
-commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
+[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
 
-It's been reported that there is a possible data-race accessing to the
-global card_requested[] array at ALSA sequencer core, which is used
-for determining whether to call request_module() for the card or not.
-This data race itself is almost harmless, as it might end up with one
-extra request_module() call for the already loaded module at most.
-But it's still better to fix.
+Ensure the match happens in the right direction, previously the
+destination used was the server, not the NAT host, as the comment
+shows the code intended.
 
-This patch addresses the possible data race of card_requested[] and
-client_requested[] arrays by replacing them with bitmask.
-It's an atomic operation and can work without locks.
+Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
+it can appear in a DCC message, so consider port 0 also forged.
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
+Signed-off-by: David Leadbeater <dgl@dgl.cx>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_clientmgr.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ net/netfilter/nf_conntrack_irc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -136,13 +136,13 @@ struct snd_seq_client *snd_seq_client_us
- 	spin_unlock_irqrestore(&clients_lock, flags);
- #ifdef CONFIG_MODULES
- 	if (!in_interrupt()) {
--		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
--		static char card_requested[SNDRV_CARDS];
-+		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
-+		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
-+
- 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
- 			int idx;
- 			
--			if (!client_requested[clientid]) {
--				client_requested[clientid] = 1;
-+			if (!test_and_set_bit(clientid, client_requested)) {
- 				for (idx = 0; idx < 15; idx++) {
- 					if (seq_client_load[idx] < 0)
- 						break;
-@@ -157,10 +157,8 @@ struct snd_seq_client *snd_seq_client_us
- 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
- 				SNDRV_SEQ_CLIENTS_PER_CARD;
- 			if (card < snd_ecards_limit) {
--				if (! card_requested[card]) {
--					card_requested[card] = 1;
-+				if (!test_and_set_bit(card, card_requested))
- 					snd_request_card(card);
--				}
- 				snd_seq_device_load_drivers();
- 			}
- 		}
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index e40988a2f22fb..26245419ef4a9 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -185,8 +185,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 
+ 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
+ 			tuple = &ct->tuplehash[dir].tuple;
+-			if (tuple->src.u3.ip != dcc_ip &&
+-			    tuple->dst.u3.ip != dcc_ip) {
++			if ((tuple->src.u3.ip != dcc_ip &&
++			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
++			    dcc_port == 0) {
+ 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
+ 						     &tuple->src.u3.ip,
+ 						     &dcc_ip, dcc_port);
+-- 
+2.35.1
+
 
 
