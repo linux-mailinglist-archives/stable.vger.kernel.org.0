@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E185B7142
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 826165B721B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233064AbiIMOhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46462 "EHLO
+        id S231342AbiIMOsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:48:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233730AbiIMOfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:50 -0400
+        with ESMTP id S231483AbiIMOqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:46:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02C6965650;
-        Tue, 13 Sep 2022 07:20:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D8061B02;
+        Tue, 13 Sep 2022 07:24:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 387BB614B6;
-        Tue, 13 Sep 2022 14:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47FB4C433B5;
-        Tue, 13 Sep 2022 14:18:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8911614DC;
+        Tue, 13 Sep 2022 14:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC102C433D6;
+        Tue, 13 Sep 2022 14:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078728;
-        bh=+Ag2veBKk7JDxVF+yQUnmaeHMEDCpSp6zmSNW62pFGI=;
+        s=korg; t=1663078963;
+        bh=U0lw36v5K3lnpJ4xVPpX9D5MtIMf5s6/6zDt1oauxo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9bbp/8gpbIt5VFGtGlizqz065f7Z/rOrbgUfgJ4K+5H/ryykd/VRfn6mEZy2UJ5a
-         dALu9FBasxubKd0T1KrfNL6/5CIe98EbytS8LfRNmFk081S5yY8+qZyowkkEYxhDCp
-         soUekZkIPBxnONvw19MiqtqoTtZCcyiNl76N2E/I=
+        b=HU/PaHaFt0zAQEdALDVcWLu7rjhiG2SubzysrAZpHZUdYbREyiBGz/IjWsR94PULo
+         9JlEex4JopZV8xRoKbpSQVk/IT5m+lx2ve/SEg/6jp6IYQFzW5Tsal77jzWQOepZWe
+         O/+uTmYKGM0Rxb22gibVXc7oCe/8SjgagKvY/23I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/121] RDMA/hns: Fix wrong fixed value of qp->rq.wqe_shift
-Date:   Tue, 13 Sep 2022 16:04:10 +0200
-Message-Id: <20220913140359.888221737@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.10 06/79] efi: capsule-loader: Fix use-after-free in efi_capsule_write
+Date:   Tue, 13 Sep 2022 16:04:11 +0200
+Message-Id: <20220913140350.600319961@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit 0c8b5d6268d92d141bfd64d21c870d295a84dee1 ]
+commit 9cb636b5f6a8cc6d1b50809ec8f8d33ae0c84c95 upstream.
 
-The value of qp->rq.wqe_shift of HIP08 is always determined by the number
-of sge. So delete the wrong branch.
+A race condition may occur if the user calls close() on another thread
+during a write() operation on the device node of the efi capsule.
 
-Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/20220829105021.1427804-3-liangwenpeng@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is a race condition that occurs between the efi_capsule_write() and
+efi_capsule_flush() functions of efi_capsule_fops, which ultimately
+results in UAF.
+
+So, the page freeing process is modified to be done in
+efi_capsule_release() instead of efi_capsule_flush().
+
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/all/20220907102920.GA88602@ubuntu/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/firmware/efi/capsule-loader.c |   31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 9af4509894e68..5d50d2d1deca9 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -495,11 +495,8 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
- 	hr_qp->rq.max_gs = roundup_pow_of_two(max(1U, cap->max_recv_sge) +
- 					      hr_qp->rq.rsv_sge);
+--- a/drivers/firmware/efi/capsule-loader.c
++++ b/drivers/firmware/efi/capsule-loader.c
+@@ -243,29 +243,6 @@ failed:
+ }
  
--	if (hr_dev->caps.max_rq_sg <= HNS_ROCE_SGE_IN_WQE)
--		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz);
--	else
--		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz *
--					    hr_qp->rq.max_gs);
-+	hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz *
-+				    hr_qp->rq.max_gs);
+ /**
+- * efi_capsule_flush - called by file close or file flush
+- * @file: file pointer
+- * @id: not used
+- *
+- *	If a capsule is being partially uploaded then calling this function
+- *	will be treated as upload termination and will free those completed
+- *	buffer pages and -ECANCELED will be returned.
+- **/
+-static int efi_capsule_flush(struct file *file, fl_owner_t id)
+-{
+-	int ret = 0;
+-	struct capsule_info *cap_info = file->private_data;
+-
+-	if (cap_info->index > 0) {
+-		pr_err("capsule upload not complete\n");
+-		efi_free_all_buff_pages(cap_info);
+-		ret = -ECANCELED;
+-	}
+-
+-	return ret;
+-}
+-
+-/**
+  * efi_capsule_release - called by file close
+  * @inode: not used
+  * @file: file pointer
+@@ -277,6 +254,13 @@ static int efi_capsule_release(struct in
+ {
+ 	struct capsule_info *cap_info = file->private_data;
  
- 	hr_qp->rq.wqe_cnt = cnt;
- 	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_RQ_INLINE &&
--- 
-2.35.1
-
++	if (cap_info->index > 0 &&
++	    (cap_info->header.headersize == 0 ||
++	     cap_info->count < cap_info->total_size)) {
++		pr_err("capsule upload not complete\n");
++		efi_free_all_buff_pages(cap_info);
++	}
++
+ 	kfree(cap_info->pages);
+ 	kfree(cap_info->phys);
+ 	kfree(file->private_data);
+@@ -324,7 +308,6 @@ static const struct file_operations efi_
+ 	.owner = THIS_MODULE,
+ 	.open = efi_capsule_open,
+ 	.write = efi_capsule_write,
+-	.flush = efi_capsule_flush,
+ 	.release = efi_capsule_release,
+ 	.llseek = no_llseek,
+ };
 
 
