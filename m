@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF635B78A0
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194A75B77EC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233370AbiIMRqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:46:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41884 "EHLO
+        id S232001AbiIMR11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233365AbiIMRqA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:46:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6969F6DFA2;
-        Tue, 13 Sep 2022 09:41:55 -0700 (PDT)
+        with ESMTP id S231384AbiIMR0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:26:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D1A6457;
+        Tue, 13 Sep 2022 09:15:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE8EC614B2;
-        Tue, 13 Sep 2022 14:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C635BC433C1;
-        Tue, 13 Sep 2022 14:37:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79602B8100E;
+        Tue, 13 Sep 2022 14:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E50FCC433C1;
+        Tue, 13 Sep 2022 14:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079877;
-        bh=9BgiPP6OCpWvSkGqFHD61EJ8AiegDO/o1o7/clXSep4=;
+        s=korg; t=1663079750;
+        bh=ZyUgIjdNLSUYrx8Fp9Kntz2SmFYPsYZBQCZEtISl5IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umO5zN1zmYJMY1PU/oCfjH1xV5sYAYSjY/ENk+j1lb1w6zAKWxqqUqklQqBSExBUr
-         fyNxWyXzA99+V+3zGBXFHIoFFrZOlzML2k+1Mpi82ZrvofmuqNTk8RfGmilHkLd+DU
-         gAi34GBwfWhhBG/ApE53eTDNRUwd5tfLna+tX+Yk=
+        b=m8l56xHwZLceRyJMZDBoLw99MFtJXAGq5FlY1qHEleEOodrE3PNZAqFJA0z7DFHiE
+         3604kJyAM4hOG1e8OLV5LoQlb9mfYGe200q1zKPGbVBE4PNStLy8PNmwPU3ZveoEHA
+         /H36PxCgkm4JfBhwWEXG+K8FtHCTN/LCzy2wRmTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 29/42] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
-Date:   Tue, 13 Sep 2022 16:08:00 +0200
-Message-Id: <20220913140343.802205913@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 4.14 61/61] SUNRPC: use _bh spinlocking on ->transport_lock
+Date:   Tue, 13 Sep 2022 16:08:03 +0200
+Message-Id: <20220913140349.494726420@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tasos Sahanidis <tasos@tasossah.com>
+From: "NeilBrown" <neilb@suse.de>
 
-commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
+Prior to Linux 5.3, ->transport_lock in sunrpc required the _bh style
+spinlocks (when not called from a bottom-half handler).
 
-The voice allocator sometimes begins allocating from near the end of the
-array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
-accesses the newly allocated voices as if it never wrapped around.
+When upstream 3848e96edf4788f772d83990022fa7023a233d83 was backported to
+stable kernels, the spin_lock/unlock calls should have been changed to
+the _bh version, but this wasn't noted in the patch and didn't happen.
 
-This results in out of bounds access if the first voice has a high enough
-index so that first_voice + requested_voice_count > NUM_G (64).
-The more voices are requested, the more likely it is for this to occur.
+So convert these lock/unlock calls to the _bh versions.
 
-This was initially discovered using PipeWire, however it can be reproduced
-by calling aplay multiple times with 16 channels:
-aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
+This patch is required for any stable kernel prior to 5.3 to which the
+above mentioned patch was backported.  Namely 4.9.y, 4.14.y, 4.19.y.
 
-UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
-index 65 is out of range for type 'snd_emu10k1_voice [64]'
-CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
-Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-ubsan_epilogue+0x9/0x3f
-__ubsan_handle_out_of_bounds.cold+0x44/0x49
-snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
-snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
-snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
-? exit_to_user_mode_prepare+0x35/0x170
-? do_syscall_64+0x69/0x90
-? syscall_exit_to_user_mode+0x26/0x50
-? do_syscall_64+0x69/0x90
-? exit_to_user_mode_prepare+0x35/0x170
-snd_pcm_ioctl+0x27/0x40 [snd_pcm]
-__x64_sys_ioctl+0x95/0xd0
-do_syscall_64+0x5c/0x90
-? do_syscall_64+0x69/0x90
-? do_syscall_64+0x69/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
 ---
- sound/pci/emu10k1/emupcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xprt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -137,7 +137,7 @@ static int snd_emu10k1_pcm_channel_alloc
- 	epcm->voices[0]->epcm = epcm;
- 	if (voices > 1) {
- 		for (i = 1; i < voices; i++) {
--			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
-+			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
- 			epcm->voices[i]->epcm = epcm;
- 		}
- 	}
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1525,9 +1525,9 @@ static void xprt_destroy(struct rpc_xprt
+ 	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
+ 	 * can only run *before* del_time_sync(), never after.
+ 	 */
+-	spin_lock(&xprt->transport_lock);
++	spin_lock_bh(&xprt->transport_lock);
+ 	del_timer_sync(&xprt->timer);
+-	spin_unlock(&xprt->transport_lock);
++	spin_unlock_bh(&xprt->transport_lock);
+ 
+ 	/*
+ 	 * Destroy sockets etc from the system workqueue so they can
 
 
