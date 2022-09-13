@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57AD65B7547
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F245B7362
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbiIMPjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:39:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52262 "EHLO
+        id S235284AbiIMPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236723AbiIMPis (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA84D186F3;
-        Tue, 13 Sep 2022 07:44:43 -0700 (PDT)
+        with ESMTP id S235287AbiIMPFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:05:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F25753A9;
+        Tue, 13 Sep 2022 07:30:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95253614EA;
-        Tue, 13 Sep 2022 14:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEC43C433C1;
-        Tue, 13 Sep 2022 14:30:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAA09B80FA1;
+        Tue, 13 Sep 2022 14:30:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DCFBC433D7;
+        Tue, 13 Sep 2022 14:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079424;
-        bh=qUDf5XTkMr1y3mYRDLD8wyQJgOaBBW1W3YD8wCMg+Ko=;
+        s=korg; t=1663079426;
+        bh=6QeIICB9afA+06gQQvIaQmzK9vuCVqdguqf5PTujeGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SopX2Q+5zCHd5dLoPS+tM5a9R8mVjATtkEon8LRpKvdCSnozkCohW0MqYoSt8GhNO
-         Xd7c1NjiBaa8IWGa9+FYFb90ZLm3sD3HflphxFpInUJZbPgJ1bXR+NgIxt4kHnMLGA
-         bg7E7ARHYUhcczaQ72H/sr+Dyr9Hr6AJTri/pgug=
+        b=mNDAyuMP1/TcLT2kSWwQTleQ42cN4XY84n4hI6vb83aEvNV5bNFDIboO9ynttSekq
+         3ssdfPftON6V9rEqD749E2Y7zEJ/yRkGtKju0l8GxHefTECkcLRTqazf0umdo7canQ
+         HwVQONHa6Bep1U+ParpXfh0IWaeHLCadwwEepgsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable <stable@kernel.org>,
-        Nicolas Diaz <nicolas.diaz@nxp.com>,
-        Shenwei Wang <shenwei.wang@nxp.com>
-Subject: [PATCH 4.19 20/79] serial: fsl_lpuart: RS485 RTS polariy is inverse
-Date:   Tue, 13 Sep 2022 16:06:38 +0200
-Message-Id: <20220913140349.855097989@linuxfoundation.org>
+        Zheng Wang <hackerzheng666@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.19 21/79] staging: rtl8712: fix use after free bugs
+Date:   Tue, 13 Sep 2022 16:06:39 +0200
+Message-Id: <20220913140349.912122205@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -54,39 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shenwei Wang <shenwei.wang@nxp.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 846651eca073e2e02e37490a4a52752415d84781 upstream.
+commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
 
-The setting of RS485 RTS polarity is inverse in the current driver.
+_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
+functions don't do anything except free the "pcmd" pointer.  It
+results in a use after free.  Delete them.
 
-When the property of 'rs485-rts-active-low' is enabled in the dts node,
-the RTS signal should be LOW during sending. Otherwise, if there is no
-such a property, the RTS should be HIGH during sending.
-
-Fixes: 03895cf41d18 ("tty: serial: fsl_lpuart: Add support for RS-485")
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
 Cc: stable <stable@kernel.org>
-Signed-off-by: Nicolas Diaz <nicolas.diaz@nxp.com>
-Signed-off-by: Shenwei Wang <shenwei.wang@nxp.com>
-Link: https://lore.kernel.org/r/20220805144529.604856-1-shenwei.wang@nxp.com
+Reported-by: Zheng Wang <hackerzheng666@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
+ 1 file changed, 36 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1102,9 +1102,9 @@ static int lpuart_config_rs485(struct ua
- 		 * Note: UART is assumed to be active high.
- 		 */
- 		if (rs485->flags & SER_RS485_RTS_ON_SEND)
--			modem &= ~UARTMODEM_TXRTSPOL;
--		else if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
- 			modem |= UARTMODEM_TXRTSPOL;
-+		else if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
-+			modem &= ~UARTMODEM_TXRTSPOL;
- 	}
+--- a/drivers/staging/rtl8712/rtl8712_cmd.c
++++ b/drivers/staging/rtl8712/rtl8712_cmd.c
+@@ -129,34 +129,6 @@ static void r871x_internal_cmd_hdl(struc
+ 	kfree(pdrvcmd->pbuf);
+ }
  
- 	/* Store the new configuration */
+-static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+-static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+ static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
+ {
+ 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+@@ -225,14 +197,6 @@ static struct cmd_obj *cmd_hdl_filter(st
+ 	pcmd_r = NULL;
+ 
+ 	switch (pcmd->cmdcode) {
+-	case GEN_CMD_CODE(_Read_MACREG):
+-		read_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+-	case GEN_CMD_CODE(_Write_MACREG):
+-		write_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+ 	case GEN_CMD_CODE(_Read_BBREG):
+ 		read_bbreg_hdl(padapter, (u8 *)pcmd);
+ 		break;
 
 
