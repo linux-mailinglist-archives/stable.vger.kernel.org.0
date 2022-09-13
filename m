@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB445B7413
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C76F5B7550
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235809AbiIMPTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39362 "EHLO
+        id S236695AbiIMPkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:40:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235952AbiIMPSi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:18:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0759F79A4F;
-        Tue, 13 Sep 2022 07:35:26 -0700 (PDT)
+        with ESMTP id S236911AbiIMPjW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:39:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABEA56B67B;
+        Tue, 13 Sep 2022 07:45:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEDD1B80EFA;
-        Tue, 13 Sep 2022 14:33:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C34CC433C1;
-        Tue, 13 Sep 2022 14:33:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EB24614D8;
+        Tue, 13 Sep 2022 14:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B91CC433C1;
+        Tue, 13 Sep 2022 14:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079603;
-        bh=eHBm7y0fVUA8Gl2U1lMAhWBmoOpB3KW/PvPqGbc644w=;
+        s=korg; t=1663079648;
+        bh=TCIma7NPREKAXuZtFQo3nopI/p7CcBG1rtrR+ZyVvq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=isfCVlHHCLptsnpQn6+G2ZvWF6dzHViE9Vkn21hauyCRSVX34HgoMpOodPWlfo1Al
-         1fd6Zq6y7XgfmalUTx/YM/h0MySisbShUss7zOVwYiHKJwdBT6v5Fch7EVZSp+qOQ/
-         OmQeoicTIXH2Cj4QTaVfZ0jJ9G+ShWhkBroCQHUQ=
+        b=O1loZK9+GrXtqY8l3sjXFCe1cI6L4WkjP+SDgPSkxEyGfLUJ+tVNLkSFupwzwVV3z
+         UMWgeEruGACxQdGTqsj4jB07dNh8UeLuFYXTqdML5XxQyqUdMvgbO58RxRSPMeCWmR
+         rh2Me5KbmXYfRUF6rRjsexKy6rCXtUICweBFP1rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 64/79] netfilter: br_netfilter: Drop dst references before setting.
+        stable@vger.kernel.org, Yan Xinyu <sdlyyxy@bupt.edu.cn>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 20/61] USB: serial: option: add support for OPPO R11 diag port
 Date:   Tue, 13 Sep 2022 16:07:22 +0200
-Message-Id: <20220913140351.979662545@linuxfoundation.org>
+Message-Id: <20220913140347.523762859@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harsh Modi <harshmodi@google.com>
+From: Yan Xinyu <sdlyyxy@bupt.edu.cn>
 
-[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
+commit 8d5fc280392735e4441b35de14f2f4860fa8d83c upstream.
 
-The IPv6 path already drops dst in the daddr changed case, but the IPv4
-path does not. This change makes the two code paths consistent.
+Add support for OPPO R11 USB diag serial port to option driver. This
+phone uses Qualcomm Snapdragon 660 SoC.
 
-Further, it is possible that there is already a metadata_dst allocated from
-ingress that might already be attached to skbuff->dst while following
-the bridge path. If it is not released before setting a new
-metadata_dst, it will be leaked. This is similar to what is done in
-bpf_set_tunnel_key() or ip6_route_input().
+usb-devices output:
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22d9 ProdID=276c Rev=04.04
+S:  Manufacturer=OPPO
+S:  Product=SDM660-MTP _SN:09C6BCA7
+S:  SerialNumber=beb2c403
+C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
 
-It is important to note that the memory being leaked is not the dst
-being set in the bridge code, but rather memory allocated from some
-other code path that is not being freed correctly before the skb dst is
-overwritten.
-
-An example of the leakage fixed by this commit found using kmemleak:
-
-unreferenced object 0xffff888010112b00 (size 256):
-  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
-    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
-  backtrace:
-    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
-    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
-    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
-    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
-    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
-    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
-    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
-    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
-    [<00000000a879497d>] process_backlog+0x93/0x190
-    [<00000000e41ade9f>] __napi_poll+0x28/0x170
-    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
-    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
-    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
-    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
-    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
-    [<000000008942add0>] native_safe_halt+0x13/0x20
-
-Florian Westphal says: "Original code was likely fine because nothing
-ever did set a skb->dst entry earlier than bridge in those days."
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Harsh Modi <harshmodi@google.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yan Xinyu <sdlyyxy@bupt.edu.cn>
+Link: https://lore.kernel.org/r/20220714102037.4113889-1-sdlyyxy@bupt.edu.cn
+Link: https://lore.kernel.org/r/Yt1WfSZk03Plpnan@hovoldconsulting.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_netfilter_hooks.c | 2 ++
- net/bridge/br_netfilter_ipv6.c  | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/usb/serial/option.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 55c7cdf5e7b83..35642dc96852a 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -385,6 +385,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 				/* - Bridged-and-DNAT'ed traffic doesn't
- 				 *   require ip_forwarding. */
- 				if (rt->dst.dev == dev) {
-+					skb_dst_drop(skb);
- 					skb_dst_set(skb, &rt->dst);
- 					goto bridged_dnat;
- 				}
-@@ -414,6 +415,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 			kfree_skb(skb);
- 			return 0;
- 		}
-+		skb_dst_drop(skb);
- 		skb_dst_set_noref(skb, &rt->dst);
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -576,6 +576,10 @@ static void option_instat_callback(struc
+ #define WETELECOM_PRODUCT_6802			0x6802
+ #define WETELECOM_PRODUCT_WMD300		0x6803
  
-diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-index 09d5e0c7b3ba4..995d86777e7cb 100644
---- a/net/bridge/br_netfilter_ipv6.c
-+++ b/net/bridge/br_netfilter_ipv6.c
-@@ -201,6 +201,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
- 			kfree_skb(skb);
- 			return 0;
- 		}
-+		skb_dst_drop(skb);
- 		skb_dst_set_noref(skb, &rt->dst);
- 	}
++/* OPPO products */
++#define OPPO_VENDOR_ID				0x22d9
++#define OPPO_PRODUCT_R11			0x276c
++
  
--- 
-2.35.1
-
+ /* Device flags */
+ 
+@@ -2157,6 +2161,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
++	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
+ 	{ } /* Terminating entry */
+ };
+ MODULE_DEVICE_TABLE(usb, option_ids);
 
 
