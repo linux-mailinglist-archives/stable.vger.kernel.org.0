@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 040E45B6C67
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 13:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0658B5B6C69
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 13:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbiIMLc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 07:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52580 "EHLO
+        id S231378AbiIMLe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 07:34:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231362AbiIMLcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 07:32:54 -0400
+        with ESMTP id S231362AbiIMLeY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 07:34:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29C9753D14
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 04:32:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0258453D14
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 04:34:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B92176140F
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 11:32:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A17F0C433C1;
-        Tue, 13 Sep 2022 11:32:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91AD86140F
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 11:34:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88D63C433C1;
+        Tue, 13 Sep 2022 11:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663068773;
-        bh=xKXJLlcy6ByT5onEV6Z/Y+nMbjGqigKGQtmGbsyRGUc=;
+        s=korg; t=1663068863;
+        bh=mn0K4P8a9XEW4ixy1V/1+lEX8Y/HzJhmcEJphmPI6zU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=L7ZvfNSgX8G7rFIEsMsdqNmohlZkUN586v9FoQhS6a5LNvswSH+DtNzGgPzI826sC
-         BDQKcoonD/+YqlAzpkOcwamGfK+rODMrK7mEk4tbWDx+gPONKA0BCmEMRq7aGVPXhn
-         Ko8OcfiH3a0Ct+k8qoqlwTS02cWvujXwJn301byw=
-Date:   Tue, 13 Sep 2022 13:33:17 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ye Weihua <yeweihua4@huawei.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Backport patch "mm: fix missing handler for __GFP_NOWARN" to
- linux-5.10.y
-Message-ID: <YyBqfVDuSJ3K6tTg@kroah.com>
-References: <38acddc1-143c-469e-c918-93b5589068c9@huawei.com>
- <Yxwv/82jkMjew4ZN@kroah.com>
- <164a48a0-b27f-7b0c-cf7e-b2c2cb75b78f@huawei.com>
+        b=XbgPBtOFlt4xknbYlyrN0M4P4c8r+ApKZpLk61xyQKiciF3clL45tqcmZ0aMLODpd
+         Aa9s/V6h0vCKMh/nbfFxAKPYL/g3KCbo6bZMTd2maxVWfinzu0Vk26OxmpS+71/Hxm
+         LSneKvrAOMXk8fHKwg2xyB4+FE6czNnrJ+L8o+qI=
+Date:   Tue, 13 Sep 2022 13:34:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tracefs: Only clobber mode/uid/gid on
+ remount if asked" failed to apply to 5.15-stable tree
+Message-ID: <YyBq1zS13gwI7luy@kroah.com>
+References: <166274826116451@kroah.com>
+ <CA+ASDXNVxj-fCM94p5sbAn5-TShamWvTXN2r6KRp9+J9xJNqkQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <164a48a0-b27f-7b0c-cf7e-b2c2cb75b78f@huawei.com>
+In-Reply-To: <CA+ASDXNVxj-fCM94p5sbAn5-TShamWvTXN2r6KRp9+J9xJNqkQ@mail.gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -53,40 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 13, 2022 at 10:21:38AM +0800, Ye Weihua wrote:
+On Mon, Sep 12, 2022 at 03:23:42PM -0700, Brian Norris wrote:
+> Hi Greg,
 > 
-> On 2022/9/10 14:34, Greg KH wrote:
-> > On Fri, Sep 09, 2022 at 11:40:07AM +0800, Ye Weihua wrote:
-> > > The following patch is required to be patched in linux-5.10.y:
-> > > 
-> > > 
-> > >      3f913fc5f974 mm: fix missing handler for __GFP_NOWARN
-> > > 
-> > > 
-> > > Commit 6b9dbedbe349 ("tty: fix deadlock caused by calling printk() under
-> > > tty_port->lock")
-> > > 
-> > > was backported to linux-5.10.y. But __GFP_NOWARN flag is still not check in
-> > > fail_dump(), and
-> > > 
-> > > deadlock issues still occur.
-> > > 
-> > What about all of the other stable kernel trees that the tty patch was
-> > backported to?  Do they also need the mm change as well?  That would
-> > include 4.9.y, 4.14.y, 4.19.y, 5.4.y, 5.10.y, and 5.15.y.
+> On Fri, Sep 9, 2022 at 11:31 AM <gregkh@linuxfoundation.org> wrote:
+> > The patch below does not apply to the 5.15-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > 
-> I checked the branches and found that the status of each branch was the
-> same. That is, the commit 6b9dbedbe349 ("tty: fix deadlock caused by calling
-> printk() under tty_port->lock") was backported but the commit 3f913fc5f974
-> ("mm: fix missing handler for __GFP_NOWARN") was not. Therefore, the problem
-> occurred in all branches. The commit "mm: fix missing handler for
-> __GFP_NOWARN" should be backported to 4.9.y, 4.14.y, 4.19.y, 5.4.y, 5.10.y,
-> and 5.15.y.
+> Did something go wrong in your automation? The same patch applies
+> cleanly to me (currently, on top of v5.15.67).
+> 
+> > Possible dependencies:
+> >
+> > 47311db8e8f3 ("tracefs: Only clobber mode/uid/gid on remount if asked")
+> 
+> That's $subject patch. OK, so not that one.
+> 
+> > 851e99ebeec3 ("tracefs: Set the group ownership in apply_options() not parse_options()")
+> 
+> That one *is* a dependency, but it's already backported to 5.15.y as
+> of several months ago:
+> 
+> commit 6db927ce66ac68bf732f0b14190791458e75047a
+> Author:     Steven Rostedt (Google) <rostedt@goodmis.org>
+> AuthorDate: Fri Feb 25 15:34:26 2022 -0500
+> Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> CommitDate: Wed Mar 2 11:48:05 2022 +0100
+> 
+>     tracefs: Set the group ownership in apply_options() not parse_options()
+> 
+>     commit 851e99ebeec3f4a672bb5010cf1ece095acee447 upstream.
+> 
+> So I'm not sure what to do to fix the backporting, other than ping back here.
+> 
+> I think the same applies to the 5.10.y rejection notice, and possibly
+> a few others.
 
-Ok, can you provide a proper backport that has been tested for all of
-these branches as it does not apply cleanly as-is.
+Here is what patch says:
 
-Or we can revert the tty patch, which do you think is better?
+Applying tracefs-only-clobber-mode-uid-gid-on-remount-if-asked.patch to linux-5.15.y
+Applying patch tracefs-only-clobber-mode-uid-gid-on-remount-if-asked.patch
+patching file fs/tracefs/inode.c
+Hunk #3 FAILED at 278.
+1 out of 5 hunks FAILED -- rejects in file fs/tracefs/inode.c
+Patch tracefs-only-clobber-mode-uid-gid-on-remount-if-asked.patch does not apply (enforce with -f)
+quilt returned 1, with 0 fuzz and 1 rejects
+
+How did you apply the patch to 5.15.y that worked?
 
 thanks,
 
