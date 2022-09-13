@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB08A5B78C7
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D47995B7709
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233637AbiIMRs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:48:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42452 "EHLO
+        id S232106AbiIMQ7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 12:59:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233525AbiIMRr7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:47:59 -0400
+        with ESMTP id S232132AbiIMQ7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:59:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A35F80F40;
-        Tue, 13 Sep 2022 09:45:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 586469BB56;
+        Tue, 13 Sep 2022 08:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B863B80F96;
-        Tue, 13 Sep 2022 14:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2861C433C1;
-        Tue, 13 Sep 2022 14:28:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51209B80F63;
+        Tue, 13 Sep 2022 14:27:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E8DC433D6;
+        Tue, 13 Sep 2022 14:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079308;
-        bh=/WwQQQWZw4Ocl4rtG/ztMzhyCaIJYCvo4vCXiqY1XGI=;
+        s=korg; t=1663079262;
+        bh=nbLvDKPxHXBTiZxIeoxAgo12mDMDNyOKyvvA2fL92dM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uc8bqbV8aUEzSHURr2/A8CaCypkvMCYlftdy+Q0K/HmGJ93Dxt6CKlNzEOOvINjCU
-         UaZi0x/XSNav9HyVvLugWMXUViv3p4ZO2cYGrFf3AeGjPblliAuOFo5jig4CdrFU/9
-         H7iCfCC3/bKxCOu3PnAgezrDjRPQ3eTQT3Dws2sw=
+        b=wPi6cZagKXx5+beHnsiv2R5o4ovQNwPPU5tg1MEAxkEn/lFeqa1dORvQ5EK/uwqHi
+         4PpkCLVWuAqn+QG+D09Iyv1NI7SAfI9/GnAbSrzAHMjYq9Bp7xTJLA9DIsvQIlxfNk
+         nvKDpvDUXX06aLXhXj7RwPENTPVgK8++5h1HRJps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
-        Heng Qi <hengqi@linux.alibaba.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 057/108] ip: fix triggering of icmp redirect
-Date:   Tue, 13 Sep 2022 16:06:28 +0200
-Message-Id: <20220913140356.077233760@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 066/108] USB: serial: ch341: fix disabled rx timer on older devices
+Date:   Tue, 13 Sep 2022 16:06:37 +0200
+Message-Id: <20220913140356.455677338@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -56,55 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit eb55dc09b5dd040232d5de32812cc83001a23da6 upstream.
+commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
 
-__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
-My understanding is that fib_validate_source() is used to know if the src
-address and the gateway address are on the same link. For that,
-fib_validate_source() returns 1 (same link) or 0 (not the same network).
-__mkroute_input() is the only user of these positive values, all other
-callers only look if the returned value is negative.
+At least one older CH341 appears to have the RX timer enable bit
+inverted so that setting it disables the RX timer and prevents the FIFO
+from emptying until it is full.
 
-Since the below patch, fib_validate_source() didn't return anymore 1 when
-both addresses are on the same network, because the route lookup returns
-RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
-Let's adapat the test to return 1 again when both addresses are on the same
-link.
+Only set the RX timer enable bit for devices with version newer than
+0x27 (even though this probably affects all pre-0x30 devices).
 
-CC: stable@vger.kernel.org
-Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Reported-by: Heng Qi <hengqi@linux.alibaba.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220829100121.3821-1-nicolas.dichtel@6wind.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[ johan: backport to 5.4 ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_frontend.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ch341.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -399,7 +399,7 @@ static int __fib_validate_source(struct
- 	dev_match = dev_match || (res.type == RTN_LOCAL &&
- 				  dev == net->loopback_dev);
- 	if (dev_match) {
--		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
-+		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
- 		return ret;
- 	}
- 	if (no_addr)
-@@ -411,7 +411,7 @@ static int __fib_validate_source(struct
- 	ret = 0;
- 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
- 		if (res.type == RTN_UNICAST)
--			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
-+			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
- 	}
- 	return ret;
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -177,8 +177,12 @@ static int ch341_set_baudrate_lcr(struct
+ 	/*
+ 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
+ 	 * has been received unless bit 7 is set.
++	 *
++	 * At least one device with version 0x27 appears to have this bit
++	 * inverted.
+ 	 */
+-	a |= BIT(7);
++	if (priv->version > 0x27)
++		a |= BIT(7);
  
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x1312, a);
+ 	if (r)
 
 
