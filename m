@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8995B72F7
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501105B73BC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234561AbiIMOzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50986 "EHLO
+        id S235340AbiIMPJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:09:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234883AbiIMOyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:54:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34AC472872;
-        Tue, 13 Sep 2022 07:27:04 -0700 (PDT)
+        with ESMTP id S233340AbiIMPHn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:07:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D1DB75CEB;
+        Tue, 13 Sep 2022 07:30:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94394B80F3B;
-        Tue, 13 Sep 2022 14:27:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093C9C433D6;
-        Tue, 13 Sep 2022 14:27:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32835614DD;
+        Tue, 13 Sep 2022 14:30:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE8EC433C1;
+        Tue, 13 Sep 2022 14:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079222;
-        bh=0IlhPDcg+N1l9IGYJ4pYlrDwi/O4Kivf2evnYygpIEQ=;
+        s=korg; t=1663079448;
+        bh=eGNzvcJW9a3VCM96k2fbhRyyeCBUvL/2LzhxbbtcIik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SISukRgUmBvCOLs81lV6QvGGH2qHzNdnjHxWq3bL6p6ft5jYdIktJjc3zSpqdCUZZ
-         s1FVLLyqlhQB0refxgP7RuWi1EVHaS16g7Gw+46zAsVv0AS1A/UR7EIyNlZnMecmRg
-         qvXnpGHVgGsndqLRLGA8sdXOtQyscSMG7qYCo8aM=
+        b=DfVDiveMeYB4fMjSuEqyiiiy20pn9I5K28LZWrP/jI8b8V7uppwoZfFIDFvFDkrqA
+         abMvRUN+A4+Sok39pL31Fm7Uqw6zUefDcguPBwLm4QGbkj7IZMi5D8bk+SfHc4nuWo
+         CcylIWnD7bFy7JL3GWU3s4ImJ8bKUBTLZg9WiYgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Witold Lipieta <witold.lipieta@thaumatec.com>
-Subject: [PATCH 5.4 050/108] usb-storage: Add ignore-residue quirk for NXP PN7462AU
-Date:   Tue, 13 Sep 2022 16:06:21 +0200
-Message-Id: <20220913140355.785686836@linuxfoundation.org>
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        stable <stable@kernel.org>
+Subject: [PATCH 4.19 04/79] net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()
+Date:   Tue, 13 Sep 2022 16:06:22 +0200
+Message-Id: <20220913140349.063571382@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Witold Lipieta <witold.lipieta@thaumatec.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 2aa48857ad52236a9564c71183d6cc8893becd41 upstream.
+commit fe2c9c61f668cde28dac2b188028c5299cedcc1e upstream.
 
-This is USB mass storage primary boot loader for code download on
-NXP PN7462AU.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  Fix this up to be much
+simpler logic and only create the root debugfs directory once when the
+driver is first accessed.  That resolves the memory leak and makes
+things more obvious as to what the intent is.
 
-Without the quirk it is impossible to write whole memory at once as
-device restarts during the write due to bogus residue values reported.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: Marcin Wojtas <mw@semihalf.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org
 Cc: stable <stable@kernel.org>
-Signed-off-by: Witold Lipieta <witold.lipieta@thaumatec.com>
-Link: https://lore.kernel.org/r/20220809112911.462776-1-witold.lipieta@thaumatec.com
+Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2294,6 +2294,13 @@ UNUSUAL_DEV( 0x1e74, 0x4621, 0x0000, 0x0
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_BULK_IGNORE_TAG | US_FL_MAX_SECTORS_64 ),
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
+@@ -667,10 +667,10 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *p
  
-+/* Reported by Witold Lipieta <witold.lipieta@thaumatec.com> */
-+UNUSUAL_DEV( 0x1fc9, 0x0117, 0x0100, 0x0100,
-+		"NXP Semiconductors",
-+		"PN7462AU",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_RESIDUE ),
-+
- /* Supplied with some Castlewood ORB removable drives */
- UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x9999,
- 		"Double-H Technology",
+ void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
+ {
+-	struct dentry *mvpp2_dir, *mvpp2_root;
++	static struct dentry *mvpp2_root;
++	struct dentry *mvpp2_dir;
+ 	int ret, i;
+ 
+-	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
+ 	if (!mvpp2_root) {
+ 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
+ 		if (IS_ERR(mvpp2_root))
 
 
