@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2E25B70AC
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A6485B6FF4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234070AbiIMOcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:32:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52652 "EHLO
+        id S233265AbiIMOUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbiIMOao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:30:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE8363F3B;
-        Tue, 13 Sep 2022 07:18:54 -0700 (PDT)
+        with ESMTP id S233631AbiIMOTa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC9A6554D;
+        Tue, 13 Sep 2022 07:14:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FC72B80FA7;
-        Tue, 13 Sep 2022 14:18:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C2A7C433D6;
-        Tue, 13 Sep 2022 14:17:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E965D614BF;
+        Tue, 13 Sep 2022 14:12:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05F3DC433D6;
+        Tue, 13 Sep 2022 14:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078680;
-        bh=mbw7MSPR3g4EtRoj9xhwty39pKwBVqgVI8IGo4q1OC0=;
+        s=korg; t=1663078335;
+        bh=2cjLzHeM7fhmB3xd2aDQKEP365VwPf3JGgTV/saPUFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2CvoMSqp+EzLQJIM2QttUozv3gdmmH1DhaNXWWjA6KqfDew2tD4ZSbohq8CcHuGE
-         cSsICoEqos4WToTSFtdaX3AdqxKI+kNr3CpkoRbsRRXS4PwW4RzuxGGVRSj8Ji/gAd
-         SQqKV1ZAoX1qSIeWfseHkckl8tNnCit5SNfEP8Tg=
+        b=s5Kx5xHxJTQg5fwZwiyN1cTS6I6GztA3cAWKRjfL7ENhyGWepD9qb+ZhWytRZIX+x
+         RQDKQkxZVlUHB/D6Qt7Q73VOpW9LSpPe50IRfuktRvE5wSRVmiHxZFXvnOp4IKHlcF
+         U9P8YOiLM/y9bz/uj2VsRHUYjLE5vt2T5pbOENFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 014/121] scsi: ufs: core: Reduce the power mode change timeout
+Subject: [PATCH 5.19 099/192] ARM: dts: at91: sama5d2_icp: specify proper regulator output ranges
 Date:   Tue, 13 Sep 2022 16:03:25 +0200
-Message-Id: <20220913140357.947394936@linuxfoundation.org>
+Message-Id: <20220913140414.902256391@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 8f2c96420c6ec3dcb18c8be923e24c6feaa5ccf6 ]
+[ Upstream commit 7737d93666eea282febf95e5fa3b3fde1f2549f3 ]
 
-The current power mode change timeout (180 s) is so large that it can cause
-a watchdog timer to fire. Reduce the power mode change timeout to 10
-seconds.
+Min and max output ranges of regulators need to satisfy board
+requirements not PMIC requirements. Thus adjust device tree to
+cope with this.
 
-Link: https://lore.kernel.org/r/20220811234401.1957911-1-bvanassche@acm.org
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 68a95ef72cef ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220826083927.3107272-6-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/at91-sama5d2_icp.dts | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 2f6468f22b489..dae1a85f1512c 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8476,6 +8476,8 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	struct scsi_device *sdp;
- 	unsigned long flags;
- 	int ret, retries;
-+	unsigned long deadline;
-+	int32_t remaining;
+diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+index 164201a8fbf2d..64d5ae179bec9 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+@@ -197,8 +197,8 @@
+ 			regulators {
+ 				vdd_io_reg: VDD_IO {
+ 					regulator-name = "VDD_IO";
+-					regulator-min-microvolt = <1200000>;
+-					regulator-max-microvolt = <3700000>;
++					regulator-min-microvolt = <3300000>;
++					regulator-max-microvolt = <3300000>;
+ 					regulator-initial-mode = <2>;
+ 					regulator-allowed-modes = <2>, <4>;
+ 					regulator-always-on;
+@@ -216,8 +216,8 @@
  
- 	spin_lock_irqsave(hba->host->host_lock, flags);
- 	sdp = hba->sdev_ufs_device;
-@@ -8508,9 +8510,14 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	 * callbacks hence set the RQF_PM flag so that it doesn't resume the
- 	 * already suspended childs.
- 	 */
-+	deadline = jiffies + 10 * HZ;
- 	for (retries = 3; retries > 0; --retries) {
-+		ret = -ETIMEDOUT;
-+		remaining = deadline - jiffies;
-+		if (remaining <= 0)
-+			break;
- 		ret = scsi_execute(sdp, cmd, DMA_NONE, NULL, 0, NULL, &sshdr,
--				START_STOP_TIMEOUT, 0, 0, RQF_PM, NULL);
-+				   remaining / HZ, 0, 0, RQF_PM, NULL);
- 		if (!scsi_status_is_check_condition(ret) ||
- 				!scsi_sense_valid(&sshdr) ||
- 				sshdr.sense_key != UNIT_ATTENTION)
+ 				VDD_DDR {
+ 					regulator-name = "VDD_DDR";
+-					regulator-min-microvolt = <600000>;
+-					regulator-max-microvolt = <1850000>;
++					regulator-min-microvolt = <1350000>;
++					regulator-max-microvolt = <1350000>;
+ 					regulator-initial-mode = <2>;
+ 					regulator-allowed-modes = <2>, <4>;
+ 					regulator-always-on;
+@@ -235,8 +235,8 @@
+ 
+ 				VDD_CORE {
+ 					regulator-name = "VDD_CORE";
+-					regulator-min-microvolt = <600000>;
+-					regulator-max-microvolt = <1850000>;
++					regulator-min-microvolt = <1250000>;
++					regulator-max-microvolt = <1250000>;
+ 					regulator-initial-mode = <2>;
+ 					regulator-allowed-modes = <2>, <4>;
+ 					regulator-always-on;
+@@ -273,8 +273,8 @@
+ 
+ 				LDO1 {
+ 					regulator-name = "LDO1";
+-					regulator-min-microvolt = <1200000>;
+-					regulator-max-microvolt = <3700000>;
++					regulator-min-microvolt = <2500000>;
++					regulator-max-microvolt = <2500000>;
+ 					regulator-always-on;
+ 
+ 					regulator-state-standby {
+@@ -288,8 +288,8 @@
+ 
+ 				LDO2 {
+ 					regulator-name = "LDO2";
+-					regulator-min-microvolt = <1200000>;
+-					regulator-max-microvolt = <3700000>;
++					regulator-min-microvolt = <3300000>;
++					regulator-max-microvolt = <3300000>;
+ 					regulator-always-on;
+ 
+ 					regulator-state-standby {
 -- 
 2.35.1
 
