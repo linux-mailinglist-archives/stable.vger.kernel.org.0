@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A091B5B6F88
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966B35B6F90
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232514AbiIMONy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:13:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37558 "EHLO
+        id S232520AbiIMONz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232804AbiIMONF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:13:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E2D65EDF1;
-        Tue, 13 Sep 2022 07:10:15 -0700 (PDT)
+        with ESMTP id S232951AbiIMONW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:13:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBCD5FF57;
+        Tue, 13 Sep 2022 07:10:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E5F6B80EF4;
-        Tue, 13 Sep 2022 14:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74364C433D6;
-        Tue, 13 Sep 2022 14:10:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E842B80F00;
+        Tue, 13 Sep 2022 14:10:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEB3C433D6;
+        Tue, 13 Sep 2022 14:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078209;
-        bh=cGJrl5+oaTkc7R3yAS1awL5hkr8nxAZclyZu75OiGNM=;
+        s=korg; t=1663078212;
+        bh=WFPxjJ3eyAm8L+DfVYrI91L8V/mwV4VTHN3iIzxFqtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVipdlkB9wgS1tnsEvlVMmOYfp6dv3yALsk3ejqmJsOY/mFve8bMDM9mvYVxw1aZU
-         kIIPIAl8JkvA89v+F1EttKwvt4w1hDZYINTFy9rDy+4/rngHOLoQc65TjyS56lkuvS
-         HdQUamR8KbzgbieSGMbBOHQJ2xzTE1yN7U8D/mFg=
+        b=TteNBQSa/HtoleHoAqseEcR9bvP0P/hP+qjR9AhkTRAcsZhKjlE9+PIG8DdJjk6w4
+         M9Q1gHLw0nJPOSsDy8sflWiNukk+PMPSLHmOcWOI1rcALdweXoPT5QGb+sDKroK5b8
+         8KXnRChv8FZjNhUeBYWc1zz3nnN6W5eKktxqYpnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.19 054/192] nvmet: fix a use-after-free
-Date:   Tue, 13 Sep 2022 16:02:40 +0200
-Message-Id: <20220913140412.631443350@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.19 055/192] drm/i915/bios: Copy the whole MIPI sequence block
+Date:   Tue, 13 Sep 2022 16:02:41 +0200
+Message-Id: <20220913140412.679956915@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -53,63 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 6a02a61e81c231cc5c680c5dbf8665275147ac52 upstream.
+commit edca5a2c373db61efa959307c13ed9156b1c14d9 upstream.
 
-Fix the following use-after-free complaint triggered by blktests nvme/004:
+Turns out the MIPI sequence block version number and
+new block size fields are considered part of the block
+header and are not included in the reported new block size
+field itself. Bump up the block size appropriately so that
+we'll copy over the last five bytes of the block as well.
 
-BUG: KASAN: user-memory-access in blk_mq_complete_request_remote+0xac/0x350
-Read of size 4 at addr 0000607bd1835943 by task kworker/13:1/460
-Workqueue: nvmet-wq nvme_loop_execute_work [nvme_loop]
-Call Trace:
- show_stack+0x52/0x58
- dump_stack_lvl+0x49/0x5e
- print_report.cold+0x36/0x1e2
- kasan_report+0xb9/0xf0
- __asan_load4+0x6b/0x80
- blk_mq_complete_request_remote+0xac/0x350
- nvme_loop_queue_response+0x1df/0x275 [nvme_loop]
- __nvmet_req_complete+0x132/0x4f0 [nvmet]
- nvmet_req_complete+0x15/0x40 [nvmet]
- nvmet_execute_io_connect+0x18a/0x1f0 [nvmet]
- nvme_loop_execute_work+0x20/0x30 [nvme_loop]
- process_one_work+0x56e/0xa70
- worker_thread+0x2d1/0x640
- kthread+0x183/0x1c0
- ret_from_fork+0x1f/0x30
+For this particular machine those last five bytes included
+parts of the GPIO op for the backlight on sequence, causing
+the backlight no longer to turn back on:
+
+ 		Sequence 6 - MIPI_SEQ_BACKLIGHT_ON
+ 			Delay: 20000 us
+-			GPIO index 0, number 0, set 0 (0x00)
++			GPIO index 1, number 70, set 1 (0x01)
 
 Cc: stable@vger.kernel.org
-Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: e163cfb4c96d ("drm/i915/bios: Make copies of VBT data blocks")
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6652
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220829135834.8585-1-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit a06289f3f72431f3777af95ea1226b5b0abdc426)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bios.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -735,6 +735,8 @@ static void nvmet_set_error(struct nvmet
+--- a/drivers/gpu/drm/i915/display/intel_bios.c
++++ b/drivers/gpu/drm/i915/display/intel_bios.c
+@@ -478,6 +478,13 @@ init_bdb_block(struct drm_i915_private *
  
- static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
- {
-+	struct nvmet_ns *ns = req->ns;
+ 	block_size = get_blocksize(block);
+ 
++	/*
++	 * Version number and new block size are considered
++	 * part of the header for MIPI sequenece block v3+.
++	 */
++	if (section_id == BDB_MIPI_SEQUENCE && *(const u8 *)block >= 3)
++		block_size += 5;
 +
- 	if (!req->sq->sqhd_disabled)
- 		nvmet_update_sq_head(req);
- 	req->cqe->sq_id = cpu_to_le16(req->sq->qid);
-@@ -745,9 +747,9 @@ static void __nvmet_req_complete(struct
- 
- 	trace_nvmet_req_complete(req);
- 
--	if (req->ns)
--		nvmet_put_namespace(req->ns);
- 	req->ops->queue_response(req);
-+	if (ns)
-+		nvmet_put_namespace(ns);
- }
- 
- void nvmet_req_complete(struct nvmet_req *req, u16 status)
+ 	entry = kzalloc(struct_size(entry, data, max(min_size, block_size) + 3),
+ 			GFP_KERNEL);
+ 	if (!entry) {
 
 
