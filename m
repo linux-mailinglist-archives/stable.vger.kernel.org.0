@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9748F5B73E1
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 294F55B7193
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbiIMPOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
+        id S230280AbiIMOoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235678AbiIMPNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:30 -0400
+        with ESMTP id S234521AbiIMOnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9CB6A4AA;
-        Tue, 13 Sep 2022 07:32:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D1865270;
+        Tue, 13 Sep 2022 07:23:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33039614C5;
-        Tue, 13 Sep 2022 14:23:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E581C433D7;
-        Tue, 13 Sep 2022 14:23:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26A9C614D4;
+        Tue, 13 Sep 2022 14:21:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F3F1C433C1;
+        Tue, 13 Sep 2022 14:21:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078997;
-        bh=F4/WLsRyy07YolkegJmcY9GWhvPc3z+yHZ+ideYcFvY=;
+        s=korg; t=1663078893;
+        bh=1xKMPOAIjXAYy50nficxGkTThJt4JiSDavxh3hKYCTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJbIIWFG4ojJ2w1clOMrEal8G+tHRvtFBkLHV5kJKdzKNQifD0ZTEh2hkFQKMBq8a
-         cJWFvgoqtzuFnhhRvl3ykf/6jzNQCDnrKssoM1JSh4Ndc9fDHb3n41EOLG0inDAfi9
-         /yuBnSy8ETaGxmdPL20TbRDbCQUSjeOQETRkHgFg=
+        b=GDfpoOkVYOAU1ZolNgzNdaWIYXASo3dYCfrGnexHGPOltOcvWISQshDk8N8eOKyWn
+         tR4n9BoFr5KTDdX2EXo3VWVF1pbOgooHawVYE3gre4Ovm8vpKeZuTtuK5R3NHZ0b53
+         i7xCmhZSKH/1al4vrEALZEmrvDDKQ1ohAexVcNRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
+        stable@vger.kernel.org, Sindhu-Devale <sindhu.devale@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/79] RDMA/hns: Fix wrong fixed value of qp->rq.wqe_shift
+Subject: [PATCH 5.15 097/121] RDMA/irdma: Report RNR NAK generation in device caps
 Date:   Tue, 13 Sep 2022 16:04:48 +0200
-Message-Id: <20220913140352.369810620@linuxfoundation.org>
+Message-Id: <20220913140401.523730787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Sindhu-Devale <sindhu.devale@intel.com>
 
-[ Upstream commit 0c8b5d6268d92d141bfd64d21c870d295a84dee1 ]
+[ Upstream commit a261786fdc0a5bed2e5f994dcc0ffeeeb0d662c7 ]
 
-The value of qp->rq.wqe_shift of HIP08 is always determined by the number
-of sge. So delete the wrong branch.
+Report RNR NAK generation when device capabilities are queried
 
-Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/20220829105021.1427804-3-liangwenpeng@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Signed-off-by: Sindhu-Devale <sindhu.devale@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20220906223244.1119-6-shiraz.saleem@intel.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/irdma/verbs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 291e06d631505..6fe98af7741b5 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -386,11 +386,8 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
- 
- 	hr_qp->rq.max_gs = roundup_pow_of_two(max(1U, cap->max_recv_sge));
- 
--	if (hr_dev->caps.max_rq_sg <= HNS_ROCE_SGE_IN_WQE)
--		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz);
--	else
--		hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz *
--					    hr_qp->rq.max_gs);
-+	hr_qp->rq.wqe_shift = ilog2(hr_dev->caps.max_rq_desc_sz *
-+				    hr_qp->rq.max_gs);
- 
- 	hr_qp->rq.wqe_cnt = cnt;
- 	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_RQ_INLINE)
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index adb0e0774256c..5275616398d83 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -43,8 +43,11 @@ static int irdma_query_device(struct ib_device *ibdev,
+ 	props->max_sge_rd = hw_attrs->uk_attrs.max_hw_read_sges;
+ 	props->max_qp_rd_atom = hw_attrs->max_hw_ird;
+ 	props->max_qp_init_rd_atom = hw_attrs->max_hw_ord;
+-	if (rdma_protocol_roce(ibdev, 1))
++	if (rdma_protocol_roce(ibdev, 1)) {
++		props->device_cap_flags |= IB_DEVICE_RC_RNR_NAK_GEN;
+ 		props->max_pkeys = IRDMA_PKEY_TBL_SZ;
++	}
++
+ 	props->max_ah = rf->max_ah;
+ 	props->max_mcast_grp = rf->max_mcg;
+ 	props->max_mcast_qp_attach = IRDMA_MAX_MGS_PER_CTX;
 -- 
 2.35.1
 
