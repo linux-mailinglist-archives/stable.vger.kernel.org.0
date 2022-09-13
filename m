@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B54775B6F53
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3735B6F56
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232808AbiIMOLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:11:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
+        id S232814AbiIMOLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:11:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232726AbiIMOKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E7A85C34E;
-        Tue, 13 Sep 2022 07:09:16 -0700 (PDT)
+        with ESMTP id S232635AbiIMOKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C085C9EB;
+        Tue, 13 Sep 2022 07:09:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AD9BB80EF7;
-        Tue, 13 Sep 2022 14:09:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93F48C433B5;
-        Tue, 13 Sep 2022 14:09:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B98E61497;
+        Tue, 13 Sep 2022 14:09:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4E6C433D6;
+        Tue, 13 Sep 2022 14:09:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078154;
-        bh=5MbtQP/uBiDAzlP/MQTmHh2C6T6vAfc4ERxjYaKaQWE=;
+        s=korg; t=1663078158;
+        bh=Yqxdf40p+eJDpXpCuGnwjuEkWmXRdjLdXOKmqXAAtIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bd3yUG2AwERPGIWnSclOg0LflHzEYJjowe4bp0iydmrVFdu6u+gwM6q/4wTYs+19k
-         XmFfUrEZFbz57WYsf7CDNnOAfv8r+zJTqzW8JpHF4ybdpQk8dZkzOqpa1eAICMmWlf
-         31MMuTOnsqaSpiv6FH0BGNK9i8C5UEcNyxFUG9M8=
+        b=Y2erHv/bhJGuTG257OSGOcIMDoRL0M60SXlVkWnG+OT8+VLD2oNrG1SWvoMC0XcdP
+         wIXPs+unOCzSPm6X+kiw7gPOtYieNKnxHODUMWHRBs2d16XxTup9DGR0TIbUFnBYMn
+         81TAhgskxuu5zCSq3hWdY52ZNrycnSJojtyhpyXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Huang <tim.huang@amd.com>,
-        Yifan Zhang <yifan1.zhang@amd.com>,
+        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 033/192] drm/amdgpu: add sdma instance check for gfx11 CGCG
-Date:   Tue, 13 Sep 2022 16:02:19 +0200
-Message-Id: <20220913140411.566794110@linuxfoundation.org>
+Subject: [PATCH 5.19 034/192] drm/amdgpu: mmVM_L2_CNTL3 register not initialized correctly
+Date:   Tue, 13 Sep 2022 16:02:20 +0200
+Message-Id: <20220913140411.615579815@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -55,57 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Huang <tim.huang@amd.com>
+From: Qu Huang <jinsdb@126.com>
 
-[ Upstream commit 00047c3d967d7ef8adf8bac3c3579294a3bc0bb1 ]
+[ Upstream commit b8983d42524f10ac6bf35bbce6a7cc8e45f61e04 ]
 
-For some ASICs, like GFX IP v11.0.1, only have one SDMA instance,
-so not need to configure SDMA1_RLC_CGCG_CTRL for this case.
+The mmVM_L2_CNTL3 register is not assigned an initial value
 
-Signed-off-by: Tim Huang <tim.huang@amd.com>
-Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
+Signed-off-by: Qu Huang <jinsdb@126.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-index a4a6751b1e449..30998ac47707c 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-@@ -5090,9 +5090,12 @@ static void gfx_v11_0_update_coarse_grain_clock_gating(struct amdgpu_device *ade
- 		data = REG_SET_FIELD(data, SDMA0_RLC_CGCG_CTRL, CGCG_INT_ENABLE, 1);
- 		WREG32_SOC15(GC, 0, regSDMA0_RLC_CGCG_CTRL, data);
+diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
+index 3f44a099c52a4..3e51e773f92be 100644
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
+@@ -176,6 +176,7 @@ static void mmhub_v1_0_init_cache_regs(struct amdgpu_device *adev)
+ 	tmp = REG_SET_FIELD(tmp, VM_L2_CNTL2, INVALIDATE_L2_CACHE, 1);
+ 	WREG32_SOC15(MMHUB, 0, mmVM_L2_CNTL2, tmp);
  
--		data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
--		data = REG_SET_FIELD(data, SDMA1_RLC_CGCG_CTRL, CGCG_INT_ENABLE, 1);
--		WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
-+		/* Some ASICs only have one SDMA instance, not need to configure SDMA1 */
-+		if (adev->sdma.num_instances > 1) {
-+			data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
-+			data = REG_SET_FIELD(data, SDMA1_RLC_CGCG_CTRL, CGCG_INT_ENABLE, 1);
-+			WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
-+		}
- 	} else {
- 		/* Program RLC_CGCG_CGLS_CTRL */
- 		def = data = RREG32_SOC15(GC, 0, regRLC_CGCG_CGLS_CTRL);
-@@ -5121,9 +5124,12 @@ static void gfx_v11_0_update_coarse_grain_clock_gating(struct amdgpu_device *ade
- 		data &= ~SDMA0_RLC_CGCG_CTRL__CGCG_INT_ENABLE_MASK;
- 		WREG32_SOC15(GC, 0, regSDMA0_RLC_CGCG_CTRL, data);
- 
--		data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
--		data &= ~SDMA1_RLC_CGCG_CTRL__CGCG_INT_ENABLE_MASK;
--		WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
-+		/* Some ASICs only have one SDMA instance, not need to configure SDMA1 */
-+		if (adev->sdma.num_instances > 1) {
-+			data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
-+			data &= ~SDMA1_RLC_CGCG_CTRL__CGCG_INT_ENABLE_MASK;
-+			WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
-+		}
- 	}
- }
- 
++	tmp = mmVM_L2_CNTL3_DEFAULT;
+ 	if (adev->gmc.translate_further) {
+ 		tmp = REG_SET_FIELD(tmp, VM_L2_CNTL3, BANK_SELECT, 12);
+ 		tmp = REG_SET_FIELD(tmp, VM_L2_CNTL3,
 -- 
 2.35.1
 
