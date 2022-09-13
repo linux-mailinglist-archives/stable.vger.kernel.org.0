@@ -2,210 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E335B72BC
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E843A5B7368
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234484AbiIMOz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49202 "EHLO
+        id S235618AbiIMPMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234647AbiIMOxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:53:37 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA5872B51
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 07:26:49 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id b23so11915295pfp.9
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 07:26:49 -0700 (PDT)
+        with ESMTP id S235623AbiIMPLP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:11:15 -0400
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ACDF77EAB
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 07:32:26 -0700 (PDT)
+Received: by mail-pj1-f42.google.com with SMTP id o70-20020a17090a0a4c00b00202f898fa86so2092595pjo.2
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 07:32:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date;
-        bh=Kdu9+liRKKjFn+oQMDHQ1FJqkGatVVbMzVVytetQ9QM=;
-        b=Z6wFTGzDTnsaj47PUYkF8IVG25IO1SKnIadgn0EAvwpRETQiipVGBtNLyRWnDtDqLr
-         BMvU7qNfxa5K9QHhRZjV6uEoLSKgncOjaC6C2LgwpzBBfdGg5MmSWpxoHH8D35Qjk5Cg
-         Wj7rKBNQCjdjH5kyVx2OEhszDyQEB4JZwu+P6dlfVjnFyvbwBQ2eWOGPiUESg5ya4r6A
-         B4nCM90bMWdX86LGI+s0exi2W3tOch6SY3cpudjMPaw4uWYY75Wl/lHgzEx0J3fC+v8Q
-         kt36na7/MA5bQK0AaNRtHKhALEZfWaupxsWXXWByeV/IovOF42g4wM+rOZNAYgCfimXK
-         8Stw==
+        bh=VUsMn4nZmWmNj7i9MkWZ5mrrSj6wt8Cr9k1c2c8PUJw=;
+        b=tr+XM7EqCDacY5quITIPpeFKrCf7hdeeOEyEJeWOcTG4tzfmMUBXvIFN1AfJn832p1
+         ZeULzGwX3dhUE3OT0SDl+HXVeZ+OiNrIneGNxMNVEyJDQkwHgZIY8NnukkBtQxDrTyho
+         1u4Zz4JqqSH0njLYHCk3WuE7fE3u8dJ+Qc9Wxhmf72HycNfyRkKagmqHP8GlZD6VAPo+
+         u5KUMEAekvoiKvcuZYVHqT1jaDjbmOOOgXQe2Epthmsv5jPmGJp3iR7LTwxyuuXYnSmd
+         uDYhaj5e4mqb9PETIvsxXYyd+LaopiL5toqs9E6qcxdtM5VKRBnVFgzMQvisK4qka2lU
+         HDrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=Kdu9+liRKKjFn+oQMDHQ1FJqkGatVVbMzVVytetQ9QM=;
-        b=wpE4pRDtUvRCksVP2ym/siN2mJyQweMrx0IGdVPorwv1raKWxzfJFkv+e1/+L1D1kn
-         RhJxHq1hgp1urMkic+qOFOHca6h2LndE/oLkLk4sURgMinPzsExf96Qpl8WcmJBi+hJI
-         mDA0K5ShLyTJYq+7fIf3EK5hT9L4nTb3eSuuMEg2wXUJvpwBR63R1LQ/PtFwyGxhqhq7
-         H6chHQOrgJSGmBWeFMqdCLeMiuNgwDR0ALKJSRByLBUwpNSTS+2LevYM5Noq79bGR8Dj
-         4yeHmQDRMWYbhPcH0SfgfYt1iRtLxOqbQQT8rjQ5LKR2VbsyP45NAtnTPLfD68WzjTQl
-         AZAw==
-X-Gm-Message-State: ACgBeo3bEKPGnFgEDLmzS+pMYreUtFOTZwq+B1EZjQH9parw+AveXjEI
-        fJCPaSg1qkZVOB158ltMfVckTw/LC7rWI4RAvx0=
-X-Google-Smtp-Source: AA6agR4Iu1r6BIIIdnFNYGNVuqyR89MbOWCUaP8HDucQF6P4/pZylAb3iips7qD+SHrLgL3hXzi0IA==
-X-Received: by 2002:a63:86c6:0:b0:434:fe98:9f8a with SMTP id x189-20020a6386c6000000b00434fe989f8amr25186763pgd.541.1663079082869;
-        Tue, 13 Sep 2022 07:24:42 -0700 (PDT)
+        bh=VUsMn4nZmWmNj7i9MkWZ5mrrSj6wt8Cr9k1c2c8PUJw=;
+        b=q1lwBc3iAGnPhkx+Zb2sI7C5rtah8Tyja8rFkGXNOXxL9LujOrIye0fxXJSALZCMpU
+         iQdj/Vh7d7v7NUqLcWrZ9SjouwN6Fw7wnkYJhGPWsjJBU/nA0QpFBFW66ZXnFkzRFGcv
+         kfN2IRdpnmoQ0DBsMKT5cuIkxNc9CbnK6XUzTWpw6TE51gPBiN94cmct+ls0HQjqDB4Y
+         zvG16r15IaB4NM4XMeTx8wE18MqSxyP2bShSiS5sddrjZek98oXOb1yE1rbhYXlwScu7
+         4eVW17T264HJSHUnHK/n+hrfgZoeodBzvKkEvQOojdtMby3Fd0ymSj5ZYJgLEaq8Wbvb
+         wBow==
+X-Gm-Message-State: ACgBeo3B5ncdL/jKYCA49vEqAj5K/9shqpIXvQv0dLYlCEUfVXiml6fr
+        wPBZumOkHZUSVOItRohMBQ0TQkm9DuEGkRwxQf8=
+X-Google-Smtp-Source: AA6agR7t863BaeF/8jssxSgNvKskB5e6c9ig7D7Ufh2BNBmOs0bOfZzyCsEYJmVfHZFEcEfDVhP7Cw==
+X-Received: by 2002:a17:902:d502:b0:177:f287:269d with SMTP id b2-20020a170902d50200b00177f287269dmr26438661plg.140.1663079382058;
+        Tue, 13 Sep 2022 07:29:42 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h6-20020aa796c6000000b0053e22fc5b4fsm7971221pfq.0.2022.09.13.07.24.41
+        by smtp.gmail.com with ESMTPSA id m2-20020a17090a4d8200b002004ee6af4dsm7145244pjh.37.2022.09.13.07.29.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Sep 2022 07:24:42 -0700 (PDT)
-Message-ID: <632092aa.a70a0220.dd79f.d554@mx.google.com>
-Date:   Tue, 13 Sep 2022 07:24:42 -0700 (PDT)
+        Tue, 13 Sep 2022 07:29:41 -0700 (PDT)
+Message-ID: <632093d5.170a0220.faf4c.b0b7@mx.google.com>
+Date:   Tue, 13 Sep 2022 07:29:41 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Branch: linux-4.14.y
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.4.211-109-ged93d9de36903
-Subject: stable-rc/linux-5.4.y build: 185 builds: 21 failed, 164 passed,
- 38 errors, 49 warnings (v5.4.211-109-ged93d9de36903)
+X-Kernelci-Kernel: v4.14.292-62-g54e2e5638232e
+Subject: stable-rc/linux-4.14.y build: 195 builds: 3 failed, 192 passed,
+ 2 errors, 32 warnings (v4.14.292-62-g54e2e5638232e)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y build: 185 builds: 21 failed, 164 passed, 38 errors, =
-49 warnings (v5.4.211-109-ged93d9de36903)
+stable-rc/linux-4.14.y build: 195 builds: 3 failed, 192 passed, 2 errors, 3=
+2 warnings (v4.14.292-62-g54e2e5638232e)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.211-109-ged93d9de36903/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.292-62-g54e2e5638232e/
 
 Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.211-109-ged93d9de36903
-Git Commit: ed93d9de36903c1fcf5e5f34e13d1ede18fb38d7
+Branch: linux-4.14.y
+Git Describe: v4.14.292-62-g54e2e5638232e
+Git Commit: 54e2e5638232eee7a6c359b7d74a2913f0a2366d
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
 Build Failures Detected:
 
-arm64:
-    defconfig: (gcc-10) FAIL
-    defconfig+arm64-chromebook: (gcc-10) FAIL
-
 arm:
-    axm55xx_defconfig: (gcc-10) FAIL
-    cns3420vb_defconfig: (gcc-10) FAIL
-    davinci_all_defconfig: (gcc-10) FAIL
-    multi_v5_defconfig: (gcc-10) FAIL
-    s5pv210_defconfig: (gcc-10) FAIL
-    sama5_defconfig: (gcc-10) FAIL
-    sunxi_defconfig: (gcc-10) FAIL
-    zx_defconfig: (gcc-10) FAIL
+    rpc_defconfig: (gcc-10) FAIL
 
 mips:
-    32r2el_defconfig: (gcc-10) FAIL
-    ci20_defconfig: (gcc-10) FAIL
-    db1xxx_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
-    loongson3_defconfig: (gcc-10) FAIL
-    omega2p_defconfig: (gcc-10) FAIL
-    sb1250_swarm_defconfig: (gcc-10) FAIL
-    vocore2_defconfig: (gcc-10) FAIL
-
-riscv:
-    defconfig: (gcc-10) FAIL
-    rv32_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
 
 arm64:
-    defconfig (gcc-10): 2 errors, 3 warnings
-    defconfig+arm64-chromebook (gcc-10): 2 errors, 3 warnings
 
 arm:
-    assabet_defconfig (gcc-10): 1 warning
-    axm55xx_defconfig (gcc-10): 2 errors, 1 warning
-    cns3420vb_defconfig (gcc-10): 2 errors, 1 warning
-    collie_defconfig (gcc-10): 1 warning
-    davinci_all_defconfig (gcc-10): 2 errors, 1 warning
-    h3600_defconfig (gcc-10): 1 warning
-    multi_v5_defconfig (gcc-10): 2 errors, 1 warning
-    neponset_defconfig (gcc-10): 1 warning
-    s5pv210_defconfig (gcc-10): 2 errors, 1 warning
-    sama5_defconfig (gcc-10): 2 errors, 1 warning
-    shannon_defconfig (gcc-10): 1 warning
-    sunxi_defconfig (gcc-10): 2 errors, 1 warning
-    zx_defconfig (gcc-10): 2 errors, 1 warning
+    mini2440_defconfig (gcc-10): 1 warning
+    omap1_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 2 errors
+    s3c2410_defconfig (gcc-10): 1 warning
 
 i386:
-    allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
+    allnoconfig (gcc-10): 3 warnings
+    i386_defconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
 
 mips:
-    32r2el_defconfig (gcc-10): 2 errors, 1 warning
-    ci20_defconfig (gcc-10): 2 errors, 1 warning
-    db1xxx_defconfig (gcc-10): 2 errors, 1 warning
-    loongson3_defconfig (gcc-10): 2 errors, 1 warning
+    malta_qemu_32r6_defconfig (gcc-10): 1 warning
     mtx1_defconfig (gcc-10): 3 warnings
-    omega2p_defconfig (gcc-10): 2 errors, 1 warning
-    sb1250_swarm_defconfig (gcc-10): 2 errors, 1 warning
-    vocore2_defconfig (gcc-10): 2 errors, 1 warning
-
-riscv:
-    defconfig (gcc-10): 2 errors, 1 warning
-    rv32_defconfig (gcc-10): 2 errors, 3 warnings
 
 x86_64:
-    allnoconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
-    x86_64_defconfig (gcc-10): 2 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
+    allnoconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 Errors summary:
 
-    19   kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of func=
-tion =E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_=
-unlock=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    19   kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of func=
-tion =E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lo=
-ck=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
 
 Warnings summary:
 
-    19   cc1: some warnings being treated as errors
     7    ld: warning: creating DT_TEXTREL in a PIE
-    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
-min_dma_period=E2=80=99 defined but not used [-Wunused-function]
     4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
- to integer of different size [-Wpointer-to-int-cast]
+    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
     3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
+    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
+    2    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    {standard input}:30: Warning: macro instruction expanded into mult=
+iple instructions
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    1    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
+    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
 
 Section mismatches summary:
 
-    7    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section =
-mismatch in reference from the variable __ksymtab_vic_init_cascaded to the =
-function .init.text:vic_init_cascaded()
-    1    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mi=
-smatch in reference from the variable __ksymtab_ixp4xx_irq_init to the func=
-tion .init.text:ixp4xx_irq_init()
-    1    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
+    13   WARNING: modpost: Found 1 section mismatch(es).
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -216,39 +164,47 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
-n mismatches
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
-mismatches
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
+n mismatches
 
 Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
@@ -279,12 +235,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -303,19 +255,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -379,19 +320,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ci20_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -405,22 +335,6 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cns3420vb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
 cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -431,17 +345,8 @@ colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -450,106 +355,34 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
-section mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
-Section mismatches:
-    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in referenc=
-e from the function pmax_setup_memory_region() to the function .init.text:a=
-dd_memory_region()
-
 ---------------------------------------------------------------------------=
 -----
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 FAIL, 2 errors, 3 warnings, 0 section m=
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    cc1: some warnings being treated as errors
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
-smatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 FAIL, 2 errors, 3 warn=
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
 ings, 0 section mismatches
 
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    cc1: some warnings being treated as errors
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -582,9 +415,12 @@ ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -608,11 +444,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
 gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -623,12 +454,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -662,13 +489,20 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -686,13 +520,21 @@ integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -720,11 +562,6 @@ on mismatches
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mismatc=
-h in reference from the variable __ksymtab_ixp4xx_irq_init to the function =
-.init.text:ixp4xx_irq_init()
-
 ---------------------------------------------------------------------------=
 -----
 jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
@@ -744,6 +581,11 @@ section mismatches
 -----
 keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -772,19 +614,8 @@ loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -833,8 +664,12 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
+
+Warnings:
+    {standard input}:30: Warning: macro instruction expanded into multiple =
+instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -868,13 +703,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
 
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Warnings:
+    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
@@ -926,19 +760,11 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -962,17 +788,29 @@ mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
 netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1006,8 +844,27 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
@@ -1016,29 +873,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omega2p_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
 orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1112,6 +953,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -1132,32 +978,27 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
 rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rv32_defconfig (riscv, gcc-10) =E2=80=94 FAIL, 2 errors, 3 warnings, 0 sect=
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
 Warnings:
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
@@ -1165,66 +1006,30 @@ s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
-sama5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1252,9 +1057,7 @@ spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1262,9 +1065,7 @@ spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1278,19 +1079,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1324,28 +1114,37 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
 ismatches
 
 Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
@@ -1360,9 +1159,7 @@ u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1385,9 +1182,7 @@ versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 Section mismatches:
-    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
-tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
-ion .init.text:vic_init_cascaded()
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1401,19 +1196,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vocore2_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1427,10 +1211,14 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
 
 Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1438,9 +1226,13 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-2 warnings, 0 section mismatches
+4 warnings, 0 section mismatches
 
 Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1452,24 +1244,18 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-zx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2404:2: error: implicit declaration of function =
-=E2=80=98cpus_read_lock=E2=80=99; did you mean =E2=80=98cpuset_read_lock=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2417:2: error: implicit declaration of function =
-=E2=80=98cpus_read_unlock=E2=80=99; did you mean =E2=80=98cpuset_read_unloc=
-k=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---
 For more info write to <info@kernelci.org>
