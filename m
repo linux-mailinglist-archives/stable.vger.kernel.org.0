@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1075B7488
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342575B7204
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236027AbiIMPWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
+        id S231354AbiIMOox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232199AbiIMPWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E57AB7B7A0;
-        Tue, 13 Sep 2022 07:36:35 -0700 (PDT)
+        with ESMTP id S234143AbiIMOmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3CE42FFD7;
+        Tue, 13 Sep 2022 07:22:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF807B80FA6;
-        Tue, 13 Sep 2022 14:21:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A649C433D6;
-        Tue, 13 Sep 2022 14:21:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB3C5B80FBC;
+        Tue, 13 Sep 2022 14:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA0DC433D6;
+        Tue, 13 Sep 2022 14:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078911;
-        bh=lUDWtF7U9ywnCODZtv5uQR2taTIVyThCDhb0jCdN7jw=;
+        s=korg; t=1663078940;
+        bh=tVAbAvCjhuEg7A6fhu9ETVqCIukL5QdM6oRk66+FGAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/1AuThe4f+hx/cVTGdhM/4WETS8H98zrHgseZZhQvvH16attJe4QQkhQF1k84HR7
-         ePWjdPE7fsGOdT8kW2cyZle4aUJpjh3z9P1mmkH1HZrUHx4HragRafY7lhELjK6VYh
-         K1OLsDZZ0YWBZ8G/UJLJfQUqcS0WWIWSYLmao/4A=
+        b=BTtIVdpuvWCfWKlsr0dHfyL+CLL+x3T+OHhOxl1gW2Cc8/kkjZ7JJNVx4Eauf6ESA
+         MS9jj4F8Ay2RBM4veKEQPli3RrhgTd+T1gV7sYLm9xih0XrP0DUAG5Uf9CMKgsdio3
+         KV5RZw0KQGQ2WzxtWv402PixOF0Xtb7JHS/vShEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Macklem <rmacklem@uoguelph.ca>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Michael Kochera <kochera@google.com>
-Subject: [PATCH 5.10 01/79] NFSD: Fix verifier returned in stable WRITEs
-Date:   Tue, 13 Sep 2022 16:04:06 +0200
-Message-Id: <20220913140350.359903417@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, SeongJae Park <sj@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 02/79] xen-blkfront: Cache feature_persistent value before advertisement
+Date:   Tue, 13 Sep 2022 16:04:07 +0200
+Message-Id: <20220913140350.404321086@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
 References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,73 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: SeongJae Park <sj@kernel.org>
 
-commit f11ad7aa653130b71e2e89bed207f387718216d5 upstream.
+commit fe8f65b018effbf473f53af3538d0c1878b8b329 upstream.
 
-RFC 8881 explains the purpose of the write verifier this way:
+Xen blkfront advertises its support of the persistent grants feature
+when it first setting up and when resuming in 'talk_to_blkback()'.
+Then, blkback reads the advertised value when it connects with blkfront
+and decides if it will use the persistent grants feature or not, and
+advertises its decision to blkfront.  Blkfront reads the blkback's
+decision and it also makes the decision for the use of the feature.
 
-> The final portion of the result is the field writeverf. This field
-> is the write verifier and is a cookie that the client can use to
-> determine whether a server has changed instance state (e.g., server
-> restart) between a call to WRITE and a subsequent call to either
-> WRITE or COMMIT.
+Commit 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter
+when connect"), however, made the blkfront's read of the parameter for
+disabling the advertisement, namely 'feature_persistent', to be done
+when it negotiate, not when advertise.  Therefore blkfront advertises
+without reading the parameter.  As the field for caching the parameter
+value is zero-initialized, it always advertises as the feature is
+disabled, so that the persistent grants feature becomes always disabled.
 
-But then it says:
+This commit fixes the issue by making the blkfront does parmeter caching
+just before the advertisement.
 
-> This cookie MUST be unchanged during a single instance of the
-> NFSv4.1 server and MUST be unique between instances of the NFSv4.1
-> server. If the cookie changes, then the client MUST assume that
-> any data written with an UNSTABLE4 value for committed and an old
-> writeverf in the reply has been lost and will need to be
-> recovered.
-
-RFC 1813 has similar language for NFSv3. NFSv2 does not have a write
-verifier since it doesn't implement the COMMIT procedure.
-
-Since commit 19e0663ff9bc ("nfsd: Ensure sampling of the write
-verifier is atomic with the write"), the Linux NFS server has
-returned a boot-time-based verifier for UNSTABLE WRITEs, but a zero
-verifier for FILE_SYNC and DATA_SYNC WRITEs. FILE_SYNC and DATA_SYNC
-WRITEs are not followed up with a COMMIT, so there's no need for
-clients to compare verifiers for stable writes.
-
-However, by returning a different verifier for stable and unstable
-writes, the above commit puts the Linux NFS server a step farther
-out of compliance with the first MUST above. At least one NFS client
-(FreeBSD) noticed the difference, making this a potential
-regression.
-
-[Removed down_write to fix the conflict in the cherry-pick. The
-down_write functionality was no longer needed there. Upstream commit
-555dbf1a9aac6d3150c8b52fa35f768a692f4eeb titled nfsd: Replace use of
-rwsem with errseq_t removed those and replace it with new functionality
-that was more scalable. This commit is already backported onto 5.10 and
-so removing down_write ensures consistency with that change. Tested by
-compiling and booting successfully. - kochera]
-
-Reported-by: Rick Macklem <rmacklem@uoguelph.ca>
-Link: https://lore.kernel.org/linux-nfs/YQXPR0101MB096857EEACF04A6DF1FC6D9BDD749@YQXPR0101MB0968.CANPRD01.PROD.OUTLOOK.COM/T/
-Fixes: 19e0663ff9bc ("nfsd: Ensure sampling of the write verifier is atomic with the write")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Michael Kochera <kochera@google.com>
+Fixes: 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter when connect")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220831165824.94815-4-sj@kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/vfs.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/block/xen-blkfront.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -1014,6 +1014,10 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
- 	iov_iter_kvec(&iter, WRITE, vec, vlen, *cnt);
- 	since = READ_ONCE(file->f_wb_err);
- 	if (flags & RWF_SYNC) {
-+		if (verf)
-+			nfsd_copy_boot_verifier(verf,
-+					net_generic(SVC_NET(rqstp),
-+					nfsd_net_id));
- 		host_err = vfs_iter_write(file, &iter, &pos, flags);
- 		if (host_err < 0)
- 			nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1852,6 +1852,12 @@ static void free_info(struct blkfront_in
+ 	kfree(info);
+ }
+ 
++/* Enable the persistent grants feature. */
++static bool feature_persistent = true;
++module_param(feature_persistent, bool, 0644);
++MODULE_PARM_DESC(feature_persistent,
++		"Enables the persistent grants feature");
++
+ /* Common code used when first setting up, and when resuming. */
+ static int talk_to_blkback(struct xenbus_device *dev,
+ 			   struct blkfront_info *info)
+@@ -1943,6 +1949,7 @@ again:
+ 		message = "writing protocol";
+ 		goto abort_transaction;
+ 	}
++	info->feature_persistent_parm = feature_persistent;
+ 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
+ 			info->feature_persistent_parm);
+ 	if (err)
+@@ -2019,12 +2026,6 @@ static int negotiate_mq(struct blkfront_
+ 	return 0;
+ }
+ 
+-/* Enable the persistent grants feature. */
+-static bool feature_persistent = true;
+-module_param(feature_persistent, bool, 0644);
+-MODULE_PARM_DESC(feature_persistent,
+-		"Enables the persistent grants feature");
+-
+ /**
+  * Entry point to this code when a new device is created.  Allocate the basic
+  * structures and the ring buffer for communication with the backend, and
+@@ -2394,7 +2395,6 @@ static void blkfront_gather_backend_feat
+ 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
+ 		blkfront_setup_discard(info);
+ 
+-	info->feature_persistent_parm = feature_persistent;
+ 	if (info->feature_persistent_parm)
+ 		info->feature_persistent =
+ 			!!xenbus_read_unsigned(info->xbdev->otherend,
 
 
