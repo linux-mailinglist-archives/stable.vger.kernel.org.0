@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74625B6FC4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0685B6FA8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233084AbiIMOP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:15:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36542 "EHLO
+        id S233106AbiIMOQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:16:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233044AbiIMOPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:15:20 -0400
+        with ESMTP id S233074AbiIMOP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:15:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92FF5C363;
-        Tue, 13 Sep 2022 07:11:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98BF461D8B;
+        Tue, 13 Sep 2022 07:11:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E436D614B4;
-        Tue, 13 Sep 2022 14:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC774C4314B;
-        Tue, 13 Sep 2022 14:10:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1ED5614B3;
+        Tue, 13 Sep 2022 14:10:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD56BC433C1;
+        Tue, 13 Sep 2022 14:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078246;
-        bh=KRmIcSC4wxxMIEZq2JKL10k6ULgqyZ7lir+AGxg58ro=;
+        s=korg; t=1663078249;
+        bh=qfxAm9p8nOOG7d4xhx3T0QX4S+N+glFND1b2ti4REo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zj0JpBvsRhziBkwQ/6WeOA4HGSVem1/SjHXFK7oKXGE7YeNELx167f+uaw+8SvA4V
-         wxr5YxnKgnmoMjI7SBGrHPgoQY60ytM+325tNoLFf7J6PhQNLm9EoiM3pmEqCQTiez
-         EfaEej8zV/Li9MNtj/kzG4BtsZ5n6pNI8f0kurDw=
+        b=Klpuir033fd10J5jzNgenxb5t1HOutxOtt+6gL8MDZKnPAqytRjKnPNvUT4u0bYGd
+         XBYkXK5t30B9v90O0wKGlD4ZJxQeD4Ir8pPR5SjK+S4CT9mTudQgwhg//QhC4edkQ3
+         YVW3mNAKToOJaEoEfDYgsla9TTpHDqYxBpiozp/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Lucas Stach <l.stach@pengutronix.de>,
+        stable@vger.kernel.org,
+        Andrejs Cainikovs <andrejs.cainikovs@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 066/192] Revert "soc: imx: imx8m-blk-ctrl: set power device name"
-Date:   Tue, 13 Sep 2022 16:02:52 +0200
-Message-Id: <20220913140413.252867934@linuxfoundation.org>
+Subject: [PATCH 5.19 067/192] arm64: dts: imx8mm-verdin: update CAN clock to 40MHz
+Date:   Tue, 13 Sep 2022 16:02:53 +0200
+Message-Id: <20220913140413.303366040@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -55,36 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Andrejs Cainikovs <andrejs.cainikovs@toradex.com>
 
-[ Upstream commit b64b46fbaa1da626324f304bcb5fe0662f28b6ce ]
+[ Upstream commit be1e3dfecf7d2fbcb4a45b113da637983878246c ]
 
-This reverts commit 8239d67f59cf522dd4f7135392a2f9a3a25f9cff.
+Update SPI CAN controller clock to match current hardware design.
 
-This change confuses the sysfs cleanup path since the rename is done
-after the device registration.
-
-Fixes: 8239d67f59cf ("soc: imx: imx8m-blk-ctrl: set power device name")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Andrejs Cainikovs <andrejs.cainikovs@toradex.com>
+Acked-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Fixes: 6a57f224f734 ("arm64: dts: freescale: add initial support for verdin imx8m mini")
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/imx/imx8m-blk-ctrl.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mm-verdin.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/imx/imx8m-blk-ctrl.c b/drivers/soc/imx/imx8m-blk-ctrl.c
-index 7ebc28709e945..2782a7e0a8719 100644
---- a/drivers/soc/imx/imx8m-blk-ctrl.c
-+++ b/drivers/soc/imx/imx8m-blk-ctrl.c
-@@ -242,7 +242,6 @@ static int imx8m_blk_ctrl_probe(struct platform_device *pdev)
- 			ret = PTR_ERR(domain->power_dev);
- 			goto cleanup_pds;
- 		}
--		dev_set_name(domain->power_dev, "%s", data->name);
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-verdin.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-verdin.dtsi
+index eafa88d980b32..2841c6bfe3a92 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-verdin.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-verdin.dtsi
+@@ -32,10 +32,10 @@
+ 	};
  
- 		domain->genpd.name = data->name;
- 		domain->genpd.power_on = imx8m_blk_ctrl_power_on;
+ 	/* Fixed clock dedicated to SPI CAN controller */
+-	clk20m: oscillator {
++	clk40m: oscillator {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+-		clock-frequency = <20000000>;
++		clock-frequency = <40000000>;
+ 	};
+ 
+ 	gpio-keys {
+@@ -194,7 +194,7 @@
+ 
+ 	can1: can@0 {
+ 		compatible = "microchip,mcp251xfd";
+-		clocks = <&clk20m>;
++		clocks = <&clk40m>;
+ 		interrupts-extended = <&gpio1 6 IRQ_TYPE_EDGE_FALLING>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_can1_int>;
 -- 
 2.35.1
 
