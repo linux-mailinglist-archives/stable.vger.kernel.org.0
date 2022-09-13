@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E9B5B7262
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0CE5B7158
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231221AbiIMOzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:55:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
+        id S234345AbiIMOju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:39:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234520AbiIMOwQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:52:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA19672862;
-        Tue, 13 Sep 2022 07:26:36 -0700 (PDT)
+        with ESMTP id S234362AbiIMOhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:37:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 812BE6B66A;
+        Tue, 13 Sep 2022 07:20:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB9D6B80F63;
-        Tue, 13 Sep 2022 14:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4688BC433D6;
-        Tue, 13 Sep 2022 14:23:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C373614B4;
+        Tue, 13 Sep 2022 14:19:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0DBBC433C1;
+        Tue, 13 Sep 2022 14:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079027;
-        bh=jQCjhAuq4MYXaN2FV0uEHPja8Iz3wHeP1C5BLT6RLIk=;
+        s=korg; t=1663078788;
+        bh=n35/stZhqURexH/BuYeoGPgRqe6e21ZPM0ynenKxGXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPkSwRnueVaL3e1PuZCeKGHHZWjy6yZw2P2hqvO8VHWUbqk+uhxmhdUAEDKvD5xrs
-         3fcD9gO+95273HUqjqSgNiS2Mx0qXUI9XB//YENa4bQSmtl4Fv06o3A7zh6wFrb6U3
-         uVI8O7JE+U1ZWY5a3ZZ97ye0vVAmdbDgmxNsjKxM=
+        b=otGoylOh+VPlvDhjNzfqlFliG4muApEe2z3NjDa3E7qAu9kIrbtB3NVGgnM21MKHH
+         2i2Zt6Dpn+b0BMhGX0DQMqxau01zqnxttK5ia+kSkEfFmlyAZ5GsFtzz/qnps4RDUv
+         UDPfFstzMMaCa2YapR/sXiox3mPfTZNkI1B2uCpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.10 29/79] nvmet: fix a use-after-free
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Patryk Piotrowski <patryk.piotrowski@intel.com>,
+        SlawomirX Laba <slawomirx.laba@intel.com>,
+        Vitaly Grinberg <vgrinber@redhat.com>,
+        Ivan Vecera <ivecera@redhat.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/121] iavf: Detach device during reset task
 Date:   Tue, 13 Sep 2022 16:04:34 +0200
-Message-Id: <20220913140351.708709951@linuxfoundation.org>
+Message-Id: <20220913140400.938167651@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +59,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Ivan Vecera <ivecera@redhat.com>
 
-commit 6a02a61e81c231cc5c680c5dbf8665275147ac52 upstream.
+[ Upstream commit aa626da947e9cd30c4cf727493903e1adbb2c0a0 ]
 
-Fix the following use-after-free complaint triggered by blktests nvme/004:
+iavf_reset_task() takes crit_lock at the beginning and holds
+it during whole call. The function subsequently calls
+iavf_init_interrupt_scheme() that grabs RTNL. Problem occurs
+when userspace initiates during the reset task any ndo callback
+that runs under RTNL like iavf_open() because some of that
+functions tries to take crit_lock. This leads to classic A-B B-A
+deadlock scenario.
 
-BUG: KASAN: user-memory-access in blk_mq_complete_request_remote+0xac/0x350
-Read of size 4 at addr 0000607bd1835943 by task kworker/13:1/460
-Workqueue: nvmet-wq nvme_loop_execute_work [nvme_loop]
-Call Trace:
- show_stack+0x52/0x58
- dump_stack_lvl+0x49/0x5e
- print_report.cold+0x36/0x1e2
- kasan_report+0xb9/0xf0
- __asan_load4+0x6b/0x80
- blk_mq_complete_request_remote+0xac/0x350
- nvme_loop_queue_response+0x1df/0x275 [nvme_loop]
- __nvmet_req_complete+0x132/0x4f0 [nvmet]
- nvmet_req_complete+0x15/0x40 [nvmet]
- nvmet_execute_io_connect+0x18a/0x1f0 [nvmet]
- nvme_loop_execute_work+0x20/0x30 [nvme_loop]
- process_one_work+0x56e/0xa70
- worker_thread+0x2d1/0x640
- kthread+0x183/0x1c0
- ret_from_fork+0x1f/0x30
+To resolve this situation the device should be detached in
+iavf_reset_task() prior taking crit_lock to avoid subsequent
+ndos running under RTNL and reattach the device at the end.
 
-Cc: stable@vger.kernel.org
-Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 62fe2a865e6d ("i40evf: add missing rtnl_lock() around i40evf_set_interrupt_capability")
+Cc: Jacob Keller <jacob.e.keller@intel.com>
+Cc: Patryk Piotrowski <patryk.piotrowski@intel.com>
+Cc: SlawomirX Laba <slawomirx.laba@intel.com>
+Tested-by: Vitaly Grinberg <vgrinber@redhat.com>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -730,6 +730,8 @@ static void nvmet_set_error(struct nvmet
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index db95786c3419f..00b2ef01f4ea6 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2222,6 +2222,11 @@ static void iavf_reset_task(struct work_struct *work)
+ 	int i = 0, err;
+ 	bool running;
  
- static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
- {
-+	struct nvmet_ns *ns = req->ns;
++	/* Detach interface to avoid subsequent NDO callbacks */
++	rtnl_lock();
++	netif_device_detach(netdev);
++	rtnl_unlock();
 +
- 	if (!req->sq->sqhd_disabled)
- 		nvmet_update_sq_head(req);
- 	req->cqe->sq_id = cpu_to_le16(req->sq->qid);
-@@ -740,9 +742,9 @@ static void __nvmet_req_complete(struct
+ 	/* When device is being removed it doesn't make sense to run the reset
+ 	 * task, just return in such a case.
+ 	 */
+@@ -2229,7 +2234,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 		if (adapter->state != __IAVF_REMOVE)
+ 			queue_work(iavf_wq, &adapter->reset_task);
  
- 	trace_nvmet_req_complete(req);
+-		return;
++		goto reset_finish;
+ 	}
  
--	if (req->ns)
--		nvmet_put_namespace(req->ns);
- 	req->ops->queue_response(req);
-+	if (ns)
-+		nvmet_put_namespace(ns);
+ 	while (!mutex_trylock(&adapter->client_lock))
+@@ -2299,7 +2304,6 @@ static void iavf_reset_task(struct work_struct *work)
+ 
+ 	if (running) {
+ 		netif_carrier_off(netdev);
+-		netif_tx_stop_all_queues(netdev);
+ 		adapter->link_up = false;
+ 		iavf_napi_disable_all(adapter);
+ 	}
+@@ -2412,7 +2416,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 	mutex_unlock(&adapter->client_lock);
+ 	mutex_unlock(&adapter->crit_lock);
+ 
+-	return;
++	goto reset_finish;
+ reset_err:
+ 	if (running) {
+ 		set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
+@@ -2423,6 +2427,10 @@ static void iavf_reset_task(struct work_struct *work)
+ 	mutex_unlock(&adapter->client_lock);
+ 	mutex_unlock(&adapter->crit_lock);
+ 	dev_err(&adapter->pdev->dev, "failed to allocate resources during reinit\n");
++reset_finish:
++	rtnl_lock();
++	netif_device_attach(netdev);
++	rtnl_unlock();
  }
  
- void nvmet_req_complete(struct nvmet_req *req, u16 status)
+ /**
+-- 
+2.35.1
+
 
 
