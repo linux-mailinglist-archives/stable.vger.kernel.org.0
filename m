@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB93D5B74BA
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A79F85B74AC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236299AbiIMP3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S234058AbiIMP3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236571AbiIMP3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:08 -0400
+        with ESMTP id S236653AbiIMP3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D985B796;
-        Tue, 13 Sep 2022 07:39:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E5B8B846;
+        Tue, 13 Sep 2022 07:39:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DE6EB81029;
-        Tue, 13 Sep 2022 14:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4541C433C1;
-        Tue, 13 Sep 2022 14:37:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D852FB80F9C;
+        Tue, 13 Sep 2022 14:35:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 312F7C43140;
+        Tue, 13 Sep 2022 14:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079867;
-        bh=b06b0l8kwYRi7e3XNh/w/6ReSmTYreK4a3sgVSKi4b4=;
+        s=korg; t=1663079757;
+        bh=gF/NFCBwJR+rpMhh5ZAUWokS9BviWbSmkaDiQ6eEz5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uX2LYjWFbGoU/6tg7CaLR72UD9Srw4SmEUp2MFCln4fu3b3OTiOoO4wkND/3kk8pR
-         RsnpOmLPL+1ATNtTpneM59GaL2HEM8p1I7QJx8eQ8gz23fLcj9ZAkejCkWmOnB7vbp
-         l4NHAk/Ul0ft4K9hdu3inpi8ED2+5w5bGe7X0+NY=
+        b=xdxW8yCjhJVEDk7PIjrpyJNQwuFGX+TN1VUINxbp9qHzsI5fa4yGoNQNr0TN2YV0m
+         7LyIYRhIkTQ6vz1EcKK5WHmTXzn5TaQ9KUw/6gmiip9EnXei70ok7FKqsmZ96LEkVT
+         OHiJgo+IxEj7Ce5/MudLW6vaue8VaM/TNJ58q1Yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhenneng Li <lizhenneng@kylinos.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Lucas Leong <wmliang.tw@gmail.com>,
+        David Lebrun <dlebrun@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/42] drm/radeon: add a force flush to delay work when radeon
+Subject: [PATCH 4.14 54/61] ipv6: sr: fix out-of-bounds read when setting HMAC data.
 Date:   Tue, 13 Sep 2022 16:07:56 +0200
-Message-Id: <20220913140343.578497793@linuxfoundation.org>
+Message-Id: <20220913140349.162337924@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenneng Li <lizhenneng@kylinos.cn>
+From: David Lebrun <dlebrun@google.com>
 
-[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
+[ Upstream commit 84a53580c5d2138c7361c7c3eea5b31827e63b35 ]
 
-Although radeon card fence and wait for gpu to finish processing current batch rings,
-there is still a corner case that radeon lockup work queue may not be fully flushed,
-and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
-put device in D3hot state.
-Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
-> Configuration and Message requests are the only TLPs accepted by a Function in
-> the D3hot state. All other received Requests must be handled as Unsupported Requests,
-> and all received Completions may optionally be handled as Unexpected Completions.
-This issue will happen in following logs:
-Unable to handle kernel paging request at virtual address 00008800e0008010
-CPU 0 kworker/0:3(131): Oops 0
-pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
-pc is at si_gpu_check_soft_reset+0x3c/0x240
-ra is at si_dma_is_lockup+0x34/0xd0
-v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
-t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
-t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
-s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
-s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
-s6 = fff00007ef07bd98
-a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
-a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
-t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
-t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
-gp = ffffffff81d89690  sp = 00000000aa814126
-Disabling lock debugging due to kernel taint
-Trace:
-[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
-[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
-[<ffffffff80977010>] process_one_work+0x280/0x550
-[<ffffffff80977350>] worker_thread+0x70/0x7c0
-[<ffffffff80977410>] worker_thread+0x130/0x7c0
-[<ffffffff80982040>] kthread+0x200/0x210
-[<ffffffff809772e0>] worker_thread+0x0/0x7c0
-[<ffffffff80981f8c>] kthread+0x14c/0x210
-[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
-[<ffffffff80981e40>] kthread+0x0/0x210
- Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
- <88210000> 4821ed21
-So force lockup work queue flush to fix this problem.
+The SRv6 layer allows defining HMAC data that can later be used to sign IPv6
+Segment Routing Headers. This configuration is realised via netlink through
+four attributes: SEG6_ATTR_HMACKEYID, SEG6_ATTR_SECRET, SEG6_ATTR_SECRETLEN and
+SEG6_ATTR_ALGID. Because the SECRETLEN attribute is decoupled from the actual
+length of the SECRET attribute, it is possible to provide invalid combinations
+(e.g., secret = "", secretlen = 64). This case is not checked in the code and
+with an appropriately crafted netlink message, an out-of-bounds read of up
+to 64 bytes (max secret length) can occur past the skb end pointer and into
+skb_shared_info:
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Breakpoint 1, seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
+208		memcpy(hinfo->secret, secret, slen);
+(gdb) bt
+ #0  seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
+ #1  0xffffffff81e012e9 in genl_family_rcv_msg_doit (skb=skb@entry=0xffff88800b1f9f00, nlh=nlh@entry=0xffff88800b1b7600,
+    extack=extack@entry=0xffffc90000ba7af0, ops=ops@entry=0xffffc90000ba7a80, hdrlen=4, net=0xffffffff84237580 <init_net>, family=<optimized out>,
+    family=<optimized out>) at net/netlink/genetlink.c:731
+ #2  0xffffffff81e01435 in genl_family_rcv_msg (extack=0xffffc90000ba7af0, nlh=0xffff88800b1b7600, skb=0xffff88800b1f9f00,
+    family=0xffffffff82fef6c0 <seg6_genl_family>) at net/netlink/genetlink.c:775
+ #3  genl_rcv_msg (skb=0xffff88800b1f9f00, nlh=0xffff88800b1b7600, extack=0xffffc90000ba7af0) at net/netlink/genetlink.c:792
+ #4  0xffffffff81dfffc3 in netlink_rcv_skb (skb=skb@entry=0xffff88800b1f9f00, cb=cb@entry=0xffffffff81e01350 <genl_rcv_msg>)
+    at net/netlink/af_netlink.c:2501
+ #5  0xffffffff81e00919 in genl_rcv (skb=0xffff88800b1f9f00) at net/netlink/genetlink.c:803
+ #6  0xffffffff81dff6ae in netlink_unicast_kernel (ssk=0xffff888010eec800, skb=0xffff88800b1f9f00, sk=0xffff888004aed000)
+    at net/netlink/af_netlink.c:1319
+ #7  netlink_unicast (ssk=ssk@entry=0xffff888010eec800, skb=skb@entry=0xffff88800b1f9f00, portid=portid@entry=0, nonblock=<optimized out>)
+    at net/netlink/af_netlink.c:1345
+ #8  0xffffffff81dff9a4 in netlink_sendmsg (sock=<optimized out>, msg=0xffffc90000ba7e48, len=<optimized out>) at net/netlink/af_netlink.c:1921
+...
+(gdb) p/x ((struct sk_buff *)0xffff88800b1f9f00)->head + ((struct sk_buff *)0xffff88800b1f9f00)->end
+$1 = 0xffff88800b1b76c0
+(gdb) p/x secret
+$2 = 0xffff88800b1b76c0
+(gdb) p slen
+$3 = 64 '@'
+
+The OOB data can then be read back from userspace by dumping HMAC state. This
+commit fixes this by ensuring SECRETLEN cannot exceed the actual length of
+SECRET.
+
+Reported-by: Lucas Leong <wmliang.tw@gmail.com>
+Tested: verified that EINVAL is correctly returned when secretlen > len(secret)
+Fixes: 4f4853dc1c9c1 ("ipv6: sr: implement API to control SR HMAC structure")
+Signed-off-by: David Lebrun <dlebrun@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv6/seg6.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 82b01123c3868..227c4733de2ea 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1661,6 +1661,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
- 		if (r) {
- 			/* delay GPU reset to resume */
- 			radeon_fence_driver_force_completion(rdev, i);
-+		} else {
-+			/* finish executing delayed work */
-+			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
- 		}
+diff --git a/net/ipv6/seg6.c b/net/ipv6/seg6.c
+index fdeb90dd1c824..9c45165fe79bb 100644
+--- a/net/ipv6/seg6.c
++++ b/net/ipv6/seg6.c
+@@ -129,6 +129,11 @@ static int seg6_genl_sethmac(struct sk_buff *skb, struct genl_info *info)
+ 		goto out_unlock;
  	}
  
++	if (slen > nla_len(info->attrs[SEG6_ATTR_SECRET])) {
++		err = -EINVAL;
++		goto out_unlock;
++	}
++
+ 	if (hinfo) {
+ 		err = seg6_hmac_info_del(net, hmackeyid);
+ 		if (err)
 -- 
 2.35.1
 
