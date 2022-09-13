@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B37065B7380
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4D95B724F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235250AbiIMPHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:07:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55748 "EHLO
+        id S233079AbiIMOxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235182AbiIMPFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:05:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2828774E1A;
-        Tue, 13 Sep 2022 07:30:29 -0700 (PDT)
+        with ESMTP id S234631AbiIMOvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:51:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B3C2726A5;
+        Tue, 13 Sep 2022 07:26:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E286FB80F4B;
-        Tue, 13 Sep 2022 14:21:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A5C5C433D6;
-        Tue, 13 Sep 2022 14:21:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77293614D9;
+        Tue, 13 Sep 2022 14:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F25BC433C1;
+        Tue, 13 Sep 2022 14:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078888;
-        bh=x8/AfkFC1myYwerM7grWJWme6bV0VUgM6ojfjkOg+9U=;
+        s=korg; t=1663079060;
+        bh=3Mr7JGdFdjtbL+VTIFN142PxDN9qHLoULZFARFGLk5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbROmwBq3y+WilJeS8A1WQEkj9UHkSBsXZfX2mM4kzqnuBtQ+nM5D1xc16eAln+gL
-         KOB/LSdX+4TfYnojzeYrvhvzPvyHkXK8IKzT2ncWHzy/k9cAPnxw69vZFzOHgHNTM1
-         PdIJWGdk31YFzV9IOCLTPZMgZdXIKQ+Y9a06nIQU=
+        b=D+VhbXH7079YFSgobn+oUXImiptu66aTK9Dgk+4eqYdSzdMlXI4x2Tk8xhs5wZ/Jw
+         9drbn0mUA2QnuarWR6YygvhS3wrNik8To3/6brUY/ZS1IfVqcfB/7jYD6shoBiGh+7
+         5e/YzSit9sL5sU4pU2nZTcgKNIGFyI7VJcRdHER4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/121] ARM: at91: ddr: remove CONFIG_SOC_SAMA7 dependency
-Date:   Tue, 13 Sep 2022 16:05:12 +0200
-Message-Id: <20220913140402.562011888@linuxfoundation.org>
+Subject: [PATCH 5.10 68/79] sch_sfb: Also store skb len before calling child enqueue
+Date:   Tue, 13 Sep 2022 16:05:13 +0200
+Message-Id: <20220913140353.463103044@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-[ Upstream commit dc3005703f8cd893d325081c20b400e08377d9bb ]
+[ Upstream commit 2f09707d0c972120bf794cfe0f0c67e2c2ddb252 ]
 
-Remove CONFIG_SOC_SAMA7 dependency to avoid having #ifdef preprocessor
-directives in driver code (arch/arm/mach-at91/pm.c). This prepares the
-code for next commits.
+Cong Wang noticed that the previous fix for sch_sfb accessing the queued
+skb after enqueueing it to a child qdisc was incomplete: the SFB enqueue
+function was also calling qdisc_qstats_backlog_inc() after enqueue, which
+reads the pkt len from the skb cb field. Fix this by also storing the skb
+len, and using the stored value to increment the backlog after enqueueing.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20220113144900.906370-2-claudiu.beznea@microchip.com
+Fixes: 9efd23297cca ("sch_sfb: Don't assume the skb is still around after enqueueing to child")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20220905192137.965549-1-toke@toke.dk
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/soc/at91/sama7-ddr.h | 4 ----
- 1 file changed, 4 deletions(-)
+ net/sched/sch_sfb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/soc/at91/sama7-ddr.h b/include/soc/at91/sama7-ddr.h
-index 72d19887ab810..f203f34dba12e 100644
---- a/include/soc/at91/sama7-ddr.h
-+++ b/include/soc/at91/sama7-ddr.h
-@@ -11,8 +11,6 @@
- #ifndef __SAMA7_DDR_H__
- #define __SAMA7_DDR_H__
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index f180cf95cfc97..b2724057629f6 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -281,6 +281,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ {
  
--#ifdef CONFIG_SOC_SAMA7
--
- /* DDR3PHY */
- #define DDR3PHY_PIR				(0x04)		/* DDR3PHY PHY Initialization Register	*/
- #define	DDR3PHY_PIR_DLLBYP		(1 << 17)	/* DLL Bypass */
-@@ -83,6 +81,4 @@
- #define UDDRC_PCTRL_3				(0x6A0)		/* UDDRC Port 3 Control Register */
- #define UDDRC_PCTRL_4				(0x750)		/* UDDRC Port 4 Control Register */
- 
--#endif /* CONFIG_SOC_SAMA7 */
--
- #endif /* __SAMA7_DDR_H__ */
+ 	struct sfb_sched_data *q = qdisc_priv(sch);
++	unsigned int len = qdisc_pkt_len(skb);
+ 	struct Qdisc *child = q->qdisc;
+ 	struct tcf_proto *fl;
+ 	struct sfb_skb_cb cb;
+@@ -403,7 +404,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+-		qdisc_qstats_backlog_inc(sch, skb);
++		sch->qstats.backlog += len;
+ 		sch->q.qlen++;
+ 		increment_qlen(&cb, q);
+ 	} else if (net_xmit_drop_count(ret)) {
 -- 
 2.35.1
 
