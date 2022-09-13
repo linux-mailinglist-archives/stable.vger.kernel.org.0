@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B83C05B7545
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 014665B747E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229803AbiIMPj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52554 "EHLO
+        id S235985AbiIMPYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236751AbiIMPiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C061D312;
-        Tue, 13 Sep 2022 07:44:51 -0700 (PDT)
+        with ESMTP id S236218AbiIMPXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9207C776;
+        Tue, 13 Sep 2022 07:37:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 301ED614E8;
-        Tue, 13 Sep 2022 14:32:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A84C433D6;
-        Tue, 13 Sep 2022 14:32:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66BCCB80FF2;
+        Tue, 13 Sep 2022 14:35:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEF43C433D7;
+        Tue, 13 Sep 2022 14:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079566;
-        bh=tX03YbG5xQzb4/Y3x2p/k5J6xQjGknZ9Qh7bB8dvKcY=;
+        s=korg; t=1663079727;
+        bh=2hBL8XigB4HHBKerBlukkri/okODgJyoejnjyoF4k9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inyzrq5z1xoGVXK/ketVINcy5lTh+6DmimwNH+S1Xf0+UQDcldb5mdeXdhuSuYzw5
-         2wQbWkk/wCUStxWJ77UGW2lD3oZHTNY4dph/muZ36PvGfuCdneaixwKHdscsDI5h+6
-         HQFg8OvLRM9kK1GZ1AF7BaMOjNMiKwc8f5fwYqLU=
+        b=Cxy8gO0xlwArwt6xptp8KgdtN0CcOqBRSuo2YOipFINF62qpn6OTVLkq9d4lMjzxZ
+         IeNqsKKQHOlaznSTN1z8h53l6TNxrBEbJ0jqZG/9QKN5v6JRxedu3UwXnUWjgcuUh5
+         d1KXPspxDIo9OOm29w5GcwZ5BqJ3gjCcNBlAYv4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Leong <wmliang.tw@gmail.com>,
-        David Lebrun <dlebrun@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 69/79] ipv6: sr: fix out-of-bounds read when setting HMAC data.
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        stable <stable@kernel.org>,
+        Witold Lipieta <witold.lipieta@thaumatec.com>
+Subject: [PATCH 4.14 25/61] usb-storage: Add ignore-residue quirk for NXP PN7462AU
 Date:   Tue, 13 Sep 2022 16:07:27 +0200
-Message-Id: <20220913140352.232989050@linuxfoundation.org>
+Message-Id: <20220913140347.759074778@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Lebrun <dlebrun@google.com>
+From: Witold Lipieta <witold.lipieta@thaumatec.com>
 
-[ Upstream commit 84a53580c5d2138c7361c7c3eea5b31827e63b35 ]
+commit 2aa48857ad52236a9564c71183d6cc8893becd41 upstream.
 
-The SRv6 layer allows defining HMAC data that can later be used to sign IPv6
-Segment Routing Headers. This configuration is realised via netlink through
-four attributes: SEG6_ATTR_HMACKEYID, SEG6_ATTR_SECRET, SEG6_ATTR_SECRETLEN and
-SEG6_ATTR_ALGID. Because the SECRETLEN attribute is decoupled from the actual
-length of the SECRET attribute, it is possible to provide invalid combinations
-(e.g., secret = "", secretlen = 64). This case is not checked in the code and
-with an appropriately crafted netlink message, an out-of-bounds read of up
-to 64 bytes (max secret length) can occur past the skb end pointer and into
-skb_shared_info:
+This is USB mass storage primary boot loader for code download on
+NXP PN7462AU.
 
-Breakpoint 1, seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
-208		memcpy(hinfo->secret, secret, slen);
-(gdb) bt
- #0  seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
- #1  0xffffffff81e012e9 in genl_family_rcv_msg_doit (skb=skb@entry=0xffff88800b1f9f00, nlh=nlh@entry=0xffff88800b1b7600,
-    extack=extack@entry=0xffffc90000ba7af0, ops=ops@entry=0xffffc90000ba7a80, hdrlen=4, net=0xffffffff84237580 <init_net>, family=<optimized out>,
-    family=<optimized out>) at net/netlink/genetlink.c:731
- #2  0xffffffff81e01435 in genl_family_rcv_msg (extack=0xffffc90000ba7af0, nlh=0xffff88800b1b7600, skb=0xffff88800b1f9f00,
-    family=0xffffffff82fef6c0 <seg6_genl_family>) at net/netlink/genetlink.c:775
- #3  genl_rcv_msg (skb=0xffff88800b1f9f00, nlh=0xffff88800b1b7600, extack=0xffffc90000ba7af0) at net/netlink/genetlink.c:792
- #4  0xffffffff81dfffc3 in netlink_rcv_skb (skb=skb@entry=0xffff88800b1f9f00, cb=cb@entry=0xffffffff81e01350 <genl_rcv_msg>)
-    at net/netlink/af_netlink.c:2501
- #5  0xffffffff81e00919 in genl_rcv (skb=0xffff88800b1f9f00) at net/netlink/genetlink.c:803
- #6  0xffffffff81dff6ae in netlink_unicast_kernel (ssk=0xffff888010eec800, skb=0xffff88800b1f9f00, sk=0xffff888004aed000)
-    at net/netlink/af_netlink.c:1319
- #7  netlink_unicast (ssk=ssk@entry=0xffff888010eec800, skb=skb@entry=0xffff88800b1f9f00, portid=portid@entry=0, nonblock=<optimized out>)
-    at net/netlink/af_netlink.c:1345
- #8  0xffffffff81dff9a4 in netlink_sendmsg (sock=<optimized out>, msg=0xffffc90000ba7e48, len=<optimized out>) at net/netlink/af_netlink.c:1921
-...
-(gdb) p/x ((struct sk_buff *)0xffff88800b1f9f00)->head + ((struct sk_buff *)0xffff88800b1f9f00)->end
-$1 = 0xffff88800b1b76c0
-(gdb) p/x secret
-$2 = 0xffff88800b1b76c0
-(gdb) p slen
-$3 = 64 '@'
+Without the quirk it is impossible to write whole memory at once as
+device restarts during the write due to bogus residue values reported.
 
-The OOB data can then be read back from userspace by dumping HMAC state. This
-commit fixes this by ensuring SECRETLEN cannot exceed the actual length of
-SECRET.
-
-Reported-by: Lucas Leong <wmliang.tw@gmail.com>
-Tested: verified that EINVAL is correctly returned when secretlen > len(secret)
-Fixes: 4f4853dc1c9c1 ("ipv6: sr: implement API to control SR HMAC structure")
-Signed-off-by: David Lebrun <dlebrun@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Witold Lipieta <witold.lipieta@thaumatec.com>
+Link: https://lore.kernel.org/r/20220809112911.462776-1-witold.lipieta@thaumatec.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/seg6.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/storage/unusual_devs.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/ipv6/seg6.c b/net/ipv6/seg6.c
-index 9b2f272ca1649..89d55770ac74b 100644
---- a/net/ipv6/seg6.c
-+++ b/net/ipv6/seg6.c
-@@ -130,6 +130,11 @@ static int seg6_genl_sethmac(struct sk_buff *skb, struct genl_info *info)
- 		goto out_unlock;
- 	}
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2313,6 +2313,13 @@ UNUSUAL_DEV( 0x1e74, 0x4621, 0x0000, 0x0
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BULK_IGNORE_TAG | US_FL_MAX_SECTORS_64 ),
  
-+	if (slen > nla_len(info->attrs[SEG6_ATTR_SECRET])) {
-+		err = -EINVAL;
-+		goto out_unlock;
-+	}
++/* Reported by Witold Lipieta <witold.lipieta@thaumatec.com> */
++UNUSUAL_DEV( 0x1fc9, 0x0117, 0x0100, 0x0100,
++		"NXP Semiconductors",
++		"PN7462AU",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_RESIDUE ),
 +
- 	if (hinfo) {
- 		err = seg6_hmac_info_del(net, hmackeyid);
- 		if (err)
--- 
-2.35.1
-
+ /* Supplied with some Castlewood ORB removable drives */
+ UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x9999,
+ 		"Double-H Technology",
 
 
