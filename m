@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1425B7521
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D6475B74AE
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236465AbiIMPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45664 "EHLO
+        id S236328AbiIMP1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:27:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232336AbiIMPbz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:31:55 -0400
+        with ESMTP id S236311AbiIMP0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:26:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E43C7E33B;
-        Tue, 13 Sep 2022 07:40:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CEE7DF4B;
+        Tue, 13 Sep 2022 07:38:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E852EB80FA7;
-        Tue, 13 Sep 2022 14:36:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4391EC433D6;
-        Tue, 13 Sep 2022 14:36:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8631CB80FE3;
+        Tue, 13 Sep 2022 14:34:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFADC433C1;
+        Tue, 13 Sep 2022 14:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079804;
-        bh=xMSwEH5Zbbo81dk0MZ1TiWQtLZ4jkd2it9alHaMkfx4=;
+        s=korg; t=1663079673;
+        bh=JYuxi9O3FdJnifusqhvtJkC+4XphOyrht8mntGp0LCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VK7soWWoB13uJGOCJZc3Ok6NrBlZz+8PNyXEX9O0ahEIQG/t+ulHyNUgUqRFNhKVq
-         oN7q1xD8cNJqtNyy3wOTHvdNZyjD6H09wpCchwIQaRLvCsEk3lpcC5etn+ispy1Ezd
-         IOlfhQ2lz7G5ncN5eGy/AthfH2nKVIQTK6HmBqzM=
+        b=UCDqudbAM2Fxy9sT82X0MEDvtjf6rWOCqV0RO8AKYkNLM4BXKVhNfthbahBNlvkHw
+         rzLrYFBaj92m/Plj78l12/OgndJpwXuMPAr84r4BEZl25VgxG+2YNmnhmjBVkDNKa9
+         klBTzWqENSOVTfoqfJ7z4mRbK6EId+yBLq9t5YII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/42] platform/x86: pmc_atom: Fix SLP_TYPx bitfield mask
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.14 31/61] net: mac802154: Fix a condition in the receive path
 Date:   Tue, 13 Sep 2022 16:07:33 +0200
-Message-Id: <20220913140342.354720387@linuxfoundation.org>
+Message-Id: <20220913140348.048092061@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 0a90ed8d0cfa29735a221eba14d9cb6c735d35b6 ]
+commit f0da47118c7e93cdbbc6fb403dd729a5f2c90ee3 upstream.
 
-On Intel hardware the SLP_TYPx bitfield occupies bits 10-12 as per ACPI
-specification (see Table 4.13 "PM1 Control Registers Fixed Hardware
-Feature Control Bits" for the details).
+Upon reception, a packet must be categorized, either it's destination is
+the host, or it is another host. A packet with no destination addressing
+fields may be valid in two situations:
+- the packet has no source field: only ACKs are built like that, we
+  consider the host as the destination.
+- the packet has a valid source field: it is directed to the PAN
+  coordinator, as for know we don't have this information we consider we
+  are not the PAN coordinator.
 
-Fix the mask and other related definitions accordingly.
+There was likely a copy/paste error made during a previous cleanup
+because the if clause is now containing exactly the same condition as in
+the switch case, which can never be true. In the past the destination
+address was used in the switch and the source address was used in the
+if, which matches what the spec says.
 
-Fixes: 93e5eadd1f6e ("x86/platform: New Intel Atom SOC power management controller driver")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220801113734.36131-1-andriy.shevchenko@linux.intel.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: ae531b9475f6 ("ieee802154: use ieee802154_addr instead of *_sa variants")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220826142954.254853-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/pmc_atom.h   | 6 ++++--
- arch/x86/platform/atom/pmc_atom.c | 2 +-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ net/mac802154/rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/pmc_atom.h b/arch/x86/include/asm/pmc_atom.h
-index aa8744c77c6d9..b25ac6eb1fdee 100644
---- a/arch/x86/include/asm/pmc_atom.h
-+++ b/arch/x86/include/asm/pmc_atom.h
-@@ -16,6 +16,8 @@
- #ifndef PMC_ATOM_H
- #define PMC_ATOM_H
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -52,7 +52,7 @@ ieee802154_subif_frame(struct ieee802154
  
-+#include <linux/bits.h>
-+
- /* ValleyView Power Control Unit PCI Device ID */
- #define	PCI_DEVICE_ID_VLV_PMC	0x0F1C
- /* CherryTrail Power Control Unit PCI Device ID */
-@@ -148,9 +150,9 @@
- #define	ACPI_MMIO_REG_LEN	0x100
- 
- #define	PM1_CNT			0x4
--#define	SLEEP_TYPE_MASK		0xFFFFECFF
-+#define	SLEEP_TYPE_MASK		GENMASK(12, 10)
- #define	SLEEP_TYPE_S5		0x1C00
--#define	SLEEP_ENABLE		0x2000
-+#define	SLEEP_ENABLE		BIT(13)
- 
- extern int pmc_atom_read(int offset, u32 *value);
- extern int pmc_atom_write(int offset, u32 value);
-diff --git a/arch/x86/platform/atom/pmc_atom.c b/arch/x86/platform/atom/pmc_atom.c
-index 964ff4fc61f9b..b5b371d959141 100644
---- a/arch/x86/platform/atom/pmc_atom.c
-+++ b/arch/x86/platform/atom/pmc_atom.c
-@@ -213,7 +213,7 @@ static void pmc_power_off(void)
- 	pm1_cnt_port = acpi_base_addr + PM1_CNT;
- 
- 	pm1_cnt_value = inl(pm1_cnt_port);
--	pm1_cnt_value &= SLEEP_TYPE_MASK;
-+	pm1_cnt_value &= ~SLEEP_TYPE_MASK;
- 	pm1_cnt_value |= SLEEP_TYPE_S5;
- 	pm1_cnt_value |= SLEEP_ENABLE;
- 
--- 
-2.35.1
-
+ 	switch (mac_cb(skb)->dest.mode) {
+ 	case IEEE802154_ADDR_NONE:
+-		if (mac_cb(skb)->dest.mode != IEEE802154_ADDR_NONE)
++		if (hdr->source.mode != IEEE802154_ADDR_NONE)
+ 			/* FIXME: check if we are PAN coordinator */
+ 			skb->pkt_type = PACKET_OTHERHOST;
+ 		else
 
 
