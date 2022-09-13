@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9834F5B70DF
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF8D5B714B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234097AbiIMOdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:33:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55690 "EHLO
+        id S234120AbiIMOha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:37:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233999AbiIMOch (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F4F5A887;
-        Tue, 13 Sep 2022 07:19:16 -0700 (PDT)
+        with ESMTP id S234065AbiIMOfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92007677;
+        Tue, 13 Sep 2022 07:20:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1F67614CD;
-        Tue, 13 Sep 2022 14:16:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC434C433C1;
-        Tue, 13 Sep 2022 14:16:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70946B80E22;
+        Tue, 13 Sep 2022 14:13:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD5EC433C1;
+        Tue, 13 Sep 2022 14:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078618;
-        bh=fPid+q0GoEnpfhUVAoMELTMnsoxydhxBhddicCiYKQ8=;
+        s=korg; t=1663078412;
+        bh=aowFWu6QphHH2BKBxF8cckcYeRK70J23D7jr4WHtX7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFa3liIDe4pvWEjttzWmqBk8S4gFG+FAItoHWh0r0Xs60Soy3nusu6WZsi1BYgbXu
-         ITzhx8O8RKGSxwEgIKa7RYYlK7iRmqVJ480+LQ0natxZGvWqeaa1djDCL6mmRS4y6R
-         F7Zvtz4UQiXjh/bihShCy1XGw2x8nKfBRCE5XCpQ=
+        b=oBQsE2MBiZXp87+ZRDZkw+FTWQHKxFaHJIR7g/DV9wu2Y5864RoSXaCClDZ1+7dB7
+         apinliaa/H3uOQgkIvlTP226jDBfOwt1MY2fNw7DNysrwkW9NK4AyKxGdnreU0xkAg
+         7d48/5dr9skN397EeuPni4xJSP4qoIOqDoz9UMDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Bruno Goncalves <bgoncalv@redhat.com>
-Subject: [PATCH 5.15 018/121] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
+        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 103/192] netfilter: br_netfilter: Drop dst references before setting.
 Date:   Tue, 13 Sep 2022 16:03:29 +0200
-Message-Id: <20220913140358.123385628@linuxfoundation.org>
+Message-Id: <20220913140415.101344902@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Harsh Modi <harshmodi@google.com>
 
-[ Upstream commit e75d18cecbb3805895d8ed64da4f78575ec96043 ]
+[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
 
-Though acpi_find_last_cache_level() always returned signed value and the
-document states it will return any errors caused by lack of a PPTT table,
-it never returned negative values before.
+The IPv6 path already drops dst in the daddr changed case, but the IPv4
+path does not. This change makes the two code paths consistent.
 
-Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
-however changed it by returning -ENOENT if no PPTT was found. The value
-returned from acpi_find_last_cache_level() is then assigned to unsigned
-fw_level.
+Further, it is possible that there is already a metadata_dst allocated from
+ingress that might already be attached to skbuff->dst while following
+the bridge path. If it is not released before setting a new
+metadata_dst, it will be leaked. This is similar to what is done in
+bpf_set_tunnel_key() or ip6_route_input().
 
-It will result in the number of cache leaves calculated incorrectly as
-a huge value which will then cause the following warning from __alloc_pages
-as the order would be great than MAX_ORDER because of incorrect and huge
-cache leaves value.
+It is important to note that the memory being leaked is not the dst
+being set in the bridge code, but rather memory allocated from some
+other code path that is not being freed correctly before the skb dst is
+overwritten.
 
-  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
-  |  Modules linked in:
-  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
-  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  |  pc : __alloc_pages+0x74/0x314
-  |  lr : alloc_pages+0xe8/0x318
-  |  Call trace:
-  |   __alloc_pages+0x74/0x314
-  |   alloc_pages+0xe8/0x318
-  |   kmalloc_order_trace+0x68/0x1dc
-  |   __kmalloc+0x240/0x338
-  |   detect_cache_attributes+0xe0/0x56c
-  |   update_siblings_masks+0x38/0x284
-  |   store_cpu_topology+0x78/0x84
-  |   smp_prepare_cpus+0x48/0x134
-  |   kernel_init_freeable+0xc4/0x14c
-  |   kernel_init+0x2c/0x1b4
-  |   ret_from_fork+0x10/0x20
+An example of the leakage fixed by this commit found using kmemleak:
 
-Fix the same by changing fw_level to be signed integer and return the
-error from init_cache_level() early in case of error.
+unreferenced object 0xffff888010112b00 (size 256):
+  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
+    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
+  backtrace:
+    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
+    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
+    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
+    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
+    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
+    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
+    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
+    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
+    [<00000000a879497d>] process_backlog+0x93/0x190
+    [<00000000e41ade9f>] __napi_poll+0x28/0x170
+    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
+    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
+    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
+    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
+    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
+    [<000000008942add0>] native_safe_halt+0x13/0x20
 
-Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Florian Westphal says: "Original code was likely fine because nothing
+ever did set a skb->dst entry earlier than bridge in those days."
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Harsh Modi <harshmodi@google.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cacheinfo.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/bridge/br_netfilter_hooks.c | 2 ++
+ net/bridge/br_netfilter_ipv6.c  | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
-index 587543c6c51cb..97c42be71338a 100644
---- a/arch/arm64/kernel/cacheinfo.c
-+++ b/arch/arm64/kernel/cacheinfo.c
-@@ -45,7 +45,8 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index ff47790366497..f20f4373ff408 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -384,6 +384,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 				/* - Bridged-and-DNAT'ed traffic doesn't
+ 				 *   require ip_forwarding. */
+ 				if (rt->dst.dev == dev) {
++					skb_dst_drop(skb);
+ 					skb_dst_set(skb, &rt->dst);
+ 					goto bridged_dnat;
+ 				}
+@@ -413,6 +414,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
  
- int init_cache_level(unsigned int cpu)
- {
--	unsigned int ctype, level, leaves, fw_level;
-+	unsigned int ctype, level, leaves;
-+	int fw_level;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index e4e0c836c3f51..6b07f30675bb0 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -197,6 +197,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
  
- 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
-@@ -63,6 +64,9 @@ int init_cache_level(unsigned int cpu)
- 	else
- 		fw_level = acpi_find_last_cache_level(cpu);
- 
-+	if (fw_level < 0)
-+		return fw_level;
-+
- 	if (level < fw_level) {
- 		/*
- 		 * some external caches not specified in CLIDR_EL1
 -- 
 2.35.1
 
