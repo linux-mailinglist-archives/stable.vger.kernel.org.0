@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7755B752A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF0CA5B73B4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbiIMPem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:34:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45792 "EHLO
+        id S235252AbiIMPJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:09:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236565AbiIMPck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:32:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D357F119;
-        Tue, 13 Sep 2022 07:40:43 -0700 (PDT)
+        with ESMTP id S235542AbiIMPIl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:08:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFC6760C2;
+        Tue, 13 Sep 2022 07:31:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F75FB80EF8;
-        Tue, 13 Sep 2022 14:32:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E54C433D6;
-        Tue, 13 Sep 2022 14:32:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45F7BB80F9E;
+        Tue, 13 Sep 2022 14:31:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7855C433C1;
+        Tue, 13 Sep 2022 14:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079558;
-        bh=5K8DzZTsQj7cIxa+vXjg400bLfv/wfBb5vcW/s+sH4A=;
+        s=korg; t=1663079469;
+        bh=w2kk4NEtj+ED2jZgG2s7kSx8JqH+LVEsFUnQoHNqwWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbcE7bWkR0PLVNWgToyZ20oNxRkHhfNUSW0xyAAP5Xu76AjXGbtwvGq7CigiZTvc2
-         nw5UUbaTfcVOxPHDyHoXvWZ9EtNC/p3opfUecuLEMQcNYUCFurkeycuPEo7mxWcCp4
-         SsCEJI0yGl6pFbjgWcySfSod1LoWNuJ1q8XjL230=
+        b=q6Vt86ZKX/j2zQ43vkJwRC8IZCpZ2GANhFvw+C47iZ0mHw2R42OWuJDkJKVgtCO64
+         Mkwn1cyd6zuy/JySvHv6RYy318XxZcQTwFD0un6FX12D+DhkOAdBm3BWWOD8ZTMrXc
+         ovnTpAkhm+3erx/JjfXhG1sRBuFt4l7cM89vtvy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 4.19 38/79] usb: dwc2: fix wrong order of phy_power_on and phy_init
-Date:   Tue, 13 Sep 2022 16:06:56 +0200
-Message-Id: <20220913140350.748903402@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thierry GUIBERT <thierry.guibert@croix-rouge.fr>,
+        stable <stable@kernel.org>
+Subject: [PATCH 4.19 39/79] USB: cdc-acm: Add Icom PMR F3400 support (0c26:0020)
+Date:   Tue, 13 Sep 2022 16:06:57 +0200
+Message-Id: <20220913140350.794307293@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -54,52 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
 
-commit f9b995b49a07bd0d43b0e490f59be84415c745ae upstream.
+commit a10bc71729b236fe36de0d8e4d35c959fd8dec3a upstream.
 
-Since 1599069a62c6 ("phy: core: Warn when phy_power_on is called before
-phy_init") the driver complains. In my case (Amlogic SoC) the warning
-is: phy phy-fe03e000.phy.2: phy_power_on was called before phy_init
-So change the order of the two calls. The same change has to be done
-to the order of phy_exit() and phy_power_off().
+Supports for ICOM F3400 and ICOM F4400 PMR radios in CDC-ACM driver
+enabling the AT serial port.
+The Vendor Id is 0x0C26
+The Product ID is 0x0020
 
-Fixes: 09a75e857790 ("usb: dwc2: refactor common low-level hw code to platform.c")
-Cc: stable@vger.kernel.org
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/dfcc6b40-2274-4e86-e73c-5c5e6aa3e046@gmail.com
+Output of lsusb :
+Bus 001 Device 009: ID 0c26:0020 Prolific Technology Inc. ICOM Radio
+Couldn't open device, some information will be missing
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            2 Communications
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x0c26 Prolific Technology Inc.
+  idProduct          0x0020
+  bcdDevice            0.00
+  iManufacturer           1 ICOM Inc.
+  iProduct                2 ICOM Radio
+  iSerial                 3 *obfuscated*
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0030
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower                0mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         2 Communications
+      bInterfaceSubClass      2 Abstract (modem)
+      bInterfaceProtocol      1 AT-commands (v.25ter)
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval              12
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass        10 CDC Data
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+
+Signed-off-by: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220819081702.84118-1-thierry.guibert@croix-rouge.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/platform.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/class/cdc-acm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -142,9 +142,9 @@ static int __dwc2_lowlevel_hw_enable(str
- 	} else if (hsotg->plat && hsotg->plat->phy_init) {
- 		ret = hsotg->plat->phy_init(pdev, hsotg->plat->phy_type);
- 	} else {
--		ret = phy_power_on(hsotg->phy);
-+		ret = phy_init(hsotg->phy);
- 		if (ret == 0)
--			ret = phy_init(hsotg->phy);
-+			ret = phy_power_on(hsotg->phy);
- 	}
- 
- 	return ret;
-@@ -176,9 +176,9 @@ static int __dwc2_lowlevel_hw_disable(st
- 	} else if (hsotg->plat && hsotg->plat->phy_exit) {
- 		ret = hsotg->plat->phy_exit(pdev, hsotg->plat->phy_type);
- 	} else {
--		ret = phy_exit(hsotg->phy);
-+		ret = phy_power_off(hsotg->phy);
- 		if (ret == 0)
--			ret = phy_power_off(hsotg->phy);
-+			ret = phy_exit(hsotg->phy);
- 	}
- 	if (ret)
- 		return ret;
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1883,6 +1883,9 @@ static const struct usb_device_id acm_id
+ 	{ USB_DEVICE(0x09d8, 0x0320), /* Elatec GmbH TWN3 */
+ 	.driver_info = NO_UNION_NORMAL, /* has misplaced union descriptor */
+ 	},
++	{ USB_DEVICE(0x0c26, 0x0020), /* Icom ICF3400 Serie */
++	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
++	},
+ 	{ USB_DEVICE(0x0ca6, 0xa050), /* Castles VEGA3000 */
+ 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
+ 	},
 
 
