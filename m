@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D414E5B72EE
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9845B71E1
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234667AbiIMO7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:59:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51344 "EHLO
+        id S230264AbiIMOux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:50:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234814AbiIMO6Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:58:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75FC86745C;
-        Tue, 13 Sep 2022 07:28:19 -0700 (PDT)
+        with ESMTP id S234729AbiIMOte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154CC719AD;
+        Tue, 13 Sep 2022 07:25:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CFCF614C1;
-        Tue, 13 Sep 2022 14:25:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB9CC43470;
-        Tue, 13 Sep 2022 14:25:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B8B2B80EF6;
+        Tue, 13 Sep 2022 14:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C70CC433C1;
+        Tue, 13 Sep 2022 14:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079150;
-        bh=jCbiulv3+SkkRMqoeGCKxedOr2kOBhDnFPmxoCl8K/s=;
+        s=korg; t=1663079153;
+        bh=OSzpNpfBxOFdDV5lrsHtQsAg+W0Vb3hSIKxhvePc5zE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nryfx7Ln5eocPhGWMBgrj5DVsOuwweRYpXWBcvX9Eaps2Yrs79NdTWVbcruU6gets
-         EN/8xFRR7QR9qArZ51EuOmRDSsVvmbLlspDRHspRN+3KvED/wxwyCC6k1sj4Z4vYSQ
-         6b2kOrovD94GH7/44hYYFnlIDA82URVJFwVAXHok=
+        b=oWSKx9PVVB4XmodeNsMS58T/O9bzKC34aSGuCpYBoSbjmn1WG50c4oM+vFmEI+YGG
+         dRQ/VtG062cc6ZIfkyTxUVhARBcNNOn05fTjMCWffSgMq7Ss5HHkPb+bPu9b8Qguuy
+         j+RJBkgeErzi2/oEULSLx9Tk1q77gTV9JEMucAUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Zheng Wang <hackerzheng666@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 022/108] staging: rtl8712: fix use after free bugs
-Date:   Tue, 13 Sep 2022 16:05:53 +0200
-Message-Id: <20220913140354.574216851@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 023/108] powerpc: align syscall table for ppc32
+Date:   Tue, 13 Sep 2022 16:05:54 +0200
+Message-Id: <20220913140354.625153846@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -54,75 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
+commit c7acee3d2f128a38b68fb7af85dbbd91bfd0b4ad upstream.
 
-_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
-functions don't do anything except free the "pcmd" pointer.  It
-results in a use after free.  Delete them.
+Christophe Leroy reported that commit 7b4537199a4a ("kbuild: link
+symbol CRCs at final link,  removing CONFIG_MODULE_REL_CRCS") broke
+mpc85xx_defconfig + CONFIG_RELOCATABLE=y.
 
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Cc: stable <stable@kernel.org>
-Reported-by: Zheng Wang <hackerzheng666@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
+    LD      vmlinux
+    SYSMAP  System.map
+    SORTTAB vmlinux
+    CHKREL  vmlinux
+  WARNING: 451 bad relocations
+  c0b312a9 R_PPC_UADDR32     .head.text-0x3ff9ed54
+  c0b312ad R_PPC_UADDR32     .head.text-0x3ffac224
+  c0b312b1 R_PPC_UADDR32     .head.text-0x3ffb09f4
+  c0b312b5 R_PPC_UADDR32     .head.text-0x3fe184dc
+  c0b312b9 R_PPC_UADDR32     .head.text-0x3fe183a8
+      ...
+
+The compiler emits a bunch of R_PPC_UADDR32, which is not supported by
+arch/powerpc/kernel/reloc_32.S.
+
+The reason is there exists an unaligned symbol.
+
+  $ powerpc-linux-gnu-nm -n vmlinux
+    ...
+  c0b31258 d spe_aligninfo
+  c0b31298 d __func__.0
+  c0b312a9 D sys_call_table
+  c0b319b8 d __func__.0
+
+Commit 7b4537199a4a is not the root cause. Even before that, I can
+reproduce the same issue for mpc85xx_defconfig + CONFIG_RELOCATABLE=y
++ CONFIG_MODVERSIONS=n.
+
+It is just that nobody noticed because when CONFIG_MODVERSIONS is
+enabled, a __crc_* symbol inserted before sys_call_table was hiding the
+unalignment issue.
+
+Adding alignment to the syscall table for ppc32 fixes the issue.
+
+Cc: stable@vger.kernel.org
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Trim change log discussion, add Cc stable]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/lkml/38605f6a-a568-f884-f06f-ea4da5b214f0@csgroup.eu/
+Link: https://lore.kernel.org/r/20220820165129.1147589-1-masahiroy@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
- 1 file changed, 36 deletions(-)
+ arch/powerpc/kernel/systbl.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -117,34 +117,6 @@ static void r871x_internal_cmd_hdl(struc
- 	kfree(pdrvcmd->pbuf);
- }
- 
--static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
--static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
- {
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
-@@ -213,14 +185,6 @@ static struct cmd_obj *cmd_hdl_filter(st
- 	pcmd_r = NULL;
- 
- 	switch (pcmd->cmdcode) {
--	case GEN_CMD_CODE(_Read_MACREG):
--		read_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
--	case GEN_CMD_CODE(_Write_MACREG):
--		write_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
- 	case GEN_CMD_CODE(_Read_BBREG):
- 		read_bbreg_hdl(padapter, (u8 *)pcmd);
- 		break;
+--- a/arch/powerpc/kernel/systbl.S
++++ b/arch/powerpc/kernel/systbl.S
+@@ -25,6 +25,7 @@ sys_call_table:
+ #include <asm/syscall_table_64.h>
+ #undef __SYSCALL
+ #else
++	.p2align	2
+ #define __SYSCALL(nr, entry)	.long entry
+ #include <asm/syscall_table_32.h>
+ #undef __SYSCALL
 
 
