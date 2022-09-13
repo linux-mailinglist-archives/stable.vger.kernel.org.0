@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05DB85B70DD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587F95B71B4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233977AbiIMOdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:33:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56684 "EHLO
+        id S230336AbiIMOov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234094AbiIMOcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:36 -0400
+        with ESMTP id S230273AbiIMOmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC9C5E65A;
-        Tue, 13 Sep 2022 07:19:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF076E2EC;
+        Tue, 13 Sep 2022 07:22:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CEE4B80EF8;
-        Tue, 13 Sep 2022 14:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1380BC433C1;
-        Tue, 13 Sep 2022 14:18:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4010B80F3B;
+        Tue, 13 Sep 2022 14:22:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA74C433C1;
+        Tue, 13 Sep 2022 14:22:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078733;
-        bh=ZwfKnGUADHDGj49UxtZZDTGFRgxd+FqsVmw7TCJYypg=;
+        s=korg; t=1663078965;
+        bh=31O2RnmTrqwLreTHa69wpotWavAZzHJ+YCcgLoU3qiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2i9aoE4T2CnmmPWsrh3d74V87lt9V2fqF6rzmDAQ211F/WYWkkuLyHt03tlZitQb
-         jbM/9OhEqjMSsEokM1DeoRViYKFeoFE5xpJRLCsw3FI8/MYl5IHgBK+dNvQcNCvU0Y
-         wUKBOFA5pKA4VL/DICVcMt+zaj0b69gwXDHTNHa8=
+        b=d3CCZxHcP4QSXbyz3tatWrNCg68rDRJutSVGf6MZyekKyKhY6/MwPfGQW2UmM1WIp
+         Vl60OtlPYl0/KAGUtlGuEY7gSD90DfCA9HHRp/cZ+Jfid5ctl30fLDWQ3LAb1OShIv
+         VvVSyB/rSzzldZNaHY8TNjQ1Bnopdqh+o8hAiObY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frederic Schumacher <frederic.schumacher@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/121] ARM: at91: pm: fix self-refresh for sama7g5
+        stable@vger.kernel.org, Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.10 07/79] wifi: iwlegacy: 4965: corrected fix for potential off-by-one overflow in il4965_rs_fill_link_cmd()
 Date:   Tue, 13 Sep 2022 16:04:12 +0200
-Message-Id: <20220913140359.985143405@linuxfoundation.org>
+Message-Id: <20220913140350.649369248@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Stanislaw Gruszka <stf_xl@wp.pl>
 
-[ Upstream commit a02875c4cbd6f3d2f33d70cc158a19ef02d4b84f ]
+commit 6d0ef7241553f3553a0a2764c69b07892705924c upstream.
 
-It has been discovered that on some parts, from time to time, self-refresh
-procedure doesn't work as expected. Debugging and investigating it proved
-that disabling AC DLL introduce glitches in RAM controllers which
-leads to unexpected behavior. This is confirmed as a hardware bug. DLL
-bypass disables 3 DLLs: 2 DX DLLs and AC DLL. Thus, keep only DX DLLs
-disabled. This introduce 6mA extra current consumption on VDDCORE when
-switching to any ULP mode or standby mode but the self-refresh procedure
-still works.
+This reverts commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 as
+it can cause invalid link quality command sent to the firmware
+and address the off-by-one issue by fixing condition of while loop.
 
-Fixes: f0bbf17958e8 ("ARM: at91: pm: add self-refresh support for sama7g5")
-Suggested-by: Frederic Schumacher <frederic.schumacher@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
-Link: https://lore.kernel.org/r/20220826083927.3107272-3-claudiu.beznea@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: a8eb8e6f7159 ("wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()")
+Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220815073737.GA999388@wp.pl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-at91/pm_suspend.S | 24 +++++++++++++++++-------
- include/soc/at91/sama7-ddr.h    |  4 ++++
- 2 files changed, 21 insertions(+), 7 deletions(-)
+ drivers/net/wireless/intel/iwlegacy/4965-rs.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
-index fdb4f63ecde4b..65cfcc19a936c 100644
---- a/arch/arm/mach-at91/pm_suspend.S
-+++ b/arch/arm/mach-at91/pm_suspend.S
-@@ -172,9 +172,15 @@ sr_ena_2:
- 	/* Put DDR PHY's DLL in bypass mode for non-backup modes. */
- 	cmp	r7, #AT91_PM_BACKUP
- 	beq	sr_ena_3
--	ldr	tmp1, [r3, #DDR3PHY_PIR]
--	orr	tmp1, tmp1, #DDR3PHY_PIR_DLLBYP
--	str	tmp1, [r3, #DDR3PHY_PIR]
-+
-+	/* Disable DX DLLs. */
-+	ldr	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+	orr	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+
-+	ldr	tmp1, [r3, #DDR3PHY_DX1DLLCR]
-+	orr	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX1DLLCR]
+--- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
++++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
+@@ -2403,7 +2403,7 @@ il4965_rs_fill_link_cmd(struct il_priv *
+ 		/* Repeat initial/next rate.
+ 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
+ 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
+-		while (repeat_rate > 0) {
++		while (repeat_rate > 0 && idx < (LINK_QUAL_MAX_RETRY_NUM - 1)) {
+ 			if (is_legacy(tbl_type.lq_type)) {
+ 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
+ 					ant_toggle_cnt++;
+@@ -2422,8 +2422,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
+ 			    cpu_to_le32(new_rate);
+ 			repeat_rate--;
+ 			idx++;
+-			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
+-				goto out;
+ 		}
  
- sr_ena_3:
- 	/* Power down DDR PHY data receivers. */
-@@ -221,10 +227,14 @@ sr_ena_3:
- 	bic	tmp1, tmp1, #DDR3PHY_DSGCR_ODTPDD_ODT0
- 	str	tmp1, [r3, #DDR3PHY_DSGCR]
+ 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
+@@ -2468,7 +2466,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
+ 		repeat_rate--;
+ 	}
  
--	/* Take DDR PHY's DLL out of bypass mode. */
--	ldr	tmp1, [r3, #DDR3PHY_PIR]
--	bic	tmp1, tmp1, #DDR3PHY_PIR_DLLBYP
--	str	tmp1, [r3, #DDR3PHY_PIR]
-+	/* Enable DX DLLs. */
-+	ldr	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+	bic	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+
-+	ldr	tmp1, [r3, #DDR3PHY_DX1DLLCR]
-+	bic	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX1DLLCR]
+-out:
+ 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
+ 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
  
- 	/* Enable quasi-dynamic programming. */
- 	mov	tmp1, #0
-diff --git a/include/soc/at91/sama7-ddr.h b/include/soc/at91/sama7-ddr.h
-index f6542584ca139..f47a933df82ea 100644
---- a/include/soc/at91/sama7-ddr.h
-+++ b/include/soc/at91/sama7-ddr.h
-@@ -41,6 +41,10 @@
- 
- #define DDR3PHY_ZQ0SR0				(0x188)		/* ZQ status register 0 */
- 
-+#define	DDR3PHY_DX0DLLCR			(0x1CC)		/* DDR3PHY DATX8 DLL Control Register */
-+#define	DDR3PHY_DX1DLLCR			(0x20C)		/* DDR3PHY DATX8 DLL Control Register */
-+#define		DDR3PHY_DXDLLCR_DLLDIS		(1 << 31)	/* DLL Disable */
-+
- /* UDDRC */
- #define UDDRC_STAT				(0x04)		/* UDDRC Operating Mode Status Register */
- #define		UDDRC_STAT_SELFREF_TYPE_DIS	(0x0 << 4)	/* SDRAM is not in Self-refresh */
--- 
-2.35.1
-
 
 
