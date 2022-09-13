@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB9C5B72E3
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAAE5B72DA
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234947AbiIMO77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51592 "EHLO
+        id S234967AbiIMPAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:00:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235184AbiIMO7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:25 -0400
+        with ESMTP id S235210AbiIMO7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6245162AA1;
-        Tue, 13 Sep 2022 07:28:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7264374B86;
+        Tue, 13 Sep 2022 07:29:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59C8EB80F9B;
-        Tue, 13 Sep 2022 14:28:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E06C433D6;
-        Tue, 13 Sep 2022 14:27:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12C4CB80FB5;
+        Tue, 13 Sep 2022 14:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70733C433D6;
+        Tue, 13 Sep 2022 14:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079280;
-        bh=wTT+y7OxndejrNZVsBuIMLnHzd38Ef9JL6Sq4tH05kc=;
+        s=korg; t=1663079305;
+        bh=4aUWc+8xSSeE7zL6x2uFeoDypKjs1iKE72Blkd7WAXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IFiLjXcYLS+OmNLqHyMhrcuXSIC9OPTCbmrhl8XILEdLKHpDUBEcltjxrYUvBCdbt
-         4853RsTG3zpjO8629gpR/MDmUKS0ukktDKfjqFn0JIvL5AHNvszFvexybf1q38ZJ95
-         hFYu3MhH3gTbUdYAaCxs9UvZryeXHSfiQYO1NPK8=
+        b=vNl1moSaFgO2H9AfPiwjlOboAfZ6nJgoeE0XFtlplg53/UOlxxLWHk9ENCnWTPwk1
+         VQp2RAGOwHr2aS1eonyGphqYETia4ZNGzTkFzK6K8vpoRYlpMS7bTghhpcBQS5KhOr
+         dc8eCKUlqiY9oF+mZY6jqMdv9ruNRjiT3id2czCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Isaac J. Manjarres" <isaacmanjarres@google.com>
-Subject: [PATCH 5.4 055/108] driver core: Dont probe devices after bus_type.match() probe deferral
-Date:   Tue, 13 Sep 2022 16:06:26 +0200
-Message-Id: <20220913140355.994585527@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com,
+        Siddh Raman Pant <code@siddh.me>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 056/108] wifi: mac80211: Dont finalize CSA in IBSS mode if state is disconnected
+Date:   Tue, 13 Sep 2022 16:06:27 +0200
+Message-Id: <20220913140356.035465396@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -55,67 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaac J. Manjarres <isaacmanjarres@google.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
+commit 15bc8966b6d3a5b9bfe4c9facfa02f2b69b1e5f0 upstream.
 
-Both __device_attach_driver() and __driver_attach() check the return
-code of the bus_type.match() function to see if the device needs to be
-added to the deferred probe list. After adding the device to the list,
-the logic attempts to bind the device to the driver anyway, as if the
-device had matched with the driver, which is not correct.
+When we are not connected to a channel, sending channel "switch"
+announcement doesn't make any sense.
 
-If __device_attach_driver() detects that the device in question is not
-ready to match with a driver on the bus, then it doesn't make sense for
-the device to attempt to bind with the current driver or continue
-attempting to match with any of the other drivers on the bus. So, update
-the logic in __device_attach_driver() to reflect this.
+The BSS list is empty in that case. This causes the for loop in
+cfg80211_get_bss() to be bypassed, so the function returns NULL
+(check line 1424 of net/wireless/scan.c), causing the WARN_ON()
+in ieee80211_ibss_csa_beacon() to get triggered (check line 500
+of net/mac80211/ibss.c), which was consequently reported on the
+syzkaller dashboard.
 
-If __driver_attach() detects that a driver tried to match with a device
-that is not ready to match yet, then the driver should not attempt to bind
-with the device. However, the driver can still attempt to match and bind
-with other devices on the bus, as drivers can be bound to multiple
-devices. So, update the logic in __driver_attach() to reflect this.
+Thus, check if we have an existing connection before generating
+the CSA beacon in ieee80211_ibss_finish_csa().
 
-Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
 Cc: stable@vger.kernel.org
-Cc: Saravana Kannan <saravanak@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Link: https://lore.kernel.org/r/20220817184026.3468620-1-isaacmanjarres@google.com
+Fixes: cd7760e62c2a ("mac80211: add support for CSA in IBSS mode")
+Link: https://syzkaller.appspot.com/bug?id=05603ef4ae8926761b678d2939a3b2ad28ab9ca6
+Reported-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Tested-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220814151512.9985-1-code@siddh.me
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/dd.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/mac80211/ibss.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -818,6 +818,11 @@ static int __device_attach_driver(struct
- 	} else if (ret == -EPROBE_DEFER) {
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Device can't match with a driver right now, so don't attempt
-+		 * to match or bind with other drivers on the bus.
-+		 */
-+		return ret;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d", ret);
- 		return ret;
-@@ -1057,6 +1062,11 @@ static int __driver_attach(struct device
- 	} else if (ret == -EPROBE_DEFER) {
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Driver could not match with device, but may match with
-+		 * another device on the bus.
-+		 */
-+		return 0;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d", ret);
- 		return ret;
+--- a/net/mac80211/ibss.c
++++ b/net/mac80211/ibss.c
+@@ -542,6 +542,10 @@ int ieee80211_ibss_finish_csa(struct iee
+ 
+ 	sdata_assert_lock(sdata);
+ 
++	/* When not connected/joined, sending CSA doesn't make sense. */
++	if (ifibss->state != IEEE80211_IBSS_MLME_JOINED)
++		return -ENOLINK;
++
+ 	/* update cfg80211 bss information with the new channel */
+ 	if (!is_zero_ether_addr(ifibss->bssid)) {
+ 		cbss = cfg80211_get_bss(sdata->local->hw.wiphy,
 
 
