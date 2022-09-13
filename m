@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30DAF5B74CB
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D9F5B74FB
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236344AbiIMP3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36514 "EHLO
+        id S236348AbiIMP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236618AbiIMP3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF046CD26;
-        Tue, 13 Sep 2022 07:39:49 -0700 (PDT)
+        with ESMTP id S236344AbiIMP0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:26:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5041A7D7B2;
+        Tue, 13 Sep 2022 07:38:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F055B8101F;
-        Tue, 13 Sep 2022 14:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D00E1C433D6;
-        Tue, 13 Sep 2022 14:37:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AC71B80FBD;
+        Tue, 13 Sep 2022 14:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B2AC433D6;
+        Tue, 13 Sep 2022 14:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079880;
-        bh=c+8isZ6YTFjQhAE68z6WOk1AgkqlsJDOpn1OWpRm7yg=;
+        s=korg; t=1663079770;
+        bh=/TwwsSZbhnBs+zIYOt3WyFteOAs2G6YYtTmToocFnig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sLtMoaSa9OBnb0sOkOxe+x6Y4u4Q7Pf7NqkUDefXDML1QacdQLQnwv9sZLNzjHp/h
-         MrvJdGrvCY1AbQQTrGMoG0CHSzLSFz0YlFmzM8LejNCPF3yrwy01RkSJ+py5INy9kQ
-         v3CDZdUNO6KJnYv8sPkIrRA/v364Mm+fLutbD+HI=
+        b=cYyQRtrMruymrG5kohaKjlXtsCnMdFVhwjare7Q57JUf4wA0Sn+ADqNb2zwM7JzUI
+         iq0unDdlQ8VytS9xvajx2Dl2IlbeTOrl11WRppXXiRqgDkxbOczJxH9LNQXA1YS+Bb
+         yN4QqRrxOZ64cNJS2yNSB57Ogok9b6UdinyXoTDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pattara Teerapong <pteerapong@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 30/42] ALSA: aloop: Fix random zeros in capture data when using jiffies timer
+        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 59/61] USB: serial: ch341: fix disabled rx timer on older devices
 Date:   Tue, 13 Sep 2022 16:08:01 +0200
-Message-Id: <20220913140343.856407916@linuxfoundation.org>
+Message-Id: <20220913140349.407381238@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pattara Teerapong <pteerapong@chromium.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 3e48940abee88b8dbbeeaf8a07e7b2b6be1271b3 upstream.
+commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
 
-In loopback_jiffies_timer_pos_update(), we are getting jiffies twice.
-First time for playback, second time for capture. Jiffies can be updated
-between these two calls and if the capture jiffies is larger, extra zeros
-will be filled in the capture buffer.
+At least one older CH341 appears to have the RX timer enable bit
+inverted so that setting it disables the RX timer and prevents the FIFO
+from emptying until it is full.
 
-Change to get jiffies once and use it for both playback and capture.
+Only set the RX timer enable bit for devices with version newer than
+0x27 (even though this probably affects all pre-0x30 devices).
 
-Signed-off-by: Pattara Teerapong <pteerapong@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220901144036.4049060-1-pteerapong@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[ johan: backport to 5.4 ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/aloop.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/serial/ch341.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/sound/drivers/aloop.c
-+++ b/sound/drivers/aloop.c
-@@ -477,17 +477,18 @@ static unsigned int loopback_pos_update(
- 			cable->streams[SNDRV_PCM_STREAM_PLAYBACK];
- 	struct loopback_pcm *dpcm_capt =
- 			cable->streams[SNDRV_PCM_STREAM_CAPTURE];
--	unsigned long delta_play = 0, delta_capt = 0;
-+	unsigned long delta_play = 0, delta_capt = 0, cur_jiffies;
- 	unsigned int running, count1, count2;
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -179,8 +179,12 @@ static int ch341_set_baudrate_lcr(struct
+ 	/*
+ 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
+ 	 * has been received unless bit 7 is set.
++	 *
++	 * At least one device with version 0x27 appears to have this bit
++	 * inverted.
+ 	 */
+-	a |= BIT(7);
++	if (priv->version > 0x27)
++		a |= BIT(7);
  
-+	cur_jiffies = jiffies;
- 	running = cable->running ^ cable->pause;
- 	if (running & (1 << SNDRV_PCM_STREAM_PLAYBACK)) {
--		delta_play = jiffies - dpcm_play->last_jiffies;
-+		delta_play = cur_jiffies - dpcm_play->last_jiffies;
- 		dpcm_play->last_jiffies += delta_play;
- 	}
- 
- 	if (running & (1 << SNDRV_PCM_STREAM_CAPTURE)) {
--		delta_capt = jiffies - dpcm_capt->last_jiffies;
-+		delta_capt = cur_jiffies - dpcm_capt->last_jiffies;
- 		dpcm_capt->last_jiffies += delta_capt;
- 	}
- 
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x1312, a);
+ 	if (r)
 
 
