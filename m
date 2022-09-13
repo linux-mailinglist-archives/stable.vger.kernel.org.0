@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E065B74AA
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 525545B74D0
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236317AbiIMP3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46646 "EHLO
+        id S236221AbiIMP0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:26:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236383AbiIMP2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:10 -0400
+        with ESMTP id S236167AbiIMPZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:25:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638FF7E006;
-        Tue, 13 Sep 2022 07:39:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001C57C774;
+        Tue, 13 Sep 2022 07:38:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB5BDB81015;
-        Tue, 13 Sep 2022 14:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A768C433D6;
-        Tue, 13 Sep 2022 14:37:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA443B81011;
+        Tue, 13 Sep 2022 14:35:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64CCDC433C1;
+        Tue, 13 Sep 2022 14:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079832;
-        bh=j3mm+5ftkKBM9jkSvpuIjuAE+kdUVLGUV9i9lxkAxOc=;
+        s=korg; t=1663079752;
+        bh=TOk6w4g1d0aPPj4nkG0hFr3f+mLeWKDO6aiVF7WjoPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmT2ncFNxzVObi7P4Ni9hnfoPMCwnHIa0vbXnMCkcRaDVT+F04WVLlMA+xKN3ptbi
-         11vMEGPKGOecPRE3M1RYVTrMhrt1eFvYLFZuJNo4/TCVt6NM2nuX7NXT6uZdUKBBCv
-         PtKJXJD213fzO3Iks/I4IO+ik+00PLkEvZOjPJDI=
+        b=Mwy/g3sJVvoOxyPUook1ANVGXC9yjc25WYo3pKDbEGDDshfcbnsaAGxK/OytUyloZ
+         iOuyhfytH22eGjN5P7ufZM9VIa5/0fDnaeXlinTE9JxpXXIyr3F7afHX3zd2vmAl24
+         MVNNR8uvfq4zJDMiPoZD4mClNYTLGXWZ3V/0qguc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Fengwei Yin <fengwei.yin@intel.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 23/42] fs: only do a memory barrier for the first set_buffer_uptodate()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
+Subject: [PATCH 4.14 52/61] sch_sfb: Dont assume the skb is still around after enqueueing to child
 Date:   Tue, 13 Sep 2022 16:07:54 +0200
-Message-Id: <20220913140343.461661642@linuxfoundation.org>
+Message-Id: <20220913140349.058426942@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
+[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
 
-Commit d4252071b97d ("add barriers to buffer_uptodate and
-set_buffer_uptodate") added proper memory barriers to the buffer head
-BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
-will be guaranteed to actually see initialized state.
+The sch_sfb enqueue() routine assumes the skb is still alive after it has
+been enqueued into a child qdisc, using the data in the skb cb field in the
+increment_qlen() routine after enqueue. However, the skb may in fact have
+been freed, causing a use-after-free in this case. In particular, this
+happens if sch_cake is used as a child of sfb, and the GSO splitting mode
+of CAKE is enabled (in which case the skb will be split into segments and
+the original skb freed).
 
-However, that commit didn't _just_ add the memory barrier, it also ended
-up dropping the "was it already set" logic that the BUFFER_FNS() macro
-had.
+Fix this by copying the sfb cb data to the stack before enqueueing the skb,
+and using this stack copy in increment_qlen() instead of the skb pointer
+itself.
 
-That's conceptually the right thing for a generic "this is a memory
-barrier" operation, but in the case of the buffer contents, we really
-only care about the memory barrier for the _first_ time we set the bit,
-in that the only memory ordering protection we need is to avoid anybody
-seeing uninitialized memory contents.
-
-Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
-and would require some other proper lock (typically BH_Lock or the folio
-lock).  A reader that races with somebody invalidating the buffer head
-isn't an issue wrt the memory ordering, it's a serialization issue.
-
-Now, you'd think that the buffer head operations don't matter in this
-day and age (and I certainly thought so), but apparently some loads
-still end up being heavy users of buffer heads.  In particular, the
-kernel test robot reported that not having this bit access optimization
-in place caused a noticeable direct IO performance regression on ext4:
-
-  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
-
-although you presumably need a fast disk and a lot of cores to actually
-notice.
-
-Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Fengwei Yin <fengwei.yin@intel.com>
-Cc: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
+Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/buffer_head.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/sched/sch_sfb.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -133,6 +133,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
- static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index 04f15e0aeaa8b..8f924defa98d0 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -139,15 +139,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
+ 	}
+ }
+ 
+-static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
++static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
  {
- 	/*
-+	 * If somebody else already set this uptodate, they will
-+	 * have done the memory barrier, and a reader will thus
-+	 * see *some* valid buffer state.
-+	 *
-+	 * Any other serialization (with IO errors or whatever that
-+	 * might clear the bit) has to come from other state (eg BH_Lock).
-+	 */
-+	if (test_bit(BH_Uptodate, &bh->b_state))
-+		return;
-+
-+	/*
- 	 * make it consistent with folio_mark_uptodate
- 	 * pairs with smp_load_acquire in buffer_uptodate
- 	 */
+ 	u32 sfbhash;
+ 
+-	sfbhash = sfb_hash(skb, 0);
++	sfbhash = cb->hashes[0];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 0, q);
+ 
+-	sfbhash = sfb_hash(skb, 1);
++	sfbhash = cb->hashes[1];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 1, q);
+ }
+@@ -286,6 +286,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	struct sfb_sched_data *q = qdisc_priv(sch);
+ 	struct Qdisc *child = q->qdisc;
+ 	struct tcf_proto *fl;
++	struct sfb_skb_cb cb;
+ 	int i;
+ 	u32 p_min = ~0;
+ 	u32 minqlen = ~0;
+@@ -402,11 +403,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	}
+ 
+ enqueue:
++	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+ 		qdisc_qstats_backlog_inc(sch, skb);
+ 		sch->q.qlen++;
+-		increment_qlen(skb, q);
++		increment_qlen(&cb, q);
+ 	} else if (net_xmit_drop_count(ret)) {
+ 		q->stats.childdrop++;
+ 		qdisc_qstats_drop(sch);
+-- 
+2.35.1
+
 
 
