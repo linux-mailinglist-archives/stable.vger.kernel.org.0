@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F775B74C4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91E325B74E1
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235966AbiIMP3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:29:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37040 "EHLO
+        id S236337AbiIMP3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236496AbiIMP2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16CAC7E02E;
-        Tue, 13 Sep 2022 07:39:23 -0700 (PDT)
+        with ESMTP id S236548AbiIMP3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:29:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1175632E;
+        Tue, 13 Sep 2022 07:39:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 047D4B8101C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1CA2B80FEF;
+        Tue, 13 Sep 2022 14:37:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C710C433C1;
         Tue, 13 Sep 2022 14:37:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B154C433C1;
-        Tue, 13 Sep 2022 14:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079853;
-        bh=euhJ2/TXn6UNvyYTMzYZxk1kZI9hiKpv+HLAgyL+0lg=;
+        s=korg; t=1663079856;
+        bh=FYzMawFm0/iJq4Jp+STVVe+Ezs1eDH3PxeUV24THizo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2M3HDyI4aH2vxucO0PtViyxfsCTOFsDVRnYKiz6E6czfSufd1Cfr+FY9Z90n2tkj
-         DeEm4hH4Aao1pMTBYN2qn9Q9uNk2XyQaJMczSe324TSi04MVNeDWkOO+k9Dk+D7edm
-         P8cszJHIk+ioEUu/RautAH+Ngc2At1E4UQZIfpeg=
+        b=JhcEYhCLjIcKizZyhnC+k8lqd+hrYwDDEaMrU/qaOQaQk1WflXONZ4nu1uEvIlC+d
+         ars57VLU0vojQBvm5/JcxPHhn3lT/CUN1K6lpgNswkBYasfKbT3w08t77oiUlrzv4F
+         Efv0fVyX2Vmd0hITj7Ipfb+Zywz8ufE32/WZWgBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 39/42] sch_sfb: Also store skb len before calling child enqueue
-Date:   Tue, 13 Sep 2022 16:08:10 +0200
-Message-Id: <20220913140344.361017922@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 4.9 40/42] usb: dwc3: fix PHY disable sequence
+Date:   Tue, 13 Sep 2022 16:08:11 +0200
+Message-Id: <20220913140344.414340526@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -56,49 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 2f09707d0c972120bf794cfe0f0c67e2c2ddb252 ]
+commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
 
-Cong Wang noticed that the previous fix for sch_sfb accessing the queued
-skb after enqueueing it to a child qdisc was incomplete: the SFB enqueue
-function was also calling qdisc_qstats_backlog_inc() after enqueue, which
-reads the pkt len from the skb cb field. Fix this by also storing the skb
-len, and using the stored value to increment the backlog after enqueueing.
+Generic PHYs must be powered-off before they can be tore down.
 
-Fixes: 9efd23297cca ("sch_sfb: Don't assume the skb is still around after enqueueing to child")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20220905192137.965549-1-toke@toke.dk
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Similarly, suspending legacy PHYs after having powered them off makes no
+sense.
+
+Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
+dwc3_probe() error-path sequences that got this wrong.
+
+Note that this makes dwc3_core_exit() match the dwc3_core_init() error
+path with respect to powering off the PHYs.
+
+Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
+Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
+Cc: stable@vger.kernel.org      # 4.8
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
+[ johan: adjust context to 4.9 ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_sfb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 592189427a09f..2973d82fb21cc 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -281,6 +281,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -602,15 +602,15 @@ static void dwc3_core_exit(struct dwc3 *
  {
+ 	dwc3_event_buffers_cleanup(dwc);
  
- 	struct sfb_sched_data *q = qdisc_priv(sch);
-+	unsigned int len = qdisc_pkt_len(skb);
- 	struct Qdisc *child = q->qdisc;
- 	struct tcf_proto *fl;
- 	struct sfb_skb_cb cb;
-@@ -403,7 +404,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
- 	ret = qdisc_enqueue(skb, child, to_free);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
--		qdisc_qstats_backlog_inc(sch, skb);
-+		sch->qstats.backlog += len;
- 		sch->q.qlen++;
- 		increment_qlen(&cb, q);
- 	} else if (net_xmit_drop_count(ret)) {
--- 
-2.35.1
-
+-	usb_phy_shutdown(dwc->usb2_phy);
+-	usb_phy_shutdown(dwc->usb3_phy);
+-	phy_exit(dwc->usb2_generic_phy);
+-	phy_exit(dwc->usb3_generic_phy);
+-
+ 	usb_phy_set_suspend(dwc->usb2_phy, 1);
+ 	usb_phy_set_suspend(dwc->usb3_phy, 1);
+ 	phy_power_off(dwc->usb2_generic_phy);
+ 	phy_power_off(dwc->usb3_generic_phy);
++
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
+ }
+ 
+ /**
+@@ -1149,16 +1149,16 @@ static int dwc3_probe(struct platform_de
+ err5:
+ 	dwc3_event_buffers_cleanup(dwc);
+ 
+-	usb_phy_shutdown(dwc->usb2_phy);
+-	usb_phy_shutdown(dwc->usb3_phy);
+-	phy_exit(dwc->usb2_generic_phy);
+-	phy_exit(dwc->usb3_generic_phy);
+-
+ 	usb_phy_set_suspend(dwc->usb2_phy, 1);
+ 	usb_phy_set_suspend(dwc->usb3_phy, 1);
+ 	phy_power_off(dwc->usb2_generic_phy);
+ 	phy_power_off(dwc->usb3_generic_phy);
+ 
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
++
+ 	dwc3_ulpi_exit(dwc);
+ 
+ err4:
 
 
