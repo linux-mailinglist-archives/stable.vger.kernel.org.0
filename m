@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3CA35B71CD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3137C5B741D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234533AbiIMOuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
+        id S232739AbiIMPOW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234712AbiIMOtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D8C719B8;
-        Tue, 13 Sep 2022 07:25:53 -0700 (PDT)
+        with ESMTP id S235514AbiIMPME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:12:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D07A642F2;
+        Tue, 13 Sep 2022 07:32:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AB43B80F2B;
-        Tue, 13 Sep 2022 14:25:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF5B0C433D6;
-        Tue, 13 Sep 2022 14:25:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B94F6614D8;
+        Tue, 13 Sep 2022 14:25:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D6EC433D6;
+        Tue, 13 Sep 2022 14:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079140;
-        bh=dtjOxUDGcurKy9p4wiuughU8huRVNGM2fGxvFdBUQm8=;
+        s=korg; t=1663079145;
+        bh=UsLo/m/9Zwu++JQfRrBlmETDoRxcxmLV5YPwt9W2c1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFMQUkvDEfycB/4ntgJ85XIKhB1JmlF0UbJfakFmfX1aHcm94QJ3CeFFed3J2fCqa
-         hozYq84dDKgO0gOPYy2KFNsDf1oxnq7c+EfhOoqgCvgoVrg3icOFqVPNP6SQ7XU4rg
-         WTtYGfS0ExlesFX8fpIlPHtlhH7K3pcOhJBUKFWM=
+        b=zxT0j+vHilSCKyiSsC9zIclrecmF6auVParM4IC+Vcsv5pMzg79tvwstfThD6WYGB
+         WlI3STCeEnhg5J4VwR8spMG8naXid0SyQWQnMGmb03TXk12qx5IeoV0FNcUeN6zmZs
+         vRQuF3aC3xTQTAbWJ20952rsfsj7S6WzRDoRX5eI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Yacan Liu <liuyacan@corp.netease.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/108] Revert "sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb"
-Date:   Tue, 13 Sep 2022 16:05:50 +0200
-Message-Id: <20220913140354.422468786@linuxfoundation.org>
+Subject: [PATCH 5.4 020/108] net/smc: Remove redundant refcount increase
+Date:   Tue, 13 Sep 2022 16:05:51 +0200
+Message-Id: <20220913140354.470992200@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -53,51 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Yacan Liu <liuyacan@corp.netease.com>
 
-[ Upstream commit 0b4f688d53fdc2a731b9d9cdf0c96255bc024ea6 ]
+[ Upstream commit a8424a9b4522a3ab9f32175ad6d848739079071f ]
 
-This reverts commit 90fabae8a2c225c4e4936723c38857887edde5cc.
+For passive connections, the refcount increment has been done in
+smc_clcsock_accept()-->smc_sock_alloc().
 
-Patch was applied hastily, revert and let the v2 be reviewed.
-
-Fixes: 90fabae8a2c2 ("sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb")
-Link: https://lore.kernel.org/all/87wnao2ha3.fsf@toke.dk/
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
+Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20220830152314.838736-1-liuyacan@corp.netease.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cake.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/smc/af_smc.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index 737368c701c53..0eb4d4a568f77 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -1677,7 +1677,6 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
- 	idx--;
- 	flow = &b->flows[idx];
--	ret = NET_XMIT_SUCCESS;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 394491692a078..5d696b7fb47e1 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1093,7 +1093,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
+ {
+ 	struct sock *newsmcsk = &new_smc->sk;
  
- 	/* ensure shaper state isn't stale */
- 	if (!b->tin_backlog) {
-@@ -1738,7 +1737,6 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+-	sk_refcnt_debug_inc(newsmcsk);
+ 	if (newsmcsk->sk_state == SMC_INIT)
+ 		newsmcsk->sk_state = SMC_ACTIVE;
  
- 		qdisc_tree_reduce_backlog(sch, 1-numsegs, len-slen);
- 		consume_skb(skb);
--		ret |= __NET_XMIT_STOLEN;
- 	} else {
- 		/* not splitting */
- 		cobalt_set_enqueue_time(skb, now);
-@@ -1872,7 +1870,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 		}
- 		b->drop_overlimit += dropped;
- 	}
--	return ret;
-+	return NET_XMIT_SUCCESS;
- }
- 
- static struct sk_buff *cake_dequeue_one(struct Qdisc *sch)
 -- 
 2.35.1
 
