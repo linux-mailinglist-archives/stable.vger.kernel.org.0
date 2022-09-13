@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AB05B7205
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587735B70B8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232515AbiIMOuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34600 "EHLO
+        id S234006AbiIMObA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:31:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234585AbiIMOtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D708070E5E;
-        Tue, 13 Sep 2022 07:25:32 -0700 (PDT)
+        with ESMTP id S232783AbiIMO3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8132062AAF;
+        Tue, 13 Sep 2022 07:18:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C5B5614B0;
-        Tue, 13 Sep 2022 14:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A341AC433C1;
-        Tue, 13 Sep 2022 14:23:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4086BB80EF8;
+        Tue, 13 Sep 2022 14:16:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5069C433D6;
+        Tue, 13 Sep 2022 14:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079013;
-        bh=XfoVHhO2KwoVqCnflZpVxrBPhafIjjfzPTnfE+4PjpE=;
+        s=korg; t=1663078580;
+        bh=MRiZ9SZ6GLktUqEwXv5g28Tj1Vy4fnLayJp09TeNioo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9z/j6/MN8qA+dcTH65z+k7ekzeQse0fi+B6kVCCnEKhOEdD8R+fq/9esOs4gEn5I
-         UIBsBN/HLp7sTmgYlBty5YJfA3pQ0fyVsy46/asUwWHnRP/fgT9NRGRYjcSWW7uNAx
-         qnappy6CDeuKHB8QwtbT/d99LFwj85R36tS101so=
+        b=fTY4bSs1EkmSEgKlZk7semgYQuoFQGOKyQgEWxKfBVSCyoJUmIVqDXgxtdAJ9llQL
+         DUPnTEKBZt45eut46HxA955obPqqLwBKiqmJqx4kwzQ+27rOzles/0oy9t+XpaKz4z
+         VID37Z7xJO+QcfMOIbLbp5BhjYhwpLtfo9MMDN6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 48/79] netfilter: br_netfilter: Drop dst references before setting.
-Date:   Tue, 13 Sep 2022 16:04:53 +0200
-Message-Id: <20220913140352.580765780@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.19 188/192] iommu/vt-d: Correctly calculate sagaw value of IOMMU
+Date:   Tue, 13 Sep 2022 16:04:54 +0200
+Message-Id: <20220913140419.430610390@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harsh Modi <harshmodi@google.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
+commit 53fc7ad6edf210b497230ce74b61b322a202470c upstream.
 
-The IPv6 path already drops dst in the daddr changed case, but the IPv4
-path does not. This change makes the two code paths consistent.
+The Intel IOMMU driver possibly selects between the first-level and the
+second-level translation tables for DMA address translation. However,
+the levels of page-table walks for the 4KB base page size are calculated
+from the SAGAW field of the capability register, which is only valid for
+the second-level page table. This causes the IOMMU driver to stop working
+if the hardware (or the emulated IOMMU) advertises only first-level
+translation capability and reports the SAGAW field as 0.
 
-Further, it is possible that there is already a metadata_dst allocated from
-ingress that might already be attached to skbuff->dst while following
-the bridge path. If it is not released before setting a new
-metadata_dst, it will be leaked. This is similar to what is done in
-bpf_set_tunnel_key() or ip6_route_input().
+This solves the above problem by considering both the first level and the
+second level when calculating the supported page table levels.
 
-It is important to note that the memory being leaked is not the dst
-being set in the bridge code, but rather memory allocated from some
-other code path that is not being freed correctly before the skb dst is
-overwritten.
-
-An example of the leakage fixed by this commit found using kmemleak:
-
-unreferenced object 0xffff888010112b00 (size 256):
-  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
-    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
-  backtrace:
-    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
-    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
-    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
-    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
-    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
-    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
-    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
-    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
-    [<00000000a879497d>] process_backlog+0x93/0x190
-    [<00000000e41ade9f>] __napi_poll+0x28/0x170
-    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
-    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
-    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
-    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
-    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
-    [<000000008942add0>] native_safe_halt+0x13/0x20
-
-Florian Westphal says: "Original code was likely fine because nothing
-ever did set a skb->dst entry earlier than bridge in those days."
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Harsh Modi <harshmodi@google.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b802d070a52a1 ("iommu/vt-d: Use iova over first level")
+Cc: stable@vger.kernel.org
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20220817023558.3253263-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_netfilter_hooks.c | 2 ++
- net/bridge/br_netfilter_ipv6.c  | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/iommu/intel/iommu.c |   28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 10a2c7bca7199..a718204c4bfdd 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -384,6 +384,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 				/* - Bridged-and-DNAT'ed traffic doesn't
- 				 *   require ip_forwarding. */
- 				if (rt->dst.dev == dev) {
-+					skb_dst_drop(skb);
- 					skb_dst_set(skb, &rt->dst);
- 					goto bridged_dnat;
- 				}
-@@ -413,6 +414,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 			kfree_skb(skb);
- 			return 0;
- 		}
-+		skb_dst_drop(skb);
- 		skb_dst_set_noref(skb, &rt->dst);
- 	}
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -422,14 +422,36 @@ static inline int domain_pfn_supported(s
+ 	return !(addr_width < BITS_PER_LONG && pfn >> addr_width);
+ }
  
-diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-index e4e0c836c3f51..6b07f30675bb0 100644
---- a/net/bridge/br_netfilter_ipv6.c
-+++ b/net/bridge/br_netfilter_ipv6.c
-@@ -197,6 +197,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
- 			kfree_skb(skb);
- 			return 0;
- 		}
-+		skb_dst_drop(skb);
- 		skb_dst_set_noref(skb, &rt->dst);
- 	}
++/*
++ * Calculate the Supported Adjusted Guest Address Widths of an IOMMU.
++ * Refer to 11.4.2 of the VT-d spec for the encoding of each bit of
++ * the returned SAGAW.
++ */
++static unsigned long __iommu_calculate_sagaw(struct intel_iommu *iommu)
++{
++	unsigned long fl_sagaw, sl_sagaw;
++
++	fl_sagaw = BIT(2) | (cap_fl1gp_support(iommu->cap) ? BIT(3) : 0);
++	sl_sagaw = cap_sagaw(iommu->cap);
++
++	/* Second level only. */
++	if (!sm_supported(iommu) || !ecap_flts(iommu->ecap))
++		return sl_sagaw;
++
++	/* First level only. */
++	if (!ecap_slts(iommu->ecap))
++		return fl_sagaw;
++
++	return fl_sagaw & sl_sagaw;
++}
++
+ static int __iommu_calculate_agaw(struct intel_iommu *iommu, int max_gaw)
+ {
+ 	unsigned long sagaw;
+ 	int agaw;
  
--- 
-2.35.1
-
+-	sagaw = cap_sagaw(iommu->cap);
+-	for (agaw = width_to_agaw(max_gaw);
+-	     agaw >= 0; agaw--) {
++	sagaw = __iommu_calculate_sagaw(iommu);
++	for (agaw = width_to_agaw(max_gaw); agaw >= 0; agaw--) {
+ 		if (test_bit(agaw, &sagaw))
+ 			break;
+ 	}
 
 
