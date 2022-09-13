@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34D695B7664
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF635B78A0
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbiIMQYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 12:24:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47382 "EHLO
+        id S233370AbiIMRqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:46:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230350AbiIMQXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:23:41 -0400
+        with ESMTP id S233365AbiIMRqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:46:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE82A98FD;
-        Tue, 13 Sep 2022 08:18:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6969F6DFA2;
+        Tue, 13 Sep 2022 09:41:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 072C8614CE;
-        Tue, 13 Sep 2022 14:36:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F886C433D6;
-        Tue, 13 Sep 2022 14:36:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE8EC614B2;
+        Tue, 13 Sep 2022 14:37:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C635BC433C1;
+        Tue, 13 Sep 2022 14:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079767;
-        bh=/FD+XJlkiYnUlmeTNebsc0OZTkHSly0huwW07NOq6uY=;
+        s=korg; t=1663079877;
+        bh=9BgiPP6OCpWvSkGqFHD61EJ8AiegDO/o1o7/clXSep4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhD5onltNePqUP5a0vuNlXC9Zhc1iIR2UjxCjzIKll3cP1ELxFAz7dGb8luV+Ss92
-         AALB+j/KgVzUqyCti7fUyq4nGyXyl5ii5yeBq//dUYPXfFvKVT2IxLM206Hn/O9KwL
-         91S5iArkBe1e6uCLV638pzFdS6qCIRGQTSJp7Xr8=
+        b=umO5zN1zmYJMY1PU/oCfjH1xV5sYAYSjY/ENk+j1lb1w6zAKWxqqUqklQqBSExBUr
+         fyNxWyXzA99+V+3zGBXFHIoFFrZOlzML2k+1Mpi82ZrvofmuqNTk8RfGmilHkLd+DU
+         gAi34GBwfWhhBG/ApE53eTDNRUwd5tfLna+tX+Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 58/61] USB: serial: ch341: fix lost character on LCR updates
+        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 29/42] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
 Date:   Tue, 13 Sep 2022 16:08:00 +0200
-Message-Id: <20220913140349.360305890@linuxfoundation.org>
+Message-Id: <20220913140343.802205913@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-commit 8e83622ae7ca481c76c8fd9579877f6abae64ca2 upstream.
+commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
 
-Disable LCR updates for pre-0x30 devices which use a different (unknown)
-protocol for line control and where the current register write causes
-the next received character to be lost.
+The voice allocator sometimes begins allocating from near the end of the
+array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
+accesses the newly allocated voices as if it never wrapped around.
 
-Note that updating LCR using the INIT command has no effect on these
-devices either.
+This results in out of bounds access if the first voice has a high enough
+index so that first_voice + requested_voice_count > NUM_G (64).
+The more voices are requested, the more likely it is for this to occur.
 
-Reported-by: Jonathan Woithe <jwoithe@just42.net>
-Tested-by: Jonathan Woithe <jwoithe@just42.net>
-Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
-Cc: stable@vger.kernel.org      # 4.10
-Signed-off-by: Johan Hovold <johan@kernel.org>
-[ johan: adjust context to 4.19 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+This was initially discovered using PipeWire, however it can be reproduced
+by calling aplay multiple times with 16 channels:
+aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
+
+UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
+index 65 is out of range for type 'snd_emu10k1_voice [64]'
+CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
+Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+ubsan_epilogue+0x9/0x3f
+__ubsan_handle_out_of_bounds.cold+0x44/0x49
+snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
+snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
+snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
+? exit_to_user_mode_prepare+0x35/0x170
+? do_syscall_64+0x69/0x90
+? syscall_exit_to_user_mode+0x26/0x50
+? do_syscall_64+0x69/0x90
+? exit_to_user_mode_prepare+0x35/0x170
+snd_pcm_ioctl+0x27/0x40 [snd_pcm]
+__x64_sys_ioctl+0x95/0xd0
+do_syscall_64+0x5c/0x90
+? do_syscall_64+0x69/0x90
+? do_syscall_64+0x69/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/pci/emu10k1/emupcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -99,6 +99,8 @@ struct ch341_private {
- 	u8 mcr;
- 	u8 msr;
- 	u8 lcr;
-+
-+	u8 version;
- };
- 
- static void ch341_set_termios(struct tty_struct *tty,
-@@ -184,6 +186,9 @@ static int ch341_set_baudrate_lcr(struct
- 	if (r)
- 		return r;
- 
-+	if (priv->version < 0x30)
-+		return 0;
-+
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x2518, lcr);
- 	if (r)
- 		return r;
-@@ -235,7 +240,9 @@ static int ch341_configure(struct usb_de
- 	r = ch341_control_in(dev, CH341_REQ_READ_VERSION, 0, 0, buffer, size);
- 	if (r < 0)
- 		goto out;
--	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", buffer[0]);
-+
-+	priv->version = buffer[0];
-+	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", priv->version);
- 
- 	r = ch341_control_out(dev, CH341_REQ_SERIAL_INIT, 0, 0);
- 	if (r < 0)
+--- a/sound/pci/emu10k1/emupcm.c
++++ b/sound/pci/emu10k1/emupcm.c
+@@ -137,7 +137,7 @@ static int snd_emu10k1_pcm_channel_alloc
+ 	epcm->voices[0]->epcm = epcm;
+ 	if (voices > 1) {
+ 		for (i = 1; i < voices; i++) {
+-			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
++			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
+ 			epcm->voices[i]->epcm = epcm;
+ 		}
+ 	}
 
 
