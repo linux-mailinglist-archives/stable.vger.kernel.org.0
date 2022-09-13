@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48E375B7417
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27355B74A9
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235688AbiIMPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41900 "EHLO
+        id S236342AbiIMP1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:27:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235875AbiIMPSQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:18:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2346696F9;
-        Tue, 13 Sep 2022 07:35:05 -0700 (PDT)
+        with ESMTP id S236212AbiIMP0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:26:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A87D47D1E7;
+        Tue, 13 Sep 2022 07:38:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 081A3614D9;
-        Tue, 13 Sep 2022 14:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1016AC433D6;
-        Tue, 13 Sep 2022 14:35:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60653B81012;
+        Tue, 13 Sep 2022 14:36:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF512C433D6;
+        Tue, 13 Sep 2022 14:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079703;
-        bh=xdlYmvdwMdSGOG7QzbxeM1ku4krKuvDuV1ZgWmDgk1I=;
+        s=korg; t=1663079787;
+        bh=b65si5HoAEXck2HfEfAqj9RwQescYO6j4pI01pWjtYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHjr6YZIPTUGJ3sBp9spCLC5H5xYmOm6j5N+Rpvg732bsFpGFkDl/TWsBpNNIqUqW
-         6WAUS0zsSapwic6dWewkkEjscIYNjO55loC457JTmSLEEVxf7dRH/Px2UqGfN2Iltc
-         a0tO2FbdesMQ5nKSwKbYyc5+ilGr1ayumdTZw9Bo=
+        b=DJ3jCKzy9jJOLN9w41MjcNF6BYf44VplZh0eTjYw5G1bKoZDkZQBq8zChVEZgLwg8
+         Bo4ghOG34eKL3MXydP9cNelY3PyilsCFnIpG109e4uxr2D1GeXQuWlk5gNmcq7R4eg
+         WN+WmTdQLYbITC5d1AgI8sA4gMYl8O9FzQzcXZzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/61] arm64/signal: Raise limit on stack frames
+        stable@vger.kernel.org,
+        Thierry GUIBERT <thierry.guibert@croix-rouge.fr>,
+        stable <stable@kernel.org>
+Subject: [PATCH 4.9 13/42] USB: cdc-acm: Add Icom PMR F3400 support (0c26:0020)
 Date:   Tue, 13 Sep 2022 16:07:44 +0200
-Message-Id: <20220913140348.573599647@linuxfoundation.org>
+Message-Id: <20220913140342.938657114@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
 
-[ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
+commit a10bc71729b236fe36de0d8e4d35c959fd8dec3a upstream.
 
-The signal code has a limit of 64K on the size of a stack frame that it
-will generate, if this limit is exceeded then a process will be killed if
-it receives a signal. Unfortunately with the advent of SME this limit is
-too small - the maximum possible size of the ZA register alone is 64K. This
-is not an issue for practical systems at present but is easily seen using
-virtual platforms.
+Supports for ICOM F3400 and ICOM F4400 PMR radios in CDC-ACM driver
+enabling the AT serial port.
+The Vendor Id is 0x0C26
+The Product ID is 0x0020
 
-Raise the limit to 256K, this is substantially more than could be used by
-any current architecture extension.
+Output of lsusb :
+Bus 001 Device 009: ID 0c26:0020 Prolific Technology Inc. ICOM Radio
+Couldn't open device, some information will be missing
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            2 Communications
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x0c26 Prolific Technology Inc.
+  idProduct          0x0020
+  bcdDevice            0.00
+  iManufacturer           1 ICOM Inc.
+  iProduct                2 ICOM Radio
+  iSerial                 3 *obfuscated*
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0030
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower                0mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         2 Communications
+      bInterfaceSubClass      2 Abstract (modem)
+      bInterfaceProtocol      1 AT-commands (v.25ter)
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval              12
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass        10 CDC Data
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220817182324.638214-2-broonie@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220819081702.84118-1-thierry.guibert@croix-rouge.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/signal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 43442b3a463f5..1b3973de417ec 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -97,7 +97,7 @@ static size_t sigframe_size(struct rt_sigframe_user_layout const *user)
-  * not taken into account.  This limit is not a guarantee and is
-  * NOT ABI.
-  */
--#define SIGFRAME_MAXSZ SZ_64K
-+#define SIGFRAME_MAXSZ SZ_256K
- 
- static int __sigframe_alloc(struct rt_sigframe_user_layout *user,
- 			    unsigned long *offset, size_t size, bool extend)
--- 
-2.35.1
-
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1774,6 +1774,9 @@ static const struct usb_device_id acm_id
+ 	{ USB_DEVICE(0x09d8, 0x0320), /* Elatec GmbH TWN3 */
+ 	.driver_info = NO_UNION_NORMAL, /* has misplaced union descriptor */
+ 	},
++	{ USB_DEVICE(0x0c26, 0x0020), /* Icom ICF3400 Serie */
++	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
++	},
+ 	{ USB_DEVICE(0x0ca6, 0xa050), /* Castles VEGA3000 */
+ 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
+ 	},
 
 
