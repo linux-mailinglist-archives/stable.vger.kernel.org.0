@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB2D5B753C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D885B7519
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231880AbiIMPhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48622 "EHLO
+        id S233398AbiIMPep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236473AbiIMPhL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:37:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38CF6E2C8;
-        Tue, 13 Sep 2022 07:43:25 -0700 (PDT)
+        with ESMTP id S236586AbiIMPc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:32:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002A47F0B6;
+        Tue, 13 Sep 2022 07:40:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B087614C6;
-        Tue, 13 Sep 2022 14:34:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC02C433C1;
-        Tue, 13 Sep 2022 14:34:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FECBB80F62;
+        Tue, 13 Sep 2022 14:33:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA006C433D7;
+        Tue, 13 Sep 2022 14:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079641;
-        bh=cHqHfBxYoB0DF7kwYMzPTnj1QgRAzdbCWJQubENN888=;
+        s=korg; t=1663079598;
+        bh=pBxHjKhIi1YaSc2ADH48gtnCcI/1AeG6qf+74fj2XYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=de+SSuN6fnLgU/8OzEgLpV5zmJqr5MgLwGBeCE1LHb7ITGVpJwuobdlv0ZJCEjha4
-         t2GDCsNISDcZqDLNN8DqxiuoXpuNr/8L3JCPbYFwMQarAFiiczj93LfpChEuW2lg8C
-         saeJb8C4pR1pZgLpGDnERQzI/JDhhB8BCoItc5Jk=
+        b=VZ+x/+uaJV2jZTLvJ0SG5/RB/XnL2vyRYFtqrX1o+KnsHEaf0RR/8stO1zKBb6emL
+         p84xzLPml3jdyd3LSyKhSZaiuIafAL4TXb0RPBvnaaxI/6c1uS1m8u5jWsvufuXL4c
+         IqYw0EKPE20/bvcTtoQ56JH/h2TX/QRpEFoy0+ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 18/61] xhci: Add grace period after xHC start to prevent premature runtime suspend.
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 62/79] scsi: mpt3sas: Fix use-after-free warning
 Date:   Tue, 13 Sep 2022 16:07:20 +0200
-Message-Id: <20220913140347.432905205@linuxfoundation.org>
+Message-Id: <20220913140351.882525191@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-commit 33e321586e37b642ad10594b9ef25a613555cd08 upstream.
+commit 991df3dd5144f2e6b1c38b8d20ed3d4d21e20b34 upstream.
 
-After xHC controller is started, either in probe or resume, it can take
-a while before any of the connected usb devices are visible to the roothub
-due to link training.
+Fix the following use-after-free warning which is observed during
+controller reset:
 
-It's possible xhci driver loads, sees no acivity and suspends the host
-before the USB device is visible.
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 23 PID: 5399 at lib/refcount.c:28 refcount_warn_saturate+0xa6/0xf0
 
-In one testcase with a hotplugged xHC controller the host finally detected
-the connected USB device and generated a wake 500ms after host initial
-start.
-
-If hosts didn't suspend the device duringe training it probablty wouldn't
-take up to 500ms to detect it, but looking at specs reveal USB3 link
-training has a couple long timeout values, such as 120ms
-RxDetectQuietTimeout, and 360ms PollingLFPSTimeout.
-
-So Add a 500ms grace period that keeps polling the roothub for 500ms after
-start, preventing runtime suspend until USB devices are detected.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220825150840.132216-3-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20220906134908.1039-2-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |   11 +++++++++++
- drivers/usb/host/xhci.c     |    4 +++-
- drivers/usb/host/xhci.h     |    2 +-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1455,6 +1455,17 @@ int xhci_hub_status_data(struct usb_hcd
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3215,6 +3215,7 @@ static struct fw_event_work *dequeue_nex
+ 		fw_event = list_first_entry(&ioc->fw_event_list,
+ 				struct fw_event_work, list);
+ 		list_del_init(&fw_event->list);
++		fw_event_work_put(fw_event);
+ 	}
+ 	spin_unlock_irqrestore(&ioc->fw_event_lock, flags);
  
- 	status = bus_state->resuming_ports;
+@@ -3249,7 +3250,6 @@ _scsih_fw_event_cleanup_queue(struct MPT
+ 		if (cancel_work_sync(&fw_event->work))
+ 			fw_event_work_put(fw_event);
  
-+	/*
-+	 * SS devices are only visible to roothub after link training completes.
-+	 * Keep polling roothubs for a grace period after xHC start
-+	 */
-+	if (xhci->run_graceperiod) {
-+		if (time_before(jiffies, xhci->run_graceperiod))
-+			status = 1;
-+		else
-+			xhci->run_graceperiod = 0;
-+	}
-+
- 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
- 
- 	/* For each port, did anything change?  If so, set that bit in buf. */
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -159,9 +159,11 @@ int xhci_start(struct xhci_hcd *xhci)
- 		xhci_err(xhci, "Host took too long to start, "
- 				"waited %u microseconds.\n",
- 				XHCI_MAX_HALT_USEC);
--	if (!ret)
-+	if (!ret) {
- 		/* clear state flags. Including dying, halted or removing */
- 		xhci->xhc_state = 0;
-+		xhci->run_graceperiod = jiffies + msecs_to_jiffies(500);
-+	}
- 
- 	return ret;
+-		fw_event_work_put(fw_event);
+ 	}
  }
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1780,7 +1780,7 @@ struct xhci_hcd {
  
- 	/* Host controller watchdog timer structures */
- 	unsigned int		xhc_state;
--
-+	unsigned long		run_graceperiod;
- 	u32			command;
- 	struct s3_save		s3;
- /* Host controller is dying - not responding to commands. "I'm not dead yet!"
 
 
