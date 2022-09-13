@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1015B7154
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A355B702F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234325AbiIMOhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
+        id S233257AbiIMOUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234085AbiIMOfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:52 -0400
+        with ESMTP id S233635AbiIMOTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8456B6B166;
-        Tue, 13 Sep 2022 07:20:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EAB65571;
+        Tue, 13 Sep 2022 07:14:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9C2CB80D87;
-        Tue, 13 Sep 2022 14:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54400C433C1;
-        Tue, 13 Sep 2022 14:12:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D848DB80F4B;
+        Tue, 13 Sep 2022 14:12:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35EA5C433D6;
+        Tue, 13 Sep 2022 14:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078345;
-        bh=aE3XUsx9yhCv47JRVJw4tRPM/gRu82FTTx4OBbvS8zM=;
+        s=korg; t=1663078348;
+        bh=XufkPb03Ew3QVVYzK6+sMc/4T34BYwP0B9psvQAbfv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ir88+cFK5lhN4VY3Dfk8V9sWeUjbPhGNegtkXxuCvEPx07RLG8eKpXkafC+iG0AKH
-         Xk7mBQudQbJDnUioP6VXruCUsLogdzZOljMLG7xf3XFJccjZoiuBkeA67BMQa1jLlK
-         g0G/BCC7bRw/5O1m2WHfeNoojdoXwUMA3f5gOE9w=
+        b=naAAQ0e5a7/MgHIFSYpvTyRGDtuLuDsIntUBiD75mrEyMQsJ7jXE5QwzW+czM5XrY
+         jkQ0/kenw/Dtm94yq1QlIeXM1WGX8JODSfgbCcLluwmlgrZAz8KuWF7e/ehzEXkPzL
+         yXY/boQEo9fEg6PrnZ+JGb8wADL767I6svdhzjkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 077/192] ARM: dts: imx6qdl-kontron-samx6i: fix spi-flash compatible
-Date:   Tue, 13 Sep 2022 16:03:03 +0200
-Message-Id: <20220913140413.799186053@linuxfoundation.org>
+Subject: [PATCH 5.19 078/192] arm64: dts: ls1028a-qds-65bb: dont use in-band autoneg for 2500base-x
+Date:   Tue, 13 Sep 2022 16:03:04 +0200
+Message-Id: <20220913140413.848808600@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -54,35 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit af7d78c957017f8b3a0986769f6f18e57f9362ea ]
+[ Upstream commit e7406f864e765c564c5cf384464faff66114f97d ]
 
-Drop the "winbond,w25q16dw" compatible since it causes to set the
-MODALIAS to w25q16dw which is not specified within spi-nor id table.
-Fix this by use the common "jedec,spi-nor" compatible.
+The Lynx PCS integrated with ENETC port 0 does not support in-band
+autoneg for the 2500base-x SERDES protocol, and prints errors from its
+phylink methods. Furthermore, the AQR112 card used for these boards does
+not expect in-band autoneg either. So delete the extraneous property.
 
-Fixes: 2125212785c9 ("ARM: dts: imx6qdl-kontron-samx6i: add Kontron SMARC SoM Support")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: e426d63e752b ("arm64: dts: ls1028a-qds: add overlays for various serdes protocols")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a-qds-65bb.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-index f159c58b9edba..6b791d515e294 100644
---- a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-@@ -249,7 +249,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds-65bb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds-65bb.dts
+index 40d34c8384a5e..b949cac037427 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds-65bb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds-65bb.dts
+@@ -25,7 +25,6 @@
+ &enetc_port0 {
+ 	phy-handle = <&slot1_sgmii>;
+ 	phy-mode = "2500base-x";
+-	managed = "in-band-status";
+ 	status = "okay";
+ };
  
- 	/* default boot source: workaround #1 for errata ERR006282 */
- 	smarc_flash: flash@0 {
--		compatible = "winbond,w25q16dw", "jedec,spi-nor";
-+		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <20000000>;
- 	};
 -- 
 2.35.1
 
