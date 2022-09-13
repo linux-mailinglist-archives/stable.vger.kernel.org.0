@@ -2,129 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F7F5B6928
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 10:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289305B6959
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 10:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231296AbiIMID4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 04:03:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        id S231378AbiIMITC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 04:19:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231329AbiIMIDz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 04:03:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4495A827
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 01:03:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C7C6612DB
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 08:03:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2240C433C1;
-        Tue, 13 Sep 2022 08:03:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663056231;
-        bh=AbnuB8avRqvemZp337TZD0PB12eZhHsFXU9qUCEK8VI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=owWzNdLzE49SNC0/6DT6VLUPKy9s+J7Tut4ZVMpqSskIEBY2nsKsvizSKanBMg6Ca
-         FGsKsnS0fi6Xz7WFB4AWClYL07IUgNT+KuEXGFXpcJQ/iVW1hcIU2BY+gNNws+0Oh2
-         HkTmZW8KYkSCGsiTIGodl2UkeR/2dMQXtNSdyh/EWjfuw8iAWfyI/zY/fK+RTf1UfG
-         yYK23CWqRrUA6wJCOCJZzrbrWPumPeJUiit3c+J1UNj1Q4Ogs9txL7+AcDNmjefZw1
-         xnFIsR5Ei8LZWQUZtk1VaHdDEkiU8+CXi+L8fTp3ED510Qz2Uh6ji+/exDT2m60s95
-         nMov7qkadZ/YA==
-From:   Jisheng Zhang <jszhang@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH linux-5.15.y v3] perf machine: Use path__join() to compose a path instead of snprintf(dir, '/', filename)
-Date:   Tue, 13 Sep 2022 15:54:30 +0800
-Message-Id: <20220913075430.2164-1-jszhang@kernel.org>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S231376AbiIMITB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 04:19:01 -0400
+Received: from mail.savoirfairelinux.com (mail.savoirfairelinux.com [208.88.110.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05EFA5A883
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 01:18:58 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.savoirfairelinux.com (Postfix) with ESMTP id C15DE9C0A2F;
+        Tue, 13 Sep 2022 04:18:57 -0400 (EDT)
+Received: from mail.savoirfairelinux.com ([127.0.0.1])
+        by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id HmqL-v-B2VH5; Tue, 13 Sep 2022 04:18:57 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.savoirfairelinux.com (Postfix) with ESMTP id 3D5209C0A67;
+        Tue, 13 Sep 2022 04:18:57 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.savoirfairelinux.com 3D5209C0A67
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=savoirfairelinux.com; s=DFC430D2-D198-11EC-948E-34200CB392D2;
+        t=1663057137; bh=lcNbKrWv0ucAJs0GcqlwiQvtZ95TxwJFdjgkvv1MZKo=;
+        h=From:To:Date:Message-Id:MIME-Version;
+        b=M2Z1vd3L41XEPTW9DXaF18YGtoUyh5nwZgtNBJozHN5ojexKVTHfQFq3lLJEWdxE3
+         P++we8YFj7zj69AjzOLpnXVp0mb7rWl/pxU4m/bhkGN+Fa2UDPUbQli099iMwy8Qqo
+         J866iRrOz6NUubLUBTC6jux1/XQiq3qtnFiFPmH/tOG3QKrAVKq4a//JIWK0L2yF/F
+         eu6tPzkVfz965CLR3TffDx30CMBqN9qjXSuiCkADQe0cJDIt5ntZXW88UQzwKXt6fp
+         kQFU1zMSnEiWGJ5stGZ6yx5dpCIgWv/c1Ik2q+Lzkd1/GUJtfkwsvHLKyZr6ROniru
+         b61wr9bD1bQPg==
+X-Virus-Scanned: amavisd-new at mail.savoirfairelinux.com
+Received: from mail.savoirfairelinux.com ([127.0.0.1])
+        by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 4cy74JDhYvlR; Tue, 13 Sep 2022 04:18:57 -0400 (EDT)
+Received: from sfl-deribaucourt.rennes.sfl (abordeaux-655-1-154-138.w92-162.abo.wanadoo.fr [92.162.199.138])
+        by mail.savoirfairelinux.com (Postfix) with ESMTPSA id 619D79C0A2F;
+        Tue, 13 Sep 2022 04:18:56 -0400 (EDT)
+From:   Enguerrand de Ribaucourt 
+        <enguerrand.de-ribaucourt@savoirfairelinux.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, andrew@lunn.ch,
+        Enguerrand de Ribaucourt 
+        <enguerrand.de-ribaucourt@savoirfairelinux.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH v3] net: dp83822: disable rx error interrupt
+Date:   Tue, 13 Sep 2022 10:17:48 +0200
+Message-Id: <20220913081747.39198-1-enguerrand.de-ribaucourt@savoirfairelinux.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <1223536756.162378.1662977228581.JavaMail.zimbra@savoirfairelinux.com>
+References: <1223536756.162378.1662977228581.JavaMail.zimbra@savoirfairelinux.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Some RX errors, notably when disconnecting the cable, increase the RCSR
+register. Once half full (0x7fff), an interrupt flood is generated. I
+measured ~3k/s interrupts even after the RX errors transfer was
+stopped.
 
-commit 9d5f0c36438eeae7566ca383b2b673179e3cc613 upstream.
+Since we don't read and clear the RCSR register, we should disable this
+interrupt.
 
-Its more intention revealing, and if we're interested in the odd cases
-where this may end up truncating we can do debug checks at one
-centralized place.
-
-Motivation, of all the container builds, fedora rawhide started
-complaining of:
-
-  util/machine.c: In function ‘machine__create_modules’:
-  util/machine.c:1419:50: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size between 0 and 4095 [-Werror=format-truncation=]
-   1419 |                 snprintf(path, sizeof(path), "%s/%s", dir_name, dent->d_name);
-        |                                                  ^~
-  In file included from /usr/include/stdio.h:894,
-                   from util/branch.h:9,
-                   from util/callchain.h:8,
-                   from util/machine.c:7:
-  In function ‘snprintf’,
-      inlined from ‘maps__set_modules_path_dir’ at util/machine.c:1419:3,
-      inlined from ‘machine__set_modules_path’ at util/machine.c:1473:9,
-      inlined from ‘machine__create_modules’ at util/machine.c:1519:7:
-  /usr/include/bits/stdio2.h:71:10: note: ‘__builtin___snprintf_chk’ output between 2 and 4352 bytes into a destination of size 4096
-
-There are other places where we should use path__join(), but lets get rid of
-this one first.
-
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Link: Link: https://lore.kernel.org/r/YebZKjwgfdOz0lAs@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
+Signed-off-by: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirf=
+airelinux.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[backport of 5.10 commit 0e597e2affb90d6ea48df6890d882924acf71e19]
 ---
+ drivers/net/phy/dp83822.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Since v2:
- - add necessary tag as pointed out by Greg.
-
-Since v1:
- - add commit id in upstream.
- - add linux-5.15.y, maybe we also need this for other long term stable
-   tree.
-
- tools/perf/util/machine.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/tools/perf/util/machine.c b/tools/perf/util/machine.c
-index 44e40bad0e33..55a041329990 100644
---- a/tools/perf/util/machine.c
-+++ b/tools/perf/util/machine.c
-@@ -16,6 +16,7 @@
- #include "map_symbol.h"
- #include "branch.h"
- #include "mem-events.h"
-+#include "path.h"
- #include "srcline.h"
- #include "symbol.h"
- #include "sort.h"
-@@ -1407,7 +1408,7 @@ static int maps__set_modules_path_dir(struct maps *maps, const char *dir_name, i
- 		struct stat st;
- 
- 		/*sshfs might return bad dent->d_type, so we have to stat*/
--		snprintf(path, sizeof(path), "%s/%s", dir_name, dent->d_name);
-+		path__join(path, sizeof(path), dir_name, dent->d_name);
- 		if (stat(path, &st))
- 			continue;
- 
--- 
-2.34.1
+diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
+index cc1522550f2c..da3983352dd4 100644
+--- a/drivers/net/phy/dp83822.c
++++ b/drivers/net/phy/dp83822.c
+@@ -197,8 +197,7 @@ static int dp83822_config_intr(struct phy_device *phy=
+dev)
+ 		if (misr_status < 0)
+ 			return misr_status;
+=20
+-		misr_status |=3D (DP83822_RX_ERR_HF_INT_EN |
+-				DP83822_ANEG_COMPLETE_INT_EN |
++		misr_status |=3D (DP83822_ANEG_COMPLETE_INT_EN |
+ 				DP83822_DUP_MODE_CHANGE_INT_EN |
+ 				DP83822_SPEED_CHANGED_INT_EN |
+ 				DP83822_LINK_STAT_INT_EN |
+--=20
+2.25.1
 
