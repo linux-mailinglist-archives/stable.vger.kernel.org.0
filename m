@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BF6D5B7436
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 688645B736C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235868AbiIMPTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
+        id S235430AbiIMPID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:08:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236111AbiIMPTH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:19:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A44979A6F;
-        Tue, 13 Sep 2022 07:35:43 -0700 (PDT)
+        with ESMTP id S235124AbiIMPG5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:06:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5214974CCD;
+        Tue, 13 Sep 2022 07:30:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DF14B80F9B;
-        Tue, 13 Sep 2022 14:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8DB1C433D6;
-        Tue, 13 Sep 2022 14:33:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADE3B61499;
+        Tue, 13 Sep 2022 14:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F7DC433C1;
+        Tue, 13 Sep 2022 14:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079629;
-        bh=lALr4hqlVC7Kb7k9HX5nHMySYO7Fi/3h4fhul+LgTps=;
+        s=korg; t=1663079362;
+        bh=nSPdzZWyl/k4zCIVcQ92XfhViWAMpEePjUXI2YhbqWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZY7vVPqaS0tWBINKhkS+NwLEmWFal5uhfMBeQnSbdNhSiOc3IjzjDZQHFk/t8uV4
-         Iqpl0YmOzt1Cp+WQxO7QAhXdhnhtQR7x0JZ2+iYjy7XPaBSD0GxU8S1tkZXoNxk89J
-         Lp4221jI0kJhgB34Bx/8Iw1b65hqFhqJxUnT3sgM=
+        b=w+Ld687MnX26je8yK/bxf00NyvSaiPSyWmb1/oKAlQsKbzRRzxdwu3Zph3Nu95i0d
+         Cmc94O5nE3qtUoebHdAWM+HbON4JgQjbhuW9H8KC6229tHM2kycr4b4ZkPv5iZjZSE
+         zyrC+/up/v7kgxtfsK3tmvo3PLfiYTEr1aarG+zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>, stable <stable@kernel.org>
-Subject: [PATCH 4.14 13/61] binder: fix UAF of ref->proc caused by race condition
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 104/108] nvme-tcp: fix UAF when detecting digest errors
 Date:   Tue, 13 Sep 2022 16:07:15 +0200
-Message-Id: <20220913140347.164651613@linuxfoundation.org>
+Message-Id: <20220913140358.092193465@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit a0e44c64b6061dda7e00b7c458e4523e2331b739 upstream.
+[ Upstream commit 160f3549a907a50e51a8518678ba2dcf2541abea ]
 
-A transaction of type BINDER_TYPE_WEAK_HANDLE can fail to increment the
-reference for a node. In this case, the target proc normally releases
-the failed reference upon close as expected. However, if the target is
-dying in parallel the call will race with binder_deferred_release(), so
-the target could have released all of its references by now leaving the
-cleanup of the new failed reference unhandled.
+We should also bail from the io_work loop when we set rd_enabled to true,
+so we don't attempt to read data from the socket when the TCP stream is
+already out-of-sync or corrupted.
 
-The transaction then ends and the target proc gets released making the
-ref->proc now a dangling pointer. Later on, ref->node is closed and we
-attempt to take spin_lock(&ref->proc->inner_lock), which leads to the
-use-after-free bug reported below. Let's fix this by cleaning up the
-failed reference on the spot instead of relying on the target to do so.
-
-  ==================================================================
-  BUG: KASAN: use-after-free in _raw_spin_lock+0xa8/0x150
-  Write of size 4 at addr ffff5ca207094238 by task kworker/1:0/590
-
-  CPU: 1 PID: 590 Comm: kworker/1:0 Not tainted 5.19.0-rc8 #10
-  Hardware name: linux,dummy-virt (DT)
-  Workqueue: events binder_deferred_func
-  Call trace:
-   dump_backtrace.part.0+0x1d0/0x1e0
-   show_stack+0x18/0x70
-   dump_stack_lvl+0x68/0x84
-   print_report+0x2e4/0x61c
-   kasan_report+0xa4/0x110
-   kasan_check_range+0xfc/0x1a4
-   __kasan_check_write+0x3c/0x50
-   _raw_spin_lock+0xa8/0x150
-   binder_deferred_func+0x5e0/0x9b0
-   process_one_work+0x38c/0x5f0
-   worker_thread+0x9c/0x694
-   kthread+0x188/0x190
-   ret_from_fork+0x10/0x20
-
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Cc: stable <stable@kernel.org> # 4.14+
-Link: https://lore.kernel.org/r/20220801182511.3371447-1-cmllamas@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
+Reported-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/nvme/host/tcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -1757,6 +1757,18 @@ static int binder_inc_ref_for_node(struc
- 	}
- 	ret = binder_inc_ref_olocked(ref, strong, target_list);
- 	*rdata = ref->data;
-+	if (ret && ref == new_ref) {
-+		/*
-+		 * Cleanup the failed reference here as the target
-+		 * could now be dead and have already released its
-+		 * references by now. Calling on the new reference
-+		 * with strong=0 and a tmp_refs will not decrement
-+		 * the node. The new_ref gets kfree'd below.
-+		 */
-+		binder_cleanup_ref_olocked(new_ref);
-+		ref = NULL;
-+	}
-+
- 	binder_proc_unlock(proc);
- 	if (new_ref && ref != new_ref)
- 		/*
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 2a27ac9aedbaa..3169859cd3906 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1074,7 +1074,7 @@ static void nvme_tcp_io_work(struct work_struct *w)
+ 		if (result > 0)
+ 			pending = true;
+ 
+-		if (!pending)
++		if (!pending || !queue->rd_enabled)
+ 			return;
+ 
+ 	} while (!time_after(jiffies, deadline)); /* quota is exhausted */
+-- 
+2.35.1
+
 
 
