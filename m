@@ -2,138 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 104A55B785C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E3885B78C5
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233484AbiIMRmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:42:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54606 "EHLO
+        id S233309AbiIMRsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:48:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233448AbiIMRl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:41:58 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392186AA1E
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 09:35:20 -0700 (PDT)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1oY8sR-0000Ue-O1; Tue, 13 Sep 2022 18:35:11 +0200
-Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1oY8sQ-0005qY-Nl; Tue, 13 Sep 2022 18:35:10 +0200
-Date:   Tue, 13 Sep 2022 18:35:10 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Cc:     linux-kernel@vger.kernel.org, linux-amarula@amarulasolutions.com,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [RESEND PATCH v5 1/2] dmaengine: mxs: use
- platform_driver_register
-Message-ID: <20220913163510.GR6477@pengutronix.de>
-References: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
+        with ESMTP id S233656AbiIMRrq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:47:46 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9226543
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 09:45:05 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id y136so12324205pfb.3
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 09:45:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=4Y0JAz7SjOxBigi7gjJShtSnAYEDUYLe/hDIM8rxnts=;
+        b=700Po4NfH6R56ZaI32U7D3LCsJv/4O5NKU8DddJQyJ/Yt6jB4+DhtCYSq1ASLnC2aO
+         etdxDInHLUkvOe5PWc+PsigckaHBVC3Cm+ljQmHjv9x7CsVJY78hIhtD+T7vqf4ejaHJ
+         VtwJLtCXvulDoiesKzmimxDSz8caBuxBdUD1xQ+oG91DEA7PlZu5TTg6FfYCRcEQYU6I
+         Sd7AVso9mcGAZyra1w/GdXmmPUPLRXazMu6uDV6KgB90S3fvSKQSFZ8DQo6ZBIUWI7qw
+         Kbo3GFH4iDv19B/7Tk43l1IOqf6ZB2McyZh0KkIlqaea388Ina9BPRy+jw1Re5GQjlyu
+         w8Pg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=4Y0JAz7SjOxBigi7gjJShtSnAYEDUYLe/hDIM8rxnts=;
+        b=r1Z8JQR0MJzNQEG533DG2uIEkWCopZPhnnVg+PEAnhMszLqeSgQ7HgK7SbgnBet9+c
+         njXBMGAt0/UWxlOBbdAMnown28n2V+Yx55IsLRZ0gOB3LRGKdas8mISxFLmkXxHLFpng
+         sovbMTD9Ic0kTjMbCbhVEH5BfA0tN7P1PpcbZCwBqVgT59/eZIU7wRIadWX3Bdcu2Aqw
+         t6qhh7/8Ml8ZnrbHfvfemX/spWfsBxzIsEH2zm2b4z4vjLaYSuxxKgftk2slxwCHijig
+         eRuOCJz1ih2xTp/bJpQoTK0OjejdvmnpFwh/+kKTcOdK3b+gl5VpxhA74kW588zVfGKX
+         eA7g==
+X-Gm-Message-State: ACgBeo0di0waem9HWWwdHc5G8ZYLlXcWcV1rEAFVqGmJ3CEngLj7oYlz
+        LvDVc0mXRlJd9qT7PpTXMsVrV66qvpw88tMXTQM=
+X-Google-Smtp-Source: AA6agR7/fkG2Kh0lhX66BusEGUKUw70j7FbIMBAVcJK1jFvSnPXCKdIXNZoH0ysmZUID+vuaLUMZ9A==
+X-Received: by 2002:a63:2341:0:b0:434:d9b8:cfdf with SMTP id u1-20020a632341000000b00434d9b8cfdfmr28300919pgm.446.1663087504405;
+        Tue, 13 Sep 2022 09:45:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u7-20020a170903124700b00176e8f85146sm8863179plh.185.2022.09.13.09.45.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Sep 2022 09:45:03 -0700 (PDT)
+Message-ID: <6320b38f.170a0220.fd06f.f0cf@mx.google.com>
+Date:   Tue, 13 Sep 2022 09:45:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.19.8-193-g3acd07a8c4dd8
+Subject: stable-rc/linux-5.19.y baseline: 183 runs,
+ 2 regressions (v5.19.8-193-g3acd07a8c4dd8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Dario,
+stable-rc/linux-5.19.y baseline: 183 runs, 2 regressions (v5.19.8-193-g3acd=
+07a8c4dd8)
 
-On Sun, Sep 04, 2022 at 04:10:19PM +0200, Dario Binacchi wrote:
-> Driver registration fails on SOC imx8mn as its supplier, the clock
-> control module, is probed later than subsys initcall level. This driver
-> uses platform_driver_probe which is not compatible with deferred probing
-> and won't be probed again later if probe function fails due to clock not
-> being available at that time.
-> 
-> This patch replaces the use of platform_driver_probe with
-> platform_driver_register which will allow probing the driver later again
-> when the clock control module will be available.
-> 
-> Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
-> Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-> Cc: stable@vger.kernel.org
+Regressions Summary
+-------------------
 
-How I see it v3 of this patch is perfectly fine and should be taken
-instead of this one. I just commented that to v3.
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-10   | defconfig         =
+  | 1          =
 
-Not sure if Vinod would take v3, or if you should resend v3 as v6
-instead. If you do, you can add my Acked-by.
+imx7d-sdb            | arm   | lab-nxp      | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
 
-Vinod, please let us know what you prefer.
 
-Sascha
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
+nel/v5.19.8-193-g3acd07a8c4dd8/plan/baseline/
 
-> 
-> ---
-> 
-> Changes in v5:
-> - Update the commit message.
-> - Add the patch "dmaengine: mxs: fix section mismatch" to remove the
->   warning raised by this patch.
-> 
-> Changes in v4:
-> - Restore __init in front of mxs_dma_probe() definition.
-> - Rename the mxs_dma_driver variable to mxs_dma_driver_probe.
-> - Update the commit message.
-> - Use builtin_platform_driver() instead of module_platform_driver().
-> 
-> Changes in v3:
-> - Restore __init in front of mxs_dma_init() definition.
-> 
-> Changes in v2:
-> - Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
-> 
->  drivers/dma/mxs-dma.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-> index 994fc4d2aca4..18f8154b859b 100644
-> --- a/drivers/dma/mxs-dma.c
-> +++ b/drivers/dma/mxs-dma.c
-> @@ -839,10 +839,6 @@ static struct platform_driver mxs_dma_driver = {
->  		.name	= "mxs-dma",
->  		.of_match_table = mxs_dma_dt_ids,
->  	},
-> +	.probe = mxs_dma_probe,
->  };
-> -
-> -static int __init mxs_dma_module_init(void)
-> -{
-> -	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
-> -}
-> -subsys_initcall(mxs_dma_module_init);
-> +builtin_platform_driver(mxs_dma_driver);
-> -- 
-> 2.32.0
-> 
-> 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.19.y
+  Describe: v5.19.8-193-g3acd07a8c4dd8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3acd07a8c4dd8598b9a97082d8c9ea516bf4973c =
 
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-10   | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63207f118066c6d89d35566d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.8=
+-193-g3acd07a8c4dd8/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unl=
+eashed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.8=
+-193-g3acd07a8c4dd8/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unl=
+eashed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63207f118066c6d89d355=
+66e
+        new failure (last pass: v5.19.8) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+imx7d-sdb            | arm   | lab-nxp      | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/632080fd316dda4f023556c0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.8=
+-193-g3acd07a8c4dd8/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7d-s=
+db.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.8=
+-193-g3acd07a8c4dd8/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7d-s=
+db.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/632080fd316dda4f02355=
+6c1
+        new failure (last pass: v5.19.8) =
+
+ =20
