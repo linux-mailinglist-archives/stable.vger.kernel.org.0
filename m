@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5835B6FD2
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0E35B7076
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233183AbiIMOSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:18:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
+        id S233494AbiIMO1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232904AbiIMORi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:17:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F414063F1D;
-        Tue, 13 Sep 2022 07:12:31 -0700 (PDT)
+        with ESMTP id S233488AbiIMO0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:26:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8670A61D91;
+        Tue, 13 Sep 2022 07:16:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D756B80EFA;
-        Tue, 13 Sep 2022 14:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDD38C433D6;
-        Tue, 13 Sep 2022 14:11:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4D26B80EFC;
+        Tue, 13 Sep 2022 14:16:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46DEEC433D6;
+        Tue, 13 Sep 2022 14:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078299;
-        bh=tcQGAlsMS42fJDbMOL0mTFdnfPj1GbHx0JCHlF7kxBg=;
+        s=korg; t=1663078600;
+        bh=U0lw36v5K3lnpJ4xVPpX9D5MtIMf5s6/6zDt1oauxo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVuJc6FiRrsXRlIa5SOEwq0Oy6yDN24YU/bvBcN2JTpz99RPQxwF2GI/5Xgku2xda
-         qjRnArd4cs528QR/hWi1sN4wyz11fclBZsVMidMl6SnX7QdtTABAj3b29xI2vXYKgW
-         CT3OBvKrX1DoUlPmecMVeH86cUUI6Zf9mqyvYK+c=
+        b=rQdJ+HyKXD+Ed+XlyRZm2wvM3u7eLzIo5ygZW02oK8+Qtj3sgx0Pn/Ladf2JVV2a3
+         eT3ChGV0ancq25FyUHIiq+UH51grG6+8LNm+I0fBI/dl1CPRFgE8QBn4FhNJyVd9eB
+         RLpqGJKHQP/pv+pTjSZraP1p6DzQFwXfO0O/+PGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        kernel test robot <lkp@intel.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 087/192] tee: fix compiler warning in tee_shm_register()
-Date:   Tue, 13 Sep 2022 16:03:13 +0200
-Message-Id: <20220913140414.298293427@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.15 003/121] efi: capsule-loader: Fix use-after-free in efi_capsule_write
+Date:   Tue, 13 Sep 2022 16:03:14 +0200
+Message-Id: <20220913140357.472106951@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit eccd7439709810127563e7e3e49b8b44c7b2791d ]
+commit 9cb636b5f6a8cc6d1b50809ec8f8d33ae0c84c95 upstream.
 
-Include <linux/uaccess.h> to avoid the warning:
-   drivers/tee/tee_shm.c: In function 'tee_shm_register':
->> drivers/tee/tee_shm.c:242:14: error: implicit declaration of function 'access_ok' [-Werror=implicit-function-declaration]
-     242 |         if (!access_ok((void __user *)addr, length))
-         |              ^~~~~~~~~
-   cc1: some warnings being treated as errors
+A race condition may occur if the user calls close() on another thread
+during a write() operation on the device node of the efi capsule.
 
-Fixes: 573ae4f13f63 ("tee: add overflow check in register_shm_helper()")
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is a race condition that occurs between the efi_capsule_write() and
+efi_capsule_flush() functions of efi_capsule_fops, which ultimately
+results in UAF.
+
+So, the page freeing process is modified to be done in
+efi_capsule_release() instead of efi_capsule_flush().
+
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/all/20220907102920.GA88602@ubuntu/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_shm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/efi/capsule-loader.c |   31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-index 1175f3a46859f..27295bda3e0bd 100644
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -9,6 +9,7 @@
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/tee_drv.h>
-+#include <linux/uaccess.h>
- #include <linux/uio.h>
- #include "tee_private.h"
+--- a/drivers/firmware/efi/capsule-loader.c
++++ b/drivers/firmware/efi/capsule-loader.c
+@@ -243,29 +243,6 @@ failed:
+ }
  
--- 
-2.35.1
-
+ /**
+- * efi_capsule_flush - called by file close or file flush
+- * @file: file pointer
+- * @id: not used
+- *
+- *	If a capsule is being partially uploaded then calling this function
+- *	will be treated as upload termination and will free those completed
+- *	buffer pages and -ECANCELED will be returned.
+- **/
+-static int efi_capsule_flush(struct file *file, fl_owner_t id)
+-{
+-	int ret = 0;
+-	struct capsule_info *cap_info = file->private_data;
+-
+-	if (cap_info->index > 0) {
+-		pr_err("capsule upload not complete\n");
+-		efi_free_all_buff_pages(cap_info);
+-		ret = -ECANCELED;
+-	}
+-
+-	return ret;
+-}
+-
+-/**
+  * efi_capsule_release - called by file close
+  * @inode: not used
+  * @file: file pointer
+@@ -277,6 +254,13 @@ static int efi_capsule_release(struct in
+ {
+ 	struct capsule_info *cap_info = file->private_data;
+ 
++	if (cap_info->index > 0 &&
++	    (cap_info->header.headersize == 0 ||
++	     cap_info->count < cap_info->total_size)) {
++		pr_err("capsule upload not complete\n");
++		efi_free_all_buff_pages(cap_info);
++	}
++
+ 	kfree(cap_info->pages);
+ 	kfree(cap_info->phys);
+ 	kfree(file->private_data);
+@@ -324,7 +308,6 @@ static const struct file_operations efi_
+ 	.owner = THIS_MODULE,
+ 	.open = efi_capsule_open,
+ 	.write = efi_capsule_write,
+-	.flush = efi_capsule_flush,
+ 	.release = efi_capsule_release,
+ 	.llseek = no_llseek,
+ };
 
 
