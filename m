@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DBD5B8392
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:01:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A93B5B8395
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229513AbiINJBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:01:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37746 "EHLO
+        id S229951AbiINJBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiINJBM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:01:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFC051F2F2;
-        Wed, 14 Sep 2022 02:01:11 -0700 (PDT)
+        with ESMTP id S229641AbiINJBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:01:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D75124951;
+        Wed, 14 Sep 2022 02:01:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74CF1B816A9;
-        Wed, 14 Sep 2022 09:01:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2886C433C1;
-        Wed, 14 Sep 2022 09:01:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE31E61812;
+        Wed, 14 Sep 2022 09:01:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96E2C433D6;
+        Wed, 14 Sep 2022 09:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146069;
-        bh=tuq12uiHXCIaOV0yOG2YnavzeCeNFrj76CmV14UkXi0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=iFDh1dh4CHiv2dLavIwUdHFbwAK0tx0+rTfa3TzqLrmt6UXE3dMPjEJZbGTux3zWL
-         aHEOxQ/oNbS8OC6SyqF8t/j0rebEgcLlF1dfWV+OpHKyDlwWPtaAq7QKHEKe65vpTg
-         6XGfY/tsWOeAroAgZq9yQEY2P9dLL9ElauR7irsdgYG4ACiGvuQAs7Nm2WcYFMpa4d
-         YYVDP4njWAXAQ8FFbw8o1baVHXG1zyCHzAhQCV2fF2bIYLTX88aEpNP5FPho/GR6JF
-         hFOCKiCjAUMLo0QqbJvs0VDupsTRzz3gKy6ObTWhEFPb5xHSUs3fSg0g/hd7Q/ISC2
-         soD2DfjPwtLjw==
+        s=k20201202; t=1663146071;
+        bh=Gyqz6gWvSgQvR7dEPd2ETTNIQBE+ZsNVjs0eMRE5tmM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=V30QXqfq1oZCdIw07KutG8EKpswuexFMIyt7aNBA6PgKBzO2fxHdlhf0Z68r7A0Mx
+         vTIgDprWXq2wh+GWJ2dr0GlRbxIRF1jOfaikGumJIsl3HWeGxtRFwALzJE+kcwggQi
+         2SP2rJPQRP9HKQlQEx6yLEjG3tqjcavGlytJt+WJPIP/q1grI1p1dJ5DG0aBWjlVxp
+         vG8l53lwoqsBqJhCypeqPuFQ6FGiyg7zfr4ytIE1hpvR7hDNJat/ETypq38Cd8ldP8
+         YuD4CWMXsxh91sW6/V9X6UzCmAdINZ6wjKFA4K0jO0MkKhXuAWDQTvbkWZvNcVItmV
+         49M+pvB6qhdmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jassi Brar <jaswinder.singh@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>, liviu.dudau@arm.com,
-        lpieralisi@kernel.org, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 01/22] arm64: dts: juno: Add missing MHU secure-irq
-Date:   Wed, 14 Sep 2022 05:00:42 -0400
-Message-Id: <20220914090103.470630-1-sashal@kernel.org>
+Cc:     Niravkumar L Rabara <niravkumar.l.rabara@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 02/22] spi: cadence-quadspi: Disable irqs during indirect reads
+Date:   Wed, 14 Sep 2022 05:00:43 -0400
+Message-Id: <20220914090103.470630-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220914090103.470630-1-sashal@kernel.org>
+References: <20220914090103.470630-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,37 +56,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jassi Brar <jaswinder.singh@linaro.org>
+From: Niravkumar L Rabara <niravkumar.l.rabara@intel.com>
 
-[ Upstream commit 422ab8fe15e30066d4c8e236b747c77069bfca45 ]
+[ Upstream commit 9ee5b6d53b8c99d13a47227e3b7052a1365556c9 ]
 
-The MHU secure interrupt exists physically but is missing in the DT node.
+On architecture where reading the SRAM is slower than the pace at
+controller fills it, with interrupt enabled while reading from
+SRAM FIFO causes unwanted interrupt storm to CPU.
 
-Specify the interrupt in DT node to fix a warning on Arm Juno board:
-   mhu@2b1f0000: interrupts: [[0, 36, 4], [0, 35, 4]] is too short
+The inner "bytes to read" loop never exits and waits for the completion
+so it is enough to only enable the watermark interrupt when we
+are out of bytes to read, which only happens when we start the
+transfer (waiting for the FIFO to fill up initially) if the SRAM
+is slow.
 
-Link: https://lore.kernel.org/r/20220801141005.599258-1-jassisinghbrar@gmail.com
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+So only using read watermark interrupt, as the current implementation
+doesn't utilize the SRAM full and indirect complete read interrupt.
+And disable all the read interrupts while reading from SRAM.
+
+Signed-off-by: Niravkumar L Rabara <niravkumar.l.rabara@intel.com>
+Link: https://lore.kernel.org/r/20220813042616.1372110-1-niravkumar.l.rabara@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-base.dtsi | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-cadence-quadspi.c | 38 +++++++++++++++++++++++++++----
+ 1 file changed, 34 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
-index 065381c1cbf5a..b5039d6a1d1d1 100644
---- a/arch/arm64/boot/dts/arm/juno-base.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
-@@ -26,7 +26,8 @@ mailbox: mhu@2b1f0000 {
- 		compatible = "arm,mhu", "arm,primecell";
- 		reg = <0x0 0x2b1f0000 0x0 0x1000>;
- 		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
-+			     <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
- 		#mbox-cells = <1>;
- 		clocks = <&soc_refclk100mhz>;
- 		clock-names = "apb_pclk";
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index 72b1a5a2298c5..e12ab5b43f341 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -39,6 +39,7 @@
+ #define CQSPI_DISABLE_DAC_MODE		BIT(1)
+ #define CQSPI_SUPPORT_EXTERNAL_DMA	BIT(2)
+ #define CQSPI_NO_SUPPORT_WR_COMPLETION	BIT(3)
++#define CQSPI_SLOW_SRAM		BIT(4)
+ 
+ /* Capabilities */
+ #define CQSPI_SUPPORTS_OCTAL		BIT(0)
+@@ -87,6 +88,7 @@ struct cqspi_st {
+ 	bool			use_dma_read;
+ 	u32			pd_dev_id;
+ 	bool			wr_completion;
++	bool			slow_sram;
+ };
+ 
+ struct cqspi_driver_platdata {
+@@ -333,7 +335,10 @@ static irqreturn_t cqspi_irq_handler(int this_irq, void *dev)
+ 		}
+ 	}
+ 
+-	irq_status &= CQSPI_IRQ_MASK_RD | CQSPI_IRQ_MASK_WR;
++	else if (!cqspi->slow_sram)
++		irq_status &= CQSPI_IRQ_MASK_RD | CQSPI_IRQ_MASK_WR;
++	else
++		irq_status &= CQSPI_REG_IRQ_WATERMARK | CQSPI_IRQ_MASK_WR;
+ 
+ 	if (irq_status)
+ 		complete(&cqspi->transfer_complete);
+@@ -673,7 +678,18 @@ static int cqspi_indirect_read_execute(struct cqspi_flash_pdata *f_pdata,
+ 	/* Clear all interrupts. */
+ 	writel(CQSPI_IRQ_STATUS_MASK, reg_base + CQSPI_REG_IRQSTATUS);
+ 
+-	writel(CQSPI_IRQ_MASK_RD, reg_base + CQSPI_REG_IRQMASK);
++	/*
++	 * On SoCFPGA platform reading the SRAM is slow due to
++	 * hardware limitation and causing read interrupt storm to CPU,
++	 * so enabling only watermark interrupt to disable all read
++	 * interrupts later as we want to run "bytes to read" loop with
++	 * all the read interrupts disabled for max performance.
++	 */
++
++	if (!cqspi->slow_sram)
++		writel(CQSPI_IRQ_MASK_RD, reg_base + CQSPI_REG_IRQMASK);
++	else
++		writel(CQSPI_REG_IRQ_WATERMARK, reg_base + CQSPI_REG_IRQMASK);
+ 
+ 	reinit_completion(&cqspi->transfer_complete);
+ 	writel(CQSPI_REG_INDIRECTRD_START_MASK,
+@@ -684,6 +700,13 @@ static int cqspi_indirect_read_execute(struct cqspi_flash_pdata *f_pdata,
+ 						 msecs_to_jiffies(CQSPI_READ_TIMEOUT_MS)))
+ 			ret = -ETIMEDOUT;
+ 
++		/*
++		 * Disable all read interrupts until
++		 * we are out of "bytes to read"
++		 */
++		if (cqspi->slow_sram)
++			writel(0x0, reg_base + CQSPI_REG_IRQMASK);
++
+ 		bytes_to_read = cqspi_get_rd_sram_level(cqspi);
+ 
+ 		if (ret && bytes_to_read == 0) {
+@@ -715,8 +738,11 @@ static int cqspi_indirect_read_execute(struct cqspi_flash_pdata *f_pdata,
+ 			bytes_to_read = cqspi_get_rd_sram_level(cqspi);
+ 		}
+ 
+-		if (remaining > 0)
++		if (remaining > 0) {
+ 			reinit_completion(&cqspi->transfer_complete);
++			if (cqspi->slow_sram)
++				writel(CQSPI_REG_IRQ_WATERMARK, reg_base + CQSPI_REG_IRQMASK);
++		}
+ 	}
+ 
+ 	/* Check indirect done status */
+@@ -1667,6 +1693,8 @@ static int cqspi_probe(struct platform_device *pdev)
+ 			cqspi->use_dma_read = true;
+ 		if (ddata->quirks & CQSPI_NO_SUPPORT_WR_COMPLETION)
+ 			cqspi->wr_completion = false;
++		if (ddata->quirks & CQSPI_SLOW_SRAM)
++			cqspi->slow_sram = true;
+ 
+ 		if (of_device_is_compatible(pdev->dev.of_node,
+ 					    "xlnx,versal-ospi-1.0"))
+@@ -1779,7 +1807,9 @@ static const struct cqspi_driver_platdata intel_lgm_qspi = {
+ };
+ 
+ static const struct cqspi_driver_platdata socfpga_qspi = {
+-	.quirks = CQSPI_DISABLE_DAC_MODE | CQSPI_NO_SUPPORT_WR_COMPLETION,
++	.quirks = CQSPI_DISABLE_DAC_MODE
++			| CQSPI_NO_SUPPORT_WR_COMPLETION
++			| CQSPI_SLOW_SRAM,
+ };
+ 
+ static const struct cqspi_driver_platdata versal_ospi = {
 -- 
 2.35.1
 
