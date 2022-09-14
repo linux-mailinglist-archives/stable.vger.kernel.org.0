@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 253645B849D
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 964885B84A2
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231454AbiINJP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:15:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
+        id S231429AbiINJPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:15:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231559AbiINJNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59D697C741;
+        with ESMTP id S231139AbiINJNS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4797C742;
         Wed, 14 Sep 2022 02:06:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B126619FA;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5782AB815E8;
+        Wed, 14 Sep 2022 09:05:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F8A6C433C1;
         Wed, 14 Sep 2022 09:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EEBC4347C;
-        Wed, 14 Sep 2022 09:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146328;
-        bh=mOq3bZhWB9k345JibXBrxgU7rRRFOigtopbDGHTtbz4=;
+        s=k20201202; t=1663146331;
+        bh=8pIyETIF5smbqxkIdtmQpbRaE1kLX8iiImvqgVAokAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHPsPTEsQxHgUFHsE+enS8dB8WXSerpXyevGxo1bZE0FzULxEFPvCk6f1TndG65pp
-         41xzpoFYKvxTbVxVOzT5HC7SlWp2bQuxY7PB/nXeI6CTVVH84pNRl0SCFoVderlVkG
-         l9EUP/MPlTsMD6Tpz4Ffe2k4nMstOJ3wJxCiD0zXHGp4Y/69NBa2c+C1DpI2Rmmt9A
-         YyKz+rrTkVzGEja2bVousL9Oqw7lHnWAWPaFoxOisy0UNB+4ynSGH7gXQ/Rw4lf3eJ
-         qae9CAc8uZ/Ocwiw6KOm0xj872KdXwuh0EYe8NEpFUOkBfi7eUSpxh0HMeObt8du0e
-         X+f2PI0hPxgDg==
+        b=KDL3LTkZFVEW/iuky2mtY8zrGgYQ4VpOdBtuAb34jMGFg5Ce4PsIYr4qZqtKTfpvG
+         4sBdZ83jupS/CuUcWPqUYwxfKQMz+IjPjY+CfhtctcGQupeY4t4T3pgVoWk83LogOh
+         pd5EhRjdKrQqVo0vOkTUUAQ/MiOXez4FF8ZkZSDXtWxFQEg/W3dWHDQJLWDyhNcESX
+         xhs3TqGRPoWCOlhotnVvmtnjI+AMISFFA7QyYdSR13URpFeFakcoCa7ovZJB0VrooA
+         xmaXWXImLo87PANamnD6tSpaXLuScx4jWG9SSiICRreNb/fNPGv6LxBCyv/NYjueCl
+         hHtoulFlF6Hsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongxiang Ke <kdx.glider@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 4/8] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
-Date:   Wed, 14 Sep 2022 05:05:08 -0400
-Message-Id: <20220914090514.471614-4-sashal@kernel.org>
+Cc:     "jerry.meng" <jerry-meng@foxmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 5/8] net: usb: qmi_wwan: add Quectel RM520N
+Date:   Wed, 14 Sep 2022 05:05:09 -0400
+Message-Id: <20220914090514.471614-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090514.471614-1-sashal@kernel.org>
 References: <20220914090514.471614-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,37 +60,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongxiang Ke <kdx.glider@gmail.com>
+From: "jerry.meng" <jerry-meng@foxmail.com>
 
-[ Upstream commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf ]
+[ Upstream commit e1091e226a2bab4ded1fe26efba2aee1aab06450 ]
 
-There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
-the number of it's interfaces less than 4, an out-of-bounds read bug occurs
-when parsing the interface descriptor for this device.
+add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
 
-Fix this by checking the number of interfaces.
+0x0801: DIAG + NMEA + AT + MODEM + RMNET
 
-Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
-Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0801 Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=RM520N-GL
+S:  SerialNumber=384af524
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: jerry.meng <jerry-meng@foxmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/tencent_E50CA8A206904897C2D20DDAE90731183C05@qq.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/stream.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/usb/stream.c b/sound/usb/stream.c
-index 7b86bf38f10e7..133a66a7f90e4 100644
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -502,7 +502,7 @@ int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
- 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
- 	 * one misses syncpipe, and does not produce any sound.
- 	 */
--	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
-+	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
- 		num = 4;
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 0c3129c9ac087..75c09ba6a45fd 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1049,6 +1049,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
++	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0801)},	/* Quectel RM520N */
  
- 	for (i = 0; i < num; i++) {
+ 	/* 3. Combined interface devices matching on interface number */
+ 	{QMI_FIXED_INTF(0x0408, 0xea42, 4)},	/* Yota / Megafon M100-1 */
 -- 
 2.35.1
 
