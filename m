@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF5B5B846A
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A415B849E
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231367AbiINJLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:11:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37568 "EHLO
+        id S231194AbiINJPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:15:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231429AbiINJLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:11:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C48785B7;
-        Wed, 14 Sep 2022 02:05:14 -0700 (PDT)
+        with ESMTP id S229951AbiINJNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 466757B1CB;
+        Wed, 14 Sep 2022 02:05:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FBCF61999;
-        Wed, 14 Sep 2022 09:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63E11C43470;
-        Wed, 14 Sep 2022 09:05:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5769AB8171C;
+        Wed, 14 Sep 2022 09:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9832C433B5;
+        Wed, 14 Sep 2022 09:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146311;
-        bh=GSzmj0FzqakisPTTZIhSa7o3h/CHGOigwlG7aO/LbGs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lj8Bmm5lN2o+NpUaj03AsPI13BX/VOCkKt9R6kf7fI5K2al8hNEplXwtW0l/8y9pU
-         JK2QiVJdMztdZBvDRQRScl7nhEfeNeAWx5YUCyg7l7GNaagsXRUV5lk2DpHdSo2Jnw
-         6x1wP6az4O3c6UwsqbBcVyuE/9cvD3hGFh4ZVkciYxOQ6quaIn7uNUQ2iEnLmR6rhs
-         /B7Wr0nHQ1dsuoN07YrzFwXhVZFoWHTclBY/j8On6MRcGXx3tj7wj1PDGITHSfKomD
-         W3lKHiZJeoy+Dr33JKhT4YH4eR6jcqSjjgg0L3SRDE6ZaqglPzrdTWVPkXNRAfFUym
-         xoIC2S8yIbGfg==
+        s=k20201202; t=1663146319;
+        bh=8IAUW2vimGgcg10/3rWKvaMWmIGhN9+wiVJ0WTfg6Cc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Eb8eIomBP7aXdXxyNjZZ+56rMXg6RwWcaH24RRAIHEYvoeTnHMcSy4hkaT3LtZLvt
+         q3LTylNSqQOhV83U9J3Hf726eJldJc1UrKwMR7LLJwyPygI3dToPrI0f4KU2bFxcYh
+         k5AnB6XTJYNh/inF/LLpflTZ9nSeHzwTC/hJzwLkbNadvGNjZFIdf3gDX2jOF6KkU4
+         iT2wUjIqtsLj8zSrcAR6cQeBO8xpRuQDX8oOexwLno+25f2HfBsAnkWOy1xQaM24by
+         1InB2aQmWh3JsBWoAZC9JWfkEbmO8hoCOEZ61Ypr/STVDciKekXZYXr+NLP9wciKUS
+         2+ZnvbsYTfkKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Youling Tang <tangyouling@loongson.cn>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, michal.lkml@markovi.net,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 9/9] mksysmap: Fix the mismatch of 'L0' symbols in System.map
-Date:   Wed, 14 Sep 2022 05:04:43 -0400
-Message-Id: <20220914090445.471489-9-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, hdegoede@redhat.com, steve@sk2.org,
+        ckeepax@opensource.cirrus.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 1/8] ASoC: nau8824: Fix semaphore unbalance at error paths
+Date:   Wed, 14 Sep 2022 05:05:05 -0400
+Message-Id: <20220914090514.471614-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220914090445.471489-1-sashal@kernel.org>
-References: <20220914090445.471489-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,37 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youling Tang <tangyouling@loongson.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
+[ Upstream commit 5628560e90395d3812800a8e44a01c32ffa429ec ]
 
-When System.map was generated, the kernel used mksysmap to filter the
-kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
+The semaphore of nau8824 wasn't properly unlocked at some error
+handling code paths, hence this may result in the unbalance (and
+potential lock-up).  Fix them to handle the semaphore up properly.
 
-$ cat System.map | grep L0
-9000000000221540 t L0
-
-The L0 symbol exists in System.map, but not in .tmp_System.map. When
-"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
-data" error message in link-vmlinux.sh script.
-
-Signed-off-by: Youling Tang <tangyouling@loongson.cn>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220823081000.2965-3-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mksysmap | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/nau8824.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/scripts/mksysmap b/scripts/mksysmap
-index 9aa23d15862a0..ad8bbc52267d0 100755
---- a/scripts/mksysmap
-+++ b/scripts/mksysmap
-@@ -41,4 +41,4 @@
- # so we just ignore them to let readprofile continue to work.
- # (At least sparc64 has __crc_ in the middle).
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index e8ea51247b179..cc745374b8288 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -1015,6 +1015,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 	struct snd_soc_codec *codec = dai->codec;
+ 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
+ 	unsigned int val_len = 0, osr, ctrl_val, bclk_fs, bclk_div;
++	int err = -EINVAL;
  
--$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
-+$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
+ 	nau8824_sema_acquire(nau8824, HZ);
+ 
+@@ -1031,7 +1032,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		osr &= NAU8824_DAC_OVERSAMPLE_MASK;
+ 		if (nau8824_clock_check(nau8824, substream->stream,
+ 			nau8824->fs, osr))
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
+ 			NAU8824_CLK_DAC_SRC_MASK,
+ 			osr_dac_sel[osr].clk_src << NAU8824_CLK_DAC_SRC_SFT);
+@@ -1041,7 +1042,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		osr &= NAU8824_ADC_SYNC_DOWN_MASK;
+ 		if (nau8824_clock_check(nau8824, substream->stream,
+ 			nau8824->fs, osr))
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
+ 			NAU8824_CLK_ADC_SRC_MASK,
+ 			osr_adc_sel[osr].clk_src << NAU8824_CLK_ADC_SRC_SFT);
+@@ -1062,7 +1063,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		else if (bclk_fs <= 256)
+ 			bclk_div = 0;
+ 		else
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap,
+ 			NAU8824_REG_PORT0_I2S_PCM_CTRL_2,
+ 			NAU8824_I2S_LRC_DIV_MASK | NAU8824_I2S_BLK_DIV_MASK,
+@@ -1083,15 +1084,17 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		val_len |= NAU8824_I2S_DL_32;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		goto error;
+ 	}
+ 
+ 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
+ 		NAU8824_I2S_DL_MASK, val_len);
++	err = 0;
+ 
++ error:
+ 	nau8824_sema_release(nau8824);
+ 
+-	return 0;
++	return err;
+ }
+ 
+ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+@@ -1100,8 +1103,6 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
+ 	unsigned int ctrl1_val = 0, ctrl2_val = 0;
+ 
+-	nau8824_sema_acquire(nau8824, HZ);
+-
+ 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		ctrl2_val |= NAU8824_I2S_MS_MASTER;
+@@ -1143,6 +1144,8 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 		return -EINVAL;
+ 	}
+ 
++	nau8824_sema_acquire(nau8824, HZ);
++
+ 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
+ 		NAU8824_I2S_DF_MASK | NAU8824_I2S_BP_MASK |
+ 		NAU8824_I2S_PCMB_EN, ctrl1_val);
 -- 
 2.35.1
 
