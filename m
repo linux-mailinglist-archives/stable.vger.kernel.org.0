@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 523715B8418
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03ED5B8420
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbiINJHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48224 "EHLO
+        id S231287AbiINJHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230363AbiINJGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:06:21 -0400
+        with ESMTP id S230463AbiINJGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:06:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDAE760F5;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3566674DCC;
         Wed, 14 Sep 2022 02:03:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C03561998;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA8AD619E1;
+        Wed, 14 Sep 2022 09:03:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99354C433C1;
         Wed, 14 Sep 2022 09:03:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96D0EC43470;
-        Wed, 14 Sep 2022 09:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146205;
-        bh=veIuWdajrcEzBTqa9/+StGfFu9s7ZQPG70dnX2gD020=;
+        s=k20201202; t=1663146208;
+        bh=0huOiptbVUn3jO0PL3RIEjElL0VLQUE1lKtQ04GdUhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHHPk9MmUqAS/PiZLM5vJqgSODmNJHQvYI6/uBShr3mN1H3ESHdx8sh2gPqE3tGsu
-         87q+dF6wzEZO2A1J+6Zf1/OHNStqoVVSytmExItxO9Bn1qE5uEz48Dii9R21GuMnBr
-         Tb8OfFA/bcy8W57V3wdYz3fTNXOG3+txYsoW7L8o6+UrMjgYoKmNwV091EhkCqyizF
-         OnSdj/H1XazILleKvXErivLa+B3S18OhAdTyT3fhQ7M/dHF/5EIQit4t/idpi25j8+
-         xK9nQFO9LcaWl7SQLb9jL1mJ04KK+0ezVZXtZ837iK0OC4ABP1C0VhEs1Le9EN7ezX
-         dOgpNc4+VuBWg==
+        b=EfWZsLFocfTW+paaBSiQevrIjK51dTfRcjwWHVvvSq4ARopwUwLQrR5BQqscwsCOJ
+         TNqpjSSrA53CcSxdCXXPP38soe3g/NyVn0Qmpsw8X7PkinavWnnnX1PfaZWYItTrFb
+         iQy4nZ+FjUrDFmGLNpPl3LIWPckkHYN9v6P45FjGdbTbi0WzZeDpH64fGjYVq8QllE
+         f5UOhRV6b2tVAMJXmHhFeK4286JFp+YsuNgr4bmxEB7+SE70QIhz2MwfVBtvKVGUXe
+         5bIu8A0s1rL1xNcEqpjKeXcls1vP5a5R9K0MYueAghc5aBUR2y7tKk/df57sVwoPMA
+         flkWcWsDQpUBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
-Subject: [PATCH AUTOSEL 5.10 02/13] regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
-Date:   Wed, 14 Sep 2022 05:03:04 -0400
-Message-Id: <20220914090317.471116-2-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, marc.dionne@auristor.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-afs@lists.infradead.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 03/13] rxrpc: Fix local destruction being repeated
+Date:   Wed, 14 Sep 2022 05:03:05 -0400
+Message-Id: <20220914090317.471116-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090317.471116-1-sashal@kernel.org>
 References: <20220914090317.471116-1-sashal@kernel.org>
@@ -56,39 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 78e1e867f44e6bdc72c0e6a2609a3407642fb30b ]
+[ Upstream commit d3d863036d688313f8d566b87acd7d99daf82749 ]
 
-The pfuze_chip::regulator_descs is an array of size
-PFUZE100_MAX_REGULATOR, the pfuze_chip::pfuze_regulators
-is the pointer to the real regulators of a specific device.
-The number of real regulator is supposed to be less than
-the PFUZE100_MAX_REGULATOR, so we should use the size of
-'regulator_num * sizeof(struct pfuze_regulator)' in memcpy().
-This fixes the out of bounds access bug reported by KASAN.
+If the local processor work item for the rxrpc local endpoint gets requeued
+by an event (such as an incoming packet) between it getting scheduled for
+destruction and the UDP socket being closed, the rxrpc_local_destroyer()
+function can get run twice.  The second time it can hang because it can end
+up waiting for cleanup events that will never happen.
 
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Link: https://lore.kernel.org/r/20220825111922.1368055-1-xiaolei.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/local_object.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 0a19500d3725e..44a8e500fb304 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -791,7 +791,7 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
- 		((pfuze_chip->chip_id == PFUZE3000) ? "3000" : "3001"))));
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index 8c2881054266d..ebbf1b03b62cf 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -424,6 +424,9 @@ static void rxrpc_local_processor(struct work_struct *work)
+ 		container_of(work, struct rxrpc_local, processor);
+ 	bool again;
  
- 	memcpy(pfuze_chip->regulator_descs, pfuze_chip->pfuze_regulators,
--		sizeof(pfuze_chip->regulator_descs));
-+		regulator_num * sizeof(struct pfuze_regulator));
++	if (local->dead)
++		return;
++
+ 	trace_rxrpc_local(local->debug_id, rxrpc_local_processing,
+ 			  atomic_read(&local->usage), NULL);
  
- 	ret = pfuze_parse_regulators_dt(pfuze_chip);
- 	if (ret)
 -- 
 2.35.1
 
