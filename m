@@ -2,205 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A55F95B8BC7
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 17:28:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80AB5B8BDB
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 17:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbiINP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 11:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37734 "EHLO
+        id S229939AbiINPcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 11:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbiINP2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 11:28:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD437C32E;
-        Wed, 14 Sep 2022 08:28:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F1318CE13D6;
-        Wed, 14 Sep 2022 15:28:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7C2C433C1;
-        Wed, 14 Sep 2022 15:28:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663169315;
-        bh=zqphwVveYBXH6VOdrvrXdJKfcphlsHIz/gl20fLq9co=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=k843nBZnznsTAagoZV3QB2AMK+NShGqK0WJA6yzKqX6b/9/jb1+lcugXP31UBDJ9j
-         SrwPHXBaUGr2cJpGBJ9dVz0yyYxVqH1iZYIOCu8cLyUj1nsTYjV1N+Jjnogddj+VeV
-         EaNHfRA1gPHabRxaVv/iR4rpumktEIHHboYoGfg+3Pb+ddix6cZ/O44sve2rfN5p+H
-         uT9+cEKPPQoVQzKcNYbhq8v+AWVQU+gXd5KMr15nyOT5fvf9l6blTrhYgrVLsoWfUZ
-         og3+vvlccx0F7VYHS+3fE93rCbz8Kds4AC+x7UupSZ8pPAf9nC+48BE3sOz6YvYLyi
-         +xOP6lc1pGGww==
-Message-ID: <c4c9d239-8147-99c9-eea4-e9ea722f7fd8@kernel.org>
-Date:   Wed, 14 Sep 2022 23:28:31 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+        with ESMTP id S229733AbiINPct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 11:32:49 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2065.outbound.protection.outlook.com [40.107.244.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8155D4455F;
+        Wed, 14 Sep 2022 08:32:48 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Mlh2IjETTDbMNIDUNH2hNG1NlGqEnMmCFb9fQMB5amYaCJJQGjbqVX82VInn6YNJW9/JyA+FtzS7U1WhIv4xDkZvnyO4ZBRrIXF2/eelUjeTD4vS+JUvW+3M8sledKaGhGOg+2x1pJczHrftY6jcMeM6SU62C8fd3sll+FaFwPvGeqeFl+UZSZ1cfks1vhqmaMrGmqh7ujhcXnkCDWDzPbSEbhzYSsgEahES4tIHloiY8uMt6yprJR7SV+lvjDkRKDbkq6eWLkmgnfPuGkhsLdTNhX2ePeq9O1N1TEOSn85BioRyGmiKrRhQh3jOH2+kDHuVnAPMNSQdcA4por0kbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9qAqGQVHeRXUkDrdo+syMeO4kVCxE8D0iFGKp4quQx8=;
+ b=AMNTKXsZCnLT/KbhgK4MWSk+lJjck8NFvCF6BNtcpGw0kYiaQ4FNQfO3NAAm1ByJFTIATc4j+j7PlzrqBcZtWS+yVhVOdFXmRIrcnDLgq33/YRuiIu+CUSkWRBEL6mpmUy8LWnaGGvnjRNBSbjkNMrNpuDMA9M0EksrMp37kKSSHLskIj3lNMaKLcxl0u2j/dPWabuaL+w+UH07L+TCehO9tQtBeKKMhGO9qznvOIvds7Rc7O1PpLJIOahdIYdI2lrdV1fx98WMNXs3+VWbIeamHrjqexLUVFYbbnaBX3T/RhdujezvHDKb5y0QcRX32rxAYFWLUyQJNYeOZSALljw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9qAqGQVHeRXUkDrdo+syMeO4kVCxE8D0iFGKp4quQx8=;
+ b=XWEj7uP2YiAqwiRbqWEGZX646QwWO3yjuO3eoWwR992bn+s4EDKp8m6DVPfVT6ayVWdNJvHm2tTzVC9661eFpIAs4lPuvkzyJUYaqGsH1JiLS7v7lXtn6MgF4n3kVTripeK0x6duRA5v/wduUsq0ejt3XXPlS7inEtpEVBZi5B4gstbituA/1/o6wcHnUoKK+KTr9V0dwCzJQ7sGhEcYYvzNUieBZkD52fTEvU2M7kuaVN547EeiN4piB6CnVke1VedHs+gQjSPrJRXCIPUf6kYPdpXFN7bXYzcwaZnGoyctLo2s8xO9+N4n1ICJIxbq1zi4MAoo1Vvuy9kdTfLSbw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CO6PR12MB5444.namprd12.prod.outlook.com (2603:10b6:5:35e::8) by
+ MW4PR12MB7142.namprd12.prod.outlook.com (2603:10b6:303:220::6) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5612.22; Wed, 14 Sep 2022 15:32:47 +0000
+Received: from CO6PR12MB5444.namprd12.prod.outlook.com
+ ([fe80::7090:22ef:abb3:ae9f]) by CO6PR12MB5444.namprd12.prod.outlook.com
+ ([fe80::7090:22ef:abb3:ae9f%7]) with mapi id 15.20.5612.022; Wed, 14 Sep 2022
+ 15:32:47 +0000
+Message-ID: <9438bed6-7dd8-026a-6a3c-0968a31a27ec@nvidia.com>
+Date:   Wed, 14 Sep 2022 16:32:29 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
-Subject: Re: [f2fs-dev] [PATCH] f2fs: fix missing mapping caused by the
- mount/umount race
+Subject: Re: [PATCH 4.19 00/79] 4.19.257-rc1 review
 Content-Language: en-US
-To:     Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-References: <20220829215206.3082124-1-jaegeuk@kernel.org>
- <cbc4bfe5-14f9-a4e0-c9c5-6b6b06437d5d@kernel.org>
- <Yw55Ebk8zLIgBFfn@google.com> <Yw7P6BkNZmqxji3B@google.com>
- <2b669973-caf0-75e8-f421-7647dddf03ce@kernel.org>
- <YyHwDVk96qvKn9eQ@google.com>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <YyHwDVk96qvKn9eQ@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+References: <20220913140348.835121645@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-8.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-ClientProxiedBy: LO4P123CA0344.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:18d::7) To CO6PR12MB5444.namprd12.prod.outlook.com
+ (2603:10b6:5:35e::8)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO6PR12MB5444:EE_|MW4PR12MB7142:EE_
+X-MS-Office365-Filtering-Correlation-Id: da9a85b4-ac23-4854-75d7-08da96666021
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: d3LRBGtwjHJAISFH+uwZgoa9dCdGQWxXCkV+yiz9zhJGmJFW/76S4m8fVtNbN7u03dXlAESvFPg0LbfwMl/WHH1/6ZLynmAtYnXAmTZkBJtRYwywyM01DVjsk9i1Ib6PRbHEH3NQNex/7rjZgz9iw6lz8KXcR6RE1+I7fiLqG32L3QnCCnoeJSB7N/E3Oev8au+TQjFIrzGQJzBrjt4WyuDmsVso1H03cgiWRYXQ+eCMkU/uPj1m97IxufsOZr23ZEOsrbSrryuuWKMePIT3XSDucTqBZOIOYogKQvS9HxX8zgSB5ZF6PctkDaTgyU8PkAbQuwYtoJnK9ya8+qP3BVDyXU56r3EwMkVuqNEWbdZSMC+HwL4h5xFlDbkQgxN5aW4tmPVRC5lz2ESoAbFFrEN2eIcUPcJRl1SK6Xv0VuLfyoRkiJGZAPYVNbs3zw0FB0o5/o2jbeifmwHVoQW5za3NXFBkHo3r7F7phJSvMVtvBqYIKcCvD3qQB22SOHxDjhTp62c2yMl+2N0/KqwWPvCry+kzSNFpvnJgANM77ueW92N4yR6bXPDUl+qFakfrLJ+I72tcfWMaXVd9oGyaUt20XgCTfZaBTqfbo7kT5JEeB8jahv+5JD4aipN4NrLRRnmgrSoBXjTuMLZG2f4ZN0pbG7bezDVoa2ZqMoriYdRC25bYFmFr3epyXU3hdMJu0NBdx0gRtLUt2a5xQeNUaOIgdOF/Usr19fV8bEffyO38Io1lVIsaZaTkWPd4TWlPf8mm1QkWj1IP4Mu7znFZCZpzgXy9SrvEyNWVWE6iVI+POPg0t9Or8jxsBQHZK7PVIvbt3gR1ZgiwivnkuXFBnZ4nPPv4ebRD4Vith6CusLTOSn60H+FSz7PeLtXYA5gF
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO6PR12MB5444.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(376002)(366004)(39860400002)(136003)(346002)(451199015)(6512007)(31696002)(6506007)(53546011)(186003)(86362001)(2616005)(316002)(41300700001)(7416002)(8936002)(5660300002)(66946007)(2906002)(66556008)(4326008)(8676002)(38100700002)(66476007)(31686004)(36756003)(6486002)(966005)(478600001)(6666004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?blRsMlY2K2VVQmc3MWJ6VUVBZFRxclU1QUVEYUpTYkEzN1dZSVNxOWorL0VI?=
+ =?utf-8?B?a3l3TDV3SEgrVm1wYUFiK2dDTGgxYlJjUDE0UStid20xdWo1Zm1DMkNQaDA0?=
+ =?utf-8?B?QkpBeTA1Z3FqUjNmNHdOdW5mcXRiZ21mUlovVDkxVGtLcnkzZWlIN3lEcVFn?=
+ =?utf-8?B?WTdSUzdFRWI5Mmw1NEpGcjFSRjhQUEE0cGxkaitBK1RLVDJscEpKMUlPdzRM?=
+ =?utf-8?B?cllVdFBYUzVRbmFkd00xRFQvcXFSc0hCTFUvUzR1TU5RdTFZakYxc0JWa1ZN?=
+ =?utf-8?B?SUJnWVNyRkhvY252aFFreGlLMzMvL2lpOGlzZkRrK0UvNjNpSk50RksrYVp2?=
+ =?utf-8?B?b1FzOUh6WDFLTE9vMUI3RE1GQkVueXNwdXdRSUNrSlZDbXlOWEVSdENiSiti?=
+ =?utf-8?B?Y1FKU3QxZVBnQzhhMWNPUDQzY1NzdDd6R0RwSUE0ZUFwWlZ3ZTV3WlZ2MGlV?=
+ =?utf-8?B?aXRkdDRYd1ByczhsejNuL3VuRVJQcUEzQVByTkZhYkZVUXFrcVAxRHZJajd5?=
+ =?utf-8?B?c1lZY081UVh0NHhyd2w5TEZqNkNnbHRNelVEQWY3UG5ZY3c0ZUJRRUdtRklz?=
+ =?utf-8?B?dEpTZW9TbEdsOTFEQTY4dmRhRG5ZcTdEOFdkMnVPOEZnZld2c081aHNRN2Uz?=
+ =?utf-8?B?TUhoRGx4Rk5RVUtEaFRqME5FQkUzdG0zQmdBN3dpV3lseUZiOUpEeDk3Uk9v?=
+ =?utf-8?B?NXB4amYxcVh4QlVKOEFLcFl1UmRUZTJGNnR4WlplMkc3YUN6c0trdjZ6cUd4?=
+ =?utf-8?B?RUtKMHF3Q1Y2cE90djRIYUhwQklCY1ZlbEcyZko4dm9wTTMxTXpPZ01EUHB2?=
+ =?utf-8?B?NGp1V3FTVmFnYUxSKzJEV3YrRVcxQ0dubllxeHdSM3B0enFOTW9xaVhjMUVS?=
+ =?utf-8?B?MVRNRmpRVE5NRVJvczJEd25yTCtPUklCcUw2czZVOG5SRnhOM1BUYk1lRG9H?=
+ =?utf-8?B?c0JLeGVxTTNpMUJmRTFPbmozeFZUQTNyeEtEWTFMUHFPUWROWmlSZW45MlY2?=
+ =?utf-8?B?WnE3ZkhxY21ER2NaQ251ZllZczBhN2p2WXcxSncwYzhJZEdtQzd3YjFacmt2?=
+ =?utf-8?B?TUdlUmZlNGgyaTBZK25Oay9iaFZyekxqanl1RHlTTmUzZXZTQUYySkRRNG9O?=
+ =?utf-8?B?Z0o4SlU5RlpvZTBFNHBla3dDMlNjeG8zRkJyS0E1SDN0UUc1N0J5aU1nL2p6?=
+ =?utf-8?B?cWQvemp4ckp6NDlDQlpEYnQwaU92N0IrLzZ2WkVtRUVleU5DT1h2TnlwNDZT?=
+ =?utf-8?B?RW43ZWM0bGZid1dreUpLUDEvTExCUGlJSnZ3VnZFTnpGRm1Od2EzaTJGOHZx?=
+ =?utf-8?B?dUFkZmdpc2FSRzdCejBFV3o4TkdxcG1WSjRnU3RTLzh4UWUyT2UwMEFVM3ZE?=
+ =?utf-8?B?RmloSzRDbzZQQ1VhQ0xWRFF5ZldWUGkzNWFOOFBycnFHd3hIYXdwekZYYVhD?=
+ =?utf-8?B?OW5MSVFwdDZXamFNK0pCcXZIQlllSHRjRHdCMXFtRkNtSnhETDU2OEpLQ1dJ?=
+ =?utf-8?B?cXhOT1ZpaTVDeFpqWnV1bFlSdyszUGlYUDEwaE54a2ZLSHBqcFJQVmNjU0xa?=
+ =?utf-8?B?dEpDdXNIcjdUWXJJWFN3cVRtWnFtaDE1a0xnanArM2NKM1VGOW1EUU0wYzNH?=
+ =?utf-8?B?a05LMk9aMXYvWXpKL2V0QTJFUW1KSThKbGZ0eExxQkp5RDNqRDZwaEMxL2U5?=
+ =?utf-8?B?QWd2bDBIMWRubjBxWFdmUTlEb3FYQWlTQjFKS3RHa3RQdysyWmpOV1hyRmFa?=
+ =?utf-8?B?TDdRREN0UkdoTlQ2WVZYNkVNYXBSOW5oTnB6SlBRbEY4UjZNeng1RXA5dVg2?=
+ =?utf-8?B?M2ZIKzdTNk02SFRpK2lPQVZyTHpnYVp6bFhSeTRWcHRwN05LelkvTVhjK0kx?=
+ =?utf-8?B?ak5reFhUKzNzUFNjTHQ0YUxaQ0g5ZUpYU2dFRkdiMGhuOHBDRFBuSS9xNmNi?=
+ =?utf-8?B?V0VjZThCV2FTUm5NYStFa21pMjdFRGZYK0VGaTZHNEpjZWV6VEo1WFVCZ3hx?=
+ =?utf-8?B?MVQzUjE1UzRuTkxSSmtGZ1g4ckI1VGhLSmlwNmRoYVFTUEhScnBDYlRLTUds?=
+ =?utf-8?B?L01YZ1I2V2x4eGk4cnBkL2V1aFRVZURrMXVYODVUVlJMcHFYTXVjRHJKeWFG?=
+ =?utf-8?B?WEQwdkNjZHRpc09HaVBiMmc1OEtRQktBRERPQVIyRTBvNFliMkdKTFFBWDhq?=
+ =?utf-8?B?MWtCVk9YR3lnSW9oUVdWT25jRGRtWHQ2cHdlZVVmcEh5OHZ4N3BPSmRqV2Rq?=
+ =?utf-8?B?cmVLeDRIYkk0M1RhUngzTkJqR3JBPT0=?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: da9a85b4-ac23-4854-75d7-08da96666021
+X-MS-Exchange-CrossTenant-AuthSource: CO6PR12MB5444.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2022 15:32:47.3732
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: O+idkdKst0ZG5UD7jTRG2lbHq09D/wi83//hFQqxZkHvyumGhX2gRS8n5AC4vW7Qw1SROPVFCm/Y93HkKuGD7g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7142
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/9/14 23:15, Jaegeuk Kim wrote:
-> On 09/14, Chao Yu wrote:
->> On 2022/8/31 11:05, Jaegeuk Kim wrote:
->>> On 08/30, Jaegeuk Kim wrote:
->>>> On 08/30, Chao Yu wrote:
->>>>> On 2022/8/30 5:52, Jaegeuk Kim wrote:
->>>>>> Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
->>>>>> all the time to fix the below panic.
->>>>>>
->>>>>> Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
->>>>>> Mem abort info:
->>>>>>      ESR = 0x0000000086000004
->>>>>>      EC = 0x21: IABT (current EL), IL = 32 bits
->>>>>>      SET = 0, FnV = 0
->>>>>>      EA = 0, S1PTW = 0
->>>>>>      FSC = 0x04: level 0 translation fault
->>>>>> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
->>>>>> [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
->>>>>> Internal error: Oops: 86000004 [#1] PREEMPT SMP
->>>>>> Modules linked in:
->>>>>> CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
->>>>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
->>>>>> pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
->>>>>> pc : 0x0
->>>>>> lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
->>>>>> sp : ffff800012783970
->>>>>> x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
->>>>>> x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
->>>>>> x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
->>>>>> x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
->>>>>> x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
->>>>>> x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
->>>>>> x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
->>>>>> x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
->>>>>> x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
->>>>>> x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
->>>>>> Call trace:
->>>>>>     0x0
->>>>>>     set_page_dirty+0x38/0xbc mm/folio-compat.c:62
->>>>>>     f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
->>>>>>     do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
->>>>>>     f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
->>>>>>
->>>>>> Cc: stable@vger.kernel.org
->>>>>> Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
->>>>>> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
->>>>>> ---
->>>>>>     fs/f2fs/inode.c | 13 ++++++++-----
->>>>>>     1 file changed, 8 insertions(+), 5 deletions(-)
->>>>>>
->>>>>> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
->>>>>> index 6d11c365d7b4..1feb0a8a699e 100644
->>>>>> --- a/fs/f2fs/inode.c
->>>>>> +++ b/fs/f2fs/inode.c
->>>>>> @@ -490,10 +490,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
->>>>>>     	if (!inode)
->>>>>>     		return ERR_PTR(-ENOMEM);
->>>>>> -	if (!(inode->i_state & I_NEW)) {
->>>>>> -		trace_f2fs_iget(inode);
->>>>>> -		return inode;
->>>>>> -	}
->>>>>> +	/* We can see an old cached inode. Let's set the aops all the time. */
->>>>>
->>>>> Why an old cached inode (has no I_NEW flag) has NULL a_ops pointer? If it is a bad
->>>>> inode, it should be unhashed before unlock_new_inode().
->>>>
->>>> I'm trying to dig further tho, it's not a bad inode, nor I_FREEING | I_CLEAR.
->>>> It's very werid that thie meta inode is found in newly created superblock by
->>>> the global hash table. I've checked that the same superblock pointer was used
->>>> in the previous tests, but inode was evictied all the time.
->>>
->>> I'll drop this patch, since it turned out there is a bug in reiserfs which
->>> doesn't free the root inode (ino=2). That leads f2fs to find an ino=2 with
->>> the previous superblock point used by reiserfs. That stale inode has no valid
->>
->> One more question, why stale inode could be remained in inode hash table,
->> shouldn't the stale inode be evicted/unhashed in below path during reiserfs
->> umount:
->>
->> - reiserfs_kill_sb
->>   - kill_block_super
->>    - generic_shutdown_super
->>     - evict_inodes
->>      - dispose_list
->>       - evict
->>        - remove_inode_hash
+
+On 13/09/2022 15:06, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.257 release.
+> There are 79 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Yes, that's why I didn't dive into further, as it's odd.
-
-Alright, this bug was reproducable w/ below testcase, right? :)
-
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=167b5e33080000
-
-Thanks,
-
+> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
+> Anything received after that time might be too late.
 > 
->>
->> Thanks,
->>
->>> inode that f2fs can use. I tried to find where the root cause is in reiserfs,
->>> but it seems quite hard to catch one.
->>>
->>> - reiserfs_fill_super
->>>    - reiserfs_xattr_init
->>>     - create_privroot
->>>      - xattr_mkdir
->>>       - reiserfs_new_inode
->>>        - reiserfs_get_unused_objectid returned 0 due to map crash
->>>
->>> It seems the error path doesn't handle the root inode properly.
->>>
->>>>
->>>>>
->>>>> Thanks,
->>>>>
->>>>>>     	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
->>>>>>     		goto make_now;
->>>>>> @@ -502,6 +499,11 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
->>>>>>     		goto make_now;
->>>>>>     #endif
->>>>>> +	if (!(inode->i_state & I_NEW)) {
->>>>>> +		trace_f2fs_iget(inode);
->>>>>> +		return inode;
->>>>>> +	}
->>>>>> +
->>>>>>     	ret = do_read_inode(inode);
->>>>>>     	if (ret)
->>>>>>     		goto bad_inode;
->>>>>> @@ -557,7 +559,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
->>>>>>     		file_dont_truncate(inode);
->>>>>>     	}
->>>>>> -	unlock_new_inode(inode);
->>>>>> +	if (inode->i_state & I_NEW)
->>>>>> +		unlock_new_inode(inode);
->>>>>>     	trace_f2fs_iget(inode);
->>>>>>     	return inode;
->>>>
->>>>
->>>> _______________________________________________
->>>> Linux-f2fs-devel mailing list
->>>> Linux-f2fs-devel@lists.sourceforge.net
->>>> https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.257-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+All tests passing for Tegra ...
+
+Test results for stable-v4.19:
+     10 builds:	10 pass, 0 fail
+     22 boots:	22 pass, 0 fail
+     40 tests:	40 pass, 0 fail
+
+Linux version:	4.19.257-rc1-g74af49d445c5
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                 tegra194-p2972-0000, tegra20-ventana,
+                 tegra210-p2371-2180, tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
+
+-- 
+nvpublic
