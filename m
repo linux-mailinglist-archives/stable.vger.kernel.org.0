@@ -2,104 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CC75B8E4F
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 19:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFE95B8E74
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 20:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229794AbiINRqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 13:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43596 "EHLO
+        id S229893AbiINSAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 14:00:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbiINRqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 13:46:52 -0400
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21A252086;
-        Wed, 14 Sep 2022 10:46:51 -0700 (PDT)
-Received: by mail-qk1-x735.google.com with SMTP id 3so11069980qka.5;
-        Wed, 14 Sep 2022 10:46:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=8dCJBTzDwCYDG7yGJAzsA7Ppx1VJiWA7RssQ0rmRopw=;
-        b=UdH5qf8MZ2e8DzliUaez9f/wdBVh6xOrHKJ6RSuh3iuNj+30K04XKONiYHp2nvaH9w
-         kB2nFljOyIOijYSnY7gfTziaNMD8wRfnZFtGFcTHtY6JryMTw4g+p2u6Sl8mmDLQMn6c
-         LLJx2YcKpSPEjab6ejEM5aipT1eBi/RrHHbAzzQ9gKsqewFHQaTV26dR4iVx6wQCONx+
-         46I0e0bYkcPDlL6smO2u+tzYix+XVm5tdVQ4kbfvS+heTwNvYs4JNkzien6YG8ZpqCdQ
-         1wNJphsaFoHVxHsogS6Snr763o+ptofIAxwmDfpTSlpJbbzdt9V5ZNQ3/NItooCv/wOO
-         YJvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=8dCJBTzDwCYDG7yGJAzsA7Ppx1VJiWA7RssQ0rmRopw=;
-        b=GOuQbw9Nte+0O+3r6S2PWybvXLj2/6/GCMjgNe07cGpgaz9divVOJBPk8ks+W4W2Wo
-         0HXc2Yj2jyG1O1KtvA/rHOjcYXtTZlnEgcsHORvliMN2xuJMQAf4XEwUc96rxeLm/FSE
-         cTnjD/tDvYhsE+6oFjHVM7Rq/LYBAKNUkWUFylRV0ESHTghMgrHt6ArO8egQLJzpm+Pz
-         4Q91A9OFM1kFotGu4WH7rjYAP2nVsn0vHb0Q6paI4Ax8PbOMe6kGMmUuk7QLH26t9pYf
-         Osqbd+QLYCBCVovfZfhBKOJ5a8ysC/7kAPGYoBOJtjhh5BjPAgxkyUrO6XGvezUHgXBS
-         h88w==
-X-Gm-Message-State: ACgBeo2TZlv2pVHpLeO5KZbTInVvO0/axVWvFcCMAFGQAwRIB5iqNLAq
-        PZqlxOp7Jag9Rle7YiCUZM1OY0wmkaY=
-X-Google-Smtp-Source: AA6agR7x/L2mbGbY/RNHSUQU/dQgn5UQmEPcsTsBGs8qZ0AU5HVPVI+a7OliiCRlf42apGqrBDaM9Q==
-X-Received: by 2002:a05:620a:25c8:b0:6ae:ba71:ea7d with SMTP id y8-20020a05620a25c800b006aeba71ea7dmr27782097qko.547.1663177610901;
-        Wed, 14 Sep 2022 10:46:50 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id h1-20020a05620a244100b006cbcdc6efedsm2313281qkn.41.2022.09.14.10.46.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Sep 2022 10:46:50 -0700 (PDT)
-Message-ID: <b2e81ab3-8bf7-d0e9-d046-9aa2eacda6f5@gmail.com>
-Date:   Wed, 14 Sep 2022 10:46:46 -0700
+        with ESMTP id S229543AbiINSAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 14:00:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1727B7EF;
+        Wed, 14 Sep 2022 11:00:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D88D61DD7;
+        Wed, 14 Sep 2022 18:00:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE62CC433D7;
+        Wed, 14 Sep 2022 18:00:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663178401;
+        bh=/T/HGsyFeq6YUQ0uFTTthXz3ER0Xg8cFzCxncScQBd8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=G37Trs8qORJpFcJKWa9ESzclCkLrA8b/y7RUFOwNhtqwLbhlt80K79qkCEaXsPxH4
+         WHuGmty1RigKSf6qy5i5VVzrjpdCD2ZWmrP9+7YnSb8TYkgkJG7FeDXZpnKSr3R3dm
+         w+Zfxy/7W0PZ2OAowK6qIpTQz6p93p0VHEcMPKiTuL9AWXYeFgcGJD9XRSoPKe5cjq
+         kKPF9fpghwaH9kDt4vK6GD5jLRb9ooSBObGRYOPttXUtGIavLRtA3KtwegXIvAccdi
+         kt8uvUwbRskkF/tpKdvAvO2Qe5llb3kPs8P4NhsF4x5UtUVxMvtmORkyjgaODmcNJm
+         jnGjg/EpLvg3w==
+Date:   Wed, 14 Sep 2022 13:59:57 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, seanjc@google.com,
+        mark.rutland@arm.com, elver@google.com, david.engraf@sysgo.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 5.15 14/23] arm64/signal: Raise limit on stack
+ frames
+Message-ID: <YyIWnWen7lXoYezR@sashalap>
+References: <20220830172141.581086-1-sashal@kernel.org>
+ <20220830172141.581086-14-sashal@kernel.org>
+ <Yw5PgFEtUloKxRNQ@sirena.org.uk>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 4.9 00/42] 4.9.328-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220913140342.228397194@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <Yw5PgFEtUloKxRNQ@sirena.org.uk>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/13/22 07:07, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.328 release.
-> There are 42 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.328-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Tue, Aug 30, 2022 at 06:58:09PM +0100, Mark Brown wrote:
+>On Tue, Aug 30, 2022 at 01:21:31PM -0400, Sasha Levin wrote:
+>> From: Mark Brown <broonie@kernel.org>
+>>
+>> [ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
+>>
+>> The signal code has a limit of 64K on the size of a stack frame that it
+>> will generate, if this limit is exceeded then a process will be killed if
+>
+>I don't believe this is relevant to kernels without SME support.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Ack, I'll drop it.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Florian
+Thanks,
+Sasha
