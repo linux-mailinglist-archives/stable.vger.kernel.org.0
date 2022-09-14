@@ -2,70 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5E15B9012
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 23:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB5C5B9047
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 23:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbiINVZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 17:25:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55746 "EHLO
+        id S229562AbiINVuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 17:50:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229644AbiINVZ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 17:25:26 -0400
-Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12CC6DFA3;
-        Wed, 14 Sep 2022 14:25:25 -0700 (PDT)
-Received: by mail-qv1-xf36.google.com with SMTP id m9so12764322qvv.7;
-        Wed, 14 Sep 2022 14:25:25 -0700 (PDT)
+        with ESMTP id S229915AbiINVuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 17:50:00 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4506886C3E;
+        Wed, 14 Sep 2022 14:49:25 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id d1so12840071qvs.0;
+        Wed, 14 Sep 2022 14:49:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date;
-        bh=pJpdXWnudHrRP4ACimi1TW0yqy4ZvRDvJ2MS67CS3d8=;
-        b=HMPHVKxvJFGeLm1RCCYOZG7kt1Q1AM6ftx1TuFZu/XcVZvfOZSnNIQ5zbp70QBE6Sb
-         +Dl5FNPQM/hOrBf4Xb+u+dNi22NonDTp1bZVCKw7xv9uoK4kO5FGqD1bRdpk6cCcDpEZ
-         +1xb6miK9cq3MYaKkNObyBOWIS8N/6601xjU7ynggwIpSUNJmIT9lDmr4VWjP53/88z6
-         jsr/fVKJnSOr+15pptHnBbrd3yQx1ywVMSUllaqY5Q5Vua2+Ar2KnAip+ajdbNkZS8NP
-         zTKSGCl5/H1aAnJxlPnLNzQOKQ/K+cqBowarevmLkTFGtQh3Sz3QiBn7b0McPVEIvXXd
-         //Dg==
+        bh=Mlq5OwfkX5sats/uQxVfRjfC54o1+5/BBTIbC7sExTw=;
+        b=P3WGL6HCwe/FzqQsrWKuwfxcBDAlRww2qK0jhR+mku7xO5FefjqI3YV/S45RrCGYic
+         zlp1QXwJQ3dkDyGXhUdaS/4XLlxPu8cByv2aTUjI8oBCLzTmVnMrQ4nZ73QRVkD/pgFe
+         ftkNtBgIcmXghkDDZYtm+anbDLdL8vVUNl413qi0ZKaVboNAI+7dGZ6RqQdMjSY8m/dU
+         hn9JNouatEN96CeASzDsvS8lFfI2spwl6dWYJmAqvrQpU8N8YZjy8HfnbBNxZMJWsguV
+         O9nft+cNwareLKke28PWKR5jpG3zWQUpB1+4XY1wT/KjaizWCYiZiAwzv2VG/ud2N7Qp
+         SxoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date;
-        bh=pJpdXWnudHrRP4ACimi1TW0yqy4ZvRDvJ2MS67CS3d8=;
-        b=a0DBnKUYEWoKQwG5rAb/+Jrk3H5yvfk4/wMTsBteafrQ04/MWn6nE8lE8/thTKj/3j
-         Z1vKYx5S8Qnos2Bdldg/G5i7MwWELLrJKw8MsZtg1w5ozaZa9Y1ubzzsYqM4udbNOb9a
-         HRSdaAwvXlJMFM0RkLCo8i9T3p6AmyrbjDAogyCgFVZBo/5kOdQf14VXZtuTYvrmzLhu
-         pHXH7EofzstkDJm5+x3TJh8YehqSRvd1fu2WXxJMF1a9JaXFyj45OMGcwz4OIQbEAetm
-         7ogdGVgDuFvk7ZgtG4FFNgXQVGay3HfUzKbOwr4my2/dPxYjwcB3uJLgoG3PBglBxtv2
-         fC2w==
-X-Gm-Message-State: ACgBeo2XV/MA6pBWrTZ+UxYID7OfeuthsUlmFhPFL/xFvDqa5hIJCydW
-        dmWH6stHgpr2jYGtgX3o+kuAMjwtrg0=
-X-Google-Smtp-Source: AA6agR5aX+Lky3rBHcN/nHs5PtfoGQgPjOP58Fmnsdm2utIbHEmI4XuuIziXpkQzE17wmW7mMl46UQ==
-X-Received: by 2002:a0c:b2de:0:b0:499:363f:222f with SMTP id d30-20020a0cb2de000000b00499363f222fmr34180880qvf.73.1663190724827;
-        Wed, 14 Sep 2022 14:25:24 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id x19-20020a05620a449300b006b95f832aebsm2782815qkp.96.2022.09.14.14.25.05
+        bh=Mlq5OwfkX5sats/uQxVfRjfC54o1+5/BBTIbC7sExTw=;
+        b=NOufOfckh3NQSs1Gs6WzKWVm6dzfwodJKGRAourUiArghoOtkrKeFkJ1T4H7S13PoS
+         Tt4KIxFB+u+uw43DzDidEb3x6XhRPhToS9qoaDeE7a1OBOeKPezZgsjRe8Rv2k584zil
+         hCk7bBnFSPieMDFcMPYPSFbGrqkUWGXe4vR34mbbCbNp0IIt0Z7dObMLj46yR6dFI7NJ
+         Wr2lFdLP3u7S2VJ2ss5MZXbknzbowKYl6jK1AupwNGtl1g9kKg67IFHZTbs4EgaeButK
+         XDsYG7dp3KfiUfAxCkHEY2AcnIuHhjlrE5RPa7gCvgPT3T+FJ1Te62k9m3EK1hlGQv6N
+         MMqg==
+X-Gm-Message-State: ACgBeo1o+k9fCLNRsejS/JdnqJS/jQUr2dme4OlwWJHMRDeu++NuYOoE
+        s9+mPBPNm36HJctxUCPWK78=
+X-Google-Smtp-Source: AA6agR6y47JUxStZNmYwod7Tq6rTP+tvukyIGB2+Dioe5mB7f+v7zD8s97UyJ8TO9u81hWK23L9qfA==
+X-Received: by 2002:ad4:418b:0:b0:4aa:3b02:dba6 with SMTP id e11-20020ad4418b000000b004aa3b02dba6mr33169789qvp.7.1663192163932;
+        Wed, 14 Sep 2022 14:49:23 -0700 (PDT)
+Received: from [10.69.40.226] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id az31-20020a05620a171f00b006af0ce13499sm2811924qkb.115.2022.09.14.14.49.21
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Sep 2022 14:25:24 -0700 (PDT)
-Message-ID: <6335baf2-0c7c-7b95-5190-76aa3d6aa410@gmail.com>
-Date:   Wed, 14 Sep 2022 14:24:45 -0700
+        Wed, 14 Sep 2022 14:49:22 -0700 (PDT)
+Message-ID: <efd8008a-6b81-ff4c-f0bd-4f957f00295e@gmail.com>
+Date:   Wed, 14 Sep 2022 14:49:20 -0700
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 5.19 000/192] 5.19.9-rc1 review
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [PATCH] mm/hugetlb: correct demote page offset logic
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220913140410.043243217@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Oscar Salvador <osalvador@suse.de>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220914190917.3517663-1-opendmb@gmail.com>
+ <20220914134927.16c229ccdc1a6b9da5d698c3@linux-foundation.org>
+From:   Doug Berger <opendmb@gmail.com>
+In-Reply-To: <20220914134927.16c229ccdc1a6b9da5d698c3@linux-foundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -78,28 +77,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/13/22 07:01, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.9 release.
-> There are 192 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 9/14/2022 1:49 PM, Andrew Morton wrote:
+> On Wed, 14 Sep 2022 12:09:17 -0700 Doug Berger <opendmb@gmail.com> wrote:
 > 
-> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
-> Anything received after that time might be too late.
+>> With gigantic pages it may not be true that struct page structures
+>> are contiguous across the entire gigantic page. The nth_page macro
+>> is used here in place of direct pointer arithmetic to correct for
+>> this.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.9-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> What were the user-visible runtime effects of this bug?
+As Mike said this would only conceptually be a problem for systems with 
+CONFIG_SPARSEMEM && !CONFIG_SPARSEMEM_VMEMMAP, and could cause kernel 
+address exceptions or memory corruption with unpredictable side effects.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+However, I am unaware of a system other than perhaps the PS3 that uses 
+the classic sparse addressing, so the odds of such a system also using 
+gigantic hugetlbfs pages that it wants to demote is likely quite small.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Thanks,
+-Doug
