@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A415B849E
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB925B8480
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231194AbiINJPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:15:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
+        id S231470AbiINJM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:12:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbiINJNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 466757B1CB;
-        Wed, 14 Sep 2022 02:05:50 -0700 (PDT)
+        with ESMTP id S231473AbiINJMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:12:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9795B7AC24;
+        Wed, 14 Sep 2022 02:05:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5769AB8171C;
-        Wed, 14 Sep 2022 09:05:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9832C433B5;
-        Wed, 14 Sep 2022 09:05:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 162E0CE139A;
+        Wed, 14 Sep 2022 09:05:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B20C433D6;
+        Wed, 14 Sep 2022 09:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146319;
-        bh=8IAUW2vimGgcg10/3rWKvaMWmIGhN9+wiVJ0WTfg6Cc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Eb8eIomBP7aXdXxyNjZZ+56rMXg6RwWcaH24RRAIHEYvoeTnHMcSy4hkaT3LtZLvt
-         q3LTylNSqQOhV83U9J3Hf726eJldJc1UrKwMR7LLJwyPygI3dToPrI0f4KU2bFxcYh
-         k5AnB6XTJYNh/inF/LLpflTZ9nSeHzwTC/hJzwLkbNadvGNjZFIdf3gDX2jOF6KkU4
-         iT2wUjIqtsLj8zSrcAR6cQeBO8xpRuQDX8oOexwLno+25f2HfBsAnkWOy1xQaM24by
-         1InB2aQmWh3JsBWoAZC9JWfkEbmO8hoCOEZ61Ypr/STVDciKekXZYXr+NLP9wciKUS
-         2+ZnvbsYTfkKw==
+        s=k20201202; t=1663146320;
+        bh=HF4PGP0+xNYDtxf78yui0Q9OzSck6OrFjMcyX6mBa7I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=K9sQNEfGghfQLSBV7Fsop71w8D7LIRXkMDkJMijhVfiC73Cup9d4Pyjy/Rh/aQEcD
+         NEqlREpaB1OFkNRorpQgXfe7WOZv0U6o0Oa1VX2PkuSNKig60WAiPDsYkohUGfjh3j
+         glWphUNE/Wr+P9ksMe2cGEtAbWtAX0BJZPqkZSAfxhormsABwZIYZPfyGJBmHvy+uB
+         1MiQRkcosuRcPi1uBTRgPJv2qbZ2giz8/LgG0EPxG7vsUdll7aV2kKp7DZOmynNv03
+         Yh0FewCrlGTSiUBkIkO/pvTrJBOoyqzisO2iRRha3C/kdNf2JJrBtolz2yp2+1+cuD
+         sOtiD8zofDGCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, hdegoede@redhat.com, steve@sk2.org,
-        ckeepax@opensource.cirrus.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 1/8] ASoC: nau8824: Fix semaphore unbalance at error paths
-Date:   Wed, 14 Sep 2022 05:05:05 -0400
-Message-Id: <20220914090514.471614-1-sashal@kernel.org>
+Cc:     Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
+Subject: [PATCH AUTOSEL 4.14 2/8] regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
+Date:   Wed, 14 Sep 2022 05:05:06 -0400
+Message-Id: <20220914090514.471614-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220914090514.471614-1-sashal@kernel.org>
+References: <20220914090514.471614-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,99 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-[ Upstream commit 5628560e90395d3812800a8e44a01c32ffa429ec ]
+[ Upstream commit 78e1e867f44e6bdc72c0e6a2609a3407642fb30b ]
 
-The semaphore of nau8824 wasn't properly unlocked at some error
-handling code paths, hence this may result in the unbalance (and
-potential lock-up).  Fix them to handle the semaphore up properly.
+The pfuze_chip::regulator_descs is an array of size
+PFUZE100_MAX_REGULATOR, the pfuze_chip::pfuze_regulators
+is the pointer to the real regulators of a specific device.
+The number of real regulator is supposed to be less than
+the PFUZE100_MAX_REGULATOR, so we should use the size of
+'regulator_num * sizeof(struct pfuze_regulator)' in memcpy().
+This fixes the out of bounds access bug reported by KASAN.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220823081000.2965-3-tiwai@suse.de
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Link: https://lore.kernel.org/r/20220825111922.1368055-1-xiaolei.wang@windriver.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/nau8824.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/regulator/pfuze100-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
-index e8ea51247b179..cc745374b8288 100644
---- a/sound/soc/codecs/nau8824.c
-+++ b/sound/soc/codecs/nau8824.c
-@@ -1015,6 +1015,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 	struct snd_soc_codec *codec = dai->codec;
- 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
- 	unsigned int val_len = 0, osr, ctrl_val, bclk_fs, bclk_div;
-+	int err = -EINVAL;
+diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
+index 587a6bf9037b7..6b9c29d6825d4 100644
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -614,7 +614,7 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
+ 		((pfuze_chip->chip_id == PFUZE200) ? "200" : "3000"));
  
- 	nau8824_sema_acquire(nau8824, HZ);
+ 	memcpy(pfuze_chip->regulator_descs, pfuze_chip->pfuze_regulators,
+-		sizeof(pfuze_chip->regulator_descs));
++		regulator_num * sizeof(struct pfuze_regulator));
  
-@@ -1031,7 +1032,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		osr &= NAU8824_DAC_OVERSAMPLE_MASK;
- 		if (nau8824_clock_check(nau8824, substream->stream,
- 			nau8824->fs, osr))
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
- 			NAU8824_CLK_DAC_SRC_MASK,
- 			osr_dac_sel[osr].clk_src << NAU8824_CLK_DAC_SRC_SFT);
-@@ -1041,7 +1042,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		osr &= NAU8824_ADC_SYNC_DOWN_MASK;
- 		if (nau8824_clock_check(nau8824, substream->stream,
- 			nau8824->fs, osr))
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
- 			NAU8824_CLK_ADC_SRC_MASK,
- 			osr_adc_sel[osr].clk_src << NAU8824_CLK_ADC_SRC_SFT);
-@@ -1062,7 +1063,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		else if (bclk_fs <= 256)
- 			bclk_div = 0;
- 		else
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap,
- 			NAU8824_REG_PORT0_I2S_PCM_CTRL_2,
- 			NAU8824_I2S_LRC_DIV_MASK | NAU8824_I2S_BLK_DIV_MASK,
-@@ -1083,15 +1084,17 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		val_len |= NAU8824_I2S_DL_32;
- 		break;
- 	default:
--		return -EINVAL;
-+		goto error;
- 	}
- 
- 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
- 		NAU8824_I2S_DL_MASK, val_len);
-+	err = 0;
- 
-+ error:
- 	nau8824_sema_release(nau8824);
- 
--	return 0;
-+	return err;
- }
- 
- static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
-@@ -1100,8 +1103,6 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
- 	unsigned int ctrl1_val = 0, ctrl2_val = 0;
- 
--	nau8824_sema_acquire(nau8824, HZ);
--
- 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
- 	case SND_SOC_DAIFMT_CBM_CFM:
- 		ctrl2_val |= NAU8824_I2S_MS_MASTER;
-@@ -1143,6 +1144,8 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 		return -EINVAL;
- 	}
- 
-+	nau8824_sema_acquire(nau8824, HZ);
-+
- 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
- 		NAU8824_I2S_DF_MASK | NAU8824_I2S_BP_MASK |
- 		NAU8824_I2S_PCMB_EN, ctrl1_val);
+ 	ret = pfuze_parse_regulators_dt(pfuze_chip);
+ 	if (ret)
 -- 
 2.35.1
 
