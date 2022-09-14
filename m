@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47BF15B84AC
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E22CC5B8492
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231221AbiINJPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54468 "EHLO
+        id S230332AbiINJPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231590AbiINJNr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E585F99C;
-        Wed, 14 Sep 2022 02:06:13 -0700 (PDT)
+        with ESMTP id S231735AbiINJOS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:14:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FF17D787;
+        Wed, 14 Sep 2022 02:06:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71FBE619EB;
+        by sin.source.kernel.org (Postfix) with ESMTPS id B8D4CCE1691;
+        Wed, 14 Sep 2022 09:06:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996A4C4314D;
         Wed, 14 Sep 2022 09:06:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B7FEC433D6;
-        Wed, 14 Sep 2022 09:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146372;
-        bh=jQHFSnENIQUD3uKsd0Jp00wrCKEODhqOZ+8EumLlAH8=;
+        s=k20201202; t=1663146375;
+        bh=D381fk5d1YzIV/YWaShO6lobmBJRN/zGMxlzrf7L/8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0vKFL3hTLa8V6gdnbWM/eezfKaYS7Fqu6iQhifPHU8i92gK/v/pxXgYkpRcEUfCn
-         Kft19AbMWbo3tZSOYJnH5h8HzifZV1nwApEmq0l6coikdVa+VnbHInZYGT3V9uuk2W
-         F9kaagzYxCUuj4YPPKyFZC1EVLfFsQnH4uddTzugF1KWQioFJbVGaEEHT7MMeiP/8F
-         nDsXFKKL84S9o/FlrUZZOIbRRHFmy3omjl8OLE+vpmXSvdo+Rp6/NOtOLhMPkp2Rkp
-         anIq+ZUyfrb9HH2VzSGyB2jd13S9//JxlalC5cdNSyrQV06soPRgSfG2fOeh6QuZGD
-         EmmZjhGmC5jqQ==
+        b=tryd/dD/YFFKYvdRccyDrusycGWee2K4rXskCrq18urkhfb4RKmSOa5/1O5MPdJx9
+         kehij66hpPV6CgWzXUickv8AEnS4SS2+0ByaO6YtejomUsOmjyjh1nxO6tqqNYKL9M
+         6Xeyk/XsG9NxF7Ovs2pw1YqNxlm5+Zgu8AcviKJ0iPHDxNfej0sOchLA3HMRVfQX8z
+         kpJjW0778mB3Hz0jUdYF6YG+0BefXbAQbauU1S+LkDmQpgl6kA7Cr1S1qxfWAQUSiT
+         By5iVQgN02ig6uTslrWewo9mXrSCiLGjZbm5OMSkO/ltp8cjGuDccxUIytUmgnjlH3
+         AUT2nJuKxG5zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyunwoo Kim <imv4bel@gmail.com>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>, yangyingliang@huawei.com,
-        cai.huoqing@linux.dev, yang.lee@linux.alibaba.com,
+Cc:     Yihao Han <hanyihao@vivo.com>, Hans de Goede <hdegoede@redhat.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 07/13] video: fbdev: pxa3xx-gcu: Fix integer overflow in pxa3xx_gcu_write
-Date:   Wed, 14 Sep 2022 05:05:34 -0400
-Message-Id: <20220914090540.471725-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 08/13] video: fbdev: simplefb: Check before clk_put() not needed
+Date:   Wed, 14 Sep 2022 05:05:35 -0400
+Message-Id: <20220914090540.471725-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090540.471725-1-sashal@kernel.org>
 References: <20220914090540.471725-1-sashal@kernel.org>
@@ -57,34 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Yihao Han <hanyihao@vivo.com>
 
-[ Upstream commit a09d2d00af53b43c6f11e6ab3cb58443c2cac8a7 ]
+[ Upstream commit 5491424d17bdeb7b7852a59367858251783f8398 ]
 
-In pxa3xx_gcu_write, a count parameter of type size_t is passed to words of
-type int.  Then, copy_from_user() may cause a heap overflow because it is used
-as the third argument of copy_from_user().
+clk_put() already checks the clk ptr using !clk and IS_ERR()
+so there is no need to check it again before calling it.
 
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Signed-off-by: Yihao Han <hanyihao@vivo.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa3xx-gcu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/simplefb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
-index 184773b6b9e4f..2cca4b763d8dc 100644
---- a/drivers/video/fbdev/pxa3xx-gcu.c
-+++ b/drivers/video/fbdev/pxa3xx-gcu.c
-@@ -391,7 +391,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
- 	struct pxa3xx_gcu_batch	*buffer;
- 	struct pxa3xx_gcu_priv *priv = to_pxa3xx_gcu_priv(file);
- 
--	int words = count / 4;
-+	size_t words = count / 4;
- 
- 	/* Does not need to be atomic. There's a lock in user space,
- 	 * but anyhow, this is just for statistics. */
+diff --git a/drivers/video/fbdev/simplefb.c b/drivers/video/fbdev/simplefb.c
+index 61f799a515dc7..1efdbbc20f99e 100644
+--- a/drivers/video/fbdev/simplefb.c
++++ b/drivers/video/fbdev/simplefb.c
+@@ -231,8 +231,7 @@ static int simplefb_clocks_init(struct simplefb_par *par,
+ 		if (IS_ERR(clock)) {
+ 			if (PTR_ERR(clock) == -EPROBE_DEFER) {
+ 				while (--i >= 0) {
+-					if (par->clks[i])
+-						clk_put(par->clks[i]);
++					clk_put(par->clks[i]);
+ 				}
+ 				kfree(par->clks);
+ 				return -EPROBE_DEFER;
 -- 
 2.35.1
 
