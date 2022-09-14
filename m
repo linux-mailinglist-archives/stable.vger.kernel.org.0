@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4605B8443
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7D85B8440
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230494AbiINJJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:09:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37138 "EHLO
+        id S230487AbiINJJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231231AbiINJIR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:08:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 531247969D;
-        Wed, 14 Sep 2022 02:04:03 -0700 (PDT)
+        with ESMTP id S231318AbiINJIU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:08:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C02760CF;
+        Wed, 14 Sep 2022 02:04:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50089619C2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BE44B816A9;
+        Wed, 14 Sep 2022 09:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58C2BC4347C;
         Wed, 14 Sep 2022 09:04:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A20C433D7;
-        Wed, 14 Sep 2022 09:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146241;
-        bh=bSZlexT1bCume4t9BATQSJ7so0cWDPe12IECPOAd/B8=;
+        s=k20201202; t=1663146245;
+        bh=GSzmj0FzqakisPTTZIhSa7o3h/CHGOigwlG7aO/LbGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osrL3VzF38Ht8qH7K0d9WDJp1ulXIVq4uODd3mA9mmLAUYpxpft/yj+DOabRw6M10
-         rxA2KLfWZlXnAtaXI48cL0rdyeIJV9HUN77KIIfqUo+mSg6ApcV6+WZXaymEPu+5cm
-         Uwq/PajAISIL3lkSyKsfgSXnSYHETLFLI8RLP6k8lqkSAGd5LoT1RqJZRcwAbZo6mN
-         myRiq8FpP5wWtHdNoVWSUvCYfYl8FIuwJpQfflTkhMwHtjoRG8hu+6jIFDKoOtk4I7
-         VRq4AwwKhH3iPExzG4R+VjSCIf2xi0ET6EBojrS0+TcE4kCKBiFoF9DMVKdNeG0yxn
-         9NMg0mxapvC/A==
+        b=V9xpnUSsZtZeiXZkReEGuyPPVY7BdeEx+yhDMX7O052gKvGzbZ24kfJ0txB2beaK4
+         I3fZa3Abkgsd7WE3uOjhB/NYbbaYBolltIUbaLl8l3paJR2peQ9mCng+t+B01R5qaX
+         F8RM4IXmTiVHAqMwv0E2nxRRhrGFDQsYx4XedtZZsqz4O5xLc7jEClJHAhFykyPDz4
+         BATId9XASQGBMn+L6Lqoz9gFE4YAQD0H/D2xXaDXC4DXEsUaOItVZnmtN/tGo33vNO
+         DzrPKVtH86EuhbF9zrsJjyvJvIcH5KyVpeDmUayjF18zR6a/62IIMNm+e2wBxrp7sV
+         iJkFiFQnD9nZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, maz@kernel.org,
-        Julia.Lawall@inria.fr, rikard.falkeborn@gmail.com,
-        samuel@sholland.org, mark.rutland@arm.com,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/13] MIPS: OCTEON: irq: Fix octeon_irq_force_ciu_mapping()
-Date:   Wed, 14 Sep 2022 05:03:14 -0400
-Message-Id: <20220914090317.471116-12-sashal@kernel.org>
+Cc:     Youling Tang <tangyouling@loongson.cn>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, michal.lkml@markovi.net,
+        linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/13] mksysmap: Fix the mismatch of 'L0' symbols in System.map
+Date:   Wed, 14 Sep 2022 05:03:15 -0400
+Message-Id: <20220914090317.471116-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090317.471116-1-sashal@kernel.org>
 References: <20220914090317.471116-1-sashal@kernel.org>
@@ -59,59 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Youling Tang <tangyouling@loongson.cn>
 
-[ Upstream commit ba912afbd611d3a5f22af247721a071ad1d5b9e0 ]
+[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
 
-For irq_domain_associate() to work the virq descriptor has to be
-pre-allocated in advance. Otherwise the following happens:
+When System.map was generated, the kernel used mksysmap to filter the
+kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
 
-WARNING: CPU: 0 PID: 0 at .../kernel/irq/irqdomain.c:527 irq_domain_associate+0x298/0x2e8
-error: virq128 is not allocated
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.78-... #1
-        ...
-Call Trace:
-[<ffffffff801344c4>] show_stack+0x9c/0x130
-[<ffffffff80769550>] dump_stack+0x90/0xd0
-[<ffffffff801576d0>] __warn+0x118/0x130
-[<ffffffff80157734>] warn_slowpath_fmt+0x4c/0x70
-[<ffffffff801b83c0>] irq_domain_associate+0x298/0x2e8
-[<ffffffff80a43bb8>] octeon_irq_init_ciu+0x4c8/0x53c
-[<ffffffff80a76cbc>] of_irq_init+0x1e0/0x388
-[<ffffffff80a452cc>] init_IRQ+0x4c/0xf4
-[<ffffffff80a3cc00>] start_kernel+0x404/0x698
+$ cat System.map | grep L0
+9000000000221540 t L0
 
-Use irq_alloc_desc_at() to avoid the above problem.
+The L0 symbol exists in System.map, but not in .tmp_System.map. When
+"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
+data" error message in link-vmlinux.sh script.
 
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/cavium-octeon/octeon-irq.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/cavium-octeon/octeon-irq.c b/arch/mips/cavium-octeon/octeon-irq.c
-index 6501a842c41a5..191bcaf565138 100644
---- a/arch/mips/cavium-octeon/octeon-irq.c
-+++ b/arch/mips/cavium-octeon/octeon-irq.c
-@@ -127,6 +127,16 @@ static void octeon_irq_free_cd(struct irq_domain *d, unsigned int irq)
- static int octeon_irq_force_ciu_mapping(struct irq_domain *domain,
- 					int irq, int line, int bit)
- {
-+	struct device_node *of_node;
-+	int ret;
-+
-+	of_node = irq_domain_get_of_node(domain);
-+	if (!of_node)
-+		return -EINVAL;
-+	ret = irq_alloc_desc_at(irq, of_node_to_nid(of_node));
-+	if (ret < 0)
-+		return ret;
-+
- 	return irq_domain_associate(domain, irq, line << 6 | bit);
- }
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index 9aa23d15862a0..ad8bbc52267d0 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
  
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
 -- 
 2.35.1
 
