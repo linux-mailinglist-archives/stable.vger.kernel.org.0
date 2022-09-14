@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E5755B84A7
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB705B8487
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231340AbiINJPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:15:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54624 "EHLO
+        id S229449AbiINJNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231621AbiINJNz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82EA87CB65;
-        Wed, 14 Sep 2022 02:06:17 -0700 (PDT)
+        with ESMTP id S231444AbiINJMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:12:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09597B7B9;
+        Wed, 14 Sep 2022 02:05:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D307B81618;
-        Wed, 14 Sep 2022 09:05:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D207C43470;
-        Wed, 14 Sep 2022 09:05:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3E71619F3;
+        Wed, 14 Sep 2022 09:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25A8C433D6;
+        Wed, 14 Sep 2022 09:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146339;
-        bh=GSzmj0FzqakisPTTZIhSa7o3h/CHGOigwlG7aO/LbGs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZrpvAbyIpWi5gnFXKnR6rAXo3y6z7S7kSkfBd6W7hg4s40wR+preYNaFwFAjynyyA
-         wHmUIsCEoW3NKBZZp17u9IFs0L7ckb2IUKT5YaZ418C2qln0Mm5ikgg3mWPEuRf9zV
-         YyPHc25l0SG55XpmAqF0JN6ginvaYRKXn7eE3B0kVTAQBKIkwE/ItKIar/UFYaDQk6
-         3FPCt+ld5sXlc4SqziuolnH8OLJec9fsW43Q94QqLQgbaALmMTmB28wNvQB3mydElq
-         XAJrgRjT1Y2Y8ZrM35BSPE6k8ClzjOciv1/COKLTWgR3fq8J/bZ8slosfUbR37kINl
-         Wn4r6eLSBUT0g==
+        s=k20201202; t=1663146346;
+        bh=OIO8DTjkczrrzBsuFKIYuLXJvggjWtYdU4iWvbQCJrU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fOn1juFLeTRq7EcklTT2DErMenVbmiKEdKVn2QY8LV2McmKrOQllIybbvoCzbpZ+2
+         +IM9zGrnTfaJVpHFdL1NcxOyZjyCCw033ih1p6VNVOKpU7ik8FI+Bi3B9C1hCwkeNO
+         DfkVhRRZro5CyZOBTAnBGZVSU1Sx/+3BKfSol53yWq7cBnPNak7KL4Gj1oEkFvEVja
+         nSvuA3LNovckgEL9ODJ1PnzHzJC9eLXkaAsd3q++o6kHHqjfRAPKjTe9GFwj4II0aP
+         p7HGh+7j+qlnlIqHNwzb9pdU/kaElsechn8w9To2E+C4X3wpOUEYTYt5Yu5X/Y6/+J
+         jXe3lc2Z9fP9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Youling Tang <tangyouling@loongson.cn>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, michal.lkml@markovi.net,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 8/8] mksysmap: Fix the mismatch of 'L0' symbols in System.map
-Date:   Wed, 14 Sep 2022 05:05:12 -0400
-Message-Id: <20220914090514.471614-8-sashal@kernel.org>
+Cc:     Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
+        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/13] spi: spi-cadence: Fix SPI CS gets toggling sporadically
+Date:   Wed, 14 Sep 2022 05:05:28 -0400
+Message-Id: <20220914090540.471725-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220914090514.471614-1-sashal@kernel.org>
-References: <20220914090514.471614-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,37 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youling Tang <tangyouling@loongson.cn>
+From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
 
-[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
+[ Upstream commit 21b511ddee09a78909035ec47a6a594349fe3296 ]
 
-When System.map was generated, the kernel used mksysmap to filter the
-kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
+As part of unprepare_transfer_hardware, SPI controller will be disabled
+which will indirectly deassert the CS line. This will create a problem
+in some of the devices where message will be transferred with
+cs_change flag set(CS should not be deasserted).
+As per SPI controller implementation, if SPI controller is disabled then
+all output enables are inactive and all pins are set to input mode which
+means CS will go to default state high(deassert). This leads to an issue
+when core explicitly ask not to deassert the CS (cs_change = 1). This
+patch fix the above issue by checking the Slave select status bits from
+configuration register before disabling the SPI.
 
-$ cat System.map | grep L0
-9000000000221540 t L0
-
-The L0 symbol exists in System.map, but not in .tmp_System.map. When
-"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
-data" error message in link-vmlinux.sh script.
-
-Signed-off-by: Youling Tang <tangyouling@loongson.cn>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Link: https://lore.kernel.org/r/20220606062525.18447-1-amit.kumar-mahapatra@xilinx.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mksysmap | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-cadence.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/mksysmap b/scripts/mksysmap
-index 9aa23d15862a0..ad8bbc52267d0 100755
---- a/scripts/mksysmap
-+++ b/scripts/mksysmap
-@@ -41,4 +41,4 @@
- # so we just ignore them to let readprofile continue to work.
- # (At least sparc64 has __crc_ in the middle).
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index e383c63689157..6d294a1fa5e58 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -72,6 +72,7 @@
+ #define CDNS_SPI_BAUD_DIV_SHIFT		3 /* Baud rate divisor shift in CR */
+ #define CDNS_SPI_SS_SHIFT		10 /* Slave Select field shift in CR */
+ #define CDNS_SPI_SS0			0x1 /* Slave Select zero */
++#define CDNS_SPI_NOSS			0x3C /* No Slave select */
  
--$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
-+$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
+ /*
+  * SPI Interrupt Registers bit Masks
+@@ -444,15 +445,20 @@ static int cdns_prepare_transfer_hardware(struct spi_master *master)
+  * @master:	Pointer to the spi_master structure which provides
+  *		information about the controller.
+  *
+- * This function disables the SPI master controller.
++ * This function disables the SPI master controller when no slave selected.
+  *
+  * Return:	0 always
+  */
+ static int cdns_unprepare_transfer_hardware(struct spi_master *master)
+ {
+ 	struct cdns_spi *xspi = spi_master_get_devdata(master);
++	u32 ctrl_reg;
+ 
+-	cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
++	/* Disable the SPI if slave is deselected */
++	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
++	ctrl_reg = (ctrl_reg & CDNS_SPI_CR_SSCTRL) >>  CDNS_SPI_SS_SHIFT;
++	if (ctrl_reg == CDNS_SPI_NOSS)
++		cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
