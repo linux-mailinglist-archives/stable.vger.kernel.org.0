@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB485B83A7
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BE95B83A1
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230332AbiINJCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:02:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48298 "EHLO
+        id S230284AbiINJCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:02:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230335AbiINJBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:01:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09C7274DDA;
-        Wed, 14 Sep 2022 02:01:31 -0700 (PDT)
+        with ESMTP id S230272AbiINJBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:01:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87CCD1F2F2;
+        Wed, 14 Sep 2022 02:01:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71B93619A0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AA9E6198B;
+        Wed, 14 Sep 2022 09:01:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB4BC433D7;
         Wed, 14 Sep 2022 09:01:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C264C433D6;
-        Wed, 14 Sep 2022 09:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146089;
-        bh=GtJ5TpsEJOeHEM2xrGD8mq6ipmdMTYtj9haYmKc0evk=;
+        s=k20201202; t=1663146093;
+        bh=y8jWLfysQsf6BXCmjPZ/j5UlOD1U/85VlQyScpueEhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRrLlXBQunWWguF/0kV8n14OrWWcbKVdRN12XexN3ZHISfa6RNmlH9eIRlrQzZEuE
-         D64wklm65PBBQdXl51V7Z6aO1ccrInBIJibSd5NcIfizv8kyNiMPo3tLEiNMxbZ1YL
-         xf8Q70Lvn2khN+wzxkqqxFyzI+0iOdB0rWW9LNRpRSkQNZPOZdgf7uTRiBOzSWqfhW
-         dsbmiHE7pkjH2oHfNSklw626qPoBJItnBl7Eucg0IfTqpaURZshJjL0kFZIcSmk2ax
-         ois9JwAbKX2T2mTF707Xdg5jRjbJgOv48m3u5e3U1qMFe/IemoBT88BAwe4yJ/bZfY
-         rKfSd2W02k+Og==
+        b=aAMEHiWus5Rzm59gYI0BHhFIdX6TvI2NSMmrwwaqp7taF9gcuORnBUPV6JrWqiKF2
+         Rac59k7HHhdlg4c3BOOn6WzW5+0NwLNd8is1rMILmHQ6tBEUwOqjMBnx9VUhuWhToT
+         U8K8jFD8mYwIpnSj26uxUxsI38VjYJe0/2X3FDJBNzN2tHAoovzEOydE/dYseago+D
+         qgwuWi04vQu67vicySKgBGLnASbtYLuDQBvq7mg4LdPsmdNuEG1/UP3j8plIZeLV88
+         0jYVfyKqZCILgtCjkumNFQx7jzdzMEOmInyn14lx9vxXG9QAtirY6CxsmX44Zndu2Y
+         1GALsRQfUsndA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>, James Smart <jsmart2021@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
-        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 07/22] scsi: lpfc: Return DID_TRANSPORT_DISRUPTED instead of DID_REQUEUE
-Date:   Wed, 14 Sep 2022 05:00:48 -0400
-Message-Id: <20220914090103.470630-7-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, marc.dionne@auristor.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-afs@lists.infradead.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 08/22] rxrpc: Fix local destruction being repeated
+Date:   Wed, 14 Sep 2022 05:00:49 -0400
+Message-Id: <20220914090103.470630-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090103.470630-1-sashal@kernel.org>
 References: <20220914090103.470630-1-sashal@kernel.org>
@@ -58,47 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit c0a50cd389c3ed54831e240023dd12bafa56b3a6 ]
+[ Upstream commit d3d863036d688313f8d566b87acd7d99daf82749 ]
 
-When the driver hits an internal error condition returning DID_REQUEUE the
-I/O will be retried on the same ITL nexus.  This will inhibit multipathing,
-resulting in endless retries even if the error could have been resolved by
-using a different ITL nexus.  Return DID_TRANSPORT_DISRUPTED to allow for
-multipath to engage and route I/O to another ITL nexus.
+If the local processor work item for the rxrpc local endpoint gets requeued
+by an event (such as an incoming packet) between it getting scheduled for
+destruction and the UDP socket being closed, the rxrpc_local_destroyer()
+function can get run twice.  The second time it can hang because it can end
+up waiting for cleanup events that will never happen.
 
-Link: https://lore.kernel.org/r/20220824060033.138661-1-hare@suse.de
-Reviewed-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rxrpc/local_object.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index 084c0f9fdc3a6..938a5e4359436 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -4272,7 +4272,7 @@ lpfc_fcp_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
- 		    lpfc_cmd->result == IOERR_ABORT_REQUESTED ||
- 		    lpfc_cmd->result == IOERR_RPI_SUSPENDED ||
- 		    lpfc_cmd->result == IOERR_SLER_CMD_RCV_FAILURE) {
--			cmd->result = DID_REQUEUE << 16;
-+			cmd->result = DID_TRANSPORT_DISRUPTED << 16;
- 			break;
- 		}
- 		if ((lpfc_cmd->result == IOERR_RX_DMA_FAILED ||
-@@ -4562,7 +4562,7 @@ lpfc_scsi_cmd_iocb_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pIocbIn,
- 			    lpfc_cmd->result == IOERR_NO_RESOURCES ||
- 			    lpfc_cmd->result == IOERR_ABORT_REQUESTED ||
- 			    lpfc_cmd->result == IOERR_SLER_CMD_RCV_FAILURE) {
--				cmd->result = DID_REQUEUE << 16;
-+				cmd->result = DID_TRANSPORT_DISRUPTED << 16;
- 				break;
- 			}
- 			if ((lpfc_cmd->result == IOERR_RX_DMA_FAILED ||
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index 96ecb7356c0fe..790c270c06785 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -405,6 +405,9 @@ static void rxrpc_local_processor(struct work_struct *work)
+ 		container_of(work, struct rxrpc_local, processor);
+ 	bool again;
+ 
++	if (local->dead)
++		return;
++
+ 	trace_rxrpc_local(local->debug_id, rxrpc_local_processing,
+ 			  refcount_read(&local->ref), NULL);
+ 
 -- 
 2.35.1
 
