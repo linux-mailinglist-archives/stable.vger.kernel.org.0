@@ -2,146 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3538E5B8BC5
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 17:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55F95B8BC7
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 17:28:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229888AbiINP1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 11:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36604 "EHLO
+        id S229562AbiINP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 11:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiINP1g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 11:27:36 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2078.outbound.protection.outlook.com [40.107.93.78])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7517E31E;
-        Wed, 14 Sep 2022 08:27:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BiF9D97wwdSyFv5JehX3vzcsCBIbUn6kcEl458Ey6ZvH5vpmHotpQmAEyjjLsN3BiRQuKDw+Rv/OK3eITc1WL/OSb3aZQDVJxJ1K5OGrSqLmJ792076dKqIkAmzifO8O7E+JG584leKT4mXB3dYKWlaqOm8YHk+k4/eUsLue3AUUQnVRg/cqAlLn16W7JP+2658/BFk8eSQy4awHRm+BzXEnqb6Znj3Unn4UiLNP6qqkLLdD6tt+q3uwOWWLxjWSSuAFIXcD7yRK3qvLyFiUJ93JNipXbE0tvQezpaFj3Vz2I+ltY4OmO/h8lHH4wrkbw6+hlFMhESz8uS8y5FFt/w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TpyJks73yJXvPC3581igf2xRcAk5Ohg6o6fKyJ9BvsI=;
- b=LwBsG51PhZcdL025qTQMS3o4dldQT0lfZqxY5i+yzpvG7NdyTdvKF2dqKQSyU3cZCAUNBvknNWLzze9B20HQG4hp3QrV7pp0Xbepvi/A3YLlaUkpelEq9Jnqm+qfmXRZiasEtmwHQxSpTYp4anf2VQfMW5aTpZiC6HLYxqs8vhuuewqiHogeLH9/fAvE0GXFQhvjLPirAkbE0+RfO//Eu+7yq7Z7LELiYfprCYwbCxw32beO+MtoGRbRy/uyMVRVDORj1kzfd8RJ804LhEtmpqnguYiCOL1t5foPmsVPecUIxxWDsTqfsha4AvBU/S3qYwNsgX8LbA+WCf3BC26wdg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=linuxfoundation.org
- smtp.mailfrom=nvidia.com; dmarc=pass (p=reject sp=reject pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TpyJks73yJXvPC3581igf2xRcAk5Ohg6o6fKyJ9BvsI=;
- b=quSlOqXn3okwxHRnA9vf2IGiuOywDWODAIQAhq6a3jGPSdHnUE0r/6dkR+uobBsmecyzEyCUVzPRwd+SjPFe13MzvZ8yIUE7rNsj6NF8FbCn4RHArabokaiAuqzu3DQCs/o79McejlWWVit9NGkts7eA677f/slsDzwHK382jZBZ2rmoqhgBuSeJrZ2VwEZgQb/SKRrun1SudyYTa083dfOsUFdCPLi19ZBpshYbBaFRk7ImGukmYf7Bt7BU2Nw9oK4Ke8X2WH0Bf4U8j1wpLvMGLkBcm1mFrAmWKrFe+8UJEZ6J9ij+MbOXQFvS7z+ke432kyuEKIfr+SUUql0vdA==
-Received: from DM6PR07CA0078.namprd07.prod.outlook.com (2603:10b6:5:337::11)
- by MW3PR12MB4522.namprd12.prod.outlook.com (2603:10b6:303:5f::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.19; Wed, 14 Sep
- 2022 15:27:32 +0000
-Received: from DM6NAM11FT088.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:337:cafe::a9) by DM6PR07CA0078.outlook.office365.com
- (2603:10b6:5:337::11) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.12 via Frontend
- Transport; Wed, 14 Sep 2022 15:27:32 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- DM6NAM11FT088.mail.protection.outlook.com (10.13.172.147) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5632.12 via Frontend Transport; Wed, 14 Sep 2022 15:27:31 +0000
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Wed, 14 Sep
- 2022 08:27:23 -0700
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail203.nvidia.com
- (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29; Wed, 14 Sep
- 2022 08:27:23 -0700
-Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
- (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29 via Frontend
- Transport; Wed, 14 Sep 2022 08:27:23 -0700
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.15 000/121] 5.15.68-rc1 review
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229546AbiINP2o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 11:28:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD437C32E;
+        Wed, 14 Sep 2022 08:28:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F1318CE13D6;
+        Wed, 14 Sep 2022 15:28:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7C2C433C1;
+        Wed, 14 Sep 2022 15:28:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663169315;
+        bh=zqphwVveYBXH6VOdrvrXdJKfcphlsHIz/gl20fLq9co=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=k843nBZnznsTAagoZV3QB2AMK+NShGqK0WJA6yzKqX6b/9/jb1+lcugXP31UBDJ9j
+         SrwPHXBaUGr2cJpGBJ9dVz0yyYxVqH1iZYIOCu8cLyUj1nsTYjV1N+Jjnogddj+VeV
+         EaNHfRA1gPHabRxaVv/iR4rpumktEIHHboYoGfg+3Pb+ddix6cZ/O44sve2rfN5p+H
+         uT9+cEKPPQoVQzKcNYbhq8v+AWVQU+gXd5KMr15nyOT5fvf9l6blTrhYgrVLsoWfUZ
+         og3+vvlccx0F7VYHS+3fE93rCbz8Kds4AC+x7UupSZ8pPAf9nC+48BE3sOz6YvYLyi
+         +xOP6lc1pGGww==
+Message-ID: <c4c9d239-8147-99c9-eea4-e9ea722f7fd8@kernel.org>
+Date:   Wed, 14 Sep 2022 23:28:31 +0800
 MIME-Version: 1.0
-Message-ID: <43941273-a025-43ce-953e-ed9ead207aa0@rnnvmail204.nvidia.com>
-Date:   Wed, 14 Sep 2022 08:27:23 -0700
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT088:EE_|MW3PR12MB4522:EE_
-X-MS-Office365-Filtering-Correlation-Id: 277bde31-6685-4bf3-e816-08da9665a46c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: MQCtbkzOQGXMq2nqtTcTMyuc6Z2D8iPnIvNxIyFxNRap5YbuAfbRBdfapKq5XPGSOP0jFP1ORA6e0dnoKqN2F28TuS+anjXgyWtH1ZAGdpgjERGLvFDdxlUZkFSfdBhVlu2XIITXh/sGbcYAb/x6xVBur/9vB1UR0DEu4/LLTGkkkThEpRWw2KglVxUA6CK4CbGldjcAxfHE4akpbyS1vFgMnBaQ1UFubLk0F4SNXEkYPtd9Fl0OjQXsYSX5ombKsCjAr0cL9b99M87H9hGLWcVe+WIxEUFtmNBEvtYh1RkSVx1PzFsRPPrXe+cUpyEGuGZNhCkxqQYgcQKc7ABfe5p2aDL08zo/8qHkaEdv5U3HVC8jzC6e1ez39NH4YF4As6PgcdKLQBPFuj4lbOFty55mNNYWgc18SMNcWTxpIo7SR8RKuAdLE2KAIAz5k3rwJDG90xbbsNN85EhnUOCdXb6sfyDp3E9LEHSoJshMgI1QvKjujAKtnkTieo2UVnratJCmKJvH++JkK+tQ2vScxMUOaikj48Nj//5kDKo3IlCua+44CZ1B6K3DSoaDAI/vEK6rhPP0o1DTaACK98j9StB3XGGEMpWTnNoBAC3JDWDOdWvcG7AKHLU6Dj70xAh+LwWo3SV7J2fKWg/W3KltN8+42fp7MbqpX74jKtFZijhvRCFUPxsa5NZQmFYh5zkyuPE5ntx0sn3XXXmHLHxj4C23waP9EPzA+cwA2A+wE92WEYHKiibiXFRnUY0FtPkYFoAhZXqSS5Dx39Y4DX4x2dU8jSmRUR3hLYJWlI8hfgMvHM4cg2QyVbC/QuiC4hum9QX1Byxr9aemPpgso/fJNkIdqmrX5tOlqqodjHOKioM=
-X-Forefront-Antispam-Report: CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(136003)(39860400002)(396003)(451199015)(40470700004)(36840700001)(46966006)(8676002)(2906002)(356005)(82310400005)(7636003)(40480700001)(86362001)(41300700001)(316002)(186003)(7416002)(47076005)(31696002)(8936002)(966005)(70586007)(26005)(336012)(5660300002)(54906003)(478600001)(36860700001)(426003)(82740400003)(4326008)(40460700003)(70206006)(31686004)(6916009);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2022 15:27:31.9248
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 277bde31-6685-4bf3-e816-08da9665a46c
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT088.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4522
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [f2fs-dev] [PATCH] f2fs: fix missing mapping caused by the
+ mount/umount race
+Content-Language: en-US
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+References: <20220829215206.3082124-1-jaegeuk@kernel.org>
+ <cbc4bfe5-14f9-a4e0-c9c5-6b6b06437d5d@kernel.org>
+ <Yw55Ebk8zLIgBFfn@google.com> <Yw7P6BkNZmqxji3B@google.com>
+ <2b669973-caf0-75e8-f421-7647dddf03ce@kernel.org>
+ <YyHwDVk96qvKn9eQ@google.com>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <YyHwDVk96qvKn9eQ@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-8.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 13 Sep 2022 16:03:11 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.68 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2022/9/14 23:15, Jaegeuk Kim wrote:
+> On 09/14, Chao Yu wrote:
+>> On 2022/8/31 11:05, Jaegeuk Kim wrote:
+>>> On 08/30, Jaegeuk Kim wrote:
+>>>> On 08/30, Chao Yu wrote:
+>>>>> On 2022/8/30 5:52, Jaegeuk Kim wrote:
+>>>>>> Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
+>>>>>> all the time to fix the below panic.
+>>>>>>
+>>>>>> Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+>>>>>> Mem abort info:
+>>>>>>      ESR = 0x0000000086000004
+>>>>>>      EC = 0x21: IABT (current EL), IL = 32 bits
+>>>>>>      SET = 0, FnV = 0
+>>>>>>      EA = 0, S1PTW = 0
+>>>>>>      FSC = 0x04: level 0 translation fault
+>>>>>> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
+>>>>>> [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+>>>>>> Internal error: Oops: 86000004 [#1] PREEMPT SMP
+>>>>>> Modules linked in:
+>>>>>> CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
+>>>>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+>>>>>> pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+>>>>>> pc : 0x0
+>>>>>> lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
+>>>>>> sp : ffff800012783970
+>>>>>> x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
+>>>>>> x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
+>>>>>> x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
+>>>>>> x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
+>>>>>> x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
+>>>>>> x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+>>>>>> x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
+>>>>>> x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
+>>>>>> x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
+>>>>>> x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
+>>>>>> Call trace:
+>>>>>>     0x0
+>>>>>>     set_page_dirty+0x38/0xbc mm/folio-compat.c:62
+>>>>>>     f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
+>>>>>>     do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
+>>>>>>     f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
+>>>>>>
+>>>>>> Cc: stable@vger.kernel.org
+>>>>>> Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
+>>>>>> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+>>>>>> ---
+>>>>>>     fs/f2fs/inode.c | 13 ++++++++-----
+>>>>>>     1 file changed, 8 insertions(+), 5 deletions(-)
+>>>>>>
+>>>>>> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+>>>>>> index 6d11c365d7b4..1feb0a8a699e 100644
+>>>>>> --- a/fs/f2fs/inode.c
+>>>>>> +++ b/fs/f2fs/inode.c
+>>>>>> @@ -490,10 +490,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+>>>>>>     	if (!inode)
+>>>>>>     		return ERR_PTR(-ENOMEM);
+>>>>>> -	if (!(inode->i_state & I_NEW)) {
+>>>>>> -		trace_f2fs_iget(inode);
+>>>>>> -		return inode;
+>>>>>> -	}
+>>>>>> +	/* We can see an old cached inode. Let's set the aops all the time. */
+>>>>>
+>>>>> Why an old cached inode (has no I_NEW flag) has NULL a_ops pointer? If it is a bad
+>>>>> inode, it should be unhashed before unlock_new_inode().
+>>>>
+>>>> I'm trying to dig further tho, it's not a bad inode, nor I_FREEING | I_CLEAR.
+>>>> It's very werid that thie meta inode is found in newly created superblock by
+>>>> the global hash table. I've checked that the same superblock pointer was used
+>>>> in the previous tests, but inode was evictied all the time.
+>>>
+>>> I'll drop this patch, since it turned out there is a bug in reiserfs which
+>>> doesn't free the root inode (ino=2). That leads f2fs to find an ino=2 with
+>>> the previous superblock point used by reiserfs. That stale inode has no valid
+>>
+>> One more question, why stale inode could be remained in inode hash table,
+>> shouldn't the stale inode be evicted/unhashed in below path during reiserfs
+>> umount:
+>>
+>> - reiserfs_kill_sb
+>>   - kill_block_super
+>>    - generic_shutdown_super
+>>     - evict_inodes
+>>      - dispose_list
+>>       - evict
+>>        - remove_inode_hash
 > 
-> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
-> Anything received after that time might be too late.
+> Yes, that's why I didn't dive into further, as it's odd.
+
+Alright, this bug was reproducable w/ below testcase, right? :)
+
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=167b5e33080000
+
+Thanks,
+
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.68-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-
-All tests passing for Tegra ...
-
-Test results for stable-v5.15:
-    10 builds:	10 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    114 tests:	114 pass, 0 fail
-
-Linux version:	5.15.68-rc1-gdbbecf1f4a70
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+>>
+>> Thanks,
+>>
+>>> inode that f2fs can use. I tried to find where the root cause is in reiserfs,
+>>> but it seems quite hard to catch one.
+>>>
+>>> - reiserfs_fill_super
+>>>    - reiserfs_xattr_init
+>>>     - create_privroot
+>>>      - xattr_mkdir
+>>>       - reiserfs_new_inode
+>>>        - reiserfs_get_unused_objectid returned 0 due to map crash
+>>>
+>>> It seems the error path doesn't handle the root inode properly.
+>>>
+>>>>
+>>>>>
+>>>>> Thanks,
+>>>>>
+>>>>>>     	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
+>>>>>>     		goto make_now;
+>>>>>> @@ -502,6 +499,11 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+>>>>>>     		goto make_now;
+>>>>>>     #endif
+>>>>>> +	if (!(inode->i_state & I_NEW)) {
+>>>>>> +		trace_f2fs_iget(inode);
+>>>>>> +		return inode;
+>>>>>> +	}
+>>>>>> +
+>>>>>>     	ret = do_read_inode(inode);
+>>>>>>     	if (ret)
+>>>>>>     		goto bad_inode;
+>>>>>> @@ -557,7 +559,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+>>>>>>     		file_dont_truncate(inode);
+>>>>>>     	}
+>>>>>> -	unlock_new_inode(inode);
+>>>>>> +	if (inode->i_state & I_NEW)
+>>>>>> +		unlock_new_inode(inode);
+>>>>>>     	trace_f2fs_iget(inode);
+>>>>>>     	return inode;
+>>>>
+>>>>
+>>>> _______________________________________________
+>>>> Linux-f2fs-devel mailing list
+>>>> Linux-f2fs-devel@lists.sourceforge.net
+>>>> https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel
