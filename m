@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8355B8520
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883105B852C
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230438AbiINJgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:36:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42720 "EHLO
+        id S229535AbiINJi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:38:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230232AbiINJgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:36:10 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976A018379;
-        Wed, 14 Sep 2022 02:34:00 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id z14-20020a05600c0a0e00b003b486df42a3so6008067wmp.2;
-        Wed, 14 Sep 2022 02:34:00 -0700 (PDT)
+        with ESMTP id S230214AbiINJi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:38:28 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC6A1CB17;
+        Wed, 14 Sep 2022 02:37:52 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id bo13so8238307wrb.1;
+        Wed, 14 Sep 2022 02:37:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=kmvJ2i5qNx+TtqBPYiaV+mzGvISiYnETNZ0WDnJbQTQ=;
-        b=g8/GnPdYkET5fl8L6iBsXvIwzIP5u5WeNVHr2852lJ4pOzBqRX8stn+TAbI01kBaUw
-         OdIanaUJNWNOnybBsJUEJFxnBs1ZchwqJ0TQ27puZS/HizfU6MWuCLLrOiC1OHNGSNSH
-         KVIUjC0wEo2/rKZOiwf/yVboDzVPMy1MATzK3WYfb9QN6SUpQz1MfDLs3vWi9nAAAWR8
-         KKj6mJbb68G4Fpl5VEnJ32siJVfCAFMwqOtddNEmuZ7TmBL71w/sEHQptsoE9WlHh2jt
-         j9S+ljXeV8iiFIsRx+CI1qLrnw6TwCBfbzKfPjYD/R99Atrw7gPLttyRrpvx2JZCXkJD
-         BLbA==
+        bh=9ICPhAk7WSUuojPvhuOrCs4K3x58Me7hs8cZWGyAJus=;
+        b=mk1Yv6cJkliM0V8wFmEUe/iffX+9lJuUXJQpCPcJz/NuiF4W5MCtQx/F5lKLsIf13N
+         qjDRKkRXb7Uz3h4Qwjvi3oNEW6UiaE46LHNo+q2md7D34mE943/oZjuWjuBlf80usrbf
+         jz+C6UXX3Ig4UPtDA+WDBjykKQafKKbYCNrwlhlugGru4i8+q/6Yu03bJ5Zl0XmugQu7
+         Sd64tw5QQgczkraFEHhHUxyCSv9LkqR6e85sZu5tWDmjl8LVS0w6+SRVaib5rLefGkp2
+         rycahVQpmz/0rNlrpebOb+XZL9qpIc/DG3KHMO6hLJ36lRGy9neM9QPiJM7bQkqLgIz/
+         IbkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=kmvJ2i5qNx+TtqBPYiaV+mzGvISiYnETNZ0WDnJbQTQ=;
-        b=Du9MgCbEuKelo7XdS/Cb/azteO90nNLD6VlFYKql0XpIFfag8/rvRFQrelm371OXdb
-         f6eh2nxwioDjZdrLf2T5hCEAjezyU05W3gbf/AhqY/ahAbybCheIpLa52phY6mUvp/g7
-         2V9A1b0iU338gQgGQBtvSEkYinhoLHh32fIn45K6ps9e8soz7050EU6LKbyBBKJJaMoX
-         3XaHIhg14jBt59QEtX2z2Do6KdVlFgGTgn3bES5XMrjt22WJS50t0u+gKm2ERXz8zYJY
-         33BFXZV1Wo9ojpuOz8hjJAw58xCRzH3CAzTh877fgEfmK6b04YIPO1sPMLER9rmbn2fm
-         kj3Q==
-X-Gm-Message-State: ACgBeo2EzFua0Wo5NDkQ7b0AnR+6iiHt/9VT9A1S9qdUBG7vGJnHG4sp
-        fs468aw/Smh1LNlD015QdIo=
-X-Google-Smtp-Source: AA6agR6Ty/E0e8juaS33fD0vAQVyjXZj+utYZYlLoFxANfnSTAz+dpUDQjAxylRbo764s9BDa5TJ2g==
-X-Received: by 2002:a7b:c4cc:0:b0:3b4:757b:492f with SMTP id g12-20020a7bc4cc000000b003b4757b492fmr2432394wmk.74.1663148039061;
-        Wed, 14 Sep 2022 02:33:59 -0700 (PDT)
+        bh=9ICPhAk7WSUuojPvhuOrCs4K3x58Me7hs8cZWGyAJus=;
+        b=UQ9E/HG8f6vQoLzPGWqDEQBk+FlGSk5yzc2COdD0Vc214YXIAcqIMfZFmq4zWsBFlS
+         qtOhczkoSxBLpxIHAp6jy2mTq270BdgsvN8qYT60a/Q4jCdXog3SvUmR5gnSswU8v6b1
+         IW5H2/hcVE7mrfneXW8iuP2vNJFrrSE0uDouZP1ltEt4QY7d0KxRjJgIdsascOq5Vf3p
+         u4VfLItAlQhv4hnqOXVsjubdyYrP+516Ev3DWvbnOGgQDBqqZCAgmXpXyksrtyIAebjt
+         9CPT/hQ1LCjkUNqRZCOjHGdOfHBy5JBOXkDlOTAYQYsVIAp0bZq2HuIr7XUsFI4YWhR6
+         2YBA==
+X-Gm-Message-State: ACgBeo0j+pIgj+nMS96AxV4b1ZjGXRoZci5+Ar3NAN12IDpVm19tT6Ro
+        c/BtA/NV+5juPwc4Gh/Ek/sjrnZ0HlA=
+X-Google-Smtp-Source: AA6agR41v9glYIS6dOa+YPWh2Bjpb9yAI3k4G9HdagQvZAFBM+A6DoViLRJ3lZac9fbXlFUnHJi69g==
+X-Received: by 2002:adf:d1ce:0:b0:22a:36d6:da05 with SMTP id b14-20020adfd1ce000000b0022a36d6da05mr17331989wrd.719.1663148270787;
+        Wed, 14 Sep 2022 02:37:50 -0700 (PDT)
 Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id o19-20020a05600c4fd300b003b3180551c8sm17296841wmq.40.2022.09.14.02.33.57
+        by smtp.gmail.com with ESMTPSA id f12-20020a05600c154c00b003a5f3f5883dsm18853027wmg.17.2022.09.14.02.37.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Sep 2022 02:33:58 -0700 (PDT)
-Date:   Wed, 14 Sep 2022 10:33:56 +0100
+        Wed, 14 Sep 2022 02:37:50 -0700 (PDT)
+Date:   Wed, 14 Sep 2022 10:37:48 +0100
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -55,13 +55,13 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/79] 4.19.257-rc1 review
-Message-ID: <YyGgBMpc93Y+dtB0@debian>
-References: <20220913140348.835121645@linuxfoundation.org>
+Subject: Re: [PATCH 5.4 000/108] 5.4.212-rc1 review
+Message-ID: <YyGg7KOjq6P4Gjkj@debian>
+References: <20220913140353.549108748@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -74,9 +74,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Greg,
 
-On Tue, Sep 13, 2022 at 04:06:18PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.257 release.
-> There are 79 patches in this series, all will be posted as a response
+On Tue, Sep 13, 2022 at 04:05:31PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.212 release.
+> There are 108 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -84,8 +84,8 @@ On Tue, Sep 13, 2022 at 04:06:18PM +0200, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 
 Build test (gcc version 11.3.1 20220819):
-mips: 63 configs -> no  failure
-arm: 115 configs -> no failure
+mips: 65 configs -> no failure
+arm: 106 configs -> no failure
 arm64: 2 configs -> no failure
 x86_64: 4 configs -> no failure
 alpha allmodconfig -> no failure
@@ -94,11 +94,12 @@ riscv allmodconfig -> no failure
 s390 allmodconfig -> no failure
 xtensa allmodconfig -> no failure
 
+
 Boot test:
 x86_64: Booted on my test laptop. No regression.
 x86_64: Booted on qemu. No regression. [1]
 
-[1]. https://openqa.qa.codethink.co.uk/tests/1816
+[1]. https://openqa.qa.codethink.co.uk/tests/1829
 
 
 Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
