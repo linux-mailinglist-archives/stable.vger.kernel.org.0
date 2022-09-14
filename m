@@ -2,132 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A55BB5B8FC5
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 22:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4785B8FD2
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 22:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229553AbiINUuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 16:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
+        id S229557AbiINU6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 16:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbiINUu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 16:50:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F43E248C0;
-        Wed, 14 Sep 2022 13:50:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07E6961D3A;
-        Wed, 14 Sep 2022 20:50:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DC8C433D7;
-        Wed, 14 Sep 2022 20:50:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1663188625;
-        bh=IjmOawu6CY2fACHUkMgsf9urJDo1w9YeQ/6B2GWxhWM=;
-        h=Date:To:From:Subject:From;
-        b=XqFQ/PHGw6tVWdwruUEyugFXaWoln7adNQbmhqGaK+QcbZQbml0S+SMYOyMCFAO8J
-         9zXnzJR2H7yh0eV/JN6jDeD8LtuCjH0WDZmIq5qw/sKb/MxZxiao+Dgz+XPsn9L33r
-         9bpD0MPKMaLho4/66uAwm2td3Cqi+6hKfNy8ePqE=
-Date:   Wed, 14 Sep 2022 13:50:24 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, osalvador@suse.de,
-        mike.kravetz@oracle.com, opendmb@gmail.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-hugetlb-correct-demote-page-offset-logic.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220914205025.57DC8C433D7@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229493AbiINU6I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 16:58:08 -0400
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F8C72EEA;
+        Wed, 14 Sep 2022 13:58:05 -0700 (PDT)
+Received: by mail-qt1-x833.google.com with SMTP id ay9so1458351qtb.0;
+        Wed, 14 Sep 2022 13:58:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=QNU3ln1m6W6H+Eth7e7mlIos1/sGM3C0dnTwuXYoTvA=;
+        b=FMH/cvvebYsqhplKsDTk3ABRuiJDLcdC4LCeCCnWPhgF+b+OhuH4Fo4pJ1TPMSC2Z0
+         lByXtMtJ0PK59wzS1Nio5utKs52mVdLMyD3Fq2sME9BryQzm3yQOR1Pdls93IEhQJbYR
+         tqJGKh+UbWX4JuWfNP1oX4mcXFHaT9lV18CzcsVgFuRV4Lw8N5Khyz3hDuO2tYe6Ob/a
+         VDuiOJGPDijVyvdXYQegJRTs7mZ+dsSCXe9x6dvm1OZDeSdXCfQU4/ZuC1ALpZP0o0ON
+         pIGDuicIJGpFIq7OKNKKs3JkgfYQOt4TUrRNtpUKBdAEKO5+jOXCi9I4a8qyw/zaijrV
+         C7nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=QNU3ln1m6W6H+Eth7e7mlIos1/sGM3C0dnTwuXYoTvA=;
+        b=qdZa1yAMmq241b5GWBQBvLjmnbzK90Hkx/w4WUAHqZ0uyyzJHn7MsuynDBo7NAn0BQ
+         hpIe21vBa5i7GehozyPoLlO2ZlAMhil1dKf6HBTxadgO0nrJ8FlflWgfeQqSBWHf1hSy
+         8AMYvs2twErgdjZlknZtNrp0rj8tTiOXrEmHUlJ1cPqA4YZdsXdMVCjHDQMQLqpPnNUw
+         aaPwNo3uMSR8lh20Q4L9HoWuMqvpeXqBzT2bAkdSfRtQNHmu6Sg0uq1LZ+Br5j94BxbH
+         a1wlBnIlgXieKJNzSthH3qCV8AwO8wf3JammzvZWJjn0kSQs5HCM4TUVkunB8Ns82biF
+         r3SQ==
+X-Gm-Message-State: ACgBeo2V6MILYNNpfyjC2hMarBAFze+ZGj77yYII/+U7F29PaGqiNktj
+        9fEiRNsTEJM2xrLIjy1mpSs=
+X-Google-Smtp-Source: AA6agR7wzPt99NL4xF4nkAnkokatcyi+wG8yU0lDcJTGpYhkxA16atdfLImZN2sojQX0wSx1InkrxA==
+X-Received: by 2002:ac8:7f0c:0:b0:35b:b013:3913 with SMTP id f12-20020ac87f0c000000b0035bb0133913mr17478887qtk.39.1663189084978;
+        Wed, 14 Sep 2022 13:58:04 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id bn29-20020a05620a2add00b006bb2cd2f6d1sm2388308qkb.127.2022.09.14.13.58.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Sep 2022 13:58:04 -0700 (PDT)
+Message-ID: <567c5034-2ca9-b57d-ba28-c4ddedde3f0e@gmail.com>
+Date:   Wed, 14 Sep 2022 13:58:01 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 5.10 00/79] 5.10.143-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220913140350.291927556@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 9/13/22 07:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.143 release.
+> There are 79 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.143-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The patch titled
-     Subject: mm/hugetlb: correct demote page offset logic
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-hugetlb-correct-demote-page-offset-logic.patch
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb-correct-demote-page-offset-logic.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Doug Berger <opendmb@gmail.com>
-Subject: mm/hugetlb: correct demote page offset logic
-Date: Wed, 14 Sep 2022 12:09:17 -0700
-
-With gigantic pages it may not be true that struct page structures are
-contiguous across the entire gigantic page.  The nth_page macro is used
-here in place of direct pointer arithmetic to correct for this.
-
-Link: https://lkml.kernel.org/r/20220914190917.3517663-1-opendmb@gmail.com
-Fixes: 8531fc6f52f5 ("hugetlb: add hugetlb demote page support")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-correct-demote-page-offset-logic
-+++ a/mm/hugetlb.c
-@@ -3420,6 +3420,7 @@ static int demote_free_huge_page(struct
- {
- 	int i, nid = page_to_nid(page);
- 	struct hstate *target_hstate;
-+	struct page *subpage;
- 	int rc = 0;
- 
- 	target_hstate = size_to_hstate(PAGE_SIZE << h->demote_order);
-@@ -3453,15 +3454,16 @@ static int demote_free_huge_page(struct
- 	mutex_lock(&target_hstate->resize_lock);
- 	for (i = 0; i < pages_per_huge_page(h);
- 				i += pages_per_huge_page(target_hstate)) {
-+		subpage = nth_page(page, i);
- 		if (hstate_is_gigantic(target_hstate))
--			prep_compound_gigantic_page_for_demote(page + i,
-+			prep_compound_gigantic_page_for_demote(subpage,
- 							target_hstate->order);
- 		else
--			prep_compound_page(page + i, target_hstate->order);
--		set_page_private(page + i, 0);
--		set_page_refcounted(page + i);
--		prep_new_huge_page(target_hstate, page + i, nid);
--		put_page(page + i);
-+			prep_compound_page(subpage, target_hstate->order);
-+		set_page_private(subpage, 0);
-+		set_page_refcounted(subpage);
-+		prep_new_huge_page(target_hstate, subpage, nid);
-+		put_page(subpage);
- 	}
- 	mutex_unlock(&target_hstate->resize_lock);
- 
-_
-
-Patches currently in -mm which might be from opendmb@gmail.com are
-
-mm-hugetlb-correct-demote-page-offset-logic.patch
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
