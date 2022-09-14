@@ -2,116 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 810EC5B865D
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 12:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30F445B86D7
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 12:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229728AbiINK2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 06:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35066 "EHLO
+        id S229750AbiINK6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 06:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229929AbiINK2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 06:28:34 -0400
-Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EA17D7A8
-        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 03:28:32 -0700 (PDT)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 2F0FB10048159
-        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 10:28:18 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id YPcvoakr6ce9BYPcvomzSP; Wed, 14 Sep 2022 10:28:18 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=TK2A93pa c=1 sm=1 tr=0 ts=6321acc2
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=xOM3xZuef0cA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=m3B_eOHTikhj6PlMeNoA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=yohQTvVt4d8TamjjKGi7+f+oe/vxkrQkrKRW6c74gVE=; b=fC6z26HrbZE34b99f/S7Qpq6r+
-        Cj3wmEmMG4X2LRmTg/sWePuxagh0j5NMrrrjwakLwokq6/TT9SshScGBlFmImMBoXxZHXvqGKUXTy
-        E4WJZuzb9Qco6sZF9Gku8DBc25c2av2eGbUM4dUSTgZ6VLy/g7Q/jA0pAcSRZDBuuPC/QKWxa8MTR
-        C+Lh2sPX+UoENE+3uL4/h6HEMQHaccK+HcDnyC1OcAcERZIVQ8fopyxrsJwFduan4Wht0UjFOMb9w
-        SeC21nMG7mqzEq831t2lDLjyTBkH6bfzsOnTsudKEAj+c6OfwYF0qXK3XnUVmsTq3m9qHsPzE7TV0
-        PBdYxPVA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:44404 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oYPcu-001pAn-7R;
-        Wed, 14 Sep 2022 04:28:16 -0600
-Subject: Re: [PATCH 5.15 000/121] 5.15.68-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220913140357.323297659@linuxfoundation.org>
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <f83cda64-b9de-2987-bc1c-d8f59887d0d0@w6rz.net>
-Date:   Wed, 14 Sep 2022 03:28:13 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229728AbiINK57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 06:57:59 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D50B04;
+        Wed, 14 Sep 2022 03:57:57 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id w2so7172993qtv.9;
+        Wed, 14 Sep 2022 03:57:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=VXqeZNDwuddQ69zEr78QRQZs4hRIQp4UvJ0xD8IfB4E=;
+        b=ja16G3hlNROnLQ89Ts82e/sNzorvDWE0AzfoUXsW1n9Y4cpNqIG41Ss64donlVdhHo
+         32ClPPU1zP6hal/R1ZAcIEC0Y4tRgOZvmWv0b9pb/XqfsEz97SjGlfbLWwF4RiEbnR47
+         9Ol+bWCYf96FOA7KaMQ36MZ+pHSGW3d/quTF2BWW+wOpxhU8KbZetCRbB+ikgtT3Wnm1
+         UPBPuuRh+0UAuk7RKQ89ZF/ZVNn6U0eeZCPN8lXvSmPu3Yw7GPrkTJSCm62LP9/iyrZd
+         N57KsJ2ljvy5IasWSiZutN+TTkAgJrfmsDEgXVZC4AwBf2FljdtWBl4hwGmcOqRyEv5u
+         0Tkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=VXqeZNDwuddQ69zEr78QRQZs4hRIQp4UvJ0xD8IfB4E=;
+        b=edku/LXIbBiAKYIgmLNGmEmkpQH/+TrG8g89KMXMES4+G1SwziCgCR1WG36V8X5bBL
+         rXO+W5iCKmqIjaxxX95/bma076lerNZUm2GQilfYU3pWXZwi6LBcpt0YS5hrUL1MIBeK
+         GaiWfTI6w0SrUA2vBE4sFgvZdo6NeVwpBwt8s0E5XEu6LKMurjO5LLm6kCiY1s8I3UXm
+         /2/FvUyUPK+vTBs2nlEprA80gvH0dexZDwLrnn9LRiIz2n8gQrwNo0WkL1onAvcgAUbs
+         11CeeyCTTVpiwhW39dUh7ttKhRa/P06vG4+d++3DtXXR1pLR97fz+n/MV4WP4TlEPRRq
+         0f3A==
+X-Gm-Message-State: ACgBeo0mNSOHASLRgh5nzGFvW+/KToQjqQxehOOCQb3Sy35K3lRS3zO+
+        cse8wbkfXH120orxJDrAwty0buVR5abQ/LiVKbs=
+X-Google-Smtp-Source: AA6agR7ACG2IpcCo/COMlzVhleq0fXRcR/7Ddpg9g1emjHR0DCb1yao5dwtqu4B+26ezK3zdONa1FUCvW1sMzvG2S+A=
+X-Received: by 2002:a05:622a:40a:b0:343:77ba:727f with SMTP id
+ n10-20020a05622a040a00b0034377ba727fmr32433810qtx.481.1663153076699; Wed, 14
+ Sep 2022 03:57:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oYPcu-001pAn-7R
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:44404
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 17
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20220912212743.37365-1-eajames@linux.ibm.com> <20220912212743.37365-3-eajames@linux.ibm.com>
+In-Reply-To: <20220912212743.37365-3-eajames@linux.ibm.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 14 Sep 2022 13:57:20 +0300
+Message-ID: <CAHp75Vfo4Ke9d-ZJ-BffYDbT9ppEQVOQbVpu1y_F2vXd+52YPQ@mail.gmail.com>
+Subject: Re: [PATCH v7 2/2] iio: pressure: dps310: Reset chip after timeout
+To:     Eddie James <eajames@linux.ibm.com>
+Cc:     jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org,
+        joel@jms.id.au, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/13/22 7:03 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.68 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Sep 13, 2022 at 12:27 AM Eddie James <eajames@linux.ibm.com> wrote:
 >
-> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.68-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> The DPS310 chip has been observed to get "stuck" such that pressure
+> and temperature measurements are never indicated as "ready" in the
+> MEAS_CFG register. The only solution is to reset the device and try
+> again. In order to avoid continual failures, use a boolean flag to
+> only try the reset after timeout once if errors persist.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+...
 
-Tested-by: Ron Economos <re@w6rz.net>
+> +static int dps310_ready_status(struct dps310_data *data, int ready_bit, int timeout)
+> +{
+> +       int ready;
+> +       int sleep = DPS310_POLL_SLEEP_US(timeout);
 
+Longer line first?
+
+> +       return regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready, ready & ready_bit,
+> +                                       sleep, timeout);
+> +}
+
+...
+
+> +static int dps310_ready(struct dps310_data *data, int ready_bit, int timeout)
+> +{
+> +       int rc;
+> +
+> +       rc = dps310_ready_status(data, ready_bit, timeout);
+> +       if (rc) {
+> +               if (rc == -ETIMEDOUT && !data->timeout_recovery_failed) {
+> +                       int rc2;
+> +
+> +                       /* Reset and reinitialize the chip. */
+> +                       rc2 = dps310_reset_reinit(data);
+> +                       if (rc2) {
+
+With below in mind this might become
+
+  if (dps310_reset_init(...))
+    ... = true;
+
+> +                               data->timeout_recovery_failed = true;
+> +                       } else {
+> +                               /* Try again to get sensor ready status. */
+
+> +                               rc2 = dps310_ready_status(data, ready_bit, timeout);
+> +                               if (rc2)
+> +                                       data->timeout_recovery_failed = true;
+
+Shouldn't you re-use rc here again?
+
+> +                               else
+> +                                       return 0;
+> +                       }
+> +               }
+> +
+> +               return rc;
+> +       }
+
+-- 
+With Best Regards,
+Andy Shevchenko
