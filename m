@@ -2,97 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB5C5B9047
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 23:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E15D5B9085
+	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 00:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbiINVuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 17:50:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48324 "EHLO
+        id S229671AbiINWhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 18:37:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229915AbiINVuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 17:50:00 -0400
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4506886C3E;
-        Wed, 14 Sep 2022 14:49:25 -0700 (PDT)
-Received: by mail-qv1-xf2d.google.com with SMTP id d1so12840071qvs.0;
-        Wed, 14 Sep 2022 14:49:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=Mlq5OwfkX5sats/uQxVfRjfC54o1+5/BBTIbC7sExTw=;
-        b=P3WGL6HCwe/FzqQsrWKuwfxcBDAlRww2qK0jhR+mku7xO5FefjqI3YV/S45RrCGYic
-         zlp1QXwJQ3dkDyGXhUdaS/4XLlxPu8cByv2aTUjI8oBCLzTmVnMrQ4nZ73QRVkD/pgFe
-         ftkNtBgIcmXghkDDZYtm+anbDLdL8vVUNl413qi0ZKaVboNAI+7dGZ6RqQdMjSY8m/dU
-         hn9JNouatEN96CeASzDsvS8lFfI2spwl6dWYJmAqvrQpU8N8YZjy8HfnbBNxZMJWsguV
-         O9nft+cNwareLKke28PWKR5jpG3zWQUpB1+4XY1wT/KjaizWCYiZiAwzv2VG/ud2N7Qp
-         SxoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=Mlq5OwfkX5sats/uQxVfRjfC54o1+5/BBTIbC7sExTw=;
-        b=NOufOfckh3NQSs1Gs6WzKWVm6dzfwodJKGRAourUiArghoOtkrKeFkJ1T4H7S13PoS
-         Tt4KIxFB+u+uw43DzDidEb3x6XhRPhToS9qoaDeE7a1OBOeKPezZgsjRe8Rv2k584zil
-         hCk7bBnFSPieMDFcMPYPSFbGrqkUWGXe4vR34mbbCbNp0IIt0Z7dObMLj46yR6dFI7NJ
-         Wr2lFdLP3u7S2VJ2ss5MZXbknzbowKYl6jK1AupwNGtl1g9kKg67IFHZTbs4EgaeButK
-         XDsYG7dp3KfiUfAxCkHEY2AcnIuHhjlrE5RPa7gCvgPT3T+FJ1Te62k9m3EK1hlGQv6N
-         MMqg==
-X-Gm-Message-State: ACgBeo1o+k9fCLNRsejS/JdnqJS/jQUr2dme4OlwWJHMRDeu++NuYOoE
-        s9+mPBPNm36HJctxUCPWK78=
-X-Google-Smtp-Source: AA6agR6y47JUxStZNmYwod7Tq6rTP+tvukyIGB2+Dioe5mB7f+v7zD8s97UyJ8TO9u81hWK23L9qfA==
-X-Received: by 2002:ad4:418b:0:b0:4aa:3b02:dba6 with SMTP id e11-20020ad4418b000000b004aa3b02dba6mr33169789qvp.7.1663192163932;
-        Wed, 14 Sep 2022 14:49:23 -0700 (PDT)
-Received: from [10.69.40.226] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id az31-20020a05620a171f00b006af0ce13499sm2811924qkb.115.2022.09.14.14.49.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Sep 2022 14:49:22 -0700 (PDT)
-Message-ID: <efd8008a-6b81-ff4c-f0bd-4f957f00295e@gmail.com>
-Date:   Wed, 14 Sep 2022 14:49:20 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
-Subject: Re: [PATCH] mm/hugetlb: correct demote page offset logic
-Content-Language: en-US
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20220914190917.3517663-1-opendmb@gmail.com>
- <20220914134927.16c229ccdc1a6b9da5d698c3@linux-foundation.org>
-From:   Doug Berger <opendmb@gmail.com>
-In-Reply-To: <20220914134927.16c229ccdc1a6b9da5d698c3@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229629AbiINWhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 18:37:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2527F0AC;
+        Wed, 14 Sep 2022 15:37:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5DF961F5A;
+        Wed, 14 Sep 2022 22:37:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 271EDC433D6;
+        Wed, 14 Sep 2022 22:37:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1663195042;
+        bh=a4RZr0FQ4tnf1CzhQbojpzKLCa5ArBFSGtEauNiRakA=;
+        h=Date:To:From:Subject:From;
+        b=b5wUqSxHGLFU/5DYoDcM7emrlT4W2vGPYCFsRzzMsWEzAF8uSBOQ5JqhCt/8ijPyP
+         ocpEYg6mj0RMX3L/Sj1LBgtGDRlSOeYnAhZnegoCfZVDup9KmkN9vgwVwk9R1GToHd
+         LiugLrWfq3aGMfLEb/F50bCZj218Ut+Cfrnhb/QQ=
+Date:   Wed, 14 Sep 2022 15:37:21 -0700
+To:     mm-commits@vger.kernel.org, ying.huang@intel.com,
+        stable@vger.kernel.org, naoya.horiguchi@nec.com,
+        linmiaohe@huawei.com, cuibixuan@linux.alibaba.com,
+        baolin.wang@linux.alibaba.com, xueshuai@linux.alibaba.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mmhwpoison-check-mm-when-killing-accessing-process.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220914223722.271EDC433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/14/2022 1:49 PM, Andrew Morton wrote:
-> On Wed, 14 Sep 2022 12:09:17 -0700 Doug Berger <opendmb@gmail.com> wrote:
-> 
->> With gigantic pages it may not be true that struct page structures
->> are contiguous across the entire gigantic page. The nth_page macro
->> is used here in place of direct pointer arithmetic to correct for
->> this.
-> 
-> What were the user-visible runtime effects of this bug?
-As Mike said this would only conceptually be a problem for systems with 
-CONFIG_SPARSEMEM && !CONFIG_SPARSEMEM_VMEMMAP, and could cause kernel 
-address exceptions or memory corruption with unpredictable side effects.
 
-However, I am unaware of a system other than perhaps the PS3 that uses 
-the classic sparse addressing, so the odds of such a system also using 
-gigantic hugetlbfs pages that it wants to demote is likely quite small.
+The patch titled
+     Subject: mm,hwpoison: check mm when killing accessing process
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mmhwpoison-check-mm-when-killing-accessing-process.patch
 
-Thanks,
--Doug
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mmhwpoison-check-mm-when-killing-accessing-process.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Shuai Xue <xueshuai@linux.alibaba.com>
+Subject: mm,hwpoison: check mm when killing accessing process
+Date: Wed, 14 Sep 2022 14:49:35 +0800
+
+The GHES code calls memory_failure_queue() from IRQ context to queue work
+into workqueue and schedule it on the current CPU.  Then the work is
+processed in memory_failure_work_func() by kworker and calls
+memory_failure().
+
+When a page is already poisoned, commit a3f5d80ea401 ("mm,hwpoison: send
+SIGBUS with error virutal address") make memory_failure() call
+kill_accessing_process() that:
+
+    - holds mmap locking of current->mm
+    - does pagetable walk to find the error virtual address
+    - and sends SIGBUS to the current process with error info.
+
+However, the mm of kworker is not valid, resulting in a null-pointer
+dereference.  So check mm when killing the accessing process.
+
+Link: https://lkml.kernel.org/r/20220914064935.7851-1-xueshuai@linux.alibaba.com
+Fixes: a3f5d80ea401 ("mm,hwpoison: send SIGBUS with error virutal address")
+Signed-off-by: Shuai Xue <xueshuai@linux.alibaba.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory-failure.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/mm/memory-failure.c~mmhwpoison-check-mm-when-killing-accessing-process
++++ a/mm/memory-failure.c
+@@ -745,6 +745,9 @@ static int kill_accessing_process(struct
+ 	};
+ 	priv.tk.tsk = p;
+ 
++	if (!p->mm)
++		return -EFAULT;
++
+ 	mmap_read_lock(p->mm);
+ 	ret = walk_page_range(p->mm, 0, TASK_SIZE, &hwp_walk_ops,
+ 			      (void *)&priv);
+@@ -753,6 +756,7 @@ static int kill_accessing_process(struct
+ 	else
+ 		ret = 0;
+ 	mmap_read_unlock(p->mm);
++
+ 	return ret > 0 ? -EHWPOISON : -EFAULT;
+ }
+ 
+_
+
+Patches currently in -mm which might be from xueshuai@linux.alibaba.com are
+
+mmhwpoison-check-mm-when-killing-accessing-process.patch
+
