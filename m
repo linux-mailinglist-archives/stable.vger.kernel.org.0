@@ -2,63 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B24B45B86F4
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 13:05:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB275B871D
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 13:17:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229895AbiINLE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 07:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34126 "EHLO
+        id S229544AbiINLRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 07:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230124AbiINLEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 07:04:52 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E993710FE0
-        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 04:04:49 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id u9so33898340ejy.5
-        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 04:04:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=BkGxRfmkfExHV2aUTPcC2G3xgPJhHhdFuff0nSQ2sO8=;
-        b=raXhuHmQeTxI3aDkMv97ohycDh0eeQHKARc1hvSuIRCmh95Bu1Ph5GmBM3Lu5JHU1U
-         9cwBCL06fLh9ekNU+JRGZ0meOEfoxUE6x7PI9pXNdKplvRvYcwQRh6NMqRCHfhBFWQ10
-         efkhvF8RV0EPzsNoNJajRfHoPJZNRC0WrcXWQxgi8qp9n6vIbAggKjeRPUCiGzRyntAQ
-         byEEg1Nd03uc43R+6loHIrqksjJ2EOZpoheFTBiKiLAZu0W4EE1HO0guiS4mj8GZUmIG
-         P+ZmrZwZPqbwjjkK3KZSggj86rI8dlh+3cQf89DuHvIr2OQazD1FW4CbIoebNbYowxyR
-         Esjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=BkGxRfmkfExHV2aUTPcC2G3xgPJhHhdFuff0nSQ2sO8=;
-        b=tpaQTdVUZK6oUDNiKlF2cZz84k7W1J3yYOM6kT3lO7gW5Zj8tGg+RBMblp/Q9XlpSh
-         eset+hMh9ajxToOs6bdeg1MB3DbZyQvgZh9lJLzmbYRpSRH7tXJlw6n0TykeXIAV571G
-         A5+hJ0UXCqCUlSOc0iAutScKOvVeQHbr8OlM6wpv9A9LexYga4lVW8P0ccC5pJXiFVcD
-         cjFZE/kk+iBcHhehQoZlzssqMXMrfmIHTpgPsXrTJ+w00YYfgSRt0GKcBFLYaaQjITwj
-         L943gO25mPHm9fQrvR8+RYs1+yoWdCw0c5huo5jhQjLT8GM+lxawaceZbwhLtyzcztA4
-         wsjQ==
-X-Gm-Message-State: ACgBeo17Wx4LT+kX2vV1VTMS3snETDsQxmcyM4tujpCT9Ym25j1hiXJK
-        22/nAWVXbjgMSyaiJFYl1LMpCIgoJCIeQo7SHrhgRg==
-X-Google-Smtp-Source: AA6agR4nhfIDLJlZrUEPfOkhtbggnGTzI+uI6k14+XG/bKpGXG4GssitGlu3JpdjuaWvWVzAbgf8kqmbdkB/nNFG1do=
-X-Received: by 2002:a17:907:3188:b0:741:4bf7:ec1a with SMTP id
- xe8-20020a170907318800b007414bf7ec1amr25811390ejb.448.1663153487670; Wed, 14
- Sep 2022 04:04:47 -0700 (PDT)
+        with ESMTP id S229457AbiINLRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 07:17:19 -0400
+Received: from sender-of-o50.zoho.in (sender-of-o50.zoho.in [103.117.158.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBC14D24D;
+        Wed, 14 Sep 2022 04:17:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1663154217; cv=none; 
+        d=zohomail.in; s=zohoarc; 
+        b=BJwEfHEXjRmXkFkHW+Om2xekj3PQzcIMUuwislfMvWQu9fzA4tgFJWYEmJMVbDniPhluuUjCcScGBZrJ89VHk1mhYtxa36Y2OcYuNgp/9f2LHgNtYGLXxQAS3/BFSINlssSO3SZto7acP1XcN/RkFX6i26yuDFUeSOK5SGqMGDw=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
+        t=1663154217; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
+        bh=+llC5L3toh5m6/IGcaq3njngvo8xvm7Ec+Uc9KcqTeM=; 
+        b=XOopyJWXFsVIZu9yxu905UBMM2nvyHpnl4CDtGH/h0lJV3VZQ5gLxwtkNdE0jjLUg/JT8VZBakNXYSJAE2zG90N0GFxy2TJmX8ZPmHygMYwWH9itWyv2qC53RxnQVXZksbX+NSfcSCEaPIjCI2RxOdJyknCnu4GYiPj86Tsjl74=
+ARC-Authentication-Results: i=1; mx.zohomail.in;
+        dkim=pass  header.i=siddh.me;
+        spf=pass  smtp.mailfrom=code@siddh.me;
+        dmarc=pass header.from=<code@siddh.me>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1663154217;
+        s=zmail; d=siddh.me; i=code@siddh.me;
+        h=From:From:To:To:Cc:Cc:Message-ID:Subject:Subject:Date:Date:MIME-Version:Content-Transfer-Encoding:Content-Type:Message-Id:Reply-To;
+        bh=+llC5L3toh5m6/IGcaq3njngvo8xvm7Ec+Uc9KcqTeM=;
+        b=bRobQpH2xTOa2z5qKvwtR1SAvxlVlVypTbSu8XuKnhGq+8S8hA64iIm2+7nCF+4j
+        eNRBQLVEMlivAIu7j/UXzR3NNbJJrWl+NlFVoagjt3ewUfNi5jCh18sgW3aQPJYN+o6
+        V6Ux/LjmYINQMhMRNFN1I5xrHaLlJ4ybU4gqXkrA=
+Received: from localhost.localdomain (43.241.144.117 [43.241.144.117]) by mx.zoho.in
+        with SMTPS id 1663154216126366.814546035366; Wed, 14 Sep 2022 16:46:56 +0530 (IST)
+From:   Siddh Raman Pant <code@siddh.me>
+To:     Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Cc:     ntfs3 <ntfs3@lists.linux.dev>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com,
+        stable@vger.kernel.org
+Message-ID: <20220914111643.14411-1-code@siddh.me>
+Subject: [PATCH] ntfs3: Fix memory leak in ntfs_fill_super()
+Date:   Wed, 14 Sep 2022 16:46:43 +0530
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220913140350.291927556@linuxfoundation.org>
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 14 Sep 2022 16:34:35 +0530
-Message-ID: <CA+G9fYsLqc_YwN0uYoSS8ktzDOojS1o8NG_hoswcnfk95pD1kA@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/79] 5.10.143-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-ZohoMailClient: External
+Content-Type: text/plain; charset=utf8
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -69,107 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 13 Sept 2022 at 19:52, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.143 release.
-> There are 79 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.143-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Mount options ptr wasn't freed before putting the superblock in
+ntfs_fill_super(), which resulted in a memory leak.
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Bug report: https://syzkaller.appspot.com/bug?id=3D332ba47915d0e39e94b42a62=
+2f195f0804ecb67f
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Fixes: 9b75450d6c58 ("fs/ntfs3: Fix memory leak if fill_super failed")
+Reported-and-tested-by: syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.c=
+om
+Cc: stable@vger.kernel.org # 5.15
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+---
+ fs/ntfs3/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-## Build
-* kernel: 5.10.143-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: c8d43c9a1242725c78f2bf5b0274413727673ac2
-* git describe: v5.10.142-80-gc8d43c9a1242
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.142-80-gc8d43c9a1242
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index 47012c9bf505..c0e45f170701 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -1281,6 +1281,7 @@ static int ntfs_fill_super(struct super_block *sb, st=
+ruct fs_context *fc)
+ =09 * Free resources here.
+ =09 * ntfs_fs_free will be called with fc->s_fs_info =3D NULL
+ =09 */
++=09put_mount_options(sbi->options);
+ =09put_ntfs(sbi);
+ =09sb->s_fs_info =3D NULL;
+=20
+--=20
+2.35.1
 
-## No test Regressions (compared to v5.10.142)
 
-## No metric Regressions (compared to v5.10.142)
-
-## No test Fixes (compared to v5.10.142)
-
-## No metric Fixes (compared to v5.10.142)
-
-## Test result summary
-total: 103035, pass: 90648, fail: 769, skip: 11310, xfail: 308
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 333 total, 333 passed, 0 failed
-* arm64: 65 total, 63 passed, 2 failed
-* i386: 55 total, 53 passed, 2 failed
-* mips: 56 total, 56 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 55 passed, 5 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 24 total, 24 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 58 total, 56 passed, 2 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
