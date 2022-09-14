@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F445B86D7
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 12:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87D95B86DB
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 12:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229750AbiINK6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 06:58:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51898 "EHLO
+        id S229918AbiINK6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 06:58:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbiINK57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 06:57:59 -0400
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D50B04;
-        Wed, 14 Sep 2022 03:57:57 -0700 (PDT)
-Received: by mail-qt1-x831.google.com with SMTP id w2so7172993qtv.9;
-        Wed, 14 Sep 2022 03:57:57 -0700 (PDT)
+        with ESMTP id S230152AbiINK6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 06:58:41 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC424F41;
+        Wed, 14 Sep 2022 03:58:39 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id w4so11412345qvp.2;
+        Wed, 14 Sep 2022 03:58:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=VXqeZNDwuddQ69zEr78QRQZs4hRIQp4UvJ0xD8IfB4E=;
-        b=ja16G3hlNROnLQ89Ts82e/sNzorvDWE0AzfoUXsW1n9Y4cpNqIG41Ss64donlVdhHo
-         32ClPPU1zP6hal/R1ZAcIEC0Y4tRgOZvmWv0b9pb/XqfsEz97SjGlfbLWwF4RiEbnR47
-         9Ol+bWCYf96FOA7KaMQ36MZ+pHSGW3d/quTF2BWW+wOpxhU8KbZetCRbB+ikgtT3Wnm1
-         UPBPuuRh+0UAuk7RKQ89ZF/ZVNn6U0eeZCPN8lXvSmPu3Yw7GPrkTJSCm62LP9/iyrZd
-         N57KsJ2ljvy5IasWSiZutN+TTkAgJrfmsDEgXVZC4AwBf2FljdtWBl4hwGmcOqRyEv5u
-         0Tkw==
+        bh=M+3+44F49oM4iIfwSY5dMxqTqeMQjRYAGFKRXH7fILM=;
+        b=RTLEH4tnLUxxsXkknByr7ORhaSy8nGD9iq/AmO+LcChD4YPbVPvGWZiCvCov8tQ+z2
+         4h+KkoaKLBdTpe37v0PWR3FO4PtZv6WGlsiZXhptlJk+AozlD83UWZ0FYn70OTI0l+HX
+         pbHeM7l+xQ+O1VdCw7ZdA64xzwJrEIdsca1Xx8xyRHgOjqjEgtozGFoH5s6N9XuefYd6
+         eCDLt0QEhnQnPsluVawvJqdyNk5AKGXRXbrKugRwOQXUdxliujH2bnv/j/DlPW2qC+K7
+         W8VOoK+c7oVdtSKeSgvPyLM4O+qnMssoHvsRrr/PHOauVZpePuItlim0myb0CcNaEGMk
+         rvuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=VXqeZNDwuddQ69zEr78QRQZs4hRIQp4UvJ0xD8IfB4E=;
-        b=edku/LXIbBiAKYIgmLNGmEmkpQH/+TrG8g89KMXMES4+G1SwziCgCR1WG36V8X5bBL
-         rXO+W5iCKmqIjaxxX95/bma076lerNZUm2GQilfYU3pWXZwi6LBcpt0YS5hrUL1MIBeK
-         GaiWfTI6w0SrUA2vBE4sFgvZdo6NeVwpBwt8s0E5XEu6LKMurjO5LLm6kCiY1s8I3UXm
-         /2/FvUyUPK+vTBs2nlEprA80gvH0dexZDwLrnn9LRiIz2n8gQrwNo0WkL1onAvcgAUbs
-         11CeeyCTTVpiwhW39dUh7ttKhRa/P06vG4+d++3DtXXR1pLR97fz+n/MV4WP4TlEPRRq
-         0f3A==
-X-Gm-Message-State: ACgBeo0mNSOHASLRgh5nzGFvW+/KToQjqQxehOOCQb3Sy35K3lRS3zO+
-        cse8wbkfXH120orxJDrAwty0buVR5abQ/LiVKbs=
-X-Google-Smtp-Source: AA6agR7ACG2IpcCo/COMlzVhleq0fXRcR/7Ddpg9g1emjHR0DCb1yao5dwtqu4B+26ezK3zdONa1FUCvW1sMzvG2S+A=
-X-Received: by 2002:a05:622a:40a:b0:343:77ba:727f with SMTP id
- n10-20020a05622a040a00b0034377ba727fmr32433810qtx.481.1663153076699; Wed, 14
- Sep 2022 03:57:56 -0700 (PDT)
+        bh=M+3+44F49oM4iIfwSY5dMxqTqeMQjRYAGFKRXH7fILM=;
+        b=hfaXltxGPxu0UTvbHwSbQrTCAyPXHsF4P3QoptdyKV7KF4qXCXketnmwSEKqICPz+X
+         mGsryw3Fb7KszSvyKSK3hFVyPNU8xfr92iZF/AK7UmDFD70OwCeaM5fUWYvfiA/OveOs
+         rEOLGjljgftAzvE1NS7rVP95b8yHRwwscUBN3eVc135D1jIbZoevYaXfV/Fujs1XlBRR
+         rS4u1GIIqI/w1q3LjbenbKvukiXc5m2egAQQ0Etz8hWYMwIywlwo7R2xh/1q8wgDOSX+
+         h81RCYdmTTrZkXgHU3W7YrnL+ai/D/+rJ3RIKVdgHixAg5jXA74Drp14usXdkPtZkG7b
+         4r3Q==
+X-Gm-Message-State: ACgBeo3zDRlzTuNFednYCJ8CfhNpUnXdzvmDDdUgUn0Xd2bo3lM+XElP
+        tEmgqA4QTSWZsPi4ygRVG6vOROo9dbML0EN3YgRMlv2Z5hLROQ==
+X-Google-Smtp-Source: AA6agR5NBJmLkrzHIl3lhWiSwjcscpRIsiM9FUwCgYlQHK5F43yiSfAfRoIB2KVq9q+Ktg6Hz+7Xdr+0F9hwVc4LG40=
+X-Received: by 2002:a05:6214:19cf:b0:4a9:4241:2399 with SMTP id
+ j15-20020a05621419cf00b004a942412399mr30621295qvc.64.1663153119083; Wed, 14
+ Sep 2022 03:58:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220912212743.37365-1-eajames@linux.ibm.com> <20220912212743.37365-3-eajames@linux.ibm.com>
-In-Reply-To: <20220912212743.37365-3-eajames@linux.ibm.com>
+References: <20220912212743.37365-1-eajames@linux.ibm.com>
+In-Reply-To: <20220912212743.37365-1-eajames@linux.ibm.com>
 From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Wed, 14 Sep 2022 13:57:20 +0300
-Message-ID: <CAHp75Vfo4Ke9d-ZJ-BffYDbT9ppEQVOQbVpu1y_F2vXd+52YPQ@mail.gmail.com>
-Subject: Re: [PATCH v7 2/2] iio: pressure: dps310: Reset chip after timeout
+Date:   Wed, 14 Sep 2022 13:58:03 +0300
+Message-ID: <CAHp75VfJdmeh54Us2P68sJ7qR8M+_AAByv8_hFPCk2QN0mTfig@mail.gmail.com>
+Subject: Re: [PATCH v7 0/2] iio: pressure: dps310: Reset chip if MEAS_CFG is corrupt
 To:     Eddie James <eajames@linux.ibm.com>
 Cc:     jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org,
         joel@jms.id.au, linux-kernel@vger.kernel.org,
@@ -72,58 +72,48 @@ On Tue, Sep 13, 2022 at 12:27 AM Eddie James <eajames@linux.ibm.com> wrote:
 > and temperature measurements are never indicated as "ready" in the
 > MEAS_CFG register. The only solution is to reset the device and try
 > again. In order to avoid continual failures, use a boolean flag to
-> only try the reset after timeout once if errors persist.
+> only try the reset after timeout once if errors persist. Include a
+> patch to move the startup procedure into a function.
 
-...
+Good enough, although having a couple of nit-picks.
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-> +static int dps310_ready_status(struct dps310_data *data, int ready_bit, int timeout)
-> +{
-> +       int ready;
-> +       int sleep = DPS310_POLL_SLEEP_US(timeout);
+> Changes since v6:
+>  - Use helper instead of the lengthy regmap_read_poll_timeout twice
+>  - Just return dps310_startup in dps310_reset_reinit
+>
+> Changes since v5:
+>  - Completely rework the second patch to reset and reinit in any
+>    timeout condition, if there haven't been previous timeouts that
+>    failed to recover the chip.
+>
+> Changes since v4:
+>  - Just check for rc rather than rc < 0 in some cases
+>  - Split declaration and init of rc
+>
+> Changes since v3:
+>  - Don't check regmap* return codes for < 0
+>  - Fix comment spelling
+>
+> Changes since v2:
+>  - Add some comments
+>  - Fix the clunky control flow
+>
+> Changes since v1:
+>  - Separate into two patches
+>  - Rename 'dps310_verify_meas_cfg' to 'dps310_check_reset_meas_cfg'
+>
+> Eddie James (2):
+>   iio: pressure: dps310: Refactor startup procedure
+>   iio: pressure: dps310: Reset chip after timeout
+>
+>  drivers/iio/pressure/dps310.c | 266 +++++++++++++++++++++-------------
+>  1 file changed, 167 insertions(+), 99 deletions(-)
+>
+> --
+> 2.31.1
+>
 
-Longer line first?
-
-> +       return regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready, ready & ready_bit,
-> +                                       sleep, timeout);
-> +}
-
-...
-
-> +static int dps310_ready(struct dps310_data *data, int ready_bit, int timeout)
-> +{
-> +       int rc;
-> +
-> +       rc = dps310_ready_status(data, ready_bit, timeout);
-> +       if (rc) {
-> +               if (rc == -ETIMEDOUT && !data->timeout_recovery_failed) {
-> +                       int rc2;
-> +
-> +                       /* Reset and reinitialize the chip. */
-> +                       rc2 = dps310_reset_reinit(data);
-> +                       if (rc2) {
-
-With below in mind this might become
-
-  if (dps310_reset_init(...))
-    ... = true;
-
-> +                               data->timeout_recovery_failed = true;
-> +                       } else {
-> +                               /* Try again to get sensor ready status. */
-
-> +                               rc2 = dps310_ready_status(data, ready_bit, timeout);
-> +                               if (rc2)
-> +                                       data->timeout_recovery_failed = true;
-
-Shouldn't you re-use rc here again?
-
-> +                               else
-> +                                       return 0;
-> +                       }
-> +               }
-> +
-> +               return rc;
-> +       }
 
 -- 
 With Best Regards,
