@@ -2,126 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 050765B7E7F
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 03:40:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BE55B7ECB
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 04:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229773AbiINBkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 21:40:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51972 "EHLO
+        id S230119AbiINCAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 22:00:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230058AbiINBkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 21:40:24 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 104306D9E9
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 18:40:18 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id w20so1551886ply.12
-        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 18:40:18 -0700 (PDT)
+        with ESMTP id S229788AbiINCAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 22:00:18 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6383130F7D
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 19:00:13 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id 184-20020a2507c1000000b00696056767cfso11785386ybh.22
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 19:00:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=KCj2JZhUIlc2QtoOnWJCVSUQllFdWStECUChjU/ENkM=;
-        b=QoFzBSfh8I5qKUc3oiR5VDOzyaxYVfSz8gA+UwQWkYigZZSyqT4xezLzsZHdr0nLNN
-         s6prqoijgK5ssjlGtYChnABIcRZclmJXrxuDRTUjJEjD3hAhacnzOHOgNmbYF7XUAuHS
-         Y0g3mk+sx8ecGVhRH2tD1p6O1Fa7M+rSpF2gE=
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc:subject
+         :date;
+        bh=p6qCghWQbcRewzTnBFceTKv/Y60AI2F5NEC8++qJ2MI=;
+        b=FZxg7ZQVvBz9WmQks3L0S9UYycRMX6FNxeIoQWOixAv/JrYVUeom0YA+u4RqWdG96c
+         UwdDLEZHnTU9I9fz0Z4OhTcqYz8IgZPUx6E7lVUPz12DOMT5Zcg2kV0JLqQRW/Cp6/qK
+         X48Ieg6gkbDHfOqruPwUwzv/U/9v40R+iLCA+WAA6lhXI7bkNeyefyLGfffTwIcxRSCL
+         wQ6N8BDNCkqqQGI3bgOhAVcQHeGXF0u6Q97uk9y2UnlTFRG+43WFmAJpo2znrD/CzVAQ
+         hMun9nt9+jT4b7CdL/NtNJjSBK+19f/WqTZqzIlXWaWjGWXvHNqCFIFKmH/pwWgkPEbn
+         A7OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=KCj2JZhUIlc2QtoOnWJCVSUQllFdWStECUChjU/ENkM=;
-        b=Dy3rkh0pumYOk/iJmIB4diN2GLNcSnVnJTOk7ZU+FS0R2jB9or+Lm23v6ud6W+Qmuk
-         eFypKVRKhLYxFQeg+dtOpLlsS0JYcsTNCJ7D/oRB2AWaaxU6YVbfToR+rkuH3pl8MR3D
-         vtnOsGebnE0vPBC8H/u+0VqkIttgl4aAhSS3g286ahRVptYYhUz8NRvpy9DN72W8eoW+
-         IR8kRCKkANG/OVOPq1YSplgQElW6FfPXhLcN2dy5dAAKNupaohLqNkvTp4136p2CsG5O
-         sZXdkZAIAr/xobnBopCZJIphjgcHEwgicwjjPZC+3DKf28/tynGGCPIViYCfsrqe1hgD
-         t1+g==
-X-Gm-Message-State: ACrzQf3apT2x3d+XqOyumlgMnubYSkVXS+6DDWOlnERx16eP7Km9oAQ8
-        gkfFJruEBE76aiMFgeUu6ko1Bw==
-X-Google-Smtp-Source: AMsMyM6xb9Xs+R2n31o4v660yqssLLBb7p9bFfIProsVZH9e3LzA6espTlaQIqHoyrrr1pQEj3zGXQ==
-X-Received: by 2002:a17:90a:4402:b0:1fd:c07d:a815 with SMTP id s2-20020a17090a440200b001fdc07da815mr2104374pjg.188.1663119617833;
-        Tue, 13 Sep 2022 18:40:17 -0700 (PDT)
-Received: from localhost ([2620:15c:202:201:c6e2:a019:5c54:fb4c])
-        by smtp.gmail.com with UTF8SMTPSA id n18-20020a170903111200b00174d4fabe76sm9137227plh.214.2022.09.13.18.40.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 13 Sep 2022 18:40:17 -0700 (PDT)
-From:   Brian Norris <briannorris@chromium.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Brian Norris <briannorris@chromium.org>,
-        stable@vger.kernel.org, Arindam Nath <arindam.nath@amd.com>,
-        Chris Ball <cjb@laptop.org>,
-        Philip Rakity <prakity@marvell.com>,
-        Zhangfei Gao <zhangfei.gao@marvell.com>,
-        linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org
-Subject: [PATCH] mmd: core: Terminate infinite loop in SD-UHS voltage switch
-Date:   Tue, 13 Sep 2022 18:40:10 -0700
-Message-Id: <20220914014010.2076169-1-briannorris@chromium.org>
+        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=p6qCghWQbcRewzTnBFceTKv/Y60AI2F5NEC8++qJ2MI=;
+        b=pPC+2ZvO8J8q+r3kqp6llMabJslwE82d5PNrizxpr/eyT3AfQNE3vFQJOyDxtvYp94
+         Y8L5Ssw6Ih+ng3uVzEpB86pzaOoUlBlDp+2H5Si09eGxNloe16ySBJ5juHOyQrwMnfdm
+         KjEpZ3YUdAZfxMrAufq/JzWmlsr+jkp1p++ONn/benFOhmMc3eHPhausEw46RbMVRCNn
+         r27EIQRIeYCRzqNyLQPdXxFyrxBIndBfWF9ykNsos9IhLs5lpXuWdfxZMRwnp5Cor5WB
+         KahR8zh7IC8NtiBtug2xROzxqcaalNzxTQyWGCFdlT1RZ32/Z/ZAc1NNWKh+TYc8f3Oz
+         j+vw==
+X-Gm-Message-State: ACgBeo0mrRdcbG0PfOYid/nKXY+cNou4b88ZvLhq1KS0Xxl9b8+j8Mhx
+        mbVtz6EwSqkZnxKz4CECWN1ht9U=
+X-Google-Smtp-Source: AA6agR4W0NwqBv0embkoehNEbFKrl95x/EFmpO/GESuyJ3JThH+BHAW+2aaI7Tl4bgr20j3mzjFMNac=
+X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:370d:f9c3:6198:7768])
+ (user=pcc job=sendgmr) by 2002:a25:2687:0:b0:6a8:e551:b9d8 with SMTP id
+ m129-20020a252687000000b006a8e551b9d8mr29117452ybm.472.1663120812652; Tue, 13
+ Sep 2022 19:00:12 -0700 (PDT)
+Date:   Tue, 13 Sep 2022 19:00:01 -0700
+Message-Id: <20220914020001.2846018-1-pcc@google.com>
+Mime-Version: 1.0
 X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+Subject: [PATCH] kasan: call kasan_malloc() from __kmalloc_*track_caller()
+From:   Peter Collingbourne <pcc@google.com>
+To:     Andrey Konovalov <andreyknvl@gmail.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Peter Collingbourne <pcc@google.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This loop intends to retry a max of 10 times, with some implicit
-termination based on the SD_{R,}OCR_S18A bit. Unfortunately, the
-termination condition depends on the value reported by the SD card
-(*rocr), which may or may not correctly reflect what we asked it to do.
+We were failing to call kasan_malloc() from __kmalloc_*track_caller()
+which was causing us to sometimes fail to produce KASAN error reports
+for allocations made using e.g. devm_kcalloc(), as the KASAN poison was
+not being initialized. Fix it.
 
-Needless to say, it's not wise to rely on the card doing what we expect;
-we should at least terminate the loop regardless. So, check both the
-input and output values, so we ensure we will terminate regardless of
-the SD card behavior.
-
-Note that SDIO learned a similar retry loop in commit 0797e5f1453b
-("mmc: core: Fixup signal voltage switch"), but that used the 'ocr'
-result, and so the current pre-terminating condition looks like:
-
-    rocr & ocr & R4_18V_PRESENT
-
-(i.e., it doesn't have the same bug.)
-
-This addresses a number of crash reports seen on ChromeOS that look
-like the following:
-
-    ... // lots of repeated: ...
-    <4>[13142.846061] mmc1: Skipping voltage switch
-    <4>[13143.406087] mmc1: Skipping voltage switch
-    <4>[13143.964724] mmc1: Skipping voltage switch
-    <4>[13144.526089] mmc1: Skipping voltage switch
-    <4>[13145.086088] mmc1: Skipping voltage switch
-    <4>[13145.645941] mmc1: Skipping voltage switch
-    <3>[13146.153969] INFO: task halt:30352 blocked for more than 122 seconds.
-    ...
-
-Fixes: f2119df6b764 mmc: sd: add support for signal voltage switch procedure
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 5.15
 ---
+The same problem is being fixed upstream in:
+https://lore.kernel.org/all/20220817101826.236819-6-42.hyeyoo@gmail.com/
+as part of a larger patch series, but this more targeted fix seems
+more suitable for the stable kernel. Hyeonggon, maybe you can add
+this patch to the start of your series and it can be picked up
+by the stable maintainers.
 
- drivers/mmc/core/sd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/slub.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
-index 06aa62ce0ed1..3662bf5320ce 100644
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -870,7 +870,8 @@ int mmc_sd_get_cid(struct mmc_host *host, u32 ocr, u32 *cid, u32 *rocr)
- 	 * the CCS bit is set as well. We deliberately deviate from the spec in
- 	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
-+	if (!mmc_host_is_spi(host) && (ocr & SD_OCR_S18R) &&
-+	    rocr && (*rocr & SD_ROCR_S18A)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+diff --git a/mm/slub.c b/mm/slub.c
+index 862dbd9af4f5..875c569c5cbe 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -4926,6 +4926,8 @@ void *__kmalloc_track_caller(size_t size, gfp_t gfpflags, unsigned long caller)
+ 	/* Honor the call site pointer we received. */
+ 	trace_kmalloc(caller, ret, s, size, s->size, gfpflags);
+ 
++	ret = kasan_kmalloc(s, ret, size, gfpflags);
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(__kmalloc_track_caller);
+@@ -4957,6 +4959,8 @@ void *__kmalloc_node_track_caller(size_t size, gfp_t gfpflags,
+ 	/* Honor the call site pointer we received. */
+ 	trace_kmalloc_node(caller, ret, s, size, s->size, gfpflags, node);
+ 
++	ret = kasan_kmalloc(s, ret, size, gfpflags);
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(__kmalloc_node_track_caller);
 -- 
 2.37.2.789.g6183377224-goog
 
