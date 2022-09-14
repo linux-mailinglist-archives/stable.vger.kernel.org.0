@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4365B845F
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 240585B847C
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230391AbiINJLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:11:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38718 "EHLO
+        id S230428AbiINJMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:12:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbiINJKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:10:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B0F72EF9;
-        Wed, 14 Sep 2022 02:05:01 -0700 (PDT)
+        with ESMTP id S231464AbiINJMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:12:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33917B1C2;
+        Wed, 14 Sep 2022 02:05:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5680261999;
-        Wed, 14 Sep 2022 09:04:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 610F9C433D6;
-        Wed, 14 Sep 2022 09:04:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A956E6190D;
+        Wed, 14 Sep 2022 09:05:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0A21C433C1;
+        Wed, 14 Sep 2022 09:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146297;
-        bh=DGw/IM+oIpUbi+wErrdi6bMwdmKGBVvw7ohakxPUKlE=;
+        s=k20201202; t=1663146301;
+        bh=EV9GCkQNHG2LMA59BsqacWiX2WdUxxdmjgqJvlwfvVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWLR/GuldquZZfERpEgvcJNqzgA2gL6SeB0zVUb9kgHaCbFqTZHNbfsCPh5VJxYbi
-         6mn3viEY6MLurwSt4mlnREho/9z7TTRQDKKfyArd6ux5LXXk4OoD5XOWNy9fxBRf+o
-         op2I2OiThEisaa7xkp74F8Ob7zLFtpxNUNRdIPJUjw7SjdnP6EQU+JmlF1lafH2XE7
-         f0M5nh2QLxjLVMIoD5tlAISOvGgQ6l3H0oskMWZs36c6bJbOekktK+nYs0o8tmeQZS
-         ZZQw7f1MfGumpd8hCoSOsEaGOZmL87s2MCoKWc/cw8Qsz6aakRnYl/GxaD3uovPUG/
-         3r8SKE0rXmCNg==
+        b=F9lC9mKxHgagS6H3xiWQRqUMC4wBv5TSrS8HjhcJ1aHcEYv4ipp02vTNUN0AzMj4i
+         PT0MfNkAUlN7mafVNNB6RT+3jNAI0CcMaHz0S6SFv7I1BAkUwrLCDEOqk0Hc9USsB6
+         IQ5QpJ+r3cEndYy+OPdOjnhPdXaGb11RYTzHEM0/Hw7lZvuMJApBq9BgqCVGMqz4f4
+         Z99XACnkEiKgLVEvKqqv9pG2pZSWichzUqVU/cfEXg/70LfwVz0T5WHxfhA05bHC56
+         qhYtZTMgonQk17R4rHnboEyGqgTN1+Pu4zvS7UQaA5r7urDJmn3H424xJk0FCNgEmx
+         iOYzHSFD1xucw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 4/9] ALSA: hda/sigmatel: Keep power up while beep is enabled
-Date:   Wed, 14 Sep 2022 05:04:38 -0400
-Message-Id: <20220914090445.471489-4-sashal@kernel.org>
+Cc:     Dongxiang Ke <kdx.glider@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
+        tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 5/9] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+Date:   Wed, 14 Sep 2022 05:04:39 -0400
+Message-Id: <20220914090445.471489-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090445.471489-1-sashal@kernel.org>
 References: <20220914090445.471489-1-sashal@kernel.org>
@@ -55,69 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dongxiang Ke <kdx.glider@gmail.com>
 
-[ Upstream commit 414d38ba871092aeac4ed097ac4ced89486646f7 ]
+[ Upstream commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf ]
 
-It seems that the beep playback doesn't work well on IDT codec devices
-when the codec auto-pm is enabled.  Keep the power on while the beep
-switch is enabled.
+There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
+the number of it's interfaces less than 4, an out-of-bounds read bug occurs
+when parsing the interface descriptor for this device.
 
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1200544
-Link: https://lore.kernel.org/r/20220904072750.26164-1-tiwai@suse.de
+Fix this by checking the number of interfaces.
+
+Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
+Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_sigmatel.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ sound/usb/stream.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
-index 85c33f528d7b3..2f6e4e3afd8f2 100644
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -222,6 +222,7 @@ struct sigmatel_spec {
+diff --git a/sound/usb/stream.c b/sound/usb/stream.c
+index 9a950aaf5e356..1cfb30465df7d 100644
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -1111,7 +1111,7 @@ int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
+ 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
+ 	 * one misses syncpipe, and does not produce any sound.
+ 	 */
+-	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
++	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
+ 		num = 4;
  
- 	/* beep widgets */
- 	hda_nid_t anabeep_nid;
-+	bool beep_power_on;
- 
- 	/* SPDIF-out mux */
- 	const char * const *spdif_labels;
-@@ -4463,6 +4464,26 @@ static int stac_suspend(struct hda_codec *codec)
- 	stac_shutup(codec);
- 	return 0;
- }
-+
-+static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
-+{
-+	struct sigmatel_spec *spec = codec->spec;
-+	int ret = snd_hda_gen_check_power_status(codec, nid);
-+
-+#ifdef CONFIG_SND_HDA_INPUT_BEEP
-+	if (nid == spec->gen.beep_nid && codec->beep) {
-+		if (codec->beep->enabled != spec->beep_power_on) {
-+			spec->beep_power_on = codec->beep->enabled;
-+			if (spec->beep_power_on)
-+				snd_hda_power_up_pm(codec);
-+			else
-+				snd_hda_power_down_pm(codec);
-+		}
-+		ret |= spec->beep_power_on;
-+	}
-+#endif
-+	return ret;
-+}
- #else
- #define stac_suspend		NULL
- #endif /* CONFIG_PM */
-@@ -4475,6 +4496,7 @@ static const struct hda_codec_ops stac_patch_ops = {
- 	.unsol_event = snd_hda_jack_unsol_event,
- #ifdef CONFIG_PM
- 	.suspend = stac_suspend,
-+	.check_power_status = stac_check_power_status,
- #endif
- 	.reboot_notify = stac_shutup,
- };
+ 	for (i = 0; i < num; i++) {
 -- 
 2.35.1
 
