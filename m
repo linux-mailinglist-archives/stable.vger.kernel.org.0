@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D115B8405
+	by mail.lfdr.de (Postfix) with ESMTP id 74BD75B8406
 	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbiINJGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:06:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48584 "EHLO
+        id S231214AbiINJGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:06:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231158AbiINJFv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:05:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC079786F4;
-        Wed, 14 Sep 2022 02:03:16 -0700 (PDT)
+        with ESMTP id S230503AbiINJFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:05:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B78792CE;
+        Wed, 14 Sep 2022 02:03:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C53361999;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BFF0B816ED;
+        Wed, 14 Sep 2022 09:03:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B7CC43141;
         Wed, 14 Sep 2022 09:03:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B68C433D6;
-        Wed, 14 Sep 2022 09:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146193;
-        bh=2yO7puHfzJOIxQNrFfNlpnhlBPhO5+2j4Hz7mKYhH7w=;
+        s=k20201202; t=1663146194;
+        bh=GSzmj0FzqakisPTTZIhSa7o3h/CHGOigwlG7aO/LbGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9SueBMzOXejq4Uuf2xnLbHALH/dXvc4/V0udCPkqPkU6clxZ/9u/BXIYQ5daKxf0
-         xVNuneaETJqyf1yY5tLGnBLTpeIni0pSZqLk2yrVW1FKZ+tVs9RWmCGWAAdrzFBT5k
-         oKZHy4OS6gJmfJCvd8XYfMbz5Kp46obsp8JO+xSdwWs6zZHfE/MN9Dq105gDdZjz5j
-         XVjuwEeKKoBbQRr7WH9dL4FHOnhFUu6/Ufr8wZi+6ga55RaZ7HnXqY0/xIOt2MvRH8
-         X2SfTYHYRvAd7Ig4H3ufwNemxoWH0NsbKuqYwIkKOrVZAGThwG5HfB/7x5kmuqXTih
-         6sziyLdaTBlRQ==
+        b=ZlfOu05Ht8nJq8vRyU9D3oOXL3aJ9TwPwKMjiC3HHIapSsED2TTioY2U1KI7SKCmL
+         RuZmMZT5DUAdcNfE8N+S/B8c1ll0hzULMUlqAmpUYx/pfBGXnI6D3bubZwaqVXJzxb
+         UstHatk81G/mXhQHQslbPVtX5uA8qCyhZBCeE5QpM2eJdlGhldSG2lgLbVznyl4rz3
+         ppORpn/lfoGmB4S5azLUE6w/cdrhaC8srYXcpzG0lpzp5OSPCfLG+apZu1bVYI8url
+         dPcvzxSvAq8IahjQjBK2vWhXOoZabEVJ4bT/9tiryQmitEARhLlkKkqR7l1QpS+CGS
+         aJNAkClclLS1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Steven Price <steven.price@arm.com>,
-        Sasha Levin <sashal@kernel.org>, robh@kernel.org,
-        tomeu.vizoso@collabora.com, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 15/16] drm/panfrost: devfreq: set opp to the recommended one to configure regulator
-Date:   Wed, 14 Sep 2022 05:02:23 -0400
-Message-Id: <20220914090224.470913-15-sashal@kernel.org>
+Cc:     Youling Tang <tangyouling@loongson.cn>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, michal.lkml@markovi.net,
+        linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 16/16] mksysmap: Fix the mismatch of 'L0' symbols in System.map
+Date:   Wed, 14 Sep 2022 05:02:24 -0400
+Message-Id: <20220914090224.470913-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090224.470913-1-sashal@kernel.org>
 References: <20220914090224.470913-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,60 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Péron <peron.clem@gmail.com>
+From: Youling Tang <tangyouling@loongson.cn>
 
-[ Upstream commit d76034a427a2660b080bc155e4fd8f6393eefb48 ]
+[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
 
-Enabling panfrost GPU OPP with dynamic regulator will make OPP
-responsible to enable and configure it.
+When System.map was generated, the kernel used mksysmap to filter the
+kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
 
-Unfortunately OPP configure and enable the regulator when an OPP
-is asked to be set, which is not the case during
-panfrost_devfreq_init().
+$ cat System.map | grep L0
+9000000000221540 t L0
 
-This leave the regulator unconfigured and if no GPU load is
-triggered, no OPP is asked to be set which make the regulator framework
-switching it off during regulator_late_cleanup() without
-noticing and therefore make the board hang as any access to GPU
-memory space make bus locks up.
+The L0 symbol exists in System.map, but not in .tmp_System.map. When
+"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
+data" error message in link-vmlinux.sh script.
 
-Call dev_pm_opp_set_opp() with the recommend OPP in
-panfrost_devfreq_init() to enable the regulator, this will properly
-configure and enable the regulator and will avoid any switch off
-by regulator_late_cleanup().
-
-Suggested-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Clément Péron <peron.clem@gmail.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220906153034.153321-5-peron.clem@gmail.com
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_devfreq.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_devfreq.c b/drivers/gpu/drm/panfrost/panfrost_devfreq.c
-index 194af7f607a6e..be36dd060a2b4 100644
---- a/drivers/gpu/drm/panfrost/panfrost_devfreq.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_devfreq.c
-@@ -132,6 +132,17 @@ int panfrost_devfreq_init(struct panfrost_device *pfdev)
- 		return PTR_ERR(opp);
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index 9aa23d15862a0..ad8bbc52267d0 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
  
- 	panfrost_devfreq_profile.initial_freq = cur_freq;
-+
-+	/*
-+	 * Set the recommend OPP this will enable and configure the regulator
-+	 * if any and will avoid a switch off by regulator_late_cleanup()
-+	 */
-+	ret = dev_pm_opp_set_opp(dev, opp);
-+	if (ret) {
-+		DRM_DEV_ERROR(dev, "Couldn't set recommended OPP\n");
-+		return ret;
-+	}
-+
- 	dev_pm_opp_put(opp);
- 
- 	/*
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
 -- 
 2.35.1
 
