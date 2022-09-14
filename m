@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A93B5B8395
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:01:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E245B8398
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229951AbiINJBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:01:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37062 "EHLO
+        id S230162AbiINJBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:01:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229641AbiINJBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:01:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D75124951;
-        Wed, 14 Sep 2022 02:01:12 -0700 (PDT)
+        with ESMTP id S229646AbiINJBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:01:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66FAF13F9E;
+        Wed, 14 Sep 2022 02:01:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE31E61812;
-        Wed, 14 Sep 2022 09:01:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96E2C433D6;
-        Wed, 14 Sep 2022 09:01:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2716BB816A9;
+        Wed, 14 Sep 2022 09:01:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498BBC433C1;
+        Wed, 14 Sep 2022 09:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146071;
-        bh=Gyqz6gWvSgQvR7dEPd2ETTNIQBE+ZsNVjs0eMRE5tmM=;
+        s=k20201202; t=1663146077;
+        bh=9m5W7lH4DrxdFeITuIr/sv2lNngTtPNkfQ9F2jbC9eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V30QXqfq1oZCdIw07KutG8EKpswuexFMIyt7aNBA6PgKBzO2fxHdlhf0Z68r7A0Mx
-         vTIgDprWXq2wh+GWJ2dr0GlRbxIRF1jOfaikGumJIsl3HWeGxtRFwALzJE+kcwggQi
-         2SP2rJPQRP9HKQlQEx6yLEjG3tqjcavGlytJt+WJPIP/q1grI1p1dJ5DG0aBWjlVxp
-         vG8l53lwoqsBqJhCypeqPuFQ6FGiyg7zfr4ytIE1hpvR7hDNJat/ETypq38Cd8ldP8
-         YuD4CWMXsxh91sW6/V9X6UzCmAdINZ6wjKFA4K0jO0MkKhXuAWDQTvbkWZvNcVItmV
-         49M+pvB6qhdmg==
+        b=F/Wjb7UCGPVKHOpbTnlbjgrUKzxFhMkHlPh4E5DVQnxNWQJAV82PyIPsqzZ24KED5
+         26CrLHDDKROF48E2scMO/wmURpx2yTUz2WB2ZElVjuSeQEDvae0uG9XZPDN+nfyV9q
+         mWZalkZskra53nRhDG1o6fPYUKkTVBbWaQbqQyy73XRc2tk4KhtpsrGkOGi8zrK6Li
+         FObzYTj5HTDIALkee4/roQyZDHDb2V1Cw0ZdQZSnubGNWI9ONkdL/Ta4Zn0vlSx7u1
+         vNP3GYN5UzTnonqUqUyuA3aqFxkKSjOtHnIG0dmqLaAR20VPLnXmZxYaEvtpKMv9az
+         r2qVNUhfdj4ug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Niravkumar L Rabara <niravkumar.l.rabara@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 02/22] spi: cadence-quadspi: Disable irqs during indirect reads
-Date:   Wed, 14 Sep 2022 05:00:43 -0400
-Message-Id: <20220914090103.470630-2-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, hdegoede@redhat.com,
+        ckeepax@opensource.cirrus.com, steve@sk2.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.19 03/22] ASoC: nau8824: Fix semaphore unbalance at error paths
+Date:   Wed, 14 Sep 2022 05:00:44 -0400
+Message-Id: <20220914090103.470630-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090103.470630-1-sashal@kernel.org>
 References: <20220914090103.470630-1-sashal@kernel.org>
@@ -56,131 +58,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niravkumar L Rabara <niravkumar.l.rabara@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9ee5b6d53b8c99d13a47227e3b7052a1365556c9 ]
+[ Upstream commit 5628560e90395d3812800a8e44a01c32ffa429ec ]
 
-On architecture where reading the SRAM is slower than the pace at
-controller fills it, with interrupt enabled while reading from
-SRAM FIFO causes unwanted interrupt storm to CPU.
+The semaphore of nau8824 wasn't properly unlocked at some error
+handling code paths, hence this may result in the unbalance (and
+potential lock-up).  Fix them to handle the semaphore up properly.
 
-The inner "bytes to read" loop never exits and waits for the completion
-so it is enough to only enable the watermark interrupt when we
-are out of bytes to read, which only happens when we start the
-transfer (waiting for the FIFO to fill up initially) if the SRAM
-is slow.
-
-So only using read watermark interrupt, as the current implementation
-doesn't utilize the SRAM full and indirect complete read interrupt.
-And disable all the read interrupts while reading from SRAM.
-
-Signed-off-by: Niravkumar L Rabara <niravkumar.l.rabara@intel.com>
-Link: https://lore.kernel.org/r/20220813042616.1372110-1-niravkumar.l.rabara@intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220823081000.2965-3-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-cadence-quadspi.c | 38 +++++++++++++++++++++++++++----
- 1 file changed, 34 insertions(+), 4 deletions(-)
+ sound/soc/codecs/nau8824.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
-index 72b1a5a2298c5..e12ab5b43f341 100644
---- a/drivers/spi/spi-cadence-quadspi.c
-+++ b/drivers/spi/spi-cadence-quadspi.c
-@@ -39,6 +39,7 @@
- #define CQSPI_DISABLE_DAC_MODE		BIT(1)
- #define CQSPI_SUPPORT_EXTERNAL_DMA	BIT(2)
- #define CQSPI_NO_SUPPORT_WR_COMPLETION	BIT(3)
-+#define CQSPI_SLOW_SRAM		BIT(4)
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index 2a7c935085353..c263858745ee2 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -1043,6 +1043,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 	struct snd_soc_component *component = dai->component;
+ 	struct nau8824 *nau8824 = snd_soc_component_get_drvdata(component);
+ 	unsigned int val_len = 0, osr, ctrl_val, bclk_fs, bclk_div;
++	int err = -EINVAL;
  
- /* Capabilities */
- #define CQSPI_SUPPORTS_OCTAL		BIT(0)
-@@ -87,6 +88,7 @@ struct cqspi_st {
- 	bool			use_dma_read;
- 	u32			pd_dev_id;
- 	bool			wr_completion;
-+	bool			slow_sram;
- };
+ 	nau8824_sema_acquire(nau8824, HZ);
  
- struct cqspi_driver_platdata {
-@@ -333,7 +335,10 @@ static irqreturn_t cqspi_irq_handler(int this_irq, void *dev)
- 		}
+@@ -1059,7 +1060,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		osr &= NAU8824_DAC_OVERSAMPLE_MASK;
+ 		if (nau8824_clock_check(nau8824, substream->stream,
+ 			nau8824->fs, osr))
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
+ 			NAU8824_CLK_DAC_SRC_MASK,
+ 			osr_dac_sel[osr].clk_src << NAU8824_CLK_DAC_SRC_SFT);
+@@ -1069,7 +1070,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		osr &= NAU8824_ADC_SYNC_DOWN_MASK;
+ 		if (nau8824_clock_check(nau8824, substream->stream,
+ 			nau8824->fs, osr))
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
+ 			NAU8824_CLK_ADC_SRC_MASK,
+ 			osr_adc_sel[osr].clk_src << NAU8824_CLK_ADC_SRC_SFT);
+@@ -1090,7 +1091,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		else if (bclk_fs <= 256)
+ 			bclk_div = 0;
+ 		else
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap,
+ 			NAU8824_REG_PORT0_I2S_PCM_CTRL_2,
+ 			NAU8824_I2S_LRC_DIV_MASK | NAU8824_I2S_BLK_DIV_MASK,
+@@ -1111,15 +1112,17 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		val_len |= NAU8824_I2S_DL_32;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		goto error;
  	}
  
--	irq_status &= CQSPI_IRQ_MASK_RD | CQSPI_IRQ_MASK_WR;
-+	else if (!cqspi->slow_sram)
-+		irq_status &= CQSPI_IRQ_MASK_RD | CQSPI_IRQ_MASK_WR;
-+	else
-+		irq_status &= CQSPI_REG_IRQ_WATERMARK | CQSPI_IRQ_MASK_WR;
+ 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
+ 		NAU8824_I2S_DL_MASK, val_len);
++	err = 0;
  
- 	if (irq_status)
- 		complete(&cqspi->transfer_complete);
-@@ -673,7 +678,18 @@ static int cqspi_indirect_read_execute(struct cqspi_flash_pdata *f_pdata,
- 	/* Clear all interrupts. */
- 	writel(CQSPI_IRQ_STATUS_MASK, reg_base + CQSPI_REG_IRQSTATUS);
++ error:
+ 	nau8824_sema_release(nau8824);
  
--	writel(CQSPI_IRQ_MASK_RD, reg_base + CQSPI_REG_IRQMASK);
-+	/*
-+	 * On SoCFPGA platform reading the SRAM is slow due to
-+	 * hardware limitation and causing read interrupt storm to CPU,
-+	 * so enabling only watermark interrupt to disable all read
-+	 * interrupts later as we want to run "bytes to read" loop with
-+	 * all the read interrupts disabled for max performance.
-+	 */
-+
-+	if (!cqspi->slow_sram)
-+		writel(CQSPI_IRQ_MASK_RD, reg_base + CQSPI_REG_IRQMASK);
-+	else
-+		writel(CQSPI_REG_IRQ_WATERMARK, reg_base + CQSPI_REG_IRQMASK);
+-	return 0;
++	return err;
+ }
  
- 	reinit_completion(&cqspi->transfer_complete);
- 	writel(CQSPI_REG_INDIRECTRD_START_MASK,
-@@ -684,6 +700,13 @@ static int cqspi_indirect_read_execute(struct cqspi_flash_pdata *f_pdata,
- 						 msecs_to_jiffies(CQSPI_READ_TIMEOUT_MS)))
- 			ret = -ETIMEDOUT;
+ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+@@ -1128,8 +1131,6 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 	struct nau8824 *nau8824 = snd_soc_component_get_drvdata(component);
+ 	unsigned int ctrl1_val = 0, ctrl2_val = 0;
  
-+		/*
-+		 * Disable all read interrupts until
-+		 * we are out of "bytes to read"
-+		 */
-+		if (cqspi->slow_sram)
-+			writel(0x0, reg_base + CQSPI_REG_IRQMASK);
-+
- 		bytes_to_read = cqspi_get_rd_sram_level(cqspi);
- 
- 		if (ret && bytes_to_read == 0) {
-@@ -715,8 +738,11 @@ static int cqspi_indirect_read_execute(struct cqspi_flash_pdata *f_pdata,
- 			bytes_to_read = cqspi_get_rd_sram_level(cqspi);
- 		}
- 
--		if (remaining > 0)
-+		if (remaining > 0) {
- 			reinit_completion(&cqspi->transfer_complete);
-+			if (cqspi->slow_sram)
-+				writel(CQSPI_REG_IRQ_WATERMARK, reg_base + CQSPI_REG_IRQMASK);
-+		}
+-	nau8824_sema_acquire(nau8824, HZ);
+-
+ 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		ctrl2_val |= NAU8824_I2S_MS_MASTER;
+@@ -1171,6 +1172,8 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 		return -EINVAL;
  	}
  
- 	/* Check indirect done status */
-@@ -1667,6 +1693,8 @@ static int cqspi_probe(struct platform_device *pdev)
- 			cqspi->use_dma_read = true;
- 		if (ddata->quirks & CQSPI_NO_SUPPORT_WR_COMPLETION)
- 			cqspi->wr_completion = false;
-+		if (ddata->quirks & CQSPI_SLOW_SRAM)
-+			cqspi->slow_sram = true;
- 
- 		if (of_device_is_compatible(pdev->dev.of_node,
- 					    "xlnx,versal-ospi-1.0"))
-@@ -1779,7 +1807,9 @@ static const struct cqspi_driver_platdata intel_lgm_qspi = {
- };
- 
- static const struct cqspi_driver_platdata socfpga_qspi = {
--	.quirks = CQSPI_DISABLE_DAC_MODE | CQSPI_NO_SUPPORT_WR_COMPLETION,
-+	.quirks = CQSPI_DISABLE_DAC_MODE
-+			| CQSPI_NO_SUPPORT_WR_COMPLETION
-+			| CQSPI_SLOW_SRAM,
- };
- 
- static const struct cqspi_driver_platdata versal_ospi = {
++	nau8824_sema_acquire(nau8824, HZ);
++
+ 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
+ 		NAU8824_I2S_DF_MASK | NAU8824_I2S_BP_MASK |
+ 		NAU8824_I2S_PCMB_EN, ctrl1_val);
 -- 
 2.35.1
 
