@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 867065B8583
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDFA55B859A
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbiINJvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
+        id S231705AbiINJwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231228AbiINJvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:51:31 -0400
+        with ESMTP id S231491AbiINJwM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:52:12 -0400
 Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA204647C4;
-        Wed, 14 Sep 2022 02:51:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F42066A4F;
+        Wed, 14 Sep 2022 02:51:56 -0700 (PDT)
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 6FCDE1C0001; Wed, 14 Sep 2022 11:51:28 +0200 (CEST)
-Date:   Wed, 14 Sep 2022 11:51:27 +0200
+        id 6CCCD1C0001; Wed, 14 Sep 2022 11:51:55 +0200 (CEST)
+Date:   Wed, 14 Sep 2022 11:51:54 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -25,14 +25,14 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/79] 4.19.257-rc1 review
-Message-ID: <20220914095127.GB25219@duo.ucw.cz>
-References: <20220913140348.835121645@linuxfoundation.org>
+Subject: Re: [PATCH 5.10 00/79] 5.10.143-rc1 review
+Message-ID: <20220914095154.GC25219@duo.ucw.cz>
+References: <20220913140350.291927556@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
+        protocol="application/pgp-signature"; boundary="UFHRwCdBEJvubb2X"
 Content-Disposition: inline
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
@@ -44,14 +44,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---cmJC7u66zC7hs+87
+--UFHRwCdBEJvubb2X
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> This is the start of the stable review cycle for the 4.19.257 release.
+> This is the start of the stable review cycle for the 5.10.143 release.
 > There are 79 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
@@ -59,7 +59,7 @@ Hi!
 CIP testing did not find any problems here:
 
 https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.19.y
+5.10.y
 
 Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
@@ -69,14 +69,14 @@ Best regards,
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---cmJC7u66zC7hs+87
+--UFHRwCdBEJvubb2X
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYyGkHwAKCRAw5/Bqldv6
-8iZkAJ9Ko9G+zL1s2cc056cnUxNlWewGbQCZAWJ83bhmzmqXXvrlJJA7xIrLwCQ=
-=RxLI
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYyGkOgAKCRAw5/Bqldv6
+8nwFAJ9T2bPkPef9hm087pqLR7YSDhtsnwCggeu1kZAK552/Z8VmnycPe8v1LD8=
+=LcZY
 -----END PGP SIGNATURE-----
 
---cmJC7u66zC7hs+87--
+--UFHRwCdBEJvubb2X--
