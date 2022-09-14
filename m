@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6ED15B8630
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 12:22:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 516BF5B8631
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 12:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbiINKWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 06:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
+        id S229531AbiINKWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 06:22:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229757AbiINKWO (ORCPT
+        with ESMTP id S229788AbiINKWO (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 06:22:14 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76257B29A
-        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 03:22:11 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id iw17so14702325plb.0
-        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 03:22:11 -0700 (PDT)
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305D97B2B0
+        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 03:22:12 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id o70-20020a17090a0a4c00b00202f898fa86so4544141pjo.2
+        for <stable@vger.kernel.org>; Wed, 14 Sep 2022 03:22:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date;
-        bh=CxfRBR2FubiFbodVmMd+73vFlfnLVLL1N7oy3qir4P0=;
-        b=qUDoFsmFyt/Fp6zPSo0LaHLBI6KkI+nYIIJNWeuNC4t6QmFN/QSXcZg7WU1TmuVq9j
-         qE7YYYrRv5RAaZezzJUcEGce70o5coI3pV3enDvLCsXjJDNQi9hyRQA43LYz9+JS3TlR
-         A/9IgRBifIvwXQarYx0HHce3+26v+2vB+EdjckhQkoDO1jbse7LxsQ6+hZJNKDzoBU7q
-         d/sQV6VNCAysVOwBYQIo7wCkqZjvH0cOEqEvTQaRQKE+JaZkTcdfVPQzXp7RGEAmpq/u
-         MHzVJNJecZ2N3hQAWIDNB1g5U6dI9Ygr3v/7BljzXKrdzvlKtRGst2lgJFBLBwIo81vx
-         oqpA==
+        bh=fh093u0t9Aeg6eDXgrnZttIHpZ8uA70MCU1bPBRQEbs=;
+        b=2FN6u7pEVRtInGSd0uK8z/VAnmXQgqtqCgXt5df9IQIHaGfxQ6VJJeXutRrGirbWt9
+         ExGnm5xrklvXloMWlVUDz5PCCRmcBAJ6evC/m8QScQmW11cxdl3yfDmAMWPUMrT0YWnA
+         D4g7RWXwglXkExEoGpy4a8ULPJRE/xDE1INrcBmzVXbU4UNhNrjYf7bbvZLEG6Fc3ERQ
+         SNYrhSubMj2Se7DHKjlsQk+jIZqblNYiGpZBE/dGetgPINdtoWZEMeh/iUjjSJox713M
+         u2wEBnmiLj/qlxur/+rW9JjhKXfOI3EkFiaP3QUxCwjRMQ6y9LJOisYXcFsIbTnME933
+         YgEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=CxfRBR2FubiFbodVmMd+73vFlfnLVLL1N7oy3qir4P0=;
-        b=ETh/svtPN2/CU7EBzehWNg9rlUkIwoRKQmgIA9qtNZ9kx+CyMf4dpGIIP4E85urPt+
-         uj5ENA42Gdu3Uqg9aqH7dT8onAVxKsL7A474tC75cyOpr4Rn9z5i/g2YkzFm98/Fzs6a
-         YsRSMTREgdTBC6g3g2pf8BEhX+JmJbxKPz5sFcP1UV2I4ofRotIrJny1ETiQvY+U1C5/
-         C9yzpfb1INkThVKaBoUbLOtnZeepGh8X+XJmbdCMkEIIp6rOGa2wpiH3I7pK61/Z0IYF
-         z7wjhp19UCCcd5/MKArxrKvw2zsXB2nLwjvouiwp8dJgxsEViq+03fAaLPTZiaMr6AQl
-         VIHA==
-X-Gm-Message-State: ACrzQf3KsMwafPiqY3DnmqUzYxp0ZretPpWusWxJvtFQYfaSAGSr+vWE
-        Sr4UEewbn1YfOYhSK7RY6j2EDMZVMBanJolZkAo=
-X-Google-Smtp-Source: AMsMyM4sXzVZr3ED6lXOogcDDyBp0J/Nu0VD60FEo5sQiqmEFxtRxYIv/GpxxSm2bffLxEYmYrxkuw==
-X-Received: by 2002:a17:90b:4a85:b0:202:4f3f:1f65 with SMTP id lp5-20020a17090b4a8500b002024f3f1f65mr3964544pjb.241.1663150930258;
+        bh=fh093u0t9Aeg6eDXgrnZttIHpZ8uA70MCU1bPBRQEbs=;
+        b=DtTsw/aHjA9HtA1geSW/ENa8LUqmQjIO1NArhAGNIdCiMRRg83auv6KDpSOWWg1MWY
+         HeOxQ1CnAxuPU9kGJ2w/JthDUu7M9jV+sf+lyO/BfwMPpOgMRrrJJPqyL+IsajaEMQT8
+         L9foKwl8uwSocWPe97JmxwsexgMWP/ILAir44MvE2rOAqy/VBNqMxKwS8hxe91jkoQtF
+         7Mas8ZMZINl99BTzwAOEANPE8//D7yJw3rXDkYFlsr2kSiLeSzJCIcuM2aGvUUrM1AzP
+         Yez4+YuecGOXAaU4cXjC0xyoyI2PadYJzqwxWunpRAip0IEMf7OMvIK4a+G1Rs6E8djf
+         fmnQ==
+X-Gm-Message-State: ACgBeo0Jf1xNLqA9ud0aaA+eWjX0Tv+LnAcjs+oT8OcZJ/ON3OuEJR0D
+        PJFWtk4MR8mixhXynwZt6F9ih0mpSPETzvjiFBk=
+X-Google-Smtp-Source: AA6agR4qM797y0AP2e2oDpsgs1snh2w4ExCSTTOrgKCVvzb2AEKgQ0MzVWKJ9YWUshQXDzxa2XoksQ==
+X-Received: by 2002:a17:902:6943:b0:178:4751:a76b with SMTP id k3-20020a170902694300b001784751a76bmr7271605plt.37.1663150930751;
         Wed, 14 Sep 2022 03:22:10 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q5-20020aa79605000000b0053ebe7ffddcsm9736276pfg.116.2022.09.14.03.22.08
+        by smtp.gmail.com with ESMTPSA id g17-20020aa796b1000000b0054097cb2da6sm9693171pfk.38.2022.09.14.03.22.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Wed, 14 Sep 2022 03:22:09 -0700 (PDT)
-Message-ID: <6321ab51.a70a0220.c6c8a.04af@mx.google.com>
+Message-ID: <6321ab51.a70a0220.61bd.fca9@mx.google.com>
 Date:   Wed, 14 Sep 2022 03:22:09 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
+X-Kernelci-Branch: linux-4.9.y
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.9.327-42-gba0b2d2cd184
-Subject: stable-rc/queue/4.9 build: 188 builds: 3 failed, 185 passed, 2 errors,
- 34 warnings (v4.9.327-42-gba0b2d2cd184)
+X-Kernelci-Kernel: v4.9.327-43-g3ed886339090f
+Subject: stable-rc/linux-4.9.y build: 188 builds: 3 failed, 185 passed,
+ 4 errors, 34 warnings (v4.9.327-43-g3ed886339090f)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 build: 188 builds: 3 failed, 185 passed, 2 errors, 34 w=
-arnings (v4.9.327-42-gba0b2d2cd184)
+stable-rc/linux-4.9.y build: 188 builds: 3 failed, 185 passed, 4 errors, 34=
+ warnings (v4.9.327-43-g3ed886339090f)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
-/kernel/v4.9.327-42-gba0b2d2cd184/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.327-43-g3ed886339090f/
 
 Tree: stable-rc
-Branch: queue/4.9
-Git Describe: v4.9.327-42-gba0b2d2cd184
-Git Commit: ba0b2d2cd18428945eb0ff972b9c4772dc51107b
+Branch: linux-4.9.y
+Git Describe: v4.9.327-43-g3ed886339090f
+Git Commit: 3ed886339090ff4300e95c34546dcca0e468fb1b
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -102,7 +102,7 @@ arm64:
 arm:
     mini2440_defconfig (gcc-10): 1 warning
     omap1_defconfig (gcc-10): 1 warning
-    rpc_defconfig (gcc-10): 2 errors
+    rpc_defconfig (gcc-10): 4 errors
     s3c2410_defconfig (gcc-10): 1 warning
 
 i386:
@@ -121,8 +121,8 @@ x86_64:
 
 Errors summary:
 
-    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
@@ -170,11 +170,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
 n mismatches
 
@@ -193,6 +188,11 @@ y section `.head.text'
 -----
 allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -943,10 +943,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
  mismatches
 
 Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
     arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
     arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
 =E2=80=99
@@ -1074,25 +1077,6 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
@@ -1105,6 +1089,25 @@ Warnings:
     arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
 given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
