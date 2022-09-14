@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A17025B84DB
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 166E55B84A6
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229975AbiINJWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:22:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
+        id S231433AbiINJPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:15:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231130AbiINJVs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:21:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C95775381;
-        Wed, 14 Sep 2022 02:11:52 -0700 (PDT)
+        with ESMTP id S231836AbiINJOe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:14:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3EF7DF42;
+        Wed, 14 Sep 2022 02:06:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0B76B8172E;
-        Wed, 14 Sep 2022 09:05:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37469C433D7;
-        Wed, 14 Sep 2022 09:05:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4FB2B81719;
+        Wed, 14 Sep 2022 09:05:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74359C433D6;
+        Wed, 14 Sep 2022 09:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146351;
-        bh=cwArn2afUXhxiaEuEKVpRDUqeC5XASyQLLUay+QuHgA=;
+        s=k20201202; t=1663146357;
+        bh=SZtt4PhtZEpEGXxuWdezRrEt/J12uXetXIIJYnohvBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7QFya0XsTHkiXl5wc4P5avrDyz8arC0OnMsdscJnxS/2ZiSybDwOUSYSEJnOyB8b
-         lhTcIUaATqN9IiSgbCc96jwtpNp3UYLRowCRTSVImuhxQ8D4Lu9VJqKb4CGM4UVu65
-         i+sC+dcyADqYcVZfJpSaiSYnSFkdTDm3OzHGDCVZyFZukWiR+cq657xL77xi6jnnFZ
-         KuoDojNNMB68HXSqMjAS9s4OS9H5NGD7i0Bh9fJ5Psqhzn/aMfKxB2ArGvuD9TNDzt
-         mtK72zp8NBHJ3mPKserPOqqaZMp21h2fPcLoBeINdIHnWOWjDy4mHwtjnYcnRc1Lc7
-         oRd7rLj0Hm9vQ==
+        b=M1aKimTUXe+oz38ZOMuYTVj+hum4iUfupv9n6yEzue0ya/Jt/oZKaQtrdODu3KViD
+         5MOsP4wfPkNE6bwuWmCbCSGNreMqKmo5Ut2nKt4OzxqDZlMsWaG6NKmnSeSJ3hRZwe
+         vhOy4EPQFmCW6N/Txh0SzppatbTiagr8ppBuW0XcGrip6P1SgpytafsmOUeEyObXsp
+         rpwXDQxl07rIRo1VFQcby/bYYXX0eozvttimGHaXviLOjXnH4KfvGQ7JxCbFXBh/4K
+         jnABlRz3TBvDR+mzvV1sUPTcu+zfP1ml8JQobWwKq5iXiV/hqXTQfaaVbyloULTFur
+         fpLUSFlAIhJdw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Ripard <maxime@cerno.tech>, Melissa Wen <mwen@igalia.com>,
-        Sasha Levin <sashal@kernel.org>, emma@anholt.net,
-        mripard@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 03/13] drm/vc4: crtc: Use an union to store the page flip callback
-Date:   Wed, 14 Sep 2022 05:05:30 -0400
-Message-Id: <20220914090540.471725-3-sashal@kernel.org>
+Cc:     Wentao_Liang <Wentao_Liang_g@163.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jdmason@kudzu.us,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        liuhangbin@gmail.com, christophe.jaillet@wanadoo.fr,
+        chi.minghao@zte.com.cn, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/13] drivers/net/ethernet/neterion/vxge: Fix a use-after-free bug in vxge-main.c
+Date:   Wed, 14 Sep 2022 05:05:31 -0400
+Message-Id: <20220914090540.471725-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090540.471725-1-sashal@kernel.org>
 References: <20220914090540.471725-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,74 +60,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Wentao_Liang <Wentao_Liang_g@163.com>
 
-[ Upstream commit 2523e9dcc3be91bf9fdc0d1e542557ca00bbef42 ]
+[ Upstream commit 8fc74d18639a2402ca52b177e990428e26ea881f ]
 
-We'll need to extend the vc4_async_flip_state structure to rely on
-another callback implementation, so let's move the current one into a
-union.
+The pointer vdev points to a memory region adjacent to a net_device
+structure ndev, which is a field of hldev. At line 4740, the invocation
+to vxge_device_unregister unregisters device hldev, and it also releases
+the memory region pointed by vdev->bar0. At line 4743, the freed memory
+region is referenced (i.e., iounmap(vdev->bar0)), resulting in a
+use-after-free vulnerability. We can fix the bug by calling iounmap
+before vxge_device_unregister.
 
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220610115149.964394-10-maxime@cerno.tech
+4721.      static void vxge_remove(struct pci_dev *pdev)
+4722.      {
+4723.             struct __vxge_hw_device *hldev;
+4724.             struct vxgedev *vdev;
+…
+4731.             vdev = netdev_priv(hldev->ndev);
+…
+4740.             vxge_device_unregister(hldev);
+4741.             /* Do not call pci_disable_sriov here, as it
+						will break child devices */
+4742.             vxge_hw_device_terminate(hldev);
+4743.             iounmap(vdev->bar0);
+…
+4749              vxge_debug_init(vdev->level_trace, "%s:%d
+								Device unregistered",
+4750                            __func__, __LINE__);
+4751              vxge_debug_entryexit(vdev->level_trace, "%s:%d
+								Exiting...", __func__,
+4752                          __LINE__);
+4753.      }
+
+This is the screenshot when the vulnerability is triggered by using
+KASAN. We can see that there is a use-after-free reported by KASAN.
+
+/***************************start**************************/
+
+root@kernel:~# echo 1 > /sys/bus/pci/devices/0000:00:03.0/remove
+[  178.296316] vxge_remove
+[  182.057081]
+ ==================================================================
+[  182.057548] BUG: KASAN: use-after-free in vxge_remove+0xe0/0x15c
+[  182.057760] Read of size 8 at addr ffff888006c76598 by task bash/119
+[  182.057983]
+[  182.058747] CPU: 0 PID: 119 Comm: bash Not tainted 5.18.0 #5
+[  182.058919] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
+rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[  182.059463] Call Trace:
+[  182.059726]  <TASK>
+[  182.060017]  dump_stack_lvl+0x34/0x44
+[  182.060316]  print_report.cold+0xb2/0x6b7
+[  182.060401]  ? kfree+0x89/0x290
+[  182.060478]  ? vxge_remove+0xe0/0x15c
+[  182.060545]  kasan_report+0xa9/0x120
+[  182.060629]  ? vxge_remove+0xe0/0x15c
+[  182.060706]  vxge_remove+0xe0/0x15c
+[  182.060793]  pci_device_remove+0x5d/0xe0
+[  182.060968]  device_release_driver_internal+0xf1/0x180
+[  182.061063]  pci_stop_bus_device+0xae/0xe0
+[  182.061150]  pci_stop_and_remove_bus_device_locked+0x11/0x20
+[  182.061236]  remove_store+0xc6/0xe0
+[  182.061297]  ? subordinate_bus_number_show+0xc0/0xc0
+[  182.061359]  ? __mutex_lock_slowpath+0x10/0x10
+[  182.061438]  ? sysfs_kf_write+0x6d/0xa0
+[  182.061525]  kernfs_fop_write_iter+0x1b0/0x260
+[  182.061610]  ? sysfs_kf_bin_read+0xf0/0xf0
+[  182.061695]  new_sync_write+0x209/0x310
+[  182.061789]  ? new_sync_read+0x310/0x310
+[  182.061865]  ? cgroup_rstat_updated+0x5c/0x170
+[  182.061937]  ? preempt_count_sub+0xf/0xb0
+[  182.061995]  ? pick_next_entity+0x13a/0x220
+[  182.062063]  ? __inode_security_revalidate+0x44/0x80
+[  182.062155]  ? security_file_permission+0x46/0x2a0
+[  182.062230]  vfs_write+0x33f/0x3e0
+[  182.062303]  ksys_write+0xb4/0x150
+[  182.062369]  ? __ia32_sys_read+0x40/0x40
+[  182.062451]  do_syscall_64+0x3b/0x90
+[  182.062531]  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[  182.062894] RIP: 0033:0x7f3f37d17274
+[  182.063558] Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b3 0f 1f
+80 00 00 00 00 48 8d 05 89 54 0d 00 8b 00 85 c0 75 13 b8 01 00 00 00 0f
+05 <48> 3d 00 f0 ff ff 77 54 c3 0f 1f 00 41 54 49 89 d4 55 48 89 f5 53
+[  182.063797] RSP: 002b:00007ffd5ba9e178 EFLAGS: 00000246
+ORIG_RAX: 0000000000000001
+[  182.064117] RAX: ffffffffffffffda RBX: 0000000000000002
+RCX: 00007f3f37d17274
+[  182.064219] RDX: 0000000000000002 RSI: 000055bbec327180
+RDI: 0000000000000001
+[  182.064315] RBP: 000055bbec327180 R08: 000000000000000a
+R09: 00007f3f37de7cf0
+[  182.064414] R10: 000000000000000a R11: 0000000000000246
+R12: 00007f3f37de8760
+[  182.064513] R13: 0000000000000002 R14: 00007f3f37de3760
+R15: 0000000000000002
+[  182.064691]  </TASK>
+[  182.064916]
+[  182.065224] The buggy address belongs to the physical page:
+[  182.065804] page:00000000ef31e4f4 refcount:0 mapcount:0
+mapping:0000000000000000 index:0x0 pfn:0x6c76
+[  182.067419] flags: 0x100000000000000(node=0|zone=1)
+[  182.068997] raw: 0100000000000000 0000000000000000
+ffffea00001b1d88 0000000000000000
+[  182.069118] raw: 0000000000000000 0000000000000000
+00000000ffffffff 0000000000000000
+[  182.069294] page dumped because: kasan: bad access detected
+[  182.069331]
+[  182.069360] Memory state around the buggy address:
+[  182.070006]  ffff888006c76480: ff ff ff ff ff ff ff ff ff ff ff
+ ff ff ff ff ff
+[  182.070136]  ffff888006c76500: ff ff ff ff ff ff ff ff ff ff ff
+ ff ff ff ff ff
+[  182.070230] >ffff888006c76580: ff ff ff ff ff ff ff ff ff ff ff
+ ff ff ff ff ff
+[  182.070305]                             ^
+[  182.070456]  ffff888006c76600: ff ff ff ff ff ff ff ff ff ff ff
+ ff ff ff ff ff
+[  182.070505]  ffff888006c76680: ff ff ff ff ff ff ff ff ff ff ff
+ ff ff ff ff ff
+[  182.070606]
+==================================================================
+[  182.071374] Disabling lock debugging due to kernel taint
+
+/*****************************end*****************************/
+
+After fixing the bug as done in the patch, we can find KASAN do not report
+ the bug and the device(00:03.0) has been successfully removed.
+
+/*****************************start***************************/
+
+root@kernel:~# echo 1 > /sys/bus/pci/devices/0000:00:03.0/remove
+root@kernel:~#
+
+/******************************end****************************/
+
+Signed-off-by: Wentao_Liang <Wentao_Liang_g@163.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/neterion/vxge/vxge-main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 51d34e7275ab0..9d97f535a4d66 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -717,17 +717,17 @@ struct vc4_async_flip_state {
- 	struct drm_framebuffer *fb;
- 	struct drm_pending_vblank_event *event;
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+index c6950e5808836..7fa71a66f19c6 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+@@ -4790,10 +4790,10 @@ static void vxge_remove(struct pci_dev *pdev)
+ 	for (i = 0; i < vdev->no_of_vpath; i++)
+ 		vxge_free_mac_add_list(&vdev->vpaths[i]);
  
--	struct vc4_seqno_cb cb;
-+	union {
-+		struct vc4_seqno_cb seqno;
-+	} cb;
- };
- 
- /* Called when the V3D execution for the BO being flipped to is done, so that
-  * we can actually update the plane's address to point to it.
-  */
- static void
--vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
-+vc4_async_page_flip_complete(struct vc4_async_flip_state *flip_state)
- {
--	struct vc4_async_flip_state *flip_state =
--		container_of(cb, struct vc4_async_flip_state, cb);
- 	struct drm_crtc *crtc = flip_state->crtc;
- 	struct drm_device *dev = crtc->dev;
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
-@@ -749,6 +749,14 @@ vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
- 	up(&vc4->async_modeset);
- }
- 
-+static void vc4_async_page_flip_seqno_complete(struct vc4_seqno_cb *cb)
-+{
-+	struct vc4_async_flip_state *flip_state =
-+		container_of(cb, struct vc4_async_flip_state, cb.seqno);
-+
-+	vc4_async_page_flip_complete(flip_state);
-+}
-+
- /* Implements async (non-vblank-synced) page flips.
-  *
-  * The page flip ioctl needs to return immediately, so we grab the
-@@ -794,8 +802,8 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
- 	drm_atomic_set_fb_for_plane(plane->state, fb);
- 	plane->fb = fb;
- 
--	vc4_queue_seqno_cb(dev, &flip_state->cb, bo->seqno,
--			   vc4_async_page_flip_complete);
-+	vc4_queue_seqno_cb(dev, &flip_state->cb.seqno, bo->seqno,
-+			   vc4_async_page_flip_seqno_complete);
- 
- 	/* Driver takes ownership of state on successful async commit. */
- 	return 0;
++	iounmap(vdev->bar0);
+ 	vxge_device_unregister(hldev);
+ 	/* Do not call pci_disable_sriov here, as it will break child devices */
+ 	vxge_hw_device_terminate(hldev);
+-	iounmap(vdev->bar0);
+ 	pci_release_region(pdev, 0);
+ 	pci_disable_device(pdev);
+ 	driver_config->config_dev_cnt--;
 -- 
 2.35.1
 
