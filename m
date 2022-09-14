@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 515655B83C0
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FDFE5B83C5
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbiINJDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:03:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50956 "EHLO
+        id S230425AbiINJD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230033AbiINJCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:02:45 -0400
+        with ESMTP id S230224AbiINJCv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:02:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9441774BBC;
-        Wed, 14 Sep 2022 02:01:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FCCA760F5;
+        Wed, 14 Sep 2022 02:01:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99CB86193B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FDC861993;
+        Wed, 14 Sep 2022 09:01:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966FFC433D6;
         Wed, 14 Sep 2022 09:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ECE4C43470;
-        Wed, 14 Sep 2022 09:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146115;
-        bh=DJM3CoZYpCVzX8l096vek1rNTFNHFKWn2oEvcTzk1Vs=;
+        s=k20201202; t=1663146117;
+        bh=iygKThSUt2oRdx8axchV5M5xahy5an58AJy+GGf6yAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrAG5x0dlhqSRAxLv/3pn+b55eiDpuMkxBhHPMAp9tQddd3eL/otacXJrB3SHbnwV
-         5RRGkCKIHZixkDN6XubCtPxU+FuFg4otH6U5v78PhgQAI7D83O5ceBXuY7N56VZJ5h
-         1w+zCBLnrJ6cvmLU9bGO723Y8nkiLwHZHv3FxojTJ7y9tr2QnGMmK9632nndfyzl16
-         U7oBiPU1+aUoXSaGvunC/SHaR486k1t0OKrzTTI6pf1AKohngMcXgTVKP3ZpBSLFue
-         6bnQIopPUqWC6+JoWo13Dto9ssGCFO1FeorCn4uTPjMMe9h0dvBAbl0Eh/wy6S8vaR
-         xiRqrOFyzAOQQ==
+        b=IwPZN5f2I1/CyjNHbA/ISFaxMKhcqSRmrcGcHDq02BsC+TQKHCDGqLoh2Wjlh9pK5
+         ZK3YKk1DEK+3QlEJzunCVj4/oBxNmLg1bZKSmHD/zynZEHCwNt3ZYJixF10EiaJnUU
+         bpYxjAKAAhdFwH3n+kJbSn8Vz2CwzWsk8FmMp+in+qU/z6PqDP0ACqusUz3gvO4yYo
+         TTr3M6PefucpX2Na6/zLX6Mq6uMEqtwXWGhnreUylMVh/1lL8lE2XNUdIBpeG3iAPF
+         ArcSWafMsEQhfO9VcrbpXQO4dDhOpPuR0aLw+h2TkSLxi22S+iIk0Un5p9ApguaA6K
+         thSkp5PnySXEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongxiang Ke <kdx.glider@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.19 14/22] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
-Date:   Wed, 14 Sep 2022 05:00:55 -0400
-Message-Id: <20220914090103.470630-14-sashal@kernel.org>
+Cc:     ZhenGuo Yin <zhenguo.yin@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>, ray.huang@amd.com,
+        airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 15/22] drm/ttm: update bulk move object of ghost BO
+Date:   Wed, 14 Sep 2022 05:00:56 -0400
+Message-Id: <20220914090103.470630-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090103.470630-1-sashal@kernel.org>
 References: <20220914090103.470630-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,37 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongxiang Ke <kdx.glider@gmail.com>
+From: ZhenGuo Yin <zhenguo.yin@amd.com>
 
-[ Upstream commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf ]
+[ Upstream commit d91c411c744b55e860fbafc9a499f4f22d64c762 ]
 
-There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
-the number of it's interfaces less than 4, an out-of-bounds read bug occurs
-when parsing the interface descriptor for this device.
+[Why]
+Ghost BO is released with non-empty bulk move object. There is a
+warning trace:
+WARNING: CPU: 19 PID: 1582 at ttm/ttm_bo.c:366 ttm_bo_release+0x2e1/0x2f0 [amdttm]
+Call Trace:
+  amddma_resv_reserve_fences+0x10d/0x1f0 [amdkcl]
+  amdttm_bo_put+0x28/0x30 [amdttm]
+  amdttm_bo_move_accel_cleanup+0x126/0x200 [amdttm]
+  amdgpu_bo_move+0x1a8/0x770 [amdgpu]
+  ttm_bo_handle_move_mem+0xb0/0x140 [amdttm]
+  amdttm_bo_validate+0xbf/0x100 [amdttm]
 
-Fix this by checking the number of interfaces.
+[How]
+The resource of ghost BO should be moved to LRU directly, instead of
+using bulk move. The bulk move object of ghost BO should set to NULL
+before function ttm_bo_move_to_lru_tail_unlocked.
 
-Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
-Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+v2: set bulk move to NULL manually if no resource associated with ghost BO
+
+Fixed: 5b951e487fd6bf5f ("drm/ttm: fix bulk move handling v2")
+Signed-off-by: ZhenGuo Yin <zhenguo.yin@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220906084619.2545456-1-zhenguo.yin@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/stream.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo_util.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/usb/stream.c b/sound/usb/stream.c
-index ceb93d798182c..40ce8a1cb318a 100644
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -1105,7 +1105,7 @@ static int __snd_usb_parse_audio_interface(struct snd_usb_audio *chip,
- 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
- 	 * one misses syncpipe, and does not produce any sound.
- 	 */
--	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
-+	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
- 		num = 4;
+diff --git a/drivers/gpu/drm/ttm/ttm_bo_util.c b/drivers/gpu/drm/ttm/ttm_bo_util.c
+index 1cbfb00c1d658..57a27847206ff 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo_util.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
+@@ -239,6 +239,9 @@ static int ttm_buffer_object_transfer(struct ttm_buffer_object *bo,
+ 	if (fbo->base.resource) {
+ 		ttm_resource_set_bo(fbo->base.resource, &fbo->base);
+ 		bo->resource = NULL;
++		ttm_bo_set_bulk_move(&fbo->base, NULL);
++	} else {
++		fbo->base.bulk_move = NULL;
+ 	}
  
- 	for (i = 0; i < num; i++) {
+ 	dma_resv_init(&fbo->base.base._resv);
 -- 
 2.35.1
 
