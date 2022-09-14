@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB925B8480
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7683E5B8498
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 11:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbiINJM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 05:12:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
+        id S229907AbiINJPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 05:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231473AbiINJMY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:12:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9795B7AC24;
-        Wed, 14 Sep 2022 02:05:31 -0700 (PDT)
+        with ESMTP id S231516AbiINJNg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 05:13:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D59A27C1F4;
+        Wed, 14 Sep 2022 02:05:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 162E0CE139A;
-        Wed, 14 Sep 2022 09:05:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B20C433D6;
-        Wed, 14 Sep 2022 09:05:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B1461999;
+        Wed, 14 Sep 2022 09:05:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD98DC433B5;
+        Wed, 14 Sep 2022 09:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663146320;
-        bh=HF4PGP0+xNYDtxf78yui0Q9OzSck6OrFjMcyX6mBa7I=;
+        s=k20201202; t=1663146324;
+        bh=tb4tAp7Sj3S0VpVpWdMjr7EE4Pht/XijnA7UEQE7jsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9sQNEfGghfQLSBV7Fsop71w8D7LIRXkMDkJMijhVfiC73Cup9d4Pyjy/Rh/aQEcD
-         NEqlREpaB1OFkNRorpQgXfe7WOZv0U6o0Oa1VX2PkuSNKig60WAiPDsYkohUGfjh3j
-         glWphUNE/Wr+P9ksMe2cGEtAbWtAX0BJZPqkZSAfxhormsABwZIYZPfyGJBmHvy+uB
-         1MiQRkcosuRcPi1uBTRgPJv2qbZ2giz8/LgG0EPxG7vsUdll7aV2kKp7DZOmynNv03
-         Yh0FewCrlGTSiUBkIkO/pvTrJBOoyqzisO2iRRha3C/kdNf2JJrBtolz2yp2+1+cuD
-         sOtiD8zofDGCQ==
+        b=dXmjhzuyOOOk53Sga+O8ISsp/ypxYRTSSC8AyqMNzm1EyoLYqBaQOGC3jR98y4Qa/
+         ayYD2BdI5qfpD9PMUnI9j+bB3paoGCTD1ZCXPMWm/iMICfp46kOiCJWNNsyiqxyOEU
+         yz325gNq3KGSix+EvQ27ki0LWs1E7nJnPiU9/ctpwRT7CEivg3RbitiiOESQSCOqUg
+         cYjwIc6HP/jnHhwizy8H7CkACc+sEmrj7U4E6ZWCdL/eOGo3qCvv0z7Iteaki0/0jV
+         s8+dg/pFgROyAsfZCHDV/PgVBTxtFJDYgLOJdKYOqbrVbHf15tQYhDlzJEtpDnE0pE
+         9V8l95X053Edg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
-Subject: [PATCH AUTOSEL 4.14 2/8] regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
-Date:   Wed, 14 Sep 2022 05:05:06 -0400
-Message-Id: <20220914090514.471614-2-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 3/8] ALSA: hda/sigmatel: Keep power up while beep is enabled
+Date:   Wed, 14 Sep 2022 05:05:07 -0400
+Message-Id: <20220914090514.471614-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220914090514.471614-1-sashal@kernel.org>
 References: <20220914090514.471614-1-sashal@kernel.org>
@@ -56,39 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 78e1e867f44e6bdc72c0e6a2609a3407642fb30b ]
+[ Upstream commit 414d38ba871092aeac4ed097ac4ced89486646f7 ]
 
-The pfuze_chip::regulator_descs is an array of size
-PFUZE100_MAX_REGULATOR, the pfuze_chip::pfuze_regulators
-is the pointer to the real regulators of a specific device.
-The number of real regulator is supposed to be less than
-the PFUZE100_MAX_REGULATOR, so we should use the size of
-'regulator_num * sizeof(struct pfuze_regulator)' in memcpy().
-This fixes the out of bounds access bug reported by KASAN.
+It seems that the beep playback doesn't work well on IDT codec devices
+when the codec auto-pm is enabled.  Keep the power on while the beep
+switch is enabled.
 
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Link: https://lore.kernel.org/r/20220825111922.1368055-1-xiaolei.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1200544
+Link: https://lore.kernel.org/r/20220904072750.26164-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_sigmatel.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 587a6bf9037b7..6b9c29d6825d4 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -614,7 +614,7 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
- 		((pfuze_chip->chip_id == PFUZE200) ? "200" : "3000"));
+diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
+index f7896a9ae3d65..73ce5c83e7e38 100644
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -222,6 +222,7 @@ struct sigmatel_spec {
  
- 	memcpy(pfuze_chip->regulator_descs, pfuze_chip->pfuze_regulators,
--		sizeof(pfuze_chip->regulator_descs));
-+		regulator_num * sizeof(struct pfuze_regulator));
+ 	/* beep widgets */
+ 	hda_nid_t anabeep_nid;
++	bool beep_power_on;
  
- 	ret = pfuze_parse_regulators_dt(pfuze_chip);
- 	if (ret)
+ 	/* SPDIF-out mux */
+ 	const char * const *spdif_labels;
+@@ -4481,6 +4482,26 @@ static int stac_suspend(struct hda_codec *codec)
+ 	stac_shutup(codec);
+ 	return 0;
+ }
++
++static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
++{
++	struct sigmatel_spec *spec = codec->spec;
++	int ret = snd_hda_gen_check_power_status(codec, nid);
++
++#ifdef CONFIG_SND_HDA_INPUT_BEEP
++	if (nid == spec->gen.beep_nid && codec->beep) {
++		if (codec->beep->enabled != spec->beep_power_on) {
++			spec->beep_power_on = codec->beep->enabled;
++			if (spec->beep_power_on)
++				snd_hda_power_up_pm(codec);
++			else
++				snd_hda_power_down_pm(codec);
++		}
++		ret |= spec->beep_power_on;
++	}
++#endif
++	return ret;
++}
+ #else
+ #define stac_suspend		NULL
+ #endif /* CONFIG_PM */
+@@ -4493,6 +4514,7 @@ static const struct hda_codec_ops stac_patch_ops = {
+ 	.unsol_event = snd_hda_jack_unsol_event,
+ #ifdef CONFIG_PM
+ 	.suspend = stac_suspend,
++	.check_power_status = stac_check_power_status,
+ #endif
+ 	.reboot_notify = stac_shutup,
+ };
 -- 
 2.35.1
 
