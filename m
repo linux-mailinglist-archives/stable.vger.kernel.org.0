@@ -2,112 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D0D5B8D3F
-	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 18:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2CC75B8E4F
+	for <lists+stable@lfdr.de>; Wed, 14 Sep 2022 19:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbiINQj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Sep 2022 12:39:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36628 "EHLO
+        id S229794AbiINRqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Sep 2022 13:46:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229861AbiINQj4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 12:39:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1934EE2A;
-        Wed, 14 Sep 2022 09:39:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 743FFB8188A;
-        Wed, 14 Sep 2022 16:39:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27B4DC433D6;
-        Wed, 14 Sep 2022 16:39:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663173581;
-        bh=ZveLLZvJ+Ts6o0HbiWXx2xckAfycFTaLYVEB1OTB1JI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aGkulEqu6Y3SXg7eBlpZ8+XKiNwDWdU+lbMHC2JnBrw4vtH/yFmKFbaB7NUcNU7RW
-         KqwhV/uM4x17hc40rIciAqM7XuDnBrxUqRPnciG9q5N7pJF9vWFncEAbtDwoixY3j+
-         NdDpdBHYZO5bPZmZai1TryUev3jPY2dNB453t0K0m11gRyleFCtf4I74Q0ZZTMdG4D
-         KLcM8IUeqi5GLAwoLRV8+jDTIsrGp+GJ7ibwQzD19pjUzZfWRH3oOtbXY11IIHEeTn
-         xTrFsJxSu5iWElKLrIh47Pyd295awgvqYEyb3rGi5GUcV3UvYDt/PxVJjrwtk9zgvm
-         q0vmAuuQpHOqA==
-Date:   Wed, 14 Sep 2022 09:39:40 -0700
-From:   "Darrick J. Wong" <djwong@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Varsha Teratipally <teratipally@google.com>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] xfs: fix up non-directory creation in SGID directories
-Message-ID: <YyIDzPTn99XLTCFp@magnolia>
-References: <20220906183600.1926315-1-teratipally@google.com>
- <20220906183600.1926315-2-teratipally@google.com>
- <YxnWi5YcuY6Rbodt@kroah.com>
- <CAOQ4uxi4UH2pDEe1c6Mn52Qh1GABv2axuQqN=D6QHc7rKwQ2zQ@mail.gmail.com>
+        with ESMTP id S229809AbiINRqw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Sep 2022 13:46:52 -0400
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21A252086;
+        Wed, 14 Sep 2022 10:46:51 -0700 (PDT)
+Received: by mail-qk1-x735.google.com with SMTP id 3so11069980qka.5;
+        Wed, 14 Sep 2022 10:46:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=8dCJBTzDwCYDG7yGJAzsA7Ppx1VJiWA7RssQ0rmRopw=;
+        b=UdH5qf8MZ2e8DzliUaez9f/wdBVh6xOrHKJ6RSuh3iuNj+30K04XKONiYHp2nvaH9w
+         kB2nFljOyIOijYSnY7gfTziaNMD8wRfnZFtGFcTHtY6JryMTw4g+p2u6Sl8mmDLQMn6c
+         LLJx2YcKpSPEjab6ejEM5aipT1eBi/RrHHbAzzQ9gKsqewFHQaTV26dR4iVx6wQCONx+
+         46I0e0bYkcPDlL6smO2u+tzYix+XVm5tdVQ4kbfvS+heTwNvYs4JNkzien6YG8ZpqCdQ
+         1wNJphsaFoHVxHsogS6Snr763o+ptofIAxwmDfpTSlpJbbzdt9V5ZNQ3/NItooCv/wOO
+         YJvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=8dCJBTzDwCYDG7yGJAzsA7Ppx1VJiWA7RssQ0rmRopw=;
+        b=GOuQbw9Nte+0O+3r6S2PWybvXLj2/6/GCMjgNe07cGpgaz9divVOJBPk8ks+W4W2Wo
+         0HXc2Yj2jyG1O1KtvA/rHOjcYXtTZlnEgcsHORvliMN2xuJMQAf4XEwUc96rxeLm/FSE
+         cTnjD/tDvYhsE+6oFjHVM7Rq/LYBAKNUkWUFylRV0ESHTghMgrHt6ArO8egQLJzpm+Pz
+         4Q91A9OFM1kFotGu4WH7rjYAP2nVsn0vHb0Q6paI4Ax8PbOMe6kGMmUuk7QLH26t9pYf
+         Osqbd+QLYCBCVovfZfhBKOJ5a8ysC/7kAPGYoBOJtjhh5BjPAgxkyUrO6XGvezUHgXBS
+         h88w==
+X-Gm-Message-State: ACgBeo2TZlv2pVHpLeO5KZbTInVvO0/axVWvFcCMAFGQAwRIB5iqNLAq
+        PZqlxOp7Jag9Rle7YiCUZM1OY0wmkaY=
+X-Google-Smtp-Source: AA6agR7x/L2mbGbY/RNHSUQU/dQgn5UQmEPcsTsBGs8qZ0AU5HVPVI+a7OliiCRlf42apGqrBDaM9Q==
+X-Received: by 2002:a05:620a:25c8:b0:6ae:ba71:ea7d with SMTP id y8-20020a05620a25c800b006aeba71ea7dmr27782097qko.547.1663177610901;
+        Wed, 14 Sep 2022 10:46:50 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id h1-20020a05620a244100b006cbcdc6efedsm2313281qkn.41.2022.09.14.10.46.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Sep 2022 10:46:50 -0700 (PDT)
+Message-ID: <b2e81ab3-8bf7-d0e9-d046-9aa2eacda6f5@gmail.com>
+Date:   Wed, 14 Sep 2022 10:46:46 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxi4UH2pDEe1c6Mn52Qh1GABv2axuQqN=D6QHc7rKwQ2zQ@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 4.9 00/42] 4.9.328-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220913140342.228397194@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 08, 2022 at 03:02:41PM +0300, Amir Goldstein wrote:
-> On Thu, Sep 8, 2022 at 2:48 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Sep 06, 2022 at 06:36:00PM +0000, Varsha Teratipally wrote:
-> > > From: Christoph Hellwig <hch@lst.de>
-> > >
-> > > XFS always inherits the SGID bit if it is set on the parent inode, while
-> > > the generic inode_init_owner does not do this in a few cases where it can
-> > > create a possible security problem, see commit 0fa3ecd87848
-> > > ("Fix up non-directory creation in SGID directories") for details.
-> > >
-> > > Switch XFS to use the generic helper for the normal path to fix this,
-> > > just keeping the simple field inheritance open coded for the case of the
-> > > non-sgid case with the bsdgrpid mount option.
-> > >
-> > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > > Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > > Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-> > > Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-> >
-> > Why did you not sign off on this if you are forwarding it on?
-> >
-> > Also, what is the git id of this commit in Linus's tree (we need that
-> > hint...)
-> >
-> > Please fix both up and resend and get the ack of the stable xfs
-> > developers on it as well.
-> >
+On 9/13/22 07:07, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.328 release.
+> There are 42 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Varsha,
+> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
+> Anything received after that time might be too late.
 > 
-> FWIW, I re-tested the patch on top of v5.10.141,
-> so when re-posting [PATCH 5.10] you may add:
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.328-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
 > 
-> Tested-by: Amir Goldstein <amir73il@gmail.com>
+> thanks,
 > 
-> Darrick or Christoph,
-> 
-> Can you please ACK this patch?
+> greg k-h
 
-With all the bookkeepping bits corrected (and assuming that the VFS
-fixes have been or are about to be applied):
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-
---D
-
-> 
-> Thanks,
-> Amir.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
