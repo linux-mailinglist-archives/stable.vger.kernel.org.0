@@ -2,371 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6405B9DBC
-	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 16:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF985B9DC5
+	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 16:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230203AbiIOOwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Sep 2022 10:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54642 "EHLO
+        id S229545AbiIOOyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Sep 2022 10:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbiIOOwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 10:52:07 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC496C74C
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 07:52:03 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id y136so18316382pfb.3
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 07:52:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=yyQrmwH1gkvwtIamQevLMk3vp4GFHmVs/LJfFpPJJwE=;
-        b=l0JofihKlvdtx8ivJz6s2HGzXosnQ97/MwCv1kFHnxcrY02hmaDAUV8RmbXQfmKFSL
-         TROtKIjuqUjDKnUB9+Pa44Z23H8fA1LIgMQM5U3Qf+wMdGoBHKZZkOqWIx36+l8P3zwY
-         /vhEvoPJUjFjhKkh095gNv9gKYkRqYF1Ek+zRgNPB4wFyyt58TSiT5M9MIGvu0jwsIeJ
-         O7qCLn1eNlvr/wNU07FlbF35LbFu0z/uYBfnroZug/6gCyp9od7ANga7/1mSLeYyTw9P
-         h6FhnU6/oURIL+35QlQJyFu+ODZAT7HX6iGAgDREGE0EQkHUiT8iS79NWjwv0LC72FHT
-         kdJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=yyQrmwH1gkvwtIamQevLMk3vp4GFHmVs/LJfFpPJJwE=;
-        b=vyl3aIDFv3lhqZxfIlaXfb9nKblDfEozje4kZtPOIjEDyjkA+CJlBjqb6+ugYOXP4H
-         0IBb8BNO+RL/AUiPrsYfTCbJwC+I9H7+inTQwekFNLG1/hH5fc5a+ZOVDwiD4vNhVIQT
-         U373/m57IDfAVmSWrhWYecUZwFtxVUtiKCcYgXThfB7be+wlXdLNeQXW5E/Uwk9cXwzE
-         uintRIR7nhLpGDddS5PW8oKESaZ40X+M7RCshD63wnfaTKinuAllMVWoBCS80lun4NIB
-         7ahvVpAYNnNjT0349tn2VjrmMG/IXcvOLjW7GW3KO5h+hB3ii0H3bRFC4MLSaTE+0wtl
-         eAMQ==
-X-Gm-Message-State: ACrzQf19LpFjiiMeJdxkMW/1O/n8/o47dX0ie0cI651Hgde1v126x5zJ
-        wuHE5scZLOXR2jc8ySryxq7Pyy/M3VEhWqR2A8s=
-X-Google-Smtp-Source: AMsMyM6c53Ejb/Yjp8RvA7UpI4+hWTApLl1IvEWuo03qhKfXnkhmGMLZCsUYjBl8Baqu90VfefRPsA==
-X-Received: by 2002:a05:6a00:b41:b0:52f:59dc:75 with SMTP id p1-20020a056a000b4100b0052f59dc0075mr365700pfo.33.1663253522041;
-        Thu, 15 Sep 2022 07:52:02 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w14-20020aa7954e000000b00535e950aa28sm12623778pfq.131.2022.09.15.07.52.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Sep 2022 07:52:01 -0700 (PDT)
-Message-ID: <63233c11.a70a0220.1b6bf.5df2@mx.google.com>
-Date:   Thu, 15 Sep 2022 07:52:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229996AbiIOOyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 10:54:00 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A8773904;
+        Thu, 15 Sep 2022 07:53:58 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28FDhtpO017030;
+        Thu, 15 Sep 2022 14:53:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NQb4TxGnuZvveErzd7UCvTG1rRRd+QPk4e9P65fAVH8=;
+ b=OzKuOWO9bbRjYRZ5fdWS0jdoRbNabjWt2U57qfuFLKYj9I6nryotkQE9vEh+lCsWRtTQ
+ bzEEWvGjMqzmXk2TxgBp5XQm1OMeMZCtlaVwICYe8Dv+2M/LHABxmZF4Z6lbUU+kKH/D
+ bSzOi5ZIRubMZum+C3V3zxh7QbizVb+s/hM1385NRBic0I/1ue5YYZK94eEH2oMQC427
+ AbpRhAZWSMkRiyxPn2UaXs8ntkPflTNlbgZU5XcvlP0Se2jMnY8acupp3yHGeyXHR859
+ 8dOcrAKs+FI2NFkj6T6WjFRQfWJ+SngCY1TGmB3ct/N0P45qL7cBzV5jIM/eV4SINwYT uA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jm56d2gdc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Sep 2022 14:53:57 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28FDiWwX019282;
+        Thu, 15 Sep 2022 14:53:57 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jm56d2gcn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Sep 2022 14:53:57 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28FEpOIc020267;
+        Thu, 15 Sep 2022 14:53:55 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3jjy2n1x8h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Sep 2022 14:53:55 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28FErqv338535482
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 15 Sep 2022 14:53:52 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55CBAA4040;
+        Thu, 15 Sep 2022 14:53:52 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0596A4051;
+        Thu, 15 Sep 2022 14:53:51 +0000 (GMT)
+Received: from [9.171.87.36] (unknown [9.171.87.36])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 15 Sep 2022 14:53:51 +0000 (GMT)
+Message-ID: <4e89ff00-aac2-7c8e-14cf-add426853e9d@de.ibm.com>
+Date:   Thu, 15 Sep 2022 16:53:51 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.258
-Subject: stable/linux-4.19.y baseline: 150 runs, 8 regressions (v4.19.258)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH v3 1/2] s390/vfio-ap: bypass unnecessary processing of AP
+ resources
+Content-Language: en-US
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
+ <20220823150643.427737-2-akrowiak@linux.ibm.com>
+ <20220915050018.37d21083.pasic@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20220915050018.37d21083.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XIS-DtLMUyRIA_r36Zt6XofzVQHUVXTU
+X-Proofpoint-GUID: ny8pIXFL1w_-ZtfSC5yS2z3c-hpDJBrC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-15_08,2022-09-14_04,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 spamscore=0 mlxlogscore=999
+ impostorscore=0 mlxscore=0 adultscore=0 priorityscore=1501 phishscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2208220000 definitions=main-2209150085
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 150 runs, 8 regressions (v4.19.258)
 
-Regressions Summary
--------------------
 
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.258/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.258
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      a3547518183ffad51cfe216b9f8b50b1182a1667 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632308eb8245b1ef0735565b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632308eb8245b1ef07355=
-65c
-        failing since 9 days (last pass: v4.19.230, first fail: v4.19.257) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632308be33069a09e735567c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632308be33069a09e7355=
-67d
-        failing since 9 days (last pass: v4.19.230, first fail: v4.19.257) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632308ff9edc514feb355658
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632308ff9edc514feb355=
-659
-        failing since 9 days (last pass: v4.19.230, first fail: v4.19.257) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632308abca29d09b3b355668
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv2-uefi.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632308abca29d09b3b355=
-669
-        failing since 9 days (last pass: v4.19.230, first fail: v4.19.257) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632308ea7a7505bc33355652
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632308ea7a7505bc33355=
-653
-        failing since 9 days (last pass: v4.19.230, first fail: v4.19.257) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632308aaca29d09b3b355658
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632308aaca29d09b3b355=
-659
-        failing since 9 days (last pass: v4.19.230, first fail: v4.19.257) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6323090051ee153aac35564a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6323090051ee153aac355=
-64b
-        failing since 125 days (last pass: v4.19.239, first fail: v4.19.242=
-) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63230915bdd17fd7c5355666
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.258/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv3-uefi.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63230915bdd17fd7c5355=
-667
-        failing since 125 days (last pass: v4.19.239, first fail: v4.19.242=
-) =
-
- =20
+Am 15.09.22 um 05:00 schrieb Halil Pasic:
+> On Tue, 23 Aug 2022 11:06:42 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> 
+>> It is not necessary to go through the process of validation, linking of
+>> queues to mdev and vice versa and filtering the APQNs assigned to the
+>> matrix mdev to build an AP configuration for a guest if an adapter or
+>> domain being assigned is already assigned to the matrix mdev. Likewise, it
+>> is not necessary to proceed through the process the unassignment of an
+>> adapter, domain or control domain if it is not assigned to the matrix mdev.
+>>
+>> Since it is not necessary to process assignment of a resource resource
+>> already assigned or process unassignment of a resource that is been assigned,
+>> this patch will bypass all assignment/unassignment operations for an adapter,
+>> domain or control domain under these circumstances.
+>>
+>> Not only is assignment of a duplicate adapter or domain unnecessary, it
+>> will also cause a hang situation when removing the matrix mdev to which it is
+>> assigned. The reason is because the same vfio_ap_queue objects with an
+>> APQN containing the APID of the adapter or APQI of the domain being
+>> assigned will get added multiple times to the hashtable that holds them.
+>> This results in the pprev and next pointers of the hlist_node (mdev_qnode
+>> field in the vfio_ap_queue object) pointing to the queue object itself
+>> resulting in an interminable loop when the mdev is removed and the queue
+>> table is iterated to reset the queues.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 11cb2419fafe ("s390/vfio-ap: manage link between queue struct and matrix mdev")
+>> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+
+Shall the patch go via the s390 tree (still into 6.0 I guess)?
+
+> 
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
+>>   1 file changed, 30 insertions(+)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 6c8c41fac4e1..ee82207b4e60 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -984,6 +984,11 @@ static ssize_t assign_adapter_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	set_bit_inv(apid, matrix_mdev->matrix.apm);
+>>   
+>>   	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+>> @@ -1109,6 +1114,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+>>   	vfio_ap_mdev_hot_unplug_adapter(matrix_mdev, apid);
+>>   	ret = count;
+>> @@ -1183,6 +1193,11 @@ static ssize_t assign_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>>   
+>>   	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+>> @@ -1286,6 +1301,11 @@ static ssize_t unassign_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+>>   	vfio_ap_mdev_hot_unplug_domain(matrix_mdev, apqi);
+>>   	ret = count;
+>> @@ -1329,6 +1349,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(id, matrix_mdev->matrix.adm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+>>   	 * domain number (id). The bits in the mask, from most significant to
+>>   	 * least significant, correspond to IDs 0 up to the one less than the
+>> @@ -1378,6 +1403,11 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv(domid, matrix_mdev->matrix.adm);
+>>   
+>>   	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
+> 
