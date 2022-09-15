@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A085B93F3
-	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 07:32:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 096855B93F6
+	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 07:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiIOFcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Sep 2022 01:32:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57220 "EHLO
+        id S229728AbiIOFcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Sep 2022 01:32:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbiIOFcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 01:32:21 -0400
+        with ESMTP id S229552AbiIOFcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 01:32:45 -0400
 Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E68853D0C;
-        Wed, 14 Sep 2022 22:32:19 -0700 (PDT)
-X-UUID: bbbba88b5cf243339c93aea01dc95d8b-20220915
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D859B77577;
+        Wed, 14 Sep 2022 22:32:43 -0700 (PDT)
+X-UUID: 9e0e5349c19f4b78a83b8417397e9ed2-20220915
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=EWma00c9UlDtJFUyTqYESk6niPxXlErMpzMitE87/18=;
-        b=Oyf7ZwBC+XZA7vEVeOO2pbd4efh0t3jy8zydWvqyAvCY0PzSZ0MQ2JBxUI83VJRAUQanPNATE0FD+sf3GlHT2Sa4ZwCsDqqnJ1PksI5olescH/uxVOvg7oGfj+kN0javDE29tC/KHFn1q5ZA/uvyVh0XN94/qCTgBViz0Q9X5hU=;
+        h=Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=YkxDDvQTqV0T2kgqiwptXOrxnydc9XfbPvm55Lt05Q0=;
+        b=ASFl1ntJ19L2r1GeyWqCH/VEpjcJpSPBKqPPaMRwYPiRL3eKRJlxPLF2e41v1FNjxQ6lxOVQIckNw7XGgFPqgDAO90OSjRfOPZvkbymD3e8vOeeJvA+EU/bC/wQGK8VmTHWZzeQdYKm04Po82lzf4nLjpELDp1iFNsew7dXH1ZI=;
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.11,REQID:f65acdf7-dfef-490e-b62b-3bc17ae7a2c0,IP:0,U
-        RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-        N:release,TS:-25
-X-CID-META: VersionHash:39a5ff1,CLOUDID:6bc578f6-6e85-48d9-afd8-0504bbfe04cb,B
-        ulkID:nil,BulkQuantity:0,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,U
-        RL:1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
-X-UUID: bbbba88b5cf243339c93aea01dc95d8b-20220915
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+X-CID-O-INFO: VERSION:1.1.11,REQID:2b039e25-fdbd-4096-936c-9f185c2a0048,IP:0,U
+        RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:95,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+        ON:release,TS:70
+X-CID-INFO: VERSION:1.1.11,REQID:2b039e25-fdbd-4096-936c-9f185c2a0048,IP:0,URL
+        :0,TC:0,Content:-25,EDM:0,RT:0,SF:95,FILE:0,BULK:0,RULE:Spam_GS981B3D,ACTI
+        ON:quarantine,TS:70
+X-CID-META: VersionHash:39a5ff1,CLOUDID:9fb4b85d-5ed4-4e28-8b00-66ed9f042fbd,B
+        ulkID:2209151332395LCBLUT0,BulkQuantity:0,Recheck:0,SF:28|17|19|48,TC:nil,
+        Content:0,EDM:-3,IP:nil,URL:1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
+X-UUID: 9e0e5349c19f4b78a83b8417397e9ed2-20220915
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
         (envelope-from <sean.wang@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 578310309; Thu, 15 Sep 2022 13:32:13 +0800
+        with ESMTP id 751581607; Thu, 15 Sep 2022 13:32:37 +0800
 Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Thu, 15 Sep 2022 13:32:11 +0800
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Thu, 15 Sep 2022 13:32:37 +0800
 Received: from mtkswgap22.mediatek.inc (172.21.77.33) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 15 Sep 2022 13:32:11 +0800
+ Transport; Thu, 15 Sep 2022 13:32:36 +0800
 From:   <sean.wang@mediatek.com>
 To:     <stable@vger.kernel.org>
 CC:     <linux-wireless@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, Deren Wu <deren.wu@mediatek.com>,
         "Johannes Berg" <johannes.berg@intel.com>
-Subject: [PATCH 5.18] wifi: mt76: mt7921e: fix crash in chip reset fail
-Date:   Thu, 15 Sep 2022 13:32:10 +0800
-Message-ID: <3bb8b13686a6d3f62c4094385b24e38ac769a158.1663219683.git.objelf@gmail.com>
+Subject: [PATCH 5.19] wifi: mt76: mt7921e: fix crash in chip reset fail
+Date:   Thu, 15 Sep 2022 13:32:35 +0800
+Message-ID: <404d2f5ec663128342541fa392a47226a46e5634.1663219530.git.objelf@gmail.com>
 X-Mailer: git-send-email 1.7.9.5
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -105,7 +108,7 @@ Signed-off-by: Johannes Berg <johannes.berg@intel.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci_mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci_mac.c
-index 5ca14dbbdd26..79ddab7e4f3e 100644
+index b0f58bcf70cb..106c88b723b9 100644
 --- a/drivers/net/wireless/mediatek/mt76/mt7921/pci_mac.c
 +++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci_mac.c
 @@ -345,7 +345,7 @@ int mt7921e_mac_reset(struct mt7921_dev *dev)
