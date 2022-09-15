@@ -2,67 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB8B5BA138
-	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 21:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 026E15BA190
+	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 21:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbiIOTaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Sep 2022 15:30:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S229636AbiIOTlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Sep 2022 15:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbiIOTaL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 15:30:11 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4689957887
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 12:30:09 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id e5so19052981pfl.2
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 12:30:09 -0700 (PDT)
+        with ESMTP id S229949AbiIOTlW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 15:41:22 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B993F9F747
+        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 12:38:13 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id 3so13765120qka.5
+        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 12:38:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=JsBb0Jh5d4lLevdDx6EEPE+jZDgUEzIRlt1m3AINPH0=;
-        b=nF8I1UxeToIFMQcTBKofOQReYjyefET3h/87wKsR3mdzhhspfGIshV+2pCON9Ja2/b
-         ++MAt51SlXpYCdLWxoLFp5bQMcOKi+shprNaTUE6/7OsUmy2fW+Ehj7AXgBzBt6LraOG
-         eAPrvCbX9AReg2AuhdmHNiPVXigcKkgdKfWNfzBdqc3J0V4E3HN5zhAnTHFt8h6Wp7tE
-         1Rz4M6FUu3aCHigqwg1ufCw1bFoefgUSQuJYWOd9x0OuxfiaE+Cez3zfH+aDUpknE0Mu
-         tUDRdqW2DAdSV5n/pjUAGZC+tqPSdW/VtQ5j/QpxmTFcWE1o2/g6kRDrIKIJ4kCBfC81
-         a9/w==
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+        bh=VhWltIWQGr4otQw1ais9xJMa50uESeMiXqro3LvTwg8=;
+        b=ZOzER003YVUI0wX40DWwfYnP8PmDaWJ1GUNNHRfVg+RBqRnDWZhobIt10jbRXG8ikP
+         34RlHzRathp0u9FK7XGi0BLgao/yNkGHKjbQLgAQez8U/Fhwf9EYBjieRXyIlHh6xXY2
+         OevX6u1otUPcmldEFrNI5xLckhnjUCJ0SfDqAcm4iJwRkTv239iIvcgO2kRWb8jlWWs5
+         5j9nX8N+bM4li1mPoUvQv3damgywG3DWnKZ/rNZkmx3EnWm9jeo6MomLeWsIqSY88BrG
+         D2mcSfMSddHnyLQjz6qPki3X548HVK9mZUvsHKjjIfayptk1JD4au5JFBBJkao5Oi76J
+         ro+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=JsBb0Jh5d4lLevdDx6EEPE+jZDgUEzIRlt1m3AINPH0=;
-        b=Hl/CK5W4ceEfgTtQwxKfiiMcmZ87hwPrr2bJ5JE4V7wL0obg6xolpiSt+Qr22DGZ4c
-         TCXFqSvTpsrum92lOGjpfxPTvBf7f7FFhGfv+rFpd1lSVr2N7GfBSYYmTmHfpNvxfcZE
-         gVy5meHeyvTlvlY4X2pCUyDFJJI2SvxWTsKpVqoCXw+vzEQpc3A3YU8IrT+vXJ0X4YQl
-         O0VELcw27LGnDAs8dFRWBZwSinjuy3P9u+bpmFfuJ4zxabmHjuWJAsYLRtY6Qfrtea0e
-         t4zqlk2+hwxoAa3OTMnKJOSngFarEchFzUru4rjzp3IF0w36LKBQySC7rprCYVf6d1FX
-         QAWw==
-X-Gm-Message-State: ACrzQf3efL9oRyttbgS9jTPGz2sP1JKGYhMQfrfedwEcm1jEgYs5lTev
-        koLnwBXvPHQPsxJ1p+KuwHZMi7L1GEPVMoLM+ig=
-X-Google-Smtp-Source: AMsMyM4YkM6cJ2hf4lbmfBjJaRC/UI3bcSGejTnD6I+t2pf5nGnU2YCyMbXotPoP1C4zGInXciUSZw==
-X-Received: by 2002:a05:6a00:1342:b0:545:4d30:eecb with SMTP id k2-20020a056a00134200b005454d30eecbmr1315063pfu.69.1663270208634;
-        Thu, 15 Sep 2022 12:30:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a184-20020a621ac1000000b00543780ba513sm10107823pfa.218.2022.09.15.12.30.08
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=VhWltIWQGr4otQw1ais9xJMa50uESeMiXqro3LvTwg8=;
+        b=emR3gleOhXkBG6ZRJ6saWS1N/NQVL/oVE/Qy+hp98Sz5oIIR3bBKtGNGrh+BJwp7Es
+         p1E7EWHwNSuziPK/d0Ofte+B35e5Lbq4bT/A4bAUpMq/aAeky3UhQsrfYWLwpOXFTmrX
+         CWV55/F0F+KNa2jQaBF/IlRRJGV6XSfmIizMbqhdOlvfovHowzAtm1GQ1ogU+hRjOfTx
+         klT7EdJtBLec+uAVpAA1N8DHjE04f5vDriUf1eMvrCQ6QL/PMqRUUfKZELkWRkBzDuSn
+         PIpvz4LwTq0sIVhYiLGjmO5eMSENanNatYVXARQ9Bp7dzRPBCjdQhCZRHnxgTwsfrVjd
+         dPzQ==
+X-Gm-Message-State: ACrzQf36YOl11AePanS/04/eWU6XhjjULtc2nyOmfYhSYEhSb6qZ0d4G
+        qFhxnp5Z0+sV+I0yea9ncDWeLA==
+X-Google-Smtp-Source: AMsMyM5HYNnkqQFryIhusPOXnsW0KKQfhvLYBxoxwi2MA6hkWp7FXfscczo+CSe0KbEGeI/30Dqumg==
+X-Received: by 2002:a05:620a:40c6:b0:6bb:3d30:735 with SMTP id g6-20020a05620a40c600b006bb3d300735mr1394165qko.653.1663270635403;
+        Thu, 15 Sep 2022 12:37:15 -0700 (PDT)
+Received: from abrestic-xps.ba.rivosinc.com (pool-71-105-112-35.nycmny.fios.verizon.net. [71.105.112.35])
+        by smtp.gmail.com with ESMTPSA id r1-20020ae9d601000000b006b872b606b1sm4596459qkk.128.2022.09.15.12.37.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Sep 2022 12:30:08 -0700 (PDT)
-Message-ID: <63237d40.620a0220.b5967.2590@mx.google.com>
-Date:   Thu, 15 Sep 2022 12:30:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 15 Sep 2022 12:37:15 -0700 (PDT)
+From:   Andrew Bresticker <abrestic@rivosinc.com>
+To:     Palmer Dabbelt <palmer@dabbelt.com>
+Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
+        Celeste Liu <coelacanthus@outlook.com>,
+        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
+        Conor.Dooley@microchip.com, linux-riscv@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Bresticker <abrestic@rivosinc.com>,
+        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>
+Subject: [PATCH v4 1/2] riscv: Make VM_WRITE imply VM_READ
+Date:   Thu, 15 Sep 2022 15:37:01 -0400
+Message-Id: <20220915193702.2201018-2-abrestic@rivosinc.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220915193702.2201018-1-abrestic@rivosinc.com>
+References: <20220915193702.2201018-1-abrestic@rivosinc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.9-35-gde5881df904b
-Subject: stable-rc/queue/5.19 baseline: 183 runs,
- 1 regressions (v5.19.9-35-gde5881df904b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,66 +74,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.19 baseline: 183 runs, 1 regressions (v5.19.9-35-gde5881d=
-f904b)
+RISC-V does not presently have write-only mappings as that PTE bit pattern
+is considered reserved in the privileged spec, so allow handling of read
+faults in VMAs that have VM_WRITE without VM_READ in order to be consistent
+with other architectures that have similar limitations.
 
-Regressions Summary
--------------------
+Fixes: 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is invalid")
+Cc: <stable@vger.kernel.org> # v4.19+
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
+---
+new in v3
+v3 -> v4: add Fixes tag
+---
+ arch/riscv/mm/fault.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index f2fbd1400b7c..d86f7cebd4a7 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -184,7 +184,8 @@ static inline bool access_error(unsigned long cause, struct vm_area_struct *vma)
+ 		}
+ 		break;
+ 	case EXC_LOAD_PAGE_FAULT:
+-		if (!(vma->vm_flags & VM_READ)) {
++		/* Write implies read */
++		if (!(vma->vm_flags & (VM_READ | VM_WRITE))) {
+ 			return true;
+ 		}
+ 		break;
+-- 
+2.25.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
-nel/v5.19.9-35-gde5881df904b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.19
-  Describe: v5.19.9-35-gde5881df904b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      de5881df904bff21d085c621bd4e9c2623ed289a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632351ccdcce6187a335564b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.9-3=
-5-gde5881df904b/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.9-3=
-5-gde5881df904b/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632351ccdcce6187a3355=
-64c
-        failing since 29 days (last pass: v5.19.1-1157-g615e53e38bef5, firs=
-t fail: v5.19.1-1159-g6c70b627ef512) =
-
- =20
