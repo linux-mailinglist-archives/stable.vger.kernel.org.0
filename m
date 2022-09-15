@@ -2,67 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D805F5B9CF1
-	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 16:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4715B9D09
+	for <lists+stable@lfdr.de>; Thu, 15 Sep 2022 16:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbiIOOWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Sep 2022 10:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54324 "EHLO
+        id S229690AbiIOO0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Sep 2022 10:26:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230059AbiIOOW0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 10:22:26 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EEB29C8E7
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 07:22:22 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id q3so17949406pjg.3
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 07:22:22 -0700 (PDT)
+        with ESMTP id S229554AbiIOOZr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 10:25:47 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD789DB42
+        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 07:25:28 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id g3so10255380wrq.13
+        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 07:25:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=MybHgy0I0CggYox7QwxlGHDihMbcxSi0OJRQytpHzZE=;
-        b=UvePUwlvNwZiMmCAtxUxhEGDZc3TcRvYa1MsU9/doRd7ojRjdaGN6saiHKYZ7BcgHh
-         Ebwq5KRA6Vz022uIVwOf7Sn7Xco/mGy5CEbEqOW4XeNnOx0MESeuwMcpqtHQHyZ+yrG/
-         1mpXOqErLjnDs6fzlO7o0F7sYed3WmD15/hD2uG6X4RXymYfQv9rDYjJzJ/SBkLZCFba
-         YSnB11b6GKXl7v80mrWOyiHNCaNsZKmw92J9FAz/rVvXs93vgkG4xllEBuWfGGK4cATg
-         TZrW/EGWxvsxV9IKvLqU0yvqH5b8veJlFGCbTJ3bSkeHDU9+kwR4L+aX+Q1Z4z8K1E8w
-         GkXw==
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=Gi8oMlfnGzIv9eT6nJxAEmP0uxba17Ad6+WYam2LBeo=;
+        b=Tv08bzMRa1U1tUL8sZW211+bxNDYzvmFmNt4JUj2QPZdbw9bBC/3dTe78aOoD7ZQpK
+         6o7gmIp+GNszk+XnIeEnQJW0r7TJ3PENCCO+F3V26jUgZPMReyx6kb4J1rDMm/sPqcSs
+         iVjTrwzwb1nGv0K0GA+bilT4hn1nszIvPO+jfy+f7T6O4WzyNU2L/urRAPBbD3uTy37K
+         DX0fts2VJhn7J4aj246jBvasndIIU1LlaRAJ6zffqoOp08LTjw/7z8L17h87eaGAn6sX
+         SzjfqJVCSTz+sPuTcCIHmNDUkNgWgc4SjjxBOCFBdz1kOTvKXcrVzNvPqKz6lzvVLU7+
+         r45Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=MybHgy0I0CggYox7QwxlGHDihMbcxSi0OJRQytpHzZE=;
-        b=QQn+Wxe9AvGxFKcPMyAdGZNmF6gzV6jqFilotRaCK+GN1X6YvNs+Iwbiod28KHrR4n
-         wiEjf5LZLVVWzUYfaZNM0DDR7ZrUQpD1kKG+RfYUniLBOC/R3mf+xc4n+JugfLypMBLW
-         Z7AOflIHI2XYcsWVQVj/dBR1/wKPFEo0QZIGP2cPHk8hhWRnoJcTJSJQwSS2zA3srru4
-         phS8YpZ7FBjQcG7xWgaRqUPUH5dp0ebWDqtAWLdWTTMK59vY/HBuPVQY4FDArfJWEbXK
-         BRNITGUAGLdXVBOhW8QhbB0ukCmf8MTd0PU6oXb4U8yBaplfo/1CL4FW3eM7hCKdojl8
-         nkBg==
-X-Gm-Message-State: ACrzQf3mSjTjAwpqDOu0l9ftlNFnNOp5ZjUpRyptFUmmiFxxiRwatp3t
-        vbaffGNPdv7RPJ6a+kFKafpdG52p1cmcDdMNaug=
-X-Google-Smtp-Source: AMsMyM6lh+MYOE/8+7SGozm04kjbKCgPiGeyoGm3kxXEUvELM0fqy2z8flAYyK9xs6EeGwVn4uwZUA==
-X-Received: by 2002:a17:902:d0d2:b0:178:1047:1cce with SMTP id n18-20020a170902d0d200b0017810471ccemr128067pln.150.1663251741927;
-        Thu, 15 Sep 2022 07:22:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k2-20020a17090a590200b001fdcb792181sm1705398pji.43.2022.09.15.07.22.21
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=Gi8oMlfnGzIv9eT6nJxAEmP0uxba17Ad6+WYam2LBeo=;
+        b=iU7roUyZoySdM7Lqz6IogRg7FdBjW7cBt+ElL7Uu2rElS3ZWZ2plheKC40NDJ1VLnx
+         +SO5GabIocsVV09qVkPtgLtR3JgjD/wLoEtG4jKE4HNxsNZHnsgaU7/hSoovyJFD8TTa
+         yArnSZFkO3pGylm34bMEiiN3vsca6uBg+QVUxjuuifoc2t4DywoFbT/ac5sMU60opDRD
+         SgLbkzyWBNi/2CHK7SrY3soMrsuKehrISSwCwOXZfeXPQAJrsPU+ZBqzk/VGS7JYfOSI
+         GfGWDFeucAc/0ZP0n1qHVsM++54C5ysM0qCFK1i1u5CzPxc+L1eTjpgCss9G/hcGtcbH
+         HvPQ==
+X-Gm-Message-State: ACgBeo3w+wZHGCduY50ylMYEfSNWviGG0ophw7xqLou/LNE2HkjxbWWO
+        9gK7hzkLBAyvACfpvVhRbY2BxvzLPZA5bw==
+X-Google-Smtp-Source: AA6agR5PAlyjlfrmvZCyfh/1SS2Vk11zukH7IAf2ObHEJZf0/6Pv+2vvOUDBMc4JMejhbF33RwdW7g==
+X-Received: by 2002:adf:bc13:0:b0:228:e099:3822 with SMTP id s19-20020adfbc13000000b00228e0993822mr24240970wrg.551.1663251926699;
+        Thu, 15 Sep 2022 07:25:26 -0700 (PDT)
+Received: from localhost ([2a00:79e0:9d:4:6906:73f0:ebcd:6cf8])
+        by smtp.gmail.com with ESMTPSA id az3-20020adfe183000000b0022acc19e717sm2982070wrb.92.2022.09.15.07.25.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Sep 2022 07:22:21 -0700 (PDT)
-Message-ID: <6323351d.170a0220.f3a26.2c54@mx.google.com>
-Date:   Thu, 15 Sep 2022 07:22:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 15 Sep 2022 07:25:26 -0700 (PDT)
+From:   Jann Horn <jannh@google.com>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hugh Dickins <hughd@google.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH stable 4.9-5.15] mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
+Date:   Thu, 15 Sep 2022 16:25:19 +0200
+Message-Id: <20220915142519.2941949-1-jannh@google.com>
+X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.8-189-g8c5a354f83064
-Subject: stable-rc/queue/5.19 baseline: 203 runs,
- 4 regressions (v5.19.8-189-g8c5a354f83064)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,175 +69,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.19 baseline: 203 runs, 4 regressions (v5.19.8-189-g8c5a35=
-4f83064)
+This is a stable-specific patch.
+I botched the stable-specific rewrite of
+commit b67fbebd4cf98 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"):
+As Hugh pointed out, unmap_region() actually operates on a list of VMAs,
+and the variable "vma" merely points to the first VMA in that list.
+So if we want to check whether any of the VMAs we're operating on is
+PFNMAP or MIXEDMAP, we have to iterate through the list and check each VMA.
 
-Regressions Summary
--------------------
+Signed-off-by: Jann Horn <jannh@google.com>
+---
+ mm/mmap.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-10   | defconfig      =
-     | 1          =
+diff --git a/mm/mmap.c b/mm/mmap.c
+index cd1d2680ac585..5c2c7651ca298 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2638,6 +2638,7 @@ static void unmap_region(struct mm_struct *mm,
+ {
+ 	struct vm_area_struct *next =3D vma_next(mm, prev);
+ 	struct mmu_gather tlb;
++	struct vm_area_struct *cur_vma;
+=20
+ 	lru_add_drain();
+ 	tlb_gather_mmu(&tlb, mm);
+@@ -2652,8 +2653,12 @@ static void unmap_region(struct mm_struct *mm,
+ 	 * concurrent flush in this region has to be coming through the rmap,
+ 	 * and we synchronize against that using the rmap lock.
+ 	 */
+-	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) !=3D 0)
+-		tlb_flush_mmu(&tlb);
++	for (cur_vma =3D vma; cur_vma; cur_vma =3D cur_vma->vm_next) {
++		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) !=3D 0) {
++			tlb_flush_mmu(&tlb);
++			break;
++		}
++	}
+=20
+ 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
+ 				 next ? next->vm_start : USER_PGTABLES_CEILING);
 
-imx6ul-pico-hobbit   | arm   | lab-pengutronix | gcc-10   | imx_v6_v7_defco=
-nfig | 1          =
+base-commit: dd20085f2a88b6cdb12bdcdbd2d7a761c86b184a
+--=20
+2.37.2.789.g6183377224-goog
 
-imx8mn-ddr4-evk      | arm64 | lab-baylibre    | gcc-10   | defconfig      =
-     | 1          =
-
-odroid-xu3           | arm   | lab-collabora   | gcc-10   | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
-nel/v5.19.8-189-g8c5a354f83064/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.19
-  Describe: v5.19.8-189-g8c5a354f83064
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8c5a354f83064b2e49f4cbb641a3b38743cb628d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-10   | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632302779d86e1fc6b355649
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632302779d86e1fc6b355=
-64a
-        failing since 2 days (last pass: v5.19.8-181-gaa55d426b3c1, first f=
-ail: v5.19.8-186-g25c29f8a1cae5) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-imx6ul-pico-hobbit   | arm   | lab-pengutronix | gcc-10   | imx_v6_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/632307a7f80e0605903556ae
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632307a7f80e060590355=
-6af
-        failing since 29 days (last pass: v5.19.1-1157-g615e53e38bef5, firs=
-t fail: v5.19.1-1159-g6c70b627ef512) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-imx8mn-ddr4-evk      | arm64 | lab-baylibre    | gcc-10   | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63230b7dbfa1507acd35564a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/arm64/defconfig/gcc-10/lab-baylibre/baseline-imx8mn-ddr4-=
-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/arm64/defconfig/gcc-10/lab-baylibre/baseline-imx8mn-ddr4-=
-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63230b7dbfa1507acd355=
-64b
-        new failure (last pass: v5.19.8-192-g612c301cd75f) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-odroid-xu3           | arm   | lab-collabora   | gcc-10   | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63231a8519e2bdecfa355668
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-odro=
-id-xu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
-89-g8c5a354f83064/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-odro=
-id-xu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63231a8519e2bdecfa355=
-669
-        new failure (last pass: v5.19.8-190-g006ae7d3df80a) =
-
- =20
