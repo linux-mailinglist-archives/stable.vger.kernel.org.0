@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED135BAAFB
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC015BAB0A
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbiIPKMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
+        id S231357AbiIPKL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:11:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230227AbiIPKLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:11:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7375EAD985;
-        Fri, 16 Sep 2022 03:09:23 -0700 (PDT)
+        with ESMTP id S230157AbiIPKKe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:10:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27CEEAC265;
+        Fri, 16 Sep 2022 03:09:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93D9C629FB;
-        Fri, 16 Sep 2022 10:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 903C6C433C1;
-        Fri, 16 Sep 2022 10:09:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 332A7629FD;
+        Fri, 16 Sep 2022 10:09:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3472EC433D6;
+        Fri, 16 Sep 2022 10:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322962;
+        s=korg; t=1663322940;
         bh=SX8ctfDoXZyy93CaTDmVcLfuc2fkCYRrEUR7A5GxBqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XY6/P2FCccrZ/Mlv/lk/5LF/xC+hNEMiyQee3di1USsGFDWsBx1J7mWlPpjr3CmdJ
-         idJeXewxUUTjImf/LQ7KJdzJRTWzyIVpK1XDoS26cguQtYNXDDZhLB5DnukWIzl9c1
-         h9Voen48wPAwgIpf9RMcKrPvmkWQMWhNj+XruqJY=
+        b=Y58p6FPVFedZ8DM3+5xu0Ci5GmOTz7TmgdMzCLHT85ys1ydtm+p4ht0Nf6lZsXxcm
+         +SNjl7eknXeuxCjdAcX3AMvefMc043ROtro0T2X2EfXfpkBJB3GkKFDXcc//CwZiPN
+         5ZRr5Yqp2rFakeycDYeHuo42JNxLRNGVxjl8vq1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -47,8 +47,7 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
