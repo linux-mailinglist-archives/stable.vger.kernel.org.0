@@ -2,116 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B125BB469
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 00:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FB45BB478
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 00:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229588AbiIPWfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 18:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43000 "EHLO
+        id S229673AbiIPWrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 18:47:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiIPWfr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 18:35:47 -0400
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C481DA1A42
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 15:35:46 -0700 (PDT)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 341E010047296
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 22:35:36 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id ZJvrobmbLvlAaZJvrofqIO; Fri, 16 Sep 2022 22:35:36 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=ItrbzJzg c=1 sm=1 tr=0 ts=6324fa38
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=xOM3xZuef0cA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=bLnZnElpXsV749xnFSLDVtIPlsEQpviAPmPtjf8CZ+A=; b=pW9Rdzq72pcAvDZSCZ45HzsTR5
-        vsDNYhUeuw/+BKY0SwKFkui+FYqzBR8oRyGIVRJJXNiEd6XOC8nQQ2HqMUyt693+LBtsNYL5lxxIh
-        NcBO4P7jHRV8bv1XdQHEPE6MeMQJnkY/QI8nKsJA5oKddWlES17cWjF08GQrUBWX7NXXahRx1xYbL
-        50XBs+s13yQ3VR0z/mtPsSkLvGff57z6P9IW4pVm6hGqFvOjpp91lmTdLeFjJGiU9kavJu3pZIkre
-        CvE1AAt8VSqbDh5gFIHkCCmErNwQOLlBNB+BlGPDVRTn7Ikxn62UR7APzUxnrOr0uazFN96g6oMgD
-        IMRsKaZw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:44870 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oZJvq-003F2p-5L;
-        Fri, 16 Sep 2022 16:35:34 -0600
-Subject: Re: [PATCH 5.19 00/38] 5.19.10-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220916100448.431016349@linuxfoundation.org>
-In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <76675f68-dc42-ca3f-8c88-7cd6b0f690d1@w6rz.net>
-Date:   Fri, 16 Sep 2022 15:35:30 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229498AbiIPWry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 18:47:54 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72500BC126
+        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 15:47:52 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id bu5-20020a17090aee4500b00202e9ca2182so2559533pjb.0
+        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 15:47:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=c89JKkdRXbwFjls77Y11MxHABtglHoBtI7LAoKFa4Ow=;
+        b=szvi0AoJ0tGZ4QBkw1z5evgF4Tfts5PdyVDiQuws8/FRnmYMXyByUHV5kNf1SdLUyf
+         molQgP7432gPgX4sONlHtYvXQOvpxHK+YC6LWOdJOnRuHTqYZOCaVhpOtaoUNyjdiXL8
+         hhd4CtVn8DfSrnEQxnwYOYK3rsMkZDOF0K/qcDCd5DCjXdntjiHAKugY9PrFQAzSI+C+
+         t5kuztNO7RIfO8AfnpqqoqRdQRWJYO9/2ONefOmHF0LjWsc2vEla+fnYkZKcHJ5hglNN
+         nGJY4L3UfFg7qYFMq1ADXCa414p0oArZP55t52IHlKalmW650Rlx6S1143rq7ZidUsmH
+         rjEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=c89JKkdRXbwFjls77Y11MxHABtglHoBtI7LAoKFa4Ow=;
+        b=QNUSYn2gq7QxPGgSaKeJ57qq+inQXbff2mRLTC2prn+trxlWPaL7Bzw1mro8Y/VhPY
+         YH3/crVNrT+4zPI27XonaVJKIVJd69tRDcBMjSxJsfWW1/R9nRcVtswLvbMsjxHBueQT
+         LuWiN47xIrbnwPTOut8RRTITf2z8mzc+5gLKlb6zc/FaQEVLngXGyNSazuJSSW1uuSVP
+         M26zuCy0qVYLmXalrSKsRRgM+69fb51+3WUVo16cF/IsgwIh7cVjg/oHtR/7lzAikLKc
+         /rMHThJRrAB+hYymVtMn4J2cYEBP0NzjMOox0n9yVgRn5pHgldMsdnrUbEFUuSrs04BN
+         clwA==
+X-Gm-Message-State: ACrzQf38wLoWlJK3QLQ2ikp6aVdREnh/KqwBBsnK/o8DMifOvBa1ww+L
+        jlvv6YRy2Lelz+V/rO9SaprYFA==
+X-Google-Smtp-Source: AMsMyM40py878s6ovcGYryBV3pRkgTzsf5bZWIYu27RHBJ4iLgrRBE6jFf3t0AdZAOjU1uThs//I5A==
+X-Received: by 2002:a17:903:2595:b0:178:6b71:2eea with SMTP id jb21-20020a170903259500b001786b712eeamr1967185plb.143.1663368471970;
+        Fri, 16 Sep 2022 15:47:51 -0700 (PDT)
+Received: from desktop.hsd1.or.comcast.net ([2601:1c0:4c81:c480:feaa:14ff:fe3a:b225])
+        by smtp.gmail.com with ESMTPSA id k5-20020aa79d05000000b0053725e331a1sm14999663pfp.82.2022.09.16.15.47.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Sep 2022 15:47:51 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] usb: mon: make mmapped memory read only
+Date:   Fri, 16 Sep 2022 15:47:41 -0700
+Message-Id: <20220916224741.2269649-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oZJvq-003F2p-5L
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:44870
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/16/22 3:08 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.10 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 18 Sep 2022 10:04:31 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Syzbot found an issue in usbmon where it can corrupt monitor
+internal memory causing the usbmon to crash with segfault,
+UAF, etc. The reproducer mmaps the /dev/usbmon memory to userspace
+and overwrites it with arbitrary data, which causes the issues.
+To prevent that explicitly clear the VM_WRITE flag in mon_bin_mmap().
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Cc: linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 6f23ee1fefdc ("USB: add binary API to usbmon")
+Link: https://syzkaller.appspot.com/bug?id=2eb1f35d6525fa4a74d75b4244971e5b1411c95a
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+ drivers/usb/mon/mon_bin.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Tested-by: Ron Economos <re@w6rz.net>
-
+diff --git a/drivers/usb/mon/mon_bin.c b/drivers/usb/mon/mon_bin.c
+index f48a23adbc35..f452fc03093c 100644
+--- a/drivers/usb/mon/mon_bin.c
++++ b/drivers/usb/mon/mon_bin.c
+@@ -1268,6 +1268,7 @@ static int mon_bin_mmap(struct file *filp, struct vm_area_struct *vma)
+ {
+ 	/* don't do anything here: "fault" will set up page table entries */
+ 	vma->vm_ops = &mon_bin_vm_ops;
++	vma->vm_flags &= ~VM_WRITE;
+ 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+ 	vma->vm_private_data = filp->private_data;
+ 	mon_bin_vma_open(vma);
+-- 
+2.37.3
