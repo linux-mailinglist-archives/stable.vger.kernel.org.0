@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 948F15BAADB
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F6F5BAB23
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231748AbiIPKUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37122 "EHLO
+        id S231804AbiIPKV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232018AbiIPKTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:19:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902F713D77;
-        Fri, 16 Sep 2022 03:13:18 -0700 (PDT)
+        with ESMTP id S230196AbiIPKVY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:21:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648996D9CE;
+        Fri, 16 Sep 2022 03:13:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7C9262A0E;
-        Fri, 16 Sep 2022 10:13:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02CCC433C1;
-        Fri, 16 Sep 2022 10:13:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACD90B82487;
+        Fri, 16 Sep 2022 10:13:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0528EC433C1;
+        Fri, 16 Sep 2022 10:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323181;
-        bh=zGUf+dIncbfBmDbOFyCW2gzyXF8Db5DU0ihwD6D1D48=;
+        s=korg; t=1663323212;
+        bh=eVEqdt9AIR2ZlIEbqfQoNTemOBPPMUE0oFuVBNDkmkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2I6E68aMgArukDqbBXGi9jLAdL4W3e4yQbakHgQZbTnYlSnFnCKxwfQEW+hMOi7SZ
-         i2D7DjcEnb/8JgXiyvzMlM9udMaH/SwPoA4PTRAsMVRVByHbFwk5QaPGiAOgzXSM+U
-         jlJz5aD+Bo9L16LJpeqBJRA/t5V37+fNtYE2I0XQ=
+        b=VA+aUFH7Ln26loN5gAROgHr38cAwrBNl7OAUp45srQwp8qAvUG4b156D9YCAcm+wc
+         Kgue/dDkQ/3n+89vsoToH/iALqfmEiSYsCvEiMrPx2eXLDxDiskfWMJo1D6mCIKEV9
+         Qx+1WO7K57U2mi1H112mgx8bxcOhYwnyRZ/9YGHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 24/35] nvmet-tcp: fix unhandled tcp states in nvmet_tcp_state_change()
+        stable@vger.kernel.org, Junaid Shahid <junaids@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 13/38] kvm: x86: mmu: Always flush TLBs when enabling dirty logging
 Date:   Fri, 16 Sep 2022 12:08:47 +0200
-Message-Id: <20220916100447.962278530@linuxfoundation.org>
+Message-Id: <20220916100449.030118113@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,222 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Junaid Shahid <junaids@google.com>
 
-[ Upstream commit 478814a5584197fa1fb18377653626e3416e7cd6 ]
+[ Upstream commit b64d740ea7ddc929d97b28de4c0665f7d5db9e2a ]
 
-TCP_FIN_WAIT2 and TCP_LAST_ACK were not handled, the connection is closing
-so we can ignore them and avoid printing the "unhandled state"
-warning message.
+When A/D bits are not available, KVM uses a software access tracking
+mechanism, which involves making the SPTEs inaccessible. However,
+the clear_young() MMU notifier does not flush TLBs. So it is possible
+that there may still be stale, potentially writable, TLB entries.
+This is usually fine, but can be problematic when enabling dirty
+logging, because it currently only does a TLB flush if any SPTEs were
+modified. But if all SPTEs are in access-tracked state, then there
+won't be a TLB flush, which means that the guest could still possibly
+write to memory and not have it reflected in the dirty bitmap.
 
-[ 1298.852386] nvmet_tcp: queue 2 unhandled state 5
-[ 1298.879112] nvmet_tcp: queue 7 unhandled state 5
-[ 1298.884253] nvmet_tcp: queue 8 unhandled state 5
-[ 1298.889475] nvmet_tcp: queue 9 unhandled state 5
+So just unconditionally flush the TLBs when enabling dirty logging.
+As an alternative, KVM could explicitly check the MMU-Writable bit when
+write-protecting SPTEs to decide if a flush is needed (instead of
+checking the Writable bit), but given that a flush almost always happens
+anyway, so just making it unconditional seems simpler.
 
-v2: Do not call nvmet_tcp_schedule_release_queue(), just ignore
-the fin_wait2 and last_ack states.
-
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Junaid Shahid <junaids@google.com>
+Message-Id: <20220810224939.2611160-1-junaids@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/mmu/mmu.c  | 45 +++++++----------------------------------
+ arch/x86/kvm/mmu/spte.h | 14 +++++++++----
+ arch/x86/kvm/x86.c      | 44 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 61 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 889c5433c94d2..fba5a77c58d6b 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1501,6 +1501,9 @@ static void nvmet_tcp_state_change(struct sock *sk)
- 		goto done;
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 356226c7ebbdc..aa1ba803659cd 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5907,47 +5907,18 @@ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
+ 				      const struct kvm_memory_slot *memslot,
+ 				      int start_level)
+ {
+-	bool flush = false;
+-
+ 	if (kvm_memslots_have_rmaps(kvm)) {
+ 		write_lock(&kvm->mmu_lock);
+-		flush = slot_handle_level(kvm, memslot, slot_rmap_write_protect,
+-					  start_level, KVM_MAX_HUGEPAGE_LEVEL,
+-					  false);
++		slot_handle_level(kvm, memslot, slot_rmap_write_protect,
++				  start_level, KVM_MAX_HUGEPAGE_LEVEL, false);
+ 		write_unlock(&kvm->mmu_lock);
+ 	}
  
- 	switch (sk->sk_state) {
-+	case TCP_FIN_WAIT2:
-+	case TCP_LAST_ACK:
-+		break;
- 	case TCP_FIN_WAIT1:
- 	case TCP_CLOSE_WAIT:
- 	case TCP_CLOSE:
+ 	if (is_tdp_mmu_enabled(kvm)) {
+ 		read_lock(&kvm->mmu_lock);
+-		flush |= kvm_tdp_mmu_wrprot_slot(kvm, memslot, start_level);
++		kvm_tdp_mmu_wrprot_slot(kvm, memslot, start_level);
+ 		read_unlock(&kvm->mmu_lock);
+ 	}
+-
+-	/*
+-	 * Flush TLBs if any SPTEs had to be write-protected to ensure that
+-	 * guest writes are reflected in the dirty bitmap before the memslot
+-	 * update completes, i.e. before enabling dirty logging is visible to
+-	 * userspace.
+-	 *
+-	 * Perform the TLB flush outside the mmu_lock to reduce the amount of
+-	 * time the lock is held. However, this does mean that another CPU can
+-	 * now grab mmu_lock and encounter a write-protected SPTE while CPUs
+-	 * still have a writable mapping for the associated GFN in their TLB.
+-	 *
+-	 * This is safe but requires KVM to be careful when making decisions
+-	 * based on the write-protection status of an SPTE. Specifically, KVM
+-	 * also write-protects SPTEs to monitor changes to guest page tables
+-	 * during shadow paging, and must guarantee no CPUs can write to those
+-	 * page before the lock is dropped. As mentioned in the previous
+-	 * paragraph, a write-protected SPTE is no guarantee that CPU cannot
+-	 * perform writes. So to determine if a TLB flush is truly required, KVM
+-	 * will clear a separate software-only bit (MMU-writable) and skip the
+-	 * flush if-and-only-if this bit was already clear.
+-	 *
+-	 * See is_writable_pte() for more details.
+-	 */
+-	if (flush)
+-		kvm_arch_flush_remote_tlbs_memslot(kvm, memslot);
+ }
+ 
+ /* Must be called with the mmu_lock held in write-mode. */
+@@ -6070,32 +6041,30 @@ void kvm_arch_flush_remote_tlbs_memslot(struct kvm *kvm,
+ void kvm_mmu_slot_leaf_clear_dirty(struct kvm *kvm,
+ 				   const struct kvm_memory_slot *memslot)
+ {
+-	bool flush = false;
+-
+ 	if (kvm_memslots_have_rmaps(kvm)) {
+ 		write_lock(&kvm->mmu_lock);
+ 		/*
+ 		 * Clear dirty bits only on 4k SPTEs since the legacy MMU only
+ 		 * support dirty logging at a 4k granularity.
+ 		 */
+-		flush = slot_handle_level_4k(kvm, memslot, __rmap_clear_dirty, false);
++		slot_handle_level_4k(kvm, memslot, __rmap_clear_dirty, false);
+ 		write_unlock(&kvm->mmu_lock);
+ 	}
+ 
+ 	if (is_tdp_mmu_enabled(kvm)) {
+ 		read_lock(&kvm->mmu_lock);
+-		flush |= kvm_tdp_mmu_clear_dirty_slot(kvm, memslot);
++		kvm_tdp_mmu_clear_dirty_slot(kvm, memslot);
+ 		read_unlock(&kvm->mmu_lock);
+ 	}
+ 
+ 	/*
++	 * The caller will flush the TLBs after this function returns.
++	 *
+ 	 * It's also safe to flush TLBs out of mmu lock here as currently this
+ 	 * function is only used for dirty logging, in which case flushing TLB
+ 	 * out of mmu lock also guarantees no dirty pages will be lost in
+ 	 * dirty_bitmap.
+ 	 */
+-	if (flush)
+-		kvm_arch_flush_remote_tlbs_memslot(kvm, memslot);
+ }
+ 
+ void kvm_mmu_zap_all(struct kvm *kvm)
+diff --git a/arch/x86/kvm/mmu/spte.h b/arch/x86/kvm/mmu/spte.h
+index f80dbb628df57..e09bdcf1e47c5 100644
+--- a/arch/x86/kvm/mmu/spte.h
++++ b/arch/x86/kvm/mmu/spte.h
+@@ -326,7 +326,7 @@ static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
+ }
+ 
+ /*
+- * An shadow-present leaf SPTE may be non-writable for 3 possible reasons:
++ * A shadow-present leaf SPTE may be non-writable for 4 possible reasons:
+  *
+  *  1. To intercept writes for dirty logging. KVM write-protects huge pages
+  *     so that they can be split be split down into the dirty logging
+@@ -344,8 +344,13 @@ static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
+  *     read-only memslot or guest memory backed by a read-only VMA. Writes to
+  *     such pages are disallowed entirely.
+  *
+- * To keep track of why a given SPTE is write-protected, KVM uses 2
+- * software-only bits in the SPTE:
++ *  4. To emulate the Accessed bit for SPTEs without A/D bits.  Note, in this
++ *     case, the SPTE is access-protected, not just write-protected!
++ *
++ * For cases #1 and #4, KVM can safely make such SPTEs writable without taking
++ * mmu_lock as capturing the Accessed/Dirty state doesn't require taking it.
++ * To differentiate #1 and #4 from #2 and #3, KVM uses two software-only bits
++ * in the SPTE:
+  *
+  *  shadow_mmu_writable_mask, aka MMU-writable -
+  *    Cleared on SPTEs that KVM is currently write-protecting for shadow paging
+@@ -374,7 +379,8 @@ static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
+  * shadow page tables between vCPUs. Write-protecting an SPTE for dirty logging
+  * (which does not clear the MMU-writable bit), does not flush TLBs before
+  * dropping the lock, as it only needs to synchronize guest writes with the
+- * dirty bitmap.
++ * dirty bitmap. Similarly, making the SPTE inaccessible (and non-writable) for
++ * access-tracking via the clear_young() MMU notifier also does not flush TLBs.
+  *
+  * So, there is the problem: clearing the MMU-writable bit can encounter a
+  * write-protected SPTE while CPUs still have writable mappings for that SPTE
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 55de0d1981e52..5b36866528568 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -12265,6 +12265,50 @@ static void kvm_mmu_slot_apply_flags(struct kvm *kvm,
+ 		} else {
+ 			kvm_mmu_slot_remove_write_access(kvm, new, PG_LEVEL_4K);
+ 		}
++
++		/*
++		 * Unconditionally flush the TLBs after enabling dirty logging.
++		 * A flush is almost always going to be necessary (see below),
++		 * and unconditionally flushing allows the helpers to omit
++		 * the subtly complex checks when removing write access.
++		 *
++		 * Do the flush outside of mmu_lock to reduce the amount of
++		 * time mmu_lock is held.  Flushing after dropping mmu_lock is
++		 * safe as KVM only needs to guarantee the slot is fully
++		 * write-protected before returning to userspace, i.e. before
++		 * userspace can consume the dirty status.
++		 *
++		 * Flushing outside of mmu_lock requires KVM to be careful when
++		 * making decisions based on writable status of an SPTE, e.g. a
++		 * !writable SPTE doesn't guarantee a CPU can't perform writes.
++		 *
++		 * Specifically, KVM also write-protects guest page tables to
++		 * monitor changes when using shadow paging, and must guarantee
++		 * no CPUs can write to those page before mmu_lock is dropped.
++		 * Because CPUs may have stale TLB entries at this point, a
++		 * !writable SPTE doesn't guarantee CPUs can't perform writes.
++		 *
++		 * KVM also allows making SPTES writable outside of mmu_lock,
++		 * e.g. to allow dirty logging without taking mmu_lock.
++		 *
++		 * To handle these scenarios, KVM uses a separate software-only
++		 * bit (MMU-writable) to track if a SPTE is !writable due to
++		 * a guest page table being write-protected (KVM clears the
++		 * MMU-writable flag when write-protecting for shadow paging).
++		 *
++		 * The use of MMU-writable is also the primary motivation for
++		 * the unconditional flush.  Because KVM must guarantee that a
++		 * CPU doesn't contain stale, writable TLB entries for a
++		 * !MMU-writable SPTE, KVM must flush if it encounters any
++		 * MMU-writable SPTE regardless of whether the actual hardware
++		 * writable bit was set.  I.e. KVM is almost guaranteed to need
++		 * to flush, while unconditionally flushing allows the "remove
++		 * write access" helpers to ignore MMU-writable entirely.
++		 *
++		 * See is_writable_pte() for more details (the case involving
++		 * access-tracked SPTEs is particularly relevant).
++		 */
++		kvm_arch_flush_remote_tlbs_memslot(kvm, new);
+ 	}
+ }
+ 
 -- 
 2.35.1
 
