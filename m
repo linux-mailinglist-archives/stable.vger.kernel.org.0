@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D035BAB00
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2E45BAA49
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbiIPKZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:25:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46118 "EHLO
+        id S231578AbiIPKRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:17:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232112AbiIPKYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:24:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B21EABD7D;
-        Fri, 16 Sep 2022 03:15:10 -0700 (PDT)
+        with ESMTP id S231569AbiIPKQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:16:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E8CAEDBF;
+        Fri, 16 Sep 2022 03:12:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0289FB8253A;
-        Fri, 16 Sep 2022 10:13:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60750C433C1;
-        Fri, 16 Sep 2022 10:13:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3421629E7;
+        Fri, 16 Sep 2022 10:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F187BC433C1;
+        Fri, 16 Sep 2022 10:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323215;
-        bh=hTXg7u7di5Z06XG9BCn6oG8/0a79m4ePnTp0VKoo82Y=;
+        s=korg; t=1663323053;
+        bh=S07XMmLlcm/5xYS+ZKU7ruAv+2iVf9I/7rxvTXJEHGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJTOF0lJbKg+4U4/Y5akYr9ciOT5nZ7iHiVswWjrNMpb1AnBPmI9/huv7pvBfoNaD
-         vkeFlMgMStn3WvNFMaZyoYN64uX6fJjR3aHclcH9wbIfqUfBgdX34zNPrwuOYUMwSf
-         xUl8Gf+HiaaVHkzJjrMaie3n4g093kOsrPoZzOPk=
+        b=nB9YqI37jfZBg9K6uml8CCbFngwpq7j3ZNfvpgGkRX2e7aQR/kJvmJDxvyr/tFY1b
+         gZPIFcaZsOUNS2RlSPnnc/jCmgXpI6nnE0lHPbypFb+HdWnoONlGk6lA6Ns3VBk7Wd
+         cioqxG3WXi3BWlkx2kvWk07wqy48CytuFUeW7jY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 14/38] dt-bindings: iio: gyroscope: bosch,bmg160: correct number of pins
+        stable@vger.kernel.org, Mathew McBride <matt@traverse.com.au>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 23/24] soc: fsl: select FSL_GUTS driver for DPIO
 Date:   Fri, 16 Sep 2022 12:08:48 +0200
-Message-Id: <20220916100449.070863740@linuxfoundation.org>
+Message-Id: <20220916100446.388641593@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
-References: <20220916100448.431016349@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Mathew McBride <matt@traverse.com.au>
 
-[ Upstream commit 767470209cedbe2cc72ba38d77c9f096d2c7694c ]
+commit 9a472613f5bccf1b36837423495ae592a9c5182f upstream.
 
-BMG160 has two interrupt pins to which interrupts can be freely mapped.
-Correct the schema to express such case and fix warnings like:
+The soc/fsl/dpio driver will perform a soc_device_match()
+to determine the optimal cache settings for a given CPU core.
 
-  qcom/msm8916-alcatel-idol347.dtb: gyroscope@68: interrupts: [[97, 1], [98, 1]] is too long
+If FSL_GUTS is not enabled, this search will fail and
+the driver will not configure cache stashing for the given
+DPIO, and a string of "unknown SoC" messages will appear:
 
-However the basic issue still persists - the interrupts should come in a
-defined order.
+fsl_mc_dpio dpio.7: unknown SoC version
+fsl_mc_dpio dpio.6: unknown SoC version
+fsl_mc_dpio dpio.5: unknown SoC version
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220805075503.16983-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 51da14e96e9b ("soc: fsl: dpio: configure cache stashing destination")
+Signed-off-by: Mathew McBride <matt@traverse.com.au>
+Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220901052149.23873-2-matt@traverse.com.au'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml         | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/soc/fsl/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
-index b6bbc312a7cf7..1414ba9977c16 100644
---- a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
-+++ b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
-@@ -24,8 +24,10 @@ properties:
- 
-   interrupts:
-     minItems: 1
-+    maxItems: 2
-     description:
-       Should be configured with type IRQ_TYPE_EDGE_RISING.
-+      If two interrupts are provided, expected order is INT1 and INT2.
- 
- required:
-   - compatible
--- 
-2.35.1
-
+--- a/drivers/soc/fsl/Kconfig
++++ b/drivers/soc/fsl/Kconfig
+@@ -24,6 +24,7 @@ config FSL_MC_DPIO
+         tristate "QorIQ DPAA2 DPIO driver"
+         depends on FSL_MC_BUS
+         select SOC_BUS
++        select FSL_GUTS
+         help
+ 	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
+ 	  buffer management facilities for software to interact with
 
 
