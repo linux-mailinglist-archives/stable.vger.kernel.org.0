@@ -2,53 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E6D5BA51A
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 05:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BA15BA665
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 07:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbiIPDXq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 15 Sep 2022 23:23:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42444 "EHLO
+        id S229966AbiIPFij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 01:38:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiIPDXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Sep 2022 23:23:45 -0400
-X-Greylist: delayed 23797 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 15 Sep 2022 20:23:28 PDT
-Received: from exmail.wanlianyida.cn (unknown [120.133.63.173])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390F685AA3
-        for <stable@vger.kernel.org>; Thu, 15 Sep 2022 20:23:28 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by exmail.wanlianyida.cn (Postfix) with ESMTP id 253B567081EA;
-        Fri, 16 Sep 2022 03:17:09 +0800 (CST)
-Received: from exmail.wanlianyida.cn ([127.0.0.1])
-        by localhost (exmail.wanlianyida.cn [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id t07vEvSlfMO4; Fri, 16 Sep 2022 03:17:09 +0800 (CST)
-Received: from localhost (localhost [127.0.0.1])
-        by exmail.wanlianyida.cn (Postfix) with ESMTP id 8E26D6709DD3;
-        Fri, 16 Sep 2022 03:06:24 +0800 (CST)
-X-Virus-Scanned: amavisd-new at exmail.wanlianyida.cn
-Received: from exmail.wanlianyida.cn ([127.0.0.1])
-        by localhost (exmail.wanlianyida.cn [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id sknFwLaX2xeW; Fri, 16 Sep 2022 03:06:24 +0800 (CST)
-Received: from EC2AMAZ-CG75CFN.ec2.internal (ec2-34-227-106-19.compute-1.amazonaws.com [34.227.106.19])
-        by exmail.wanlianyida.cn (Postfix) with ESMTPSA id C947266DF612;
-        Fri, 16 Sep 2022 02:53:36 +0800 (CST)
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S229964AbiIPFii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 01:38:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 480D471BD5;
+        Thu, 15 Sep 2022 22:38:37 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E2C3B823AE;
+        Fri, 16 Sep 2022 05:38:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C9DC433C1;
+        Fri, 16 Sep 2022 05:38:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663306714;
+        bh=XjhJeM8qGrTfgtllNG60b4yqc1CpmpKRtgp6g86FThs=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=Knu9u1kNuImMnMOkFtkAMf06CxemF3MI2nB+BhrgdHRdnKM1k0T/099pJb0DjIaYK
+         L6rN8XxhSdsI/t1z+v+tRAtRHQAzgu7vQTlTzClfaAasA7JGJHS26CNjp/yzLQ6xa/
+         BcnGRusk1onJFxaXf+IDV/BwKyDTdRQ23rrH8dz5K6ZucvKcjnpnfC2XGZKL7gKVXG
+         djagtWO1UTYpxVPfheQg26wISqHOZ7Zl0AzxgdoocJtUZ0yD7sdpgIFfr0sfjBwFta
+         hULmZErfIzZVPZTaHXCzGJRWXSetNUfGtj+xAIkMHSicrKBMLpfQgbIT6ZOhqB5tuB
+         IgJ0qIdIdMcgg==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Alexander Wetzel <alexander@wetzel-home.de>
+Cc:     linux-wireless@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Felix Fietkau <nbd@nbd.name>, stable@vger.kernel.org
+Subject: Re: [PATCH] mac80211: Ensure vif queues are operational after start
+References: <20220915130946.302803-1-alexander@wetzel-home.de>
+Date:   Fri, 16 Sep 2022 08:38:31 +0300
+In-Reply-To: <20220915130946.302803-1-alexander@wetzel-home.de> (Alexander
+        Wetzel's message of "Thu, 15 Sep 2022 15:09:46 +0200")
+Message-ID: <87y1ujanfs.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Info++
-To:     Recipients <testuser@wanlianyida.cn>
-From:   "info" <testuser@wanlianyida.cn>
-Date:   Thu, 15 Sep 2022 18:53:35 +0000
-Reply-To: jess1011@zohomail.com
-Message-Id: <20220915185336.C947266DF612@exmail.wanlianyida.cn>
-X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_99,BAYES_999,
-        RCVD_IN_MSPIKE_H2,RDNS_NONE,SPF_HELO_NONE,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We are reaching you once again as regards the estate of Late George, you were made one of the beneficiaries of his estate. Do get back to me at your earliest convenience. Trustees
+Alexander Wetzel <alexander@wetzel-home.de> writes:
+
+> Make sure local->queue_stop_reasons and vif.txqs_stopped stay in sync.
+>
+> When a new vif is created the queues may end up in an inconsistent state
+> and be inoperable:
+> Communication not using iTXQ will work, allowing to e.g. complete the
+> association. But the 4-way handshake will time out. The sta will not
+> send out any skbs queued in iTXQs.
+>
+> All normal attempts to start the queues will fail when reaching this
+> state.
+> local->queue_stop_reasons will have marked all queues as operational but
+> vif.txqs_stopped will still be set, creating an inconsistent internal
+> state.
+>
+> In reality this seems to be race between the mac80211 function
+> ieee80211_do_open() setting SDATA_STATE_RUNNING and the wake_txqs_tasklet:
+> Depending on the driver and the timing the queues may end up to be
+> operational or not.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: f856373e2f31 ("wifi: mac80211: do not wake queues on a vif that is being stopped")
+> Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+> ---
+>  net/mac80211/util.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+The title is missing "wifi:", but no need to resend because of this. I
+assume Johannes will fix it during commit.
+
+-- 
+https://patchwork.kernel.org/project/linux-wireless/list/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
