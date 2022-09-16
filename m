@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79DFD5BAB45
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5265BAB42
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231540AbiIPKVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36440 "EHLO
+        id S231515AbiIPKPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:15:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231652AbiIPKT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:19:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED03B08A8;
-        Fri, 16 Sep 2022 03:13:35 -0700 (PDT)
+        with ESMTP id S231637AbiIPKOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:14:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933B9AE84E;
+        Fri, 16 Sep 2022 03:11:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64F0862A24;
-        Fri, 16 Sep 2022 10:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565B9C433D7;
-        Fri, 16 Sep 2022 10:13:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07AA5B82524;
+        Fri, 16 Sep 2022 10:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E6CC433C1;
+        Fri, 16 Sep 2022 10:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323196;
-        bh=AfdJmkxYl4fp0gaMB1jEJ0ekn7GLEIObkapGRoAp1ck=;
+        s=korg; t=1663323031;
+        bh=r3AOt/UinTmkKytVgah9WWipiOgfRN/VZBI8HsmGJPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O93SKMwAAVOPIQJyBc+vs2XKXd/2P4uc2GEWuhEDFGCk4h7m1e0iv5uELYWVa+8Wo
-         Zfe+Z/mEDePHVU3WHMflQxQXWL+wdXdn+eorL1DScU/vcUYsFzwflLyyxE/esZ3CD0
-         OArgr6mFYz9J0I2Pu2gsN5dMP7eSr3DWjib60lyg=
+        b=T0f46L+5iunNc1T5VdmWYOEBNxSGjR2V4q8Hsb0TTdaUcfOdHBfMOUEGvw7+pLkbF
+         yJjdKw3PcEWQW9BnbJjOqLaatCuEhQaCurut3oGRSpFti9Utw85cwqmpfH/qivh8LO
+         vaVT9BlPfzdyw8tYDfMKdYp//KYknPRTlzFZXkPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 19/35] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 17/24] platform/x86: acer-wmi: Acer Aspire One AOD270/Packard Bell Dot keymap fixes
 Date:   Fri, 16 Sep 2022 12:08:42 +0200
-Message-Id: <20220916100447.752735934@linuxfoundation.org>
+Message-Id: <20220916100446.131483054@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,151 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Even Xu <even.xu@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e1fa076706209cc447d7a2abd0843a18277e5ef7 ]
+[ Upstream commit c3b82d26bc85f5fc2fef5ec8cce17c89633a55a8 ]
 
-There is a timing issue captured during ishtp client sending stress tests.
-It was observed during stress tests that ISH firmware is getting out of
-ordered messages. This is a rare scenario as the current set of ISH client
-drivers don't send much data to firmware. But this may not be the case
-going forward.
+2 keymap fixes for the Acer Aspire One AOD270 and the same hardware
+rebranded as Packard Bell Dot SC:
 
-When message size is bigger than IPC MTU, ishtp splits the message into
-fragments and uses serialized async method to send message fragments.
-The call stack:
-ishtp_cl_send_msg_ipc->ipc_tx_callback(first fregment)->
-ishtp_send_msg(with callback)->write_ipc_to_queue->
-write_ipc_from_queue->callback->ipc_tx_callback(next fregment)......
+1. The F2 key is marked with a big '?' symbol on the Packard Bell Dot SC,
+this sends WMID_HOTKEY_EVENTs with a scancode of 0x27 add a mapping
+for this.
 
-When an ipc write complete interrupt is received, driver also calls
-write_ipc_from_queue->ipc_tx_callback in ISR to start sending of next fragment.
+2. Scancode 0x61 is KEY_SWITCHVIDEOMODE. Usually this is a duplicate
+input event with the "Video Bus" input device events. But on these devices
+the "Video Bus" does not send events for this key. Map 0x61 to KEY_UNKNOWN
+instead of using KE_IGNORE so that udev/hwdb can override it on these devs.
 
-Through ipc_tx_callback uses spin_lock to protect message splitting, as the
-serialized sending method will call back to ipc_tx_callback again, so it doesn't
-put sending under spin_lock, it causes driver cannot guarantee all fragments
-be sent in order.
-
-Considering this scenario:
-ipc_tx_callback just finished a fragment splitting, and not call ishtp_send_msg
-yet, there is a write complete interrupt happens, then ISR->write_ipc_from_queue
-->ipc_tx_callback->ishtp_send_msg->write_ipc_to_queue......
-
-Because ISR has higher exec priority than normal thread, this causes the new
-fragment be sent out before previous fragment. This disordered message causes
-invalid message to firmware.
-
-The solution is, to send fragments synchronously:
-Use ishtp_write_message writing fragments into tx queue directly one by one,
-instead of ishtp_send_msg only writing one fragment with completion callback.
-As no completion callback be used, so change ipc_tx_callback to ipc_tx_send.
-
-Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220829163544.5288-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 68 ++++++++++++++----------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+ drivers/platform/x86/acer-wmi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 405e0d5212cc8..df0a825694f52 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -626,13 +626,14 @@ static void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
- }
- 
- /**
-- * ipc_tx_callback() - IPC tx callback function
-+ * ipc_tx_send() - IPC tx send function
-  * @prm: Pointer to client device instance
-  *
-- * Send message over IPC either first time or on callback on previous message
-- * completion
-+ * Send message over IPC. Message will be split into fragments
-+ * if message size is bigger than IPC FIFO size, and all
-+ * fragments will be sent one by one.
-  */
--static void ipc_tx_callback(void *prm)
-+static void ipc_tx_send(void *prm)
- {
- 	struct ishtp_cl	*cl = prm;
- 	struct ishtp_cl_tx_ring	*cl_msg;
-@@ -677,32 +678,41 @@ static void ipc_tx_callback(void *prm)
- 			    list);
- 	rem = cl_msg->send_buf.size - cl->tx_offs;
- 
--	ishtp_hdr.host_addr = cl->host_client_id;
--	ishtp_hdr.fw_addr = cl->fw_client_id;
--	ishtp_hdr.reserved = 0;
--	pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+	while (rem > 0) {
-+		ishtp_hdr.host_addr = cl->host_client_id;
-+		ishtp_hdr.fw_addr = cl->fw_client_id;
-+		ishtp_hdr.reserved = 0;
-+		pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+
-+		if (rem <= dev->mtu) {
-+			/* Last fragment or only one packet */
-+			ishtp_hdr.length = rem;
-+			ishtp_hdr.msg_complete = 1;
-+			/* Submit to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs = 0;
-+			cl->sending = 0;
- 
--	if (rem <= dev->mtu) {
--		ishtp_hdr.length = rem;
--		ishtp_hdr.msg_complete = 1;
--		cl->sending = 0;
--		list_del_init(&cl_msg->list);	/* Must be before write */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		/* Submit to IPC queue with no callback */
--		ishtp_write_message(dev, &ishtp_hdr, pmsg);
--		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
--		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
--		++cl->tx_ring_free_size;
--		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
--			tx_free_flags);
--	} else {
--		/* Send IPC fragment */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		cl->tx_offs += dev->mtu;
--		ishtp_hdr.length = dev->mtu;
--		ishtp_hdr.msg_complete = 0;
--		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
-+			break;
-+		} else {
-+			/* Send ipc fragment */
-+			ishtp_hdr.length = dev->mtu;
-+			ishtp_hdr.msg_complete = 0;
-+			/* All fregments submitted to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs += dev->mtu;
-+			rem = cl_msg->send_buf.size - cl->tx_offs;
-+		}
- 	}
-+
-+	list_del_init(&cl_msg->list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	++cl->tx_ring_free_size;
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+		tx_free_flags);
- }
- 
- /**
-@@ -720,7 +730,7 @@ static void ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
- 		return;
- 
- 	cl->tx_offs = 0;
--	ipc_tx_callback(cl);
-+	ipc_tx_send(cl);
- 	++cl->send_msg_cnt_ipc;
- }
- 
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 80983f9dfcd55..8e696262215fc 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -93,6 +93,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
+ 	{KE_KEY, 0x22, {KEY_PROG2} },    /* Arcade */
+ 	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
+ 	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
++	{KE_KEY, 0x27, {KEY_HELP} },
+ 	{KE_KEY, 0x29, {KEY_PROG3} },    /* P_Key for TM8372 */
+ 	{KE_IGNORE, 0x41, {KEY_MUTE} },
+ 	{KE_IGNORE, 0x42, {KEY_PREVIOUSSONG} },
+@@ -106,7 +107,13 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
+ 	{KE_IGNORE, 0x48, {KEY_VOLUMEUP} },
+ 	{KE_IGNORE, 0x49, {KEY_VOLUMEDOWN} },
+ 	{KE_IGNORE, 0x4a, {KEY_VOLUMEDOWN} },
+-	{KE_IGNORE, 0x61, {KEY_SWITCHVIDEOMODE} },
++	/*
++	 * 0x61 is KEY_SWITCHVIDEOMODE. Usually this is a duplicate input event
++	 * with the "Video Bus" input device events. But sometimes it is not
++	 * a dup. Map it to KEY_UNKNOWN instead of using KE_IGNORE so that
++	 * udev/hwdb can override it on systems where it is not a dup.
++	 */
++	{KE_KEY, 0x61, {KEY_UNKNOWN} },
+ 	{KE_IGNORE, 0x62, {KEY_BRIGHTNESSUP} },
+ 	{KE_IGNORE, 0x63, {KEY_BRIGHTNESSDOWN} },
+ 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
 -- 
 2.35.1
 
