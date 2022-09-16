@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6F25BAAA4
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A565BAA50
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbiIPK2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:28:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50722 "EHLO
+        id S231875AbiIPKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbiIPK1o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:27:44 -0400
+        with ESMTP id S231654AbiIPKX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E348B3B0E;
-        Fri, 16 Sep 2022 03:16:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B51D9AB408;
+        Fri, 16 Sep 2022 03:14:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1580B82562;
-        Fri, 16 Sep 2022 10:15:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B83C433D6;
-        Fri, 16 Sep 2022 10:15:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 346B6B82487;
+        Fri, 16 Sep 2022 10:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80EE9C433D7;
+        Fri, 16 Sep 2022 10:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323317;
-        bh=yxmTmAmQYOY0Y1XhFJJ91Ijes9f9h/iULVvKrO+XC0U=;
+        s=korg; t=1663323264;
+        bh=lzvI08HxbeT3BDrPTiftpAaZxUwRATnxFpRa2DlgBPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yinpOKHSEoNCbtF1JdRY7kK2iis/YPULe+WbtbL6psgcmFy/MBYB5nPG2gnHVCY5p
-         A9aKTgBN+gz/vG1m96XjFO+Vcc1/50m92hPcRNq3qd4Cyplj2JSxCHXrs4tRryaepT
-         2ySe6nSEJQnj0wd3pb9x5I4ETzU2fgWEGwVGmYn8=
+        b=RkXk8afTZ5yXUJXWVru1RaeAZi59udZU2u9VUv/kv3Lsr7zmp0hY3Ji0dqPqC2d/k
+         NQu8SwgxaFeuOYMXW0CHO2tKxi1QCSWEWde/pYCMqbF2izgwu/ITREldef/g5uaNTA
+         mVSnSJo6pEGDVP4JOFhPhVQoeaVJGnc2qMDzen5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 28/38] net: dsa: hellcreek: Print warning only once
-Date:   Fri, 16 Sep 2022 12:09:02 +0200
-Message-Id: <20220916100449.646918765@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Zhe <yuzhe@nfschina.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 29/38] perf/arm_pmu_platform: fix tests for platform_get_irq() failure
+Date:   Fri, 16 Sep 2022 12:09:03 +0200
+Message-Id: <20220916100449.688738865@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
 References: <20220916100448.431016349@linuxfoundation.org>
@@ -55,34 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Kanzenbach <kurt@linutronix.de>
+From: Yu Zhe <yuzhe@nfschina.com>
 
-[ Upstream commit 52267ce25f60f37ae40ccbca0b21328ebae5ae75 ]
+[ Upstream commit 6bb0d64c100091e131cd16710b62fda3319cd0af ]
 
-In case the source port cannot be decoded, print the warning only once. This
-still brings attention to the user and does not spam the logs at the same time.
+The platform_get_irq() returns negative error codes.  It can't actually
+return zero.
 
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220830163448.8921-1-kurt@linutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
+Link: https://lore.kernel.org/r/20220825011844.8536-1-yuzhe@nfschina.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_hellcreek.c | 2 +-
+ drivers/perf/arm_pmu_platform.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
-index eb204ad36eeec..846588c0070a5 100644
---- a/net/dsa/tag_hellcreek.c
-+++ b/net/dsa/tag_hellcreek.c
-@@ -45,7 +45,7 @@ static struct sk_buff *hellcreek_rcv(struct sk_buff *skb,
+diff --git a/drivers/perf/arm_pmu_platform.c b/drivers/perf/arm_pmu_platform.c
+index 513de1f54e2d7..933b96e243b84 100644
+--- a/drivers/perf/arm_pmu_platform.c
++++ b/drivers/perf/arm_pmu_platform.c
+@@ -117,7 +117,7 @@ static int pmu_parse_irqs(struct arm_pmu *pmu)
  
- 	skb->dev = dsa_master_find_slave(dev, 0, port);
- 	if (!skb->dev) {
--		netdev_warn(dev, "Failed to get source port: %d\n", port);
-+		netdev_warn_once(dev, "Failed to get source port: %d\n", port);
- 		return NULL;
+ 	if (num_irqs == 1) {
+ 		int irq = platform_get_irq(pdev, 0);
+-		if (irq && irq_is_percpu_devid(irq))
++		if ((irq > 0) && irq_is_percpu_devid(irq))
+ 			return pmu_parse_percpu_irq(pmu, irq);
  	}
  
 -- 
