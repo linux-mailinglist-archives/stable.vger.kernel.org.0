@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E325BAAFE
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D285BAA23
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbiIPKLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:11:02 -0400
+        id S231224AbiIPKKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:10:13 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231210AbiIPKKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:10:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C673AB4E9;
-        Fri, 16 Sep 2022 03:08:55 -0700 (PDT)
+        with ESMTP id S231226AbiIPKJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:09:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FD1AB189;
+        Fri, 16 Sep 2022 03:08:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4CE3629E2;
-        Fri, 16 Sep 2022 10:08:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C24A3C433C1;
-        Fri, 16 Sep 2022 10:08:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E68629EF;
+        Fri, 16 Sep 2022 10:08:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049B3C433D6;
+        Fri, 16 Sep 2022 10:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322934;
-        bh=8INgkWtGw2iHL2E4EkyqZi3z6ZL6dVvdoW7k5Kw3w04=;
+        s=korg; t=1663322905;
+        bh=83Z+ftewRYZSS+0yDzkJlq/oMgWCS6t1P3oo5EZP2hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blm7I0R000Xs6kogsWnDD77S7/pOKxPOHGOrQtAwAVKE1la1n6YcDmcI3nsgBBIaS
-         DdokItyYzDhnEZCBEIlChPNL07KqbNnN1FLvAyFEEq0gliB4pZHxDuW5JpI+TljfSw
-         Tp0kT5Tml0y0qnf658hWOpAYvZoQvw1rvxS2smdw=
+        b=qPVuK2t2d7Y8f0GwSSePPfED8VCb97Oy3vdnQ9yeTcU3heCkAqHU80Tstp4KK8IO0
+         1tkG4+Y7/PHqjNigTc7WHjpeiFCTZdlgWMWZzBzTXQjVnNwhXIJAeoala4q9kT6CS5
+         gkU3c4DF0wri97etNCryZZtd18++yA6z9PAvE3N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>
-Subject: [PATCH 4.19 09/11] mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
-Date:   Fri, 16 Sep 2022 12:08:05 +0200
-Message-Id: <20220916100443.118799924@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Enguerrand de Ribaucourt 
+        <enguerrand.de-ribaucourt@savoirfairelinux.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 10/11] net: dp83822: disable rx error interrupt
+Date:   Fri, 16 Sep 2022 12:08:06 +0200
+Message-Id: <20220916100443.166239140@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100442.662955946@linuxfoundation.org>
 References: <20220916100442.662955946@linuxfoundation.org>
@@ -51,46 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
 
-This is a stable-specific patch.
-I botched the stable-specific rewrite of
-commit b67fbebd4cf98 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"):
-As Hugh pointed out, unmap_region() actually operates on a list of VMAs,
-and the variable "vma" merely points to the first VMA in that list.
-So if we want to check whether any of the VMAs we're operating on is
-PFNMAP or MIXEDMAP, we have to iterate through the list and check each VMA.
+commit 0e597e2affb90d6ea48df6890d882924acf71e19 upstream.
 
-Signed-off-by: Jann Horn <jannh@google.com>
+Some RX errors, notably when disconnecting the cable, increase the RCSR
+register. Once half full (0x7fff), an interrupt flood is generated. I
+measured ~3k/s interrupts even after the RX errors transfer was
+stopped.
+
+Since we don't read and clear the RCSR register, we should disable this
+interrupt.
+
+Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
+Signed-off-by: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/phy/dp83822.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2567,6 +2567,7 @@ static void unmap_region(struct mm_struc
- {
- 	struct vm_area_struct *next = prev ? prev->vm_next : mm->mmap;
- 	struct mmu_gather tlb;
-+	struct vm_area_struct *cur_vma;
+--- a/drivers/net/phy/dp83822.c
++++ b/drivers/net/phy/dp83822.c
+@@ -203,8 +203,7 @@ static int dp83822_config_intr(struct ph
+ 		if (misr_status < 0)
+ 			return misr_status;
  
- 	lru_add_drain();
- 	tlb_gather_mmu(&tlb, mm, start, end);
-@@ -2581,8 +2582,12 @@ static void unmap_region(struct mm_struc
- 	 * concurrent flush in this region has to be coming through the rmap,
- 	 * and we synchronize against that using the rmap lock.
- 	 */
--	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
--		tlb_flush_mmu(&tlb);
-+	for (cur_vma = vma; cur_vma; cur_vma = cur_vma->vm_next) {
-+		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0) {
-+			tlb_flush_mmu(&tlb);
-+			break;
-+		}
-+	}
- 
- 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
- 				 next ? next->vm_start : USER_PGTABLES_CEILING);
+-		misr_status |= (DP83822_RX_ERR_HF_INT_EN |
+-				DP83822_ANEG_COMPLETE_INT_EN |
++		misr_status |= (DP83822_ANEG_COMPLETE_INT_EN |
+ 				DP83822_DUP_MODE_CHANGE_INT_EN |
+ 				DP83822_SPEED_CHANGED_INT_EN |
+ 				DP83822_LINK_STAT_INT_EN |
 
 
