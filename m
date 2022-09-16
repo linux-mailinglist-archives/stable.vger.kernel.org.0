@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68BF35BAB3D
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3245BAA48
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231144AbiIPKMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:12:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
+        id S231259AbiIPKM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:12:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231249AbiIPKL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:11:57 -0400
+        with ESMTP id S231303AbiIPKMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:12:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39EA12BD3;
-        Fri, 16 Sep 2022 03:09:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4B96311;
+        Fri, 16 Sep 2022 03:09:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCFB2B8250D;
-        Fri, 16 Sep 2022 10:09:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17067C433C1;
-        Fri, 16 Sep 2022 10:09:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E329EB8250A;
+        Fri, 16 Sep 2022 10:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B18C433C1;
+        Fri, 16 Sep 2022 10:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322970;
-        bh=iw5VxxdpmG4eV6+L/tprOv7+8QHc3taUs95F7OTGuWU=;
+        s=korg; t=1663322973;
+        bh=6bVcFPgX1KF7WqxaGjbnW0BFwjnl06bEq3caxDd2nXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yo297a0rQ7ObHaLQPLr2EBPf+Hb2GsM7ksi2Vw0ptQheEMOYs7xvkbpsClt0K6Vd3
-         4nKwUVIR1d1htwrjBKkErxKOH5HOEd5TMqKNqYSDV0VvCeiWSRkQzbkLBg5gRBl6nD
-         J7/L1GZPN+zuRoDj2z5g2UvDZj56RjjJcUK0T/6c=
+        b=Ax81Oglxt5xrrUlru7nhWyKIKOpy3gmXo50G9hZ4tUcAAF7Acc7u4ulrkgcTQrBJ0
+         GliUvoUGPuib1Ptay0YyION8ixge85PpSva9XGRbEDFisiwyUUus8dnd1tEfwNPqO/
+         ySIAJwNgX+IuemHe4phfEwrzPy+uE86QvzSe2UUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Li Qiong <liqiong@nfschina.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/14] tg3: Disable tg3 device on system reboot to avoid triggering AER
-Date:   Fri, 16 Sep 2022 12:08:11 +0200
-Message-Id: <20220916100443.340992431@linuxfoundation.org>
+Subject: [PATCH 5.4 05/14] ieee802154: cc2520: add rc code in cc2520_tx()
+Date:   Fri, 16 Sep 2022 12:08:12 +0200
+Message-Id: <20220916100443.391653883@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100443.123226979@linuxfoundation.org>
 References: <20220916100443.123226979@linuxfoundation.org>
@@ -55,81 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Li Qiong <liqiong@nfschina.com>
 
-[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
+[ Upstream commit ffd7bdddaab193c38416fd5dd416d065517d266e ]
 
-Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
-reboot hang on one Dell servers so the commit was reverted.
+The rc code is 0 at the error path "status & CC2520_STATUS_TX_UNDERFLOW".
+Assign rc code with '-EINVAL' at this error path to fix it.
 
-Someone managed to collect the AER log and it's caused by MSI:
-[ 148.762067] ACPI: Preparing to enter system sleep state S5
-[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
-[ 148.803731] {1}[Hardware Error]: event severity: recoverable
-[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
-[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
-[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
-[ 148.829026] {1}[Hardware Error]: version: 3.0
-[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
-[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
-[ 148.847309] {1}[Hardware Error]: slot: 0
-[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
-[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
-[ 148.865145] {1}[Hardware Error]: class_code: 020000
-[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
-[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
-[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
-[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
-[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
-[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
-[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
-[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
-
-The MSI is probably raised by incoming packets, so power down the device
-and disable bus mastering to stop the traffic, as user confirmed this
-approach works.
-
-In addition to that, be extra safe and cancel reset task if it's running.
-
-Cc: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
-BugLink: https://bugs.launchpad.net/bugs/1917471
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Li Qiong <liqiong@nfschina.com>
+Link: https://lore.kernel.org/r/20220829071259.18330-1-liqiong@nfschina.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ieee802154/cc2520.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 70bd79dc43f2e..a9962474d551d 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18154,16 +18154,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct tg3 *tp = netdev_priv(dev);
+diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
+index 43506948e444d..0432a4f829a98 100644
+--- a/drivers/net/ieee802154/cc2520.c
++++ b/drivers/net/ieee802154/cc2520.c
+@@ -507,6 +507,7 @@ cc2520_tx(struct ieee802154_hw *hw, struct sk_buff *skb)
+ 		goto err_tx;
  
-+	tg3_reset_task_cancel(tp);
-+
- 	rtnl_lock();
-+
- 	netif_device_detach(dev);
- 
- 	if (netif_running(dev))
- 		dev_close(dev);
- 
--	if (system_state == SYSTEM_POWER_OFF)
--		tg3_power_down(tp);
-+	tg3_power_down(tp);
- 
- 	rtnl_unlock();
-+
-+	pci_disable_device(pdev);
- }
- 
- /**
+ 	if (status & CC2520_STATUS_TX_UNDERFLOW) {
++		rc = -EINVAL;
+ 		dev_err(&priv->spi->dev, "cc2520 tx underflow exception\n");
+ 		goto err_tx;
+ 	}
 -- 
 2.35.1
 
