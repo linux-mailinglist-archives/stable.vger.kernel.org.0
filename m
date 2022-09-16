@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3235BAAED
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BF35BAB3D
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230313AbiIPKMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:12:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60184 "EHLO
+        id S231144AbiIPKMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231355AbiIPKLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:11:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5880126C1;
-        Fri, 16 Sep 2022 03:09:30 -0700 (PDT)
+        with ESMTP id S231249AbiIPKL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:11:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39EA12BD3;
+        Fri, 16 Sep 2022 03:09:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2F2EB82503;
-        Fri, 16 Sep 2022 10:09:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE63C433C1;
-        Fri, 16 Sep 2022 10:09:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCFB2B8250D;
+        Fri, 16 Sep 2022 10:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17067C433C1;
+        Fri, 16 Sep 2022 10:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322967;
-        bh=bc2OW2J+0cXow/XWPZkMpI2LiaUOa6IBtOe2gC9WYqI=;
+        s=korg; t=1663322970;
+        bh=iw5VxxdpmG4eV6+L/tprOv7+8QHc3taUs95F7OTGuWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIeDwg0qQ92vOQ88zl2XrrlgKpGmuKT62WIo0R6Naq1taMl2afWcdhVweF7dKrD6L
-         NuoerkIJOVChLzEm1HnM30FIENcUxDTrLCzzYg1uaNGPaPeKEYQTPnKcZrr7wTgo5u
-         WRBRgffefZetA9g4COQgLcCrxKsMnWL+wE/bBbd0=
+        b=yo297a0rQ7ObHaLQPLr2EBPf+Hb2GsM7ksi2Vw0ptQheEMOYs7xvkbpsClt0K6Vd3
+         4nKwUVIR1d1htwrjBKkErxKOH5HOEd5TMqKNqYSDV0VvCeiWSRkQzbkLBg5gRBl6nD
+         J7/L1GZPN+zuRoDj2z5g2UvDZj56RjjJcUK0T/6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/14] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
-Date:   Fri, 16 Sep 2022 12:08:10 +0200
-Message-Id: <20220916100443.298475397@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/14] tg3: Disable tg3 device on system reboot to avoid triggering AER
+Date:   Fri, 16 Sep 2022 12:08:11 +0200
+Message-Id: <20220916100443.340992431@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100443.123226979@linuxfoundation.org>
 References: <20220916100443.123226979@linuxfoundation.org>
@@ -53,151 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Even Xu <even.xu@intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit e1fa076706209cc447d7a2abd0843a18277e5ef7 ]
+[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
 
-There is a timing issue captured during ishtp client sending stress tests.
-It was observed during stress tests that ISH firmware is getting out of
-ordered messages. This is a rare scenario as the current set of ISH client
-drivers don't send much data to firmware. But this may not be the case
-going forward.
+Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
+reboot hang on one Dell servers so the commit was reverted.
 
-When message size is bigger than IPC MTU, ishtp splits the message into
-fragments and uses serialized async method to send message fragments.
-The call stack:
-ishtp_cl_send_msg_ipc->ipc_tx_callback(first fregment)->
-ishtp_send_msg(with callback)->write_ipc_to_queue->
-write_ipc_from_queue->callback->ipc_tx_callback(next fregment)......
+Someone managed to collect the AER log and it's caused by MSI:
+[ 148.762067] ACPI: Preparing to enter system sleep state S5
+[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
+[ 148.803731] {1}[Hardware Error]: event severity: recoverable
+[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
+[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
+[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
+[ 148.829026] {1}[Hardware Error]: version: 3.0
+[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
+[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
+[ 148.847309] {1}[Hardware Error]: slot: 0
+[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
+[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
+[ 148.865145] {1}[Hardware Error]: class_code: 020000
+[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
+[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
+[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
+[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
+[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
+[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
+[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
+[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
 
-When an ipc write complete interrupt is received, driver also calls
-write_ipc_from_queue->ipc_tx_callback in ISR to start sending of next fragment.
+The MSI is probably raised by incoming packets, so power down the device
+and disable bus mastering to stop the traffic, as user confirmed this
+approach works.
 
-Through ipc_tx_callback uses spin_lock to protect message splitting, as the
-serialized sending method will call back to ipc_tx_callback again, so it doesn't
-put sending under spin_lock, it causes driver cannot guarantee all fragments
-be sent in order.
+In addition to that, be extra safe and cancel reset task if it's running.
 
-Considering this scenario:
-ipc_tx_callback just finished a fragment splitting, and not call ishtp_send_msg
-yet, there is a write complete interrupt happens, then ISR->write_ipc_from_queue
-->ipc_tx_callback->ishtp_send_msg->write_ipc_to_queue......
-
-Because ISR has higher exec priority than normal thread, this causes the new
-fragment be sent out before previous fragment. This disordered message causes
-invalid message to firmware.
-
-The solution is, to send fragments synchronously:
-Use ishtp_write_message writing fragments into tx queue directly one by one,
-instead of ishtp_send_msg only writing one fragment with completion callback.
-As no completion callback be used, so change ipc_tx_callback to ipc_tx_send.
-
-Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
+BugLink: https://bugs.launchpad.net/bugs/1917471
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 68 ++++++++++++++----------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+ drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 1cc157126fce7..c0d69303e3b09 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -626,13 +626,14 @@ static void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index 70bd79dc43f2e..a9962474d551d 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -18154,16 +18154,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct tg3 *tp = netdev_priv(dev);
+ 
++	tg3_reset_task_cancel(tp);
++
+ 	rtnl_lock();
++
+ 	netif_device_detach(dev);
+ 
+ 	if (netif_running(dev))
+ 		dev_close(dev);
+ 
+-	if (system_state == SYSTEM_POWER_OFF)
+-		tg3_power_down(tp);
++	tg3_power_down(tp);
+ 
+ 	rtnl_unlock();
++
++	pci_disable_device(pdev);
  }
  
  /**
-- * ipc_tx_callback() - IPC tx callback function
-+ * ipc_tx_send() - IPC tx send function
-  * @prm: Pointer to client device instance
-  *
-- * Send message over IPC either first time or on callback on previous message
-- * completion
-+ * Send message over IPC. Message will be split into fragments
-+ * if message size is bigger than IPC FIFO size, and all
-+ * fragments will be sent one by one.
-  */
--static void ipc_tx_callback(void *prm)
-+static void ipc_tx_send(void *prm)
- {
- 	struct ishtp_cl	*cl = prm;
- 	struct ishtp_cl_tx_ring	*cl_msg;
-@@ -677,32 +678,41 @@ static void ipc_tx_callback(void *prm)
- 			    list);
- 	rem = cl_msg->send_buf.size - cl->tx_offs;
- 
--	ishtp_hdr.host_addr = cl->host_client_id;
--	ishtp_hdr.fw_addr = cl->fw_client_id;
--	ishtp_hdr.reserved = 0;
--	pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+	while (rem > 0) {
-+		ishtp_hdr.host_addr = cl->host_client_id;
-+		ishtp_hdr.fw_addr = cl->fw_client_id;
-+		ishtp_hdr.reserved = 0;
-+		pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+
-+		if (rem <= dev->mtu) {
-+			/* Last fragment or only one packet */
-+			ishtp_hdr.length = rem;
-+			ishtp_hdr.msg_complete = 1;
-+			/* Submit to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs = 0;
-+			cl->sending = 0;
- 
--	if (rem <= dev->mtu) {
--		ishtp_hdr.length = rem;
--		ishtp_hdr.msg_complete = 1;
--		cl->sending = 0;
--		list_del_init(&cl_msg->list);	/* Must be before write */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		/* Submit to IPC queue with no callback */
--		ishtp_write_message(dev, &ishtp_hdr, pmsg);
--		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
--		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
--		++cl->tx_ring_free_size;
--		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
--			tx_free_flags);
--	} else {
--		/* Send IPC fragment */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		cl->tx_offs += dev->mtu;
--		ishtp_hdr.length = dev->mtu;
--		ishtp_hdr.msg_complete = 0;
--		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
-+			break;
-+		} else {
-+			/* Send ipc fragment */
-+			ishtp_hdr.length = dev->mtu;
-+			ishtp_hdr.msg_complete = 0;
-+			/* All fregments submitted to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs += dev->mtu;
-+			rem = cl_msg->send_buf.size - cl->tx_offs;
-+		}
- 	}
-+
-+	list_del_init(&cl_msg->list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	++cl->tx_ring_free_size;
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+		tx_free_flags);
- }
- 
- /**
-@@ -720,7 +730,7 @@ static void ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
- 		return;
- 
- 	cl->tx_offs = 0;
--	ipc_tx_callback(cl);
-+	ipc_tx_send(cl);
- 	++cl->send_msg_cnt_ipc;
- }
- 
 -- 
 2.35.1
 
