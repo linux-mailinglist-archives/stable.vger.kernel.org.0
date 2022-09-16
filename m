@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2325F5BAA97
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28F65BAB01
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231657AbiIPKVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:21:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37190 "EHLO
+        id S231545AbiIPKP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:15:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbiIPKUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:20:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB04BA99E4;
-        Fri, 16 Sep 2022 03:13:42 -0700 (PDT)
+        with ESMTP id S231319AbiIPKPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C0CAF0E2;
+        Fri, 16 Sep 2022 03:11:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A421E62A0E;
-        Fri, 16 Sep 2022 10:13:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92153C433C1;
-        Fri, 16 Sep 2022 10:13:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 704C7B82528;
+        Fri, 16 Sep 2022 10:10:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5BCEC433D6;
+        Fri, 16 Sep 2022 10:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323203;
-        bh=/Z5VauDP6NZb5Qbbk5QtyDSUJrRx1CVHUG5+Lgr4zrw=;
+        s=korg; t=1663323044;
+        bh=Qm8mLgt8aDsLZ4GvQWZCdKhG7N+Xc7FUJd7VZ40DAoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQ209Q7NvSMWab9kjSoBLl/4GU2aASfVCYp0YyVVZJ7AjcywRV7AnhNEiYDC3j6mX
-         pT54F2AjC6r9At7OUofdcyVbtz5r114M3Ek1RnGRNjNiLVUHB3eONoLlEd3S56tmky
-         7efG04Cqac/ar0DHo82et+W+pPC3v3qmnAaekmOg=
+        b=LVH5enXq+6In5II/q34xk7dUF4pi6nTBkjocqsrb3tcEBtvkDELyTAiD3hWIcQ3qK
+         rLuEMSFSmz2yEhvHTZpu2g15C1cnOOBOel0qRQE6DaHGCfSWrtOwoKRm97bFGKNXdN
+         TAVvaoc4sBqqQqfdkx9x+YSlyPEWvSmdnDTfMMNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 10/38] drm/msm/rd: Fix FIFO-full deadlock
-Date:   Fri, 16 Sep 2022 12:08:44 +0200
-Message-Id: <20220916100448.898505845@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 20/24] Revert "x86/ftrace: Use alternative RET encoding"
+Date:   Fri, 16 Sep 2022 12:08:45 +0200
+Message-Id: <20220916100446.263869204@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
-References: <20220916100448.431016349@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
+This reverts commit 00b136bb6254e0abf6aaafe62c4da5f6c4fea4cb.
 
-If the previous thing cat'ing $debugfs/rd left the FIFO full, then
-subsequent open could deadlock in rd_write() (because open is blocked,
-not giving a chance for read() to consume any data in the FIFO).  Also
-it is generally a good idea to clear out old data from the FIFO.
+This temporarily reverts the backport of upstream commit
+1f001e9da6bbf482311e45e48f53c2bd2179e59c. It was not correct to copy the
+ftrace stub as it would contain a relative jump to the return thunk which
+would not apply to the context where it was being copied to, leading to
+ftrace support to be broken.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/496706/
-Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_rd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/ftrace.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index a92ffde53f0b3..db2f847c8535f 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -196,6 +196,9 @@ static int rd_open(struct inode *inode, struct file *file)
- 	file->private_data = rd;
- 	rd->open = true;
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -309,7 +309,7 @@ union ftrace_op_code_union {
+ 	} __attribute__((packed));
+ };
  
-+	/* Reset fifo to clear any previously unread data: */
-+	rd->fifo.head = rd->fifo.tail = 0;
-+
- 	/* the parsing tools need to know gpu-id to know which
- 	 * register database to load.
- 	 *
--- 
-2.35.1
-
+-#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
++#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
+ 
+ static unsigned long
+ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+@@ -368,10 +368,7 @@ create_trampoline(struct ftrace_ops *ops
+ 
+ 	/* The trampoline ends with ret(q) */
+ 	retq = (unsigned long)ftrace_stub;
+-	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
+-		memcpy(ip, text_gen_insn(JMP32_INSN_OPCODE, ip, &__x86_return_thunk), JMP32_INSN_SIZE);
+-	else
+-		ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
++	ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
+ 	if (WARN_ON(ret < 0))
+ 		goto fail;
+ 
 
 
