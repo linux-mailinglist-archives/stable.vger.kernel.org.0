@@ -2,73 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE135BACBB
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 13:49:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5821A5BACC2
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 13:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230311AbiIPLtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 07:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33780 "EHLO
+        id S230128AbiIPLvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 07:51:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbiIPLtn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 07:49:43 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2887B2C10E;
-        Fri, 16 Sep 2022 04:49:41 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id v185-20020a1cacc2000000b003b42e4f278cso16675249wme.5;
-        Fri, 16 Sep 2022 04:49:41 -0700 (PDT)
+        with ESMTP id S229872AbiIPLvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 07:51:22 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7D5AE209;
+        Fri, 16 Sep 2022 04:51:21 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id d2so75488wrq.2;
+        Fri, 16 Sep 2022 04:51:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:subject:cc
-         :to:from:date:message-id:from:to:cc:subject:date;
-        bh=ZNy2G5TiScnj5f0egZW9OhMmUoJRuGBqKdbzcY0u1Og=;
-        b=P2V/UQQsYHRCWSwq3IueIa8FVD66HGy7WnkISZ/Fm3Uivkb76K0eq3mzLLq+rC0/Z7
-         B4C3xoPWjz9Lf3a9eoFqm3U6TpN9TUKATs+UQvspNSYQbAqlh/3HgigVdsWmYq+bi9Ca
-         7eusJGMJmSOmhFdZhpKk2na3gew6EWmXLJu8KYRZgcu8lu3OVuTnearr5dTQhjo1Inhl
-         sUv1rWUFlq/woNLow97/SKqGrFH6+lCdntI+vPCNj6e2Vg1SPYDSyVKS2M+o79IC25aE
-         OZTfGf5EQbcD3r5vely11d63k8W+5zpWBVdfElH/CkPwFaJRZEC6eoXSz6cEnqCVG2e1
-         3jpw==
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=QdifIquyoQ6mYOMD2HCI+tIRc44pzp+O1wcBGNhRN9Q=;
+        b=GksRQCrwG3e+fxeVfNlj+wciQ1+OOo8qW5WHJWfCc8uPEg5L8lhTij9DYONG3hba/B
+         UTcfAktsX4H3Wd4YoZyxYBlsHq7bfNSx6n+RNZktyJmQWcfnY1vjgrsonTJNLGN/SSXg
+         odAKobaucCqSF2GLDjrB/iybd2NXOwTFcciZDc7KYilPuFG6JhArHivALhZUM+f1Gv8O
+         rb45j9Fr5BRz8tDfKqP41BFV56WQIAb5iaNdO8Gklbc0svpkvfgJOACQPI06y/TUf8nS
+         qHk3ULmBBanN9kbJB4ftW+gK6ou5ipZrfLdwJRXbtTJM0+cx4/S+DSvrqmek49kokXq/
+         F87Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:subject:cc
-         :to:from:date:message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=ZNy2G5TiScnj5f0egZW9OhMmUoJRuGBqKdbzcY0u1Og=;
-        b=TjaE/Sugc+vDNLFEY7sH0yi4Qm2Bhz6COUSHznJh0+Gvb20Zd12JZk+SCRh2zwqi9M
-         90YWt6MFzptNOMsQ9PCUp3/z2s3gvz8DVeXWwR1rY9OT6O9RsxSDWbuXcClX33oT/myx
-         lx0gJYIgPFfNld/BJn47CgLN4HWaYAqIyRyVOec52pFXWF2ZRl+tHe6DRFiFonk8meHy
-         D7/xgTSjUUt9uTQZ549M4NvzQe52clO8qeeD/mGJyxyIJRWAS2WOXJRdIrrT1PKpb3rk
-         ULCgi03Yftk4V4Xp+BMyt2FKN7+BdbAE+WhPzgmZpDYoIPy2oPGlM45tS1oOycXoOsNK
-         MlJQ==
-X-Gm-Message-State: ACrzQf1T96dep0Rx+5hvlqkJ50ZKeL5O4L7F4VS+ZVcExRRctrrwwaEY
-        QdZKCb7UEzcR/Zwt0EEtAugGkhflO7g=
-X-Google-Smtp-Source: AMsMyM5IsJCvsYqqs4wWRuv42Uuf87f0rQivT6vUEx3MJEMF7WZdOPqtTNiglh4jXKy23mUvCrMyag==
-X-Received: by 2002:a05:600c:500c:b0:3b4:92e4:c77c with SMTP id n12-20020a05600c500c00b003b492e4c77cmr3085815wmr.41.1663328979505;
-        Fri, 16 Sep 2022 04:49:39 -0700 (PDT)
-Received: from Ansuel-xps. (93-42-70-134.ip85.fastwebnet.it. [93.42.70.134])
-        by smtp.gmail.com with ESMTPSA id v26-20020adfa1da000000b00228c483128dsm5785768wrv.90.2022.09.16.04.49.37
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=QdifIquyoQ6mYOMD2HCI+tIRc44pzp+O1wcBGNhRN9Q=;
+        b=5jw4dMzpjd8CCv9UbGnqkA/0yFwAakGJpl56sOHSk+EV15Sw1sajg6rxCanPILzTer
+         9nVqiK6Fcu+vYrVW3WBX6hf2pD+crKl2E5EBHmUg4pH2OXfkoH2db8PjRoSjhuSSmusM
+         Pbs+iy0fX5/52zwTdcgbAi1JmiQRM261zGuyfTL7KBhK9+3SfzNr+rbZ0jHqRHvr4b9k
+         k8ovOzyyg1/0+PaHDxSu8q2UUGcxZcKBRqnbwYn69qsD8blNcn2bngopa8aRfMp7T70O
+         CDcX+nyzhjSuFD7OOUQzG1CkymtQsd3sk1B7KpF32ZCOZi5U66Uxktuy/02SNlfG5ya5
+         BO3w==
+X-Gm-Message-State: ACrzQf3lCjf092Ud++ko7IbTc+oKruBS7toxbCTDYQwIiRNf2jXZVi5E
+        ByfWN0c9tAranEatzT3jv4EBgRgJGwk=
+X-Google-Smtp-Source: AMsMyM6wHJ4A/f5KmGKYlgkzApjWskcP+QMNLhnCEMZu7n8HbmgW0O7i2+UqlNawipmDyuf2rf5vAA==
+X-Received: by 2002:a5d:52d0:0:b0:21e:4923:fa09 with SMTP id r16-20020a5d52d0000000b0021e4923fa09mr2711712wrv.244.1663329079714;
+        Fri, 16 Sep 2022 04:51:19 -0700 (PDT)
+Received: from localhost.localdomain (93-42-70-134.ip85.fastwebnet.it. [93.42.70.134])
+        by smtp.googlemail.com with ESMTPSA id d17-20020adffbd1000000b0022ac1be009esm4791245wrs.16.2022.09.16.04.51.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Sep 2022 04:49:38 -0700 (PDT)
-Message-ID: <632462d2.df0a0220.44eb3.d76a@mx.google.com>
-X-Google-Original-Message-ID: <YyP3cC6MLaqh060M@Ansuel-xps.>
-Date:   Fri, 16 Sep 2022 06:11:28 +0200
+        Fri, 16 Sep 2022 04:51:19 -0700 (PDT)
 From:   Christian Marangi <ansuelsmth@gmail.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Manivannan Sadhasivam <mani@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
-        linux-mtd@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] mtd: nand: raw: qcom_nandc: handle error pointer from
- adm prep_slave_sg
-References: <20220916001038.11147-1-ansuelsmth@gmail.com>
- <4dcb0e76-b965-42da-b637-751d2f8e1c51@www.fastmail.com>
- <632455db.df0a0220.9684.aafc@mx.google.com>
- <c243fd70-782c-4663-b08d-99f44ae55fc3@www.fastmail.com>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Vinod Koul <vkoul@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Mark Brown <broonie@kernel.org>,
+        Thomas Pedersen <twp@codeaurora.org>,
+        Jonathan McDowell <noodles@earth.li>,
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Christian Marangi <ansuelsmth@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] dmaengine: qcom-adm: fix wrong calling convention for prep_slave_sg
+Date:   Fri, 16 Sep 2022 06:12:56 +0200
+Message-Id: <20220916041256.7104-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c243fd70-782c-4663-b08d-99f44ae55fc3@www.fastmail.com>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DATE_IN_PAST_06_12,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
@@ -79,30 +74,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 16, 2022 at 01:45:17PM +0200, Arnd Bergmann wrote:
-> On Fri, Sep 16, 2022, at 5:11 AM, Christian Marangi wrote:
-> > On Fri, Sep 16, 2022 at 11:01:11AM +0200, Arnd Bergmann wrote:
-> >
-> > Thanks for the review and the clarification!
-> > (Also extra point the fixes tag will match the driver)
-> 
-> Regarding the fixes tag, how did you actually get to my patch?
-> While it's possible that it caused the regression, it did not
-> introduce the ERR_PTR() usage that was already there in
-> 5c9f8c2dbdbe ("dmaengine: qcom: Add ADM driver").
-> 
-> Maybe there is another bug that needs to be addressed in this
-> driver?
-> 
->       Arnd
+The calling convention for pre_slave_sg is to return NULL on error and
+provide an error log to the system. Qcom-adm instead provide error
+pointer when an error occur. This indirectly cause kernel panic for
+example for the nandc driver that checks only if the pointer returned by
+device_prep_slave_sg is not NULL. Returning an error pointer makes nandc
+think the device_prep_slave_sg function correctly completed and makes
+the kernel panics later in the code.
 
-Don't know if you received the other fix, but 03de6b273805 broke
-ipq806x. I already sent a fix for that but since it was added extra
-check for crci, it seems logical that 03de6b273805 should have also
-updated the nandc driver to handle the new pointer error. This was not
-done so I added that fixes tag.
+While nandc is the one that makes the kernel crash, it was pointed out
+that the real problem is qcom-adm not following calling convention for
+that function.
 
-Tell me if the logic was wrong...
+To fix this, drop returning error pointer and return NULL with an error
+log.
 
+Fixes: 03de6b273805 ("dmaengine: qcom-adm: stop abusing slave_id config")
+Fixes: 5c9f8c2dbdbe ("dmaengine: qcom: Add ADM driver")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v5.11+
+---
+ drivers/dma/qcom/qcom_adm.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/dma/qcom/qcom_adm.c b/drivers/dma/qcom/qcom_adm.c
+index facdacf8aede..cd3f12cf4721 100644
+--- a/drivers/dma/qcom/qcom_adm.c
++++ b/drivers/dma/qcom/qcom_adm.c
+@@ -379,13 +379,13 @@ static struct dma_async_tx_descriptor *adm_prep_slave_sg(struct dma_chan *chan,
+ 		if (blk_size < 0) {
+ 			dev_err(adev->dev, "invalid burst value: %d\n",
+ 				burst);
+-			return ERR_PTR(-EINVAL);
++			return NULL;
+ 		}
+ 
+ 		crci = achan->crci & 0xf;
+ 		if (!crci || achan->crci > 0x1f) {
+ 			dev_err(adev->dev, "invalid crci value\n");
+-			return ERR_PTR(-EINVAL);
++			return NULL;
+ 		}
+ 	}
+ 
+@@ -403,8 +403,10 @@ static struct dma_async_tx_descriptor *adm_prep_slave_sg(struct dma_chan *chan,
+ 	}
+ 
+ 	async_desc = kzalloc(sizeof(*async_desc), GFP_NOWAIT);
+-	if (!async_desc)
+-		return ERR_PTR(-ENOMEM);
++	if (!async_desc) {
++		dev_err(adev->dev, "not enough memory for async_desc struct\n");
++		return NULL;
++	}
+ 
+ 	async_desc->mux = achan->mux ? ADM_CRCI_CTL_MUX_SEL : 0;
+ 	async_desc->crci = crci;
+@@ -414,8 +416,10 @@ static struct dma_async_tx_descriptor *adm_prep_slave_sg(struct dma_chan *chan,
+ 				sizeof(*cple) + 2 * ADM_DESC_ALIGN;
+ 
+ 	async_desc->cpl = kzalloc(async_desc->dma_len, GFP_NOWAIT);
+-	if (!async_desc->cpl)
++	if (!async_desc->cpl) {
++		dev_err(adev->dev, "not enough memory for cpl struct\n");
+ 		goto free;
++	}
+ 
+ 	async_desc->adev = adev;
+ 
+@@ -437,8 +441,10 @@ static struct dma_async_tx_descriptor *adm_prep_slave_sg(struct dma_chan *chan,
+ 	async_desc->dma_addr = dma_map_single(adev->dev, async_desc->cpl,
+ 					      async_desc->dma_len,
+ 					      DMA_TO_DEVICE);
+-	if (dma_mapping_error(adev->dev, async_desc->dma_addr))
++	if (dma_mapping_error(adev->dev, async_desc->dma_addr)) {
++		dev_err(adev->dev, "dma mapping error for cpl\n");
+ 		goto free;
++	}
+ 
+ 	cple_addr = async_desc->dma_addr + ((void *)cple - async_desc->cpl);
+ 
+@@ -454,7 +460,7 @@ static struct dma_async_tx_descriptor *adm_prep_slave_sg(struct dma_chan *chan,
+ 
+ free:
+ 	kfree(async_desc);
+-	return ERR_PTR(-ENOMEM);
++	return NULL;
+ }
+ 
+ /**
 -- 
-	Ansuel
+2.37.2
+
