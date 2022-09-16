@@ -2,115 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA1775BABB1
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB165BAC11
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 13:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiIPKxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:53:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51222 "EHLO
+        id S230305AbiIPLLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 07:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231272AbiIPKxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:53:20 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC89413EB3
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 03:33:42 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id e18so9636253wmq.3
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 03:33:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date;
-        bh=KUO+kgQEAoM5aXSSbQHEnaSgbpm7WvhWNqvDfGLWvyg=;
-        b=ZBMmGVsznRDB3dSAwH1J0FLZ0uKn3M7mc39bggoH63fjitO5/Ao5i363Bkr6TdAZJR
-         Z8puO6xY1Y7A9ZUaLm0L6VWDGsucLoOlYeUYuzhH2kYoHb+17c3kJbzfJp0uG4ZKUWqA
-         r+De+JKNvGxGfXxNt/nn6eClphniIHqJ8LKCJL7emgS5Z5lPmP9wmLHCtPST/7XlSXJJ
-         bsn3AirW0DOaS+KYDSKPEGqlW+SGp3Z5tPlHr3fBDQEprf0tTp2uy9GPszgVzkjVtrht
-         n/aav6B4beMkGmA0WRtBFVGjGi52DWhK0j8ci+eGlDLuIN46KQO/ZmfekFrAz8BoE9bC
-         mk1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=KUO+kgQEAoM5aXSSbQHEnaSgbpm7WvhWNqvDfGLWvyg=;
-        b=MR2bOWRIeFAsdp6BmQyPx3iaSrXr+rmLUyg2PwiU66ZMpjBBZRIOrbqXqJz+G4YaW9
-         U8nFArTkCnZXh0GTccHgIkH8RykCUOm6JGsk78CYr5dWAPWlRqeuPMr9nMzyEh/R8lD8
-         rML7BTCKrPw6xDOIDtV5hVmBUqTAEjg3h3UVoews0fnnnGHrePxCiM9hFOQhxp6dXpRu
-         EZd6xluOUz4QInDI03mmD/rRwKI9eDbRm96mgybGIVOCnBv95Ta2w+0kFVTL5BpdLF7z
-         m56Rk8WP0USUqWUNXBBBzqvnRdYH1f2oBnI7b7qSYnbwLebZLrs/LTr2/cajWc9kUg5A
-         xomw==
-X-Gm-Message-State: ACgBeo2mYQUGLQg+eZX2z/Ndqa4TtplsXazfPwSWquLHJK8mSMehfCIm
-        O4WM8yF3rY4dbQaWzN/ncxXZ+AHdXLGnUJZWRso=
-X-Google-Smtp-Source: AA6agR4vNToH5Xq3dGNH67y6L3R5tX7/D7UO2ogonWvtde3oxFJxBidtw9H+HCfvdLQVzfb8DlrI0JQi9ASPYvBdb4A=
-X-Received: by 2002:a1c:a1c4:0:b0:3b4:75f0:e924 with SMTP id
- k187-20020a1ca1c4000000b003b475f0e924mr9290993wme.99.1663324421318; Fri, 16
- Sep 2022 03:33:41 -0700 (PDT)
+        with ESMTP id S231228AbiIPLKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 07:10:53 -0400
+X-Greylist: delayed 1250 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 16 Sep 2022 04:08:24 PDT
+Received: from gateway20.websitewelcome.com (gateway20.websitewelcome.com [192.185.4.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 324A351420
+        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 04:08:24 -0700 (PDT)
+Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
+        by gateway20.websitewelcome.com (Postfix) with ESMTP id D7C44400CF48F
+        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 05:47:31 -0500 (CDT)
+Received: from 162-215-252-169.unifiedlayer.com ([208.91.199.152])
+        by cmsmtp with SMTP
+        id Z8scoGarY3RgQZ8sdoaROA; Fri, 16 Sep 2022 05:47:31 -0500
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=68lndCO94kjSsn/PzI7fA4q5CQxHtuDW4XWGX7RfISU=; b=rzX2gafI1PoIzsluF/JFARGwPu
+        59S5pGlGO4Bmz8+fP9ahkcDK3D4rhCfLCIpZsIlGC0Bk9GlaEM3/HBPsSXRrDTzOUyAwEml+lVx2t
+        woR+HNCku8e8SJnyincMfqa8mrEQAk59t+WU0nTrPb0QGq8EvwKsGIkg6FIABKGag8jk8UwwEnobR
+        G3r2lA4lSywP+bwpkaD9aw+T3lW1TvKr2u1cZ00HzxXMAPu5UBIbO2gq4Pky30WtI1D53kpgc5bf4
+        7xZ5tK0MUQV9ieaW72FKe+n9XphtWLulxpTDn9stdUDtfe2L2vvbdGHw1ZqP8EXcJvGLPOEGOz8jy
+        jZp4oleg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:58840 helo=localhost)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <linux@roeck-us.net>)
+        id 1oZ8sc-000owT-FV;
+        Fri, 16 Sep 2022 10:47:30 +0000
+Date:   Fri, 16 Sep 2022 03:47:25 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Marion & Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jean Delvare <jdelvare@suse.com>
+Subject: Re: Patch "hwmon: (pmbus) Use dev_err_probe() to filter
+ -EPROBE_DEFER error messages" has been added to the 5.10-stable tree
+Message-ID: <20220916104725.GB4060280@roeck-us.net>
+References: <20220915124557.591485-1-sashal@kernel.org>
+ <92e8f14b-04f4-88a1-6071-fc87117ba5a1@wanadoo.fr>
 MIME-Version: 1.0
-Received: by 2002:a5d:584a:0:0:0:0:0 with HTTP; Fri, 16 Sep 2022 03:33:40
- -0700 (PDT)
-Reply-To: susanne.klattn01@gmail.com
-From:   Susanne Klatten <rukaiyyaadamu4@gmail.com>
-Date:   Fri, 16 Sep 2022 03:33:40 -0700
-Message-ID: <CAFUU7=Wyj9_oESxzunMeYOMi2ynohi-QAuUVMeLgVzCBSyc46Q@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=7.2 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        HK_RANDOM_ENVFROM,HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:334 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5002]
-        *  1.0 HK_RANDOM_ENVFROM Envelope sender username looks random
-        *  1.0 HK_RANDOM_FROM From username looks random
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [rukaiyyaadamu4[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [susanne.klattn01[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [rukaiyyaadamu4[at]gmail.com]
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  3.1 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <92e8f14b-04f4-88a1-6071-fc87117ba5a1@wanadoo.fr>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1oZ8sc-000owT-FV
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:58840
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 7
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_SOFTFAIL autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Hallo
+On Thu, Sep 15, 2022 at 08:48:05PM +0200, Marion & Christophe JAILLET wrote:
+> 
+> Le 15/09/2022 à 14:45, Sasha Levin a écrit :
+> > This is a note to let you know that I've just added the patch titled
+> > 
+> >      hwmon: (pmbus) Use dev_err_probe() to filter -EPROBE_DEFER error messages
+> > 
+> > to the 5.10-stable tree which can be found at:
+> >      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> > 
+> > The filename of the patch is:
+> >       hwmon-pmbus-use-dev_err_probe-to-filter-eprobe_defer.patch
+> > and it can be found in the queue-5.10 subdirectory.
+> > 
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
+> > 
+> Hi,
+> 
+> I'm not sure that this one makes a real sense for backport.
+> 
+> It can't hurt, but it does not fix a real issue, it just voids a potential
+> spurious message.
+> 
+> In my original mail, there is no "stable@" or "fix" or "bug" keywords or
+> "Fixes:" tag.
+> There is also apparently no patch in this backport serie that relies on this
+> patch.
+> 
+> Why has it been selected?
+> 
+That is essentially how AUTOSEL works. It picks patches based on keywords.
+I am sure Sasha can provide details.
 
-Ich bin Susanne Klatten und komme aus Deutschland, ich kann Ihre
-finanziellen Probleme ohne R=C3=BCckgriff auf Banken im Bereich Kreditgeld
-in den Griff bekommen. Wir bieten Privatkredite und Gesch=C3=A4ftskredite
-an, ich bin ein zugelassener und zertifizierter Kreditgeber mit
-jahrelanger Erfahrung in der Kreditvergabe und wir vergeben besicherte
-und unbesicherte Kreditbetr=C3=A4ge von 10.000,00 =E2=82=AC ($) bis maximal
-50,000,000,00 =E2=82=AC mit einem festen Zinssatz von 2 % j=C3=A4hrlich. Br=
-auchen
-Sie einen Kredit? Senden Sie uns eine E-Mail an:
-susanneklatten56@gmail.com
-
-
-Mit freundlichen Gr=C3=BC=C3=9Fen.
-Unterzeichnet
-Susanne Klatten
+Guenter
