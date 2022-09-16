@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 928895BAA03
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07A075BAA0B
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230442AbiIPKI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:08:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60144 "EHLO
+        id S229772AbiIPKIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:08:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbiIPKH5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:07:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5C9AB198;
-        Fri, 16 Sep 2022 03:07:52 -0700 (PDT)
+        with ESMTP id S230505AbiIPKIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:08:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A35DAB433;
+        Fri, 16 Sep 2022 03:07:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9018DB82503;
-        Fri, 16 Sep 2022 10:07:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB563C433C1;
-        Fri, 16 Sep 2022 10:07:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E771B8250A;
+        Fri, 16 Sep 2022 10:07:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B5AC433D6;
+        Fri, 16 Sep 2022 10:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322870;
-        bh=KtB/vzbflgoFxDYfhSjAOJz5y8+CzgbvOPjGyLh8+yY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EbJCJ6u0PdjvbN9m903nrjCb1O5y/86Em7AGxUXl2WRom64CLcfVsw9XsuAxvpmEK
-         Pe6ja68rlZN3IKakOxMP5MhQTCOniOa2cFQdQ3gOOs1ZO/GqaaOoVKfGBRoDv20t+N
-         NsaRQAkjro8N6Pp8q+fN3ODbDYHbJIrgbvXIeJVI=
+        s=korg; t=1663322876;
+        bh=Zgy+Nazs56tP1qGi49XaKPb65JmdzjcY0uY4XZY5UWM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=2rLFDdUmECnnneNSKUPRJhJN+RQN8Jun9G2k/UYgBPda8N+crNa2iebTufi+BSiKz
+         1ADxBn/VL//C7/kmRDsA2qdUzbvrkoJuM4RgZXcdo0dWaMuf9Vxq75c3rrEf2quzxE
+         gY3ht6yGXXhTvKT2QchWavgJn1y+sG7cThNzW55s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 7/7] tracefs: Only clobber mode/uid/gid on remount if asked
-Date:   Fri, 16 Sep 2022 12:07:50 +0200
-Message-Id: <20220916100441.411370426@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.14 0/7] 4.14.294-rc1 review
+Date:   Fri, 16 Sep 2022 12:07:52 +0200
+Message-Id: <20220916100441.528608977@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100440.995894282@linuxfoundation.org>
-References: <20220916100440.995894282@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.294-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.294-rc1
+X-KernelTest-Deadline: 2022-09-18T10:04+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -52,138 +60,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+This is the start of the stable review cycle for the 4.14.294 release.
+There are 7 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 47311db8e8f33011d90dee76b39c8886120cdda4 upstream.
+Responses should be made by Sun, 18 Sep 2022 10:04:31 +0000.
+Anything received after that time might be too late.
 
-Users may have explicitly configured their tracefs permissions; we
-shouldn't overwrite those just because a second mount appeared.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.294-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Only clobber if the options were provided at mount time.
+thanks,
 
-Note: the previous behavior was especially surprising in the presence of
-automounted /sys/kernel/debug/tracing/.
+greg k-h
 
-Existing behavior:
+-------------
+Pseudo-Shortlog of commits:
 
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.294-rc1
 
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwx------
+Brian Norris <briannorris@chromium.org>
+    tracefs: Only clobber mode/uid/gid on remount if asked
 
-  ## Unexpected: the automount changed mode for other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwx------
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: acer-wmi: Acer Aspire One AOD270/Packard Bell Dot keymap fixes
 
-New behavior (after this change):
+Li Qiong <liqiong@nfschina.com>
+    ieee802154: cc2520: add rc code in cc2520_tx()
 
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    tg3: Disable tg3 device on system reboot to avoid triggering AER
 
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwxr-xr-x
+Jason Wang <wangborong@cdjrlc.com>
+    HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
 
-  ## Expected: the automount does not change other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
+Rob Clark <robdclark@chromium.org>
+    drm/msm/rd: Fix FIFO-full deadlock
 
-Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+Jann Horn <jannh@google.com>
+    mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
 
-Cc: stable@vger.kernel.org
-Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/tracefs/inode.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -142,6 +142,8 @@ struct tracefs_mount_opts {
- 	kuid_t uid;
- 	kgid_t gid;
- 	umode_t mode;
-+	/* Opt_* bitfield. */
-+	unsigned int opts;
- };
- 
- enum {
-@@ -242,6 +244,7 @@ static int tracefs_parse_options(char *d
- 	kgid_t gid;
- 	char *p;
- 
-+	opts->opts = 0;
- 	opts->mode = TRACEFS_DEFAULT_MODE;
- 
- 	while ((p = strsep(&data, ",")) != NULL) {
-@@ -276,24 +279,36 @@ static int tracefs_parse_options(char *d
- 		 * but traditionally tracefs has ignored all mount options
- 		 */
- 		}
-+
-+		opts->opts |= BIT(token);
- 	}
- 
- 	return 0;
- }
- 
--static int tracefs_apply_options(struct super_block *sb)
-+static int tracefs_apply_options(struct super_block *sb, bool remount)
- {
- 	struct tracefs_fs_info *fsi = sb->s_fs_info;
- 	struct inode *inode = sb->s_root->d_inode;
- 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
- 
--	inode->i_mode &= ~S_IALLUGO;
--	inode->i_mode |= opts->mode;
-+	/*
-+	 * On remount, only reset mode/uid/gid if they were provided as mount
-+	 * options.
-+	 */
-+
-+	if (!remount || opts->opts & BIT(Opt_mode)) {
-+		inode->i_mode &= ~S_IALLUGO;
-+		inode->i_mode |= opts->mode;
-+	}
- 
--	inode->i_uid = opts->uid;
-+	if (!remount || opts->opts & BIT(Opt_uid))
-+		inode->i_uid = opts->uid;
- 
--	/* Set all the group ids to the mount option */
--	set_gid(sb->s_root, opts->gid);
-+	if (!remount || opts->opts & BIT(Opt_gid)) {
-+		/* Set all the group ids to the mount option */
-+		set_gid(sb->s_root, opts->gid);
-+	}
- 
- 	return 0;
- }
-@@ -308,7 +323,7 @@ static int tracefs_remount(struct super_
- 	if (err)
- 		goto fail;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, true);
- 
- fail:
- 	return err;
-@@ -362,7 +377,7 @@ static int trace_fill_super(struct super
- 
- 	sb->s_op = &tracefs_super_operations;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, false);
- 
- 	return 0;
- 
+-------------
+
+Diffstat:
+
+ Makefile                              |  4 ++--
+ drivers/gpu/drm/msm/msm_rd.c          |  3 +++
+ drivers/hid/intel-ish-hid/ishtp-hid.h |  2 +-
+ drivers/net/ethernet/broadcom/tg3.c   |  8 ++++++--
+ drivers/net/ieee802154/cc2520.c       |  1 +
+ drivers/platform/x86/acer-wmi.c       |  9 ++++++++-
+ fs/tracefs/inode.c                    | 31 +++++++++++++++++++++++--------
+ mm/mmap.c                             |  9 +++++++--
+ 8 files changed, 51 insertions(+), 16 deletions(-)
 
 
