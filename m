@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC365BAAFA
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB4685BAAA9
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbiIPKOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47490 "EHLO
+        id S231483AbiIPKZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231499AbiIPKNm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:13:42 -0400
+        with ESMTP id S231830AbiIPKXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6137AD9B5;
-        Fri, 16 Sep 2022 03:10:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03E1AE228;
+        Fri, 16 Sep 2022 03:14:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2DAA62A0E;
-        Fri, 16 Sep 2022 10:10:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF604C433C1;
-        Fri, 16 Sep 2022 10:10:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56161629FE;
+        Fri, 16 Sep 2022 10:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4993BC433D6;
+        Fri, 16 Sep 2022 10:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323013;
-        bh=ReT6XPEknBgcMSGh085sNSfZlsjF/NO5bRy7aJLRGE8=;
+        s=korg; t=1663323232;
+        bh=PRBPCyadRuV9zkGr+EwMDIzNXZl0sf3bWmirgArukng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vpFG4mCT+vqbwz7w+zNlfIY9zXNFqvpl1UvH/tiB6v9ksG/2znG+PuoKmz2fG0cAd
-         Xb1Ik+6Z9/rKd96PdnZVErwG3qD/sa3oCv0zIuTBcS3RFOB19BbqD2ew7w+1Hv6lEh
-         05IHV2nzDMTfbpGOs1VXsN8PTUX+5HUDFqHkDItc=
+        b=OxzxAfFYDW9RK8b47wruntH4kqIbzFHx1JaLs0ijIfmH89HC9DVNGJYi8tr1jKRoL
+         2LhrSvXfrYS+2YXGJMbt9WuGvHWVuA4QM4On8cSYq6yiMlaNZk2Ogp1Vx+9i+VpUVH
+         Xl7hTcuyfHoQr+etuGiyMG2+rfy4f2+ReB9h2xIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Yishai Hadas <yishaih@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/24] gpio: mockup: remove gpio debugfs when remove device
+Subject: [PATCH 5.19 02/38] net/mlx5: Introduce ifc bits for using software vhca id
 Date:   Fri, 16 Sep 2022 12:08:36 +0200
-Message-Id: <20220916100445.860652416@linuxfoundation.org>
+Message-Id: <20220916100448.537727730@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Yishai Hadas <yishaih@nvidia.com>
 
-[ Upstream commit 303e6da99429510b1e4edf833afe90ac8542e747 ]
+[ Upstream commit 0372c546eca575445331c0ad8902210b70be6d61 ]
 
-GPIO mockup debugfs is created in gpio_mockup_probe() but
-forgot to remove when remove device. This patch add a devm
-managed callback for removing them.
+Introduce ifc related stuff to enable using software vhca id
+functionality.
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Stable-dep-of: 9ca05b0f27de ("RDMA/mlx5: Rely on RoCE fw cap instead of devlink when setting profile")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mockup.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/linux/mlx5/mlx5_ifc.h | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
-index 67ed4f238d437..780cba4e30d0e 100644
---- a/drivers/gpio/gpio-mockup.c
-+++ b/drivers/gpio/gpio-mockup.c
-@@ -375,6 +375,13 @@ static void gpio_mockup_debugfs_setup(struct device *dev,
- 	}
- }
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index fd7d083a34d33..6d57e5ec9718d 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -1804,7 +1804,14 @@ struct mlx5_ifc_cmd_hca_cap_2_bits {
+ 	u8	   max_reformat_remove_size[0x8];
+ 	u8	   max_reformat_remove_offset[0x8];
  
-+static void gpio_mockup_debugfs_cleanup(void *data)
-+{
-+	struct gpio_mockup_chip *chip = data;
+-	u8	   reserved_at_c0[0x740];
++	u8	   reserved_at_c0[0x160];
 +
-+	debugfs_remove_recursive(chip->dbg_dir);
-+}
++	u8	   reserved_at_220[0x1];
++	u8	   sw_vhca_id_valid[0x1];
++	u8	   sw_vhca_id[0xe];
++	u8	   reserved_at_230[0x10];
 +
- static void gpio_mockup_dispose_mappings(void *data)
- {
- 	struct gpio_mockup_chip *chip = data;
-@@ -457,7 +464,7 @@ static int gpio_mockup_probe(struct platform_device *pdev)
++	u8	   reserved_at_240[0x5c0];
+ };
  
- 	gpio_mockup_debugfs_setup(dev, chip);
+ enum mlx5_ifc_flow_destination_type {
+@@ -3715,6 +3722,11 @@ struct mlx5_ifc_rmpc_bits {
+ 	struct mlx5_ifc_wq_bits wq;
+ };
  
--	return 0;
-+	return devm_add_action_or_reset(dev, gpio_mockup_debugfs_cleanup, chip);
- }
++enum {
++	VHCA_ID_TYPE_HW = 0,
++	VHCA_ID_TYPE_SW = 1,
++};
++
+ struct mlx5_ifc_nic_vport_context_bits {
+ 	u8         reserved_at_0[0x5];
+ 	u8         min_wqe_inline_mode[0x3];
+@@ -3731,8 +3743,8 @@ struct mlx5_ifc_nic_vport_context_bits {
+ 	u8         event_on_mc_address_change[0x1];
+ 	u8         event_on_uc_address_change[0x1];
  
- static struct platform_driver gpio_mockup_driver = {
+-	u8         reserved_at_40[0xc];
+-
++	u8         vhca_id_type[0x1];
++	u8         reserved_at_41[0xb];
+ 	u8	   affiliation_criteria[0x4];
+ 	u8	   affiliated_vhca_id[0x10];
+ 
+@@ -7189,7 +7201,12 @@ struct mlx5_ifc_init_hca_in_bits {
+ 	u8         reserved_at_20[0x10];
+ 	u8         op_mod[0x10];
+ 
+-	u8         reserved_at_40[0x40];
++	u8         reserved_at_40[0x20];
++
++	u8         reserved_at_60[0x2];
++	u8         sw_vhca_id[0xe];
++	u8         reserved_at_70[0x10];
++
+ 	u8	   sw_owner_id[4][0x20];
+ };
+ 
 -- 
 2.35.1
 
