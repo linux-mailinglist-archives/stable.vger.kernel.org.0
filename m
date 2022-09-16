@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D82465BAAEC
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 308AE5BAB40
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231478AbiIPKPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47488 "EHLO
+        id S231605AbiIPKQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:16:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231616AbiIPKN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:13:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56A96F57A;
-        Fri, 16 Sep 2022 03:10:58 -0700 (PDT)
+        with ESMTP id S231450AbiIPKPp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100CAABF24;
+        Fri, 16 Sep 2022 03:11:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4618B82518;
-        Fri, 16 Sep 2022 10:10:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54CCAC433C1;
-        Fri, 16 Sep 2022 10:10:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B63E562A09;
+        Fri, 16 Sep 2022 10:11:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD63EC433D6;
+        Fri, 16 Sep 2022 10:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323025;
-        bh=lRYtQB69EtfQRubg8vFLUURPMKviBMHdbvGlQzE+pyY=;
+        s=korg; t=1663323108;
+        bh=hTXg7u7di5Z06XG9BCn6oG8/0a79m4ePnTp0VKoo82Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHy9qVlIGltDrUoINB5XwDZy+oLaBIs4etQU6T2fH77Ikl+SkYM2eJvrP90d/grlQ
-         6Lkdlp3OBXDmvy5cSbJf1cGF35Jn5eHN453xidW6VvDbKTkzPbrCkaAFHuJ2NF8mHs
-         ZV/Lt9gP3P67xSKOMoGzjGIgo+Lqwc0mwxMOSpSI=
+        b=JieO2ZC424eu73WgDoUU1q0NBMd7fHjKTZq6TSXQwuDVTXd26+0mh0HDH9A8uZLMz
+         bivxRQYXDpViMSBIu6LaaYVdbV0VfAxAV93C50mpWv7qguMrr7hNagj21zGApOb0Ud
+         +N2MieJRsdDMj7NKugER0LTd0FylB3NnKuw/qZTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengming Gui <Jack.Gui@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/24] drm/amd/amdgpu: skip ucode loading if ucode_size == 0
+Subject: [PATCH 5.15 17/35] dt-bindings: iio: gyroscope: bosch,bmg160: correct number of pins
 Date:   Fri, 16 Sep 2022 12:08:40 +0200
-Message-Id: <20220916100446.047884480@linuxfoundation.org>
+Message-Id: <20220916100447.667024754@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
+In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
+References: <20220916100446.916515275@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Gui <Jack.Gui@amd.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 39c84b8e929dbd4f63be7e04bf1a2bcd92b44177 ]
+[ Upstream commit 767470209cedbe2cc72ba38d77c9f096d2c7694c ]
 
-Restrict the ucode loading check to avoid frontdoor loading error.
+BMG160 has two interrupt pins to which interrupts can be freely mapped.
+Correct the schema to express such case and fix warnings like:
 
-Signed-off-by: Chengming Gui <Jack.Gui@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  qcom/msm8916-alcatel-idol347.dtb: gyroscope@68: interrupts: [[97, 1], [98, 1]] is too long
+
+However the basic issue still persists - the interrupts should come in a
+defined order.
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220805075503.16983-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml         | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index ae84d3b582aa5..8a2abcfd5a889 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -1921,7 +1921,7 @@ static int psp_load_smu_fw(struct psp_context *psp)
- static bool fw_load_skip_check(struct psp_context *psp,
- 			       struct amdgpu_firmware_info *ucode)
- {
--	if (!ucode->fw)
-+	if (!ucode->fw || !ucode->ucode_size)
- 		return true;
+diff --git a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
+index b6bbc312a7cf7..1414ba9977c16 100644
+--- a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
++++ b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
+@@ -24,8 +24,10 @@ properties:
  
- 	if (ucode->ucode_id == AMDGPU_UCODE_ID_SMC &&
+   interrupts:
+     minItems: 1
++    maxItems: 2
+     description:
+       Should be configured with type IRQ_TYPE_EDGE_RISING.
++      If two interrupts are provided, expected order is INT1 and INT2.
+ 
+ required:
+   - compatible
 -- 
 2.35.1
 
