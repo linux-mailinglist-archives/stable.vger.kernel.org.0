@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C285BAAAD
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457885BAB0C
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231491AbiIPKQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
+        id S231853AbiIPKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbiIPKPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C62AD9AB;
-        Fri, 16 Sep 2022 03:12:02 -0700 (PDT)
+        with ESMTP id S230474AbiIPKXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7611FB0B3D;
+        Fri, 16 Sep 2022 03:14:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E1DA62A22;
-        Fri, 16 Sep 2022 10:11:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C4CC433C1;
-        Fri, 16 Sep 2022 10:11:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92DDCB82551;
+        Fri, 16 Sep 2022 10:14:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD9D8C433C1;
+        Fri, 16 Sep 2022 10:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323077;
-        bh=bc2OW2J+0cXow/XWPZkMpI2LiaUOa6IBtOe2gC9WYqI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znzrJwIwC5Em0leD2O4XqqyTX+p4+y4JqreT10PTSpDJ9g5Cj6Krwgw9SNgbJ7ym8
-         GIzUA+CRF4bucLPh4A6b3Qa2XJw2Rp7RHsAadH1zVLhOQX0JfjLMX07rqiMV1m2cJo
-         SB959E85Md4ekND6dj/KlJWIBZsBg6P2OPSBGHjs=
+        s=korg; t=1663323257;
+        bh=jok/kkh2g/6U00S6qVysOXZQEV20tRTNXa4wZUSVXec=;
+        h=From:To:Cc:Subject:Date:From;
+        b=s/9bCMpJU1j9Bu0+uxBvHtcCxSQobVPt5N1v3JWBaWHdcWbVHvkuRfxgvk+nH8WSq
+         D8KuOn5OQXkRRedHbl3ggAqNjW+GJAUluNOJF8wc97pAbXrizzdjfdBAybCYWup34u
+         shE+apZybmtBISLgdXKtNGKh5hnwGmcVL6KT3EFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 09/24] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.19 00/38] 5.19.10-rc1 review
 Date:   Fri, 16 Sep 2022 12:08:34 +0200
-Message-Id: <20220916100445.774279282@linuxfoundation.org>
+Message-Id: <20220916100448.431016349@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.10-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.19.10-rc1
+X-KernelTest-Deadline: 2022-09-18T10:04+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,153 +60,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Even Xu <even.xu@intel.com>
+This is the start of the stable review cycle for the 5.19.10 release.
+There are 38 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit e1fa076706209cc447d7a2abd0843a18277e5ef7 ]
+Responses should be made by Sun, 18 Sep 2022 10:04:31 +0000.
+Anything received after that time might be too late.
 
-There is a timing issue captured during ishtp client sending stress tests.
-It was observed during stress tests that ISH firmware is getting out of
-ordered messages. This is a rare scenario as the current set of ISH client
-drivers don't send much data to firmware. But this may not be the case
-going forward.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.10-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+and the diffstat can be found below.
 
-When message size is bigger than IPC MTU, ishtp splits the message into
-fragments and uses serialized async method to send message fragments.
-The call stack:
-ishtp_cl_send_msg_ipc->ipc_tx_callback(first fregment)->
-ishtp_send_msg(with callback)->write_ipc_to_queue->
-write_ipc_from_queue->callback->ipc_tx_callback(next fregment)......
+thanks,
 
-When an ipc write complete interrupt is received, driver also calls
-write_ipc_from_queue->ipc_tx_callback in ISR to start sending of next fragment.
+greg k-h
 
-Through ipc_tx_callback uses spin_lock to protect message splitting, as the
-serialized sending method will call back to ipc_tx_callback again, so it doesn't
-put sending under spin_lock, it causes driver cannot guarantee all fragments
-be sent in order.
+-------------
+Pseudo-Shortlog of commits:
 
-Considering this scenario:
-ipc_tx_callback just finished a fragment splitting, and not call ishtp_send_msg
-yet, there is a write complete interrupt happens, then ISR->write_ipc_from_queue
-->ipc_tx_callback->ishtp_send_msg->write_ipc_to_queue......
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.19.10-rc1
 
-Because ISR has higher exec priority than normal thread, this causes the new
-fragment be sent out before previous fragment. This disordered message causes
-invalid message to firmware.
+Jarrah Gosbell <kernel@undef.tools>
+    Input: goodix - add compatible string for GT1158
 
-The solution is, to send fragments synchronously:
-Use ishtp_write_message writing fragments into tx queue directly one by one,
-instead of ishtp_send_msg only writing one fragment with completion callback.
-As no completion callback be used, so change ipc_tx_callback to ipc_tx_send.
+Sindhu-Devale <sindhu.devale@intel.com>
+    RDMA/irdma: Use s/g array in post send only when its valid
 
-Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/intel-ish-hid/ishtp/client.c | 68 ++++++++++++++----------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+William Breathitt Gray <william.gray@linaro.org>
+    gpio: 104-idio-16: Make irq_chip immutable
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 1cc157126fce7..c0d69303e3b09 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -626,13 +626,14 @@ static void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
- }
- 
- /**
-- * ipc_tx_callback() - IPC tx callback function
-+ * ipc_tx_send() - IPC tx send function
-  * @prm: Pointer to client device instance
-  *
-- * Send message over IPC either first time or on callback on previous message
-- * completion
-+ * Send message over IPC. Message will be split into fragments
-+ * if message size is bigger than IPC FIFO size, and all
-+ * fragments will be sent one by one.
-  */
--static void ipc_tx_callback(void *prm)
-+static void ipc_tx_send(void *prm)
- {
- 	struct ishtp_cl	*cl = prm;
- 	struct ishtp_cl_tx_ring	*cl_msg;
-@@ -677,32 +678,41 @@ static void ipc_tx_callback(void *prm)
- 			    list);
- 	rem = cl_msg->send_buf.size - cl->tx_offs;
- 
--	ishtp_hdr.host_addr = cl->host_client_id;
--	ishtp_hdr.fw_addr = cl->fw_client_id;
--	ishtp_hdr.reserved = 0;
--	pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+	while (rem > 0) {
-+		ishtp_hdr.host_addr = cl->host_client_id;
-+		ishtp_hdr.fw_addr = cl->fw_client_id;
-+		ishtp_hdr.reserved = 0;
-+		pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+
-+		if (rem <= dev->mtu) {
-+			/* Last fragment or only one packet */
-+			ishtp_hdr.length = rem;
-+			ishtp_hdr.msg_complete = 1;
-+			/* Submit to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs = 0;
-+			cl->sending = 0;
- 
--	if (rem <= dev->mtu) {
--		ishtp_hdr.length = rem;
--		ishtp_hdr.msg_complete = 1;
--		cl->sending = 0;
--		list_del_init(&cl_msg->list);	/* Must be before write */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		/* Submit to IPC queue with no callback */
--		ishtp_write_message(dev, &ishtp_hdr, pmsg);
--		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
--		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
--		++cl->tx_ring_free_size;
--		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
--			tx_free_flags);
--	} else {
--		/* Send IPC fragment */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		cl->tx_offs += dev->mtu;
--		ishtp_hdr.length = dev->mtu;
--		ishtp_hdr.msg_complete = 0;
--		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
-+			break;
-+		} else {
-+			/* Send ipc fragment */
-+			ishtp_hdr.length = dev->mtu;
-+			ishtp_hdr.msg_complete = 0;
-+			/* All fregments submitted to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs += dev->mtu;
-+			rem = cl_msg->send_buf.size - cl->tx_offs;
-+		}
- 	}
-+
-+	list_del_init(&cl_msg->list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	++cl->tx_ring_free_size;
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+		tx_free_flags);
- }
- 
- /**
-@@ -720,7 +730,7 @@ static void ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
- 		return;
- 
- 	cl->tx_offs = 0;
--	ipc_tx_callback(cl);
-+	ipc_tx_send(cl);
- 	++cl->send_msg_cnt_ipc;
- }
- 
--- 
-2.35.1
+William Breathitt Gray <william.gray@linaro.org>
+    gpio: 104-dio-48e: Make irq_chip immutable
 
+Yupeng Li <liyupeng@zbhlos.com>
+    LoongArch: Fix arch_remove_memory() undefined build error
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: Fix section mismatch due to acpi_os_ioremap()
+
+Luke D. Jones <luke@ljones.dev>
+    platform/x86: asus-wmi: Increase FAN_CURVE_BUF_LEN to 32
+
+Hu Xiaoying <huxiaoying@kylinos.cn>
+    usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
+
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: acer-wmi: Acer Aspire One AOD270/Packard Bell Dot keymap fixes
+
+Yu Zhe <yuzhe@nfschina.com>
+    perf/arm_pmu_platform: fix tests for platform_get_irq() failure
+
+Kurt Kanzenbach <kurt@linutronix.de>
+    net: dsa: hellcreek: Print warning only once
+
+Chengming Gui <Jack.Gui@amd.com>
+    drm/amd/amdgpu: skip ucode loading if ucode_size == 0
+
+Maurizio Lombardi <mlombard@redhat.com>
+    nvmet-tcp: fix unhandled tcp states in nvmet_tcp_state_change()
+
+Shyamin Ayesh <me@shyamin.com>
+    nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM610
+
+Evan Quan <evan.quan@amd.com>
+    drm/amd/pm: use vbios carried pptable for all SMU13.0.7 SKUs
+
+Guchun Chen <guchun.chen@amd.com>
+    drm/amdgpu: disable FRU access on special SIENNA CICHLID card
+
+Greg Tulli <greg.iforce@gmail.com>
+    Input: iforce - add support for Boeder Force Feedback Wheel
+
+Li Qiong <liqiong@nfschina.com>
+    ieee802154: cc2520: add rc code in cc2520_tx()
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    gpio: mockup: remove gpio debugfs when remove device
+
+Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+    r8152: add PID for the Lenovo OneLink+ Dock
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    tg3: Disable tg3 device on system reboot to avoid triggering AER
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: MGMT: Fix Get Device Flags
+
+Even Xu <even.xu@intel.com>
+    hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
+
+Jason Wang <wangborong@cdjrlc.com>
+    HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
+
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+    dt-bindings: iio: gyroscope: bosch,bmg160: correct number of pins
+
+Junaid Shahid <junaids@google.com>
+    kvm: x86: mmu: Always flush TLBs when enabling dirty logging
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    hwmon: (pmbus) Use dev_err_probe() to filter -EPROBE_DEFER error messages
+
+Iwona Winiarska <iwona.winiarska@intel.com>
+    peci: cpu: Fix use-after-free in adev_release()
+
+Rob Clark <robdclark@chromium.org>
+    drm/msm/rd: Fix FIFO-full deadlock
+
+Maximilian Luz <luzmaximilian@gmail.com>
+    platform/surface: aggregator_registry: Add support for Surface Laptop Go 2
+
+Ondrej Jirman <megi@xff.cz>
+    Input: goodix - add support for GT1158
+
+Chuanhong Guo <gch981213@gmail.com>
+    ACPI: resource: skip IRQ override on AMD Zen platforms
+
+Maor Gottlieb <maorg@nvidia.com>
+    RDMA/mlx5: Fix UMR cleanup on error flow of driver init
+
+Aharon Landau <aharonl@nvidia.com>
+    RDMA/mlx5: Add a umr recovery flow
+
+Maher Sanalla <msanalla@nvidia.com>
+    RDMA/mlx5: Rely on RoCE fw cap instead of devlink when setting profile
+
+Yishai Hadas <yishaih@nvidia.com>
+    net/mlx5: Use software VHCA id when it's supported
+
+Yishai Hadas <yishaih@nvidia.com>
+    net/mlx5: Introduce ifc bits for using software vhca id
+
+Lu Baolu <baolu.lu@linux.intel.com>
+    iommu/vt-d: Fix kdump kernels boot failure with scalable mode
+
+
+-------------
+
+Diffstat:
+
+ .../bindings/iio/gyroscope/bosch,bmg160.yaml       |   2 +
+ Documentation/input/joydev/joystick.rst            |   1 +
+ Makefile                                           |   4 +-
+ arch/loongarch/Kconfig                             |   1 +
+ arch/loongarch/include/asm/acpi.h                  |   2 +-
+ arch/loongarch/kernel/acpi.c                       |   2 +-
+ arch/loongarch/mm/init.c                           |  22 +++--
+ arch/x86/kvm/mmu/mmu.c                             |  45 ++--------
+ arch/x86/kvm/mmu/spte.h                            |  14 ++-
+ arch/x86/kvm/x86.c                                 |  44 +++++++++
+ drivers/acpi/resource.c                            |  10 +++
+ drivers/gpio/gpio-104-dio-48e.c                    |  10 ++-
+ drivers/gpio/gpio-104-idio-16.c                    |  18 ++--
+ drivers/gpio/gpio-mockup.c                         |   9 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c     |   9 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c            |   2 +-
+ .../gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c   |  35 +++++---
+ drivers/gpu/drm/msm/msm_rd.c                       |   3 +
+ drivers/hid/intel-ish-hid/ishtp-hid.h              |   2 +-
+ drivers/hid/intel-ish-hid/ishtp/client.c           |  68 ++++++++------
+ drivers/hwmon/pmbus/pmbus_core.c                   |   9 +-
+ drivers/infiniband/hw/irdma/uk.c                   |   3 +-
+ drivers/infiniband/hw/mlx5/cq.c                    |   4 +
+ drivers/infiniband/hw/mlx5/main.c                  |   2 +-
+ drivers/infiniband/hw/mlx5/mlx5_ib.h               |  13 ++-
+ drivers/infiniband/hw/mlx5/umr.c                   |  81 ++++++++++++++---
+ drivers/input/joystick/iforce/iforce-main.c        |   1 +
+ drivers/input/touchscreen/goodix.c                 |   2 +
+ drivers/iommu/intel/iommu.c                        | 100 +++++++++------------
+ drivers/net/ethernet/broadcom/tg3.c                |   8 +-
+ drivers/net/ethernet/mellanox/mlx5/core/fw.c       |   4 +
+ drivers/net/ethernet/mellanox/mlx5/core/main.c     |  72 ++++++++++++++-
+ drivers/net/ethernet/mellanox/mlx5/core/vport.c    |  14 ++-
+ drivers/net/ieee802154/cc2520.c                    |   1 +
+ drivers/net/usb/cdc_ether.c                        |   7 ++
+ drivers/net/usb/r8152.c                            |   3 +
+ drivers/nvme/host/pci.c                            |   2 +
+ drivers/nvme/target/tcp.c                          |   3 +
+ drivers/peci/cpu.c                                 |   3 +-
+ drivers/perf/arm_pmu_platform.c                    |   2 +-
+ .../platform/surface/surface_aggregator_registry.c |   3 +
+ drivers/platform/x86/acer-wmi.c                    |   9 +-
+ drivers/platform/x86/asus-wmi.c                    |   9 +-
+ drivers/usb/storage/unusual_uas.h                  |   7 ++
+ include/linux/intel-iommu.h                        |   9 +-
+ include/linux/mlx5/driver.h                        |  20 +++--
+ include/linux/mlx5/mlx5_ifc.h                      |  25 +++++-
+ net/bluetooth/mgmt.c                               |  71 +++++++++------
+ net/dsa/tag_hellcreek.c                            |   2 +-
+ 49 files changed, 541 insertions(+), 251 deletions(-)
 
 
