@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE2C5BAAAA
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F695BAB34
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbiIPKTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37468 "EHLO
+        id S231783AbiIPKaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:30:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231812AbiIPKSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:18:50 -0400
+        with ESMTP id S231907AbiIPK2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:28:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A77AFAF3;
-        Fri, 16 Sep 2022 03:12:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01943B3B00;
+        Fri, 16 Sep 2022 03:16:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF29662A20;
-        Fri, 16 Sep 2022 10:12:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B88C433C1;
-        Fri, 16 Sep 2022 10:12:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5CDA629E6;
+        Fri, 16 Sep 2022 10:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8BC1C433C1;
+        Fri, 16 Sep 2022 10:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323162;
-        bh=8ThC85J/wSX3GFsBiI4U7mtGNrOsFRRcVFqnrA//jpc=;
+        s=korg; t=1663323299;
+        bh=54RdefYutBM/Gw3iVNj/W+hkwOzEHl/9vNlS+w2lrfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2Kowy92iu+Ao3ZyxwIQTDo3qrcSd6P0n+wIqUCnWH6o6d2viEAfFFUr0tQRKqdF0
-         Hgu0Si4h96j7BwH1C4p7lcYZH9xoQ9i13XlB90KhnNyIkBtKH8WuF9XNeXDpkBO3xI
-         VjlcMet6Ch+w0gjX/ShdYY5wlKjn6d4BMEpvpWK8=
+        b=iQhV9DcXpRu6Vn1lnz+Lavw76KN/YtbkwrEzPncoVElifVnW1mx0lsNWA1rhHazsy
+         Be7ZRNsh0Kv9+6S6XQbYBMpC8k39P9q1gEkTq0Y16KIhAlF4H5Xhws/9y/HQfTVcAT
+         ey3MaqXXCeIA78+GTFJHCBroW7uyeKA9ZJR0hAvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Jing Leng <jleng@ambarella.com>,
-        Jack Pham <quic_jackp@quicinc.com>
-Subject: [PATCH 5.15 33/35] usb: gadget: f_uac2: fix superspeed transfer
+        stable@vger.kernel.org, Greg Tulli <greg.iforce@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 22/38] Input: iforce - add support for Boeder Force Feedback Wheel
 Date:   Fri, 16 Sep 2022 12:08:56 +0200
-Message-Id: <20220916100448.339070740@linuxfoundation.org>
+Message-Id: <20220916100449.399705303@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Leng <jleng@ambarella.com>
+From: Greg Tulli <greg.iforce@gmail.com>
 
-commit f511aef2ebe5377d4c263842f2e0c0b8e274e8e5 upstream.
+[ Upstream commit 9c9c71168f7979f3798b61c65b4530fbfbcf19d1 ]
 
-On page 362 of the USB3.2 specification (
-https://usb.org/sites/default/files/usb_32_20210125.zip),
-The 'SuperSpeed Endpoint Companion Descriptor' shall only be returned
-by Enhanced SuperSpeed devices that are operating at Gen X speed.
-Each endpoint described in an interface is followed by a 'SuperSpeed
-Endpoint Companion Descriptor'.
+Add a new iforce_device entry to support the Boeder Force Feedback Wheel
+device.
 
-If users use SuperSpeed UDC, host can't recognize the device if endpoint
-doesn't have 'SuperSpeed Endpoint Companion Descriptor' followed.
-
-Currently in the uac2 driver code:
-1. ss_epout_desc_comp follows ss_epout_desc;
-2. ss_epin_fback_desc_comp follows ss_epin_fback_desc;
-3. ss_epin_desc_comp follows ss_epin_desc;
-4. Only ss_ep_int_desc endpoint doesn't have 'SuperSpeed Endpoint
-Companion Descriptor' followed, so we should add it.
-
-Fixes: eaf6cbe09920 ("usb: gadget: f_uac2: add volume and mute support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Jing Leng <jleng@ambarella.com>
-Signed-off-by: Jack Pham <quic_jackp@quicinc.com>
-Link: https://lore.kernel.org/r/20220721014815.14453-1-quic_jackp@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Tulli <greg.iforce@gmail.com>
+Link: https://lore.kernel.org/r/3256420-c8ac-31b-8499-3c488a9880fd@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uac2.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ Documentation/input/joydev/joystick.rst     | 1 +
+ drivers/input/joystick/iforce/iforce-main.c | 1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -281,6 +281,12 @@ static struct usb_endpoint_descriptor ss
- 	.bInterval = 4,
- };
- 
-+static struct usb_ss_ep_comp_descriptor ss_ep_int_desc_comp = {
-+	.bLength = sizeof(ss_ep_int_desc_comp),
-+	.bDescriptorType = USB_DT_SS_ENDPOINT_COMP,
-+	.wBytesPerInterval = cpu_to_le16(6),
-+};
-+
- /* Audio Streaming OUT Interface - Alt0 */
- static struct usb_interface_descriptor std_as_out_if0_desc = {
- 	.bLength = sizeof std_as_out_if0_desc,
-@@ -594,7 +600,8 @@ static struct usb_descriptor_header *ss_
- 	(struct usb_descriptor_header *)&in_feature_unit_desc,
- 	(struct usb_descriptor_header *)&io_out_ot_desc,
- 
--  (struct usb_descriptor_header *)&ss_ep_int_desc,
-+	(struct usb_descriptor_header *)&ss_ep_int_desc,
-+	(struct usb_descriptor_header *)&ss_ep_int_desc_comp,
- 
- 	(struct usb_descriptor_header *)&std_as_out_if0_desc,
- 	(struct usb_descriptor_header *)&std_as_out_if1_desc,
-@@ -721,6 +728,7 @@ static void setup_headers(struct f_uac2_
- 	struct usb_ss_ep_comp_descriptor *epout_desc_comp = NULL;
- 	struct usb_ss_ep_comp_descriptor *epin_desc_comp = NULL;
- 	struct usb_ss_ep_comp_descriptor *epin_fback_desc_comp = NULL;
-+	struct usb_ss_ep_comp_descriptor *ep_int_desc_comp = NULL;
- 	struct usb_endpoint_descriptor *epout_desc;
- 	struct usb_endpoint_descriptor *epin_desc;
- 	struct usb_endpoint_descriptor *epin_fback_desc;
-@@ -748,6 +756,7 @@ static void setup_headers(struct f_uac2_
- 		epin_fback_desc = &ss_epin_fback_desc;
- 		epin_fback_desc_comp = &ss_epin_fback_desc_comp;
- 		ep_int_desc = &ss_ep_int_desc;
-+		ep_int_desc_comp = &ss_ep_int_desc_comp;
- 	}
- 
- 	i = 0;
-@@ -776,8 +785,11 @@ static void setup_headers(struct f_uac2_
- 	if (EPOUT_EN(opts))
- 		headers[i++] = USBDHDR(&io_out_ot_desc);
- 
--	if (FUOUT_EN(opts) || FUIN_EN(opts))
-+	if (FUOUT_EN(opts) || FUIN_EN(opts)) {
- 		headers[i++] = USBDHDR(ep_int_desc);
-+		if (ep_int_desc_comp)
-+			headers[i++] = USBDHDR(ep_int_desc_comp);
-+	}
- 
- 	if (EPOUT_EN(opts)) {
- 		headers[i++] = USBDHDR(&std_as_out_if0_desc);
+diff --git a/Documentation/input/joydev/joystick.rst b/Documentation/input/joydev/joystick.rst
+index f615906a0821b..6d721396717a2 100644
+--- a/Documentation/input/joydev/joystick.rst
++++ b/Documentation/input/joydev/joystick.rst
+@@ -517,6 +517,7 @@ All I-Force devices are supported by the iforce module. This includes:
+ * AVB Mag Turbo Force
+ * AVB Top Shot Pegasus
+ * AVB Top Shot Force Feedback Racing Wheel
++* Boeder Force Feedback Wheel
+ * Logitech WingMan Force
+ * Logitech WingMan Force Wheel
+ * Guillemot Race Leader Force Feedback
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index b2a68bc9f0b4d..b86de1312512b 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -50,6 +50,7 @@ static struct iforce_device iforce_device[] = {
+ 	{ 0x046d, 0xc291, "Logitech WingMan Formula Force",		btn_wheel, abs_wheel, ff_iforce },
+ 	{ 0x05ef, 0x020a, "AVB Top Shot Pegasus",			btn_joystick_avb, abs_avb_pegasus, ff_iforce },
+ 	{ 0x05ef, 0x8884, "AVB Mag Turbo Force",			btn_wheel, abs_wheel, ff_iforce },
++	{ 0x05ef, 0x8886, "Boeder Force Feedback Wheel",		btn_wheel, abs_wheel, ff_iforce },
+ 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
+-- 
+2.35.1
+
 
 
