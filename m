@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 994A55BAA4A
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5C285BAAAD
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbiIPKR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:17:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48910 "EHLO
+        id S231491AbiIPKQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231534AbiIPKRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:17:07 -0400
+        with ESMTP id S230173AbiIPKPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D52ABD5A;
-        Fri, 16 Sep 2022 03:12:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C62AD9AB;
+        Fri, 16 Sep 2022 03:12:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 490A462A24;
-        Fri, 16 Sep 2022 10:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C493C433D6;
-        Fri, 16 Sep 2022 10:11:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E1DA62A22;
+        Fri, 16 Sep 2022 10:11:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C4CC433C1;
+        Fri, 16 Sep 2022 10:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323089;
-        bh=WtsQJAZofaUELrCVXiJTrZu1q+N1CUo+xSp1xN6POGo=;
+        s=korg; t=1663323077;
+        bh=bc2OW2J+0cXow/XWPZkMpI2LiaUOa6IBtOe2gC9WYqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x7UAqpf49CwgKVyy1IpVndDBlAHgpl13LR9t0y9DFOih0ZZ4iZ87q0cvr4ScsFmw4
-         IAXGzH/V6MgUKQQgRim0iGt4IGAt58KdlGLKjvNTNuJuQ4UOnEaRlzbTfYRH2iSodP
-         PLRgTzcSYYMPYHGrGZ4OmyOTfQxGGmFqn/3yYMbY=
+        b=znzrJwIwC5Em0leD2O4XqqyTX+p4+y4JqreT10PTSpDJ9g5Cj6Krwgw9SNgbJ7ym8
+         GIzUA+CRF4bucLPh4A6b3Qa2XJw2Rp7RHsAadH1zVLhOQX0JfjLMX07rqiMV1m2cJo
+         SB959E85Md4ekND6dj/KlJWIBZsBg6P2OPSBGHjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 11/35] tracefs: Only clobber mode/uid/gid on remount if asked
+        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 09/24] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
 Date:   Fri, 16 Sep 2022 12:08:34 +0200
-Message-Id: <20220916100447.413009805@linuxfoundation.org>
+Message-Id: <20220916100445.774279282@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,140 +53,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Even Xu <even.xu@intel.com>
 
-[ Upstream commit 47311db8e8f33011d90dee76b39c8886120cdda4 ]
+[ Upstream commit e1fa076706209cc447d7a2abd0843a18277e5ef7 ]
 
-Users may have explicitly configured their tracefs permissions; we
-shouldn't overwrite those just because a second mount appeared.
+There is a timing issue captured during ishtp client sending stress tests.
+It was observed during stress tests that ISH firmware is getting out of
+ordered messages. This is a rare scenario as the current set of ISH client
+drivers don't send much data to firmware. But this may not be the case
+going forward.
 
-Only clobber if the options were provided at mount time.
+When message size is bigger than IPC MTU, ishtp splits the message into
+fragments and uses serialized async method to send message fragments.
+The call stack:
+ishtp_cl_send_msg_ipc->ipc_tx_callback(first fregment)->
+ishtp_send_msg(with callback)->write_ipc_to_queue->
+write_ipc_from_queue->callback->ipc_tx_callback(next fregment)......
 
-Note: the previous behavior was especially surprising in the presence of
-automounted /sys/kernel/debug/tracing/.
+When an ipc write complete interrupt is received, driver also calls
+write_ipc_from_queue->ipc_tx_callback in ISR to start sending of next fragment.
 
-Existing behavior:
+Through ipc_tx_callback uses spin_lock to protect message splitting, as the
+serialized sending method will call back to ipc_tx_callback again, so it doesn't
+put sending under spin_lock, it causes driver cannot guarantee all fragments
+be sent in order.
 
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
+Considering this scenario:
+ipc_tx_callback just finished a fragment splitting, and not call ishtp_send_msg
+yet, there is a write complete interrupt happens, then ISR->write_ipc_from_queue
+->ipc_tx_callback->ishtp_send_msg->write_ipc_to_queue......
 
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwx------
+Because ISR has higher exec priority than normal thread, this causes the new
+fragment be sent out before previous fragment. This disordered message causes
+invalid message to firmware.
 
-  ## Unexpected: the automount changed mode for other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwx------
+The solution is, to send fragments synchronously:
+Use ishtp_write_message writing fragments into tx queue directly one by one,
+instead of ishtp_send_msg only writing one fragment with completion callback.
+As no completion callback be used, so change ipc_tx_callback to ipc_tx_send.
 
-New behavior (after this change):
-
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwxr-xr-x
-
-  ## Expected: the automount does not change other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
-
-Cc: stable@vger.kernel.org
-Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/tracefs/inode.c | 31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/client.c | 68 ++++++++++++++----------
+ 1 file changed, 39 insertions(+), 29 deletions(-)
 
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index f2625a372a3ae..066e8344934de 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -141,6 +141,8 @@ struct tracefs_mount_opts {
- 	kuid_t uid;
- 	kgid_t gid;
- 	umode_t mode;
-+	/* Opt_* bitfield. */
-+	unsigned int opts;
- };
- 
- enum {
-@@ -241,6 +243,7 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- 	kgid_t gid;
- 	char *p;
- 
-+	opts->opts = 0;
- 	opts->mode = TRACEFS_DEFAULT_MODE;
- 
- 	while ((p = strsep(&data, ",")) != NULL) {
-@@ -275,24 +278,36 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- 		 * but traditionally tracefs has ignored all mount options
- 		 */
- 		}
-+
-+		opts->opts |= BIT(token);
- 	}
- 
- 	return 0;
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
+index 1cc157126fce7..c0d69303e3b09 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+@@ -626,13 +626,14 @@ static void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
  }
  
--static int tracefs_apply_options(struct super_block *sb)
-+static int tracefs_apply_options(struct super_block *sb, bool remount)
+ /**
+- * ipc_tx_callback() - IPC tx callback function
++ * ipc_tx_send() - IPC tx send function
+  * @prm: Pointer to client device instance
+  *
+- * Send message over IPC either first time or on callback on previous message
+- * completion
++ * Send message over IPC. Message will be split into fragments
++ * if message size is bigger than IPC FIFO size, and all
++ * fragments will be sent one by one.
+  */
+-static void ipc_tx_callback(void *prm)
++static void ipc_tx_send(void *prm)
  {
- 	struct tracefs_fs_info *fsi = sb->s_fs_info;
- 	struct inode *inode = sb->s_root->d_inode;
- 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 	struct ishtp_cl	*cl = prm;
+ 	struct ishtp_cl_tx_ring	*cl_msg;
+@@ -677,32 +678,41 @@ static void ipc_tx_callback(void *prm)
+ 			    list);
+ 	rem = cl_msg->send_buf.size - cl->tx_offs;
  
--	inode->i_mode &= ~S_IALLUGO;
--	inode->i_mode |= opts->mode;
-+	/*
-+	 * On remount, only reset mode/uid/gid if they were provided as mount
-+	 * options.
-+	 */
+-	ishtp_hdr.host_addr = cl->host_client_id;
+-	ishtp_hdr.fw_addr = cl->fw_client_id;
+-	ishtp_hdr.reserved = 0;
+-	pmsg = cl_msg->send_buf.data + cl->tx_offs;
++	while (rem > 0) {
++		ishtp_hdr.host_addr = cl->host_client_id;
++		ishtp_hdr.fw_addr = cl->fw_client_id;
++		ishtp_hdr.reserved = 0;
++		pmsg = cl_msg->send_buf.data + cl->tx_offs;
 +
-+	if (!remount || opts->opts & BIT(Opt_mode)) {
-+		inode->i_mode &= ~S_IALLUGO;
-+		inode->i_mode |= opts->mode;
-+	}
++		if (rem <= dev->mtu) {
++			/* Last fragment or only one packet */
++			ishtp_hdr.length = rem;
++			ishtp_hdr.msg_complete = 1;
++			/* Submit to IPC queue with no callback */
++			ishtp_write_message(dev, &ishtp_hdr, pmsg);
++			cl->tx_offs = 0;
++			cl->sending = 0;
  
--	inode->i_uid = opts->uid;
-+	if (!remount || opts->opts & BIT(Opt_uid))
-+		inode->i_uid = opts->uid;
- 
--	/* Set all the group ids to the mount option */
--	set_gid(sb->s_root, opts->gid);
-+	if (!remount || opts->opts & BIT(Opt_gid)) {
-+		/* Set all the group ids to the mount option */
-+		set_gid(sb->s_root, opts->gid);
-+	}
- 
- 	return 0;
+-	if (rem <= dev->mtu) {
+-		ishtp_hdr.length = rem;
+-		ishtp_hdr.msg_complete = 1;
+-		cl->sending = 0;
+-		list_del_init(&cl_msg->list);	/* Must be before write */
+-		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
+-		/* Submit to IPC queue with no callback */
+-		ishtp_write_message(dev, &ishtp_hdr, pmsg);
+-		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
+-		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
+-		++cl->tx_ring_free_size;
+-		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
+-			tx_free_flags);
+-	} else {
+-		/* Send IPC fragment */
+-		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
+-		cl->tx_offs += dev->mtu;
+-		ishtp_hdr.length = dev->mtu;
+-		ishtp_hdr.msg_complete = 0;
+-		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
++			break;
++		} else {
++			/* Send ipc fragment */
++			ishtp_hdr.length = dev->mtu;
++			ishtp_hdr.msg_complete = 0;
++			/* All fregments submitted to IPC queue with no callback */
++			ishtp_write_message(dev, &ishtp_hdr, pmsg);
++			cl->tx_offs += dev->mtu;
++			rem = cl_msg->send_buf.size - cl->tx_offs;
++		}
+ 	}
++
++	list_del_init(&cl_msg->list);
++	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
++
++	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
++	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
++	++cl->tx_ring_free_size;
++	spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
++		tx_free_flags);
  }
-@@ -307,7 +322,7 @@ static int tracefs_remount(struct super_block *sb, int *flags, char *data)
- 	if (err)
- 		goto fail;
  
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, true);
+ /**
+@@ -720,7 +730,7 @@ static void ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
+ 		return;
  
- fail:
- 	return err;
-@@ -359,7 +374,7 @@ static int trace_fill_super(struct super_block *sb, void *data, int silent)
- 
- 	sb->s_op = &tracefs_super_operations;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, false);
- 
- 	return 0;
+ 	cl->tx_offs = 0;
+-	ipc_tx_callback(cl);
++	ipc_tx_send(cl);
+ 	++cl->send_msg_cnt_ipc;
+ }
  
 -- 
 2.35.1
