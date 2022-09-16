@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3BAE5BAB4F
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC1065BAA6D
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbiIPKTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:19:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48966 "EHLO
+        id S231160AbiIPKOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:14:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231540AbiIPKR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:17:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D8EAF4BC;
-        Fri, 16 Sep 2022 03:12:35 -0700 (PDT)
+        with ESMTP id S231546AbiIPKNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:13:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55686A99DF;
+        Fri, 16 Sep 2022 03:10:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95FD6B82549;
-        Fri, 16 Sep 2022 10:11:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF9B6C433C1;
-        Fri, 16 Sep 2022 10:11:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C69962A0A;
+        Fri, 16 Sep 2022 10:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47569C433C1;
+        Fri, 16 Sep 2022 10:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323117;
-        bh=BdWoA8ZFojBjOxpJATXbIL+4X+xDWOomOVbhhuWZ4Wg=;
+        s=korg; t=1663323006;
+        bh=g2Wmzi2h5AurOU7Q7uLwWj3zs71sGecKWErlU3thULc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpictGM0mJOHrwgERRQSLLXXGA+Z7ZVjasCpg2brtTifxmC3q4mv2Op1vTXMYj456
-         GOC0UMdHVUE2PS3BGHQKhGwtyZEApJR+sjASPEG4IpziQ0anE/sMIj9uKF6ISME5kZ
-         rRL8LxPOSba5nc7y6+Rp0cCOUfoMqZUsQW7fgTcw=
+        b=HX/AXwTf9QC3COQiTDI6v7E41WGWW1473zk1f6TWaZwY33WLoaaG2JZDr340RxdZw
+         RKkNghqs5IfYBYlcodIOVYPlvqPHWkG8EEpNlWaepcPX9jg6bTkcZErtqEKgs1hDGO
+         d5J90GmrlZz1nX364tSv7+Vf16vcjNl96roQXKao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,20 +35,21 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 03/35] ARM: dts: imx: align SPI NOR node name with dtschema
+Subject: [PATCH 5.10 01/24] ARM: dts: imx: align SPI NOR node name with dtschema
 Date:   Fri, 16 Sep 2022 12:08:26 +0200
-Message-Id: <20220916100447.079001545@linuxfoundation.org>
+Message-Id: <20220916100445.419170990@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -153,10 +154,10 @@ index 0f1616bfa9a80..b72f8ea1e6f6c 100644
  		spi-max-frequency = <20000000>;
  		reg = <0>;
 diff --git a/arch/arm/boot/dts/imx6q-ba16.dtsi b/arch/arm/boot/dts/imx6q-ba16.dtsi
-index 6330d75f8f390..f266f1b7e0cfc 100644
+index e4578ed3371ef..133991ca8c633 100644
 --- a/arch/arm/boot/dts/imx6q-ba16.dtsi
 +++ b/arch/arm/boot/dts/imx6q-ba16.dtsi
-@@ -142,7 +142,7 @@
+@@ -139,7 +139,7 @@
  	pinctrl-0 = <&pinctrl_ecspi1>;
  	status = "okay";
  
@@ -166,7 +167,7 @@ index 6330d75f8f390..f266f1b7e0cfc 100644
  		#address-cells = <1>;
  		#size-cells = <1>;
 diff --git a/arch/arm/boot/dts/imx6q-bx50v3.dtsi b/arch/arm/boot/dts/imx6q-bx50v3.dtsi
-index 10922375c51e1..ead83091e193a 100644
+index 2a98cc657595f..66be04299cbf8 100644
 --- a/arch/arm/boot/dts/imx6q-bx50v3.dtsi
 +++ b/arch/arm/boot/dts/imx6q-bx50v3.dtsi
 @@ -160,7 +160,7 @@
@@ -192,7 +193,7 @@ index bfb530f29d9de..1ad41c944b4b9 100644
  		#size-cells = <1>;
  		compatible = "st,m25p", "jedec,spi-nor";
 diff --git a/arch/arm/boot/dts/imx6q-dmo-edmqmx6.dts b/arch/arm/boot/dts/imx6q-dmo-edmqmx6.dts
-index c713ac03b3b92..9591848cbd37c 100644
+index fa2307d8ce861..4dee1b22d5c17 100644
 --- a/arch/arm/boot/dts/imx6q-dmo-edmqmx6.dts
 +++ b/arch/arm/boot/dts/imx6q-dmo-edmqmx6.dts
 @@ -102,7 +102,7 @@
@@ -270,7 +271,7 @@ index e21f6ac864e54..baa197c90060e 100644
  		#size-cells = <1>;
  		compatible = "micron,n25q128a11", "jedec,spi-nor";
 diff --git a/arch/arm/boot/dts/imx6qdl-aristainetos2.dtsi b/arch/arm/boot/dts/imx6qdl-aristainetos2.dtsi
-index 563bf9d44fe0d..2ba577e602e7f 100644
+index ead7ba27e1053..ff8cb47fb9fdb 100644
 --- a/arch/arm/boot/dts/imx6qdl-aristainetos2.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-aristainetos2.dtsi
 @@ -131,7 +131,7 @@
@@ -296,7 +297,7 @@ index 648f5fcb72e65..2c1d6f28e6950 100644
  		#size-cells = <1>;
  		compatible = "sst,sst25vf040b", "jedec,spi-nor";
 diff --git a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-index 9a3e5f7827152..f159c58b9edba 100644
+index e9a4115124eb0..02ab8a59df23a 100644
 --- a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
 @@ -248,7 +248,7 @@
@@ -309,7 +310,7 @@ index 9a3e5f7827152..f159c58b9edba 100644
  		reg = <0>;
  		spi-max-frequency = <20000000>;
 diff --git a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-index ac34709e97413..0ad4cb4f1e828 100644
+index d526f01a2c520..b7e74d859a962 100644
 --- a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
 @@ -179,7 +179,7 @@
@@ -322,7 +323,7 @@ index ac34709e97413..0ad4cb4f1e828 100644
  		spi-max-frequency = <20000000>;
  		reg = <0>;
 diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-index c96f4d7e1e0d8..beaa2dcd436ce 100644
+index a0917823c244f..a88323ac6c696 100644
 --- a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
 @@ -321,7 +321,7 @@
@@ -348,7 +349,7 @@ index 92d09a3ebe0ee..ee7e2371f94bd 100644
  		spi-max-frequency = <20000000>;
  		reg = <0>;
 diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-index 49da30d7510c4..904d5d051d63c 100644
+index 1243677b5f977..5adeb7aed2204 100644
 --- a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
 @@ -237,7 +237,7 @@
@@ -361,7 +362,7 @@ index 49da30d7510c4..904d5d051d63c 100644
  		spi-max-frequency = <20000000>;
  		reg = <0>;
 diff --git a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-index 5e58740d40c5b..1368a47620372 100644
+index afe477f329846..17535bf12516d 100644
 --- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
 @@ -272,7 +272,7 @@
@@ -374,7 +375,7 @@ index 5e58740d40c5b..1368a47620372 100644
  		#size-cells = <1>;
  		compatible = "st,m25p32", "jedec,spi-nor";
 diff --git a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
-index eb9a0b104f1c3..901b9a761b66e 100644
+index fdc3aa9d544d3..0aa1a0a28de0c 100644
 --- a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
 @@ -313,7 +313,7 @@
@@ -387,10 +388,10 @@ index eb9a0b104f1c3..901b9a761b66e 100644
  		spi-max-frequency = <20000000>;
  		reg = <0>;
 diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-index 0c0105468a2fe..37482a9023fce 100644
+index f824c9abd11a3..758c62fb9cac1 100644
 --- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-@@ -197,7 +197,7 @@
+@@ -194,7 +194,7 @@
  	pinctrl-0 = <&pinctrl_ecspi1>;
  	status = "okay";
  
@@ -448,7 +449,7 @@ index dce5dcf96c255..7dda42553f4bc 100644
  		#address-cells = <1>;
  		#size-cells = <1>;
 diff --git a/arch/arm/boot/dts/imx6sx-sdb.dts b/arch/arm/boot/dts/imx6sx-sdb.dts
-index 99f4cf777a384..969cfe920d252 100644
+index 5a63ca6157229..1b808563a536a 100644
 --- a/arch/arm/boot/dts/imx6sx-sdb.dts
 +++ b/arch/arm/boot/dts/imx6sx-sdb.dts
 @@ -108,7 +108,7 @@
@@ -470,10 +471,10 @@ index 99f4cf777a384..969cfe920d252 100644
  		#size-cells = <1>;
  		compatible = "micron,n25q256a", "jedec,spi-nor";
 diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi b/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi
-index a3fde3316c736..1a18c41ce385a 100644
+index 64c2d1e9f7fce..71d3c7e05e08f 100644
 --- a/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi
 +++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi
-@@ -286,7 +286,7 @@
+@@ -239,7 +239,7 @@
  	pinctrl-0 = <&pinctrl_qspi>;
  	status = "okay";
  
