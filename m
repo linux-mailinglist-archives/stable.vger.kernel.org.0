@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7370D5BAABA
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30485BAAC0
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbiIPKX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:23:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36828 "EHLO
+        id S231691AbiIPK1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbiIPKWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:22:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBD8AE23F;
-        Fri, 16 Sep 2022 03:14:07 -0700 (PDT)
+        with ESMTP id S231680AbiIPK1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:27:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0100DB2D83;
+        Fri, 16 Sep 2022 03:16:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E80EB82548;
-        Fri, 16 Sep 2022 10:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EF7C433D6;
-        Fri, 16 Sep 2022 10:13:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6D9162A3A;
+        Fri, 16 Sep 2022 10:15:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7936C433C1;
+        Fri, 16 Sep 2022 10:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323228;
-        bh=hO6OnjOLMpBlQOdX6Zg7g1wYZUjhfe6qJ1j0yf0dlD4=;
+        s=korg; t=1663323320;
+        bh=gjVxbnU3hn1thzPoNdQovXmlsyYWIR8p/oNHHS2xjlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2ktemmWxOmZ722eQCh7C3Ga7LA6lzM2I8xsRBOgQ0mclnlhoDHWnJLd7saG3D4yK
-         8QJh5iORoMzjS7C6DAzPXYQ1jLWQkQkTGuoGoDhJ1A9HFJPAVDmxqWexEpvSG6g7eP
-         Ox5DT50UhBV6R5EHjFlzwNsN3hnpFdsH7lhNmjjg=
+        b=C2QVb3BVF8spBitO3w/ZoSF/d+jX8vwfrxL142bGgX4ojxR66RVW+mmjkFF3KaWjl
+         5wi2KhocFbo7Kdr51xrvmAzhco21gk+JYE+hMmOMySOOkELLaRyAREprk+ctsr8nqo
+         iH/uta08ecYMa3oExhMLj1wid24w891oU7MN/lDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 18/38] tg3: Disable tg3 device on system reboot to avoid triggering AER
-Date:   Fri, 16 Sep 2022 12:08:52 +0200
-Message-Id: <20220916100449.234722835@linuxfoundation.org>
+Subject: [PATCH 5.19 19/38] r8152: add PID for the Lenovo OneLink+ Dock
+Date:   Fri, 16 Sep 2022 12:08:53 +0200
+Message-Id: <20220916100449.276689069@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
 References: <20220916100448.431016349@linuxfoundation.org>
@@ -55,81 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
 
-[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
+[ Upstream commit 1bd3a383075c64d638e65d263c9267b08ee7733c ]
 
-Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
-reboot hang on one Dell servers so the commit was reverted.
+The Lenovo OneLink+ Dock contains an RTL8153 controller that behaves as
+a broken CDC device by default. Add the custom Lenovo PID to the r8152
+driver to support it properly.
 
-Someone managed to collect the AER log and it's caused by MSI:
-[ 148.762067] ACPI: Preparing to enter system sleep state S5
-[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
-[ 148.803731] {1}[Hardware Error]: event severity: recoverable
-[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
-[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
-[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
-[ 148.829026] {1}[Hardware Error]: version: 3.0
-[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
-[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
-[ 148.847309] {1}[Hardware Error]: slot: 0
-[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
-[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
-[ 148.865145] {1}[Hardware Error]: class_code: 020000
-[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
-[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
-[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
-[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
-[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
-[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
-[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
-[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
+Also, systems compatible with this dock provide a BIOS option to enable
+MAC address passthrough (as per Lenovo document "ThinkPad Docking
+Solutions 2017"). Add the custom PID to the MAC passthrough list too.
 
-The MSI is probably raised by incoming packets, so power down the device
-and disable bus mastering to stop the traffic, as user confirmed this
-approach works.
+Tested on a ThinkPad 13 1st gen with the expected results:
 
-In addition to that, be extra safe and cancel reset task if it's running.
+passthrough disabled: Invalid header when reading pass-thru MAC addr
+passthrough enabled:  Using pass-thru MAC addr XX:XX:XX:XX:XX:XX
 
-Cc: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
-BugLink: https://bugs.launchpad.net/bugs/1917471
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/usb/cdc_ether.c | 7 +++++++
+ drivers/net/usb/r8152.c     | 3 +++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index c28f8cc00d1cf..a9cc85882b315 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18076,16 +18076,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct tg3 *tp = netdev_priv(dev);
+diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
+index 2de09ad5bac03..e11f70911acc1 100644
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -777,6 +777,13 @@ static const struct usb_device_id	products[] = {
+ },
+ #endif
  
-+	tg3_reset_task_cancel(tp);
++/* Lenovo ThinkPad OneLink+ Dock (based on Realtek RTL8153) */
++{
++	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x3054, USB_CLASS_COMM,
++			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
++	.driver_info = 0,
++},
 +
- 	rtnl_lock();
-+
- 	netif_device_detach(dev);
+ /* ThinkPad USB-C Dock (based on Realtek RTL8153) */
+ {
+ 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x3062, USB_CLASS_COMM,
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index d142ac8fcf6e2..688905ea0a6d3 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -770,6 +770,7 @@ enum rtl8152_flags {
+ 	RX_EPROTO,
+ };
  
- 	if (netif_running(dev))
- 		dev_close(dev);
++#define DEVICE_ID_THINKPAD_ONELINK_PLUS_DOCK		0x3054
+ #define DEVICE_ID_THINKPAD_THUNDERBOLT3_DOCK_GEN2	0x3082
+ #define DEVICE_ID_THINKPAD_USB_C_DONGLE			0x720c
+ #define DEVICE_ID_THINKPAD_USB_C_DOCK_GEN2		0xa387
+@@ -9581,6 +9582,7 @@ static bool rtl8152_supports_lenovo_macpassthru(struct usb_device *udev)
  
--	if (system_state == SYSTEM_POWER_OFF)
--		tg3_power_down(tp);
-+	tg3_power_down(tp);
- 
- 	rtnl_unlock();
-+
-+	pci_disable_device(pdev);
- }
- 
- /**
+ 	if (vendor_id == VENDOR_ID_LENOVO) {
+ 		switch (product_id) {
++		case DEVICE_ID_THINKPAD_ONELINK_PLUS_DOCK:
+ 		case DEVICE_ID_THINKPAD_THUNDERBOLT3_DOCK_GEN2:
+ 		case DEVICE_ID_THINKPAD_USB_C_DOCK_GEN2:
+ 		case DEVICE_ID_THINKPAD_USB_C_DOCK_GEN3:
+@@ -9828,6 +9830,7 @@ static const struct usb_device_id rtl8152_table[] = {
+ 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0927),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_SAMSUNG, 0xa101),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x304f),
++	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3054),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3062),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3069),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3082),
 -- 
 2.35.1
 
