@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E6E5BAAC2
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 082815BAAE4
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbiIPKZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50726 "EHLO
+        id S231496AbiIPKTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:19:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231851AbiIPKXS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:18 -0400
+        with ESMTP id S231820AbiIPKSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:18:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4547BB0B24;
-        Fri, 16 Sep 2022 03:14:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6461DAFAF6;
+        Fri, 16 Sep 2022 03:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64F5AB82559;
-        Fri, 16 Sep 2022 10:14:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E79C433D6;
-        Fri, 16 Sep 2022 10:14:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E82CB82543;
+        Fri, 16 Sep 2022 10:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3366C433D7;
+        Fri, 16 Sep 2022 10:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323254;
-        bh=hFz289cURpz/2AcKIza+w5U70ny1pNXJNBG5RO5VPdQ=;
+        s=korg; t=1663323142;
+        bh=WHRxAVYJvNf+tsOM+bZFl4O0EEI09kuycwNQUMZe5iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uru/d+yOyT1LkoB3BLDyeyr8pUsi+XGBOKCqeKpseBItlQmduVuTGS0uUb9c7QEy5
-         GJg9qXkO+oE6UPcdXnhtJGp9pFqjqDcfkCgH2j3pXhPNDdlF46B6TRa6tbJcf+T7Ob
-         m1a6e3laNuiRZ220515EjeISkZQTAwxmGLlU4KRo=
+        b=Ihmy4e9swsdhG5vnJEYgOo0IjsCwsbDg9ZJLnEHSWH1cF/5d/sZPYIc0LJ3BnIau2
+         i9SHJpEUj3Wtyjm/3xFUWGyh0E/xmVJ7PGvFFWz0v9A0R1i19Eh/lqlnOwu2oDuFvV
+         zCln8Yia+vmXrBrk7DkIBf0yyUA2l9SsMNt9G3ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 09/38] platform/surface: aggregator_registry: Add support for Surface Laptop Go 2
+Subject: [PATCH 5.15 20/35] tg3: Disable tg3 device on system reboot to avoid triggering AER
 Date:   Fri, 16 Sep 2022 12:08:43 +0200
-Message-Id: <20220916100448.850916681@linuxfoundation.org>
+Message-Id: <20220916100447.793993204@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
-References: <20220916100448.431016349@linuxfoundation.org>
+In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
+References: <20220916100446.916515275@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 84b8e403435c8fb94b872309673764a447961e00 ]
+[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
 
-The Surface Laptop Go 2 seems to have the same SAM client devices as the
-Surface Laptop Go 1, so re-use its node group.
+Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
+reboot hang on one Dell servers so the commit was reverted.
 
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20220810140133.99087-1-luzmaximilian@gmail.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Someone managed to collect the AER log and it's caused by MSI:
+[ 148.762067] ACPI: Preparing to enter system sleep state S5
+[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
+[ 148.803731] {1}[Hardware Error]: event severity: recoverable
+[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
+[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
+[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
+[ 148.829026] {1}[Hardware Error]: version: 3.0
+[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
+[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
+[ 148.847309] {1}[Hardware Error]: slot: 0
+[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
+[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
+[ 148.865145] {1}[Hardware Error]: class_code: 020000
+[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
+[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
+[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
+[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
+[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
+[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
+[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
+[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
+
+The MSI is probably raised by incoming packets, so power down the device
+and disable bus mastering to stop the traffic, as user confirmed this
+approach works.
+
+In addition to that, be extra safe and cancel reset task if it's running.
+
+Cc: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
+BugLink: https://bugs.launchpad.net/bugs/1917471
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/surface/surface_aggregator_registry.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/surface/surface_aggregator_registry.c b/drivers/platform/surface/surface_aggregator_registry.c
-index ce2bd88feeaa8..08019c6ccc9ca 100644
---- a/drivers/platform/surface/surface_aggregator_registry.c
-+++ b/drivers/platform/surface/surface_aggregator_registry.c
-@@ -556,6 +556,9 @@ static const struct acpi_device_id ssam_platform_hub_match[] = {
- 	/* Surface Laptop Go 1 */
- 	{ "MSHW0118", (unsigned long)ssam_node_group_slg1 },
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index 5e0e0e70d8014..8aab07419263e 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -18078,16 +18078,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct tg3 *tp = netdev_priv(dev);
  
-+	/* Surface Laptop Go 2 */
-+	{ "MSHW0290", (unsigned long)ssam_node_group_slg1 },
++	tg3_reset_task_cancel(tp);
 +
- 	/* Surface Laptop Studio */
- 	{ "MSHW0123", (unsigned long)ssam_node_group_sls },
+ 	rtnl_lock();
++
+ 	netif_device_detach(dev);
  
+ 	if (netif_running(dev))
+ 		dev_close(dev);
+ 
+-	if (system_state == SYSTEM_POWER_OFF)
+-		tg3_power_down(tp);
++	tg3_power_down(tp);
+ 
+ 	rtnl_unlock();
++
++	pci_disable_device(pdev);
+ }
+ 
+ /**
 -- 
 2.35.1
 
