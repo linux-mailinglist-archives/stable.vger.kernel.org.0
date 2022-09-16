@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34965BAA76
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5415BAAA7
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231624AbiIPKTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:19:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37104 "EHLO
+        id S231393AbiIPKPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231892AbiIPKTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:19:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F9F13F49;
-        Fri, 16 Sep 2022 03:12:53 -0700 (PDT)
+        with ESMTP id S231407AbiIPKOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:14:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D31ADCDC;
+        Fri, 16 Sep 2022 03:11:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 138DDB82539;
-        Fri, 16 Sep 2022 10:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FD6C433D6;
-        Fri, 16 Sep 2022 10:12:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76AF862A04;
+        Fri, 16 Sep 2022 10:10:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 823D1C433C1;
+        Fri, 16 Sep 2022 10:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323171;
-        bh=bUQW0Wp4SnI8PrxP3zvxYr7GetJzUvK5EMTjMqSKClw=;
+        s=korg; t=1663323037;
+        bh=V/6/XZisFD7sdE5/GBJlg7GukbiAEtg0f1ok6mdbUkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqPqUuWZNC5nJyO3dM6mGun23H2nBS14cjn8ty1lI4uar3CVjoogzzhc0RMjPzT13
-         YAFsSQsMEsmCg24OGgPHx+WVsbD3fgC7GC1Jap8EzhP3kYudFybG4U1CfB08U9sUXk
-         ycLoUlnk0voE271E7eLGm5aTRXScA+EZ86P46JJ0=
+        b=APF5msUsPi9HMlvhtX/f5a7MlTRCGwLJ4Ea43BEoaJBAdN9thbEJpacC+YVuflp7F
+         VzapN72Zcr09U+u5mmxyuIiMBZcT8wcsrcGqBHiC0gRz3t+YucDDQ7sMzo4oSkeAft
+         FTRLAJoP91/H9FhZSvm8Iary0p1xiOgCzva2VxWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 21/35] gpio: mockup: remove gpio debugfs when remove device
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>
+Subject: [PATCH 5.10 19/24] mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
 Date:   Fri, 16 Sep 2022 12:08:44 +0200
-Message-Id: <20220916100447.835275499@linuxfoundation.org>
+Message-Id: <20220916100446.216671283@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 303e6da99429510b1e4edf833afe90ac8542e747 ]
+This is a stable-specific patch.
+I botched the stable-specific rewrite of
+commit b67fbebd4cf98 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"):
+As Hugh pointed out, unmap_region() actually operates on a list of VMAs,
+and the variable "vma" merely points to the first VMA in that list.
+So if we want to check whether any of the VMAs we're operating on is
+PFNMAP or MIXEDMAP, we have to iterate through the list and check each VMA.
 
-GPIO mockup debugfs is created in gpio_mockup_probe() but
-forgot to remove when remove device. This patch add a devm
-managed callback for removing them.
-
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-mockup.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ mm/mmap.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
-index d26bff29157b5..369a832d96203 100644
---- a/drivers/gpio/gpio-mockup.c
-+++ b/drivers/gpio/gpio-mockup.c
-@@ -373,6 +373,13 @@ static void gpio_mockup_debugfs_setup(struct device *dev,
- 	}
- }
- 
-+static void gpio_mockup_debugfs_cleanup(void *data)
-+{
-+	struct gpio_mockup_chip *chip = data;
-+
-+	debugfs_remove_recursive(chip->dbg_dir);
-+}
-+
- static void gpio_mockup_dispose_mappings(void *data)
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2664,6 +2664,7 @@ static void unmap_region(struct mm_struc
  {
- 	struct gpio_mockup_chip *chip = data;
-@@ -455,7 +462,7 @@ static int gpio_mockup_probe(struct platform_device *pdev)
+ 	struct vm_area_struct *next = vma_next(mm, prev);
+ 	struct mmu_gather tlb;
++	struct vm_area_struct *cur_vma;
  
- 	gpio_mockup_debugfs_setup(dev, chip);
+ 	lru_add_drain();
+ 	tlb_gather_mmu(&tlb, mm, start, end);
+@@ -2678,8 +2679,12 @@ static void unmap_region(struct mm_struc
+ 	 * concurrent flush in this region has to be coming through the rmap,
+ 	 * and we synchronize against that using the rmap lock.
+ 	 */
+-	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
+-		tlb_flush_mmu(&tlb);
++	for (cur_vma = vma; cur_vma; cur_vma = cur_vma->vm_next) {
++		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0) {
++			tlb_flush_mmu(&tlb);
++			break;
++		}
++	}
  
--	return 0;
-+	return devm_add_action_or_reset(dev, gpio_mockup_debugfs_cleanup, chip);
- }
- 
- static const struct of_device_id gpio_mockup_of_match[] = {
--- 
-2.35.1
-
+ 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
+ 				 next ? next->vm_start : USER_PGTABLES_CEILING);
 
 
