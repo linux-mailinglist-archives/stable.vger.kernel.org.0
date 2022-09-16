@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECFF5BAAD9
+	by mail.lfdr.de (Postfix) with ESMTP id E90E25BAADA
 	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231865AbiIPKVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:21:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35850 "EHLO
+        id S231698AbiIPKVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232083AbiIPKTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:19:34 -0400
+        with ESMTP id S231701AbiIPKUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:20:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 461E51E3F6;
-        Fri, 16 Sep 2022 03:13:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A90B08A3;
+        Fri, 16 Sep 2022 03:13:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D417EB82521;
-        Fri, 16 Sep 2022 10:13:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 104FEC433D6;
-        Fri, 16 Sep 2022 10:13:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43732B82548;
+        Fri, 16 Sep 2022 10:13:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A639C43149;
+        Fri, 16 Sep 2022 10:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323184;
-        bh=Y2kWidGblQU7Jl85rXu4izXx+BbFIXaPCD5M7Z32Qfo=;
+        s=korg; t=1663323188;
+        bh=yxmTmAmQYOY0Y1XhFJJ91Ijes9f9h/iULVvKrO+XC0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqgkpcoAAewrOSvusV7OGFPm7tjL28v1CX07tlax/asmEDmCWxmH9rdPeaqCbiBdn
-         DaURl0wuXLLP0Q1XLb1pqBi2InDyDpxAMEly1Qtm1RBYxnoPhoxGc1ca2ePLmOZMMk
-         HrxnGPXYblyOS1On/5sYsKZ2aNfu3AjhnMRdQoPg=
+        b=UNm5/LMR5umcl4SGonvGipHojehhFjphK68EPwFhwj51gsQKE06S7ideHeKRxK/pW
+         K+RVT6MOn+IvWxfXCT18G++Aylq2m1X0L/MX+E8CA44z2STMHIF1oo7+Pz/Cr0gTnW
+         OcJJlIREkOiRvwZWIz2U4CMLdhe8tk6rEyf8LToc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengming Gui <Jack.Gui@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 25/35] drm/amd/amdgpu: skip ucode loading if ucode_size == 0
-Date:   Fri, 16 Sep 2022 12:08:48 +0200
-Message-Id: <20220916100448.005789139@linuxfoundation.org>
+Subject: [PATCH 5.15 26/35] net: dsa: hellcreek: Print warning only once
+Date:   Fri, 16 Sep 2022 12:08:49 +0200
+Message-Id: <20220916100448.045361017@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
 References: <20220916100446.916515275@linuxfoundation.org>
@@ -54,33 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Gui <Jack.Gui@amd.com>
+From: Kurt Kanzenbach <kurt@linutronix.de>
 
-[ Upstream commit 39c84b8e929dbd4f63be7e04bf1a2bcd92b44177 ]
+[ Upstream commit 52267ce25f60f37ae40ccbca0b21328ebae5ae75 ]
 
-Restrict the ucode loading check to avoid frontdoor loading error.
+In case the source port cannot be decoded, print the warning only once. This
+still brings attention to the user and does not spam the logs at the same time.
 
-Signed-off-by: Chengming Gui <Jack.Gui@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220830163448.8921-1-kurt@linutronix.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 2 +-
+ net/dsa/tag_hellcreek.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 5b41c29f3ed50..65744c3bd3648 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -2505,7 +2505,7 @@ static int psp_load_smu_fw(struct psp_context *psp)
- static bool fw_load_skip_check(struct psp_context *psp,
- 			       struct amdgpu_firmware_info *ucode)
- {
--	if (!ucode->fw)
-+	if (!ucode->fw || !ucode->ucode_size)
- 		return true;
+diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
+index eb204ad36eeec..846588c0070a5 100644
+--- a/net/dsa/tag_hellcreek.c
++++ b/net/dsa/tag_hellcreek.c
+@@ -45,7 +45,7 @@ static struct sk_buff *hellcreek_rcv(struct sk_buff *skb,
  
- 	if (ucode->ucode_id == AMDGPU_UCODE_ID_SMC &&
+ 	skb->dev = dsa_master_find_slave(dev, 0, port);
+ 	if (!skb->dev) {
+-		netdev_warn(dev, "Failed to get source port: %d\n", port);
++		netdev_warn_once(dev, "Failed to get source port: %d\n", port);
+ 		return NULL;
+ 	}
+ 
 -- 
 2.35.1
 
