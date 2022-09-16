@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B73A35BAA12
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF015BAA9A
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231221AbiIPKJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:09:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60218 "EHLO
+        id S230470AbiIPKKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:10:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231264AbiIPKIo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:08:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E003ABD5F;
-        Fri, 16 Sep 2022 03:08:17 -0700 (PDT)
+        with ESMTP id S230088AbiIPKJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:09:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41ABAB40E;
+        Fri, 16 Sep 2022 03:08:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EA7E629EB;
-        Fri, 16 Sep 2022 10:08:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FFB4C433C1;
-        Fri, 16 Sep 2022 10:08:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B038B82504;
+        Fri, 16 Sep 2022 10:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0963C433D6;
+        Fri, 16 Sep 2022 10:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322895;
-        bh=LzV4F/MDDvs2PsNWQ4DkbtFiMj0IuYqEthpNVbJpyNo=;
+        s=korg; t=1663322915;
+        bh=RIbI/Eqbl+Tf9ri3wapqEYRWn2Iz9dGwGbVbLyFX3F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQvnqgSKwWb+PzagDmoxwl1RV0qWUbrrJqwuNP4PTx5MejQ3VFxXOlHLpl3m46744
-         m95tyOsZCwzDo4GQDq604dwk8zHnChL02AgB60L0Tf5NWxKU9U1QMiNth9/FF+DYt3
-         04f33pSeJVX9ivUnrzNpacFyC0s7Y3ruZlYRKvPM=
+        b=PCBz10f3jtjQPgYGDvPz2vlIWKW9EmhX+7LFc3+VvVYb4SMTTJbSw4exVqeIcrEer
+         deTt8YqVPL043Qk8uTN0yzXd3GE9VDU0+wmKkjf7MLyPbVrrVYgUr3n6wTUxol/Pbn
+         ToHwk/9U17hipBUC7XbhlurLOUT8kCYFOR8OWPl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 7/7] tracefs: Only clobber mode/uid/gid on remount if asked
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/11] tg3: Disable tg3 device on system reboot to avoid triggering AER
 Date:   Fri, 16 Sep 2022 12:07:59 +0200
-Message-Id: <20220916100441.914631914@linuxfoundation.org>
+Message-Id: <20220916100442.829098422@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100441.528608977@linuxfoundation.org>
-References: <20220916100441.528608977@linuxfoundation.org>
+In-Reply-To: <20220916100442.662955946@linuxfoundation.org>
+References: <20220916100442.662955946@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,138 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 47311db8e8f33011d90dee76b39c8886120cdda4 upstream.
+[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
 
-Users may have explicitly configured their tracefs permissions; we
-shouldn't overwrite those just because a second mount appeared.
+Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
+reboot hang on one Dell servers so the commit was reverted.
 
-Only clobber if the options were provided at mount time.
+Someone managed to collect the AER log and it's caused by MSI:
+[ 148.762067] ACPI: Preparing to enter system sleep state S5
+[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
+[ 148.803731] {1}[Hardware Error]: event severity: recoverable
+[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
+[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
+[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
+[ 148.829026] {1}[Hardware Error]: version: 3.0
+[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
+[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
+[ 148.847309] {1}[Hardware Error]: slot: 0
+[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
+[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
+[ 148.865145] {1}[Hardware Error]: class_code: 020000
+[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
+[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
+[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
+[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
+[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
+[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
+[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
+[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
 
-Note: the previous behavior was especially surprising in the presence of
-automounted /sys/kernel/debug/tracing/.
+The MSI is probably raised by incoming packets, so power down the device
+and disable bus mastering to stop the traffic, as user confirmed this
+approach works.
 
-Existing behavior:
+In addition to that, be extra safe and cancel reset task if it's running.
 
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwx------
-
-  ## Unexpected: the automount changed mode for other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwx------
-
-New behavior (after this change):
-
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwxr-xr-x
-
-  ## Expected: the automount does not change other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
-
-Cc: stable@vger.kernel.org
-Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
+BugLink: https://bugs.launchpad.net/bugs/1917471
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/tracefs/inode.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -142,6 +142,8 @@ struct tracefs_mount_opts {
- 	kuid_t uid;
- 	kgid_t gid;
- 	umode_t mode;
-+	/* Opt_* bitfield. */
-+	unsigned int opts;
- };
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index 6fcf9646d141b..d1ca3d3f51a7a 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -18207,16 +18207,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct tg3 *tp = netdev_priv(dev);
  
- enum {
-@@ -242,6 +244,7 @@ static int tracefs_parse_options(char *d
- 	kgid_t gid;
- 	char *p;
- 
-+	opts->opts = 0;
- 	opts->mode = TRACEFS_DEFAULT_MODE;
- 
- 	while ((p = strsep(&data, ",")) != NULL) {
-@@ -276,24 +279,36 @@ static int tracefs_parse_options(char *d
- 		 * but traditionally tracefs has ignored all mount options
- 		 */
- 		}
++	tg3_reset_task_cancel(tp);
 +
-+		opts->opts |= BIT(token);
- 	}
+ 	rtnl_lock();
++
+ 	netif_device_detach(dev);
  
- 	return 0;
+ 	if (netif_running(dev))
+ 		dev_close(dev);
+ 
+-	if (system_state == SYSTEM_POWER_OFF)
+-		tg3_power_down(tp);
++	tg3_power_down(tp);
+ 
+ 	rtnl_unlock();
++
++	pci_disable_device(pdev);
  }
  
--static int tracefs_apply_options(struct super_block *sb)
-+static int tracefs_apply_options(struct super_block *sb, bool remount)
- {
- 	struct tracefs_fs_info *fsi = sb->s_fs_info;
- 	struct inode *inode = sb->s_root->d_inode;
- 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
- 
--	inode->i_mode &= ~S_IALLUGO;
--	inode->i_mode |= opts->mode;
-+	/*
-+	 * On remount, only reset mode/uid/gid if they were provided as mount
-+	 * options.
-+	 */
-+
-+	if (!remount || opts->opts & BIT(Opt_mode)) {
-+		inode->i_mode &= ~S_IALLUGO;
-+		inode->i_mode |= opts->mode;
-+	}
- 
--	inode->i_uid = opts->uid;
-+	if (!remount || opts->opts & BIT(Opt_uid))
-+		inode->i_uid = opts->uid;
- 
--	/* Set all the group ids to the mount option */
--	set_gid(sb->s_root, opts->gid);
-+	if (!remount || opts->opts & BIT(Opt_gid)) {
-+		/* Set all the group ids to the mount option */
-+		set_gid(sb->s_root, opts->gid);
-+	}
- 
- 	return 0;
- }
-@@ -308,7 +323,7 @@ static int tracefs_remount(struct super_
- 	if (err)
- 		goto fail;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, true);
- 
- fail:
- 	return err;
-@@ -360,7 +375,7 @@ static int trace_fill_super(struct super
- 
- 	sb->s_op = &tracefs_super_operations;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, false);
- 
- 	return 0;
- 
+ /**
+-- 
+2.35.1
+
 
 
