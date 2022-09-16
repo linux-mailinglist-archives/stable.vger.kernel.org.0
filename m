@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8C25BAA6A
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D7C5BAB41
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231633AbiIPKTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:19:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
+        id S231537AbiIPKP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:15:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231703AbiIPKS0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:18:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8688AAF4BB;
-        Fri, 16 Sep 2022 03:12:35 -0700 (PDT)
+        with ESMTP id S231309AbiIPKPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C918AE9FE;
+        Fri, 16 Sep 2022 03:11:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4A10629E6;
-        Fri, 16 Sep 2022 10:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1771C433C1;
-        Fri, 16 Sep 2022 10:11:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AC1662A17;
+        Fri, 16 Sep 2022 10:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7572AC433D7;
+        Fri, 16 Sep 2022 10:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323120;
-        bh=aE3XUsx9yhCv47JRVJw4tRPM/gRu82FTTx4OBbvS8zM=;
+        s=korg; t=1663323040;
+        bh=3n/rlDohdhjNNs9Pilh3WEyIBWCF/zy01Pi0RILe/h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izkDt8jqHJLd/CI6iuwo5CAjBEzRUiPNf4xsWzBR5K4w0Cwgy8rZKmRcOPWOANznz
-         12ouQODg+5VbAaDbn559W1fWSN4rWpEKt//VsvWbYsO8OcQTLxLDph85GxvY71gCAz
-         L6Av++mJbWLPHri15CjcC9G8/rsnwtOU6/iXP+zs=
+        b=JyIOcg7/KMEowIQ9VVcMe5R3PcO/701RhJBGcy9x4EQ2DhaCwP0HDMbED9QFuVsz4
+         44oeORGwZoj3stEA+Cf/eWokeX4WpbO7Zrczp0Mzq9Wn60yD7GMS+krU1vNbqXFCNs
+         W8yrPXkEG3hL3ePjXxSRTxgAwUtVpR0K9aAsz9yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 04/35] ARM: dts: imx6qdl-kontron-samx6i: fix spi-flash compatible
+Subject: [PATCH 5.10 02/24] ARM: dts: imx6qdl-kontron-samx6i: fix spi-flash compatible
 Date:   Fri, 16 Sep 2022 12:08:27 +0200
-Message-Id: <20220916100447.120642135@linuxfoundation.org>
+Message-Id: <20220916100445.465050359@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -71,7 +70,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-index f159c58b9edba..6b791d515e294 100644
+index 02ab8a59df23a..37d94aa45a8b7 100644
 --- a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
 @@ -249,7 +249,7 @@
