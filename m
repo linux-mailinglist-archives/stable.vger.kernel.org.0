@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5415BAAA7
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2325F5BAA97
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbiIPKPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52026 "EHLO
+        id S231657AbiIPKVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231407AbiIPKOh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:14:37 -0400
+        with ESMTP id S230194AbiIPKUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:20:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D31ADCDC;
-        Fri, 16 Sep 2022 03:11:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB04BA99E4;
+        Fri, 16 Sep 2022 03:13:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76AF862A04;
-        Fri, 16 Sep 2022 10:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 823D1C433C1;
-        Fri, 16 Sep 2022 10:10:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A421E62A0E;
+        Fri, 16 Sep 2022 10:13:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92153C433C1;
+        Fri, 16 Sep 2022 10:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323037;
-        bh=V/6/XZisFD7sdE5/GBJlg7GukbiAEtg0f1ok6mdbUkk=;
+        s=korg; t=1663323203;
+        bh=/Z5VauDP6NZb5Qbbk5QtyDSUJrRx1CVHUG5+Lgr4zrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APF5msUsPi9HMlvhtX/f5a7MlTRCGwLJ4Ea43BEoaJBAdN9thbEJpacC+YVuflp7F
-         VzapN72Zcr09U+u5mmxyuIiMBZcT8wcsrcGqBHiC0gRz3t+YucDDQ7sMzo4oSkeAft
-         FTRLAJoP91/H9FhZSvm8Iary0p1xiOgCzva2VxWc=
+        b=SQ209Q7NvSMWab9kjSoBLl/4GU2aASfVCYp0YyVVZJ7AjcywRV7AnhNEiYDC3j6mX
+         pT54F2AjC6r9At7OUofdcyVbtz5r114M3Ek1RnGRNjNiLVUHB3eONoLlEd3S56tmky
+         7efG04Cqac/ar0DHo82et+W+pPC3v3qmnAaekmOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>
-Subject: [PATCH 5.10 19/24] mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 10/38] drm/msm/rd: Fix FIFO-full deadlock
 Date:   Fri, 16 Sep 2022 12:08:44 +0200
-Message-Id: <20220916100446.216671283@linuxfoundation.org>
+Message-Id: <20220916100448.898505845@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,46 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Rob Clark <robdclark@chromium.org>
 
-This is a stable-specific patch.
-I botched the stable-specific rewrite of
-commit b67fbebd4cf98 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"):
-As Hugh pointed out, unmap_region() actually operates on a list of VMAs,
-and the variable "vma" merely points to the first VMA in that list.
-So if we want to check whether any of the VMAs we're operating on is
-PFNMAP or MIXEDMAP, we have to iterate through the list and check each VMA.
+[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
 
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If the previous thing cat'ing $debugfs/rd left the FIFO full, then
+subsequent open could deadlock in rd_write() (because open is blocked,
+not giving a chance for read() to consume any data in the FIFO).  Also
+it is generally a good idea to clear out old data from the FIFO.
+
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/496706/
+Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mmap.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/msm_rd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2664,6 +2664,7 @@ static void unmap_region(struct mm_struc
- {
- 	struct vm_area_struct *next = vma_next(mm, prev);
- 	struct mmu_gather tlb;
-+	struct vm_area_struct *cur_vma;
+diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
+index a92ffde53f0b3..db2f847c8535f 100644
+--- a/drivers/gpu/drm/msm/msm_rd.c
++++ b/drivers/gpu/drm/msm/msm_rd.c
+@@ -196,6 +196,9 @@ static int rd_open(struct inode *inode, struct file *file)
+ 	file->private_data = rd;
+ 	rd->open = true;
  
- 	lru_add_drain();
- 	tlb_gather_mmu(&tlb, mm, start, end);
-@@ -2678,8 +2679,12 @@ static void unmap_region(struct mm_struc
- 	 * concurrent flush in this region has to be coming through the rmap,
- 	 * and we synchronize against that using the rmap lock.
- 	 */
--	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
--		tlb_flush_mmu(&tlb);
-+	for (cur_vma = vma; cur_vma; cur_vma = cur_vma->vm_next) {
-+		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0) {
-+			tlb_flush_mmu(&tlb);
-+			break;
-+		}
-+	}
- 
- 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
- 				 next ? next->vm_start : USER_PGTABLES_CEILING);
++	/* Reset fifo to clear any previously unread data: */
++	rd->fifo.head = rd->fifo.tail = 0;
++
+ 	/* the parsing tools need to know gpu-id to know which
+ 	 * register database to load.
+ 	 *
+-- 
+2.35.1
+
 
 
