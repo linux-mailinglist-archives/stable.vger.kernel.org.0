@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBFE5BAA61
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D035BAB00
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbiIPKQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:16:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49274 "EHLO
+        id S231946AbiIPKZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229772AbiIPKPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D44FABD4E;
-        Fri, 16 Sep 2022 03:11:50 -0700 (PDT)
+        with ESMTP id S232112AbiIPKYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:24:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B21EABD7D;
+        Fri, 16 Sep 2022 03:15:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDA4962A1E;
-        Fri, 16 Sep 2022 10:10:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7FF7C433D6;
-        Fri, 16 Sep 2022 10:10:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0289FB8253A;
+        Fri, 16 Sep 2022 10:13:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60750C433C1;
+        Fri, 16 Sep 2022 10:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323050;
-        bh=QPkXlFw4jUEJ9tUV3f4T+hXWwDo9e77W1WXZOiXTxwI=;
+        s=korg; t=1663323215;
+        bh=hTXg7u7di5Z06XG9BCn6oG8/0a79m4ePnTp0VKoo82Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4fXZS5KjDMdZ8ULlU+h3WTylwYpEcEzYiUSrdHvhdeLHfmfbDvHr9WDgksUwTCN2
-         oXZBcJ7OvOQp9kb2byWCnfSXtO0bX2lfRpgFSfCCKtOBA/wbDnH+CHnQRM4uzwIXUA
-         qkm/R21TntpGZo8/tgrh2ykip53HQW8nVLZE5iyc=
+        b=OJTOF0lJbKg+4U4/Y5akYr9ciOT5nZ7iHiVswWjrNMpb1AnBPmI9/huv7pvBfoNaD
+         vkeFlMgMStn3WvNFMaZyoYN64uX6fJjR3aHclcH9wbIfqUfBgdX34zNPrwuOYUMwSf
+         xUl8Gf+HiaaVHkzJjrMaie3n4g093kOsrPoZzOPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.10 22/24] x86/ftrace: Use alternative RET encoding
-Date:   Fri, 16 Sep 2022 12:08:47 +0200
-Message-Id: <20220916100446.347142088@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 14/38] dt-bindings: iio: gyroscope: bosch,bmg160: correct number of pins
+Date:   Fri, 16 Sep 2022 12:08:48 +0200
+Message-Id: <20220916100449.070863740@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 1f001e9da6bbf482311e45e48f53c2bd2179e59c upstream.
+[ Upstream commit 767470209cedbe2cc72ba38d77c9f096d2c7694c ]
 
-Use the return thunk in ftrace trampolines, if needed.
+BMG160 has two interrupt pins to which interrupts can be freely mapped.
+Correct the schema to express such case and fix warnings like:
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: use memcpy(text_gen_insn) as there is no __text_gen_insn]
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  qcom/msm8916-alcatel-idol347.dtb: gyroscope@68: interrupts: [[97, 1], [98, 1]] is too long
+
+However the basic issue still persists - the interrupts should come in a
+defined order.
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220805075503.16983-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ .../devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml         | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -309,7 +309,7 @@ union ftrace_op_code_union {
- 	} __attribute__((packed));
- };
+diff --git a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
+index b6bbc312a7cf7..1414ba9977c16 100644
+--- a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
++++ b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
+@@ -24,8 +24,10 @@ properties:
  
--#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
-+#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
+   interrupts:
+     minItems: 1
++    maxItems: 2
+     description:
+       Should be configured with type IRQ_TYPE_EDGE_RISING.
++      If two interrupts are provided, expected order is INT1 and INT2.
  
- static unsigned long
- create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
-@@ -365,7 +365,12 @@ create_trampoline(struct ftrace_ops *ops
- 		goto fail;
- 
- 	ip = trampoline + size;
--	memcpy(ip, retq, RET_SIZE);
-+
-+	/* The trampoline ends with ret(q) */
-+	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
-+		memcpy(ip, text_gen_insn(JMP32_INSN_OPCODE, ip, &__x86_return_thunk), JMP32_INSN_SIZE);
-+	else
-+		memcpy(ip, retq, sizeof(retq));
- 
- 	/* No need to test direct calls on created trampolines */
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
+ required:
+   - compatible
+-- 
+2.35.1
+
 
 
