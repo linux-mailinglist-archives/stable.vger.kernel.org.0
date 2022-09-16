@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD3C5BAA19
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 928895BAA03
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230518AbiIPKIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:08:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60080 "EHLO
+        id S230442AbiIPKI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:08:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230453AbiIPKHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:07:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A1FAAB427;
-        Fri, 16 Sep 2022 03:07:48 -0700 (PDT)
+        with ESMTP id S230470AbiIPKH5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:07:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5C9AB198;
+        Fri, 16 Sep 2022 03:07:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 775CB629EF;
-        Fri, 16 Sep 2022 10:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6701EC433D6;
-        Fri, 16 Sep 2022 10:07:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9018DB82503;
+        Fri, 16 Sep 2022 10:07:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB563C433C1;
+        Fri, 16 Sep 2022 10:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322866;
-        bh=JwgEMcm8ImgwOu3IkVy+p4cHjDKBDufgt2Mp2DMsJS0=;
+        s=korg; t=1663322870;
+        bh=KtB/vzbflgoFxDYfhSjAOJz5y8+CzgbvOPjGyLh8+yY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jph5Iz/RgFioBaiBuf6LK0GjOdyact1KseJ3PHPHHVepy1T9Y08BBKsEIywJL3AsY
-         LFZ/OnY6UIhWetHZ6ezfsfFLw8S5BjniTR2FrgdSBGgJnaCeqHRjA6QlP+PB1PcgjX
-         E3oE4BvuNZGO9k5RWmpKKdBFPgGxt7cgy6g9KM60=
+        b=EbJCJ6u0PdjvbN9m903nrjCb1O5y/86Em7AGxUXl2WRom64CLcfVsw9XsuAxvpmEK
+         Pe6ja68rlZN3IKakOxMP5MhQTCOniOa2cFQdQ3gOOs1ZO/GqaaOoVKfGBRoDv20t+N
+         NsaRQAkjro8N6Pp8q+fN3ODbDYHbJIrgbvXIeJVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>
-Subject: [PATCH 4.9 6/7] mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
-Date:   Fri, 16 Sep 2022 12:07:49 +0200
-Message-Id: <20220916100441.352669614@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 7/7] tracefs: Only clobber mode/uid/gid on remount if asked
+Date:   Fri, 16 Sep 2022 12:07:50 +0200
+Message-Id: <20220916100441.411370426@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100440.995894282@linuxfoundation.org>
 References: <20220916100440.995894282@linuxfoundation.org>
@@ -51,46 +52,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Brian Norris <briannorris@chromium.org>
 
-This is a stable-specific patch.
-I botched the stable-specific rewrite of
-commit b67fbebd4cf98 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"):
-As Hugh pointed out, unmap_region() actually operates on a list of VMAs,
-and the variable "vma" merely points to the first VMA in that list.
-So if we want to check whether any of the VMAs we're operating on is
-PFNMAP or MIXEDMAP, we have to iterate through the list and check each VMA.
+commit 47311db8e8f33011d90dee76b39c8886120cdda4 upstream.
 
-Signed-off-by: Jann Horn <jannh@google.com>
+Users may have explicitly configured their tracefs permissions; we
+shouldn't overwrite those just because a second mount appeared.
+
+Only clobber if the options were provided at mount time.
+
+Note: the previous behavior was especially surprising in the presence of
+automounted /sys/kernel/debug/tracing/.
+
+Existing behavior:
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwx------
+
+  ## Unexpected: the automount changed mode for other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwx------
+
+New behavior (after this change):
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwxr-xr-x
+
+  ## Expected: the automount does not change other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/tracefs/inode.c |   31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2524,6 +2524,7 @@ static void unmap_region(struct mm_struc
- {
- 	struct vm_area_struct *next = prev ? prev->vm_next : mm->mmap;
- 	struct mmu_gather tlb;
-+	struct vm_area_struct *cur_vma;
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -142,6 +142,8 @@ struct tracefs_mount_opts {
+ 	kuid_t uid;
+ 	kgid_t gid;
+ 	umode_t mode;
++	/* Opt_* bitfield. */
++	unsigned int opts;
+ };
  
- 	lru_add_drain();
- 	tlb_gather_mmu(&tlb, mm, start, end);
-@@ -2538,8 +2539,12 @@ static void unmap_region(struct mm_struc
- 	 * concurrent flush in this region has to be coming through the rmap,
- 	 * and we synchronize against that using the rmap lock.
- 	 */
--	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
--		tlb_flush_mmu(&tlb);
-+	for (cur_vma = vma; cur_vma; cur_vma = cur_vma->vm_next) {
-+		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0) {
-+			tlb_flush_mmu(&tlb);
-+			break;
-+		}
+ enum {
+@@ -242,6 +244,7 @@ static int tracefs_parse_options(char *d
+ 	kgid_t gid;
+ 	char *p;
+ 
++	opts->opts = 0;
+ 	opts->mode = TRACEFS_DEFAULT_MODE;
+ 
+ 	while ((p = strsep(&data, ",")) != NULL) {
+@@ -276,24 +279,36 @@ static int tracefs_parse_options(char *d
+ 		 * but traditionally tracefs has ignored all mount options
+ 		 */
+ 		}
++
++		opts->opts |= BIT(token);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int tracefs_apply_options(struct super_block *sb)
++static int tracefs_apply_options(struct super_block *sb, bool remount)
+ {
+ 	struct tracefs_fs_info *fsi = sb->s_fs_info;
+ 	struct inode *inode = sb->s_root->d_inode;
+ 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 
+-	inode->i_mode &= ~S_IALLUGO;
+-	inode->i_mode |= opts->mode;
++	/*
++	 * On remount, only reset mode/uid/gid if they were provided as mount
++	 * options.
++	 */
++
++	if (!remount || opts->opts & BIT(Opt_mode)) {
++		inode->i_mode &= ~S_IALLUGO;
++		inode->i_mode |= opts->mode;
 +	}
  
- 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
- 				 next ? next->vm_start : USER_PGTABLES_CEILING);
+-	inode->i_uid = opts->uid;
++	if (!remount || opts->opts & BIT(Opt_uid))
++		inode->i_uid = opts->uid;
+ 
+-	/* Set all the group ids to the mount option */
+-	set_gid(sb->s_root, opts->gid);
++	if (!remount || opts->opts & BIT(Opt_gid)) {
++		/* Set all the group ids to the mount option */
++		set_gid(sb->s_root, opts->gid);
++	}
+ 
+ 	return 0;
+ }
+@@ -308,7 +323,7 @@ static int tracefs_remount(struct super_
+ 	if (err)
+ 		goto fail;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, true);
+ 
+ fail:
+ 	return err;
+@@ -362,7 +377,7 @@ static int trace_fill_super(struct super
+ 
+ 	sb->s_op = &tracefs_super_operations;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, false);
+ 
+ 	return 0;
+ 
 
 
