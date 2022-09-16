@@ -2,170 +2,266 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E92F5BB0EA
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 18:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCA15BB0F1
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 18:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbiIPQKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 12:10:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50328 "EHLO
+        id S229494AbiIPQOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 12:14:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229606AbiIPQJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 12:09:59 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83AF82CE3C
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 09:09:58 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id q62-20020a17090a17c400b00202a3497516so122576pja.1
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 09:09:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=MmVZBZvUzAirFSqKhs4KwOTEu9PYDFSCpaivOYYZjK4=;
-        b=UwQi4I5LzARfbeeIIHGotDt+f3x9TfhCln315+EmRGq3yxnOLip/oZfJd8MoFzFnQA
-         sfyhGJmUgmPSSNRB1bc2wVdOoQyR5Qi/RSxbiDx3luObh2HYc0sd40Vejiky8e3aRsTI
-         aJFJ0R/SZR4Oq++gg+YYpmPaUHIZXQgE0AImvFtLM51HSj1TXjRu0qCydWIw5dgx9kao
-         tS/omQaVI88EHEJiijIoYFyZgRWDKgZiojSDiek2FrCpfcIszHbukQnIM8Wf2PIt0yFV
-         CTT6lEIw03vpqTrqKpH0V7S5ywq7RISs9Ci8dshbJJII1Ba8tRHYv0tSyoYkdCG9E2Nq
-         Z+EA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=MmVZBZvUzAirFSqKhs4KwOTEu9PYDFSCpaivOYYZjK4=;
-        b=OyMR29AQXSaGY4UeEpu4DkIEy5aOT1FDX40uCh1AK24uvHV74nlz8xd/Qxy2VuUotI
-         G9uDcOem3UDFqtczZyz5rn1xlPYLpiQly8zOdIzveG0wJA9an+Lg0SUmMPu6f9lLBgQi
-         HTmch7ctheJe0f5ulrdbcBhmHLxk46LEF0/j0tjrsUCnj++O+Lcz3+aOGO7XxHg0vwYu
-         X6Lb7LVxq/pqf5VBfD4VSO1d4653MncwDuFW9zt4qr9CWXATrHm52FBM5Wiv27q/xTCo
-         Fb7H9dskwi4eu63/OjPx5duNldEPdCeJJmF80Kc/NtscYH5h3dOtPypNlwxcgU4mkLDW
-         KW7Q==
-X-Gm-Message-State: ACrzQf2NLBPYK2PsVxM5eeAJBWBxEa4kmTey9XkWeReFdOSODURXAyH7
-        VszqlJRD0RvUXdK6N3o3oDyHdXVij6tLugs9TEs=
-X-Google-Smtp-Source: AMsMyM69wwpSYBmFaoLoz077ImSQUAcHwI+45uaPJm0xa5ILFduR/6xUB2MYVVNwiW0AAM1tSkpCXA==
-X-Received: by 2002:a17:902:e402:b0:176:e82f:3f4 with SMTP id m2-20020a170902e40200b00176e82f03f4mr532877ple.107.1663344597874;
-        Fri, 16 Sep 2022 09:09:57 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c3-20020a170902d48300b001786b712f0esm4186441plg.227.2022.09.16.09.09.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Sep 2022 09:09:57 -0700 (PDT)
-Message-ID: <63249fd5.170a0220.caa49.8585@mx.google.com>
-Date:   Fri, 16 Sep 2022 09:09:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229471AbiIPQOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 12:14:48 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2396C2717F;
+        Fri, 16 Sep 2022 09:14:44 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EF12B1595;
+        Fri, 16 Sep 2022 09:14:49 -0700 (PDT)
+Received: from localhost (ionvoi01-desktop.cambridge.arm.com [10.1.196.65])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 23F593F73D;
+        Fri, 16 Sep 2022 09:14:43 -0700 (PDT)
+Date:   Fri, 16 Sep 2022 17:14:41 +0100
+From:   Ionela Voinescu <ionela.voinescu@arm.com>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     Darren Hart <darren@os.amperecomputing.com>,
+        yangyicong@hisilicon.com, Sudeep Holla <sudeep.holla@arm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Barry Song <21cnbao@gmail.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>
+Subject: Re: [PATCH v5] topology: make core_mask include at least
+ cluster_siblings
+Message-ID: <YySg8UM2Vqb9jPfh@arm.com>
+References: <c8fe9fce7c86ed56b4c455b8c902982dc2303868.1649696956.git.darren@os.amperecomputing.com>
+ <eee69d10-11d0-be2d-69f6-34089947311e@huawei.com>
+ <YyNnMmtoOrdexLoy@fedora>
+ <bcd61ebd-d751-57a3-690b-b76c7bd230c5@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.9-39-gf5066a94bca4
-Subject: stable-rc/linux-5.19.y baseline: 184 runs,
- 2 regressions (v5.19.9-39-gf5066a94bca4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bcd61ebd-d751-57a3-690b-b76c7bd230c5@huawei.com>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.19.y baseline: 184 runs, 2 regressions (v5.19.9-39-gf5066=
-a94bca4)
+Hi,
 
-Regressions Summary
--------------------
+On Friday 16 Sep 2022 at 15:59:34 (+0800), Yicong Yang wrote:
+> On 2022/9/16 1:56, Darren Hart wrote:
+> > On Thu, Sep 15, 2022 at 08:01:18PM +0800, Yicong Yang wrote:
+> >> Hi Darren,
+> >>
+> > 
+> > Hi Yicong,
+> > 
+> > ...
+> > 
+> >>> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+> >>> index 1d6636ebaac5..5497c5ab7318 100644
+> >>> --- a/drivers/base/arch_topology.c
+> >>> +++ b/drivers/base/arch_topology.c
+> >>> @@ -667,6 +667,15 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
+> >>>  			core_mask = &cpu_topology[cpu].llc_sibling;
+> >>>  	}
+> >>>  
+> >>> +	/*
+> >>> +	 * For systems with no shared cpu-side LLC but with clusters defined,
+> >>> +	 * extend core_mask to cluster_siblings. The sched domain builder will
+> >>> +	 * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
+> >>> +	 */
+> >>> +	if (IS_ENABLED(CONFIG_SCHED_CLUSTER) &&
+> >>> +	    cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
+> >>> +		core_mask = &cpu_topology[cpu].cluster_sibling;
+> >>> +
+> >>>  	return core_mask;
+> >>>  }
+> >>>  
+> >>
+> >> Is this patch still necessary for Ampere after Ionela's patch [1], which
+> >> will limit the cluster's span within coregroup's span.
+> > 
+> > Yes, see:
+> > https://lore.kernel.org/lkml/YshYAyEWhE4z%2FKpB@fedora/
+> > 
+> > Both patches work together to accomplish the desired sched domains for the
+> > Ampere Altra family.
+> > 
+> 
+> Thanks for the link. From my understanding, on the Altra machine we'll get
+> the following results:
+> 
+> with your patch alone:
+> Scheduler will get a weight of 2 for both CLS and MC level and finally the
+> MC domain will be squashed. The lowest domain will be CLS.
+> 
+> with both your patch and Ionela's:
+> CLS will have a weight of 1 and MC will have a weight of 2. CLS won't be
+> built and the lowest domain will be MC.
+> 
+> with Ionela's patch alone:
+> Both CLS and MC will have a weight of 1, which is incorrect.
+> 
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-hifive-unleashed-a00         | riscv | lab-baylibre  | gcc-10   | defconfig=
-                  | 1          =
+This would happen with or without my patch. My patch only breaks the tie
+between CLS and MC.
 
-sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
-nel/v5.19.9-39-gf5066a94bca4/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.19.y
-  Describe: v5.19.9-39-gf5066a94bca4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f5066a94bca42cc8cc64e9999063584bff59f8d6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-hifive-unleashed-a00         | riscv | lab-baylibre  | gcc-10   | defconfig=
-                  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63246b2e9c82bfff783556d8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.9=
--39-gf5066a94bca4/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.9=
--39-gf5066a94bca4/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63246b2e9c82bfff78355=
-6d9
-        failing since 2 days (last pass: v5.19.8, first fail: v5.19.8-193-g=
-3acd07a8c4dd8) =
-
- =
+And the above outcome is "incorrect" for Ampere Altra where there's no
+cache spanning multiple cores, but ACPI presents clusters. With Darren's
+patch this information on clusters is used instead to build the MC domain.
 
 
+> So your patch is still necessary for Amphere Altra. Then we need to limit
+> MC span to DIE/NODE span, according to the scheduler's definition for
+> topology level, for the issue below. Maybe something like this:
+> 
+> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+> index 46cbe4471e78..8ebaba576836 100644
+> --- a/drivers/base/arch_topology.c
+> +++ b/drivers/base/arch_topology.c
+> @@ -713,6 +713,9 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
+>             cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
+>                 core_mask = &cpu_topology[cpu].cluster_sibling;
+> 
+> +       if (cpumask_subset(cpu_cpu_mask(cpu), core_mask))
+> +               core_mask = cpu_cpu_mask(cpu);
+> +
+>         return core_mask;
+>  }
+> 
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
+I agree cluster_sibling should not span more CPUs than package/node.
+I thought that restriction was imposed by find_acpi_cpu_topology_cluster().
+I'll take a further look over that as I think it's a better location to
+restrict the span of the cluster.
 
 
-  Details:     https://kernelci.org/test/plan/id/63246efc957e9d88e0355671
+> >>
+> >> I found an issue that the NUMA domains are not built on qemu with:
+> >>
+> >> qemu-system-aarch64 \
+> >>         -kernel ${Image} \
+> >>         -smp 8 \
+> >>         -cpu cortex-a72 \
+> >>         -m 32G \
+> >>         -object memory-backend-ram,id=node0,size=8G \
+> >>         -object memory-backend-ram,id=node1,size=8G \
+> >>         -object memory-backend-ram,id=node2,size=8G \
+> >>         -object memory-backend-ram,id=node3,size=8G \
+> >>         -numa node,memdev=node0,cpus=0-1,nodeid=0 \
+> >>         -numa node,memdev=node1,cpus=2-3,nodeid=1 \
+> >>         -numa node,memdev=node2,cpus=4-5,nodeid=2 \
+> >>         -numa node,memdev=node3,cpus=6-7,nodeid=3 \
+> >>         -numa dist,src=0,dst=1,val=12 \
+> >>         -numa dist,src=0,dst=2,val=20 \
+> >>         -numa dist,src=0,dst=3,val=22 \
+> >>         -numa dist,src=1,dst=2,val=22 \
+> >>         -numa dist,src=1,dst=3,val=24 \
+> >>         -numa dist,src=2,dst=3,val=12 \
+> >>         -machine virt,iommu=smmuv3 \
+> >>         -net none \
+> >>         -initrd ${Rootfs} \
+> >>         -nographic \
+> >>         -bios QEMU_EFI.fd \
+> >>         -append "rdinit=/init console=ttyAMA0 earlycon=pl011,0x9000000 sched_verbose loglevel=8"
+> >>
+> >> I can see the schedule domain build stops at MC level since we reach all the
+> >> cpus in the system:
+> >>
+> >> [    2.141316] CPU0 attaching sched-domain(s):
+> >> [    2.142558]  domain-0: span=0-7 level=MC
+> >> [    2.145364]   groups: 0:{ span=0 cap=964 }, 1:{ span=1 cap=914 }, 2:{ span=2 cap=921 }, 3:{ span=3 cap=964 }, 4:{ span=4 cap=925 }, 5:{ span=5 cap=964 }, 6:{ span=6 cap=967 }, 7:{ span=7 cap=967 }
+> >> [    2.158357] CPU1 attaching sched-domain(s):
+> >> [    2.158964]  domain-0: span=0-7 level=MC
+> >> [...]
+> >>
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.9=
--39-gf5066a94bca4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-sc7180-trogdor-lazor-limozeen.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.9=
--39-gf5066a94bca4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-sc7180-trogdor-lazor-limozeen.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+It took me a bit to reproduce this as it requires "QEMU emulator version
+7.1.0" otherwise there won't be a PPTT table.
 
+With this, the cache hierarchy is not really "healthy", so it's not a
+topology I'd expect to see in practice. But I suppose we should try to
+fix it.
 
+root@debian-arm64-buster:/sys/devices/system/cpu/cpu0/cache# grep . */*
+index0/level:1
+index0/shared_cpu_list:0-7
+index0/shared_cpu_map:ff
+index0/type:Data
+index1/level:1
+index1/shared_cpu_list:0-7
+index1/shared_cpu_map:ff
+index1/type:Instruction
+index2/level:2
+index2/shared_cpu_list:0-7
+index2/shared_cpu_map:ff
+index2/type:Unified
 
-  * baseline.login: https://kernelci.org/test/case/id/63246efc957e9d88e0355=
-672
-        new failure (last pass: v5.19.9) =
+Thanks,
+Ionela.
 
- =20
+> >> Without this the NUMA domains are built correctly:
+> >>
+> > > Without which? My patch, Ionela's patch, or both?
+> > 
+> 
+> Revert your patch only will have below result, sorry for the ambiguous. Before reverting,
+> for CPU 0, MC should span 0-1 but with your patch it's extended to 0-7 and the scheduler
+> domain build will stop at MC level because it has reached all the CPUs.
+> 
+> >> [    2.008885] CPU0 attaching sched-domain(s):
+> >> [    2.009764]  domain-0: span=0-1 level=MC
+> >> [    2.012654]   groups: 0:{ span=0 cap=962 }, 1:{ span=1 cap=925 }
+> >> [    2.016532]   domain-1: span=0-3 level=NUMA
+> >> [    2.017444]    groups: 0:{ span=0-1 cap=1887 }, 2:{ span=2-3 cap=1871 }
+> >> [    2.019354]    domain-2: span=0-5 level=NUMA
+> > 
+> > I'm not following this topology - what in the description above should result in
+> > a domain with span=0-5?
+> > 
+> 
+> It emulates a 3-hop NUMA machine and the NUMA domains will be built according to the
+> NUMA distances:
+> 
+> node   0   1   2   3
+>   0:  10  12  20  22
+>   1:  12  10  22  24
+>   2:  20  22  10  12
+>   3:  22  24  12  10
+> 
+> So for CPU 0 the NUMA domains will look like:
+> NUMA domain 0 for local nodes (squashed to MC domain), CPU 0-1
+> NUMA domain 1 for nodes within distance 12, CPU 0-3
+> NUMA domain 2 for nodes within distance 20, CPU 0-5
+> NUMA domain 3 for all the nodes, CPU 0-7
+> 
+> Thanks.
+> 
+> > 
+> >> [    2.019983]     groups: 0:{ span=0-3 cap=3758 }, 4:{ span=4-5 cap=1935 }
+> >> [    2.021527]     domain-3: span=0-7 level=NUMA
+> >> [    2.022516]      groups: 0:{ span=0-5 mask=0-1 cap=5693 }, 6:{ span=4-7 mask=6-7 cap=3978 }
+> >> [...]
+> >>
+> >> Hope to see your comments since I have no Ampere machine and I don't know
+> >> how to emulate its topology on qemu.
+> >>
+> >> [1] bfcc4397435d ("arch_topology: Limit span of cpu_clustergroup_mask()")
+> >>
+> >> Thanks,
+> >> Yicong
+> > 
+> > Thanks,
+> > 
