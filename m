@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E90E25BAADA
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC5E5BAB43
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231698AbiIPKVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:21:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
+        id S231523AbiIPKWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:22:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbiIPKUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:20:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A90B08A3;
-        Fri, 16 Sep 2022 03:13:24 -0700 (PDT)
+        with ESMTP id S231856AbiIPKVe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:21:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2E26D9F0;
+        Fri, 16 Sep 2022 03:13:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43732B82548;
-        Fri, 16 Sep 2022 10:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A639C43149;
-        Fri, 16 Sep 2022 10:13:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98DC462A23;
+        Fri, 16 Sep 2022 10:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA54C433D7;
+        Fri, 16 Sep 2022 10:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323188;
-        bh=yxmTmAmQYOY0Y1XhFJJ91Ijes9f9h/iULVvKrO+XC0U=;
+        s=korg; t=1663323219;
+        bh=CDsStmIrPeAHmX1Ml4M5Nc0oNw9u01LP4Yp6v594aKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNm5/LMR5umcl4SGonvGipHojehhFjphK68EPwFhwj51gsQKE06S7ideHeKRxK/pW
-         K+RVT6MOn+IvWxfXCT18G++Aylq2m1X0L/MX+E8CA44z2STMHIF1oo7+Pz/Cr0gTnW
-         OcJJlIREkOiRvwZWIz2U4CMLdhe8tk6rEyf8LToc=
+        b=V4eNmU9F6FWbI2QTnITb4yLJSNlarqmGGgNpTScMAV4Rpvm3VBKEIPWN/zAWOXz/y
+         7pu5oxRGzDktVTKjhMM60LuG1Rx1AKKOJ4YQ/qi3L9/UWolgzNHsRzdWOBa37NBnfO
+         twHzri4m5quxQwcXer89B+1jTLWa0wniQsOyNkSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 26/35] net: dsa: hellcreek: Print warning only once
+        stable@vger.kernel.org, Jason Wang <wangborong@cdjrlc.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 15/38] HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
 Date:   Fri, 16 Sep 2022 12:08:49 +0200
-Message-Id: <20220916100448.045361017@linuxfoundation.org>
+Message-Id: <20220916100449.111833423@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Kanzenbach <kurt@linutronix.de>
+From: Jason Wang <wangborong@cdjrlc.com>
 
-[ Upstream commit 52267ce25f60f37ae40ccbca0b21328ebae5ae75 ]
+[ Upstream commit 94553f8a218540d676efbf3f7827ed493d1057cf ]
 
-In case the source port cannot be decoded, print the warning only once. This
-still brings attention to the user and does not spam the logs at the same time.
+The double `like' is duplicated in the comment, remove one.
 
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220830163448.8921-1-kurt@linutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_hellcreek.c | 2 +-
+ drivers/hid/intel-ish-hid/ishtp-hid.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
-index eb204ad36eeec..846588c0070a5 100644
---- a/net/dsa/tag_hellcreek.c
-+++ b/net/dsa/tag_hellcreek.c
-@@ -45,7 +45,7 @@ static struct sk_buff *hellcreek_rcv(struct sk_buff *skb,
- 
- 	skb->dev = dsa_master_find_slave(dev, 0, port);
- 	if (!skb->dev) {
--		netdev_warn(dev, "Failed to get source port: %d\n", port);
-+		netdev_warn_once(dev, "Failed to get source port: %d\n", port);
- 		return NULL;
- 	}
- 
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index 6a5cc11aefd89..35dddc5015b37 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -105,7 +105,7 @@ struct report_list {
+  * @multi_packet_cnt:	Count of fragmented packet count
+  *
+  * This structure is used to store completion flags and per client data like
+- * like report description, number of HID devices etc.
++ * report description, number of HID devices etc.
+  */
+ struct ishtp_cl_data {
+ 	/* completion flags */
 -- 
 2.35.1
 
