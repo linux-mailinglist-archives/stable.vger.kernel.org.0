@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D245BAB17
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF85A5BAB03
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231873AbiIPKWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:22:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37682 "EHLO
+        id S231501AbiIPKZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231868AbiIPKVg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:21:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6332AB06D;
-        Fri, 16 Sep 2022 03:13:43 -0700 (PDT)
+        with ESMTP id S231681AbiIPKWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:22:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D067B0B2D;
+        Fri, 16 Sep 2022 03:14:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B093B8254B;
-        Fri, 16 Sep 2022 10:13:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFB6CC433D6;
-        Fri, 16 Sep 2022 10:13:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 212E4B82543;
+        Fri, 16 Sep 2022 10:13:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE12C433D6;
+        Fri, 16 Sep 2022 10:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323222;
-        bh=AfdJmkxYl4fp0gaMB1jEJ0ekn7GLEIObkapGRoAp1ck=;
+        s=korg; t=1663323190;
+        bh=lzvI08HxbeT3BDrPTiftpAaZxUwRATnxFpRa2DlgBPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrfKdzxkwzp62eu7nTzlEItyFZp9K6YcpIpuT+ZY/2w+sqMYbv0vBAEPb2c93+6ma
-         FnQVu/9MPKQuFT7HzaWHuhoirZfdYw23WoB6WcbW+QBwCv5CxQ/5TYeGnhcfr2ZL2Y
-         3xR6MBQjftThgNax0ytfQAEE+7TG1/VGWCttAbFM=
+        b=ZrfL5bxoR9S2x3IjgoYO+ARseslOrVH+3EraKNV9jgWtiTAqFrdxZhP5TwlppxzHv
+         k6GucQ7bqgeibdo1iX2Ooe14hHPh5GfIGylw2Q+ziKjcp2HwLV0N0Io55ZupdDWR0n
+         daKefSj7/NSHy4Imc9d94AdTHm201tLLFrhl518Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 16/38] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
+        stable@vger.kernel.org, Yu Zhe <yuzhe@nfschina.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 27/35] perf/arm_pmu_platform: fix tests for platform_get_irq() failure
 Date:   Fri, 16 Sep 2022 12:08:50 +0200
-Message-Id: <20220916100449.153131207@linuxfoundation.org>
+Message-Id: <20220916100448.086413293@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
-References: <20220916100448.431016349@linuxfoundation.org>
+In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
+References: <20220916100446.916515275@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,150 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Even Xu <even.xu@intel.com>
+From: Yu Zhe <yuzhe@nfschina.com>
 
-[ Upstream commit e1fa076706209cc447d7a2abd0843a18277e5ef7 ]
+[ Upstream commit 6bb0d64c100091e131cd16710b62fda3319cd0af ]
 
-There is a timing issue captured during ishtp client sending stress tests.
-It was observed during stress tests that ISH firmware is getting out of
-ordered messages. This is a rare scenario as the current set of ISH client
-drivers don't send much data to firmware. But this may not be the case
-going forward.
+The platform_get_irq() returns negative error codes.  It can't actually
+return zero.
 
-When message size is bigger than IPC MTU, ishtp splits the message into
-fragments and uses serialized async method to send message fragments.
-The call stack:
-ishtp_cl_send_msg_ipc->ipc_tx_callback(first fregment)->
-ishtp_send_msg(with callback)->write_ipc_to_queue->
-write_ipc_from_queue->callback->ipc_tx_callback(next fregment)......
-
-When an ipc write complete interrupt is received, driver also calls
-write_ipc_from_queue->ipc_tx_callback in ISR to start sending of next fragment.
-
-Through ipc_tx_callback uses spin_lock to protect message splitting, as the
-serialized sending method will call back to ipc_tx_callback again, so it doesn't
-put sending under spin_lock, it causes driver cannot guarantee all fragments
-be sent in order.
-
-Considering this scenario:
-ipc_tx_callback just finished a fragment splitting, and not call ishtp_send_msg
-yet, there is a write complete interrupt happens, then ISR->write_ipc_from_queue
-->ipc_tx_callback->ishtp_send_msg->write_ipc_to_queue......
-
-Because ISR has higher exec priority than normal thread, this causes the new
-fragment be sent out before previous fragment. This disordered message causes
-invalid message to firmware.
-
-The solution is, to send fragments synchronously:
-Use ishtp_write_message writing fragments into tx queue directly one by one,
-instead of ishtp_send_msg only writing one fragment with completion callback.
-As no completion callback be used, so change ipc_tx_callback to ipc_tx_send.
-
-Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
+Link: https://lore.kernel.org/r/20220825011844.8536-1-yuzhe@nfschina.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 68 ++++++++++++++----------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+ drivers/perf/arm_pmu_platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 405e0d5212cc8..df0a825694f52 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -626,13 +626,14 @@ static void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
- }
+diff --git a/drivers/perf/arm_pmu_platform.c b/drivers/perf/arm_pmu_platform.c
+index 513de1f54e2d7..933b96e243b84 100644
+--- a/drivers/perf/arm_pmu_platform.c
++++ b/drivers/perf/arm_pmu_platform.c
+@@ -117,7 +117,7 @@ static int pmu_parse_irqs(struct arm_pmu *pmu)
  
- /**
-- * ipc_tx_callback() - IPC tx callback function
-+ * ipc_tx_send() - IPC tx send function
-  * @prm: Pointer to client device instance
-  *
-- * Send message over IPC either first time or on callback on previous message
-- * completion
-+ * Send message over IPC. Message will be split into fragments
-+ * if message size is bigger than IPC FIFO size, and all
-+ * fragments will be sent one by one.
-  */
--static void ipc_tx_callback(void *prm)
-+static void ipc_tx_send(void *prm)
- {
- 	struct ishtp_cl	*cl = prm;
- 	struct ishtp_cl_tx_ring	*cl_msg;
-@@ -677,32 +678,41 @@ static void ipc_tx_callback(void *prm)
- 			    list);
- 	rem = cl_msg->send_buf.size - cl->tx_offs;
- 
--	ishtp_hdr.host_addr = cl->host_client_id;
--	ishtp_hdr.fw_addr = cl->fw_client_id;
--	ishtp_hdr.reserved = 0;
--	pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+	while (rem > 0) {
-+		ishtp_hdr.host_addr = cl->host_client_id;
-+		ishtp_hdr.fw_addr = cl->fw_client_id;
-+		ishtp_hdr.reserved = 0;
-+		pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+
-+		if (rem <= dev->mtu) {
-+			/* Last fragment or only one packet */
-+			ishtp_hdr.length = rem;
-+			ishtp_hdr.msg_complete = 1;
-+			/* Submit to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs = 0;
-+			cl->sending = 0;
- 
--	if (rem <= dev->mtu) {
--		ishtp_hdr.length = rem;
--		ishtp_hdr.msg_complete = 1;
--		cl->sending = 0;
--		list_del_init(&cl_msg->list);	/* Must be before write */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		/* Submit to IPC queue with no callback */
--		ishtp_write_message(dev, &ishtp_hdr, pmsg);
--		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
--		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
--		++cl->tx_ring_free_size;
--		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
--			tx_free_flags);
--	} else {
--		/* Send IPC fragment */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		cl->tx_offs += dev->mtu;
--		ishtp_hdr.length = dev->mtu;
--		ishtp_hdr.msg_complete = 0;
--		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
-+			break;
-+		} else {
-+			/* Send ipc fragment */
-+			ishtp_hdr.length = dev->mtu;
-+			ishtp_hdr.msg_complete = 0;
-+			/* All fregments submitted to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs += dev->mtu;
-+			rem = cl_msg->send_buf.size - cl->tx_offs;
-+		}
+ 	if (num_irqs == 1) {
+ 		int irq = platform_get_irq(pdev, 0);
+-		if (irq && irq_is_percpu_devid(irq))
++		if ((irq > 0) && irq_is_percpu_devid(irq))
+ 			return pmu_parse_percpu_irq(pmu, irq);
  	}
-+
-+	list_del_init(&cl_msg->list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	++cl->tx_ring_free_size;
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+		tx_free_flags);
- }
- 
- /**
-@@ -720,7 +730,7 @@ static void ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
- 		return;
- 
- 	cl->tx_offs = 0;
--	ipc_tx_callback(cl);
-+	ipc_tx_send(cl);
- 	++cl->send_msg_cnt_ipc;
- }
  
 -- 
 2.35.1
