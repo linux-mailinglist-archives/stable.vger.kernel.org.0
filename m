@@ -2,64 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FB45BB478
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 00:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB0D5BB48A
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 00:55:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229673AbiIPWrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 18:47:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56718 "EHLO
+        id S229727AbiIPWzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 18:55:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbiIPWry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 18:47:54 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72500BC126
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 15:47:52 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id bu5-20020a17090aee4500b00202e9ca2182so2559533pjb.0
-        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 15:47:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=c89JKkdRXbwFjls77Y11MxHABtglHoBtI7LAoKFa4Ow=;
-        b=szvi0AoJ0tGZ4QBkw1z5evgF4Tfts5PdyVDiQuws8/FRnmYMXyByUHV5kNf1SdLUyf
-         molQgP7432gPgX4sONlHtYvXQOvpxHK+YC6LWOdJOnRuHTqYZOCaVhpOtaoUNyjdiXL8
-         hhd4CtVn8DfSrnEQxnwYOYK3rsMkZDOF0K/qcDCd5DCjXdntjiHAKugY9PrFQAzSI+C+
-         t5kuztNO7RIfO8AfnpqqoqRdQRWJYO9/2ONefOmHF0LjWsc2vEla+fnYkZKcHJ5hglNN
-         nGJY4L3UfFg7qYFMq1ADXCa414p0oArZP55t52IHlKalmW650Rlx6S1143rq7ZidUsmH
-         rjEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=c89JKkdRXbwFjls77Y11MxHABtglHoBtI7LAoKFa4Ow=;
-        b=QNUSYn2gq7QxPGgSaKeJ57qq+inQXbff2mRLTC2prn+trxlWPaL7Bzw1mro8Y/VhPY
-         YH3/crVNrT+4zPI27XonaVJKIVJd69tRDcBMjSxJsfWW1/R9nRcVtswLvbMsjxHBueQT
-         LuWiN47xIrbnwPTOut8RRTITf2z8mzc+5gLKlb6zc/FaQEVLngXGyNSazuJSSW1uuSVP
-         M26zuCy0qVYLmXalrSKsRRgM+69fb51+3WUVo16cF/IsgwIh7cVjg/oHtR/7lzAikLKc
-         /rMHThJRrAB+hYymVtMn4J2cYEBP0NzjMOox0n9yVgRn5pHgldMsdnrUbEFUuSrs04BN
-         clwA==
-X-Gm-Message-State: ACrzQf38wLoWlJK3QLQ2ikp6aVdREnh/KqwBBsnK/o8DMifOvBa1ww+L
-        jlvv6YRy2Lelz+V/rO9SaprYFA==
-X-Google-Smtp-Source: AMsMyM40py878s6ovcGYryBV3pRkgTzsf5bZWIYu27RHBJ4iLgrRBE6jFf3t0AdZAOjU1uThs//I5A==
-X-Received: by 2002:a17:903:2595:b0:178:6b71:2eea with SMTP id jb21-20020a170903259500b001786b712eeamr1967185plb.143.1663368471970;
-        Fri, 16 Sep 2022 15:47:51 -0700 (PDT)
-Received: from desktop.hsd1.or.comcast.net ([2601:1c0:4c81:c480:feaa:14ff:fe3a:b225])
-        by smtp.gmail.com with ESMTPSA id k5-20020aa79d05000000b0053725e331a1sm14999663pfp.82.2022.09.16.15.47.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Sep 2022 15:47:51 -0700 (PDT)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] usb: mon: make mmapped memory read only
-Date:   Fri, 16 Sep 2022 15:47:41 -0700
-Message-Id: <20220916224741.2269649-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.37.3
+        with ESMTP id S229723AbiIPWzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 18:55:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B04CABF2F;
+        Fri, 16 Sep 2022 15:55:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35D2362DD1;
+        Fri, 16 Sep 2022 22:55:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A05C43470;
+        Fri, 16 Sep 2022 22:55:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663368950;
+        bh=CxePb5gSHUo+VC915HSKvQFTvB1YDl7G7mETr2pEKdM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=bQLRcpJO4wQpxuKyGPt8hrvOCf0+UCyiCoUTiiNwv/aIhNN2dBjfLe9+QF/vrP3qz
+         yETSihoSo2NYig77KvTY3XH/HlCWIokQfpFPLYX8Qv2gyRTME+saS6Ot3RD4E39+2u
+         ZbzrYBduaPFhF8M4EDAqy/Ag9+IysO1rAr4ocN5mjDDjZk2rQaERZC+Ey8RuAkZcv8
+         jATd6s/+YmiMLcTLj/AGvyq1gL5PLUo0akM3FuoXQ9eliemMvzjswZ1xUJIzWfcw+o
+         xxagVoK8vIdeTEZPhRw3QtjglIMZbew9OpEnnDlG0PTcC4PqVIy8GEhcI3ffi/x3hM
+         3UtsVZcy30L4A==
+Received: by mail-wm1-f47.google.com with SMTP id v185-20020a1cacc2000000b003b42e4f278cso718695wme.5;
+        Fri, 16 Sep 2022 15:55:50 -0700 (PDT)
+X-Gm-Message-State: ACrzQf0htlC4P9wklDtoerfl3559sCb/6L0fIA/MpQcZsLmEfbYS5B+b
+        AusuQfNMR3YqbmYhm1mjUsbe4NUwrbm5AsgYwMY=
+X-Google-Smtp-Source: AMsMyM4DdIs0+/VNJIbbOCv56yQxPrcSrae4oNrMbcWmbPGfpBk1PqD5XW8+CRbBoA9out17hpCehWfW1Yb7zoW8xm0=
+X-Received: by 2002:a7b:c2a2:0:b0:3a8:4959:a327 with SMTP id
+ c2-20020a7bc2a2000000b003a84959a327mr4772463wmk.50.1663368948773; Fri, 16 Sep
+ 2022 15:55:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+References: <404d2f5ec663128342541fa392a47226a46e5634.1663219530.git.objelf@gmail.com>
+ <YyRCtrOtPqu2oEPj@kroah.com>
+In-Reply-To: <YyRCtrOtPqu2oEPj@kroah.com>
+From:   Sean Wang <sean.wang@kernel.org>
+Date:   Fri, 16 Sep 2022 15:55:36 -0700
+X-Gmail-Original-Message-ID: <CAGp9Lzqyd0c0Aw6XSjsepKw_RsTawvbF512DvzaXisRxdYbMZA@mail.gmail.com>
+Message-ID: <CAGp9Lzqyd0c0Aw6XSjsepKw_RsTawvbF512DvzaXisRxdYbMZA@mail.gmail.com>
+Subject: Re: [PATCH 5.19] wifi: mt76: mt7921e: fix crash in chip reset fail
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     sean.wang@mediatek.com, stable@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-kernel@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,33 +63,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot found an issue in usbmon where it can corrupt monitor
-internal memory causing the usbmon to crash with segfault,
-UAF, etc. The reproducer mmaps the /dev/usbmon memory to userspace
-and overwrites it with arbitrary data, which causes the issues.
-To prevent that explicitly clear the VM_WRITE flag in mon_bin_mmap().
+Hi, Greg
 
-Cc: linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Fixes: 6f23ee1fefdc ("USB: add binary API to usbmon")
-Link: https://syzkaller.appspot.com/bug?id=2eb1f35d6525fa4a74d75b4244971e5b1411c95a
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
----
- drivers/usb/mon/mon_bin.c | 1 +
- 1 file changed, 1 insertion(+)
+On Fri, Sep 16, 2022 at 2:39 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Sep 15, 2022 at 01:32:35PM +0800, sean.wang@mediatek.com wrote:
+> > From: Deren Wu <deren.wu@mediatek.com>
+> >
+> > commit fa3fbe64037839f448dc569212bafc5a495d8219 upstream.
+>
+> This is already in the 5.19.9 kernel release, right?  Do we need it
+> again?
 
-diff --git a/drivers/usb/mon/mon_bin.c b/drivers/usb/mon/mon_bin.c
-index f48a23adbc35..f452fc03093c 100644
---- a/drivers/usb/mon/mon_bin.c
-+++ b/drivers/usb/mon/mon_bin.c
-@@ -1268,6 +1268,7 @@ static int mon_bin_mmap(struct file *filp, struct vm_area_struct *vma)
- {
- 	/* don't do anything here: "fault" will set up page table entries */
- 	vma->vm_ops = &mon_bin_vm_ops;
-+	vma->vm_flags &= ~VM_WRITE;
- 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_private_data = filp->private_data;
- 	mon_bin_vma_open(vma);
--- 
-2.37.3
+Ah, If so, we don't need it again. It seemed unavailable when I
+submitted the patch. Sorry for bothering you.
+
+    Sean
+
+>
+> thanks,
+>
+> greg k-h
