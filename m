@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23CD85BAA69
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0515BAA80
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231454AbiIPKNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47128 "EHLO
+        id S231382AbiIPKNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbiIPKMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:12:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81B4A99C9;
-        Fri, 16 Sep 2022 03:10:02 -0700 (PDT)
+        with ESMTP id S230483AbiIPKMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:12:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBEDA3D7D;
+        Fri, 16 Sep 2022 03:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 162CDB82518;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 102F6629E7;
+        Fri, 16 Sep 2022 10:10:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 268C2C433C1;
         Fri, 16 Sep 2022 10:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F70BC433C1;
-        Fri, 16 Sep 2022 10:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663322997;
-        bh=S07XMmLlcm/5xYS+ZKU7ruAv+2iVf9I/7rxvTXJEHGs=;
+        s=korg; t=1663323000;
+        bh=01W0zjQVqA35OWNap4lZMa7U31CITdvi1cGX39Kpkbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yb6EdPBbRRrZgbD3Ey5kD2noIjIQwBiGwOoLNnGR9RtMH1/DAGvyufDx2PB2im2co
-         r0FHv/J3ewma3k3G6H7BHIISwUIiMqQMFgPd4Uij+y8U0nB9PD7xn++AN9UxcVUADg
-         GzcK0wRrpyb3LlB6NehYvy6Z66H9xy8PIivzvF0M=
+        b=eyQ2bQjl5w/SEN2takO+dywmdhTiO1Tjatf/g23kLUAJBe5gcCaHWegf90Ug7enHk
+         kzDxFfC6KX4kBhs+zPRYlIS43ZR4StePjo2VfeVwHXdJddOyKq4uMDgxALR/tYcDG4
+         vtEtRw9AvbClK8YSy+/8Q7w2CeaPOnM3OeAKGnZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathew McBride <matt@traverse.com.au>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.4 13/14] soc: fsl: select FSL_GUTS driver for DPIO
-Date:   Fri, 16 Sep 2022 12:08:20 +0200
-Message-Id: <20220916100443.766339299@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 14/14] tracefs: Only clobber mode/uid/gid on remount if asked
+Date:   Fri, 16 Sep 2022 12:08:21 +0200
+Message-Id: <20220916100443.814559871@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100443.123226979@linuxfoundation.org>
 References: <20220916100443.123226979@linuxfoundation.org>
@@ -53,41 +52,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathew McBride <matt@traverse.com.au>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 9a472613f5bccf1b36837423495ae592a9c5182f upstream.
+commit 47311db8e8f33011d90dee76b39c8886120cdda4 upstream.
 
-The soc/fsl/dpio driver will perform a soc_device_match()
-to determine the optimal cache settings for a given CPU core.
+Users may have explicitly configured their tracefs permissions; we
+shouldn't overwrite those just because a second mount appeared.
 
-If FSL_GUTS is not enabled, this search will fail and
-the driver will not configure cache stashing for the given
-DPIO, and a string of "unknown SoC" messages will appear:
+Only clobber if the options were provided at mount time.
 
-fsl_mc_dpio dpio.7: unknown SoC version
-fsl_mc_dpio dpio.6: unknown SoC version
-fsl_mc_dpio dpio.5: unknown SoC version
+Note: the previous behavior was especially surprising in the presence of
+automounted /sys/kernel/debug/tracing/.
 
-Fixes: 51da14e96e9b ("soc: fsl: dpio: configure cache stashing destination")
-Signed-off-by: Mathew McBride <matt@traverse.com.au>
-Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Existing behavior:
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwx------
+
+  ## Unexpected: the automount changed mode for other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwx------
+
+New behavior (after this change):
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwxr-xr-x
+
+  ## Expected: the automount does not change other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220901052149.23873-2-matt@traverse.com.au'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/fsl/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ fs/tracefs/inode.c |   31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/drivers/soc/fsl/Kconfig
-+++ b/drivers/soc/fsl/Kconfig
-@@ -24,6 +24,7 @@ config FSL_MC_DPIO
-         tristate "QorIQ DPAA2 DPIO driver"
-         depends on FSL_MC_BUS
-         select SOC_BUS
-+        select FSL_GUTS
-         help
- 	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
- 	  buffer management facilities for software to interact with
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -139,6 +139,8 @@ struct tracefs_mount_opts {
+ 	kuid_t uid;
+ 	kgid_t gid;
+ 	umode_t mode;
++	/* Opt_* bitfield. */
++	unsigned int opts;
+ };
+ 
+ enum {
+@@ -239,6 +241,7 @@ static int tracefs_parse_options(char *d
+ 	kgid_t gid;
+ 	char *p;
+ 
++	opts->opts = 0;
+ 	opts->mode = TRACEFS_DEFAULT_MODE;
+ 
+ 	while ((p = strsep(&data, ",")) != NULL) {
+@@ -273,24 +276,36 @@ static int tracefs_parse_options(char *d
+ 		 * but traditionally tracefs has ignored all mount options
+ 		 */
+ 		}
++
++		opts->opts |= BIT(token);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int tracefs_apply_options(struct super_block *sb)
++static int tracefs_apply_options(struct super_block *sb, bool remount)
+ {
+ 	struct tracefs_fs_info *fsi = sb->s_fs_info;
+ 	struct inode *inode = sb->s_root->d_inode;
+ 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 
+-	inode->i_mode &= ~S_IALLUGO;
+-	inode->i_mode |= opts->mode;
++	/*
++	 * On remount, only reset mode/uid/gid if they were provided as mount
++	 * options.
++	 */
++
++	if (!remount || opts->opts & BIT(Opt_mode)) {
++		inode->i_mode &= ~S_IALLUGO;
++		inode->i_mode |= opts->mode;
++	}
+ 
+-	inode->i_uid = opts->uid;
++	if (!remount || opts->opts & BIT(Opt_uid))
++		inode->i_uid = opts->uid;
+ 
+-	/* Set all the group ids to the mount option */
+-	set_gid(sb->s_root, opts->gid);
++	if (!remount || opts->opts & BIT(Opt_gid)) {
++		/* Set all the group ids to the mount option */
++		set_gid(sb->s_root, opts->gid);
++	}
+ 
+ 	return 0;
+ }
+@@ -305,7 +320,7 @@ static int tracefs_remount(struct super_
+ 	if (err)
+ 		goto fail;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, true);
+ 
+ fail:
+ 	return err;
+@@ -357,7 +372,7 @@ static int trace_fill_super(struct super
+ 
+ 	sb->s_op = &tracefs_super_operations;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, false);
+ 
+ 	return 0;
+ 
 
 
