@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D422D5BAAAB
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E6E5BAAC2
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231418AbiIPKPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:15:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48864 "EHLO
+        id S231722AbiIPKZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231420AbiIPKOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:14:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB73AEDB9;
-        Fri, 16 Sep 2022 03:11:23 -0700 (PDT)
+        with ESMTP id S231851AbiIPKXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4547BB0B24;
+        Fri, 16 Sep 2022 03:14:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED024B82520;
-        Fri, 16 Sep 2022 10:10:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CEE2C433C1;
-        Fri, 16 Sep 2022 10:10:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64F5AB82559;
+        Fri, 16 Sep 2022 10:14:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E79C433D6;
+        Fri, 16 Sep 2022 10:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323034;
-        bh=m0CCmXn+DRNmptGEaAfo1O1jNqKFsxS0zWNvH9+boSk=;
+        s=korg; t=1663323254;
+        bh=hFz289cURpz/2AcKIza+w5U70ny1pNXJNBG5RO5VPdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGmeBpQk80eUjPz0bpz/HbDNkkNM67BhxcnaR+SZ6CUT6+KCBa+5cHaHrqgVNaraz
-         0+JtreW4cIf/gMvipBMbDNID159fia26WlgJ70BcQ44dmQC1EepLCFTmDk8eFSzyH0
-         /OR9l7nPRptZELlD2tOpk2nkWEJYxl7JoJEtcalA=
+        b=uru/d+yOyT1LkoB3BLDyeyr8pUsi+XGBOKCqeKpseBItlQmduVuTGS0uUb9c7QEy5
+         GJg9qXkO+oE6UPcdXnhtJGp9pFqjqDcfkCgH2j3pXhPNDdlF46B6TRa6tbJcf+T7Ob
+         m1a6e3laNuiRZ220515EjeISkZQTAwxmGLlU4KRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Hu Xiaoying <huxiaoying@kylinos.cn>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/24] usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
+Subject: [PATCH 5.19 09/38] platform/surface: aggregator_registry: Add support for Surface Laptop Go 2
 Date:   Fri, 16 Sep 2022 12:08:43 +0200
-Message-Id: <20220916100446.173733750@linuxfoundation.org>
+Message-Id: <20220916100448.850916681@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hu Xiaoying <huxiaoying@kylinos.cn>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit c61feaee68b9735be06f162bc046c7f1959efb0c ]
+[ Upstream commit 84b8e403435c8fb94b872309673764a447961e00 ]
 
-USB external storage device(0x0b05:1932), use gnome-disk-utility tools
-to test usb write  < 30MB/s.
-if does not to load module of uas for this device, can increase the
-write speed from 20MB/s to >40MB/s.
+The Surface Laptop Go 2 seems to have the same SAM client devices as the
+Surface Laptop Go 1, so re-use its node group.
 
-Suggested-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Hu Xiaoying <huxiaoying@kylinos.cn>
-Link: https://lore.kernel.org/r/20220901045737.3438046-1-huxiaoying@kylinos.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20220810140133.99087-1-luzmaximilian@gmail.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/platform/surface/surface_aggregator_registry.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index 4051c8cd0cd8a..23ab3b048d9be 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -62,6 +62,13 @@ UNUSUAL_DEV(0x0984, 0x0301, 0x0128, 0x0128,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
+diff --git a/drivers/platform/surface/surface_aggregator_registry.c b/drivers/platform/surface/surface_aggregator_registry.c
+index ce2bd88feeaa8..08019c6ccc9ca 100644
+--- a/drivers/platform/surface/surface_aggregator_registry.c
++++ b/drivers/platform/surface/surface_aggregator_registry.c
+@@ -556,6 +556,9 @@ static const struct acpi_device_id ssam_platform_hub_match[] = {
+ 	/* Surface Laptop Go 1 */
+ 	{ "MSHW0118", (unsigned long)ssam_node_group_slg1 },
  
-+/* Reported-by: Tom Hu <huxiaoying@kylinos.cn> */
-+UNUSUAL_DEV(0x0b05, 0x1932, 0x0000, 0x9999,
-+		"ASUS",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
++	/* Surface Laptop Go 2 */
++	{ "MSHW0290", (unsigned long)ssam_node_group_slg1 },
 +
- /* Reported-by: David Webb <djw@noc.ac.uk> */
- UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x9999,
- 		"Seagate",
+ 	/* Surface Laptop Studio */
+ 	{ "MSHW0123", (unsigned long)ssam_node_group_sls },
+ 
 -- 
 2.35.1
 
