@@ -2,66 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D8B5BB174
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 19:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE3B5BB177
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 19:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbiIPRGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 13:06:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34560 "EHLO
+        id S229905AbiIPRGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 13:06:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiIPRGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 13:06:22 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD4AB6029;
-        Fri, 16 Sep 2022 10:06:21 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id c24so359897plo.3;
-        Fri, 16 Sep 2022 10:06:21 -0700 (PDT)
+        with ESMTP id S229614AbiIPRGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 13:06:42 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9AFB657D;
+        Fri, 16 Sep 2022 10:06:37 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id t3so22019742ply.2;
+        Fri, 16 Sep 2022 10:06:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=references:in-reply-to:message-id:date:subject:cc:to:from:from:to
          :cc:subject:date;
-        bh=3Wa/fw4wW71fQ+xBzkS6YeYWBKqLIyGhivfP++bxPiI=;
-        b=fCEudfuUQILhZE4oNHBAjST/pWD21J8kQzBpdyYcRCy9sK2A8O0UGwXcHn3PCLCHLN
-         afUuYFlNm/ADOYhKDLuzG/PJKWpnSDAcavaLCJhzu0AfBCvW6cRTE/9BRkJ9XCMMjVht
-         tPRaypoj0fNo7AnRTkwDcbCzz/g9eR1J1rcmIw5rCPCeOY4d6UFlVb3YrzIRspGiBmeF
-         7VQWtAAEbi96GSUJryVxFtq878UoNr4LDfMyUqZck2bwkgLE1tF+fFT7ep91WbL3BuYx
-         735Ywu6v3Yo2PzfNjYYbT7oxEgGwTmhEUtFxt4RBiG91pLqE6w0/gV8C9sps5mIv+bk6
-         qdPw==
+        bh=NHX0v7JDxtUMM333DJPPrllexhVOYL7Nj+UJXW7k7Y8=;
+        b=pa/sJLJcN+B/Gm25t+BGj5bgblNIz7/PAmxl6hiXx1smZzr03fp4MqJ/q/wlShntIw
+         BcXbPjsBHGmXGrE0s2Sv2om6ZYgRIGDe3KIDNILW73JyMXR68sT7uhKIw3iRr/p7MwxR
+         1FWxvUH5LeudO/mP+KZS3neYWq/v8ZRj7BzdnW48emGzopX4Sh7z33C+1E5eq4iIkeRr
+         1GoWDaFGgVN2o0T/On9Rla8LAIZAUwzjFpc/Eytfqz5Q+sXAcRnzkPi7TR1v01WVWHlS
+         TaDTCkgQXQ4ewRC92j3wEH3bMvPyGukKbsK1R3Yojr1yn1scu/e/FbsHKMQdZV6ohBp2
+         eh2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=references:in-reply-to:message-id:date:subject:cc:to:from
          :x-gm-message-state:from:to:cc:subject:date;
-        bh=3Wa/fw4wW71fQ+xBzkS6YeYWBKqLIyGhivfP++bxPiI=;
-        b=GAAclyTcj/tOTna08CtYihvVjW0b7zhQOGXsgUdks6omSp0fz0ElyK/ntMnbDEfIb0
-         IMLVJuleAFHCqs02vKxTFP9/cU2dAE9yumb2jmcfgqZiz4JjhHoXmq91EjNu3gksLhl9
-         x6/+kxQDVrPWWJ/NR1HD4xPYvzQkt266Bd0G3GNkmqKQJgAhuU3neCeEtaUJPvpXDds8
-         yp3yR1LBJcQuZNomRcUm2WV7LnpryocZN5q/nxHEmjCz62B0tZGs/wQXZ83PerSuoXV4
-         K1iUu4yho/YKZXNYjOzw/wct8NZtWE++Sk20nWfNlGIq/GWnAnpKpzUaNFGQWP2/sAd9
-         DsyA==
-X-Gm-Message-State: ACrzQf2Qg5Z0XsMEQzjXG7IbH7hDLhUw6xqPx3fbhBcrBssHiMzqx3Hg
-        jCNYhVMHI2b72B5awRrOvRT6wOr93R9XZAcP1bs=
-X-Google-Smtp-Source: AMsMyM5YQ8lTJNxRrgMhzyu8jazAOF+HhFY5GsUMB0OuM+jA2QEyFn7nPADF3Dt7LNsSmtUpcZSXjA==
-X-Received: by 2002:a17:90b:3852:b0:202:f891:9ed5 with SMTP id nl18-20020a17090b385200b00202f8919ed5mr6611509pjb.239.1663347980899;
-        Fri, 16 Sep 2022 10:06:20 -0700 (PDT)
+        bh=NHX0v7JDxtUMM333DJPPrllexhVOYL7Nj+UJXW7k7Y8=;
+        b=akIsvl4zMQNjiwU3afO8iVDgfguG7q7lACAGU/eqGQ94ATszS8lntWubvPVvRvnqA5
+         AY4cOYUlpFIk392Y9IqRuf8rI3cGSq3gQJ2upYsgrSIXxvlt6cUbkd/DOekaek6Gzlru
+         xjc4GgEOWj2VhQj7YZUkwBd3jjhevxNMz0qAbIwiBMBKs+oBOya+DndsD1HuBHMNenXy
+         y+A9nwpXSnUKhfkv7tdwo7ISI7F2EaQIOfceC7SPSkIuhWhV7eGD30qn3K3QgDTdJD3J
+         cXqyGGnTRLL2dW7WRJGGfACZnNeRLvcZB2nqpxsJ7zDBt8a/oIGHt8M/3qmY+Q0RRieY
+         rX1A==
+X-Gm-Message-State: ACrzQf1eM7lUSGCUQ46jZ2l3AohD48ukFvOn3TRInC4SijruVpU5HitR
+        Wj2Y8bhiVRUf5W1h52Om1VY=
+X-Google-Smtp-Source: AMsMyM63V0YKfwJrz1k6xxEeD01J5ColjWgNUnV4EN+5k+EjrshLwF197ITwrydBRmUahAUoJEKVwQ==
+X-Received: by 2002:a17:90b:1d01:b0:203:2bda:abb1 with SMTP id on1-20020a17090b1d0100b002032bdaabb1mr11969428pjb.204.1663347996703;
+        Fri, 16 Sep 2022 10:06:36 -0700 (PDT)
 Received: from localhost.localdomain ([117.176.186.9])
-        by smtp.gmail.com with ESMTPSA id z12-20020a170903018c00b00176d4b093e1sm15386677plg.16.2022.09.16.10.06.17
+        by smtp.gmail.com with ESMTPSA id z12-20020a170903018c00b00176d4b093e1sm15386677plg.16.2022.09.16.10.06.30
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Sep 2022 10:06:20 -0700 (PDT)
+        Fri, 16 Sep 2022 10:06:36 -0700 (PDT)
 From:   wangyong <yongw.pur@gmail.com>
 X-Google-Original-From: wangyong <wang.yong12@zte.com.cn>
 To:     gregkh@linuxfoundation.org
 Cc:     jaewon31.kim@samsung.com, linux-kernel@vger.kernel.org,
         mhocko@kernel.org, stable@vger.kernel.org, wang.yong12@zte.com.cn,
-        yongw.pur@gmail.com
-Subject: [PATCH stable-4.19 0/3] page_alloc: consider highatomic reserve in watermark fast backports to 4.19
-Date:   Fri, 16 Sep 2022 10:05:46 -0700
-Message-Id: <1663347949-20389-1-git-send-email-wang.yong12@zte.com.cn>
+        yongw.pur@gmail.com, Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 1/3] mm/page_alloc: use ac->high_zoneidx for classzone_idx
+Date:   Fri, 16 Sep 2022 10:05:47 -0700
+Message-Id: <1663347949-20389-2-git-send-email-wang.yong12@zte.com.cn>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <YyREk5hHs2F0eWiE@kroah.com>
+In-Reply-To: <1663347949-20389-1-git-send-email-wang.yong12@zte.com.cn>
 References: <YyREk5hHs2F0eWiE@kroah.com>
-X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+ <1663347949-20389-1-git-send-email-wang.yong12@zte.com.cn>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,20 +75,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Here are the corresponding backports to 4.19.
-And fix classzone_idx context differences causing patch merge conflicts.
+From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 
-Jaewon Kim (2):
-  page_alloc: consider highatomic reserve in watermark fast
-  page_alloc: fix invalid watermark check on a negative value
+Patch series "integrate classzone_idx and high_zoneidx", v5.
 
-Joonsoo Kim (1):
-  mm/page_alloc: use ac->high_zoneidx for classzone_idx
+This patchset is followup of the problem reported and discussed two years
+ago [1, 2].  The problem this patchset solves is related to the
+classzone_idx on the NUMA system.  It causes a problem when the lowmem
+reserve protection exists for some zones on a node that do not exist on
+other nodes.
 
- mm/internal.h   |  2 +-
- mm/page_alloc.c | 69 +++++++++++++++++++++++++++++++++------------------------
- 2 files changed, 41 insertions(+), 30 deletions(-)
+This problem was reported two years ago, and, at that time, the solution
+got general agreements [2].  But it was not upstreamed.
 
+[1]: http://lkml.kernel.org/r/20180102063528.GG30397@yexl-desktop
+[2]: http://lkml.kernel.org/r/1525408246-14768-1-git-send-email-iamjoonsoo.kim@lge.com
+
+This patch (of 2):
+
+Currently, we use classzone_idx to calculate lowmem reserve proetection
+for an allocation request.  This classzone_idx causes a problem on NUMA
+systems when the lowmem reserve protection exists for some zones on a node
+that do not exist on other nodes.
+
+Before further explanation, I should first clarify how to compute the
+classzone_idx and the high_zoneidx.
+
+- ac->high_zoneidx is computed via the arcane gfp_zone(gfp_mask) and
+  represents the index of the highest zone the allocation can use
+
+- classzone_idx was supposed to be the index of the highest zone on the
+  local node that the allocation can use, that is actually available in
+  the system
+
+Think about following example.  Node 0 has 4 populated zone,
+DMA/DMA32/NORMAL/MOVABLE.  Node 1 has 1 populated zone, NORMAL.  Some
+zones, such as MOVABLE, doesn't exist on node 1 and this makes following
+difference.
+
+Assume that there is an allocation request whose gfp_zone(gfp_mask) is the
+zone, MOVABLE.  Then, it's high_zoneidx is 3.  If this allocation is
+initiated on node 0, it's classzone_idx is 3 since actually
+available/usable zone on local (node 0) is MOVABLE.  If this allocation is
+initiated on node 1, it's classzone_idx is 2 since actually
+available/usable zone on local (node 1) is NORMAL.
+
+You can see that classzone_idx of the allocation request are different
+according to their starting node, even if their high_zoneidx is the same.
+
+Think more about these two allocation requests.  If they are processed on
+local, there is no problem.  However, if allocation is initiated on node 1
+are processed on remote, in this example, at the NORMAL zone on node 0,
+due to memory shortage, problem occurs.  Their different classzone_idx
+leads to different lowmem reserve and then different min watermark.  See
+the following example.
+
+root@ubuntu:/sys/devices/system/memory# cat /proc/zoneinfo
+Node 0, zone      DMA
+  per-node stats
+...
+  pages free     3965
+        min      5
+        low      8
+        high     11
+        spanned  4095
+        present  3998
+        managed  3977
+        protection: (0, 2961, 4928, 5440)
+...
+Node 0, zone    DMA32
+  pages free     757955
+        min      1129
+        low      1887
+        high     2645
+        spanned  1044480
+        present  782303
+        managed  758116
+        protection: (0, 0, 1967, 2479)
+...
+Node 0, zone   Normal
+  pages free     459806
+        min      750
+        low      1253
+        high     1756
+        spanned  524288
+        present  524288
+        managed  503620
+        protection: (0, 0, 0, 4096)
+...
+Node 0, zone  Movable
+  pages free     130759
+        min      195
+        low      326
+        high     457
+        spanned  1966079
+        present  131072
+        managed  131072
+        protection: (0, 0, 0, 0)
+...
+Node 1, zone      DMA
+  pages free     0
+        min      0
+        low      0
+        high     0
+        spanned  0
+        present  0
+        managed  0
+        protection: (0, 0, 1006, 1006)
+Node 1, zone    DMA32
+  pages free     0
+        min      0
+        low      0
+        high     0
+        spanned  0
+        present  0
+        managed  0
+        protection: (0, 0, 1006, 1006)
+Node 1, zone   Normal
+  per-node stats
+...
+  pages free     233277
+        min      383
+        low      640
+        high     897
+        spanned  262144
+        present  262144
+        managed  257744
+        protection: (0, 0, 0, 0)
+...
+Node 1, zone  Movable
+  pages free     0
+        min      0
+        low      0
+        high     0
+        spanned  262144
+        present  0
+        managed  0
+        protection: (0, 0, 0, 0)
+
+- static min watermark for the NORMAL zone on node 0 is 750.
+
+- lowmem reserve for the request with classzone idx 3 at the NORMAL on
+  node 0 is 4096.
+
+- lowmem reserve for the request with classzone idx 2 at the NORMAL on
+  node 0 is 0.
+
+So, overall min watermark is:
+allocation initiated on node 0 (classzone_idx 3): 750 + 4096 = 4846
+allocation initiated on node 1 (classzone_idx 2): 750 + 0 = 750
+
+Allocation initiated on node 1 will have some precedence than allocation
+initiated on node 0 because min watermark of the former allocation is
+lower than the other.  So, allocation initiated on node 1 could succeed on
+node 0 when allocation initiated on node 0 could not, and, this could
+cause too many numa_miss allocation.  Then, performance could be
+downgraded.
+
+Recently, there was a regression report about this problem on CMA patches
+since CMA memory are placed in ZONE_MOVABLE by those patches.  I checked
+that problem is disappeared with this fix that uses high_zoneidx for
+classzone_idx.
+
+http://lkml.kernel.org/r/20180102063528.GG30397@yexl-desktop
+
+Using high_zoneidx for classzone_idx is more consistent way than previous
+approach because system's memory layout doesn't affect anything to it.
+With this patch, both classzone_idx on above example will be 3 so will
+have the same min watermark.
+
+allocation initiated on node 0: 750 + 4096 = 4846
+allocation initiated on node 1: 750 + 4096 = 4846
+
+One could wonder if there is a side effect that allocation initiated on
+node 1 will use higher bar when allocation is handled on local since
+classzone_idx could be higher than before.  It will not happen because the
+zone without managed page doesn't contributes lowmem_reserve at all.
+
+Reported-by: Ye Xiaolong <xiaolong.ye@intel.com>
+Signed-off-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Ye Xiaolong <xiaolong.ye@intel.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Link: http://lkml.kernel.org/r/1587095923-7515-1-git-send-email-iamjoonsoo.kim@lge.com
+Link: http://lkml.kernel.org/r/1587095923-7515-2-git-send-email-iamjoonsoo.kim@lge.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ mm/internal.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mm/internal.h b/mm/internal.h
+index 3a2e973..922a173 100644
+--- a/mm/internal.h
++++ b/mm/internal.h
+@@ -123,7 +123,7 @@ struct alloc_context {
+ 	bool spread_dirty_pages;
+ };
+ 
+-#define ac_classzone_idx(ac) zonelist_zone_idx(ac->preferred_zoneref)
++#define ac_classzone_idx(ac) (ac->high_zoneidx)
+ 
+ /*
+  * Locate the struct page for both the matching buddy in our
 -- 
 2.7.4
 
