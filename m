@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 082815BAAE4
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E34965BAA76
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231496AbiIPKTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:19:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35834 "EHLO
+        id S231624AbiIPKTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:19:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231820AbiIPKSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:18:50 -0400
+        with ESMTP id S231892AbiIPKTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:19:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6461DAFAF6;
-        Fri, 16 Sep 2022 03:12:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F9F13F49;
+        Fri, 16 Sep 2022 03:12:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E82CB82543;
-        Fri, 16 Sep 2022 10:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3366C433D7;
-        Fri, 16 Sep 2022 10:12:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 138DDB82539;
+        Fri, 16 Sep 2022 10:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FD6C433D6;
+        Fri, 16 Sep 2022 10:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323142;
-        bh=WHRxAVYJvNf+tsOM+bZFl4O0EEI09kuycwNQUMZe5iA=;
+        s=korg; t=1663323171;
+        bh=bUQW0Wp4SnI8PrxP3zvxYr7GetJzUvK5EMTjMqSKClw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ihmy4e9swsdhG5vnJEYgOo0IjsCwsbDg9ZJLnEHSWH1cF/5d/sZPYIc0LJ3BnIau2
-         i9SHJpEUj3Wtyjm/3xFUWGyh0E/xmVJ7PGvFFWz0v9A0R1i19Eh/lqlnOwu2oDuFvV
-         zCln8Yia+vmXrBrk7DkIBf0yyUA2l9SsMNt9G3ok=
+        b=mqPqUuWZNC5nJyO3dM6mGun23H2nBS14cjn8ty1lI4uar3CVjoogzzhc0RMjPzT13
+         YAFsSQsMEsmCg24OGgPHx+WVsbD3fgC7GC1Jap8EzhP3kYudFybG4U1CfB08U9sUXk
+         ycLoUlnk0voE271E7eLGm5aTRXScA+EZ86P46JJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 20/35] tg3: Disable tg3 device on system reboot to avoid triggering AER
-Date:   Fri, 16 Sep 2022 12:08:43 +0200
-Message-Id: <20220916100447.793993204@linuxfoundation.org>
+Subject: [PATCH 5.15 21/35] gpio: mockup: remove gpio debugfs when remove device
+Date:   Fri, 16 Sep 2022 12:08:44 +0200
+Message-Id: <20220916100447.835275499@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
 References: <20220916100446.916515275@linuxfoundation.org>
@@ -55,81 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
+[ Upstream commit 303e6da99429510b1e4edf833afe90ac8542e747 ]
 
-Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
-reboot hang on one Dell servers so the commit was reverted.
+GPIO mockup debugfs is created in gpio_mockup_probe() but
+forgot to remove when remove device. This patch add a devm
+managed callback for removing them.
 
-Someone managed to collect the AER log and it's caused by MSI:
-[ 148.762067] ACPI: Preparing to enter system sleep state S5
-[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
-[ 148.803731] {1}[Hardware Error]: event severity: recoverable
-[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
-[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
-[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
-[ 148.829026] {1}[Hardware Error]: version: 3.0
-[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
-[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
-[ 148.847309] {1}[Hardware Error]: slot: 0
-[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
-[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
-[ 148.865145] {1}[Hardware Error]: class_code: 020000
-[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
-[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
-[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
-[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
-[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
-[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
-[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
-[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
-
-The MSI is probably raised by incoming packets, so power down the device
-and disable bus mastering to stop the traffic, as user confirmed this
-approach works.
-
-In addition to that, be extra safe and cancel reset task if it's running.
-
-Cc: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
-BugLink: https://bugs.launchpad.net/bugs/1917471
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-mockup.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 5e0e0e70d8014..8aab07419263e 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18078,16 +18078,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct tg3 *tp = netdev_priv(dev);
- 
-+	tg3_reset_task_cancel(tp);
-+
- 	rtnl_lock();
-+
- 	netif_device_detach(dev);
- 
- 	if (netif_running(dev))
- 		dev_close(dev);
- 
--	if (system_state == SYSTEM_POWER_OFF)
--		tg3_power_down(tp);
-+	tg3_power_down(tp);
- 
- 	rtnl_unlock();
-+
-+	pci_disable_device(pdev);
+diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
+index d26bff29157b5..369a832d96203 100644
+--- a/drivers/gpio/gpio-mockup.c
++++ b/drivers/gpio/gpio-mockup.c
+@@ -373,6 +373,13 @@ static void gpio_mockup_debugfs_setup(struct device *dev,
+ 	}
  }
  
- /**
++static void gpio_mockup_debugfs_cleanup(void *data)
++{
++	struct gpio_mockup_chip *chip = data;
++
++	debugfs_remove_recursive(chip->dbg_dir);
++}
++
+ static void gpio_mockup_dispose_mappings(void *data)
+ {
+ 	struct gpio_mockup_chip *chip = data;
+@@ -455,7 +462,7 @@ static int gpio_mockup_probe(struct platform_device *pdev)
+ 
+ 	gpio_mockup_debugfs_setup(dev, chip);
+ 
+-	return 0;
++	return devm_add_action_or_reset(dev, gpio_mockup_debugfs_cleanup, chip);
+ }
+ 
+ static const struct of_device_id gpio_mockup_of_match[] = {
 -- 
 2.35.1
 
