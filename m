@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA465BAB29
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F525BAB09
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbiIPKTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37332 "EHLO
+        id S231626AbiIPKQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231781AbiIPKSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:18:47 -0400
+        with ESMTP id S231497AbiIPKPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:15:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD80AAFAE9;
-        Fri, 16 Sep 2022 03:12:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8916DACA3C;
+        Fri, 16 Sep 2022 03:11:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6FE8B82540;
-        Fri, 16 Sep 2022 10:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55F19C433D6;
-        Fri, 16 Sep 2022 10:12:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71CCEB82521;
+        Fri, 16 Sep 2022 10:11:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B30A4C433B5;
+        Fri, 16 Sep 2022 10:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323132;
-        bh=GORTeHk9Pi4q+Pl7Z3N7sG96h1kbXrotZRIhHBUhLOw=;
+        s=korg; t=1663323068;
+        bh=+gxl2HYx2Ui/E2dJ0+8vkM5bnjpZDmbWrSJmuo+oIdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIT7Y8N0SFY2Z+td5oh4FzgnCcOXvtlxXpi44wy7Dk7Bj1u3IwVfuacLIZ7iS94pV
-         FzWLpXhk25Sizpnr9Qs/JDkDi/PPRfs9NUZPMXtxFCLWuNlMiCa7FGB2wAKJ94fzG5
-         Wci1lER7taQcFGopyGHregOC3m7PuIGchBYQBPgA=
+        b=yCr5niLgG9Eyxl5JyQJLmIXW8mRqr760sJWd+c1BQRRxhnwDKzPQZ6Wh3bHF6ivWo
+         dXvbYmcX4tCE0mTj/Mngu3vUM3I2tJdpGzM7BvybKII04RTPFC8o8Iy05w58+Lm8Xh
+         lw6268P9xC2/IaUrGKYyeM8FRei72QJuAC241DYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 08/35] x86/mm: Force-inline __phys_addr_nodebug()
+Subject: [PATCH 5.10 06/24] drm/msm/rd: Fix FIFO-full deadlock
 Date:   Fri, 16 Sep 2022 12:08:31 +0200
-Message-Id: <20220916100447.289010893@linuxfoundation.org>
+Message-Id: <20220916100445.645169659@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-References: <20220916100446.916515275@linuxfoundation.org>
+In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
+References: <20220916100445.354452396@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit ace1a98519270c586c0d4179419292df67441cd1 ]
+[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
 
-Fix:
+If the previous thing cat'ing $debugfs/rd left the FIFO full, then
+subsequent open could deadlock in rd_write() (because open is blocked,
+not giving a chance for read() to consume any data in the FIFO).  Also
+it is generally a good idea to clear out old data from the FIFO.
 
-  vmlinux.o: warning: objtool: __sev_es_nmi_complete()+0x8b: call to __phys_addr_nodebug() leaves .noinstr.text section
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220324183607.31717-4-bp@alien8.de
-Stable-dep-of: 54c3931957f6 ("tracing: hold caller_addr to hardirq_{enable,disable}_ip")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/496706/
+Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/page_64.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/msm_rd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/include/asm/page_64.h b/arch/x86/include/asm/page_64.h
-index 4bde0dc66100c..56891399fa2a6 100644
---- a/arch/x86/include/asm/page_64.h
-+++ b/arch/x86/include/asm/page_64.h
-@@ -15,7 +15,7 @@ extern unsigned long page_offset_base;
- extern unsigned long vmalloc_base;
- extern unsigned long vmemmap_base;
+diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
+index fea30e7aa9e83..084b6ae2a4761 100644
+--- a/drivers/gpu/drm/msm/msm_rd.c
++++ b/drivers/gpu/drm/msm/msm_rd.c
+@@ -191,6 +191,9 @@ static int rd_open(struct inode *inode, struct file *file)
+ 	file->private_data = rd;
+ 	rd->open = true;
  
--static inline unsigned long __phys_addr_nodebug(unsigned long x)
-+static __always_inline unsigned long __phys_addr_nodebug(unsigned long x)
- {
- 	unsigned long y = x - __START_KERNEL_map;
- 
++	/* Reset fifo to clear any previously unread data: */
++	rd->fifo.head = rd->fifo.tail = 0;
++
+ 	/* the parsing tools need to know gpu-id to know which
+ 	 * register database to load.
+ 	 */
 -- 
 2.35.1
 
