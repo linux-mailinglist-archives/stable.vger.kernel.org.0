@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A715BAA85
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 446B15BAB37
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231666AbiIPKOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:14:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
+        id S231370AbiIPKNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:13:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231420AbiIPKNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:13:00 -0400
+        with ESMTP id S231368AbiIPKMW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:12:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107BBA9269;
-        Fri, 16 Sep 2022 03:10:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39BB82EF35;
+        Fri, 16 Sep 2022 03:09:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 491D962A05;
-        Fri, 16 Sep 2022 10:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36912C433D6;
-        Fri, 16 Sep 2022 10:10:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F58A629E7;
+        Fri, 16 Sep 2022 10:09:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B101C433D7;
+        Fri, 16 Sep 2022 10:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323003;
-        bh=iPJdzqZkaPbbW0M+Sk9HKES9lv2O1Zy8J6UuE8E/eg4=;
+        s=korg; t=1663322991;
+        bh=uWJM0brIsoL6qeR/qf8zSfHE35LumEcj4LcdZJCYzWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9d9soQKZ4DOJYjuRUY1mspdtkICrJ5lE4tMT0Mu9+0kfSc100Cg16a/3IB/RXlik
-         ViVpQ3B95uNO5mAVUxSunE7jzoJerly8KXuY7dQ7PR/qK92oSod+lQVhM6XoTAPuWf
-         w9SQK/4sxSfD9GsKVQgNQJXJBRDQ65s4PCmjB1w0=
+        b=yNS8mxBa6TCGj7xWGY58U38uqCK/+1Q996BuBo/N1wO+2kUPxeSqjHLYalexJWQnG
+         piO5vaqCJcJ5XqWLGmJqjiFsk72fGynI1XQovJtWMlCU716QbXIwBMme4StHx3e7T+
+         mMWNmTjmBXG2bMU9vAXmW7lXYS8d9hkqaR6oW4eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Hu Xiaoying <huxiaoying@kylinos.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/14] usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
-Date:   Fri, 16 Sep 2022 12:08:17 +0200
-Message-Id: <20220916100443.629596221@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>
+Subject: [PATCH 5.4 11/14] mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
+Date:   Fri, 16 Sep 2022 12:08:18 +0200
+Message-Id: <20220916100443.678644319@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220916100443.123226979@linuxfoundation.org>
 References: <20220916100443.123226979@linuxfoundation.org>
@@ -54,45 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hu Xiaoying <huxiaoying@kylinos.cn>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit c61feaee68b9735be06f162bc046c7f1959efb0c ]
+This is a stable-specific patch.
+I botched the stable-specific rewrite of
+commit b67fbebd4cf98 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"):
+As Hugh pointed out, unmap_region() actually operates on a list of VMAs,
+and the variable "vma" merely points to the first VMA in that list.
+So if we want to check whether any of the VMAs we're operating on is
+PFNMAP or MIXEDMAP, we have to iterate through the list and check each VMA.
 
-USB external storage device(0x0b05:1932), use gnome-disk-utility tools
-to test usb write  < 30MB/s.
-if does not to load module of uas for this device, can increase the
-write speed from 20MB/s to >40MB/s.
-
-Suggested-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Hu Xiaoying <huxiaoying@kylinos.cn>
-Link: https://lore.kernel.org/r/20220901045737.3438046-1-huxiaoying@kylinos.cn
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ mm/mmap.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index 2f72753c3e225..0b37c8e550e7d 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -62,6 +62,13 @@ UNUSUAL_DEV(0x0984, 0x0301, 0x0128, 0x0128,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2605,6 +2605,7 @@ static void unmap_region(struct mm_struc
+ {
+ 	struct vm_area_struct *next = prev ? prev->vm_next : mm->mmap;
+ 	struct mmu_gather tlb;
++	struct vm_area_struct *cur_vma;
  
-+/* Reported-by: Tom Hu <huxiaoying@kylinos.cn> */
-+UNUSUAL_DEV(0x0b05, 0x1932, 0x0000, 0x9999,
-+		"ASUS",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /* Reported-by: David Webb <djw@noc.ac.uk> */
- UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x9999,
- 		"Seagate",
--- 
-2.35.1
-
+ 	lru_add_drain();
+ 	tlb_gather_mmu(&tlb, mm, start, end);
+@@ -2619,8 +2620,12 @@ static void unmap_region(struct mm_struc
+ 	 * concurrent flush in this region has to be coming through the rmap,
+ 	 * and we synchronize against that using the rmap lock.
+ 	 */
+-	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
+-		tlb_flush_mmu(&tlb);
++	for (cur_vma = vma; cur_vma; cur_vma = cur_vma->vm_next) {
++		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0) {
++			tlb_flush_mmu(&tlb);
++			break;
++		}
++	}
+ 
+ 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
+ 				 next ? next->vm_start : USER_PGTABLES_CEILING);
 
 
