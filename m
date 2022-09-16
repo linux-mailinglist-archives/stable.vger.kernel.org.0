@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A655BAB51
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994A55BAA4A
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiIPKSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49258 "EHLO
+        id S229510AbiIPKR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:17:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231593AbiIPKRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:17:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7AEAF494;
-        Fri, 16 Sep 2022 03:12:26 -0700 (PDT)
+        with ESMTP id S231534AbiIPKRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:17:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D52ABD5A;
+        Fri, 16 Sep 2022 03:12:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47E53B82524;
-        Fri, 16 Sep 2022 10:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B0EC433D6;
-        Fri, 16 Sep 2022 10:11:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 490A462A24;
+        Fri, 16 Sep 2022 10:11:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C493C433D6;
+        Fri, 16 Sep 2022 10:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323074;
-        bh=5W1NvthT7Gk6j/4+GOkbynLdXPLwKUVSKJmdvZ0KROw=;
+        s=korg; t=1663323089;
+        bh=WtsQJAZofaUELrCVXiJTrZu1q+N1CUo+xSp1xN6POGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oqd3N+4vDUOmuQ670dhle65Zx6Hyege0FMS39wmo+i6yWQiw9Ze/lQ8OYPDwwh9Te
-         lZJrCR5ggHJTLF17IVq1uXDR3GPZUrhMXJCtrqmchtXYHuMwXEbEUrjZWZdvICsDwI
-         +3fUgpdnwae8qBC+kCWXUD6X9BBXwuY/kMwdWyME=
+        b=x7UAqpf49CwgKVyy1IpVndDBlAHgpl13LR9t0y9DFOih0ZZ4iZ87q0cvr4ScsFmw4
+         IAXGzH/V6MgUKQQgRim0iGt4IGAt58KdlGLKjvNTNuJuQ4UOnEaRlzbTfYRH2iSodP
+         PLRgTzcSYYMPYHGrGZ4OmyOTfQxGGmFqn/3yYMbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <wangborong@cdjrlc.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 08/24] HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
-Date:   Fri, 16 Sep 2022 12:08:33 +0200
-Message-Id: <20220916100445.730730352@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 11/35] tracefs: Only clobber mode/uid/gid on remount if asked
+Date:   Fri, 16 Sep 2022 12:08:34 +0200
+Message-Id: <20220916100447.413009805@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220916100445.354452396@linuxfoundation.org>
-References: <20220916100445.354452396@linuxfoundation.org>
+In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
+References: <20220916100446.916515275@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +53,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <wangborong@cdjrlc.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 94553f8a218540d676efbf3f7827ed493d1057cf ]
+[ Upstream commit 47311db8e8f33011d90dee76b39c8886120cdda4 ]
 
-The double `like' is duplicated in the comment, remove one.
+Users may have explicitly configured their tracefs permissions; we
+shouldn't overwrite those just because a second mount appeared.
 
-Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Only clobber if the options were provided at mount time.
+
+Note: the previous behavior was especially surprising in the presence of
+automounted /sys/kernel/debug/tracing/.
+
+Existing behavior:
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwx------
+
+  ## Unexpected: the automount changed mode for other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwx------
+
+New behavior (after this change):
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwxr-xr-x
+
+  ## Expected: the automount does not change other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/tracefs/inode.c | 31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
-index 5ffd0da3cf1fa..65af0ebef79f6 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid.h
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
-@@ -110,7 +110,7 @@ struct report_list {
-  * @multi_packet_cnt:	Count of fragmented packet count
-  *
-  * This structure is used to store completion flags and per client data like
-- * like report description, number of HID devices etc.
-+ * report description, number of HID devices etc.
-  */
- struct ishtp_cl_data {
- 	/* completion flags */
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index f2625a372a3ae..066e8344934de 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -141,6 +141,8 @@ struct tracefs_mount_opts {
+ 	kuid_t uid;
+ 	kgid_t gid;
+ 	umode_t mode;
++	/* Opt_* bitfield. */
++	unsigned int opts;
+ };
+ 
+ enum {
+@@ -241,6 +243,7 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ 	kgid_t gid;
+ 	char *p;
+ 
++	opts->opts = 0;
+ 	opts->mode = TRACEFS_DEFAULT_MODE;
+ 
+ 	while ((p = strsep(&data, ",")) != NULL) {
+@@ -275,24 +278,36 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ 		 * but traditionally tracefs has ignored all mount options
+ 		 */
+ 		}
++
++		opts->opts |= BIT(token);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int tracefs_apply_options(struct super_block *sb)
++static int tracefs_apply_options(struct super_block *sb, bool remount)
+ {
+ 	struct tracefs_fs_info *fsi = sb->s_fs_info;
+ 	struct inode *inode = sb->s_root->d_inode;
+ 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 
+-	inode->i_mode &= ~S_IALLUGO;
+-	inode->i_mode |= opts->mode;
++	/*
++	 * On remount, only reset mode/uid/gid if they were provided as mount
++	 * options.
++	 */
++
++	if (!remount || opts->opts & BIT(Opt_mode)) {
++		inode->i_mode &= ~S_IALLUGO;
++		inode->i_mode |= opts->mode;
++	}
+ 
+-	inode->i_uid = opts->uid;
++	if (!remount || opts->opts & BIT(Opt_uid))
++		inode->i_uid = opts->uid;
+ 
+-	/* Set all the group ids to the mount option */
+-	set_gid(sb->s_root, opts->gid);
++	if (!remount || opts->opts & BIT(Opt_gid)) {
++		/* Set all the group ids to the mount option */
++		set_gid(sb->s_root, opts->gid);
++	}
+ 
+ 	return 0;
+ }
+@@ -307,7 +322,7 @@ static int tracefs_remount(struct super_block *sb, int *flags, char *data)
+ 	if (err)
+ 		goto fail;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, true);
+ 
+ fail:
+ 	return err;
+@@ -359,7 +374,7 @@ static int trace_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	sb->s_op = &tracefs_super_operations;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, false);
+ 
+ 	return 0;
+ 
 -- 
 2.35.1
 
