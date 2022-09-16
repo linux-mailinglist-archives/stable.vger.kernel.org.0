@@ -2,256 +2,325 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 457885BAB0C
-	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87D85BAA87
+	for <lists+stable@lfdr.de>; Fri, 16 Sep 2022 12:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231853AbiIPKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 06:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
+        id S231508AbiIPKZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 06:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiIPKXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7611FB0B3D;
-        Fri, 16 Sep 2022 03:14:23 -0700 (PDT)
+        with ESMTP id S231955AbiIPKXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 06:23:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA159B1B91;
+        Fri, 16 Sep 2022 03:14:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92DDCB82551;
-        Fri, 16 Sep 2022 10:14:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD9D8C433C1;
-        Fri, 16 Sep 2022 10:14:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 377A9B82547;
+        Fri, 16 Sep 2022 10:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68039C433D6;
+        Fri, 16 Sep 2022 10:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663323257;
-        bh=jok/kkh2g/6U00S6qVysOXZQEV20tRTNXa4wZUSVXec=;
-        h=From:To:Cc:Subject:Date:From;
-        b=s/9bCMpJU1j9Bu0+uxBvHtcCxSQobVPt5N1v3JWBaWHdcWbVHvkuRfxgvk+nH8WSq
-         D8KuOn5OQXkRRedHbl3ggAqNjW+GJAUluNOJF8wc97pAbXrizzdjfdBAybCYWup34u
-         shE+apZybmtBISLgdXKtNGKh5hnwGmcVL6KT3EFA=
+        s=korg; t=1663323199;
+        bh=xKc+VJzNq7ghgu3tWGElFyry0K9Yx2ti+Gz7sg7FU6A=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rqBHRL5p/AWZGwYqo9sMoI7qe3hwthR8z2ae8e8R/r7NF8EHl2m/D75Ruzk+YGs24
+         CLe2z3vqDCXieljWTyN1PRkBo5D9BXRz7LlqdqGsqjhPQzwJyXoIqk/nmVWAzflVDB
+         glNEoIZQC+fjLXQ+aJ+jYMCQN2M7AOADw2VMjYRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.19 00/38] 5.19.10-rc1 review
-Date:   Fri, 16 Sep 2022 12:08:34 +0200
-Message-Id: <20220916100448.431016349@linuxfoundation.org>
+        stable@vger.kernel.org, Jerry Snitselaar <jsnitsel@redhat.com>,
+        Wen Jin <wen.jin@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 01/38] iommu/vt-d: Fix kdump kernels boot failure with scalable mode
+Date:   Fri, 16 Sep 2022 12:08:35 +0200
+Message-Id: <20220916100448.496305937@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+References: <20220916100448.431016349@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.10-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.19.10-rc1
-X-KernelTest-Deadline: 2022-09-18T10:04+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.19.10 release.
-There are 38 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-Responses should be made by Sun, 18 Sep 2022 10:04:31 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 0c5f6c0d8201a809a6585b07b6263e9db2c874a3 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.10-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-and the diffstat can be found below.
+The translation table copying code for kdump kernels is currently based
+on the extended root/context entry formats of ECS mode defined in older
+VT-d v2.5, and doesn't handle the scalable mode formats. This causes
+the kexec capture kernel boot failure with DMAR faults if the IOMMU was
+enabled in scalable mode by the previous kernel.
 
-thanks,
+The ECS mode has already been deprecated by the VT-d spec since v3.0 and
+Intel IOMMU driver doesn't support this mode as there's no real hardware
+implementation. Hence this converts ECS checking in copying table code
+into scalable mode.
 
-greg k-h
+The existing copying code consumes a bit in the context entry as a mark
+of copied entry. It needs to work for the old format as well as for the
+extended context entries. As it's hard to find such a common bit for both
+legacy and scalable mode context entries. This replaces it with a per-
+IOMMU bitmap.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
+Cc: stable@vger.kernel.org
+Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Tested-by: Wen Jin <wen.jin@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20220817011035.3250131-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/iommu/intel/iommu.c | 100 ++++++++++++++++--------------------
+ include/linux/intel-iommu.h |   9 ++--
+ 2 files changed, 50 insertions(+), 59 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.19.10-rc1
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 40ac3a78d90ef..c0464959cbcdb 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -168,38 +168,6 @@ static phys_addr_t root_entry_uctp(struct root_entry *re)
+ 	return re->hi & VTD_PAGE_MASK;
+ }
+ 
+-static inline void context_clear_pasid_enable(struct context_entry *context)
+-{
+-	context->lo &= ~(1ULL << 11);
+-}
+-
+-static inline bool context_pasid_enabled(struct context_entry *context)
+-{
+-	return !!(context->lo & (1ULL << 11));
+-}
+-
+-static inline void context_set_copied(struct context_entry *context)
+-{
+-	context->hi |= (1ull << 3);
+-}
+-
+-static inline bool context_copied(struct context_entry *context)
+-{
+-	return !!(context->hi & (1ULL << 3));
+-}
+-
+-static inline bool __context_present(struct context_entry *context)
+-{
+-	return (context->lo & 1);
+-}
+-
+-bool context_present(struct context_entry *context)
+-{
+-	return context_pasid_enabled(context) ?
+-	     __context_present(context) :
+-	     __context_present(context) && !context_copied(context);
+-}
+-
+ static inline void context_set_present(struct context_entry *context)
+ {
+ 	context->lo |= 1;
+@@ -247,6 +215,26 @@ static inline void context_clear_entry(struct context_entry *context)
+ 	context->hi = 0;
+ }
+ 
++static inline bool context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
++{
++	if (!iommu->copied_tables)
++		return false;
++
++	return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
++}
++
++static inline void
++set_context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
++{
++	set_bit(((long)bus << 8) | devfn, iommu->copied_tables);
++}
++
++static inline void
++clear_context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
++{
++	clear_bit(((long)bus << 8) | devfn, iommu->copied_tables);
++}
++
+ /*
+  * This domain is a statically identity mapping domain.
+  *	1. This domain creats a static 1:1 mapping to all usable memory.
+@@ -644,6 +632,13 @@ struct context_entry *iommu_context_addr(struct intel_iommu *iommu, u8 bus,
+ 	struct context_entry *context;
+ 	u64 *entry;
+ 
++	/*
++	 * Except that the caller requested to allocate a new entry,
++	 * returning a copied context entry makes no sense.
++	 */
++	if (!alloc && context_copied(iommu, bus, devfn))
++		return NULL;
++
+ 	entry = &root->lo;
+ 	if (sm_supported(iommu)) {
+ 		if (devfn >= 0x80) {
+@@ -1770,6 +1765,11 @@ static void free_dmar_iommu(struct intel_iommu *iommu)
+ 		iommu->domain_ids = NULL;
+ 	}
+ 
++	if (iommu->copied_tables) {
++		bitmap_free(iommu->copied_tables);
++		iommu->copied_tables = NULL;
++	}
++
+ 	g_iommus[iommu->seq_id] = NULL;
+ 
+ 	/* free context mapping */
+@@ -1978,7 +1978,7 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 		goto out_unlock;
+ 
+ 	ret = 0;
+-	if (context_present(context))
++	if (context_present(context) && !context_copied(iommu, bus, devfn))
+ 		goto out_unlock;
+ 
+ 	/*
+@@ -1990,7 +1990,7 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 	 * in-flight DMA will exist, and we don't need to worry anymore
+ 	 * hereafter.
+ 	 */
+-	if (context_copied(context)) {
++	if (context_copied(iommu, bus, devfn)) {
+ 		u16 did_old = context_domain_id(context);
+ 
+ 		if (did_old < cap_ndoms(iommu->cap)) {
+@@ -2001,6 +2001,8 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 			iommu->flush.flush_iotlb(iommu, did_old, 0, 0,
+ 						 DMA_TLB_DSI_FLUSH);
+ 		}
++
++		clear_context_copied(iommu, bus, devfn);
+ 	}
+ 
+ 	context_clear_entry(context);
+@@ -2783,32 +2785,14 @@ static int copy_context_table(struct intel_iommu *iommu,
+ 		/* Now copy the context entry */
+ 		memcpy(&ce, old_ce + idx, sizeof(ce));
+ 
+-		if (!__context_present(&ce))
++		if (!context_present(&ce))
+ 			continue;
+ 
+ 		did = context_domain_id(&ce);
+ 		if (did >= 0 && did < cap_ndoms(iommu->cap))
+ 			set_bit(did, iommu->domain_ids);
+ 
+-		/*
+-		 * We need a marker for copied context entries. This
+-		 * marker needs to work for the old format as well as
+-		 * for extended context entries.
+-		 *
+-		 * Bit 67 of the context entry is used. In the old
+-		 * format this bit is available to software, in the
+-		 * extended format it is the PGE bit, but PGE is ignored
+-		 * by HW if PASIDs are disabled (and thus still
+-		 * available).
+-		 *
+-		 * So disable PASIDs first and then mark the entry
+-		 * copied. This means that we don't copy PASID
+-		 * translations from the old kernel, but this is fine as
+-		 * faults there are not fatal.
+-		 */
+-		context_clear_pasid_enable(&ce);
+-		context_set_copied(&ce);
+-
++		set_context_copied(iommu, bus, devfn);
+ 		new_ce[idx] = ce;
+ 	}
+ 
+@@ -2835,8 +2819,8 @@ static int copy_translation_tables(struct intel_iommu *iommu)
+ 	bool new_ext, ext;
+ 
+ 	rtaddr_reg = dmar_readq(iommu->reg + DMAR_RTADDR_REG);
+-	ext        = !!(rtaddr_reg & DMA_RTADDR_RTT);
+-	new_ext    = !!ecap_ecs(iommu->ecap);
++	ext        = !!(rtaddr_reg & DMA_RTADDR_SMT);
++	new_ext    = !!sm_supported(iommu);
+ 
+ 	/*
+ 	 * The RTT bit can only be changed when translation is disabled,
+@@ -2847,6 +2831,10 @@ static int copy_translation_tables(struct intel_iommu *iommu)
+ 	if (new_ext != ext)
+ 		return -EINVAL;
+ 
++	iommu->copied_tables = bitmap_zalloc(BIT_ULL(16), GFP_KERNEL);
++	if (!iommu->copied_tables)
++		return -ENOMEM;
++
+ 	old_rt_phys = rtaddr_reg & VTD_PAGE_MASK;
+ 	if (!old_rt_phys)
+ 		return -EINVAL;
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 5fcf89faa31ab..d72626d71258f 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -196,7 +196,6 @@
+ #define ecap_dis(e)		(((e) >> 27) & 0x1)
+ #define ecap_nest(e)		(((e) >> 26) & 0x1)
+ #define ecap_mts(e)		(((e) >> 25) & 0x1)
+-#define ecap_ecs(e)		(((e) >> 24) & 0x1)
+ #define ecap_iotlb_offset(e) 	((((e) >> 8) & 0x3ff) * 16)
+ #define ecap_max_iotlb_offset(e) (ecap_iotlb_offset(e) + 16)
+ #define ecap_coherent(e)	((e) & 0x1)
+@@ -264,7 +263,6 @@
+ #define DMA_GSTS_CFIS (((u32)1) << 23)
+ 
+ /* DMA_RTADDR_REG */
+-#define DMA_RTADDR_RTT (((u64)1) << 11)
+ #define DMA_RTADDR_SMT (((u64)1) << 10)
+ 
+ /* CCMD_REG */
+@@ -579,6 +577,7 @@ struct intel_iommu {
+ 
+ #ifdef CONFIG_INTEL_IOMMU
+ 	unsigned long 	*domain_ids; /* bitmap of domains */
++	unsigned long	*copied_tables; /* bitmap of copied tables */
+ 	spinlock_t	lock; /* protect context, domain ids */
+ 	struct root_entry *root_entry; /* virtual address */
+ 
+@@ -692,6 +691,11 @@ static inline int nr_pte_to_next_page(struct dma_pte *pte)
+ 		(struct dma_pte *)ALIGN((unsigned long)pte, VTD_PAGE_SIZE) - pte;
+ }
+ 
++static inline bool context_present(struct context_entry *context)
++{
++	return (context->lo & 1);
++}
++
+ extern struct dmar_drhd_unit * dmar_find_matched_drhd_unit(struct pci_dev *dev);
+ 
+ extern int dmar_enable_qi(struct intel_iommu *iommu);
+@@ -776,7 +780,6 @@ static inline void intel_iommu_debugfs_init(void) {}
+ #endif /* CONFIG_INTEL_IOMMU_DEBUGFS */
+ 
+ extern const struct attribute_group *intel_iommu_groups[];
+-bool context_present(struct context_entry *context);
+ struct context_entry *iommu_context_addr(struct intel_iommu *iommu, u8 bus,
+ 					 u8 devfn, int alloc);
+ 
+-- 
+2.35.1
 
-Jarrah Gosbell <kernel@undef.tools>
-    Input: goodix - add compatible string for GT1158
-
-Sindhu-Devale <sindhu.devale@intel.com>
-    RDMA/irdma: Use s/g array in post send only when its valid
-
-William Breathitt Gray <william.gray@linaro.org>
-    gpio: 104-idio-16: Make irq_chip immutable
-
-William Breathitt Gray <william.gray@linaro.org>
-    gpio: 104-dio-48e: Make irq_chip immutable
-
-Yupeng Li <liyupeng@zbhlos.com>
-    LoongArch: Fix arch_remove_memory() undefined build error
-
-Huacai Chen <chenhuacai@kernel.org>
-    LoongArch: Fix section mismatch due to acpi_os_ioremap()
-
-Luke D. Jones <luke@ljones.dev>
-    platform/x86: asus-wmi: Increase FAN_CURVE_BUF_LEN to 32
-
-Hu Xiaoying <huxiaoying@kylinos.cn>
-    usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: acer-wmi: Acer Aspire One AOD270/Packard Bell Dot keymap fixes
-
-Yu Zhe <yuzhe@nfschina.com>
-    perf/arm_pmu_platform: fix tests for platform_get_irq() failure
-
-Kurt Kanzenbach <kurt@linutronix.de>
-    net: dsa: hellcreek: Print warning only once
-
-Chengming Gui <Jack.Gui@amd.com>
-    drm/amd/amdgpu: skip ucode loading if ucode_size == 0
-
-Maurizio Lombardi <mlombard@redhat.com>
-    nvmet-tcp: fix unhandled tcp states in nvmet_tcp_state_change()
-
-Shyamin Ayesh <me@shyamin.com>
-    nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM610
-
-Evan Quan <evan.quan@amd.com>
-    drm/amd/pm: use vbios carried pptable for all SMU13.0.7 SKUs
-
-Guchun Chen <guchun.chen@amd.com>
-    drm/amdgpu: disable FRU access on special SIENNA CICHLID card
-
-Greg Tulli <greg.iforce@gmail.com>
-    Input: iforce - add support for Boeder Force Feedback Wheel
-
-Li Qiong <liqiong@nfschina.com>
-    ieee802154: cc2520: add rc code in cc2520_tx()
-
-Wei Yongjun <weiyongjun1@huawei.com>
-    gpio: mockup: remove gpio debugfs when remove device
-
-Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
-    r8152: add PID for the Lenovo OneLink+ Dock
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    tg3: Disable tg3 device on system reboot to avoid triggering AER
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: MGMT: Fix Get Device Flags
-
-Even Xu <even.xu@intel.com>
-    hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
-
-Jason Wang <wangborong@cdjrlc.com>
-    HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
-
-Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-    dt-bindings: iio: gyroscope: bosch,bmg160: correct number of pins
-
-Junaid Shahid <junaids@google.com>
-    kvm: x86: mmu: Always flush TLBs when enabling dirty logging
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    hwmon: (pmbus) Use dev_err_probe() to filter -EPROBE_DEFER error messages
-
-Iwona Winiarska <iwona.winiarska@intel.com>
-    peci: cpu: Fix use-after-free in adev_release()
-
-Rob Clark <robdclark@chromium.org>
-    drm/msm/rd: Fix FIFO-full deadlock
-
-Maximilian Luz <luzmaximilian@gmail.com>
-    platform/surface: aggregator_registry: Add support for Surface Laptop Go 2
-
-Ondrej Jirman <megi@xff.cz>
-    Input: goodix - add support for GT1158
-
-Chuanhong Guo <gch981213@gmail.com>
-    ACPI: resource: skip IRQ override on AMD Zen platforms
-
-Maor Gottlieb <maorg@nvidia.com>
-    RDMA/mlx5: Fix UMR cleanup on error flow of driver init
-
-Aharon Landau <aharonl@nvidia.com>
-    RDMA/mlx5: Add a umr recovery flow
-
-Maher Sanalla <msanalla@nvidia.com>
-    RDMA/mlx5: Rely on RoCE fw cap instead of devlink when setting profile
-
-Yishai Hadas <yishaih@nvidia.com>
-    net/mlx5: Use software VHCA id when it's supported
-
-Yishai Hadas <yishaih@nvidia.com>
-    net/mlx5: Introduce ifc bits for using software vhca id
-
-Lu Baolu <baolu.lu@linux.intel.com>
-    iommu/vt-d: Fix kdump kernels boot failure with scalable mode
-
-
--------------
-
-Diffstat:
-
- .../bindings/iio/gyroscope/bosch,bmg160.yaml       |   2 +
- Documentation/input/joydev/joystick.rst            |   1 +
- Makefile                                           |   4 +-
- arch/loongarch/Kconfig                             |   1 +
- arch/loongarch/include/asm/acpi.h                  |   2 +-
- arch/loongarch/kernel/acpi.c                       |   2 +-
- arch/loongarch/mm/init.c                           |  22 +++--
- arch/x86/kvm/mmu/mmu.c                             |  45 ++--------
- arch/x86/kvm/mmu/spte.h                            |  14 ++-
- arch/x86/kvm/x86.c                                 |  44 +++++++++
- drivers/acpi/resource.c                            |  10 +++
- drivers/gpio/gpio-104-dio-48e.c                    |  10 ++-
- drivers/gpio/gpio-104-idio-16.c                    |  18 ++--
- drivers/gpio/gpio-mockup.c                         |   9 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c     |   9 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c            |   2 +-
- .../gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c   |  35 +++++---
- drivers/gpu/drm/msm/msm_rd.c                       |   3 +
- drivers/hid/intel-ish-hid/ishtp-hid.h              |   2 +-
- drivers/hid/intel-ish-hid/ishtp/client.c           |  68 ++++++++------
- drivers/hwmon/pmbus/pmbus_core.c                   |   9 +-
- drivers/infiniband/hw/irdma/uk.c                   |   3 +-
- drivers/infiniband/hw/mlx5/cq.c                    |   4 +
- drivers/infiniband/hw/mlx5/main.c                  |   2 +-
- drivers/infiniband/hw/mlx5/mlx5_ib.h               |  13 ++-
- drivers/infiniband/hw/mlx5/umr.c                   |  81 ++++++++++++++---
- drivers/input/joystick/iforce/iforce-main.c        |   1 +
- drivers/input/touchscreen/goodix.c                 |   2 +
- drivers/iommu/intel/iommu.c                        | 100 +++++++++------------
- drivers/net/ethernet/broadcom/tg3.c                |   8 +-
- drivers/net/ethernet/mellanox/mlx5/core/fw.c       |   4 +
- drivers/net/ethernet/mellanox/mlx5/core/main.c     |  72 ++++++++++++++-
- drivers/net/ethernet/mellanox/mlx5/core/vport.c    |  14 ++-
- drivers/net/ieee802154/cc2520.c                    |   1 +
- drivers/net/usb/cdc_ether.c                        |   7 ++
- drivers/net/usb/r8152.c                            |   3 +
- drivers/nvme/host/pci.c                            |   2 +
- drivers/nvme/target/tcp.c                          |   3 +
- drivers/peci/cpu.c                                 |   3 +-
- drivers/perf/arm_pmu_platform.c                    |   2 +-
- .../platform/surface/surface_aggregator_registry.c |   3 +
- drivers/platform/x86/acer-wmi.c                    |   9 +-
- drivers/platform/x86/asus-wmi.c                    |   9 +-
- drivers/usb/storage/unusual_uas.h                  |   7 ++
- include/linux/intel-iommu.h                        |   9 +-
- include/linux/mlx5/driver.h                        |  20 +++--
- include/linux/mlx5/mlx5_ifc.h                      |  25 +++++-
- net/bluetooth/mgmt.c                               |  71 +++++++++------
- net/dsa/tag_hellcreek.c                            |   2 +-
- 49 files changed, 541 insertions(+), 251 deletions(-)
 
 
