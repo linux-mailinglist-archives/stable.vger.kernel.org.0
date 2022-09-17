@@ -2,111 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4AC45BB8DE
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 16:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A38635BB8EC
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 17:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbiIQOyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Sep 2022 10:54:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51322 "EHLO
+        id S229566AbiIQPB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Sep 2022 11:01:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbiIQOyZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Sep 2022 10:54:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402E127176
-        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 07:54:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD28F6006F
-        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 14:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C35C433D6;
-        Sat, 17 Sep 2022 14:54:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663426463;
-        bh=W1KG87zu6uBdd7P3UWzyx5ROSiBb8aMsImd8mdNwoXY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OooGCbySgRDe6MkejeDiPkW5nR1eNotks/mfR904VkGZt59jnGjNFfsxiAYRBiQp7
-         mFUyRLB0QP4rfq0yB5VL7MnAEX5w436xv/0kqxdo7tulUDAj3jEDJkAEWWLw7mD2/A
-         5IlU/6f6qgGEaVIk6K+yOtbNykCaoyNINlv8kHjQ4pSbZaJQLpmOZzXY6dcR1KE6AD
-         baopyJq66xuGmjwTrvWPD3/Q3xxCWxuPVk5lR3SQt6PeuV5JqDx1PbOm8OZ1JuGkl/
-         nqSIn/bpRtkpdzvxD4vVnhsyFVfMx5ubyGSaTdwxBKbsHSTlEkCl3poZO6SSNAGlgs
-         E6BLo7tSEgdaA==
-Date:   Sat, 17 Sep 2022 15:54:19 +0100
-From:   Conor Dooley <conor@kernel.org>
-To:     Palmer Dabbelt <palmer@rivosinc.com>
-Cc:     Conor.Dooley@microchip.com, linux-riscv@lists.infradead.org,
-        stable@vger.kernel.org, lkp@intel.com
-Subject: Re: [PATCH] RISC-V: Avoid coupling the T-Head CMOs and Zicbom
-Message-ID: <YyXfm6V3DfzOqKvr@spud>
-References: <4d7ab3d1-72cc-f1cf-15bf-50bbb64837da@microchip.com>
- <mhng-85fb2ed5-046c-4fd3-a703-b417bff95c57@palmer-ri-x1c9>
+        with ESMTP id S229511AbiIQPB1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Sep 2022 11:01:27 -0400
+Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52401F61F;
+        Sat, 17 Sep 2022 08:01:25 -0700 (PDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 8FE8632003F4;
+        Sat, 17 Sep 2022 11:01:21 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Sat, 17 Sep 2022 11:01:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        joshtriplett.org; h=cc:cc:content-transfer-encoding:content-type
+        :date:date:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to;
+         s=fm1; t=1663426881; x=1663513281; bh=QakTsMOTOSQcuDHAp3T1zWhE/
+        2pa8qxh1dkXdRWc93I=; b=rbIEusppIH3QrikqOfej2MeuuAH7yDYRUPaxpnL14
+        gHzKryLB0+DD/dcx7ypbu3qgj8kZQ+4f6kbEKpvYesO7rN3n1YKFM9fA730fUuBS
+        F23joSD3iXwKFtQQXu7en1/8Em2NQlfijFifkMVywsr4pi0i9/VoyD2AlRY0w216
+        3eUVOkZ7HynHbL6UJLBovXjkU3sT1bwHbhEOePjd2JVEcOrl0zSWWXhY8BylBdAT
+        i1L4G5b5+T4Ah3XfaGsKdlyCIB1BoM94R+7UBt6c8LLogJPBn0ggXd6HQuuCMZ69
+        474pXwJ/ktUUJVKVNOe/65T+u/iz9nDoab6HsfK/zLMnQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:date:date:feedback-id:feedback-id:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1663426881; x=
+        1663513281; bh=QakTsMOTOSQcuDHAp3T1zWhE/2pa8qxh1dkXdRWc93I=; b=u
+        xILl/lKvQo+b6MTM+sXIS7ox7OsH+Vdjdifl7B93X9yZmxJ+S80UXVO4R9eGNHU8
+        6h8+hYsWD0v+w6dQMe0CEz1dRZp7Mp2o7e3Nl9HSVPrrCXS5Y7YdASBYtslmK3Bc
+        ncML2NRGTIQIK3ojBk/5+ISdpLbyl9agNneD/NxKhja54sENZMCGNFFeXqPMZI1+
+        5nG3ZSVqqqha9bpgADUUw4ev0rhmEYVvwVtaAeCPUP/Q4QNwT653mH8MIPZTZL95
+        RrcrhdCM2PLf1+nrIelp8iwTFBMMTco9YmuNUXo31CjhWUU+l+GOM3YQuCMz7aAN
+        VaayJo2xQqcFPdGipVHAw==
+X-ME-Sender: <xms:P-ElY4UW7K7ZOXdj7CwDQ_aXeZVv6rxuQSsZoHr326B9LChUqef0lw>
+    <xme:P-ElY8kwU_dFlUgimOduepLUUfLz5wBPK8X4Dn_xrgqdh7AgBxuXlRoKvPd3eS44U
+    8S2fterzowJoX4EKMU>
+X-ME-Received: <xmr:P-ElY8az7EpLL6I0vZveYtUJTpt77cJRTRyALbZh-VR9ND6JJcRB8WK6cyqAMmA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfedvvddgkeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevufgjfhfkgggtgfesthhqmhdttddtjeenucfhrhhomheplfhoshhh
+    ucfvrhhiphhlvghtthcuoehjohhshhesjhhoshhhthhrihhplhgvthhtrdhorhhgqeenuc
+    ggtffrrghtthgvrhhnpeegkeeggfegjedtvdehgfdtvdekueetveetfedvveetueetffek
+    ieekledthfeivdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfh
+    hrohhmpehjohhshhesjhhoshhhthhrihhplhgvthhtrdhorhhg
+X-ME-Proxy: <xmx:P-ElY3Xbt0OjbIzzSjMvArjJJlGLQD8Tq22Kx0MeK9nZKI-bT9U-TQ>
+    <xmx:P-ElYylTkwb9gcEI8rnXgV1XGDDxdgiHv-_INQI8E2QpHT6hmtM5OA>
+    <xmx:P-ElY8faI-JPNGTH1ZMaLzs66C8p1rl6WoWht_s4ct6WWWGS1roZtg>
+    <xmx:QeElY5uCr-vivLol01RkFKy8PzJZGgE8QheivNQACTYaqL2AY1pfag>
+Feedback-ID: i83e94755:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 17 Sep 2022 11:01:18 -0400 (EDT)
+Date:   Sat, 17 Sep 2022 16:00:59 +0100
+From:   Josh Triplett <josh@joshtriplett.org>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+CC:     Anders Blomdell <anders.blomdell@control.lth.se>,
+        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_0/2=5D_serial=3A_8250=3A_Let_driv?= =?US-ASCII?Q?ers_request_full_16550A_feature_probing?=
+In-Reply-To: <alpine.DEB.2.21.2209162317180.19473@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2209162317180.19473@angie.orcam.me.uk>
+Message-ID: <0B189972-4FD8-4245-BF2F-ADEAB18AAAE0@joshtriplett.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <mhng-85fb2ed5-046c-4fd3-a703-b417bff95c57@palmer-ri-x1c9>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 17, 2022 at 07:41:34AM -0700, Palmer Dabbelt wrote:
-> On Fri, 16 Sep 2022 05:22:59 PDT (-0700), Conor.Dooley@microchip.com wrote:
-> > On 15/09/2022 18:13, Conor Dooley wrote:
-> > > On 15/09/2022 18:09, Palmer Dabbelt wrote:
-> > > > We could make the T-Head CMOs depend on a new-enough assembler to have
-> > > > Zicbom, but it's not strictly necessary because the T-Head CMOs
-> > > > circumvent the assembler.
-> > > > 
-> > > > Fixes: 8f7e001e0325 ("RISC-V: Clean up the Zicbom block size probing")
-> > > > Cc: stable@vger.kernel.org
-> > > > Reported-by: kernel test robot <lkp@intel.com>
-> > > > Reported-by: Conor Dooley <conor.dooley@microchip.com>
-> > > 
-> > > I build-tested this last night when I accidentally found it so:
-> > > Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-> > 
-> > This is the one you I noticed you missed, msg-id is:
-> > 4d943291-f78f-31ed-0d67-7073e1f762e2@microchip.com
-> 
-> Sorry about that, the scripts to search for a Reviewed-by weren't handling
-> the base64 encoding that Exchange was doing.  It should be fixed, at least
-> it is for the test merge I just made.
+On September 17, 2022 11:07:18 AM GMT+01:00, "Maciej W=2E Rozycki" <macro@o=
+rcam=2Eme=2Euk> wrote:
+>Hi,
+>
+> A recent change has added a SERIAL_8250_16550A_VARIANTS option, which=20
+>lets one request the 8250 driver not to probe for 16550A device features=
+=20
+>so as to reduce the driver's device startup time in virtual machines=2E =
+=20
+>This has turned out problematic to a more recent update for the OxSemi=20
+>Tornado series PCIe devices, whose new baud rate generator handling code=
+=20
+>actually requires switching hardware into the enhanced mode for correct=
+=20
+>operation, which actually requires 16550A device features to have been=20
+>probed for=2E
+>
+> This small patch series fixes the issue by letting individual device=20
+>subdrivers to request full 16550A device feature probing by means of a=20
+>flag regardless of the SERIAL_8250_16550A_VARIANTS setting chosen=2E
+>
+> The changes have been verified with an OXPCIe952 device, in the native=
+=20
+>UART mode and a 64-bit RISC-V system as well as in the legacy UART mode=
+=20
+>and a 32-bit x86 system=2E
 
-I'm just going to bite the bullet & learn lei + mutt & use my korg
-address for all mailing list things.* At least that'll help with my
-mails getting through to rivos inboxes if they come via infread too.
+Seems reasonable to me, as long as the flag is only set by drivers that kn=
+ow they've found their hardware=2E
 
-> 
-> > 
-> > > 
-> > > > Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> > > > ---
-> > > >   arch/riscv/include/asm/cacheflush.h | 6 +++++-
-> > > >   1 file changed, 5 insertions(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
-> > > > index a89c005b4bbf..273ece6b622f 100644
-> > > > --- a/arch/riscv/include/asm/cacheflush.h
-> > > > +++ b/arch/riscv/include/asm/cacheflush.h
-> > > > @@ -42,8 +42,12 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
-> > > >   #endif /* CONFIG_SMP */
-> > > > -#ifdef CONFIG_RISCV_ISA_ZICBOM
-> > > > +/*
-> > > > + * The T-Head CMO errata internally probe the CBOM block size, but otherwise
-> > > > + * don't depend on Zicbom.
-> > > > + */
-> > > >   extern unsigned int riscv_cbom_block_size;
-> > > > +#ifdef CONFIG_RISCV_ISA_ZICBOM
-> > > >   void riscv_init_cbom_blocksize(void);
-> > > >   #else
-> > > >   static inline void riscv_init_cbom_blocksize(void) { }
-> > 
-> 
-> _______________________________________________
-> linux-riscv mailing list
-> linux-riscv@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-riscv
