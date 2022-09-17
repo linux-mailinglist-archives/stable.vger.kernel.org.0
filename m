@@ -2,76 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B88845BB78D
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 11:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1205BB79F
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 11:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229509AbiIQJcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Sep 2022 05:32:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51024 "EHLO
+        id S229524AbiIQJ7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Sep 2022 05:59:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbiIQJcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Sep 2022 05:32:15 -0400
-Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 582C911A3D
-        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 02:32:14 -0700 (PDT)
-Received: by mail-oo1-xc44.google.com with SMTP id h1-20020a4aa741000000b004756c611188so2982402oom.4
-        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 02:32:14 -0700 (PDT)
+        with ESMTP id S229454AbiIQJ7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Sep 2022 05:59:09 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8DFBC8F
+        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 02:59:06 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id h130-20020a1c2188000000b003b4cadadce7so31053wmh.3
+        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 02:59:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date;
-        bh=b6Rk2VjsiPjHo1xYYwZ5uILWbCCxICuJWWU8wu60448=;
-        b=mNI+ssuxsfTZPCb18KdGlZ7BOY9F6Va5G489h6W52ICzeTqekdhA0yfE8Nzs0X0deh
-         Ui7JFXo809cs+qtLZtp94+1/TrF1flOdgK8JizUNzpGZjW2uPBqQlwJXAkqA/tOEr26X
-         86o64rGhIwiesckId+wQAbvCkZAEd4f24tFrsZpIU97T/+ZWeSTpupWJ7JzAaXa6kX3f
-         mcNx1QNDwfMGiJz0g5css6NH84oPZ09EF4sYx5DGgW9XZ4xgpQuER/aj0t4nd/vPpCrE
-         uKHVB9G+16gKPFUQXPl9RZ8Xzyf2ZYWExER+FFqCus+lPvqBlnyk/lnKXocou72MwwuW
-         vjCA==
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date;
+        bh=hyzP16+KVypj8FcAevvy0LI40SF0IGoG63DJt6XHo3Q=;
+        b=U11yde7877+tYyEGlQ0oy3AMc0vcOcu7h/YcVzfRrGLoGyKN45EMJAj/XQfBLaF8Ou
+         dZ7e9NwciJfks9l/hKnhKIdtVXfyUSBJhrdH/0cu53BnQKhn530WQr1NjW4sFdZCgMrN
+         x376zSO0OVASBm2BHkbMQjRnjYjNQ8ea/GE0UZ1aaz7SOdv0CCiCzCgNjg20Wwon3uak
+         LCsKUgfo120pmcfImAQPWpIyUkVj4SKUKoXTfeb62YxrmlYQ5Wqp+4XaWkoCvHcplfDR
+         +1vH8fELIOs9CdojvxfVJrjmoV3j03qhjAvhsdMbtc+0wyu9mZO/XmvbDESZ53N3dWZn
+         HLHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=b6Rk2VjsiPjHo1xYYwZ5uILWbCCxICuJWWU8wu60448=;
-        b=lGItH57NTqQughLE6xN5oEYXVd/BgZPLwghkhfTbHB+iVxm/3ekpIV4dvS0gYwo6Yi
-         YYB5HRgK8b15S/nbbnkXJG5bzWzgUBWWuvMKJGfHPN3TENjp65E2bnjKb2Gl41OfdfK1
-         Ifx1gxzxfRTgvfBiR5xREaW7ObgtUXnUxjZM7YiAqRRlbdcrLooEdR7dCQ99TMlrb1Ro
-         SuOd1ue2Kb1QlvdS/p4WdCIfRoHxlg7BtTt/4Evp8c4KAgoVk6dZLsL2JTa0Xbr41hJG
-         75GY8G8JDUH9yE2usfk3JicTHc+Y585F6k0jqhXb/hxi9EVVdaMF9b2tfgO7s7GAU7dJ
-         czjQ==
-X-Gm-Message-State: ACrzQf3RifPJdxUdamOL58z9eBBu8Eqy3UI3CATmCrB7PCo7DC1OJolr
-        C+sOHewtipkXrn2uhkFft+Xe1H2iVFb6LPNTjiY=
-X-Google-Smtp-Source: AMsMyM661qSz74tyM45Tav3iGE7zS8moXkR8LAgQke373cqohCKyW+LOjh73Rmx0zOCCy068su1Yh56QUN30UtRpZYM=
-X-Received: by 2002:a4a:94a6:0:b0:435:f61e:d7a1 with SMTP id
- k35-20020a4a94a6000000b00435f61ed7a1mr3538962ooi.82.1663407133704; Sat, 17
- Sep 2022 02:32:13 -0700 (PDT)
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=hyzP16+KVypj8FcAevvy0LI40SF0IGoG63DJt6XHo3Q=;
+        b=eUuwnBFR3O3giaDU7BQQSLBJxo5cAhrJo7vS0jHI1RnkLIXQ250YteHSwnyeyeO8do
+         tafcANNx5lgJjMLkpqKtJdzn+UqCHtba+14QGaztGbXREyvnhOCUWMWvLQesUE7b+waq
+         MZKqX+wzyjhG2dN8ghJLnNWzGasW9NRZBd7NVTG4tr9rgD+X/xcGeiIqD1sWziIMu+bD
+         U/F/Vvl0czW94xNr8tY6vyVqMV19cPJHzrtG+PeQb9OCUVLSwd4sDnAUiedwy27VpIkh
+         tsfxknQb70lV7n7Nfo3GmA1WC8aLS424/EnwCgnH4sTBbDBGVdzsiedJxo7oxQ9+jC9t
+         drhA==
+X-Gm-Message-State: ACgBeo1vaXR/A1/wkPb/V8SCJkRgaJGbu6pBcb+9HKFasMHeecIirjTQ
+        kiGIla7yKq3m9cCky3ItSa9syLwmcKIcJ3ElAoA=
+X-Google-Smtp-Source: AA6agR52R6PCVa7fxi0ePgNNFJL/hDi8OjFq4QZiXqny2bdSpgmrPWocWysTKkbZwNj8+96JQewJiiqHjJXdVW6kub0=
+X-Received: by 2002:a05:600c:5493:b0:3b4:6db5:aeef with SMTP id
+ iv19-20020a05600c549300b003b46db5aeefmr13045318wmb.31.1663408745042; Sat, 17
+ Sep 2022 02:59:05 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a05:6358:784:b0:c2:7021:c168 with HTTP; Sat, 17 Sep 2022
- 02:32:13 -0700 (PDT)
-Reply-To: emile.collet@hotmail.com
-From:   Emile Collet <colletcollet67@gmail.com>
-Date:   Sat, 17 Sep 2022 11:32:13 +0200
-Message-ID: <CAK8ZtmcFapm8kj1YU3jwWk0sQSwZhJLndLztKO3s=N03mj1N2g@mail.gmail.com>
-Subject: Mes salutations,
+Received: by 2002:a5d:61d0:0:0:0:0:0 with HTTP; Sat, 17 Sep 2022 02:59:04
+ -0700 (PDT)
+Reply-To: binhassanhassansaid@gmail.com
+From:   Hassan Said Bin Hassan <jamesbrowngoodnew1@gmail.com>
+Date:   Sat, 17 Sep 2022 02:59:04 -0700
+Message-ID: <CAPhd0Xj_5BOSe77uAXk1Q6ZjZ1NN_u62VdLW5XT9zvknPGYzJg@mail.gmail.com>
+Subject: AM READY TO WORK WITH YOU!
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
         FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+        SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
         *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:c44 listed in]
+        *      [2a00:1450:4864:20:0:0:0:341 listed in]
         [list.dnswl.org]
         *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
+        *      [score: 0.5141]
         * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
         *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
         *       in digit
-        *      [colletcollet67[at]gmail.com]
+        *      [jamesbrowngoodnew1[at]gmail.com]
         *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
         *      provider
-        *      [colletcollet67[at]gmail.com]
+        *      [jamesbrowngoodnew1[at]gmail.com]
         *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
         * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
         *      envelope-from domain
@@ -90,18 +91,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Mes salutations,
+Hello Dear ,
 
-Je suis un employ=C3=A9 de la Soci=C3=A9t=C3=A9 G=C3=A9n=C3=A9rale Banque.
-Je vous contacte au sujet de la succession des fonds d'un client
-d=C3=A9c=C3=A9d=C3=A9 depuis plusieurs ann=C3=A9es.
-Consultez la pi=C3=A8ce jointe pour plus de d=C3=A9tails. Si vous ne parven=
-ez
-pas =C3=A0 ouvrir la pi=C3=A8ce jointe, envoyez-moi un mail et je vous enve=
-rrai
-tous les d=C3=A9tails.
-Mon adresse e-mail personnelle : emile.collet@hotmail.com
+I am Hassan Said Bin Hassan a financial consultant and a registered
+agent with Top loan and investment companies in Asia, Africa, Europe
+and America . I am consulting for them on commission bases and also
+have agreement to source for clients that need funds to finance their
+business or need partners or joint venture business relationship.
 
-Amicalement,
-Mr. Emile COLLET
+I am sourcing for companies, individual that need investors or loan to
+finance their business.  With  my position, you can have access to a
+soft loan for funding your business. Soft loan usually allows time
+enough for repayment and also at relatively low interest rate.
+
+Kindly indicate your interest to enable me to introduce you to the
+company for processing of your loan within a few days with my support.
+
+More details will be sent to you as soon as you indicate your interest
+in your next response.
+Thanks,
+
+Hassan Said Bin Hassan
+binhassanhassansaid@gmail.com
