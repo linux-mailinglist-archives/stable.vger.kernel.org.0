@@ -2,109 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2252E5BB578
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 04:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 479AD5BB582
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 04:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbiIQCEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 22:04:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
+        id S229479AbiIQCPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 22:15:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229494AbiIQCEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 22:04:10 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38BEABC803;
-        Fri, 16 Sep 2022 19:04:09 -0700 (PDT)
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MTvK20ZqczlVrY;
-        Sat, 17 Sep 2022 10:00:06 +0800 (CST)
-Received: from kwepemm600020.china.huawei.com (7.193.23.147) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Sat, 17 Sep 2022 10:04:07 +0800
-Received: from [127.0.0.1] (10.174.178.94) by kwepemm600020.china.huawei.com
- (7.193.23.147) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Sat, 17 Sep
- 2022 10:04:06 +0800
-Message-ID: <23826ddf-387e-ec0d-7c32-99424d6d0769@huawei.com>
-Date:   Sat, 17 Sep 2022 10:04:03 +0800
+        with ESMTP id S229379AbiIQCPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 22:15:36 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69574DB78
+        for <stable@vger.kernel.org>; Fri, 16 Sep 2022 19:15:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663380934; x=1694916934;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=TIR7Gl34E+WzkUuY6+mbDgNR2nShzOiESTzqP+vFVEo=;
+  b=ma0tTRp6fbQoATqTT2BfWhIszPJWF0uoqtiM80RJ1xKkOgDI0SW9xMN5
+   LGyiZyYmRFiHcXRfy/5glzI76cz7DbpWie36uINapl2kLe31Tu2Ios+aA
+   z6fR3sDOaemCjwuYzQ0ZlZqcomVRUQjpy2wMN+9z8f6CfR+9Dc/40uPcz
+   9qSz6B2RfvhYUlWjysWCH+ihXlfSxadrMc2KX+BA3ZrOcbyL5w7SczwcT
+   WlYzUEpIkQXuKGMHQEknCPUUkH33fM56ZoLhHFaGRXXktdVagefZ4XeEL
+   k47ZSa/lsPu9mHXJe8c5RpvR4UqIZOn3DMLDlr5WdXQnOmn1wo4WbOgJ0
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10472"; a="278842393"
+X-IronPort-AV: E=Sophos;i="5.93,322,1654585200"; 
+   d="scan'208";a="278842393"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2022 19:15:34 -0700
+X-IronPort-AV: E=Sophos;i="5.93,322,1654585200"; 
+   d="scan'208";a="651066804"
+Received: from blu2-mobl3.ccr.corp.intel.com (HELO [10.254.209.176]) ([10.254.209.176])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2022 19:15:32 -0700
+Message-ID: <3fac95c7-7681-6511-a659-337535e25e9d@linux.intel.com>
+Date:   Sat, 17 Sep 2022 10:15:30 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH 4.19 00/79] 4.19.257-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
-References: <20220913140348.835121645@linuxfoundation.org>
+ Thunderbird/102.2.2
+Cc:     baolu.lu@linux.intel.com, kevin.tian@intel.com, baolu.lu@intel.com,
+        raghunathan.srinivasan@intel.com, iommu@lists.linux.dev,
+        joro@8bytes.org, will@kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] iommu/vt-d: Check correct capability for sagaw
+ determination
+To:     Yi Liu <yi.l.liu@intel.com>
+References: <20220916071212.2223869-1-yi.l.liu@intel.com>
+ <20220916071212.2223869-2-yi.l.liu@intel.com>
 Content-Language: en-US
-From:   zhouzhixiu <zhouzhixiu@huawei.com>
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20220916071212.2223869-2-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.94]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- kwepemm600020.china.huawei.com (7.193.23.147)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-6.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2022/9/16 15:12, Yi Liu wrote:
+> Check 5-level paging capability for 57 bits address width instead of
+> checking 1GB large page capability.
+> 
+> Fixes: 53fc7ad6edf2 ("iommu/vt-d: Correctly calculate sagaw value of IOMMU")
+> Cc:stable@vger.kernel.org
+> Reported-by: Raghunathan Srinivasan<raghunathan.srinivasan@intel.com>
 
-On 2022/9/13 22:06, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.257 release.
-> There are 79 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 15 Sep 2022 14:03:27 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.257-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
+This fix is fine to me. Thanks for doing this.
 
-> Tested on arm64 and x86 for 4.19.257-rc1,
->
-> Kernel repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> Branch: linux-4.19.y
-> Version: 4.19.257-rc1
-> Commit: 74af49d445c5d4d9229853d0904d47baafc57359
-> Compiler: gcc version 7.3.0 (GCC)
->
-> arm64:
-> --------------------------------------------------------------------
-> Testcase Result Summary:
-> total: 8947
-> passed: 8947
-> failed: 0
-> timeout: 0
-> --------------------------------------------------------------------
->
-> x86:
-> --------------------------------------------------------------------
-> Testcase Result Summary:
-> total: 8947
-> passed: 8947
-> failed: 0
-> timeout: 0
-> --------------------------------------------------------------------
-> Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Raghu, what do you think of this fixing? If it works for you, can I have
+your reviewed-by.
 
-
+Best regards,
+baolu
