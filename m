@@ -2,89 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDCF5BB7B4
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 12:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CE15BB8A1
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 16:04:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229511AbiIQKTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Sep 2022 06:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
+        id S229488AbiIQOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Sep 2022 10:04:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbiIQKTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Sep 2022 06:19:54 -0400
-Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB1471EC72
-        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 03:19:53 -0700 (PDT)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 97FEB1004914A
-        for <stable@vger.kernel.org>; Sat, 17 Sep 2022 10:19:40 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id ZUvEoK1JHCrKQZUvEoaaf1; Sat, 17 Sep 2022 10:19:40 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=fqkZ2H0f c=1 sm=1 tr=0 ts=63259f3c
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=xOM3xZuef0cA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=WPU/iJ61ziQykLBxeaQJj+B9nfLiS3GrCDjHZH5GmQE=; b=sIlROHGJ0SJMCB6OTyzs3c+CB7
-        7pzUxKMTMnuaOCcZdGIjB0gi8TQPXvMnNCFgDXxEwxChIDqkXxnVFpD5zAC+KUQGaneFRippyMNxx
-        0Zj8RuWenGgrCjTFRPOIfMRX2jLHlS/TpbWdS97Y6gGthFKQ5NlqN0FI5AonJLVm7lkthLVMCLg9u
-        TPS6fchok9m75K/Sa9zecNZwmZVMrE+y+moM2vLE8HEACCtoBhdnoJdcejXoZsnbregELAi3VmLVT
-        JSK7uxLt1X38FQvOK6Bsg9yq170lcnlKQX9xCJe/Iwb1xMyLrU1e0WUCgoFFYzykm4DIl+olxy3Sf
-        QG+RAHOw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:44946 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oZUvC-0038HU-P0;
-        Sat, 17 Sep 2022 04:19:38 -0600
-Subject: Re: [PATCH 5.15 00/35] 5.15.69-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220916100446.916515275@linuxfoundation.org>
-In-Reply-To: <20220916100446.916515275@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <a576f58d-af27-589d-510b-7c9ad8290794@w6rz.net>
-Date:   Sat, 17 Sep 2022 03:19:34 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229511AbiIQOEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Sep 2022 10:04:21 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656B130544;
+        Sat, 17 Sep 2022 07:04:20 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id t14so40301870wrx.8;
+        Sat, 17 Sep 2022 07:04:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date;
+        bh=+N7mSIWsME28uR3sTESoLydrgt0P7Itl5mRu1QnP8VQ=;
+        b=q2RPxcJ5DNyh2374Z/k1HrPlnOhByW2/Y95QrAICgrQ4LpzqiMnFUcnKQpz+TQFlUc
+         Ghd8w8X/iiqkS4cxP5lLP32oGZbm5i9EeezflwstCLnGlQ2LVGCRT2NzAuNOFcz8e1TE
+         CsUBzf/pd5dSMEnbfuw9lTi8g9kdeBMnyedVktMUUnjehRSKzpET3MHbEAtO+3N9K2Lh
+         Zl+pL5dgNIdYIhsejpwuXq8evTMkW6DZBAh0q3wUQDW37IIgRgsK3GZB6VqF1VNPjw4d
+         yWT4/WvE+zmKIYVf66HvO28Vr5S1wrMJVnHbNlIzdKorWvqq11uPM+GAdTSSPl+ykxzm
+         cEEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=+N7mSIWsME28uR3sTESoLydrgt0P7Itl5mRu1QnP8VQ=;
+        b=o7ngmw4wdCOIlIY56eSiOdmFdzlf7i9qiyZp/xvsP1DIVUNZe1Cy3awTxorCwEDcqb
+         xVo9skRVupWsrpmgPr+/g+1Sd0NtaqMty0NLUuK3HMyLBZeS64AVXIpgDrZtqCb9K+oO
+         hFP72kct8yN0Zc9bwGekBv4Gl9xozgighfpf0uDqHsNDNoK7UsvxBoUqsxQcsKsBO+it
+         LkvSHdRxc9RGXaaBp4DqDBP9ME8eObeD1yJ5SBNgAcDaZD8/HyhyXHM1szR8Yr8Rjo9X
+         xwZ9mIefVZW7tZNJIfGLqzYGpmgWYonJiwRQ+ChxWjbMd9EbXXRhWKLnhjPXoi+hZYAL
+         i+aQ==
+X-Gm-Message-State: ACrzQf1IwVMSISdWaMRdUxOXkhOq63g6QSaef1WyXC4T+eL4x6cKFz7p
+        ouqGMMXP6XvORf+NCviORiQ=
+X-Google-Smtp-Source: AMsMyM7m23abd671WzVCW1eex5c8bQMB0yZBpez9SYp2iZkRGcf8BBXty6ZuWcL/i0SFISHHcalW4Q==
+X-Received: by 2002:a5d:4ecd:0:b0:22a:42ec:8d74 with SMTP id s13-20020a5d4ecd000000b0022a42ec8d74mr6024826wrv.359.1663423458756;
+        Sat, 17 Sep 2022 07:04:18 -0700 (PDT)
+Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
+        by smtp.gmail.com with ESMTPSA id v128-20020a1cac86000000b003b476bb2624sm6219561wme.6.2022.09.17.07.04.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 17 Sep 2022 07:04:18 -0700 (PDT)
+Date:   Sat, 17 Sep 2022 15:04:16 +0100
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 4.19 00/11] 4.19.259-rc1 review
+Message-ID: <YyXT4C8NTSA5RhcI@debian>
+References: <20220916100442.662955946@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oZUvC-0038HU-P0
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:44946
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220916100442.662955946@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -92,26 +72,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/16/22 3:08 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.69 release.
-> There are 35 patches in this series, all will be posted as a response
+Hi Greg,
+
+On Fri, Sep 16, 2022 at 12:07:56PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.259 release.
+> There are 11 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Sun, 18 Sep 2022 10:04:31 +0000.
 > Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.69-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Build test (gcc version 11.3.1 20220819):
+mips: 63 configs -> no  failure
+arm: 115 configs -> no failure
+arm64: 2 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-Tested-by: Ron Economos <re@w6rz.net>
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
+[1]. https://openqa.qa.codethink.co.uk/tests/1842
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
