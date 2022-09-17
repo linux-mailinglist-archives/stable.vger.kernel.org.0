@@ -2,105 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 145A85BB4D0
-	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 01:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B50365BB522
+	for <lists+stable@lfdr.de>; Sat, 17 Sep 2022 03:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229686AbiIPXwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Sep 2022 19:52:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41000 "EHLO
+        id S229708AbiIQBAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Sep 2022 21:00:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229564AbiIPXwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 19:52:37 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EBE1B99E4;
-        Fri, 16 Sep 2022 16:52:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663372356; x=1694908356;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=5QqU6/PjWI46gAIHkqTe2uJoC21ULzDVvGSKXDHWr0U=;
-  b=oKLTOCjrdzfoeEGt7LIUgGvkqbD+PmNpj+4fOJWPfAwcVe73IUB8djQl
-   pmTZoP4IR6zL146L7WFnc6ucuFHWkPo4VcnwCfm1v44iGJ4dgX07x9kI3
-   3TOIWYTMNfAg7+7JcMwShEJUWzuBxXXahX4pUtCZPHmFL4aNE3G9Hy9Qf
-   akaRYxuXvXDNjBzX6JaZDNdC7T22eJeYBYl/3db8SbuI/Y33yliYNEQe8
-   b7x5IHD0zgKCyw+mkpJomRcow5BVntifeNqfAarDuAWeSgb4w68N19h13
-   TWKcCVGhuNgMhGcaiTUlEUFu/0niYjxapr1/YZwNjdwsMZ7+yHmX0F7Lq
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10472"; a="278830517"
-X-IronPort-AV: E=Sophos;i="5.93,321,1654585200"; 
-   d="scan'208";a="278830517"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2022 16:52:35 -0700
-X-IronPort-AV: E=Sophos;i="5.93,321,1654585200"; 
-   d="scan'208";a="595426903"
-Received: from rhweight-mobl.amr.corp.intel.com (HELO rhweight-mobl.ra.intel.com) ([10.255.230.2])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2022 16:52:35 -0700
-From:   Russ Weight <russell.h.weight@intel.com>
-To:     mdf@kernel.org, hao.wu@intel.com, yilun.xu@intel.com,
-        trix@redhat.com, linux-fpga@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     lgoncalv@redhat.com, marpagan@redhat.com,
-        matthew.gerlach@linux.intel.com,
-        basheer.ahmed.muddebihal@intel.com, tianfei.zhang@intel.com,
-        Russ Weight <russell.h.weight@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v1 1/1] fpga: m10bmc-sec: Fix possible memory leak of flash_buf
-Date:   Fri, 16 Sep 2022 16:52:05 -0700
-Message-Id: <20220916235205.106873-1-russell.h.weight@intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229702AbiIQBAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Sep 2022 21:00:11 -0400
+X-Greylist: delayed 2557 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 16 Sep 2022 18:00:09 PDT
+Received: from mail.base45.de (mail.base45.de [80.241.60.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F3E72A254;
+        Fri, 16 Sep 2022 18:00:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fe80.eu;
+        s=20190804; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=dseKqDACf4EBVzoILiaSlts5zxldN3mGG1VKvgSWzOs=; b=cxNuqnbquVn9+k32ZGCj1glD6s
+        M24xU4O0SrJVzP1A8crXG0q6bq+V2xfdzUc4w5NSkT+j14xNsICqMI/+rD5jLUpML5tZuqJXt4uB8
+        SaoanFIGV30Mc4kzY3USeonpCnbekEPjSpwm6t4eUuxadteQB8oTH1oWWDB50cdkDN+60lHLL6tOG
+        /H5tCUrNmHhHJGDKFk8FemhvPnLot6uU7gxM9n2P1DKi9wgrehrW7xC2dTLKnouELhDfojdKrPV2R
+        wqZEQPfIWKWBmpkxkY6VSSeol6detNvnYiOeygzvw0hVhFzPZ1DywQReDqyOWo6pQpnn4jgNb0rpB
+        Dz1JYevQ==;
+Received: from p4fd2bf05.dip0.t-ipconnect.de ([79.210.191.5] helo=localhost.localdomain)
+        by mail.base45.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <lynxis@fe80.eu>)
+        id 1oZLND-000nP7-J4; Sat, 17 Sep 2022 00:07:55 +0000
+From:   Alexander Couzens <lynxis@fe80.eu>
+To:     Sean Wang <sean.wang@mediatek.com>,
+        Landen Chao <Landen.Chao@mediatek.com>,
+        DENG Qingfang <dqfext@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     Alexander Couzens <lynxis@fe80.eu>, stable@vger.kernel.org,
+        Landen Chao <landen.chao@mediatek.com>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH net v2 1/2] net: mt7531: only do PLL once after the reset
+Date:   Sat, 17 Sep 2022 02:07:33 +0200
+Message-Id: <20220917000734.520253-2-lynxis@fe80.eu>
+X-Mailer: git-send-email 2.37.3
+In-Reply-To: <20220917000734.520253-1-lynxis@fe80.eu>
+References: <20220917000734.520253-1-lynxis@fe80.eu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is an error check following the allocation of flash_buf that returns
-without freeing flash_buf. It makes more sense to do the error check
-before the allocation and the reordering eliminates the memory leak.
+Move the PLL init of the switch out of the pad configuration of the port
+6 (usally cpu port).
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 154afa5c31cd ("fpga: m10bmc-sec: expose max10 flash update count")
-Signed-off-by: Russ Weight <russell.h.weight@intel.com>
-Cc: <stable@vger.kernel.org>
+Fix a unidirectional 100 mbit limitation on 1 gbit or 2.5 gbit links for
+outbound traffic on port 5 or port 6.
+
+Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
 ---
- drivers/fpga/intel-m10-bmc-sec-update.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/dsa/mt7530.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/fpga/intel-m10-bmc-sec-update.c b/drivers/fpga/intel-m10-bmc-sec-update.c
-index 526c8cdd1474..79d48852825e 100644
---- a/drivers/fpga/intel-m10-bmc-sec-update.c
-+++ b/drivers/fpga/intel-m10-bmc-sec-update.c
-@@ -148,10 +148,6 @@ static ssize_t flash_count_show(struct device *dev,
- 	stride = regmap_get_reg_stride(sec->m10bmc->regmap);
- 	num_bits = FLASH_COUNT_SIZE * 8;
- 
--	flash_buf = kmalloc(FLASH_COUNT_SIZE, GFP_KERNEL);
--	if (!flash_buf)
--		return -ENOMEM;
--
- 	if (FLASH_COUNT_SIZE % stride) {
- 		dev_err(sec->dev,
- 			"FLASH_COUNT_SIZE (0x%x) not aligned to stride (0x%x)\n",
-@@ -160,6 +156,10 @@ static ssize_t flash_count_show(struct device *dev,
- 		return -EINVAL;
- 	}
- 
-+	flash_buf = kmalloc(FLASH_COUNT_SIZE, GFP_KERNEL);
-+	if (!flash_buf)
-+		return -ENOMEM;
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 835807911be0..95a57aeb466e 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -506,14 +506,19 @@ static bool mt7531_dual_sgmii_supported(struct mt7530_priv *priv)
+ static int
+ mt7531_pad_setup(struct dsa_switch *ds, phy_interface_t interface)
+ {
+-	struct mt7530_priv *priv = ds->priv;
++	return 0;
++}
 +
- 	ret = regmap_bulk_read(sec->m10bmc->regmap, STAGING_FLASH_COUNT,
- 			       flash_buf, FLASH_COUNT_SIZE / stride);
- 	if (ret) {
++static void
++mt7531_pll_setup(struct mt7530_priv *priv)
++{
+ 	u32 top_sig;
+ 	u32 hwstrap;
+ 	u32 xtal;
+ 	u32 val;
+ 
+ 	if (mt7531_dual_sgmii_supported(priv))
+-		return 0;
++		return;
+ 
+ 	val = mt7530_read(priv, MT7531_CREV);
+ 	top_sig = mt7530_read(priv, MT7531_TOP_SIG_SR);
+@@ -592,8 +597,6 @@ mt7531_pad_setup(struct dsa_switch *ds, phy_interface_t interface)
+ 	val |= EN_COREPLL;
+ 	mt7530_write(priv, MT7531_PLLGP_EN, val);
+ 	usleep_range(25, 35);
+-
+-	return 0;
+ }
+ 
+ static void
+@@ -2331,6 +2334,8 @@ mt7531_setup(struct dsa_switch *ds)
+ 		     SYS_CTRL_PHY_RST | SYS_CTRL_SW_RST |
+ 		     SYS_CTRL_REG_RST);
+ 
++	mt7531_pll_setup(priv);
++
+ 	if (mt7531_dual_sgmii_supported(priv)) {
+ 		priv->p5_intf_sel = P5_INTF_SEL_GMAC5_SGMII;
+ 
+@@ -2887,8 +2892,6 @@ mt7531_cpu_port_config(struct dsa_switch *ds, int port)
+ 	case 6:
+ 		interface = PHY_INTERFACE_MODE_2500BASEX;
+ 
+-		mt7531_pad_setup(ds, interface);
+-
+ 		priv->p6_interface = interface;
+ 		break;
+ 	default:
 -- 
-2.25.1
+2.37.3
 
