@@ -2,143 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1625BBEC3
-	for <lists+stable@lfdr.de>; Sun, 18 Sep 2022 17:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDA15BBF17
+	for <lists+stable@lfdr.de>; Sun, 18 Sep 2022 19:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbiIRPwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Sep 2022 11:52:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54512 "EHLO
+        id S229556AbiIRRTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Sep 2022 13:19:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229553AbiIRPwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 11:52:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706A41E3EE;
-        Sun, 18 Sep 2022 08:52:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 183A8B81054;
-        Sun, 18 Sep 2022 15:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5937C433D6;
-        Sun, 18 Sep 2022 15:52:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663516361;
-        bh=SVK3Agc3LNoXUChFnh7QveTqHR+NtRh1+3bGbG8NVkc=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=N0OGAnMxbckfHkBPRrvTlxyGZUNLlQhK6byDCTOvgq+GI25wge7Z//XrI1JBicbii
-         kbvEWgd2VHMbe0Z9N7+7ezltBLCA+WpnQCdsaaPPmPrVMTLt8DETtQNbMoVZYrJaa8
-         ZnFa8JYH4fA7y9WfVIM9MrkYWslHlY7fPX/xDV4mZDHFq2RDGMMAhZmDPfJQYBh2sE
-         cCuCncaYqGH0bY1fRv02DSPp/tTAYVNZ2R7+rt5xAgu8WJauQw7T6UMx6Mve6La+Yx
-         wos4YjygFZ9nKLzJToBOjkjHKTYL28JYuMM8G+kxI2gmOau2WVViRELHO23S5W4Ze0
-         ZxNm52PkXLcsw==
-Date:   Sun, 18 Sep 2022 16:52:45 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Eddie James <eajames@linux.ibm.com>, <lars@metafoo.de>,
-        <linux-iio@vger.kernel.org>, <joel@jms.id.au>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v8 2/2] iio: pressure: dps310: Reset chip after timeout
-Message-ID: <20220918165245.005c757a@jic23-huawei>
-In-Reply-To: <20220916162535.00000cf6@huawei.com>
-References: <20220915195719.136812-1-eajames@linux.ibm.com>
-        <20220915195719.136812-3-eajames@linux.ibm.com>
-        <CAHp75VfEktq10YcQMF9D9cQWtVsR+gx+3_PAq1YNoKUWEZaC1Q@mail.gmail.com>
-        <20220916162535.00000cf6@huawei.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-pc-linux-gnu)
+        with ESMTP id S229458AbiIRRT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 13:19:29 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 195CE120B3
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 10:19:26 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id s6so32077763lfo.7
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 10:19:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:from:to:cc:subject:date;
+        bh=lAdqUFLbfInbPlQSmqMtnpus1qI43ZF9JU60ST1bHc4=;
+        b=BWDtFqD9tCd647ndaNCU4Rq2+G/dyccrhid3HuzA0K9RJtkZAodwUpe7xlmELXnErb
+         Ol6pHgQ6ld8Bml5lTUo0gx19BpqbUgrNV7vCyTGYStJpptzFlVPY1pJ6tnOXs5S8qz8M
+         DFBQyxauL2g6z4MEHNCH4e8WNHOeXRCDZ1A8iOFVY72EOOsRzsy+++y78TJMyoMndVoS
+         2o2lVqWZ1Z++6pWEU8opBkV62771Htxfg3TaTPLi8avzg5Xg/eoJ2P7frLFquYzPkDh8
+         zmeMBScmEfnRBYLqaHdQtpSEuqK0NgGB8UljI1Dnx8+A74WjaCqyi7fO+qkMaoFBIfTL
+         b1lA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=lAdqUFLbfInbPlQSmqMtnpus1qI43ZF9JU60ST1bHc4=;
+        b=H7o4uJyIT3AP2GS3su7SUFqy+Pu5QMea6GLOdtlaL3wiiBXLnhk3mdXXrFTYu2QsPr
+         afuw/B1eZnL/IUJ1DLtpYjGctHhesLF7iDSs/EUsq5HJFZOZl11O3PYOx0StdQH+iuVV
+         gSyhhe+KRxDo1mifgh6oPasiRzBOEtgTAhrC/OheDn7exKXv0h0ho55hYDMPDsUWzUP6
+         p3FI0fmOh0h9qinE+osRvWsoNYCq7eMdOGZ7RBk2J9ROGDGJcfr9OXUgMNPauQgRZIse
+         k3w4tZoZml4vCf8v1q+4ZSKdg1IF7qmotH0MZqiy05/r7SCVthPGzC2mAVfkIXdFl7id
+         48AQ==
+X-Gm-Message-State: ACrzQf1XzCcG9STVJ7WQQasxIZdmRVeK4azQD8NagFyFft2tygAlAciP
+        MuFiiCzyFOR/DPX3rgorb4L9V1RkLLJXr84XQGU=
+X-Google-Smtp-Source: AMsMyM42q5WjqOv7wr8hO1D5yWVPQuLdCrk661Moh8jq9HMc2vRMFUKgDkM2bDmealuKEwxYSMIGcFge5sB2y6trhnU=
+X-Received: by 2002:a05:6512:38b2:b0:493:9a:ac2e with SMTP id
+ o18-20020a05651238b200b00493009aac2emr4581851lft.126.1663521563895; Sun, 18
+ Sep 2022 10:19:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Sender: maiga4327@gmail.com
+Received: by 2002:aa6:c42c:0:b0:21e:bfe3:b85d with HTTP; Sun, 18 Sep 2022
+ 10:19:23 -0700 (PDT)
+From:   "Mrs.Yu  Ging" <qing9560yu@gmail.com>
+Date:   Sun, 18 Sep 2022 17:19:23 +0000
+X-Google-Sender-Auth: lCE7T_r-lDNgg4l_ZzmrEkqUVT8
+Message-ID: <CAE_49OR1_JYHzgpw4kXiEriHhRR0t19hEOcoLxOcfx-A4erB2w@mail.gmail.com>
+Subject: Hello!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=2.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,LOTS_OF_MONEY,MILLION_USD,MONEY_FRAUD_3,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
+        UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 16 Sep 2022 16:25:35 +0100
-Jonathan Cameron <Jonathan.Cameron@huawei.com> wrote:
+I am Mrs Yu. Ging Yunnan, and i have Covid-19 and the doctor said I
+will not survive it because all vaccines has been given to me but to
+no avian, am a China woman but I base here in France because am
+married here and I have no child for my late husband and now am a
+widow.
 
-> On Fri, 16 Sep 2022 08:51:13 +0300
-> Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
-> 
-> > On Thu, Sep 15, 2022 at 10:57 PM Eddie James <eajames@linux.ibm.com> wrote:  
-> > >
-> > > The DPS310 chip has been observed to get "stuck" such that pressure
-> > > and temperature measurements are never indicated as "ready" in the
-> > > MEAS_CFG register. The only solution is to reset the device and try
-> > > again. In order to avoid continual failures, use a boolean flag to
-> > > only try the reset after timeout once if errors persist.    
-> > 
-> > ...
-> >   
-> > > +static int dps310_ready(struct dps310_data *data, int ready_bit, int timeout)
-> > > +{
-> > > +       int rc;
-> > > +
-> > > +       rc = dps310_ready_status(data, ready_bit, timeout);
-> > > +       if (rc) {    
-> >   
-> > > +               if (rc == -ETIMEDOUT && !data->timeout_recovery_failed) {    
-> > 
-> > Here you compare rc with a certain error code...
-> >   
-> > > +                       /* Reset and reinitialize the chip. */
-> > > +                       if (dps310_reset_reinit(data)) {
-> > > +                               data->timeout_recovery_failed = true;
-> > > +                       } else {
-> > > +                               /* Try again to get sensor ready status. */    
-> >   
-> > > +                               if (dps310_ready_status(data, ready_bit, timeout))    
-> > 
-> > ...but here you assume that the only error code is -ETIMEDOUT. It's
-> > kinda inconsistent (if you rely on internals of ready_status, then why
-> > to check the certain error code, or otherwise why not to return a real
-> > second error code). That's why I asked about re-using rc here.  
-> 
-> Hmm.
-> 
-> 1st time around, any other error code would result in us just returning directly
-> which is fine.
-> 2nd time around I'm not sure we care about what the error code is.  Even if
-> something else went wrong we failed to recover and the first error
-> that lead to that was -ETIMEDOUT.
-> 
-> So I think this is correct as is, be it a little unusual!
+My reason of communicating you is that i have $9.2million USD which
+was deposited in BNP Paribas Bank here in France by my late husband
+which=C2=A0 am the next of=C2=A0 kin to and I want you to stand as the
+beneficiary for the claim now that am about to end my race according
+to my doctor.I will want you to use the fund to build an orphanage
+home in my name there in=C2=A0 country, please kindly reply to this message
+urgently if willing to handle this project. God bless you and i wait
+your swift response asap.
 
-Given timing late in the cycle, I've queued this up for the next merge
-window rather than rushing it in.
-
-Applied to the togreg branch of iio.git and pushed out as testing.
-Note I plan to rebase that branch shortly as I need some stuff that
-is in upstream for other series.  Hence still time for this discussion to
-continue if anyone wants to!
-
-Thanks,
-
-Jonathan
-
-> 
-> Jonathan
-> 
-> > 
-> > In any case I don't think this justifies a v9, let's wait for your
-> > answer and Jonathan's opinion.
-> >   
-> > > +                                       data->timeout_recovery_failed = true;
-> > > +                               else
-> > > +                                       return 0;
-> > > +                       }
-> > > +               }
-> > > +
-> > > +               return rc;
-> > > +       }
-> > > +
-> > > +       data->timeout_recovery_failed = false;
-> > > +       return 0;
-> > > +}    
-> >   
-> 
-
+Mrs.Yunnan Ging.
