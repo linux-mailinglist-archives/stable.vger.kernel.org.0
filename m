@@ -2,91 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A999C5BC016
-	for <lists+stable@lfdr.de>; Sun, 18 Sep 2022 23:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9CF85BC05F
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 00:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229604AbiIRVgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Sep 2022 17:36:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40488 "EHLO
+        id S229519AbiIRWSk convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 18 Sep 2022 18:18:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbiIRVgC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 17:36:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA68813FA8;
-        Sun, 18 Sep 2022 14:36:01 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 682C76124F;
-        Sun, 18 Sep 2022 21:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6280C433C1;
-        Sun, 18 Sep 2022 21:35:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663536960;
-        bh=TJjBRuCFTW+TJ1tt9NdDPb5mim7RRsT5BJz/uob9soA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouymYfWFPXrDhSVTKIcxCCgoerFV7LjGU/A48qK0PbAwS2c45hhtnVE8gztZVa+Lh
-         Ib1diYe+z3LF/mLC4nWJ5yFBCaVC7h2dLAoIqHCjzMP9WGdTWTUP1rOGqVAkfJT5IU
-         ZIhj84bitKoPZCyzBwdLNQ3xXOe8K9ZvaZ8ehf6BhCpEU9/jYwl2FLaVAS1xuz90eA
-         RJr31dBkt4joc0N/CK3Y/xEholrB3zz8G3RdlUKhx5Vz0EOu2D1ZITOzDcZm2ljftl
-         +6rltJoWsNl5XsXoMLxLTdRkIBKV1HZecT9cdRlt5Hq2Ih0ZTHC2P3oJsisReGGzhF
-         ricYegAX7N2Bg==
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-efi@vger.kernel.org
-Cc:     loongarch@lists.linux.dev, linux@armlinux.org.uk,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Xi Ruoyao <xry111@xry111.site>, stable@vger.kernel.org
-Subject: [PATCH 01/12] efi: libstub: drop pointless get_memory_map() call
-Date:   Sun, 18 Sep 2022 23:35:33 +0200
-Message-Id: <20220918213544.2176249-2-ardb@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220918213544.2176249-1-ardb@kernel.org>
-References: <20220918213544.2176249-1-ardb@kernel.org>
+        with ESMTP id S229563AbiIRWSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 18:18:38 -0400
+X-Greylist: delayed 3601 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 18 Sep 2022 15:18:37 PDT
+Received: from uo1.uchi.net (uo1.uchi.net [121.122.15.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3446517AAC
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 15:18:36 -0700 (PDT)
+Received: from localhost (uo1.uchi.net [127.0.0.1])
+        by uo1.uchi.net (Postfix) with ESMTP id 68A99298F5D;
+        Mon, 19 Sep 2022 01:49:27 +0800 (MYT)
+X-Virus-Scanned: amavisd-new at uchi.net
+Received: from uo1.uchi.net ([127.0.0.1])
+        by localhost (uo1.uchi.net [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id jHSJPZYDNQSo; Mon, 19 Sep 2022 01:49:27 +0800 (MYT)
+Received: by uo1.uchi.net (Postfix, from userid 498)
+        id CF7892B4CDD; Sun, 18 Sep 2022 12:18:55 +0800 (MYT)
+Received: from [216.219.83.73] (unknown [216.219.83.73])
+        by uo1.uchi.net (Postfix) with ESMTPA id 5CA2C1D97EE;
+        Sun, 18 Sep 2022 10:08:27 +0800 (MYT)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1124; i=ardb@kernel.org; h=from:subject; bh=TJjBRuCFTW+TJ1tt9NdDPb5mim7RRsT5BJz/uob9soA=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBjJ48bKlM+G5MYutM2WkSBF4HCuh+vKaoUimCOFi8b OqVzWv6JAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCYyePGwAKCRDDTyI5ktmPJCdHDA C+XpPZryd6JF0pxHF7VvkMPRMqZ/4CgyBiS4kQhzfaW8Hv9/ZNvJ5wM/dcQ1xPWHi4gSXn47CylTJI gJqPY9FaPFlS9Cy/cOwSEZuDN8JjxXlAzt5tk2VjS9U2iDBJa8Zx5y6hIgjBg1D8v/vfBEFAaBvTg7 EeVwfrO73C9qvZU/e2DsWrkwHQczHxgyqeObDc7khxJdANkdOnQ8cNsUuqsdX3DnKH1NflXFLf+Fw/ 1OekhLc+zJXmBx1nvZkrVuKROIKS+DPKV78CQnUAKOuDIvXKmIcDqXG0F1BNN/hJltJSf02r3ZZ3vc 45I8vQAt23P4Uo88bbNgRlJKlJ1SP9F5zXF2V/UJT9GNKh/jS5BRuW1PB7Rg4rBU31UNJdbT/WaKMj f92bBQ6DXgh0ReqDS9wJ3bkPs2//RNe23rlgVuzaPd4zup0wFov0C7v6rh0EMT9/JqhoCnSTA/KXMi yFZHXBlWQSEK/OMq5sfNAo31Ujf9jrGIMaEXmQWlBLFOM=
-X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Hi
+To:     Recipients <info@uo.uchi.net>
+From:   "Emerald Johansson" <info@uo.uchi.net>
+Date:   Sat, 17 Sep 2022 22:08:20 -0400
+Reply-To: emeraldjohansson@yahoo.com
+Message-Id: <20220918130026.CF7892B4CDD@uo1.uchi.net>
+X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_99,
+        FREEMAIL_FORGED_REPLYTO,SPF_HELO_NONE,SPF_NONE autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 0.9990]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 SPF_NONE SPF: sender does not publish an SPF Record
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, the non-x86 stub code calls get_memory_map() redundantly,
-given that the data it returns is never used anywhere. So drop the call.
+I hope that you are at your best and doing well. The purpose of this letter is seeking for a pen pal like friendship and I'd love to and be honored to be friends with you if you do not mind.. If the Idea sounds OK with you, just say yes and we can take it on from there. I look forward to hear hearing from you.. My name is Emerald From Sweden 36 years , this will mean a lot to me to hear back from you.
 
-Cc: <stable@vger.kernel.org> # v4.14+
-Fixes: 24d7c494ce46 ("efi/arm-stub: Round up FDT allocation to mapping size")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- drivers/firmware/efi/libstub/fdt.c | 8 --------
- 1 file changed, 8 deletions(-)
+Warm Regards.
 
-diff --git a/drivers/firmware/efi/libstub/fdt.c b/drivers/firmware/efi/libstub/fdt.c
-index fe567be0f118..804f542be3f2 100644
---- a/drivers/firmware/efi/libstub/fdt.c
-+++ b/drivers/firmware/efi/libstub/fdt.c
-@@ -280,14 +280,6 @@ efi_status_t allocate_new_fdt_and_exit_boot(void *handle,
- 		goto fail;
- 	}
- 
--	/*
--	 * Now that we have done our final memory allocation (and free)
--	 * we can get the memory map key needed for exit_boot_services().
--	 */
--	status = efi_get_memory_map(&map);
--	if (status != EFI_SUCCESS)
--		goto fail_free_new_fdt;
--
- 	status = update_fdt((void *)fdt_addr, fdt_size,
- 			    (void *)*new_fdt_addr, MAX_FDT_SIZE, cmdline_ptr,
- 			    initrd_addr, initrd_size);
--- 
-2.35.1
+Emerald
+   *
+  ***
+ *****
+  ]+[  << Please consider the environment before printing this email >>
 
+UCHI OPTOELECTRONIC (M) SDN. BHD.
+Website : www.uchi.net
+This e-mail and any files transmitted with it contain confidential and/or
+privileged information and intended solely for the use of the individual
+or entity to whom they are addressed. If you are not the intended recipient
+(or have received this e-mail in error),please notify the sender immediately
+and destroy this e-mail. Any unauthorized copying, disclosure or distribution
+of the material in this e-mail is strictly forbidden. Please note that any
+views or opinions presented in this email are solely those of the author
+and do not necessarily represent those of the organization. Finally, the
+recipient should check this email and any attachments for the presence of
+viruses. The organization accepts no liability for any damage caused by
+any virus transmitted by this email.
