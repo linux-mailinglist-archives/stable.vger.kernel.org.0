@@ -2,129 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4D15BC0E9
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 03:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 705B35BC0C5
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 02:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229473AbiISBIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Sep 2022 21:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44054 "EHLO
+        id S229541AbiISAM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Sep 2022 20:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbiISBIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 21:08:07 -0400
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9BD13F3A
-        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 18:08:05 -0700 (PDT)
-Received: from epcas3p2.samsung.com (unknown [182.195.41.20])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20220919010802epoutp04fdfd5df962d0c74484c5e9a863dbd8d7~WHZ9kNrwJ2126721267epoutp04H
-        for <stable@vger.kernel.org>; Mon, 19 Sep 2022 01:08:02 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20220919010802epoutp04fdfd5df962d0c74484c5e9a863dbd8d7~WHZ9kNrwJ2126721267epoutp04H
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1663549682;
-        bh=NDoR4FS/YkfgMXQLIMHDdM8BwQ3egJu9CTsYYwFrncY=;
-        h=Subject:Reply-To:From:To:CC:In-Reply-To:Date:References:From;
-        b=OzXxhOaI8KJmnkWtEKSiQgEnE/w8a0RN9Fb5nNM5GW7fMuYHceuPoVD8mj6jG7G7t
-         dzZ+rAI8X3tMZjcbtLSXGDVPdKvEcOZNmMWoM5L5qigbfBxrpqBlX3vH98R36csfTU
-         02bdttU0liBJFuOBX/P2wx+pliHUUX9STdAjXPu0=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
-        epcas3p2.samsung.com (KnoxPortal) with ESMTP id
-        20220919010802epcas3p23d5f62a37afdd1bb50890bc1ec1b207c~WHZ9NbLrb1183311833epcas3p2k;
-        Mon, 19 Sep 2022 01:08:02 +0000 (GMT)
-Received: from epcpadp4 (unknown [182.195.40.18]) by epsnrtp2.localdomain
-        (Postfix) with ESMTP id 4MW6422WDSz4x9QL; Mon, 19 Sep 2022 01:08:02 +0000
-        (GMT)
-Mime-Version: 1.0
-Subject: RE: [PATCH v4] page_alloc: consider highatomic reserve in watermark
- fast
-Reply-To: jaewon31.kim@samsung.com
-Sender: Jaewon Kim <jaewon31.kim@samsung.com>
-From:   Jaewon Kim <jaewon31.kim@samsung.com>
-To:     Greg KH <gregkh@linuxfoundation.org>, yong w <yongw.pur@gmail.com>
-CC:     Jaewon Kim <jaewon31.kim@samsung.com>,
-        "mhocko@kernel.org" <mhocko@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "wang.yong12@zte.com.cn" <wang.yong12@zte.com.cn>,
-        YongTaek Lee <ytk.lee@samsung.com>
-X-Priority: 3
-X-Content-Kind-Code: NORMAL
-In-Reply-To: <YyREk5hHs2F0eWiE@kroah.com>
-X-Drm-Type: N,general
-X-Msg-Generator: Mail
-X-Msg-Type: PERSONAL
-X-Reply-Demand: N
-Message-ID: <1891546521.01663549682346.JavaMail.epsvc@epcpadp4>
-Date:   Sun, 18 Sep 2022 10:41:40 +0900
-X-CMS-MailID: 20220918014140epcms1p43196006395c81ea4b5ff727cde997cdc
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-X-CPGSPASS: Y
-X-CPGSPASS: Y
-X-Hop-Count: 3
-X-CMS-RootMailID: 20220916094017epcas1p1deed4041f897d2bf0e0486554d79b3af
-References: <YyREk5hHs2F0eWiE@kroah.com>
-        <ab879545-d4b2-0cd8-3ae2-65f9f2baf2fe@gmail.com>
-        <YyCLm0ws8qsiEcaJ@kroah.com>
-        <CAOH5QeAUGBshLQdRCWLg9-Q3JvrqROLYW6uWr8a4TBKxwAOPaw@mail.gmail.com>
-        <CGME20220916094017epcas1p1deed4041f897d2bf0e0486554d79b3af@epcms1p4>
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229473AbiISAMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 20:12:24 -0400
+Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E199E005
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 17:12:22 -0700 (PDT)
+Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-1279948d93dso59691021fac.10
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 17:12:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date;
+        bh=CoC1+/7JgLAjxGpmyihA853JBeEKV8t/kTyn9LWVIr4=;
+        b=iZtmVDvLqx+DvvOTa4fAJh3wJgY8SDKChRsbB2bvbevAiJfsu/JW052RcSii691EXo
+         Ci0xpQASbj5ta9skCB96l5ziGL7cC8jRt0aYMSDYhimwD0+wjeFZLWZRf7Jlh+n2sKO/
+         mvf9+JQKY5bY2j6YdubqP984KyHAhEH9f1NSA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=CoC1+/7JgLAjxGpmyihA853JBeEKV8t/kTyn9LWVIr4=;
+        b=l8eXeGdsCXErAmKFXEX8SjIR8MFSfO3s6JATXDCbs3yTZaVz2yHc6GtoXz+2jBSjfM
+         DixeEStHmy581czMZygQiAWx7j1qthjAQos0Xa0F5kNFrIplLb+ZB28ef1BZ2i4yV3WE
+         bV4tqjXKS1pkD/uP5QvYizjgmw14SfGWsS0D6AbaYxnr5of1jTGjHhMkNvDYhM+W3vg4
+         xoa1Ux7B4FNJSz7svpFvhE8KAVv65l1PIqOHWUx7mXGSgBPHG+fCkKsnIe+m0f4N7IRG
+         7JJzxPV2n7WSp7N9GY5vKdH7VtRbjGCKEhohBqiga4ftULI1S2kS35pEwG4/DtF6GJZi
+         fTGw==
+X-Gm-Message-State: ACgBeo2ZwK3qLwZT60DAM2NzYIBaW2Zt1BYAIS7eY4v2a/AWmvFy29i8
+        +9bQLv9bk7M9c+ow0y1LK4yuZQ==
+X-Google-Smtp-Source: AA6agR6dsLOHBFfBs3YhlwcSN1ExCqE2/qz/GuD8G2LOM9lkguqqgeBsDaNUwiAKRncmEI1vyd7V+A==
+X-Received: by 2002:a05:6870:d686:b0:12a:f869:cb90 with SMTP id z6-20020a056870d68600b0012af869cb90mr14141581oap.242.1663546341741;
+        Sun, 18 Sep 2022 17:12:21 -0700 (PDT)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id cv36-20020a056870c6a400b0011e37fb5493sm6885010oab.30.2022.09.18.17.12.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Sep 2022 17:12:20 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Sun, 18 Sep 2022 19:12:18 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.19 00/38] 5.19.10-rc1 review
+Message-ID: <Yyez4jmP4wbTeNxg@fedora64.linuxtx.org>
+References: <20220916100448.431016349@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220916100448.431016349@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->On Wed, Sep 14, 2022 at 08:46:15AM +0800, yong w wrote:
->> Greg KH <gregkh@linuxfoundation.org> =E4=BA=8E2022=E5=B9=B49=E6=9C=8813=
-=E6=97=A5=E5=91=A8=E4=BA=8C 21:54?=E9=81=93=EF=BC=9A
->>=20
->> >
->> > On Tue, Sep 13, 2022 at 09:09:47PM +0800, yong wrote:
->> > > Hello,
->> > > This patch is required to be patched in linux-5.4.y and linux-4.19.y=
-.
->> >
->> > What is "this patch"?  There is no context here :(
->> >
->> Sorry, I forgot to quote the original patch. the patch is as follows
->>=20
->>     f27ce0e page_alloc: consider highatomic reserve in watermark fast
->>=20
->> > > In addition to that, the following two patches are somewhat related:
->> > >
->> > >       3334a45 mm/page_alloc: use ac->high_zoneidx for classzone_idx
->> > >       9282012 page_alloc: fix invalid watermark check on a negative =
-value
->> >
->> > In what way?  What should be done here by us?
->> >
->>=20
->> I think these two patches should also be merged.
->>=20
->>     The classzone_idx  parameter is used in the zone_watermark_fast
->> functionzone, and 3334a45 use ac->high_zoneidx for classzone_idx.
->>     "9282012 page_alloc: fix invalid watermark check on a negative
->> value"  fix f27ce0e introduced issues
->
->Ok, I need an ack by all the developers involved in those commits, as
->well as the subsystem maintainer so that I know it's ok to take them.
->
->Can you provide a series of backported and tested patches so that they
->are easy to review?
->
->thanks,
->
->greg k-h
+On Fri, Sep 16, 2022 at 12:08:34PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.10 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 18 Sep 2022 10:04:31 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Hello I didn't know my Act is needed to merge it.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Acked-by: Jaewon Kim <jaewon31.kim@samsung.com>
-
-I don't understand well why the commit f27ce0e has dependency on 3334a45, t=
-hough.
-
-Thank you
-Jaewon Kim
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
