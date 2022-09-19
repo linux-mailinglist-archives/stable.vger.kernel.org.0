@@ -2,95 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EF65BC54E
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 11:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 251415BC9BE
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 12:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229660AbiISJ0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 05:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36728 "EHLO
+        id S229881AbiISKrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 06:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230164AbiISJ01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 05:26:27 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9691D13F93
-        for <stable@vger.kernel.org>; Mon, 19 Sep 2022 02:26:14 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id z25so45982975lfr.2
-        for <stable@vger.kernel.org>; Mon, 19 Sep 2022 02:26:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=jY+Ll13EtSRSZqnmg84nXEpRI5JPJFL45ThtkhHD7KI=;
-        b=iPQXCgVBFXLvMxnb88A4Y4RN5PzkIam2LLZcTdRInoXsFgMvIObqNBroT5awBiVcie
-         O+6QZAHwTU3Vobun0dFUoyqIFjwOEFSSRPWRQuKLQ3dMRxDJ5mkhoGQDVUpFKN73wXlz
-         Ewh0gLZ2/fgNEOVMVMCihScz9/kCxWfRQ4YP0ivCwwQQhB97xMIE+17+09a6zC4VhI9U
-         V7mtNW8OKatFR0FnNZfmD9mrU2Jhad6EBQRJ8I33ttkvrdOzL/No7GtN3L1E2FNDHBxL
-         2WlP8c8WhlPHe6ksnOZg47vq2OgM+jHEXxSMgR5UzBfNwmS63X8i7C/sgTz3KDGOoqGv
-         2c2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=jY+Ll13EtSRSZqnmg84nXEpRI5JPJFL45ThtkhHD7KI=;
-        b=TJi+HUKvQeQR5eayRF7+HV4EK9fj48CyuX4ZuEYQgmD7cHxNNNJDp5Yg7JqSHwMi15
-         AqJ6N1OviSRzilf9f4dwbczL4Dc9UxftKJVYnr6b15PiddRQDyB7KCzY5J/39NSv0amm
-         gNGIB3fR/IkwB9Tjm8ySc7dQSnyIp4qxJ67q3ti4z9ZrSufRU173grh1BPQvqzmyzlSZ
-         Z4Mo2oQ1PnJWhqNWZlMZyFwHpfFPaO0lAm1+uP8u4ZZ0dXdvA9yj4CPKQzWeDAT5OJhs
-         pLkjq3hbT7nrVZpQohBOvnyZZ8KT6ZfFz/TKGOPh+/sqMIDdDKn//i4rgXqJf4LEO1ox
-         FEdA==
-X-Gm-Message-State: ACrzQf1TkFvjQWgvUdE0yh+knx/OdA4xg9yOmKEI+/N/7e4Xv8SEGDxX
-        qSgC0gZLsx9LE7LHGNiBxdsByaLTNg/yjg==
-X-Google-Smtp-Source: AMsMyM5MJF/RfYu/oQl/cdxpkdj09uQXUbkrbUPkQ8D7A7YH66uz6kxyHI2Xt1ZWdna8RAWRIJ5kbQ==
-X-Received: by 2002:a05:6512:3403:b0:48c:9727:50b0 with SMTP id i3-20020a056512340300b0048c972750b0mr5623241lfr.309.1663579572956;
-        Mon, 19 Sep 2022 02:26:12 -0700 (PDT)
-Received: from fedora.ideon.se ([85.235.10.227])
-        by smtp.gmail.com with ESMTPSA id o20-20020ac24bd4000000b0049c29292250sm3829456lfq.149.2022.09.19.02.26.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Sep 2022 02:26:12 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     arm@kernel.org, soc@kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] ARM: dts: integrator: Tag PCI host with device_type
-Date:   Mon, 19 Sep 2022 11:26:08 +0200
-Message-Id: <20220919092608.813511-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.37.3
+        with ESMTP id S229869AbiISKqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 06:46:48 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8FF28E01;
+        Mon, 19 Sep 2022 03:33:28 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 68CC81C0005; Mon, 19 Sep 2022 12:33:26 +0200 (CEST)
+Date:   Mon, 19 Sep 2022 12:33:25 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: 5.10.144 got more patches? was Re: [PATCH 5.10 00/24] 5.10.144-rc1
+ review
+Message-ID: <20220919103325.GA10942@duo.ucw.cz>
+References: <20220916100445.354452396@linuxfoundation.org>
+ <20220916135942.GA29693@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+In-Reply-To: <20220916135942.GA29693@duo.ucw.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The DT parser is dependent on the PCI device being tagged as
-device_type = "pci" in order to parse memory ranges properly.
-Fix this up.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ARM SoC folks: please apply this directly for fixes.
----
- arch/arm/boot/dts/integratorap.dts | 1 +
- 1 file changed, 1 insertion(+)
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/arm/boot/dts/integratorap.dts b/arch/arm/boot/dts/integratorap.dts
-index 9b652cc27b14..c983435ed492 100644
---- a/arch/arm/boot/dts/integratorap.dts
-+++ b/arch/arm/boot/dts/integratorap.dts
-@@ -160,6 +160,7 @@ pic: pic@14000000 {
- 
- 	pci: pciv3@62000000 {
- 		compatible = "arm,integrator-ap-pci", "v3,v360epc-pci";
-+		device_type = "pci";
- 		#interrupt-cells = <1>;
- 		#size-cells = <2>;
- 		#address-cells = <3>;
--- 
-2.37.3
+Hi!
 
+> > This is the start of the stable review cycle for the 5.10.144 release.
+> > There are 24 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+>=20
+> CIP testing did not find any problems here:
+>=20
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linu=
+x-5.10.y
+>=20
+> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+And now I'm confused.
+
+5.10.144-rc1 was announced / tested, but now there's buch more patches
+in the queue, starting with
+
+ |9843b839a 174974 .: 5.10| drm/msm/rd: Fix FIFO-full deadlock
+ |518b67da4 174974 .: 4.19| drm/msm/rd: Fix FIFO-full deadlock
+ |88eba3686 174974 .: 4.9| drm/msm/rd: Fix FIFO-full deadlock
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYyhFdQAKCRAw5/Bqldv6
+8nPzAKCdsq6LX2UySzT7yM/BuekqwsER8gCgmiIVz/2jCT+0H1wTcxL5zvHQQ3A=
+=chmi
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--
