@@ -2,107 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 402AA5BD184
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 17:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2DA95BD1E2
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 18:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbiISP57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 11:57:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45428 "EHLO
+        id S229745AbiISQJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 12:09:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbiISP57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 11:57:59 -0400
-Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CC41115E;
-        Mon, 19 Sep 2022 08:57:56 -0700 (PDT)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 885C1FF804;
-        Mon, 19 Sep 2022 15:57:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1663603071;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rX6igEp7IvrSFf9zz5G2VF1s9bfuFqim/tJ7yj60HZk=;
-        b=VFOQLqKEQQT+DyALaRT8PGXPTo9qwflkK+tTQ/Vf2iZGEYSJ6EF95G5CljZtBk2OY7FXAg
-        9ZFNu7gFH3SySLgSQMFbi/QoY+pgwA/ChlAxzq8nyKW9UeN+fgx5+hR2udB2jdyuvAX9C4
-        pr4MV+4wFvgvHE7uScz5+vDS86QTS2neExADk0Di7qBgqLqAzl1px4bRT6TGn/KaYc3h+B
-        bKi1rqhmlD14tWElXrqHcHF1rCnfknvvciDYN53Zc/zGXa3J9LdYQoBGzVf/rwXqz9JHbm
-        Ct/TcJX56HCUw8ok0klpUuxLr5RheZCHqICLkAux3RVtJ/DOsCD7CwFQ54oqsw==
-Date:   Mon, 19 Sep 2022 17:57:49 +0200
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc:     Adrian Zaharia <Adrian.Zaharia@windriver.com>,
-        linux-mtd@lists.infradead.org, richard@nod.at, vigneshr@ti.com,
-        jani.nurminen@windriver.com, linux-kernel@vger.kernel.org,
+        with ESMTP id S229690AbiISQJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 12:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0CA13F1F;
+        Mon, 19 Sep 2022 09:09:45 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B92B960C62;
+        Mon, 19 Sep 2022 16:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FD6C433C1;
+        Mon, 19 Sep 2022 16:09:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663603784;
+        bh=yt73m9t5ZgC8SztOHgPOeinn+X5PpD3vUgcYSG9Orhk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=sbp9dOQPubbNQSJq1m1g7r/cY/wNUQw+m6YcF9pEpA799Pha30TAc4b1IYNWe8GBn
+         gmYCgYDJnmFVHI5HLAAzBh8sbJvmy+XPY4rixwCndBQFoeOQ0fC3lFevaW+NH/R0Sm
+         /eiDWoQuh9Qu5r83BSKCr1q+Q63LiYlVOftDQ1RoMrlMgt2xku3sXP4k4opb4umo08
+         V4f9QqxnSq2zvxnC+o2ghsU+HEF+xnmHaj6Hz/YKDgSXkp1cw/e6fvWQerRzYFKhkj
+         lC2ze7IKC1f/oKsi9lDDIaDpgjtbf3J9kBuqQHdGcjGv8jtbFL7L0fYk/OiT+J6iic
+         FUm+dNr/X71tw==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-efi@vger.kernel.org
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] mtd: mtdpart: Fix cosmetic print
-Message-ID: <20220919175749.6ba76d13@xps-13>
-In-Reply-To: <43059215-aa56-e8c5-53a4-143643058797@gmail.com>
-References: <20220825060407.335475-1-Adrian.Zaharia@windriver.com>
-        <20220825060407.335475-2-Adrian.Zaharia@windriver.com>
-        <43059215-aa56-e8c5-53a4-143643058797@gmail.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+Subject: [PATCH 1/3] efi: random: reduce seed size to 32 bytes
+Date:   Mon, 19 Sep 2022 18:09:29 +0200
+Message-Id: <20220919160931.2945427-2-ardb@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220919160931.2945427-1-ardb@kernel.org>
+References: <20220919160931.2945427-1-ardb@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1410; i=ardb@kernel.org; h=from:subject; bh=yt73m9t5ZgC8SztOHgPOeinn+X5PpD3vUgcYSG9Orhk=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBjKJQ2BjJhtZa6gBf3DbKuZtxnhbobAqaeNBUrkVqS WmiPI2iJAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCYyiUNgAKCRDDTyI5ktmPJHFbC/ 4qFkdGnBTSSu2eJPVlHDPUk4RN30Qz/CbPZxdArSWMGCxMrXoyPJIjWpPWHtXBB8ZKlv57vVe9RWOE qpSuj8aBgU8dU4NvWGfaX8u+OceqYf7p7DMwZBeA/g2OGgQqqzSxbtwfLruEn7/DoI9HpP4ujK+x2w O3a5VSPRiZPBVDbUpllW1iX0LCq2ZUSTNKPr2DPwiQ3AHzhLIo6WXcMZFefSq9s0zbOahJmKSLtaa8 Q4lZz80HJLo/4SfTx5yv3XUSXyFCrFbmFAo3LIy+kTyMuC/8tdNfaNEbB3hv89CI6zZwubB7ETbmlG oC6/BVsZC3DPq2ABGxy9tYkEBchwYnqoGgtmVbk0J0frJXl4oYUQhyg61GY/HYk2HgCU7O0sISFUOl Mw7CTGJeL8W2yxWk1mDijtlDrWOmavhIhD9QyW5B6qKhlMDqT07/LaqeCi7Do/oItTeMFp9OL+vROf KpkXFvH9QMqDG2Idxiw1RCvK9ihAYEhI9E78WRgO2S3+s=
+X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+We no longer need at least 64 bytes of random seed to permit the early
+crng init to complete. The RNG is now based on Blake2s, so reduce the
+EFI seed size to the Blake2s hash size, which is sufficient for our
+purposes.
 
-zajec5@gmail.com wrote on Tue, 13 Sep 2022 09:37:21 +0200:
+Cc: <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ drivers/firmware/efi/efi.c | 2 +-
+ include/linux/efi.h        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-> On 25.08.2022 08:04, Adrian Zaharia wrote:
-> > From: Jani Nurminen <jani.nurminen@windriver.com>
-> >=20
-> > The print of the MTD partitions during boot are off-by-one for the size.
-> > Fix this and show the real last offset. =20
->=20
-> I see that PCI subsystem and printk() + %pR do that. Probably more. I
-> guess it makes sense but I'm also wondering if/how confusing is that
-> change going to be for users. We did printing like that for probably
-> dozens of years.
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index e4080ad96089..06b0755f32a2 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -606,7 +606,7 @@ int __init efi_config_parse_tables(const efi_config_table_t *config_tables,
+ 
+ 		seed = early_memremap(efi_rng_seed, sizeof(*seed));
+ 		if (seed != NULL) {
+-			size = READ_ONCE(seed->size);
++			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
+ 			early_memunmap(seed, sizeof(*seed));
+ 		} else {
+ 			pr_err("Could not map UEFI random seed!\n");
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index d2b84c2fec39..7b015508c773 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1195,7 +1195,7 @@ efi_status_t efi_random_get_seed(void);
+ 	arch_efi_call_virt_teardown();					\
+ })
+ 
+-#define EFI_RANDOM_SEED_SIZE		64U
++#define EFI_RANDOM_SEED_SIZE		32U // BLAKE2S_HASH_SIZE
+ 
+ struct linux_efi_random_seed {
+ 	u32	size;
+-- 
+2.35.1
 
-Agreed, I would rather not mess with this output which might be
-considered part of the ABI, I am sure there are plenty of scripts out
-there which do silly things with those lines :-)
-
->=20
->=20
-> > Fixes: 3d6f657ced2b ("mtd: mtdpart: Fix cosmetic print") =20
->=20
-> I can't find that hash / commit anywhere. Are you sure it exists?
->=20
->=20
-> > Signed-off-by: Jani Nurminen <jani.nurminen@windriver.com>
-> > Signed-off-by: Adrian Zaharia <Adrian.Zaharia@windriver.com>
-> > ---
-> >   drivers/mtd/mtdpart.c | 2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/mtd/mtdpart.c b/drivers/mtd/mtdpart.c
-> > index d442fa94c872..fab10e6d4171 100644
-> > --- a/drivers/mtd/mtdpart.c
-> > +++ b/drivers/mtd/mtdpart.c
-> > @@ -118,7 +118,7 @@ static struct mtd_info *allocate_partition(struct m=
-td_info *parent,
-> >   		child->part.size =3D parent_size - child->part.offset; =20
-> >   >   	printk(KERN_NOTICE "0x%012llx-0x%012llx : \"%s\"\n", =20
-> > -	       child->part.offset, child->part.offset + child->part.size,
-> > +	       child->part.offset, child->part.offset + child->part.size - 1,
-> >   	       child->name); =20
-> >   >   	/* let's do some sanity checks */ =20
->=20
-
-
-Thanks,
-Miqu=C3=A8l
