@@ -2,107 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F08F55BD1E5
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 18:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D21F5BD234
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 18:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiISQJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 12:09:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35798 "EHLO
+        id S229947AbiISQ2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 12:28:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229592AbiISQJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 12:09:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252D41183A;
-        Mon, 19 Sep 2022 09:09:47 -0700 (PDT)
+        with ESMTP id S229663AbiISQ2O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 12:28:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52903B955;
+        Mon, 19 Sep 2022 09:28:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B642160C62;
-        Mon, 19 Sep 2022 16:09:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9711AC43470;
-        Mon, 19 Sep 2022 16:09:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663603786;
-        bh=ECHaI5zocDylFw60A6Q3tgn4qFote5nVt4SpK7yOsfU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fr9PLTPXSR6TRPPag4Jbqi84GJzRsCdVCB3nBMlGVRVrWbxROwltSKdsYL3S+pHrE
-         GnTf6POjubUjB/m4T915KJFfCWdevWp1ZcOP0eJi0ysFvc609TSJmQwuGXY9l1QQ/p
-         tigwl2WkJ+6oA7jwjM4n2q36Q/EnUc/QCtnDq5TEBoW6B7LE0hML+cEtlNZ7s0SQuB
-         J9xsXIWPEHvG27M6JuAIMB9fD1a+YuHLvGwMLk/epdGGxPew5nmTaqdny94RHoExWy
-         zwrL32OPBbLqtsjmoyWTMuGMpUN9KsDgeCEd2RA2iz90Wcn26iTMTcLgnwg8vCteX5
-         kZSnPYu4Af+ug==
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-efi@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B37CB8092F;
+        Mon, 19 Sep 2022 16:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEE64C433D6;
+        Mon, 19 Sep 2022 16:28:10 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="LmjwV6P5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1663604888;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mzIuO+PPHAJODhYz0UIsdnwQnh/lTMcw4ADjrjKbYRQ=;
+        b=LmjwV6P5ln/Ta8aryqqnTZQ+pdl7pz/qmVuTUbqx9VB/GJf8hy+yjvH9ZiVnV4dPXvQJRN
+        FbMQit2/JYAs9oN1ByiEB7DTGsmocp9F4KBTp+AaJ/B6Jg0BdAD9kAUyfkdJ0N1oauRiX1
+        z8E04Ll5pZHEBKLTNyzXNFU60HNdQ+0=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 39144411 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 19 Sep 2022 16:28:08 +0000 (UTC)
+Received: by mail-vs1-f49.google.com with SMTP id a129so188323vsc.0;
+        Mon, 19 Sep 2022 09:28:08 -0700 (PDT)
+X-Gm-Message-State: ACrzQf0QiJIXb1JjG1qnLTLd56u4JvNnJ4ZwekMJMwEgpjToQymZi7Ca
+        vURBRZZga1NmgNGucagH+f/f2qPSjmBP1KSTQ1g=
+X-Google-Smtp-Source: AMsMyM4SnOpCSj+c5nOtMeOdRxyImNPudt8HErqP0QjJgqG0kpDuRNDeIZ8a7NuyoViKF6iRD6QCE8uChclZyE93xEQ=
+X-Received: by 2002:a67:e401:0:b0:398:89f1:492f with SMTP id
+ d1-20020a67e401000000b0039889f1492fmr7137283vsf.21.1663604887392; Mon, 19 Sep
+ 2022 09:28:07 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220919160931.2945427-1-ardb@kernel.org> <20220919160931.2945427-2-ardb@kernel.org>
+In-Reply-To: <20220919160931.2945427-2-ardb@kernel.org>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Mon, 19 Sep 2022 18:27:56 +0200
+X-Gmail-Original-Message-ID: <CAHmME9rqcTUHt8Z2Ad_SenH_QMnsA4vSroRsh1YPm+FKgWC2yA@mail.gmail.com>
+Message-ID: <CAHmME9rqcTUHt8Z2Ad_SenH_QMnsA4vSroRsh1YPm+FKgWC2yA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] efi: random: reduce seed size to 32 bytes
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     linux-efi@vger.kernel.org,
         Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
         Lennart Poettering <lennart@poettering.net>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         stable@vger.kernel.org
-Subject: [PATCH 2/3] efi: random: Use 'ACPI reclaim' memory for random seed
-Date:   Mon, 19 Sep 2022 18:09:30 +0200
-Message-Id: <20220919160931.2945427-3-ardb@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220919160931.2945427-1-ardb@kernel.org>
-References: <20220919160931.2945427-1-ardb@kernel.org>
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2101; i=ardb@kernel.org; h=from:subject; bh=ECHaI5zocDylFw60A6Q3tgn4qFote5nVt4SpK7yOsfU=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBjKJQ4dvptBKznc0r0FPMjTAGWvDsaxzEcM/YaWFbQ h11CwUaJAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCYyiUOAAKCRDDTyI5ktmPJLZoDA Cx6cgSNKu9vVq9XBm1uBYScpTsevUH/DWib6Gkx0SfNdx7/JEsyVYgcV7YgMyvvC+eFUjkClFiHIut QUxWiW9DCZerN9qpOs9V3G9QAv28yztiQJu4jzzbuNk6kDPLcYxOKT2zYePx/14m+A0snTxA+zBiBX oVuLxo5EohjatrDZkCbaTehkYpK5sFXKBO4T+V+LAaK6FdR4Awo0vPI3HYlur13el/TG5WGSt4R8ps 93U0FkSfdfK69xNErNPToGNScLAiRChHEhk3am6TOtCRioXmARFTD+39l073AvavKIVVIZAf/iQ0Po oFweBuEXvQsM7wuhRipFIwpwVpWNpnqabEELbn6Zz0mx6AE2SCf+6UY+82y01w7jkH+qTiDKIAsx7r aJoXdD/rndN6eOw+ZMRZAmmcHbPwls+aMEajqDa8+DPxQRWWVN6GBXHyofrZOjLNWmxX7V3kkx82dr uPOc7QhssTZVi2R9RqnN9QLt4f2gfofLP7/LH/grzGk7s=
-X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-EFI runtime services data is guaranteed to be preserved by the OS,
-making it a suitable candidate for the EFI random seed table, which may
-be passed to kexec kernels as well (after refreshing the seed), and so
-we need to ensure that the memory is preserved without support from the
-OS itself.
+On Mon, Sep 19, 2022 at 6:09 PM Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> We no longer need at least 64 bytes of random seed to permit the early
+> crng init to complete. The RNG is now based on Blake2s, so reduce the
+> EFI seed size to the Blake2s hash size, which is sufficient for our
+> purposes.
+>
+> Cc: <stable@vger.kernel.org> # v4.14+
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 
-However, runtime services data is intended for allocations that are
-relevant to the implementations of the runtime services themselves, and
-so they are unmapped from the kernel linear map, and mapped into the EFI
-page tables that are active while runtime service invocations are in
-progress. None of this is needed for the RNG seed.
-
-So let's switch to EFI 'ACPI reclaim' memory: in spite of the name,
-there is nothing exclusively ACPI about it, it is simply a type of
-allocation that carries firmware provided data which may or may not be
-relevant to the OS, and it is left up to the OS to decide whether to
-reclaim it after having consumed its contents.
-
-Given that in Linux, we never reclaim these allocations, it is a good
-choice for the EFI RNG seed, as the allocation is guaranteed to survive
-kexec reboots.
-
-One additional reason for changing this now is to align it with the
-upcoming recommendation for EFI bootloader provided RNG seeds, which
-must not use EFI runtime services code/data allocations.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- drivers/firmware/efi/libstub/random.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/firmware/efi/libstub/random.c b/drivers/firmware/efi/libstub/random.c
-index 24aa37535372..183dc5cdb8ed 100644
---- a/drivers/firmware/efi/libstub/random.c
-+++ b/drivers/firmware/efi/libstub/random.c
-@@ -75,7 +75,7 @@ efi_status_t efi_random_get_seed(void)
- 	if (status != EFI_SUCCESS)
- 		return status;
- 
--	status = efi_bs_call(allocate_pool, EFI_RUNTIME_SERVICES_DATA,
-+	status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
- 			     sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
- 			     (void **)&seed);
- 	if (status != EFI_SUCCESS)
--- 
-2.35.1
-
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
