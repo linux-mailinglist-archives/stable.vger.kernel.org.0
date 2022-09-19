@@ -2,74 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4FEF5BC439
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 10:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966815BC434
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 10:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbiISIXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 04:23:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33276 "EHLO
+        id S229695AbiISIVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 04:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiISISf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 04:18:35 -0400
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9090320F5B;
-        Mon, 19 Sep 2022 01:18:28 -0700 (PDT)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id B428992009D; Mon, 19 Sep 2022 10:18:26 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id AD9D892009C;
-        Mon, 19 Sep 2022 09:18:26 +0100 (BST)
-Date:   Mon, 19 Sep 2022 09:18:26 +0100 (BST)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     Jiri Slaby <jirislaby@kernel.org>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Anders Blomdell <anders.blomdell@control.lth.se>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] serial: 8250: Let drivers request full 16550A feature
- probing
-In-Reply-To: <8fa701a1-3f34-9152-daf6-1618dd0e7727@kernel.org>
-Message-ID: <alpine.DEB.2.21.2209190911540.14808@angie.orcam.me.uk>
-References: <alpine.DEB.2.21.2209162317180.19473@angie.orcam.me.uk> <alpine.DEB.2.21.2209171043270.31781@angie.orcam.me.uk> <8fa701a1-3f34-9152-daf6-1618dd0e7727@kernel.org>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        with ESMTP id S229731AbiISIVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 04:21:49 -0400
+Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4458820BEE;
+        Mon, 19 Sep 2022 01:21:47 -0700 (PDT)
+Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id 6475D72C90B;
+        Mon, 19 Sep 2022 11:21:45 +0300 (MSK)
+Received: from altlinux.org (sole.flsd.net [185.75.180.6])
+        by imap.altlinux.org (Postfix) with ESMTPSA id 609B44A472A;
+        Mon, 19 Sep 2022 11:21:43 +0300 (MSK)
+Date:   Mon, 19 Sep 2022 11:21:43 +0300
+From:   Vitaly Chikunov <vt@altlinux.org>
+To:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.15 22/41] video: fbdev: pxa3xx-gcu: Fix integer
+ overflow in pxa3xx_gcu_write
+Message-ID: <20220919082143.g4gn5ssbzolnc57b@altlinux.org>
+References: <20220628022100.595243-1-sashal@kernel.org>
+ <20220628022100.595243-22-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20220628022100.595243-22-sashal@kernel.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 19 Sep 2022, Jiri Slaby wrote:
-
-> > --- linux-macro.orig/include/linux/serial_core.h
-> > +++ linux-macro/include/linux/serial_core.h
-> > @@ -414,7 +414,7 @@ struct uart_icount {
-> >   	__u32	buf_overrun;
-> >   };
-> >   -typedef unsigned int __bitwise upf_t;
-> > +typedef __u64 __bitwise upf_t;
+On Mon, Jun 27, 2022 at 10:20:41PM -0400, Sasha Levin wrote:
+> From: Hyunwoo Kim <imv4bel@gmail.com>
 > 
-> Why __u64 and not u64?
-
- For consistency as there's `__u32' used elsewhere in this file.  It's not 
-clear to me what our rules WRT the use of `s*'/`u*' vs `__s*'/`__u*' are.  
-I don't think we have it mentioned under Documentation/.  Please clarify 
-if you know and I can update the change accordingly.
-
-> > @@ -522,6 +522,7 @@ struct uart_port {
-> >   #define UPF_FIXED_PORT		((__force upf_t) (1 << 29))
-> >   #define UPF_DEAD		((__force upf_t) (1 << 30))
-> >   #define UPF_IOREMAP		((__force upf_t) (1 << 31))
-> > +#define UPF_FULL_PROBE		((__force upf_t) (1ULL << 32))
+> [ Upstream commit a09d2d00af53b43c6f11e6ab3cb58443c2cac8a7 ]
 > 
-> This looks like a perfect time to switch them all to BIT_ULL().
+> In pxa3xx_gcu_write, a count parameter of type size_t is passed to words of
+> type int.  Then, copy_from_user() may cause a heap overflow because it is used
+> as the third argument of copy_from_user().
 
- Good point, I keep forgetting about that macro.  I'll keep this part 
-unchanged for the purpose of backporting and add 3/3 to switch all the 
-macros over.
+Why this commit is still not in the stable branches?
+Isn't this is the fix for CVE-2022-39842[1]?
 
-  Maciej
+Thanks,
+
+[1] https://nvd.nist.gov/vuln/detail/CVE-2022-39842
+
+> 
+> Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+> Signed-off-by: Helge Deller <deller@gmx.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/video/fbdev/pxa3xx-gcu.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
+> index 9421d14d0eb0..9e9888e40c57 100644
+> --- a/drivers/video/fbdev/pxa3xx-gcu.c
+> +++ b/drivers/video/fbdev/pxa3xx-gcu.c
+> @@ -381,7 +381,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
+>  	struct pxa3xx_gcu_batch	*buffer;
+>  	struct pxa3xx_gcu_priv *priv = to_pxa3xx_gcu_priv(file);
+>  
+> -	int words = count / 4;
+> +	size_t words = count / 4;
+>  
+>  	/* Does not need to be atomic. There's a lock in user space,
+>  	 * but anyhow, this is just for statistics. */
+> -- 
+> 2.35.1
+> 
