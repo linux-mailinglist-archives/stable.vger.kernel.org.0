@@ -2,92 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 251415BC9BE
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 12:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235FE5BCA07
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 12:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbiISKrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 06:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39294 "EHLO
+        id S229812AbiISKyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 06:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229869AbiISKqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 06:46:48 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8FF28E01;
-        Mon, 19 Sep 2022 03:33:28 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 68CC81C0005; Mon, 19 Sep 2022 12:33:26 +0200 (CEST)
-Date:   Mon, 19 Sep 2022 12:33:25 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: 5.10.144 got more patches? was Re: [PATCH 5.10 00/24] 5.10.144-rc1
- review
-Message-ID: <20220919103325.GA10942@duo.ucw.cz>
-References: <20220916100445.354452396@linuxfoundation.org>
- <20220916135942.GA29693@duo.ucw.cz>
+        with ESMTP id S230249AbiISKxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 06:53:46 -0400
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DFDFF16;
+        Mon, 19 Sep 2022 03:49:47 -0700 (PDT)
+Received: by mail-ej1-f42.google.com with SMTP id y3so63547289ejc.1;
+        Mon, 19 Sep 2022 03:49:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=meC2VdD2Xd6s7HoqRo+q1lRDIcjErU1huloDKPbW78w=;
+        b=Suqt+mqAiopwOKoqmx34ip/cKUJMEKRclkMu5uXSm08IIKWrURv9Cj6/IYbkY02UY5
+         gtHD5xSHKUtdLzNc7X+BLR3sXDicTl+d48F0r7jxT5eo+OePJLNMaw6eEgPxVixl5puM
+         AKYkHPuMKn1ee4eCoAlVlmkb4Bq258UIPYnlBx2GhFutxwJUX/Jr7/i3qexlQC4HtNlG
+         /TJNkoddsDqicEO6NLCUXPF+sGAvPeiMFS3eKN8IM74HVX4QS3UMK5cnP+zL3F50KZr5
+         2FwQ0+tUFF/Ige/ZUla6NyI6px8NBr2k9kjFKUKwpQfe/FPFhDYIQMzIm7rKE8uIJNG4
+         Czfg==
+X-Gm-Message-State: ACrzQf24Xw2Gr1mb66u4y5TLGp/HtLwWyr7CnB+imDr4Vqp3v15G2i/9
+        E1BdcYd5pE92il7LmH8GYxCZtqIjfqM=
+X-Google-Smtp-Source: AMsMyM7uh0UiLJZl9j8MB8GqN87EqKECdAWsrEdxOEUpih4Fa2RdQHSOFWRGFeOn4fJabGx1O9owBg==
+X-Received: by 2002:a17:907:2cf3:b0:77d:89da:499c with SMTP id hz19-20020a1709072cf300b0077d89da499cmr11998463ejc.694.1663584585322;
+        Mon, 19 Sep 2022 03:49:45 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
+        by smtp.gmail.com with ESMTPSA id 9-20020a170906200900b0072b41776dd1sm15313750ejo.24.2022.09.19.03.49.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Sep 2022 03:49:44 -0700 (PDT)
+Message-ID: <ec300579-9565-a96a-2e8e-a42363fd9ad7@kernel.org>
+Date:   Mon, 19 Sep 2022 12:49:43 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Content-Disposition: inline
-In-Reply-To: <20220916135942.GA29693@duo.ucw.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH 1/2] serial: 8250: Let drivers request full 16550A feature
+ probing
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Anders Blomdell <anders.blomdell@control.lth.se>,
+        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <alpine.DEB.2.21.2209162317180.19473@angie.orcam.me.uk>
+ <alpine.DEB.2.21.2209171043270.31781@angie.orcam.me.uk>
+ <8fa701a1-3f34-9152-daf6-1618dd0e7727@kernel.org>
+ <alpine.DEB.2.21.2209190911540.14808@angie.orcam.me.uk>
+Content-Language: en-US
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <alpine.DEB.2.21.2209190911540.14808@angie.orcam.me.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.3 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 19. 09. 22, 10:18, Maciej W. Rozycki wrote:
+> On Mon, 19 Sep 2022, Jiri Slaby wrote:
+> 
+>>> --- linux-macro.orig/include/linux/serial_core.h
+>>> +++ linux-macro/include/linux/serial_core.h
+>>> @@ -414,7 +414,7 @@ struct uart_icount {
+>>>    	__u32	buf_overrun;
+>>>    };
+>>>    -typedef unsigned int __bitwise upf_t;
+>>> +typedef __u64 __bitwise upf_t;
+>>
+>> Why __u64 and not u64?
+> 
+>   For consistency as there's `__u32' used elsewhere in this file.  It's not
+> clear to me what our rules WRT the use of `s*'/`u*' vs `__s*'/`__u*' are.
+> I don't think we have it mentioned under Documentation/.  Please clarify
+> if you know and I can update the change accordingly.
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The rule is, AFAICT, use __u*/__s* in user (uapi) headers. Everywhere 
+else, use u*/s*.
 
-Hi!
+>>> @@ -522,6 +522,7 @@ struct uart_port {
+>>>    #define UPF_FIXED_PORT		((__force upf_t) (1 << 29))
+>>>    #define UPF_DEAD		((__force upf_t) (1 << 30))
+>>>    #define UPF_IOREMAP		((__force upf_t) (1 << 31))
+>>> +#define UPF_FULL_PROBE		((__force upf_t) (1ULL << 32))
+>>
+>> This looks like a perfect time to switch them all to BIT_ULL().
+> 
+>   Good point, I keep forgetting about that macro.  I'll keep this part
+> unchanged for the purpose of backporting and add 3/3 to switch all the
+> macros over.
 
-> > This is the start of the stable review cycle for the 5.10.144 release.
-> > There are 24 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
->=20
-> CIP testing did not find any problems here:
->=20
-> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linu=
-x-5.10.y
->=20
-> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+OK.
 
-And now I'm confused.
+thanks,
+-- 
+js
+suse labs
 
-5.10.144-rc1 was announced / tested, but now there's buch more patches
-in the queue, starting with
-
- |9843b839a 174974 .: 5.10| drm/msm/rd: Fix FIFO-full deadlock
- |518b67da4 174974 .: 4.19| drm/msm/rd: Fix FIFO-full deadlock
- |88eba3686 174974 .: 4.9| drm/msm/rd: Fix FIFO-full deadlock
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYyhFdQAKCRAw5/Bqldv6
-8nPzAKCdsq6LX2UySzT7yM/BuekqwsER8gCgmiIVz/2jCT+0H1wTcxL5zvHQQ3A=
-=chmi
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
