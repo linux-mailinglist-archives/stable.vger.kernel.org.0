@@ -2,1064 +2,394 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6EA5BC11B
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 03:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B92C5BC126
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 03:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbiISBqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Sep 2022 21:46:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
+        id S229709AbiISByf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Sep 2022 21:54:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbiISBqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 21:46:20 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787A810FDD
-        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 18:46:18 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id jm11so26543599plb.13
-        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 18:46:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=BkPDr3HxWCj791MdqYknokdL6ZdlGXRTGv8Q8qZ3YNQ=;
-        b=6ofDtr9y3anAW95QJYqn7h/RsmJM5v6xXoo3OzCSK/6MAWxjCvhXHqSWjt0Obw4cCG
-         8pKnhfk5V0x5w7nIzYT1iwdiOx+v6cd/a1H1etos67M22/P/f8kcKN328G3qcZf45JUA
-         pZ0E255jlfIUta+O6J0sYkCIUVQEPJwSeJDRk10gY8i+ZyAVv4mrr6+Jv9K6akQuDt6d
-         ifRI/F4W7CfQdflTRxetkoDpdSFew0E5sOx6zyWzE9xkhDYwVVFnJLB4Zqr8E61RgeSo
-         TBUVAhOLLrEjiGbIlCGKmm/gm1rPTj/NZydLUv6o1E+eiNErZFSlf070g7u1lRsaJ2ac
-         C8gQ==
+        with ESMTP id S229519AbiISBye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Sep 2022 21:54:34 -0400
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8CFD88
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 18:54:31 -0700 (PDT)
+Received: by mail-il1-f198.google.com with SMTP id q3-20020a056e0220e300b002f5e648e02eso314191ilv.3
+        for <stable@vger.kernel.org>; Sun, 18 Sep 2022 18:54:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=BkPDr3HxWCj791MdqYknokdL6ZdlGXRTGv8Q8qZ3YNQ=;
-        b=EDn0p/sVXud58UhHnZKfoGWcsxM5v9eFocMEfzvxPk2xgWqKjdlZR5TrmjXrAnM3TN
-         6MwBqpssYvhjZ+U5EUlL23lchGSB/7CBSXy4hkTkrns4NlqUB7or0ERjJtkaCp43GM1T
-         2iXe+DgHOmXFMeJ7acuPgDe8xDTWVcbt/xvUWoPxTQv3cRXpR/b2IlBJN2MlYExx//Ts
-         rYipGtB46R+h54VaiQl0IYpLLHZSgyr6Ifdae3X0ghqbCYshhyO9qVBo2fgA2sXlrs2W
-         ff/7r7zWS2ckhZCrxn9ChQ9CGGJlzS70kwhlf12L+9gC9ihT6yuR9Ve7ROmkdp00Aa4E
-         ZKIw==
-X-Gm-Message-State: ACrzQf2vvdGGWGcFimChTUTKrZYaI7fPAaBxUK/KXmaEafVBiGqHQc4q
-        J53KJl2WOQULJnDBuqA+Y0JQmEZYnXw0KnmR36E=
-X-Google-Smtp-Source: AMsMyM6Qt7Z/9SXJch6bEGyCnfegh4YS1G765Hky2V3gij/LvDpXGCVc00g0OMeosksYyMcB+qcwlg==
-X-Received: by 2002:a17:90b:3149:b0:202:e9e9:632f with SMTP id ip9-20020a17090b314900b00202e9e9632fmr28956588pjb.96.1663551977178;
-        Sun, 18 Sep 2022 18:46:17 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y6-20020aa79e06000000b00540a346477csm18776572pfq.76.2022.09.18.18.46.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Sep 2022 18:46:16 -0700 (PDT)
-Message-ID: <6327c9e8.a70a0220.6c031.0569@mx.google.com>
-Date:   Sun, 18 Sep 2022 18:46:16 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=AHzgcS2X+/QGWeM29O6XDWtLRyz5Wh5W1xcwpVvlPvM=;
+        b=oo6iBmjIA1c+6WkHoqQ3lbvzqxyfJKVr9Cmbqfc8oxh/3qW5btVqItTzWxNrU+T4il
+         zuWVBIx2f2HavMkz2oWHSVeL8MmIctnhkj2YUsDv7PvhCXmMOR4uSXlWjjCNgkmQ7wYE
+         mxHsKcmeWRFdSj8uFSn9oM+U2YCqgNIJLI50EHOdl7VNXGPhfrVB3GqfRdSY9+D6FjC8
+         QN+qotZJoJd26iK4Eyomb+VX+a+5TwKe12e1jBMHUhUsNb5Y2iod1evzS7qxFYAEwfCQ
+         5c1OtmB5kVBZk0yafUDwA5kWFNtn05St57hZlcaEFpUwPDQMB08p2D+qtAIEO9c+XpZH
+         QXlQ==
+X-Gm-Message-State: ACrzQf12PA482CgZUZWJP+k2Ze/Ew4jQr5CXMgD06FCtltOlZuih/NC2
+        0tx7hvyQyJXPndpyAaHiBAFOaUrcpj/YHhzEZy+ZxhZEvakd
+X-Google-Smtp-Source: AMsMyM7ZQqh9NzN3Y9R0Kia3MIp01A0IfVeCN73By221uH6MUBD+0Qv6Cwo0640uSSgvoI/8ZWuMGXGjfE0R5cJlUoakbOo8bTc6
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.18.19-1-g8961940d2668
-Subject: stable-rc/queue/5.18 build: 176 builds: 2 failed, 174 passed, 6 errors,
- 2 warnings (v5.18.19-1-g8961940d2668)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Received: by 2002:a6b:6918:0:b0:6a0:f9d7:8a0a with SMTP id
+ e24-20020a6b6918000000b006a0f9d78a0amr6106791ioc.183.1663552471132; Sun, 18
+ Sep 2022 18:54:31 -0700 (PDT)
+Date:   Sun, 18 Sep 2022 18:54:31 -0700
+In-Reply-To: <000000000000d893d805d0def1a0@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000001b70f305e8fdfeba@google.com>
+Subject: Re: [syzbot] INFO: task hung in hub_port_init (2)
+From:   syzbot <syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com>
+To:     admindpt@BOC.com, brauner@kernel.org, broonie@kernel.org,
+        catalin.marinas@arm.com, ebiederm@xmission.com,
+        gregkh@linuxfoundation.org, hdanton@sina.com, johan@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, madvenka@linux.microsoft.com,
+        mark.rutland@arm.com, paskripkin@gmail.com, qiazbgvr@Amazon.co.jp,
+        scott@os.amperecomputing.com, stable@vger.kernel.org,
+        stern@rowland.harvard.edu, support@tokocrypto.com,
+        syzkaller-bugs@googlegroups.com, will@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 build: 176 builds: 2 failed, 174 passed, 6 errors, 2 w=
-arnings (v5.18.19-1-g8961940d2668)
+syzbot has found a reproducer for the following issue on:
+
+HEAD commit:    a6b443748715 Merge branch 'for-next/core', remote-tracking..
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git for-kernelci
+console output: https://syzkaller.appspot.com/x/log.txt?x=16b7e0f8880000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=14bf9ec0df433b27
+dashboard link: https://syzkaller.appspot.com/bug?extid=76629376e06e2c2ad626
+compiler:       Debian clang version 13.0.1-++20220126092033+75e33f71c2da-1~exp1~20220126212112.63, GNU ld (GNU Binutils for Debian) 2.35.2
+userspace arch: arm64
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=111ff2d5080000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11667887080000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/81b491dd5861/disk-a6b44374.raw.xz
+vmlinux: https://storage.googleapis.com/69c979cdc99a/vmlinux-a6b44374.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
+
+INFO: task kworker/0:0:6 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/0:0     state:D stack:    0 pid:    6 ppid:     2 flags:0x00000008
+Workqueue: usb_hub_wq hub_event
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ usb_kill_urb+0xe0/0x1c8 drivers/usb/core/urb.c:726
+ usb_start_wait_urb+0xf8/0x1ec drivers/usb/core/message.c:64
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0xd8/0x17c drivers/usb/core/message.c:153
+ hub_port_init+0x534/0x1064 drivers/usb/core/hub.c:4825
+ hub_port_connect+0x528/0xe30 drivers/usb/core/hub.c:5282
+ hub_port_connect_change+0x3d8/0x70c drivers/usb/core/hub.c:5497
+ port_event+0x780/0x930 drivers/usb/core/hub.c:5653
+ hub_event+0x2f0/0x658 drivers/usb/core/hub.c:5735
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20
+INFO: task kworker/1:0:20 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/1:0     state:D stack:    0 pid:   20 ppid:     2 flags:0x00000008
+Workqueue: usb_hub_wq hub_event
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ usb_kill_urb+0xe0/0x1c8 drivers/usb/core/urb.c:726
+ usb_start_wait_urb+0xf8/0x1ec drivers/usb/core/message.c:64
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0xd8/0x17c drivers/usb/core/message.c:153
+ hub_port_init+0x534/0x1064 drivers/usb/core/hub.c:4825
+ hub_port_connect+0x528/0xe30 drivers/usb/core/hub.c:5282
+ hub_port_connect_change+0x3d8/0x70c drivers/usb/core/hub.c:5497
+ port_event+0x780/0x930 drivers/usb/core/hub.c:5653
+ hub_event+0x2f0/0x658 drivers/usb/core/hub.c:5735
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20
+INFO: task kworker/1:2:109 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/1:2     state:D stack:    0 pid:  109 ppid:     2 flags:0x00000008
+Workqueue: usb_hub_wq hub_event
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ usb_kill_urb+0xe0/0x1c8 drivers/usb/core/urb.c:726
+ usb_start_wait_urb+0xf8/0x1ec drivers/usb/core/message.c:64
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0xd8/0x17c drivers/usb/core/message.c:153
+ hub_port_init+0x534/0x1064 drivers/usb/core/hub.c:4825
+ hub_port_connect+0x528/0xe30 drivers/usb/core/hub.c:5282
+ hub_port_connect_change+0x3d8/0x70c drivers/usb/core/hub.c:5497
+ port_event+0x780/0x930 drivers/usb/core/hub.c:5653
+ hub_event+0x2f0/0x658 drivers/usb/core/hub.c:5735
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20
+INFO: task syz-executor535:3088 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor535 state:D stack:    0 pid: 3088 ppid:  3083 flags:0x00000001
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ schedule_preempt_disabled+0x18/0x2c kernel/sched/core.c:6629
+ __mutex_lock_common+0x788/0xca8 kernel/locking/mutex.c:679
+ __mutex_lock kernel/locking/mutex.c:747 [inline]
+ mutex_lock_nested+0x38/0x44 kernel/locking/mutex.c:799
+ device_lock include/linux/device.h:835 [inline]
+ usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+ __fput+0x198/0x3dc fs/file_table.c:320
+ ____fput+0x20/0x30 fs/file_table.c:353
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ do_notify_resume+0x174/0x1f0 arch/arm64/kernel/signal.c:1127
+ prepare_exit_to_user_mode arch/arm64/kernel/entry-common.c:137 [inline]
+ exit_to_user_mode arch/arm64/kernel/entry-common.c:142 [inline]
+ el0_svc+0x9c/0x150 arch/arm64/kernel/entry-common.c:625
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:642
+ el0t_64_sync+0x18c/0x190
+INFO: task kworker/0:1:3090 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/0:1     state:D stack:    0 pid: 3090 ppid:     2 flags:0x00000008
+Workqueue: usb_hub_wq hub_event
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ usb_kill_urb+0xe0/0x1c8 drivers/usb/core/urb.c:726
+ usb_start_wait_urb+0xf8/0x1ec drivers/usb/core/message.c:64
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0xd8/0x17c drivers/usb/core/message.c:153
+ hub_port_init+0x534/0x1064 drivers/usb/core/hub.c:4825
+ hub_port_connect+0x528/0xe30 drivers/usb/core/hub.c:5282
+ hub_port_connect_change+0x3d8/0x70c drivers/usb/core/hub.c:5497
+ port_event+0x780/0x930 drivers/usb/core/hub.c:5653
+ hub_event+0x2f0/0x658 drivers/usb/core/hub.c:5735
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20
+INFO: task syz-executor535:3091 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor535 state:D stack:    0 pid: 3091 ppid:  3080 flags:0x00000001
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ schedule_preempt_disabled+0x18/0x2c kernel/sched/core.c:6629
+ __mutex_lock_common+0x788/0xca8 kernel/locking/mutex.c:679
+ __mutex_lock kernel/locking/mutex.c:747 [inline]
+ mutex_lock_nested+0x38/0x44 kernel/locking/mutex.c:799
+ device_lock include/linux/device.h:835 [inline]
+ usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+ __fput+0x198/0x3dc fs/file_table.c:320
+ ____fput+0x20/0x30 fs/file_table.c:353
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ do_notify_resume+0x174/0x1f0 arch/arm64/kernel/signal.c:1127
+ prepare_exit_to_user_mode arch/arm64/kernel/entry-common.c:137 [inline]
+ exit_to_user_mode arch/arm64/kernel/entry-common.c:142 [inline]
+ el0_svc+0x9c/0x150 arch/arm64/kernel/entry-common.c:625
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:642
+ el0t_64_sync+0x18c/0x190
+INFO: task syz-executor535:3092 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor535 state:D stack:    0 pid: 3092 ppid:  3082 flags:0x00000001
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ schedule_preempt_disabled+0x18/0x2c kernel/sched/core.c:6629
+ __mutex_lock_common+0x788/0xca8 kernel/locking/mutex.c:679
+ __mutex_lock kernel/locking/mutex.c:747 [inline]
+ mutex_lock_nested+0x38/0x44 kernel/locking/mutex.c:799
+ device_lock include/linux/device.h:835 [inline]
+ usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+ __fput+0x198/0x3dc fs/file_table.c:320
+ ____fput+0x20/0x30 fs/file_table.c:353
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ do_notify_resume+0x174/0x1f0 arch/arm64/kernel/signal.c:1127
+ prepare_exit_to_user_mode arch/arm64/kernel/entry-common.c:137 [inline]
+ exit_to_user_mode arch/arm64/kernel/entry-common.c:142 [inline]
+ el0_svc+0x9c/0x150 arch/arm64/kernel/entry-common.c:625
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:642
+ el0t_64_sync+0x18c/0x190
+INFO: task syz-executor535:3096 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor535 state:D stack:    0 pid: 3096 ppid:  3084 flags:0x00000001
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ schedule_preempt_disabled+0x18/0x2c kernel/sched/core.c:6629
+ __mutex_lock_common+0x788/0xca8 kernel/locking/mutex.c:679
+ __mutex_lock kernel/locking/mutex.c:747 [inline]
+ mutex_lock_nested+0x38/0x44 kernel/locking/mutex.c:799
+ device_lock include/linux/device.h:835 [inline]
+ usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+ __fput+0x198/0x3dc fs/file_table.c:320
+ ____fput+0x20/0x30 fs/file_table.c:353
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ do_notify_resume+0x174/0x1f0 arch/arm64/kernel/signal.c:1127
+ prepare_exit_to_user_mode arch/arm64/kernel/entry-common.c:137 [inline]
+ exit_to_user_mode arch/arm64/kernel/entry-common.c:142 [inline]
+ el0_svc+0x9c/0x150 arch/arm64/kernel/entry-common.c:625
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:642
+ el0t_64_sync+0x18c/0x190
+INFO: task syz-executor535:3099 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor535 state:D stack:    0 pid: 3099 ppid:  3076 flags:0x00000001
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ schedule_preempt_disabled+0x18/0x2c kernel/sched/core.c:6629
+ __mutex_lock_common+0x788/0xca8 kernel/locking/mutex.c:679
+ __mutex_lock kernel/locking/mutex.c:747 [inline]
+ mutex_lock_nested+0x38/0x44 kernel/locking/mutex.c:799
+ device_lock include/linux/device.h:835 [inline]
+ usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+ __fput+0x198/0x3dc fs/file_table.c:320
+ ____fput+0x20/0x30 fs/file_table.c:353
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ do_notify_resume+0x174/0x1f0 arch/arm64/kernel/signal.c:1127
+ prepare_exit_to_user_mode arch/arm64/kernel/entry-common.c:137 [inline]
+ exit_to_user_mode arch/arm64/kernel/entry-common.c:142 [inline]
+ el0_svc+0x9c/0x150 arch/arm64/kernel/entry-common.c:625
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:642
+ el0t_64_sync+0x18c/0x190
+INFO: task kworker/1:1:3101 blocked for more than 143 seconds.
+      Not tainted 6.0.0-rc4-syzkaller-17255-ga6b443748715 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/1:1     state:D stack:    0 pid: 3101 ppid:     2 flags:0x00000008
+Workqueue: usb_hub_wq hub_event
+Call trace:
+ __switch_to+0x180/0x28c arch/arm64/kernel/process.c:557
+ context_switch kernel/sched/core.c:5182 [inline]
+ __schedule+0x414/0x5a0 kernel/sched/core.c:6494
+ schedule+0x64/0xa4 kernel/sched/core.c:6570
+ usb_kill_urb+0xe0/0x1c8 drivers/usb/core/urb.c:726
+ usb_start_wait_urb+0xf8/0x1ec drivers/usb/core/message.c:64
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0xd8/0x17c drivers/usb/core/message.c:153
+ hub_port_init+0x534/0x1064 drivers/usb/core/hub.c:4825
+ hub_port_connect+0x528/0xe30 drivers/usb/core/hub.c:5282
+ hub_port_connect_change+0x3d8/0x70c drivers/usb/core/hub.c:5497
+ port_event+0x780/0x930 drivers/usb/core/hub.c:5653
+ hub_event+0x2f0/0x658 drivers/usb/core/hub.c:5735
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20
+
+Showing all locks held in the system:
+5 locks held by kworker/0:0/6:
+ #0: ffff0000c0c12138 ((wq_completion)usb_hub_wq){+.+.}-{0:0}, at: process_one_work+0x270/0x504 kernel/workqueue.c:2262
+ #1: ffff80000f21bd80 ((work_completion)(&hub->events)){+.+.}-{0:0}, at: process_one_work+0x29c/0x504 kernel/workqueue.c:2264
+ #2: ffff0000c4a87990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #2: ffff0000c4a87990 (&dev->mutex){....}-{3:3}, at: hub_event+0x8c/0x658 drivers/usb/core/hub.c:5681
+ #3: ffff0000c6299508 (&port_dev->status_lock){+.+.}-{3:3}, at: usb_lock_port drivers/usb/core/hub.c:3103 [inline]
+ #3: ffff0000c6299508 (&port_dev->status_lock){+.+.}-{3:3}, at: hub_port_connect+0x33c/0xe30 drivers/usb/core/hub.c:5249
+ #4: ffff0000c66b8468 (hcd->address0_mutex){+.+.}-{3:3}, at: hub_port_connect+0x348/0xe30 drivers/usb/core/hub.c:5250
+1 lock held by rcu_tasks_kthre/10:
+ #0: ffff80000d4634e8 (rcu_tasks.tasks_gp_mutex){+.+.}-{3:3}, at: rcu_tasks_one_gp+0x3c/0x450 kernel/rcu/tasks.h:507
+1 lock held by rcu_tasks_trace/11:
+ #0: ffff80000d463b38 (rcu_tasks_trace.tasks_gp_mutex){+.+.}-{3:3}, at: rcu_tasks_one_gp+0x3c/0x450 kernel/rcu/tasks.h:507
+5 locks held by kworker/1:0/20:
+ #0: ffff0000c0c12138 ((wq_completion)usb_hub_wq){+.+.}-{0:0}, at: process_one_work+0x270/0x504 kernel/workqueue.c:2262
+ #1: ffff80000f293d80 ((work_completion)(&hub->events)){+.+.}-{0:0}, at: process_one_work+0x29c/0x504 kernel/workqueue.c:2264
+ #2: ffff0000c622f990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #2: ffff0000c622f990 (&dev->mutex){....}-{3:3}, at: hub_event+0x8c/0x658 drivers/usb/core/hub.c:5681
+ #3: ffff0000c4bf1508 (&port_dev->status_lock){+.+.}-{3:3}, at: usb_lock_port drivers/usb/core/hub.c:3103 [inline]
+ #3: ffff0000c4bf1508 (&port_dev->status_lock){+.+.}-{3:3}, at: hub_port_connect+0x33c/0xe30 drivers/usb/core/hub.c:5249
+ #4: ffff0000c64c9168 (hcd->address0_mutex){+.+.}-{3:3}, at: hub_port_connect+0x348/0xe30 drivers/usb/core/hub.c:5250
+1 lock held by khungtaskd/26:
+ #0: ffff80000d4633c0 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire+0x4/0x48 include/linux/rcupdate.h:279
+5 locks held by kworker/1:2/109:
+ #0: ffff0000c0c12138 ((wq_completion)usb_hub_wq){+.+.}-{0:0}, at: process_one_work+0x270/0x504 kernel/workqueue.c:2262
+ #1: ffff8000126ebd80 ((work_completion)(&hub->events)){+.+.}-{0:0}, at: process_one_work+0x29c/0x504 kernel/workqueue.c:2264
+ #2: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #2: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: hub_event+0x8c/0x658 drivers/usb/core/hub.c:5681
+ #3: ffff0000c5285508 (&port_dev->status_lock){+.+.}-{3:3}, at: usb_lock_port drivers/usb/core/hub.c:3103 [inline]
+ #3: ffff0000c5285508 (&port_dev->status_lock){+.+.}-{3:3}, at: hub_port_connect+0x33c/0xe30 drivers/usb/core/hub.c:5249
+ #4: ffff0000c64d2368 (hcd->address0_mutex){+.+.}-{3:3}, at: hub_port_connect+0x348/0xe30 drivers/usb/core/hub.c:5250
+2 locks held by getty/2728:
+ #0: ffff0000c6f4d898 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x28/0x58 drivers/tty/tty_ldisc.c:244
+ #1: ffff80000f63e2f0 (&ldata->atomic_read_lock){+.+.}-{3:3}, at: n_tty_read+0x19c/0x89c drivers/tty/n_tty.c:2177
+1 lock held by syz-executor535/3088:
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+5 locks held by kworker/0:1/3090:
+ #0: ffff0000c0c12138 ((wq_completion)usb_hub_wq){+.+.}-{0:0}, at: process_one_work+0x270/0x504 kernel/workqueue.c:2262
+ #1: ffff8000127a3d80 ((work_completion)(&hub->events)){+.+.}-{0:0}, at: process_one_work+0x29c/0x504 kernel/workqueue.c:2264
+ #2: ffff0000c6289990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #2: ffff0000c6289990 (&dev->mutex){....}-{3:3}, at: hub_event+0x8c/0x658 drivers/usb/core/hub.c:5681
+ #3: ffff0000c628b508 (&port_dev->status_lock){+.+.}-{3:3}, at: usb_lock_port drivers/usb/core/hub.c:3103 [inline]
+ #3: ffff0000c628b508 (&port_dev->status_lock){+.+.}-{3:3}, at: hub_port_connect+0x33c/0xe30 drivers/usb/core/hub.c:5249
+ #4: ffff0000c66b8f68 (hcd->address0_mutex){+.+.}-{3:3}, at: hub_port_connect+0x348/0xe30 drivers/usb/core/hub.c:5250
+1 lock held by syz-executor535/3091:
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+1 lock held by syz-executor535/3092:
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+1 lock held by syz-executor535/3096:
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+1 lock held by syz-executor535/3099:
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: usbdev_release+0x40/0x3b8 drivers/usb/core/devio.c:1087
+5 locks held by kworker/1:1/3101:
+ #0: ffff0000c0c12138 ((wq_completion)usb_hub_wq){+.+.}-{0:0}, at: process_one_work+0x270/0x504 kernel/workqueue.c:2262
+ #1: ffff800012863d80 ((work_completion)(&hub->events)){+.+.}-{0:0}, at: process_one_work+0x29c/0x504 kernel/workqueue.c:2264
+ #2: ffff0000c62c9190 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #2: ffff0000c62c9190 (&dev->mutex){....}-{3:3}, at: hub_event+0x8c/0x658 drivers/usb/core/hub.c:5681
+ #3: ffff0000c62cb508 (&port_dev->status_lock){+.+.}-{3:3}, at: usb_lock_port drivers/usb/core/hub.c:3103 [inline]
+ #3: ffff0000c62cb508 (&port_dev->status_lock){+.+.}-{3:3}, at: hub_port_connect+0x33c/0xe30 drivers/usb/core/hub.c:5249
+ #4: ffff0000c64d2d68 (hcd->address0_mutex){+.+.}-{3:3}, at: hub_port_connect+0x348/0xe30 drivers/usb/core/hub.c:5250
+1 lock held by syz-executor535/3102:
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:835 [inline]
+ #0: ffff0000c5283990 (&dev->mutex){....}-{3:3}, at: usbdev_open+0xb0/0x370 drivers/usb/core/devio.c:1042
+
+=============================================
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-8/kernel/v5.18.19-1-g8961940d2668/
 
-Tree: stable-rc
-Branch: queue/5.18
-Git Describe: v5.18.19-1-g8961940d2668
-Git Commit: 8961940d26681809a33da3cb2c0ad853150ea58f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-arm:
-    rpc_defconfig: (gcc-10) FAIL
-
-mips:
-    decstation_64_defconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm64:
-
-arm:
-    rpc_defconfig (gcc-10): 2 errors
-
-i386:
-
-mips:
-    32r2el_defconfig (gcc-10): 1 warning
-    fuloong2e_defconfig (gcc-10): 1 error
-    lemote2f_defconfig (gcc-10): 1 error
-    loongson2k_defconfig (gcc-10): 1 error
-    loongson3_defconfig (gcc-10): 1 error
-    rb532_defconfig (gcc-10): 1 warning
-
-riscv:
-
-x86_64:
-
-Errors summary:
-
-    4    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=
-=80=98-mhard-float=E2=80=99
-    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=
-=3D0x'
-    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=
-=3D0x'
-
-Warnings summary:
-
-    1    cc1: warning: result of =E2=80=98-117440512 << 16=E2=80=99 require=
-s 44 bits to represent, but =E2=80=98int=E2=80=99 only has 32 bits [-Wshift=
--overflow=3D]
-    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
-e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
-ted "0,0"
-
-Section mismatches summary:
-
-    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
-ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
- the function .init.text:ixp4xx_irq_init()
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
-): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
-0,0"
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
-Section mismatches:
-    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
-n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
-function .init.text:ixp4xx_irq_init()
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 se=
-ction mismatches
-
-Errors:
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 =
-section mismatches
-
-Errors:
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
-nings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    cc1: warning: result of =E2=80=98-117440512 << 16=E2=80=99 requires 44 =
-bits to represent, but =E2=80=98int=E2=80=99 only has 32 bits [-Wshift-over=
-flow=3D]
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=3D0x'
-    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=3D0x'
-
----------------------------------------------------------------------------=
------
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-0 warnings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----
-For more info write to <info@kernelci.org>
