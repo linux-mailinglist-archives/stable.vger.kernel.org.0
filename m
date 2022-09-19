@@ -2,71 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 033645BCCF1
-	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 15:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9405BCD03
+	for <lists+stable@lfdr.de>; Mon, 19 Sep 2022 15:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbiISNVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 09:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
+        id S230438AbiISNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 09:23:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230218AbiISNVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 09:21:44 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FEC1627C;
-        Mon, 19 Sep 2022 06:21:43 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id 63so1129266ybq.4;
-        Mon, 19 Sep 2022 06:21:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date;
-        bh=tJpygNNITh1u9xwDloalaLqoI943iAIGZRlKPJgD6wg=;
-        b=kGGvh/SYDsBXwkl6lSURIQLZGlSOt0GHhCqLyg4u1r9ESHPVrpeREAYQKQaqfyxwsp
-         SENXSEEXtvneR4LyFu9XmJPbKobhEqen4JZg1AAhcwO/tyRifCPombZNAY+tk2kSG/PW
-         2AvBe7L/oPMAEkVgdN4FR66C6Zo9oius3GRGhZngonhKp+N5GkYt2GA+EyEHlkC/9IwK
-         dJUiIi+2+5zP6i7PCku8B4eNmA3xTFfNFb15vnSvlmyjwPobQ1GZjjQUvlaQe9wPTdjh
-         Tk22gmaHt1jiqSEcXq9aeg6nERq+Gw6EmMsHRvWeai+zAbeNYv98o7kIa85Y+1a46kcn
-         ULDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=tJpygNNITh1u9xwDloalaLqoI943iAIGZRlKPJgD6wg=;
-        b=KBM9wUT7uduQzlbbIKCk8Z89qtSw7q04o0RmC5rrSLI0P9NoVLwKvKMG3IvMrSPD9y
-         GniAB/k3r4nS2L1lK6LBumOBniJdbdEJ62WfZjXcViNRZN0G5wLG/OTmCYWKBn8flOfw
-         g6eSgIzjxBoO7Gtmk5X3ITceyES7PU1PKp8jWDbfmj51+0WTqbSPcTFQwRYkXa1RyL1C
-         db8YpW9fCtuHlxwMeOvyzi6u58T3GnDiRGIso+BfngxVyImbjvFEYlzOtmVRP6QsFQQx
-         c/Eh3PUSWnD0nmMqkLiKJTgemn66MrGmjD9lG6U2RGkCbs12jSii6M9Wrr5dpYxF29kL
-         xyBw==
-X-Gm-Message-State: ACrzQf3/uZqRL1GEWT6YQKnDWUVT2mBAVs2Qe9xIzPqNbV6G4u/2+RGO
-        TVIxA6JYokkSMLMt35gAyddncqUzQELaanc5F8SqnzGyRGIjCIVR
-X-Google-Smtp-Source: AMsMyM7ENjsS5zZnwpYJ3GPZ60XtTgPR5p7psFM5Qt9zGWHmTD5bTHfREaUIVMWUwfPXfBNijNSdvic3m+UjX5eVs/o=
-X-Received: by 2002:a25:6611:0:b0:67b:e0c2:3239 with SMTP id
- a17-20020a256611000000b0067be0c23239mr13869436ybc.18.1663593702518; Mon, 19
- Sep 2022 06:21:42 -0700 (PDT)
+        with ESMTP id S230417AbiISNXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 09:23:03 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3252CC97;
+        Mon, 19 Sep 2022 06:23:02 -0700 (PDT)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MWQHM40h2zlVyn;
+        Mon, 19 Sep 2022 21:18:55 +0800 (CST)
+Received: from [10.67.102.169] (10.67.102.169) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Mon, 19 Sep 2022 21:22:59 +0800
+CC:     <yangyicong@hisilicon.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        <stable@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Barry Song <21cnbao@gmail.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        <wangyanan55@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>
+Subject: Re: [PATCH v5] topology: make core_mask include at least
+ cluster_siblings
+To:     Darren Hart <darren@os.amperecomputing.com>,
+        Ionela Voinescu <ionela.voinescu@arm.com>
+References: <c8fe9fce7c86ed56b4c455b8c902982dc2303868.1649696956.git.darren@os.amperecomputing.com>
+ <eee69d10-11d0-be2d-69f6-34089947311e@huawei.com> <YyNnMmtoOrdexLoy@fedora>
+ <bcd61ebd-d751-57a3-690b-b76c7bd230c5@huawei.com> <YyS1M79jddn4jZ2Z@fedora>
+From:   Yicong Yang <yangyicong@huawei.com>
+Message-ID: <2c079860-ee82-7719-d3d2-756192f41704@huawei.com>
+Date:   Mon, 19 Sep 2022 21:22:59 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
 MIME-Version: 1.0
-References: <ab879545-d4b2-0cd8-3ae2-65f9f2baf2fe@gmail.com>
- <YyCLm0ws8qsiEcaJ@kroah.com> <CAOH5QeAUGBshLQdRCWLg9-Q3JvrqROLYW6uWr8a4TBKxwAOPaw@mail.gmail.com>
- <CGME20220916094017epcas1p1deed4041f897d2bf0e0486554d79b3af@epcms1p4>
- <YyREk5hHs2F0eWiE@kroah.com> <1891546521.01663549682346.JavaMail.epsvc@epcpadp4>
-In-Reply-To: <1891546521.01663549682346.JavaMail.epsvc@epcpadp4>
-From:   yong w <yongw.pur@gmail.com>
-Date:   Mon, 19 Sep 2022 21:21:16 +0800
-Message-ID: <CAOH5QeCF2HfGTJHue4GM6r7K3cec4xfReifVOuB_H4Fi6nXupg@mail.gmail.com>
-Subject: Re: [PATCH v4] page_alloc: consider highatomic reserve in watermark fast
-To:     jaewon31.kim@samsung.com
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        "mhocko@kernel.org" <mhocko@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "wang.yong12@zte.com.cn" <wang.yong12@zte.com.cn>,
-        YongTaek Lee <ytk.lee@samsung.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+In-Reply-To: <YyS1M79jddn4jZ2Z@fedora>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.169]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,68 +65,261 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jaewon Kim <jaewon31.kim@samsung.com> =E4=BA=8E2022=E5=B9=B49=E6=9C=8819=E6=
-=97=A5=E5=91=A8=E4=B8=80 09:08=E5=86=99=E9=81=93=EF=BC=9A
->
-> >On Wed, Sep 14, 2022 at 08:46:15AM +0800, yong w wrote:
-> >> Greg KH <gregkh@linuxfoundation.org> =E4=BA=8E2022=E5=B9=B49=E6=9C=881=
-3=E6=97=A5=E5=91=A8=E4=BA=8C 21:54?=E9=81=93=EF=BC=9A
-> >>
-> >> >
-> >> > On Tue, Sep 13, 2022 at 09:09:47PM +0800, yong wrote:
-> >> > > Hello,
-> >> > > This patch is required to be patched in linux-5.4.y and linux-4.19=
-.y.
-> >> >
-> >> > What is "this patch"?  There is no context here :(
-> >> >
-> >> Sorry, I forgot to quote the original patch. the patch is as follows
-> >>
-> >>     f27ce0e page_alloc: consider highatomic reserve in watermark fast
-> >>
-> >> > > In addition to that, the following two patches are somewhat relate=
-d:
-> >> > >
-> >> > >       3334a45 mm/page_alloc: use ac->high_zoneidx for classzone_id=
-x
-> >> > >       9282012 page_alloc: fix invalid watermark check on a negativ=
-e value
-> >> >
-> >> > In what way?  What should be done here by us?
-> >> >
-> >>
-> >> I think these two patches should also be merged.
-> >>
-> >>     The classzone_idx  parameter is used in the zone_watermark_fast
-> >> functionzone, and 3334a45 use ac->high_zoneidx for classzone_idx.
-> >>     "9282012 page_alloc: fix invalid watermark check on a negative
-> >> value"  fix f27ce0e introduced issues
-> >
-> >Ok, I need an ack by all the developers involved in those commits, as
-> >well as the subsystem maintainer so that I know it's ok to take them.
-> >
-> >Can you provide a series of backported and tested patches so that they
-> >are easy to review?
-> >
-> >thanks,
-> >
-> >greg k-h
->
-> Hello I didn't know my Act is needed to merge it.
->
-> Acked-by: Jaewon Kim <jaewon31.kim@samsung.com>
->
-> I don't understand well why the commit f27ce0e has dependency on 3334a45,=
- though.
->
-Hello, the classzone_idx is used in the zone_watermark_fast function, and
-there will be conflicts when f27ce0e is merged.
+On 2022/9/17 1:41, Darren Hart wrote:
+> On Fri, Sep 16, 2022 at 03:59:34PM +0800, Yicong Yang wrote:
+>> On 2022/9/16 1:56, Darren Hart wrote:
+>>> On Thu, Sep 15, 2022 at 08:01:18PM +0800, Yicong Yang wrote:
+>>>> Hi Darren,
+>>>>
+>>>
+>>> Hi Yicong,
+>>>
+>>> ...
+>>>
+>>>>> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+>>>>> index 1d6636ebaac5..5497c5ab7318 100644
+>>>>> --- a/drivers/base/arch_topology.c
+>>>>> +++ b/drivers/base/arch_topology.c
+>>>>> @@ -667,6 +667,15 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
+>>>>>  			core_mask = &cpu_topology[cpu].llc_sibling;
+>>>>>  	}
+>>>>>  
+>>>>> +	/*
+>>>>> +	 * For systems with no shared cpu-side LLC but with clusters defined,
+>>>>> +	 * extend core_mask to cluster_siblings. The sched domain builder will
+>>>>> +	 * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
+>>>>> +	 */
+>>>>> +	if (IS_ENABLED(CONFIG_SCHED_CLUSTER) &&
+>>>>> +	    cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
+>>>>> +		core_mask = &cpu_topology[cpu].cluster_sibling;
+>>>>> +
+>>>>>  	return core_mask;
+>>>>>  }
+>>>>>  
+>>>>
+>>>> Is this patch still necessary for Ampere after Ionela's patch [1], which
+>>>> will limit the cluster's span within coregroup's span.
+>>>
+>>> Yes, see:
+>>> https://lore.kernel.org/lkml/YshYAyEWhE4z%2FKpB@fedora/
+>>>
+>>> Both patches work together to accomplish the desired sched domains for the
+>>> Ampere Altra family.
+>>>
+>>
+>> Thanks for the link. From my understanding, on the Altra machine we'll get
+>> the following results:
+>>
+>> with your patch alone:
+>> Scheduler will get a weight of 2 for both CLS and MC level and finally the
+>> MC domain will be squashed. The lowest domain will be CLS.
+>>
+>> with both your patch and Ionela's:
+>> CLS will have a weight of 1 and MC will have a weight of 2. CLS won't be
+>> built and the lowest domain will be MC.
+>>
+>> with Ionela's patch alone:
+>> Both CLS and MC will have a weight of 1, which is incorrect.
+>>
+>> So your patch is still necessary for Amphere Altra. Then we need to limit
+>> MC span to DIE/NODE span, according to the scheduler's definition for
+>> topology level, for the issue below. Maybe something like this:
+> 
+> That seems reasonable.
+> 
+> What isn't clear to me is why qemu is creating a cluster layer with the
+> description you provide. Why is cluster_siblings being populated?
+> 
+>>
+>> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+>> index 46cbe4471e78..8ebaba576836 100644
+>> --- a/drivers/base/arch_topology.c
+>> +++ b/drivers/base/arch_topology.c
+>> @@ -713,6 +713,9 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
+>>             cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
+>>                 core_mask = &cpu_topology[cpu].cluster_sibling;
+>>
+>> +       if (cpumask_subset(cpu_cpu_mask(cpu), core_mask))
+>> +               core_mask = cpu_cpu_mask(cpu);
+>> +
+>>         return core_mask;
+>>  }
+>>
+>>>>
+>>>> I found an issue that the NUMA domains are not built on qemu with:
+>>>>
+>>>> qemu-system-aarch64 \
+>>>>         -kernel ${Image} \
+>>>>         -smp 8 \
+>>>>         -cpu cortex-a72 \
+>>>>         -m 32G \
+>>>>         -object memory-backend-ram,id=node0,size=8G \
+>>>>         -object memory-backend-ram,id=node1,size=8G \
+>>>>         -object memory-backend-ram,id=node2,size=8G \
+>>>>         -object memory-backend-ram,id=node3,size=8G \
+>>>>         -numa node,memdev=node0,cpus=0-1,nodeid=0 \
+>>>>         -numa node,memdev=node1,cpus=2-3,nodeid=1 \
+>>>>         -numa node,memdev=node2,cpus=4-5,nodeid=2 \
+>>>>         -numa node,memdev=node3,cpus=6-7,nodeid=3 \
+>>>>         -numa dist,src=0,dst=1,val=12 \
+>>>>         -numa dist,src=0,dst=2,val=20 \
+>>>>         -numa dist,src=0,dst=3,val=22 \
+>>>>         -numa dist,src=1,dst=2,val=22 \
+>>>>         -numa dist,src=1,dst=3,val=24 \
+>>>>         -numa dist,src=2,dst=3,val=12 \
+>>>>         -machine virt,iommu=smmuv3 \
+>>>>         -net none \
+>>>>         -initrd ${Rootfs} \
+>>>>         -nographic \
+>>>>         -bios QEMU_EFI.fd \
+>>>>         -append "rdinit=/init console=ttyAMA0 earlycon=pl011,0x9000000 sched_verbose loglevel=8"
+>>>>
+>>>> I can see the schedule domain build stops at MC level since we reach all the
+>>>> cpus in the system:
+>>>>
+>>>> [    2.141316] CPU0 attaching sched-domain(s):
+>>>> [    2.142558]  domain-0: span=0-7 level=MC
+>>>> [    2.145364]   groups: 0:{ span=0 cap=964 }, 1:{ span=1 cap=914 }, 2:{ span=2 cap=921 }, 3:{ span=3 cap=964 }, 4:{ span=4 cap=925 }, 5:{ span=5 cap=964 }, 6:{ span=6 cap=967 }, 7:{ span=7 cap=967 }
+>>>> [    2.158357] CPU1 attaching sched-domain(s):
+>>>> [    2.158964]  domain-0: span=0-7 level=MC
+>>>> [...]
+>>>>
+>>>> Without this the NUMA domains are built correctly:
+>>>>
+>>>> Without which? My patch, Ionela's patch, or both?
+>>>
+>>
+>> Revert your patch only will have below result, sorry for the ambiguous. Before reverting,
+>> for CPU 0, MC should span 0-1 but with your patch it's extended to 0-7 and the scheduler
+>> domain build will stop at MC level because it has reached all the CPUs.
+>>
+>>>> [    2.008885] CPU0 attaching sched-domain(s):
+>>>> [    2.009764]  domain-0: span=0-1 level=MC
+>>>> [    2.012654]   groups: 0:{ span=0 cap=962 }, 1:{ span=1 cap=925 }
+>>>> [    2.016532]   domain-1: span=0-3 level=NUMA
+>>>> [    2.017444]    groups: 0:{ span=0-1 cap=1887 }, 2:{ span=2-3 cap=1871 }
+>>>> [    2.019354]    domain-2: span=0-5 level=NUMA
+>>>
+>>> I'm not following this topology - what in the description above should result in
+>>> a domain with span=0-5?
+>>>
+>>
+>> It emulates a 3-hop NUMA machine and the NUMA domains will be built according to the
+>> NUMA distances:
+>>
+>> node   0   1   2   3
+>>   0:  10  12  20  22
+>>   1:  12  10  22  24
+>>   2:  20  22  10  12
+>>   3:  22  24  12  10
+>>
+>> So for CPU 0 the NUMA domains will look like:
+>> NUMA domain 0 for local nodes (squashed to MC domain), CPU 0-1
+>> NUMA domain 1 for nodes within distance 12, CPU 0-3
+>> NUMA domain 2 for nodes within distance 20, CPU 0-5
+>> NUMA domain 3 for all the nodes, CPU 0-7
+>>
+> 
+> Right, thanks for the explanation.
+> 
+> So the bit that remains unclear to me, is why is cluster_siblings being
+> populated? Which part of your qemu topology description becomes the CLS layer
+> during sched domain cosntruction?
 
-Looking back, the following two patches adjust the classzone_idx parameter.
-     3334a45 mm/page_alloc: use ac->high_zoneidx for classzone_idx
-     97a225e mm/page_alloc: integrate classzone_idx and high_zoneidx
-and 3334a45 is the key modification.
+I think your concern's right, qemu indeed populate a cluster in the system. I checked
+and cluster_id looks like:
 
-Actually, I think 3334a45 can be merged or not.
+estuary:/$ cat /sys/devices/system/cpu/cpu*/topology/cluster_id
+56
+56
+56
+56
+56
+56
+56
+56
 
-Thanks.
+I check the qemu codes that it'll always populate a cluster for aarch64's virt machine
+even if user doesn't specify it through '-smp cluster=N', the range of the cluster
+will be equal to package.
+
+I tried the attached code of qemu (based on v7.1.0-rc4) and kernel (based on 6.0.0-rc1).
+Then the cluster won't be built and the NUMA domains built correctly:
+
+estuary:/$ cat /sys/devices/system/cpu/cpu*/topology/cluster_id
+-2
+-2
+-2
+-2
+-2
+-2
+-2
+-2
+
+Ionela replied to check the PPTT code. Maybe we should both restrict this in Qemu and kernel
+side.
+
+Thanks,
+Yicong
+
+Kernel changes below. Make sure the package node is not recognized as a cluster node.
+
+diff --git a/drivers/acpi/pptt.c b/drivers/acpi/pptt.c
+index c91342dcbcd6..6cec3cf52921 100644
+--- a/drivers/acpi/pptt.c
++++ b/drivers/acpi/pptt.c
+@@ -750,7 +750,7 @@ int find_acpi_cpu_topology_cluster(unsigned int cpu)
+
+        is_thread = cpu_node->flags & ACPI_PPTT_ACPI_PROCESSOR_IS_THREAD;
+        cluster_node = fetch_pptt_node(table, cpu_node->parent);
+-       if (!cluster_node)
++       if (!cluster_node || cluster_node->flags & ACPI_PPTT_PHYSICAL_PACKAGE)
+                return -ENOENT;
+
+        if (is_thread) {
+
+
+
+Qemu changes below. Don't build cluster node in PPTT if user doesn't specified
+"-smp clusters=N".
+
+yangyicong@ubuntu:~/Community/qemu/build$ git diff | cat
+diff --git a/hw/acpi/aml-build.c b/hw/acpi/aml-build.c
+index e6bfac95c7..1a0f708250 100644
+--- a/hw/acpi/aml-build.c
++++ b/hw/acpi/aml-build.c
+@@ -2030,7 +2030,7 @@ void build_pptt(GArray *table_data, BIOSLinker *linker, MachineState *ms,
+                 0, socket_id, NULL, 0);
+         }
+
+-        if (mc->smp_props.clusters_supported) {
++        if (mc->smp_props.clusters_supported && ms->smp.has_cluster) {
+             if (cpus->cpus[n].props.cluster_id != cluster_id) {
+                 assert(cpus->cpus[n].props.cluster_id > cluster_id);
+                 cluster_id = cpus->cpus[n].props.cluster_id;
+diff --git a/hw/core/machine-smp.c b/hw/core/machine-smp.c
+index b39ed21e65..97c830660b 100644
+--- a/hw/core/machine-smp.c
++++ b/hw/core/machine-smp.c
+@@ -158,6 +158,9 @@ void machine_parse_smp_config(MachineState *ms,
+     ms->smp.threads = threads;
+     ms->smp.max_cpus = maxcpus;
+
++    if (config->has_clusters)
++        ms->smp.has_cluster = true;
++
+     /* sanity-check of the computed topology */
+     if (sockets * dies * clusters * cores * threads != maxcpus) {
+         g_autofree char *topo_msg = cpu_hierarchy_to_string(ms);
+diff --git a/include/hw/boards.h b/include/hw/boards.h
+index 7b416c9787..6f4473e80a 100644
+--- a/include/hw/boards.h
++++ b/include/hw/boards.h
+@@ -314,6 +314,7 @@ typedef struct CpuTopology {
+     unsigned int cores;
+     unsigned int threads;
+     unsigned int max_cpus;
++    bool has_cluster;
+ } CpuTopology;
+
+ /**
