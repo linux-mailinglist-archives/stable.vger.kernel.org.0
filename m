@@ -2,144 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 001D95BE515
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 13:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8EC75BE734
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 15:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbiITL7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 07:59:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57424 "EHLO
+        id S230428AbiITNf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 09:35:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230326AbiITL7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 07:59:38 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C4426F1;
-        Tue, 20 Sep 2022 04:59:36 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id u9so5562555ejy.5;
-        Tue, 20 Sep 2022 04:59:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date;
-        bh=SC6OE5NQVppkG8ec1Bn2cJrZ5JuNfZEXXEVMq2fc1nE=;
-        b=JKiXlIOjQWrVZIt6TBVBA2nvdwgBofVoLbO9nChl0L1nJmnQnVvoFMPaYj9pyzFfqN
-         +VdavKa4O35l7pCZ1T30sp1fy7+7uq1lZ8xmU3DvhiKklC7z1EKF1h1N9ufcSRA9yTAy
-         /yAY+9iOqKKxZuTfCPqw+MoWCpkCOHsK0zFS2/9hcmYHm3QH+ZiOSnEyNDDdEP2VCN2j
-         HBtobpikJXKpItUjrAiYMuneZYdCHZueqx9rwfmUjhiuYBfk6oSCEF26CyEQ5c1SC4Kc
-         wWiSdEE8oX/PTWKPfzVl6KowR8XaIgwisR2EVJgRi2Vpa0N3AEZLuStiH9nkMSE32Q8Z
-         NHnw==
+        with ESMTP id S231139AbiITNfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 09:35:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632835AA14
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 06:35:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1663680940;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=9x8e5qkUjMznghkBDdwOcBCIS07P7DOG6g3UpXG3akw=;
+        b=FovKiBKRrZqadHVPBg5bToCjtKpt1vWKXoHexe5/qwyaCyZL2M5WygPcz8rZ8biwqZEDp+
+        YxUo1o0DVT3fvBu+7CLk/HYVKFupKyhGZSOq3nrPUB3gm//dZT1GPhCtszYm6aDhHkuN85
+        pIdZ4o+jMqURa5W/gu1JtiDKjtErL3U=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-528-FHIuKzQrN3um1tDoIQ_c3A-1; Tue, 20 Sep 2022 09:35:39 -0400
+X-MC-Unique: FHIuKzQrN3um1tDoIQ_c3A-1
+Received: by mail-pj1-f72.google.com with SMTP id il18-20020a17090b165200b002038e81ee7dso3862101pjb.4
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 06:35:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=SC6OE5NQVppkG8ec1Bn2cJrZ5JuNfZEXXEVMq2fc1nE=;
-        b=TRrgHkZlx9ZCajy1dERBdJHsR60oSH60TdxU7p3PVC5tIqvgWhtiewyCh+vjWJeQLP
-         bP7M2M95Rk5PiWYkVAqe11dPyOcXZy43/gq6rIItj35zKoOJM6J9IeCyJkalxqw3J/jX
-         7+u4GOWNzbI8naJx3ObonJgWTegO8jTUYOJQ0tNKxQ0/jNWMdsLXgEAf0f5qAKcZxYHA
-         Aj6FWIHNlLInKo2wTYvF9Gz+QAw5LgBhMAjOZs3+0inPpmEbOzO93q8f+K9N7TEmeEE3
-         iFpHe7BACExoyjHQm1mHHGGuCd/CTfhkRPzdoUSNfhaDfh/+mJO4Dfo6nGY4HXtxmI77
-         dxqA==
-X-Gm-Message-State: ACrzQf1w7yeM+croD4UvsvVaLZnwe/pCex+ZvrG6+fn9jzm2h99Ukbhv
-        B73di/9TuEpaUtqYm20+kbjnkJsmFpnxxQ==
-X-Google-Smtp-Source: AMsMyM5XZEcTzipjvNCPeZLjA+G0dWoNeLLNjY91MsM3cfvxahrH2M9ghnXEdTaBdeBhYgVRR0rRWQ==
-X-Received: by 2002:a17:907:2d0b:b0:77c:68a8:a47 with SMTP id gs11-20020a1709072d0b00b0077c68a80a47mr16789733ejc.473.1663675174834;
-        Tue, 20 Sep 2022 04:59:34 -0700 (PDT)
-Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
-        by smtp.gmail.com with ESMTPSA id 17-20020a170906211100b0073ddb2eff27sm714916ejt.167.2022.09.20.04.59.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Sep 2022 04:59:34 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-        id 1E80DBE356D; Tue, 20 Sep 2022 13:59:33 +0200 (CEST)
-Date:   Tue, 20 Sep 2022 13:59:33 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Karol Herbst <kherbst@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, dri-devel@lists.freedesktop.org,
-        nouveau@lists.freedesktop.org, stable@vger.kernel.org,
-        Computer Enthusiastic <computer.enthusiastic@gmail.com>
-Subject: Re: [PATCH] nouveau: explicitly wait on the fence in
- nouveau_bo_move_m2mf
-Message-ID: <YymrJSfXe4LaXmkA@eldamar.lan>
-References: <20220819200928.401416-1-kherbst@redhat.com>
- <YymY+3+C2aI7T3GU@eldamar.lan>
- <CACO55ts7rpbyYv3ovWt1iCfkGsChCUVitmHqtzAwFpfbPEZGYQ@mail.gmail.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=9x8e5qkUjMznghkBDdwOcBCIS07P7DOG6g3UpXG3akw=;
+        b=jV7cjmDnCt+MjEuO4y9UYxInFcHaB6SSrbclMkCyz6wxQ92GBcwt3PXI4mRMxr4+o8
+         0I3dLomwCuzRdGgMhisxzd68+rxH18LfXK9T2yGl4hljPW6WrShmN5f7tqly0lort9fi
+         f8LjZDylWjbWI8NdnSNFPn7JsYqm0eN7WkVUfmAGNKJpaUvqfxLFa9/cR+m6odWNA3Qu
+         jzzxZ1b0GJ56Zq426DrUGmdudVlj4Q6gvGPoqYHFgJ8TScPGrzW9IKNU4/Cd1xZVYgc+
+         vDgnY6WHXLIJV71H5qDGiRAWltvHhgzYQBCfUGTkSlHCrvhrT1VOLSOqhSyv+b1pmUuI
+         Br/A==
+X-Gm-Message-State: ACrzQf20yPf6nm+JHIoWFaxlpu8OvMDqGox1mZcwzl6eLNkdn4RvybZU
+        bBlBkY4KumN9ersYpGE4/sQadoi21XsYjaydyvZ7ApaUXHBFFz7c+0RXk5ojBF3r/wACNsy4F2e
+        vj+lvxkZo8MY3SEHxExC2mGgMNVzCwuge
+X-Received: by 2002:a17:90a:f28b:b0:203:627c:7ba1 with SMTP id fs11-20020a17090af28b00b00203627c7ba1mr4026011pjb.191.1663680937964;
+        Tue, 20 Sep 2022 06:35:37 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4zTvy/bDvHyBrE+JUUsKur2adqFplid6MucMFNyIBVKKvLas2J1c7TNrnt2m4PiaCFrmunxu8S0yD35UFJ7tc=
+X-Received: by 2002:a17:90a:f28b:b0:203:627c:7ba1 with SMTP id
+ fs11-20020a17090af28b00b00203627c7ba1mr4025983pjb.191.1663680937706; Tue, 20
+ Sep 2022 06:35:37 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACO55ts7rpbyYv3ovWt1iCfkGsChCUVitmHqtzAwFpfbPEZGYQ@mail.gmail.com>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+References: <20220907150159.2285460-1-andri@yngvason.is>
+In-Reply-To: <20220907150159.2285460-1-andri@yngvason.is>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Tue, 20 Sep 2022 15:35:26 +0200
+Message-ID: <CAO-hwJLAxcBB9sDHeQMZKDdbHpkz6L3vZX9f0pmg_moeRuvX6A@mail.gmail.com>
+Subject: Re: [PATCH v3 RESEND] HID: multitouch: Add memory barriers
+To:     Andri Yngvason <andri@yngvason.is>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "3.8+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Wed, Sep 7, 2022 at 5:02 PM Andri Yngvason <andri@yngvason.is> wrote:
+>
+> This fixes broken atomic checks which cause a race between the
+> release-timer and processing of hid input.
+>
+> I noticed that contacts were sometimes sticking, even with the "sticky
+> fingers" quirk enabled. This fixes that problem.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 9609827458c3 ("HID: multitouch: optimize the sticky fingers timer")
+> Signed-off-by: Andri Yngvason <andri@yngvason.is>
+> ---
 
-On Tue, Sep 20, 2022 at 01:36:32PM +0200, Karol Herbst wrote:
-> On Tue, Sep 20, 2022 at 12:42 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
-> >
-> > Hi,
-> >
-> > On Fri, Aug 19, 2022 at 10:09:28PM +0200, Karol Herbst wrote:
-> > > It is a bit unlcear to us why that's helping, but it does and unbreaks
-> > > suspend/resume on a lot of GPUs without any known drawbacks.
-> > >
-> > > Cc: stable@vger.kernel.org # v5.15+
-> > > Closes: https://gitlab.freedesktop.org/drm/nouveau/-/issues/156
-> > > Signed-off-by: Karol Herbst <kherbst@redhat.com>
-> > > ---
-> > >  drivers/gpu/drm/nouveau/nouveau_bo.c | 9 +++++++++
-> > >  1 file changed, 9 insertions(+)
-> > >
-> > > diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > index 35bb0bb3fe61..126b3c6e12f9 100644
-> > > --- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > +++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > @@ -822,6 +822,15 @@ nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict,
-> > >               if (ret == 0) {
-> > >                       ret = nouveau_fence_new(chan, false, &fence);
-> > >                       if (ret == 0) {
-> > > +                             /* TODO: figure out a better solution here
-> > > +                              *
-> > > +                              * wait on the fence here explicitly as going through
-> > > +                              * ttm_bo_move_accel_cleanup somehow doesn't seem to do it.
-> > > +                              *
-> > > +                              * Without this the operation can timeout and we'll fallback to a
-> > > +                              * software copy, which might take several minutes to finish.
-> > > +                              */
-> > > +                             nouveau_fence_wait(fence, false, false);
-> > >                               ret = ttm_bo_move_accel_cleanup(bo,
-> > >                                                               &fence->base,
-> > >                                                               evict, false,
-> > > --
-> > > 2.37.1
-> > >
-> > >
-> >
-> > While this is marked for 5.15+ only, a user in Debian was seeing the
-> > suspend issue as well on 5.10.y and did confirm the commit fixes the
-> > issue as well in the 5.10.y series:
-> >
-> > https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989705#69
-> >
-> > Karol, Lyude, should that as well be picked for 5.10.y?
-> >
-> 
-> mhh from the original report 5.10 was fine, but maybe something got
-> backported and it broke it? I'll try to do some testing on my machine
-> and see what I can figure out, but it could also be a debian only
-> issue at this point.
+Applied to for-6.1/multitouch in hid.git
 
-Right, this is a possiblity, thanks for looking into it!
+Sorry for the delay
 
-Computer Enthusiastic, can you verify the problem as well in a
-non-Debian patched upstream kernel directly from the 5.10.y series
-(latest 5.10.144) and verify the fix there?
+Cheers,
+Benjamin
 
-Regards,
-Salvatore
+>  V1 -> V2: Clarified where the race is and added Fixes tag as suggested
+>            by Greg KH
+>  V2 -> V3: Fix formatting of "Fixes" tag
+>
+>  drivers/hid/hid-multitouch.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 2e72922e36f5..91a4d3fc30e0 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1186,7 +1186,7 @@ static void mt_touch_report(struct hid_device *hid,
+>         int contact_count = -1;
+>
+>         /* sticky fingers release in progress, abort */
+> -       if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+> +       if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+>                 return;
+>
+>         scantime = *app->scantime;
+> @@ -1267,7 +1267,7 @@ static void mt_touch_report(struct hid_device *hid,
+>                         del_timer(&td->release_timer);
+>         }
+>
+> -       clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+> +       clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+>  }
+>
+>  static int mt_touch_input_configured(struct hid_device *hdev,
+> @@ -1699,11 +1699,11 @@ static void mt_expired_timeout(struct timer_list *t)
+>          * An input report came in just before we release the sticky fingers,
+>          * it will take care of the sticky fingers.
+>          */
+> -       if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+> +       if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+>                 return;
+>         if (test_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags))
+>                 mt_release_contacts(hdev);
+> -       clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+> +       clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+>  }
+>
+>  static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> --
+> 2.37.2
+>
+
