@@ -2,113 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E68FE5BD864
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 01:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2EB5BD8F8
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 03:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbiISXqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Sep 2022 19:46:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46552 "EHLO
+        id S229794AbiITBAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Sep 2022 21:00:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbiISXqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 19:46:10 -0400
-Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD4D4F18D;
-        Mon, 19 Sep 2022 16:46:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-        bh=7XSafxCudu/hbAHchLG9erl7tn3ygvlXG1LzO7Z0ywo=; b=CgaFVwSCffephfP6kVbskRHcyp
-        +mHn9pDMn634CRa6Xkm+FI/J9OYqBKZprPLEaCosd7mVFCjJVVM+C0p/sMCppNqP/FYQQoMm53BFw
-        G9OYW94h6DBlDwJidOuZ8wHWDo603DVE/T/56LTayutDVyyXaQ/tdgvEH6WJsAzaxBRI=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-        (envelope-from <andrew@lunn.ch>)
-        id 1oaQSa-00HCGe-8Y; Tue, 20 Sep 2022 01:45:56 +0200
-Date:   Tue, 20 Sep 2022 01:45:56 +0200
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     "Jamaluddin, Aminuddin" <aminuddin.jamaluddin@intel.com>
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "Ismail, Mohammad Athari" <mohammad.athari.ismail@intel.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Tan, Tee Min" <tee.min.tan@intel.com>,
-        "Zulkifli, Muhammad Husaini" <muhammad.husaini.zulkifli@intel.com>
-Subject: Re: [PATCH net 1/1] net: phy: marvell: add link status check before
- enabling phy loopback
-Message-ID: <Yyj/NORWrGglz/HJ@lunn.ch>
-References: <20220825082238.11056-1-aminuddin.jamaluddin@intel.com>
- <Ywd4oUPEssQ+/OBE@lunn.ch>
- <DM6PR11MB43480C1D3526031F79592A7F81799@DM6PR11MB4348.namprd11.prod.outlook.com>
- <Yw3/vIDAr9W7zZwv@lunn.ch>
- <DM6PR11MB43489B7C27B0A3F3EA18909B81499@DM6PR11MB4348.namprd11.prod.outlook.com>
+        with ESMTP id S229632AbiITBAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Sep 2022 21:00:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06D54A80A;
+        Mon, 19 Sep 2022 18:00:16 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67EBC61FCC;
+        Tue, 20 Sep 2022 01:00:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id BDDA8C43141;
+        Tue, 20 Sep 2022 01:00:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663635615;
+        bh=5rlOT2MBuAONykuxvoM0F+tMTDJxeyxlWO1ncCCNQVA=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=MN+Sr9nd4afmF2LJNLNcV9D+dUBX9yVZPpmZb6jvRwre2f+VO7xso3tse40Vv7Wb2
+         G4yVfEUNTIb86486jHVLjPwQnggQyx+VTC6GYEHJfQv66uVzC8l2xYc8DsMqYlO2bC
+         KVjxssYTwZcLdgNEg1Ih235OuPBVLOSjZ+YhC1EVx6Mq9JfR1IlrcVUbTTo8+PAvTa
+         K/NyrdEpseFjDd46Zy55X7fkaMClcvqSbywXyj/HrkWvecFoxcrHEPMH1Rf0iH3/uU
+         yMpVddcDQpVAlN93RgeUwt2Xbm5lcJaYYxQfKX0APq8/a+bmO9n2mbiz2NTEV8Z5pk
+         NbLqEXVm/dWPQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A0CFEE52539;
+        Tue, 20 Sep 2022 01:00:15 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DM6PR11MB43489B7C27B0A3F3EA18909B81499@DM6PR11MB4348.namprd11.prod.outlook.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net: mana: Add rmb after checking owner bits
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <166363561565.18776.11288575492844926736.git-patchwork-notify@kernel.org>
+Date:   Tue, 20 Sep 2022 01:00:15 +0000
+References: <1662928805-15861-1-git-send-email-haiyangz@microsoft.com>
+In-Reply-To: <1662928805-15861-1-git-send-email-haiyangz@microsoft.com>
+To:     Haiyang Zhang <haiyangz@microsoft.com>
+Cc:     linux-hyperv@vger.kernel.org, netdev@vger.kernel.org,
+        decui@microsoft.com, kys@microsoft.com, sthemmin@microsoft.com,
+        paulros@microsoft.com, shacharr@microsoft.com, olaf@aepfle.de,
+        vkuznets@redhat.com, davem@davemloft.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> > > Its required cabled plug in, back to back connection.
-> > 
-> > Loopback should not require that. The whole point of loopback in the PHY is
-> > you can do it without needing a cable.
-> > 
-> > > >
-> > > > Have you tested this with the cable unplugged?
-> > >
-> > > Yes we have and its expected to have the timeout. But the self-test
-> > > required the link to be up first before it can be run.
-> > 
-> > So you get an ETIMEDOUT, and then skip the code which actually sets the
-> > LOOPBACK bit?
-> 
-> If cable unplugged, test result will be displayed as 1. See comments below.
-> 
-> > 
-> > Please look at this again, and make it work without a cable.
-> 
-> Related to this the flow without cable, what we see in the codes during debugging.
-> After the phy loopback bit was set.
-> The test will be run through this __stmmac_test_loopback()
-> https://elixir.bootlin.com/linux/v5.19.8/source/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c#L320
-> Here, it will have another set of checking in dev_direct_xmit(), __dev_direct_xmit().
-> returning value 1(NET_XMIT_DROP)
-> https://elixir.bootlin.com/linux/v5.19.8/source/net/core/dev.c#L4288
-> Which means the interface is not available or the interface link status is not up.
-> For this case the interface link status is not up. 
-> Thus failing the phy loopback test.
-> https://elixir.bootlin.com/linux/v5.19.8/source/net/core/dev.c#L4296
-> Since we don't own this __stmmac_test_loopback(), we conclude the behaviour was as expected.
-> 
-> > 
-> > Maybe you are addressing the wrong issue? Is the PHY actually performing
-> > loopback, but reporting the link is down? Maybe you need to fake a link up?
-> > Maybe you need the self test to not care about the link state, all it really
-> > needs is that packets get looped?
-> 
-> When bit 14 was set, the link will be broken. 
-> But before the self-test was triggered it requires link to be up as stated above comments.
+Hello:
 
-You have not said anything about my comment:
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-> Maybe you need to fake a link up?
+On Sun, 11 Sep 2022 13:40:05 -0700 you wrote:
+> Per GDMA spec, rmb is necessary after checking owner_bits, before
+> reading EQ or CQ entries.
+> 
+> Add rmb in these two places to comply with the specs.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
+> Reported-by: Sinan Kaya <Sinan.Kaya@microsoft.com>
+> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+> 
+> [...]
 
-My guess is, some PHYs are going to report link up when put into
-loopback. Others might not. For the Marvell PHY, it looks like you
-need to make marvell_read_status() return that the link is up if
-loopback is enabled.
+Here is the summary with links:
+  - [net] net: mana: Add rmb after checking owner bits
+    https://git.kernel.org/netdev/net/c/6fd2c68da55c
 
-	 Andrew
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
