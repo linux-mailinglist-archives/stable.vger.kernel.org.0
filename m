@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A987F5BEB36
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 18:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1886B5BEB40
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 18:40:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231194AbiITQj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 12:39:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53718 "EHLO
+        id S231343AbiITQkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 12:40:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229902AbiITQj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 12:39:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3562C1EED3
-        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 09:39:57 -0700 (PDT)
+        with ESMTP id S231304AbiITQkp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 12:40:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F397465657
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 09:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB7E8B82A83
-        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 16:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E7E8C433D6;
-        Tue, 20 Sep 2022 16:39:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 895C462537
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 16:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF38C433D7;
+        Tue, 20 Sep 2022 16:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663691994;
-        bh=hHaxilSANSmZ324sMSVvaV2VFRNP8bNWki66wK9Zh8s=;
+        s=korg; t=1663692043;
+        bh=cbj57v8+O+86tF+dZ8wYvQA4jARLyRzomVVVV0kswYQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=uM5I9eBXm79OpkOTxiiagmCtdEr33+5RKYJpwWOfEN8YEpTkw/QYVz0vvwzRV+DzF
-         nXG5TSI2gVNlPzPCJDVceP5J84RO1Qrib8E5CAUpcUu4S25BpT4hj1yfvcXRUmDtco
-         jUVeKpiEZGxkfLoBAuE7k5MGfNuVwthL1CiyeZqA=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: move nbio ih_doorbell_range() into ih code for" failed to apply to 5.10-stable tree
+        b=M9iJ8uG2lFqWpvO8ikXrIk/qDbsPBYyxW+MK+SPlrkdpK0/XA48EO/7bfGk2wg6VU
+         kYzd10P1FvQKt0OTTmzyTJ+InA/smd8TN39vYLplKa1vwiB7aqd+Zx6hXP1NX9py1J
+         k3rOeHGiS8hEbGMld3QeLt8yxgHiCf7qPX81cP9E=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: move nbio sdma_doorbell_range() into sdma code" failed to apply to 5.10-stable tree
 To:     alexander.deucher@amd.com, christian.koenig@amd.com,
         lijo.lazar@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 20 Sep 2022 18:39:52 +0200
-Message-ID: <1663691992107127@kroah.com>
+Date:   Tue, 20 Sep 2022 18:40:40 +0200
+Message-ID: <166369204025051@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,6 +55,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+e3163bc8ffdf ("drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega")
 dc1d85cb790f ("drm/amdgpu: move nbio ih_doorbell_range() into ih code for vega")
 b672cb1eee59 ("drm/amdgpu: enable retry fault wptr overflow")
 bebd4c79a4eb ("drm/amdgpu: create vega20 ih blocks")
@@ -72,22 +73,24 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dc1d85cb790f2091eea074cee24a704b2d6c4a06 Mon Sep 17 00:00:00 2001
+From e3163bc8ffdfdb405e10530b140135b2ee487f89 Mon Sep 17 00:00:00 2001
 From: Alex Deucher <alexander.deucher@amd.com>
-Date: Fri, 9 Sep 2022 11:47:20 -0400
-Subject: [PATCH] drm/amdgpu: move nbio ih_doorbell_range() into ih code for
- vega
+Date: Fri, 9 Sep 2022 11:53:27 -0400
+Subject: [PATCH] drm/amdgpu: move nbio sdma_doorbell_range() into sdma code
+ for vega
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 This mirrors what we do for other asics and this way we are
-sure the ih doorbell range is properly initialized.
+sure the sdma doorbell range is properly initialized.
 
 There is a comment about the way doorbells on gfx9 work that
 requires that they are initialized for other IPs before GFX
-is initialized.  In this case IH is initialized before GFX,
-so there should be no issue.
+is initialized.  However, the statement says that it applies to
+multimedia as well, but the VCN code currently initializes
+doorbells after GFX and there are no known issues there.  In my
+testing at least I don't see any problems on SDMA.
 
 This is a prerequisite for fixing the Unsupported Request error
 reported through AER during driver load.
@@ -106,48 +109,60 @@ Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+index 65181efba50e..56424f75dd2c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -1504,6 +1504,11 @@ static int sdma_v4_0_start(struct amdgpu_device *adev)
+ 		WREG32_SDMA(i, mmSDMA0_CNTL, temp);
+ 
+ 		if (!amdgpu_sriov_vf(adev)) {
++			ring = &adev->sdma.instance[i].ring;
++			adev->nbio.funcs->sdma_doorbell_range(adev, i,
++				ring->use_doorbell, ring->doorbell_index,
++				adev->doorbell_index.sdma_doorbell_range);
++
+ 			/* unhalt engine */
+ 			temp = RREG32_SDMA(i, mmSDMA0_F32_CNTL);
+ 			temp = REG_SET_FIELD(temp, SDMA0_F32_CNTL, HALT, 0);
 diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index fde6154f2009..7324e304288e 100644
+index 7324e304288e..183024d7c184 100644
 --- a/drivers/gpu/drm/amd/amdgpu/soc15.c
 +++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -1224,9 +1224,6 @@ static void soc15_doorbell_range_init(struct amdgpu_device *adev)
- 				ring->use_doorbell, ring->doorbell_index,
- 				adev->doorbell_index.sdma_doorbell_range);
- 		}
--
--		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
--						adev->irq.ih.doorbell_index);
- 	}
+@@ -1211,22 +1211,6 @@ static int soc15_common_sw_fini(void *handle)
+ 	return 0;
  }
  
-diff --git a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-index 03b7066471f9..1e83db0c5438 100644
---- a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-@@ -289,6 +289,10 @@ static int vega10_ih_irq_init(struct amdgpu_device *adev)
- 		}
- 	}
+-static void soc15_doorbell_range_init(struct amdgpu_device *adev)
+-{
+-	int i;
+-	struct amdgpu_ring *ring;
+-
+-	/* sdma/ih doorbell range are programed by hypervisor */
+-	if (!amdgpu_sriov_vf(adev)) {
+-		for (i = 0; i < adev->sdma.num_instances; i++) {
+-			ring = &adev->sdma.instance[i].ring;
+-			adev->nbio.funcs->sdma_doorbell_range(adev, i,
+-				ring->use_doorbell, ring->doorbell_index,
+-				adev->doorbell_index.sdma_doorbell_range);
+-		}
+-	}
+-}
+-
+ static int soc15_common_hw_init(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+@@ -1246,12 +1230,6 @@ static int soc15_common_hw_init(void *handle)
  
-+	if (!amdgpu_sriov_vf(adev))
-+		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
-+						    adev->irq.ih.doorbell_index);
-+
- 	pci_set_master(adev->pdev);
+ 	/* enable the doorbell aperture */
+ 	soc15_enable_doorbell_aperture(adev, true);
+-	/* HW doorbell routing policy: doorbell writing not
+-	 * in SDMA/IH/MM/ACV range will be routed to CP. So
+-	 * we need to init SDMA/IH/MM/ACV doorbell range prior
+-	 * to CP ip block init and ring test.
+-	 */
+-	soc15_doorbell_range_init(adev);
  
- 	/* enable interrupts */
-diff --git a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-index 2022ffbb8dba..59dfca093155 100644
---- a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-@@ -340,6 +340,10 @@ static int vega20_ih_irq_init(struct amdgpu_device *adev)
- 		}
- 	}
- 
-+	if (!amdgpu_sriov_vf(adev))
-+		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
-+						    adev->irq.ih.doorbell_index);
-+
- 	pci_set_master(adev->pdev);
- 
- 	/* enable interrupts */
+ 	return 0;
+ }
 
