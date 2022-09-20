@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EC945BE38D
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 12:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0F25BE3B3
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 12:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbiITKmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 06:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58556 "EHLO
+        id S229503AbiITKrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 06:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230307AbiITKl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 06:41:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1211B1DA;
-        Tue, 20 Sep 2022 03:41:57 -0700 (PDT)
+        with ESMTP id S229461AbiITKrO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 06:47:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A9821B6;
+        Tue, 20 Sep 2022 03:47:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A306B827B7;
-        Tue, 20 Sep 2022 10:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D502FC433C1;
-        Tue, 20 Sep 2022 10:41:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6559622C1;
+        Tue, 20 Sep 2022 10:47:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F1BC433C1;
+        Tue, 20 Sep 2022 10:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663670514;
-        bh=CKajWNG2El0lKl8w2iv0ftefJX8EJizlxTv2zF6YJ9s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s35TOKT/kcAC41idXKms0W8aLFweBVk2jCGNcLgEb5NLBaHXQqoSifGqmBg0oZV30
-         xNUoekFGRvt+5V1R4Z6rXggWIGSE3yrhA/57FBQuTW3qr2oHDd4G86g/dU9TDCtlqY
-         Rf0hiBEg5znTcDZyLZN4ECo1RHNHmRmp80EZCwbs=
+        s=korg; t=1663670832;
+        bh=BE1XzTwSy64CvBAeWMOhgemrAdEg9K81gseWPUCE5kg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qX3t20isqk9yZVt6DQI+3BBlWpY6xtkQOxRw4qb5tmEjYTR6ETqN90jlLuG3GIFK0
+         P+cZM192odmQcVLX3l2YkKAE1avr47tsk7xpTamzmTkIC0cZ/27C+obYRsMi5tZfg2
+         AC3yYRVJwFIhxV+v2OCMgryBKpyED5r1RUwa0fhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.4.214
-Date:   Tue, 20 Sep 2022 12:42:15 +0200
-Message-Id: <16636705341686@kroah.com>
+Subject: Linux 5.10.144
+Date:   Tue, 20 Sep 2022 12:47:39 +0200
+Message-Id: <166367086022162@kroah.com>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <1663670534215131@kroah.com>
-References: <1663670534215131@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -50,411 +48,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/input/joydev/joystick.rst b/Documentation/input/joydev/joystick.rst
-index 9746fd76cc58..f38c330c028e 100644
---- a/Documentation/input/joydev/joystick.rst
-+++ b/Documentation/input/joydev/joystick.rst
-@@ -517,6 +517,7 @@ All I-Force devices are supported by the iforce module. This includes:
- * AVB Mag Turbo Force
- * AVB Top Shot Pegasus
- * AVB Top Shot Force Feedback Racing Wheel
-+* Boeder Force Feedback Wheel
- * Logitech WingMan Force
- * Logitech WingMan Force Wheel
- * Guillemot Race Leader Force Feedback
-diff --git a/Makefile b/Makefile
-index 4a4c83d2b3f7..59f34d7f6f3b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 213
-+SUBLEVEL = 214
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index c7832a951039..a6b024b06b36 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -191,6 +191,9 @@ static int rd_open(struct inode *inode, struct file *file)
- 	file->private_data = rd;
- 	rd->open = true;
- 
-+	/* Reset fifo to clear any previously unread data: */
-+	rd->fifo.head = rd->fifo.tail = 0;
-+
- 	/* the parsing tools need to know gpu-id to know which
- 	 * register database to load.
- 	 */
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
-index 5ffd0da3cf1f..65af0ebef79f 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid.h
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
-@@ -110,7 +110,7 @@ struct report_list {
-  * @multi_packet_cnt:	Count of fragmented packet count
-  *
-  * This structure is used to store completion flags and per client data like
-- * like report description, number of HID devices etc.
-+ * report description, number of HID devices etc.
-  */
- struct ishtp_cl_data {
- 	/* completion flags */
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 1cc157126fce..c0d69303e3b0 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -626,13 +626,14 @@ static void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
- }
- 
- /**
-- * ipc_tx_callback() - IPC tx callback function
-+ * ipc_tx_send() - IPC tx send function
-  * @prm: Pointer to client device instance
-  *
-- * Send message over IPC either first time or on callback on previous message
-- * completion
-+ * Send message over IPC. Message will be split into fragments
-+ * if message size is bigger than IPC FIFO size, and all
-+ * fragments will be sent one by one.
-  */
--static void ipc_tx_callback(void *prm)
-+static void ipc_tx_send(void *prm)
- {
- 	struct ishtp_cl	*cl = prm;
- 	struct ishtp_cl_tx_ring	*cl_msg;
-@@ -677,32 +678,41 @@ static void ipc_tx_callback(void *prm)
- 			    list);
- 	rem = cl_msg->send_buf.size - cl->tx_offs;
- 
--	ishtp_hdr.host_addr = cl->host_client_id;
--	ishtp_hdr.fw_addr = cl->fw_client_id;
--	ishtp_hdr.reserved = 0;
--	pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+	while (rem > 0) {
-+		ishtp_hdr.host_addr = cl->host_client_id;
-+		ishtp_hdr.fw_addr = cl->fw_client_id;
-+		ishtp_hdr.reserved = 0;
-+		pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+
-+		if (rem <= dev->mtu) {
-+			/* Last fragment or only one packet */
-+			ishtp_hdr.length = rem;
-+			ishtp_hdr.msg_complete = 1;
-+			/* Submit to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs = 0;
-+			cl->sending = 0;
- 
--	if (rem <= dev->mtu) {
--		ishtp_hdr.length = rem;
--		ishtp_hdr.msg_complete = 1;
--		cl->sending = 0;
--		list_del_init(&cl_msg->list);	/* Must be before write */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		/* Submit to IPC queue with no callback */
--		ishtp_write_message(dev, &ishtp_hdr, pmsg);
--		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
--		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
--		++cl->tx_ring_free_size;
--		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
--			tx_free_flags);
--	} else {
--		/* Send IPC fragment */
--		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
--		cl->tx_offs += dev->mtu;
--		ishtp_hdr.length = dev->mtu;
--		ishtp_hdr.msg_complete = 0;
--		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
-+			break;
-+		} else {
-+			/* Send ipc fragment */
-+			ishtp_hdr.length = dev->mtu;
-+			ishtp_hdr.msg_complete = 0;
-+			/* All fregments submitted to IPC queue with no callback */
-+			ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+			cl->tx_offs += dev->mtu;
-+			rem = cl_msg->send_buf.size - cl->tx_offs;
-+		}
- 	}
-+
-+	list_del_init(&cl_msg->list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	++cl->tx_ring_free_size;
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+		tx_free_flags);
- }
- 
- /**
-@@ -720,7 +730,7 @@ static void ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
- 		return;
- 
- 	cl->tx_offs = 0;
--	ipc_tx_callback(cl);
-+	ipc_tx_send(cl);
- 	++cl->send_msg_cnt_ipc;
- }
- 
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
-index b2a68bc9f0b4..b86de1312512 100644
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -50,6 +50,7 @@ static struct iforce_device iforce_device[] = {
- 	{ 0x046d, 0xc291, "Logitech WingMan Formula Force",		btn_wheel, abs_wheel, ff_iforce },
- 	{ 0x05ef, 0x020a, "AVB Top Shot Pegasus",			btn_joystick_avb, abs_avb_pegasus, ff_iforce },
- 	{ 0x05ef, 0x8884, "AVB Mag Turbo Force",			btn_wheel, abs_wheel, ff_iforce },
-+	{ 0x05ef, 0x8886, "Boeder Force Feedback Wheel",		btn_wheel, abs_wheel, ff_iforce },
- 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 70bd79dc43f2..a9962474d551 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18154,16 +18154,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct tg3 *tp = netdev_priv(dev);
- 
-+	tg3_reset_task_cancel(tp);
-+
- 	rtnl_lock();
-+
- 	netif_device_detach(dev);
- 
- 	if (netif_running(dev))
- 		dev_close(dev);
- 
--	if (system_state == SYSTEM_POWER_OFF)
--		tg3_power_down(tp);
-+	tg3_power_down(tp);
- 
- 	rtnl_unlock();
-+
-+	pci_disable_device(pdev);
- }
- 
- /**
-diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
-index 43506948e444..0432a4f829a9 100644
---- a/drivers/net/ieee802154/cc2520.c
-+++ b/drivers/net/ieee802154/cc2520.c
-@@ -507,6 +507,7 @@ cc2520_tx(struct ieee802154_hw *hw, struct sk_buff *skb)
- 		goto err_tx;
- 
- 	if (status & CC2520_STATUS_TX_UNDERFLOW) {
-+		rc = -EINVAL;
- 		dev_err(&priv->spi->dev, "cc2520 tx underflow exception\n");
- 		goto err_tx;
- 	}
-diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index cc1522550f2c..da3983352dd4 100644
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -197,8 +197,7 @@ static int dp83822_config_intr(struct phy_device *phydev)
- 		if (misr_status < 0)
- 			return misr_status;
- 
--		misr_status |= (DP83822_RX_ERR_HF_INT_EN |
--				DP83822_ANEG_COMPLETE_INT_EN |
-+		misr_status |= (DP83822_ANEG_COMPLETE_INT_EN |
- 				DP83822_DUP_MODE_CHANGE_INT_EN |
- 				DP83822_SPEED_CHANGED_INT_EN |
- 				DP83822_LINK_STAT_INT_EN |
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index e9512d077b8a..eb5b39c2bba8 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1416,6 +1416,9 @@ static void nvmet_tcp_state_change(struct sock *sk)
- 		goto done;
- 
- 	switch (sk->sk_state) {
-+	case TCP_FIN_WAIT2:
-+	case TCP_LAST_ACK:
-+		break;
- 	case TCP_FIN_WAIT1:
- 	case TCP_CLOSE_WAIT:
- 	case TCP_CLOSE:
-diff --git a/drivers/perf/arm_pmu_platform.c b/drivers/perf/arm_pmu_platform.c
-index e35cb76c8d10..6eb077db7384 100644
---- a/drivers/perf/arm_pmu_platform.c
-+++ b/drivers/perf/arm_pmu_platform.c
-@@ -118,7 +118,7 @@ static int pmu_parse_irqs(struct arm_pmu *pmu)
- 
- 	if (num_irqs == 1) {
- 		int irq = platform_get_irq(pdev, 0);
--		if (irq && irq_is_percpu_devid(irq))
-+		if ((irq > 0) && irq_is_percpu_devid(irq))
- 			return pmu_parse_percpu_irq(pmu, irq);
- 	}
- 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index d27a564389a4..e88bd54ff8bd 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -93,6 +93,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
- 	{KE_KEY, 0x22, {KEY_PROG2} },    /* Arcade */
- 	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
- 	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
-+	{KE_KEY, 0x27, {KEY_HELP} },
- 	{KE_KEY, 0x29, {KEY_PROG3} },    /* P_Key for TM8372 */
- 	{KE_IGNORE, 0x41, {KEY_MUTE} },
- 	{KE_IGNORE, 0x42, {KEY_PREVIOUSSONG} },
-@@ -106,7 +107,13 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
- 	{KE_IGNORE, 0x48, {KEY_VOLUMEUP} },
- 	{KE_IGNORE, 0x49, {KEY_VOLUMEDOWN} },
- 	{KE_IGNORE, 0x4a, {KEY_VOLUMEDOWN} },
--	{KE_IGNORE, 0x61, {KEY_SWITCHVIDEOMODE} },
-+	/*
-+	 * 0x61 is KEY_SWITCHVIDEOMODE. Usually this is a duplicate input event
-+	 * with the "Video Bus" input device events. But sometimes it is not
-+	 * a dup. Map it to KEY_UNKNOWN instead of using KE_IGNORE so that
-+	 * udev/hwdb can override it on systems where it is not a dup.
-+	 */
-+	{KE_KEY, 0x61, {KEY_UNKNOWN} },
- 	{KE_IGNORE, 0x62, {KEY_BRIGHTNESSUP} },
- 	{KE_IGNORE, 0x63, {KEY_BRIGHTNESSDOWN} },
- 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
-diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
-index f9ad8ad54a7d..df062477dab0 100644
---- a/drivers/soc/fsl/Kconfig
-+++ b/drivers/soc/fsl/Kconfig
-@@ -24,6 +24,7 @@ config FSL_MC_DPIO
-         tristate "QorIQ DPAA2 DPIO driver"
-         depends on FSL_MC_BUS
-         select SOC_BUS
-+        select FSL_GUTS
-         help
- 	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
- 	  buffer management facilities for software to interact with
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index 2f72753c3e22..0b37c8e550e7 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -62,6 +62,13 @@ UNUSUAL_DEV(0x0984, 0x0301, 0x0128, 0x0128,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
- 
-+/* Reported-by: Tom Hu <huxiaoying@kylinos.cn> */
-+UNUSUAL_DEV(0x0b05, 0x1932, 0x0000, 0x9999,
-+		"ASUS",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /* Reported-by: David Webb <djw@noc.ac.uk> */
- UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x9999,
- 		"Seagate",
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index 7878f145bf1b..8fbf8658644f 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -139,6 +139,8 @@ struct tracefs_mount_opts {
- 	kuid_t uid;
- 	kgid_t gid;
- 	umode_t mode;
-+	/* Opt_* bitfield. */
-+	unsigned int opts;
- };
- 
- enum {
-@@ -239,6 +241,7 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- 	kgid_t gid;
- 	char *p;
- 
-+	opts->opts = 0;
- 	opts->mode = TRACEFS_DEFAULT_MODE;
- 
- 	while ((p = strsep(&data, ",")) != NULL) {
-@@ -273,24 +276,36 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- 		 * but traditionally tracefs has ignored all mount options
- 		 */
- 		}
-+
-+		opts->opts |= BIT(token);
- 	}
- 
- 	return 0;
- }
- 
--static int tracefs_apply_options(struct super_block *sb)
-+static int tracefs_apply_options(struct super_block *sb, bool remount)
- {
- 	struct tracefs_fs_info *fsi = sb->s_fs_info;
- 	struct inode *inode = sb->s_root->d_inode;
- 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
- 
--	inode->i_mode &= ~S_IALLUGO;
--	inode->i_mode |= opts->mode;
-+	/*
-+	 * On remount, only reset mode/uid/gid if they were provided as mount
-+	 * options.
-+	 */
-+
-+	if (!remount || opts->opts & BIT(Opt_mode)) {
-+		inode->i_mode &= ~S_IALLUGO;
-+		inode->i_mode |= opts->mode;
-+	}
- 
--	inode->i_uid = opts->uid;
-+	if (!remount || opts->opts & BIT(Opt_uid))
-+		inode->i_uid = opts->uid;
- 
--	/* Set all the group ids to the mount option */
--	set_gid(sb->s_root, opts->gid);
-+	if (!remount || opts->opts & BIT(Opt_gid)) {
-+		/* Set all the group ids to the mount option */
-+		set_gid(sb->s_root, opts->gid);
-+	}
- 
- 	return 0;
- }
-@@ -305,7 +320,7 @@ static int tracefs_remount(struct super_block *sb, int *flags, char *data)
- 	if (err)
- 		goto fail;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, true);
- 
- fail:
- 	return err;
-@@ -357,7 +372,7 @@ static int trace_fill_super(struct super_block *sb, void *data, int silent)
- 
- 	sb->s_op = &tracefs_super_operations;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, false);
- 
- 	return 0;
- 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index e8cf6f88933c..eeebbb20accf 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2605,6 +2605,7 @@ static void unmap_region(struct mm_struct *mm,
- {
- 	struct vm_area_struct *next = prev ? prev->vm_next : mm->mmap;
- 	struct mmu_gather tlb;
-+	struct vm_area_struct *cur_vma;
- 
- 	lru_add_drain();
- 	tlb_gather_mmu(&tlb, mm, start, end);
-@@ -2619,8 +2620,12 @@ static void unmap_region(struct mm_struct *mm,
- 	 * concurrent flush in this region has to be coming through the rmap,
- 	 * and we synchronize against that using the rmap lock.
- 	 */
--	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
--		tlb_flush_mmu(&tlb);
-+	for (cur_vma = vma; cur_vma; cur_vma = cur_vma->vm_next) {
-+		if ((cur_vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0) {
-+			tlb_flush_mmu(&tlb);
-+			break;
-+		}
-+	}
- 
- 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
- 				 next ? next->vm_start : USER_PGTABLES_CEILING);
+I'm announcing the release of the 5.10.144 kernel.
+
+All users of the 5.10 kernel series must upgrade.
+
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/input/joydev/joystick.rst                |    1 
+ Makefile                                               |    2 
+ arch/arm/boot/dts/imx28-evk.dts                        |    2 
+ arch/arm/boot/dts/imx28-m28evk.dts                     |    2 
+ arch/arm/boot/dts/imx28-sps1.dts                       |    2 
+ arch/arm/boot/dts/imx6dl-rex-basic.dts                 |    2 
+ arch/arm/boot/dts/imx6q-ba16.dtsi                      |    2 
+ arch/arm/boot/dts/imx6q-bx50v3.dtsi                    |    2 
+ arch/arm/boot/dts/imx6q-cm-fx6.dts                     |    2 
+ arch/arm/boot/dts/imx6q-dmo-edmqmx6.dts                |    2 
+ arch/arm/boot/dts/imx6q-dms-ba16.dts                   |    2 
+ arch/arm/boot/dts/imx6q-gw5400-a.dts                   |    2 
+ arch/arm/boot/dts/imx6q-marsboard.dts                  |    2 
+ arch/arm/boot/dts/imx6q-rex-pro.dts                    |    2 
+ arch/arm/boot/dts/imx6qdl-aristainetos.dtsi            |    2 
+ arch/arm/boot/dts/imx6qdl-aristainetos2.dtsi           |    2 
+ arch/arm/boot/dts/imx6qdl-dfi-fs700-m60.dtsi           |    2 
+ arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi          |    4 -
+ arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi               |    2 
+ arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi           |    2 
+ arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi          |    2 
+ arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi              |    2 
+ arch/arm/boot/dts/imx6qdl-sabreauto.dtsi               |    2 
+ arch/arm/boot/dts/imx6qdl-sabrelite.dtsi               |    2 
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi                 |    2 
+ arch/arm/boot/dts/imx6sl-evk.dts                       |    2 
+ arch/arm/boot/dts/imx6sx-nitrogen6sx.dts               |    2 
+ arch/arm/boot/dts/imx6sx-sdb-reva.dts                  |    4 -
+ arch/arm/boot/dts/imx6sx-sdb.dts                       |    4 -
+ arch/arm/boot/dts/imx6ul-14x14-evk.dtsi                |    2 
+ arch/arm/boot/dts/imx6ul-kontron-n6310-som.dtsi        |    2 
+ arch/arm/boot/dts/imx6ul-kontron-n6311-som.dtsi        |    2 
+ arch/arm/boot/dts/imx6ul-kontron-n6x1x-som-common.dtsi |    2 
+ arch/arm/boot/dts/imx6ull-kontron-n6411-som.dtsi       |    2 
+ arch/x86/kernel/ftrace.c                               |    7 -
+ arch/x86/kernel/ftrace_64.S                            |   19 +++-
+ drivers/gpio/gpio-mockup.c                             |    9 ++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c                |    2 
+ drivers/gpu/drm/msm/msm_rd.c                           |    3 
+ drivers/hid/intel-ish-hid/ishtp-hid.h                  |    2 
+ drivers/hid/intel-ish-hid/ishtp/client.c               |   68 +++++++++--------
+ drivers/input/joystick/iforce/iforce-main.c            |    1 
+ drivers/input/touchscreen/goodix.c                     |    2 
+ drivers/iommu/intel/iommu.c                            |   28 ++++++-
+ drivers/net/ethernet/broadcom/tg3.c                    |    8 +-
+ drivers/net/ieee802154/cc2520.c                        |    1 
+ drivers/nvme/target/tcp.c                              |    3 
+ drivers/perf/arm_pmu_platform.c                        |    2 
+ drivers/platform/x86/acer-wmi.c                        |    9 ++
+ drivers/soc/fsl/Kconfig                                |    1 
+ drivers/usb/storage/unusual_uas.h                      |    7 +
+ fs/tracefs/inode.c                                     |   31 +++++--
+ mm/mmap.c                                              |    9 +-
+ 53 files changed, 191 insertions(+), 94 deletions(-)
+
+Brian Norris (1):
+      tracefs: Only clobber mode/uid/gid on remount if asked
+
+Chengming Gui (1):
+      drm/amd/amdgpu: skip ucode loading if ucode_size == 0
+
+Even Xu (1):
+      hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
+
+Greg Kroah-Hartman (1):
+      Linux 5.10.144
+
+Greg Tulli (1):
+      Input: iforce - add support for Boeder Force Feedback Wheel
+
+Hans de Goede (1):
+      platform/x86: acer-wmi: Acer Aspire One AOD270/Packard Bell Dot keymap fixes
+
+Hu Xiaoying (1):
+      usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
+
+Jann Horn (1):
+      mm: Fix TLB flush for not-first PFNMAP mappings in unmap_region()
+
+Jarrah Gosbell (1):
+      Input: goodix - add compatible string for GT1158
+
+Jason Wang (1):
+      HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
+
+Kai-Heng Feng (1):
+      tg3: Disable tg3 device on system reboot to avoid triggering AER
+
+Krzysztof Kozlowski (1):
+      ARM: dts: imx: align SPI NOR node name with dtschema
+
+Li Qiong (1):
+      ieee802154: cc2520: add rc code in cc2520_tx()
+
+Lu Baolu (1):
+      iommu/vt-d: Correctly calculate sagaw value of IOMMU
+
+Marco Felsch (1):
+      ARM: dts: imx6qdl-kontron-samx6i: fix spi-flash compatible
+
+Mathew McBride (1):
+      soc: fsl: select FSL_GUTS driver for DPIO
+
+Maurizio Lombardi (1):
+      nvmet-tcp: fix unhandled tcp states in nvmet_tcp_state_change()
+
+Ondrej Jirman (1):
+      Input: goodix - add support for GT1158
+
+Peter Zijlstra (2):
+      x86/ibt,ftrace: Make function-graph play nice
+      x86/ftrace: Use alternative RET encoding
+
+Rob Clark (1):
+      drm/msm/rd: Fix FIFO-full deadlock
+
+Thadeu Lima de Souza Cascardo (1):
+      Revert "x86/ftrace: Use alternative RET encoding"
+
+Wei Yongjun (1):
+      gpio: mockup: remove gpio debugfs when remove device
+
+Yu Zhe (1):
+      perf/arm_pmu_platform: fix tests for platform_get_irq() failure
+
