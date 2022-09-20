@@ -2,92 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 754055BDF5E
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 10:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5B95BDF72
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 10:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbiITIL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 04:11:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39674 "EHLO
+        id S229872AbiITINP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 04:13:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbiITIK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 04:10:58 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210976716A;
-        Tue, 20 Sep 2022 01:07:10 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1oaYHc-0007Gk-En; Tue, 20 Sep 2022 10:07:08 +0200
-Message-ID: <48bb6266-2d5c-ffcd-6982-4fd02bfdcfc3@leemhuis.info>
-Date:   Tue, 20 Sep 2022 10:07:07 +0200
+        with ESMTP id S230366AbiITIMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 04:12:51 -0400
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B5A61D6C;
+        Tue, 20 Sep 2022 01:10:58 -0700 (PDT)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 518D34000A;
+        Tue, 20 Sep 2022 08:10:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1663661456;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=f5qD6zAA466UgjuEnk9mGMzuomEV4pr6kH+NFdqWMZA=;
+        b=Rk9GSBxs4RNRvtWALvLdb+rRqzYClM8TfhIuBnVxxeoxW8f1EpYVSeNP6sOhpTIzze4O1t
+        hvOvNSJp8BmFUIpAwgjNOxXbKqfrKWeAmU46oXNP1Dbc2dN0P8gziskCHQXrN07JZXmVun
+        4r3foNSpGPhFvJgODD7wcF7YkxHq5JDZ9YsNizuw84bZ/4QluLfUZjy9yc4DQkpUuwm3a1
+        3GVS/2bCWKCR3fhDo2dDvUBlhCbO7zwDyuCTilattLeHKBX6JSJj0bWkHWtTLxa/jV6+rv
+        3DzaZUC9miz+bKAjM4qn9FdMQ0Xf+NpIJ0a9Fe4YTiAJ4QqJjaYu6oqcchYCRw==
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Tudor Ambarus <tudor.ambarus@microchip.com>,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        peda@axentia.se
+Cc:     nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com,
+        claudiu.beznea@microchip.com, bbrezillon@kernel.org,
+        linux-mtd@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] mtd: rawnand: atmel: Unmap streaming DMA mappings
+Date:   Tue, 20 Sep 2022 10:10:53 +0200
+Message-Id: <20220920081053.597303-1-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220728074014.145406-1-tudor.ambarus@microchip.com>
+References: 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Content-Language: en-US, de-DE
-To:     hazem ahmed mohamed <hazem.ahmed.abuelfotoh@gmail.com>,
-        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
-        "tytso@mit.edu" <tytso@mit.edu>,
-        "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
-References: <CACX6voDfcTQzQJj=5Q-SLi0in1hXpo=Ri28rX73Og3GTObPBWA@mail.gmail.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: Ext4: Buffered random writes performance regression with
- dioread_nolock enabled
-In-Reply-To: <CACX6voDfcTQzQJj=5Q-SLi0in1hXpo=Ri28rX73Og3GTObPBWA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+X-linux-mtd-patch-notification: thanks
+X-linux-mtd-patch-commit: b'52d0997b6bb062fed06d12d31c2c2851ffde8d45'
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1663661230;c62e95cb;
-X-HE-SMSGID: 1oaYHc-0007Gk-En
-X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19.09.22 17:18, hazem ahmed mohamed wrote:
+On Thu, 2022-07-28 at 07:40:14 UTC, Tudor Ambarus wrote:
+> Every dma_map_single() call should have its dma_unmap_single() counterpart,
+> because the DMA address space is a shared resource and one could render the
+> machine unusable by consuming all DMA addresses.
 > 
-> I am sending this e-mail to report a performance regression that’s
-> caused by commit 244adf6426(ext4: make dioread_nolock the default) , I
-> am listing the performance regression symptoms below & our analysis
-> for the reported regression.
+> Cc: stable@vger.kernel.org
+> Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+> Acked-by: Alexander Dahl <ada@thorsis.com>
+> Reported-by: Peter Rosin <peda@axentia.se>
+> Tested-by: Alexander Dahl <ada@thorsis.com>
+> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> Tested-by: Peter Rosin <peda@axentia.se>
 
-FWIW, that patch went into v5.6-rc1~113^2~12
+Applied to https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git nand/next, thanks.
 
-And BTW: it seems 0-day back then noticed that 244adf6426 caused a
-performance regression as well, but it seems that was ignored:
-https://lore.kernel.org/all/20201024120829.GK31092@shao2-debian/
-
-Anyway, now to the main reason why I write this mail:
-
-[TLDR: I'm adding this regression report to the list of tracked
-regressions; all text from me you find below is based on a few templates
-paragraphs you might have encountered already already in similar form.]
-
-Thanks for the report. To be sure below issue doesn't fall through the
-cracks unnoticed, I'm adding it to regzbot, my Linux kernel regression
-tracking bot:
-
-#regzbot ^introduced 244adf6426
-#regzbot ignore-activity
-
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply -- ideally with also
-telling regzbot about it, as explained here:
-https://linux-regtracking.leemhuis.info/tracked-regression/
-
-Reminder for developers: When fixing the issue, add 'Link:' tags
-pointing to the report (the mail this one replies to), as explained for
-in the Linux kernel's documentation; the webpage mention at the end of
-the last para explains why this is important for tracked regressions.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
+Miquel
