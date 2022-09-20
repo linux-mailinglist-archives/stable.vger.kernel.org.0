@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 540D75BEB2C
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 18:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 931A05BEB2D
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 18:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229684AbiITQgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 12:36:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51088 "EHLO
+        id S230525AbiITQhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 12:37:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbiITQgw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 12:36:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79B8052E7A
-        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 09:36:51 -0700 (PDT)
+        with ESMTP id S229598AbiITQhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 12:37:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25D065254
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 09:37:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17C5F62538
-        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 16:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C371C433D6;
-        Tue, 20 Sep 2022 16:36:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80745B825A9
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 16:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D58FDC433C1;
+        Tue, 20 Sep 2022 16:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663691810;
-        bh=A5Qdd7zmBLIxhB8JaPfWUVxUu+/l3RBO+aKYVGkV/wo=;
+        s=korg; t=1663691819;
+        bh=KE7GYUW1FbpqXSon53+Ullcp1NyYzsmT/+Eng2HWXxQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=eE1eyR5EA8S7c+I4wrZoW/ztEFYsxvBZ+ktOFp+fOyY7HxkgsBr+NCn5VWYXwlTE4
-         64EYwvB9TCuzpwW3m1fqK8Ib+rxdndfSNi47FfUqcKEN2ujfmrs6n/WqwNaIXp9tS8
-         q9LLGZGthjUwsOsW5iW7vx5lfhQztth+faONFBs0=
-Subject: FAILED: patch "[PATCH] cifs: always initialize struct msghdr smb_msg completely" failed to apply to 5.10-stable tree
+        b=SlRSZMJPujyJF60MCSmv1DQSEDyschluA1oXied7aosSl94hAIPWGZxADu02C2C+O
+         xfJgOg7UWNX5HyoMcaWzXyMQ/Djovd42LpaY5D7lwjSqmE2VnnvluvXQLQ3EVUNorI
+         ki/yCpTMR0YMOUpZLm05F0qkXFspaEBlPbbpIpDo=
+Subject: FAILED: patch "[PATCH] cifs: always initialize struct msghdr smb_msg completely" failed to apply to 5.4-stable tree
 To:     metze@samba.org, lsahlber@redhat.com, pc@cjr.nz,
         stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 20 Sep 2022 18:36:42 +0200
-Message-ID: <1663691802108219@kroah.com>
+Date:   Tue, 20 Sep 2022 18:36:48 +0200
+Message-ID: <1663691808167114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,7 @@ Possible dependencies:
 bedc8f76b353 ("cifs: always initialize struct msghdr smb_msg completely")
 17d3df38dc5f ("cifs: don't send down the destination address to sendmsg for a SOCK_STREAM")
 cf0604a686b1 ("cifs: use discard iterator to discard unneeded network data more efficiently")
+db10538a4b99 ("tcp: add tcp_sock_set_cork")
 
 thanks,
 
