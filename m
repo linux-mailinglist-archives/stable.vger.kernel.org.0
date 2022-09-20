@@ -2,129 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8E55BEF62
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 23:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 197115BEF6E
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 23:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbiITVuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 17:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47906 "EHLO
+        id S229488AbiITVyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 17:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230426AbiITVuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 17:50:19 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C882180E;
-        Tue, 20 Sep 2022 14:50:17 -0700 (PDT)
-Date:   Tue, 20 Sep 2022 21:50:13 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1663710615;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZjzWjp2mR7KNavC4NQ2XVbJMIOQAxuWxGFL/2GffVuU=;
-        b=O/w80v/2nM0cMDtDzz9QBPJhACPnxInxeqGbxCdklwizacfojzCBgHyDLHXdszCIkusTSx
-        x7iXbRYekUo1coQiJbaIpkD7b/s0414pd3v/u60aNfQSPZxnnk7PAJOdyw4Lp2sZ7qOMKs
-        8nII+qSxYfbylpIwLr2HubdNOmw6Xp2+GfdvJNvP16/EeSfSRYVMTDtkfC6o2yWkUfgnTC
-        +Oul0e81U5JwGvexz9B33dQf1n2tyoAI8VIfVCEFgpR74avw2IMhVSLCbzN7eAn/B10lJ2
-        5FISD2iHA3qnAw1/oRSDwqOrCo14kMcrSXEdiFmi33ao5jKIypgZBec0kmWl1w==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1663710615;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZjzWjp2mR7KNavC4NQ2XVbJMIOQAxuWxGFL/2GffVuU=;
-        b=0T7pdgB8ranrI9QnGDASi2HUowfDWk/x05yTa7bt5S1/OINSmQz7iY5Hz7qEuILpCUkd6M
-        VglzWrQWo038M+AA==
-From:   "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/uaccess: Avoid check_object_size() in
- copy_from_user_nmi()
-Cc:     Yu Zhao <yuzhao@google.com>, dev@der-flo.net,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <CAOUHufaPshtKrTWOz7T7QFYUNVGFm0JBjvM700Nhf9qEL9b3EQ@mail.gmail.com>
-References: <CAOUHufaPshtKrTWOz7T7QFYUNVGFm0JBjvM700Nhf9qEL9b3EQ@mail.gmail.com>
-MIME-Version: 1.0
-Message-ID: <166371061341.401.16240146052010103408.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        with ESMTP id S229603AbiITVyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 17:54:12 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E21622BC4
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 14:54:11 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id a80so4012225pfa.4
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 14:54:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=NJof76fsYFnn/qJX10tb+kfjFqhsoILuIj+0oVvRVgY=;
+        b=cFeggEWBgEn9RNCQyuZCVj+jlPqeNNuvs4MnMXjNuigxpQk134A2TeayVER35mVaK8
+         u/Uz5w0nHqBGEmSWDfkIKJuf3JndhPDHeut+DelSIr7qeAJUu11R897RQgiz9DsP4gFu
+         lLOVHcoynGqDP7CBQo5iBZkEacyxyrWi/vWI+ncwqKMP9c/tkCzbmQKBwglsXDieLvMA
+         TP0nYB6l1oqgNjcJH/0fojYihW90iuCkX92XFrVFM/hBuL0YYU51fhKup8tkuLuROLIm
+         75mUlJHUyp8GObe88umN4LUXFAoq50JJyxLKgx3wIRuDEhl9XmWghNooYHLEY9blWSrp
+         rpYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=NJof76fsYFnn/qJX10tb+kfjFqhsoILuIj+0oVvRVgY=;
+        b=vxPNYhtF1LlPKsk8NLF7SRY/3Iu54psyc6X89dqrkK2xCnMWuymagQpDnbOu+Mjlus
+         2yPiVw2TAkXUssGG87ZpMSED1iPywOArf9KrxakA6I5qX55ltDyJBzkPHTGV8fWwniMM
+         vn5Rr1+SIW6GGqsXJBDYhR2HwfEs1RcDrSGntoB4OFhsuTeEsGEedcc2hbBKxifPdvwz
+         dgqGlktSubCl0fnfzoIWeFVWI9O7puDtfU4weK1TsMsQAgX+lSvLupSSYofPR4S6kTJu
+         Ovd4cTD7w8ykTYRKn9xHSfm0NdN4pjcm3IKSWSY7JE4BwG4yXCrquoNKIGpikybpfMkC
+         Pxxw==
+X-Gm-Message-State: ACrzQf2cNpwqLKwTEiCUgeK+wsRmXTQWSsg9hF72iZDmjTw2lkNSZ1rj
+        o0ewKnAnoIlTwCxdr9YSk6UJf+hFawoKQPZhSso=
+X-Google-Smtp-Source: AMsMyM4jCBEoUjy1sTcT2ilBcBzVPQCcb9gLhUdJCNTdjRcwRwesX9C4QnZ+YVACznD3lR6hFFKCdg==
+X-Received: by 2002:a63:fd41:0:b0:438:7670:589a with SMTP id m1-20020a63fd41000000b004387670589amr21672326pgj.148.1663710850818;
+        Tue, 20 Sep 2022 14:54:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y15-20020a17090264cf00b0016dbdf7b97bsm355009pli.266.2022.09.20.14.54.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Sep 2022 14:54:10 -0700 (PDT)
+Message-ID: <632a3682.170a0220.da1b3.1033@mx.google.com>
+Date:   Tue, 20 Sep 2022 14:54:10 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.69
+Subject: stable-rc/linux-5.15.y baseline: 110 runs, 1 regressions (v5.15.69)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+stable-rc/linux-5.15.y baseline: 110 runs, 1 regressions (v5.15.69)
 
-Commit-ID:     80d82ca9562bb881f2884ccb33b5530d40144450
-Gitweb:        https://git.kernel.org/tip/80d82ca9562bb881f2884ccb33b5530d40144450
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Mon, 19 Sep 2022 13:16:48 -07:00
-Committer:     Dave Hansen <dave.hansen@linux.intel.com>
-CommitterDate: Tue, 20 Sep 2022 14:43:49 -07:00
+Regressions Summary
+-------------------
 
-x86/uaccess: Avoid check_object_size() in copy_from_user_nmi()
+platform      | arch | lab         | compiler | defconfig         | regress=
+ions
+--------------+------+-------------+----------+-------------------+--------=
+----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig | 1      =
+    =
 
-The check_object_size() helper under CONFIG_HARDENED_USERCOPY is
-designed to skip any checks where the length is known at compile time as
-a reasonable heuristic to avoid "likely known-good" cases. However, it can
-only do this when the copy_*_user() helpers are, themselves, inline too.
 
-Using find_vmap_area() requires taking a spinlock. The check_object_size()
-helper can call find_vmap_area() when the destination is in vmap memory.
-If show_regs() is called in interrupt context, it will attempt a call to
-copy_from_user_nmi(), which may call check_object_size() and then
-find_vmap_area(). If something in normal context happens to be in the
-middle of calling find_vmap_area() (with the spinlock held), the interrupt
-handler will hang forever.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.69/plan/baseline/
 
-The copy_from_user_nmi() call is actually being called with a fixed-size
-length, so check_object_size() should never have been called in
-the first place. Given the narrow constraints, just replace the
-__copy_from_user_inatomic() call with an open-coded version that calls
-only into the sanitizers and not check_object_size(), followed by a call
-to raw_copy_from_user().
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.69
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      820b689b4a7a6ca1b4fdabf26a17196a2e379a97 =
 
-Fixes: 0aef499f3172 ("mm/usercopy: Detect vmalloc overruns")
-Reported-by: Yu Zhao <yuzhao@google.com>
-Reported-by: dev@der-flo.net
-Suggested-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Florian Lehner <dev@der-flo.net>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/CAOUHufaPshtKrTWOz7T7QFYUNVGFm0JBjvM700Nhf9qEL9b3EQ@mail.gmail.com
-Link: https://lkml.kernel.org/r/20220919201648.2250764-1-keescook@chromium.org
----
- arch/x86/lib/usercopy.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/usercopy.c b/arch/x86/lib/usercopy.c
-index ad0139d..d2aff9b 100644
---- a/arch/x86/lib/usercopy.c
-+++ b/arch/x86/lib/usercopy.c
-@@ -44,7 +44,8 @@ copy_from_user_nmi(void *to, const void __user *from, unsigned long n)
- 	 * called from other contexts.
- 	 */
- 	pagefault_disable();
--	ret = __copy_from_user_inatomic(to, from, n);
-+	instrument_copy_from_user(to, from, n);
-+	ret = raw_copy_from_user(to, from, n);
- 	pagefault_enable();
- 
- 	return ret;
+
+Test Regressions
+---------------- =
+
+
+
+platform      | arch | lab         | compiler | defconfig         | regress=
+ions
+--------------+------+-------------+----------+-------------------+--------=
+----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/6329fef94894ab9b92355645
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: at91_dt_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.6=
+9/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.6=
+9/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6329fef94894ab9b92355=
+646
+        new failure (last pass: v5.15.68-36-gd766f744e482) =
+
+ =20
