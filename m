@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8424F5BEB2E
-	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 18:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B0C5BEB2F
+	for <lists+stable@lfdr.de>; Tue, 20 Sep 2022 18:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbiITQhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 12:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51156 "EHLO
+        id S230207AbiITQhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 12:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbiITQhF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 12:37:05 -0400
+        with ESMTP id S229598AbiITQhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 12:37:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DB565816
-        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 09:37:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF32969F72
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 09:37:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 526E4B81E60
-        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 16:37:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8951C433D6;
-        Tue, 20 Sep 2022 16:37:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F28E3B82A83
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 16:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9D5C433D6;
+        Tue, 20 Sep 2022 16:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663691822;
-        bh=27+Hcr0Dbdf9P0R9mAnzMd3HT+kKfRRUyA2QXlBPLBA=;
+        s=korg; t=1663691824;
+        bh=GgkNfiYFb0bEt6GXLpEQwfnbfvffE1dXiZee+wMKxg4=;
         h=Subject:To:Cc:From:Date:From;
-        b=gE7nCHGvzUbjpJXtsJqAn38kepwyHoioyYTWoJBujgZo5TB/ooRNE/o1ZHAdhue1k
-         hBWiqKfpZOL+RsV62DCPyWmd3DZ40LbP4/Dqw5G98LrZZ+0cwBHQAGapnf+9nbBkq0
-         ywQj+B0Dw99SCAbc64ldyMZ9ONr5VW0o97/MvYck=
-Subject: FAILED: patch "[PATCH] cifs: always initialize struct msghdr smb_msg completely" failed to apply to 4.14-stable tree
+        b=wSQDY8ME5O8FyPopVnSF82cqKZowxAQMu/MMxWXj7hlfss5eAlyWg2ORrd54LxDNL
+         iRzlTc1eBXefFEfyIHetp4QZMQ49mI7dS7JIwShZ3BQeyKGUUVuqJrOD+mpWsNeQCy
+         7NSFeasAZlR4/RGoEbE4w++J1Q/TYW0J3D+CREJs=
+Subject: FAILED: patch "[PATCH] cifs: always initialize struct msghdr smb_msg completely" failed to apply to 4.19-stable tree
 To:     metze@samba.org, lsahlber@redhat.com, pc@cjr.nz,
         stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 20 Sep 2022 18:36:49 +0200
-Message-ID: <166369180976213@kroah.com>
+Message-ID: <166369180951131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
