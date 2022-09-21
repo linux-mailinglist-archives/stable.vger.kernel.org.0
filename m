@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2055C02E1
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0F625C0332
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbiIUP4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:56:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40204 "EHLO
+        id S232136AbiIUQAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:00:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231853AbiIUPyx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:54:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42CCF9E0EE;
-        Wed, 21 Sep 2022 08:50:37 -0700 (PDT)
+        with ESMTP id S232204AbiIUP6n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E85A1A5F;
+        Wed, 21 Sep 2022 08:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E42DB830A2;
-        Wed, 21 Sep 2022 15:50:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65E6C433C1;
-        Wed, 21 Sep 2022 15:50:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD7B963168;
+        Wed, 21 Sep 2022 15:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB940C433D6;
+        Wed, 21 Sep 2022 15:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775407;
-        bh=6eEkQKJLgf0QFYHU7+/B0jTXNsQeATZHIVOFOiBqHlI=;
+        s=korg; t=1663775536;
+        bh=w/n5KhdA3MVKZUaifbVJ8pga5w6qC0rPdRyADTfyPrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4pUuRCgD/KS/BIUhYinJ0mE602yljmDto1yzCFjREBtLP8AE5LdJf8GvyZjl9KnZ
-         hEFTckFOo9Pdxy3MUgtTyVL0LuibueLAdVjCEFx5NkLsbeGbz4Umk/MGNWkj8O0hBB
-         8DcUx5+VGACbF7gJ+95VLYCofGMSKbTMoK7Nlq9w=
+        b=Ft3QqJ8fHOqf6hDzsfYhBgNRVkT6gmnFcdMfh1oy8hOsZIS708YdBgbVI2toIEgUK
+         MPueij7yYhgLYpsg/ierXpfK6vudWvksLtGrsXi+onhLE3ynXrQ6Wax5Z9/A698NVn
+         GMTiawi+dCQoCZRe/kzoIPNFicHPPu4b4GF+CP00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christpherson <seanjc@google.com>,
-        Mingwei Zhang <mizhang@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.15 43/45] KVM: SEV: add cache flush to solve SEV cache incoherency issues
-Date:   Wed, 21 Sep 2022 17:46:33 +0200
-Message-Id: <20220921153648.455253868@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 29/39] rxrpc: Fix calc of resend age
+Date:   Wed, 21 Sep 2022 17:46:34 +0200
+Message-Id: <20220921153646.690594739@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
+References: <20220921153645.663680057@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,251 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mingwei Zhang <mizhang@google.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 683412ccf61294d727ead4a73d97397396e69a6b upstream.
+[ Upstream commit 214a9dc7d852216e83acac7b75bc18f01ce184c2 ]
 
-Flush the CPU caches when memory is reclaimed from an SEV guest (where
-reclaim also includes it being unmapped from KVM's memslots).  Due to lack
-of coherency for SEV encrypted memory, failure to flush results in silent
-data corruption if userspace is malicious/broken and doesn't ensure SEV
-guest memory is properly pinned and unpinned.
+Fix the calculation of the resend age to add a microsecond value as
+microseconds, not nanoseconds.
 
-Cache coherency is not enforced across the VM boundary in SEV (AMD APM
-vol.2 Section 15.34.7). Confidential cachelines, generated by confidential
-VM guests have to be explicitly flushed on the host side. If a memory page
-containing dirty confidential cachelines was released by VM and reallocated
-to another user, the cachelines may corrupt the new user at a later time.
-
-KVM takes a shortcut by assuming all confidential memory remain pinned
-until the end of VM lifetime. Therefore, KVM does not flush cache at
-mmu_notifier invalidation events. Because of this incorrect assumption and
-the lack of cache flushing, malicous userspace can crash the host kernel:
-creating a malicious VM and continuously allocates/releases unpinned
-confidential memory pages when the VM is running.
-
-Add cache flush operations to mmu_notifier operations to ensure that any
-physical memory leaving the guest VM get flushed. In particular, hook
-mmu_notifier_invalidate_range_start and mmu_notifier_release events and
-flush cache accordingly. The hook after releasing the mmu lock to avoid
-contention with other vCPUs.
-
-Cc: stable@vger.kernel.org
-Suggested-by: Sean Christpherson <seanjc@google.com>
-Reported-by: Mingwei Zhang <mizhang@google.com>
-Signed-off-by: Mingwei Zhang <mizhang@google.com>
-Message-Id: <20220421031407.2516575-4-mizhang@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[OP: adjusted KVM_X86_OP_OPTIONAL() -> KVM_X86_OP_NULL, applied
-kvm_arch_guest_memory_reclaimed() call in kvm_set_memslot()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm-x86-ops.h |    1 +
- arch/x86/include/asm/kvm_host.h    |    1 +
- arch/x86/kvm/svm/sev.c             |    8 ++++++++
- arch/x86/kvm/svm/svm.c             |    1 +
- arch/x86/kvm/svm/svm.h             |    2 ++
- arch/x86/kvm/x86.c                 |    5 +++++
- include/linux/kvm_host.h           |    2 ++
- virt/kvm/kvm_main.c                |   27 ++++++++++++++++++++++++---
- 8 files changed, 44 insertions(+), 3 deletions(-)
+ net/rxrpc/call_event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/kvm-x86-ops.h
-+++ b/arch/x86/include/asm/kvm-x86-ops.h
-@@ -115,6 +115,7 @@ KVM_X86_OP(enable_smi_window)
- KVM_X86_OP_NULL(mem_enc_op)
- KVM_X86_OP_NULL(mem_enc_reg_region)
- KVM_X86_OP_NULL(mem_enc_unreg_region)
-+KVM_X86_OP_NULL(guest_memory_reclaimed)
- KVM_X86_OP(get_msr_feature)
- KVM_X86_OP(can_emulate_instruction)
- KVM_X86_OP(apic_init_signal_blocked)
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1476,6 +1476,7 @@ struct kvm_x86_ops {
- 	int (*mem_enc_reg_region)(struct kvm *kvm, struct kvm_enc_region *argp);
- 	int (*mem_enc_unreg_region)(struct kvm *kvm, struct kvm_enc_region *argp);
- 	int (*vm_copy_enc_context_from)(struct kvm *kvm, unsigned int source_fd);
-+	void (*guest_memory_reclaimed)(struct kvm *kvm);
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index f8ecad2b730e..2a93e7b5fbd0 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -166,7 +166,7 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
+ 	_enter("{%d,%d}", call->tx_hard_ack, call->tx_top);
  
- 	int (*get_msr_feature)(struct kvm_msr_entry *entry);
+ 	now = ktime_get_real();
+-	max_age = ktime_sub(now, jiffies_to_usecs(call->peer->rto_j));
++	max_age = ktime_sub_us(now, jiffies_to_usecs(call->peer->rto_j));
  
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -2037,6 +2037,14 @@ static void sev_flush_guest_memory(struc
- 	wbinvd_on_all_cpus();
- }
+ 	spin_lock_bh(&call->lock);
  
-+void sev_guest_memory_reclaimed(struct kvm *kvm)
-+{
-+	if (!sev_guest(kvm))
-+		return;
-+
-+	wbinvd_on_all_cpus();
-+}
-+
- void sev_free_vcpu(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm;
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4678,6 +4678,7 @@ static struct kvm_x86_ops svm_x86_ops __
- 	.mem_enc_op = svm_mem_enc_op,
- 	.mem_enc_reg_region = svm_register_enc_region,
- 	.mem_enc_unreg_region = svm_unregister_enc_region,
-+	.guest_memory_reclaimed = sev_guest_memory_reclaimed,
- 
- 	.vm_copy_enc_context_from = svm_vm_copy_asid_from,
- 
---- a/arch/x86/kvm/svm/svm.h
-+++ b/arch/x86/kvm/svm/svm.h
-@@ -555,6 +555,8 @@ int svm_register_enc_region(struct kvm *
- int svm_unregister_enc_region(struct kvm *kvm,
- 			      struct kvm_enc_region *range);
- int svm_vm_copy_asid_from(struct kvm *kvm, unsigned int source_fd);
-+void sev_guest_memory_reclaimed(struct kvm *kvm);
-+
- void pre_sev_run(struct vcpu_svm *svm, int cpu);
- void __init sev_set_cpu_caps(void);
- void __init sev_hardware_setup(void);
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9557,6 +9557,11 @@ void kvm_arch_mmu_notifier_invalidate_ra
- 		kvm_make_all_cpus_request(kvm, KVM_REQ_APIC_PAGE_RELOAD);
- }
- 
-+void kvm_arch_guest_memory_reclaimed(struct kvm *kvm)
-+{
-+	static_call_cond(kvm_x86_guest_memory_reclaimed)(kvm);
-+}
-+
- void kvm_vcpu_reload_apic_access_page(struct kvm_vcpu *vcpu)
- {
- 	if (!lapic_in_kernel(vcpu))
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1912,6 +1912,8 @@ static inline long kvm_arch_vcpu_async_i
- void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
- 					    unsigned long start, unsigned long end);
- 
-+void kvm_arch_guest_memory_reclaimed(struct kvm *kvm);
-+
- #ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
- int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu);
- #else
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -162,6 +162,10 @@ __weak void kvm_arch_mmu_notifier_invali
- {
- }
- 
-+__weak void kvm_arch_guest_memory_reclaimed(struct kvm *kvm)
-+{
-+}
-+
- bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
- {
- 	/*
-@@ -353,6 +357,12 @@ void kvm_reload_remote_mmus(struct kvm *
- 	kvm_make_all_cpus_request(kvm, KVM_REQ_MMU_RELOAD);
- }
- 
-+static void kvm_flush_shadow_all(struct kvm *kvm)
-+{
-+	kvm_arch_flush_shadow_all(kvm);
-+	kvm_arch_guest_memory_reclaimed(kvm);
-+}
-+
- #ifdef KVM_ARCH_NR_OBJS_PER_MEMORY_CACHE
- static inline void *mmu_memory_cache_alloc_obj(struct kvm_mmu_memory_cache *mc,
- 					       gfp_t gfp_flags)
-@@ -469,12 +479,15 @@ typedef bool (*hva_handler_t)(struct kvm
- typedef void (*on_lock_fn_t)(struct kvm *kvm, unsigned long start,
- 			     unsigned long end);
- 
-+typedef void (*on_unlock_fn_t)(struct kvm *kvm);
-+
- struct kvm_hva_range {
- 	unsigned long start;
- 	unsigned long end;
- 	pte_t pte;
- 	hva_handler_t handler;
- 	on_lock_fn_t on_lock;
-+	on_unlock_fn_t on_unlock;
- 	bool flush_on_ret;
- 	bool may_block;
- };
-@@ -551,8 +564,11 @@ static __always_inline int __kvm_handle_
- 	if (range->flush_on_ret && ret)
- 		kvm_flush_remote_tlbs(kvm);
- 
--	if (locked)
-+	if (locked) {
- 		KVM_MMU_UNLOCK(kvm);
-+		if (!IS_KVM_NULL_FN(range->on_unlock))
-+			range->on_unlock(kvm);
-+	}
- 
- 	srcu_read_unlock(&kvm->srcu, idx);
- 
-@@ -573,6 +589,7 @@ static __always_inline int kvm_handle_hv
- 		.pte		= pte,
- 		.handler	= handler,
- 		.on_lock	= (void *)kvm_null_fn,
-+		.on_unlock	= (void *)kvm_null_fn,
- 		.flush_on_ret	= true,
- 		.may_block	= false,
- 	};
-@@ -592,6 +609,7 @@ static __always_inline int kvm_handle_hv
- 		.pte		= __pte(0),
- 		.handler	= handler,
- 		.on_lock	= (void *)kvm_null_fn,
-+		.on_unlock	= (void *)kvm_null_fn,
- 		.flush_on_ret	= false,
- 		.may_block	= false,
- 	};
-@@ -660,6 +678,7 @@ static int kvm_mmu_notifier_invalidate_r
- 		.pte		= __pte(0),
- 		.handler	= kvm_unmap_gfn_range,
- 		.on_lock	= kvm_inc_notifier_count,
-+		.on_unlock	= kvm_arch_guest_memory_reclaimed,
- 		.flush_on_ret	= true,
- 		.may_block	= mmu_notifier_range_blockable(range),
- 	};
-@@ -711,6 +730,7 @@ static void kvm_mmu_notifier_invalidate_
- 		.pte		= __pte(0),
- 		.handler	= (void *)kvm_null_fn,
- 		.on_lock	= kvm_dec_notifier_count,
-+		.on_unlock	= (void *)kvm_null_fn,
- 		.flush_on_ret	= false,
- 		.may_block	= mmu_notifier_range_blockable(range),
- 	};
-@@ -783,7 +803,7 @@ static void kvm_mmu_notifier_release(str
- 	int idx;
- 
- 	idx = srcu_read_lock(&kvm->srcu);
--	kvm_arch_flush_shadow_all(kvm);
-+	kvm_flush_shadow_all(kvm);
- 	srcu_read_unlock(&kvm->srcu, idx);
- }
- 
-@@ -1188,7 +1208,7 @@ static void kvm_destroy_vm(struct kvm *k
- 	WARN_ON(rcuwait_active(&kvm->mn_memslots_update_rcuwait));
- 	kvm->mn_active_invalidate_count = 0;
- #else
--	kvm_arch_flush_shadow_all(kvm);
-+	kvm_flush_shadow_all(kvm);
- #endif
- 	kvm_arch_destroy_vm(kvm);
- 	kvm_destroy_devices(kvm);
-@@ -1588,6 +1608,7 @@ static int kvm_set_memslot(struct kvm *k
- 		 *	- kvm_is_visible_gfn (mmu_check_root)
- 		 */
- 		kvm_arch_flush_shadow_memslot(kvm, slot);
-+		kvm_arch_guest_memory_reclaimed(kvm);
- 
- 		/* Released in install_new_memslots. */
- 		mutex_lock(&kvm->slots_arch_lock);
+-- 
+2.35.1
+
 
 
