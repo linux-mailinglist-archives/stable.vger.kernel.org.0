@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 838025C0279
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 843425C023A
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231855AbiIUPxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:53:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38816 "EHLO
+        id S229471AbiIUPuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:50:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbiIUPwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:52:19 -0400
+        with ESMTP id S230525AbiIUPtq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:49:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ECED175BC;
-        Wed, 21 Sep 2022 08:49:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67AE9DF9A;
+        Wed, 21 Sep 2022 08:48:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EC0CB830AC;
-        Wed, 21 Sep 2022 15:48:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA9BC433D6;
-        Wed, 21 Sep 2022 15:48:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38E92B830A1;
+        Wed, 21 Sep 2022 15:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE39C433D6;
+        Wed, 21 Sep 2022 15:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775318;
-        bh=8KchVOiklKldhDSmnwE9qC9ds7RMp8LSqO/hd4CFmxA=;
+        s=korg; t=1663775273;
+        bh=e4CTjNg0VHlzgBruGLyh0ezOhAX+QdTKZInHbKUri8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RG48jCIjrpGb7/Mc9o8zLEM2Z4N473t//GrrO3qvcP9e+R2kGK/H+o+zQ28+PuVVF
-         Bx+W0s5+X0K1svGmB5hLUnhhdY1xxn5AX2UdUDn9WJASkDlofrEktN4QSQ/ea9cNpW
-         IeX29A1Mw/vX+NKSRFBTak3R/K1Gux3d62T+rNwY=
+        b=Gou3j0q5c2HnICQvPLUm0ZUPtww4TMNv360WQgdvg1i48vCplC3YH0LzpP6L23TDF
+         +IkNdyI4H3+Cf1vSU90f9e7R6BEmNXlWY6B3SLIhudn6ROFu9jvBJF5XXf2yE/Xu5Y
+         rp3/dBzPe9mwdewCNBqrKO7fWdjCPKq60N6xAFU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stuart Menefy <stuart.menefy@mathembedded.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 13/45] drm/meson: Fix OSD1 RGB to YCbCr coefficient
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 19/38] parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
 Date:   Wed, 21 Sep 2022 17:46:03 +0200
-Message-Id: <20220921153647.322623957@linuxfoundation.org>
+Message-Id: <20220921153646.880729410@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Menefy <stuart.menefy@mathembedded.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 6463d3930ba5b6addcfc8f80a4543976a2fc7656 ]
+[ Upstream commit 38238be4e881a5d0abbe4872b4cd6ed790be06c8 ]
 
-VPP_WRAP_OSD1_MATRIX_COEF22.Coeff22 is documented as being bits 0-12,
-not 16-28.
+Add missing iounmap() before return from ccio_probe(), if ccio_init_resources()
+fails.
 
-Without this the output tends to have a pink hue, changing it results
-in better color accuracy.
-
-The vendor kernel doesn't use this register. However the code which
-sets VIU2_OSD1_MATRIX_COEF22 also uses bits 0-12. There is a slightly
-different style of registers for configuring some of the other matrices,
-which do use bits 16-28 for this coefficient, but those have names
-ending in MATRIX_COEF22_30, and this is not one of those.
-
-Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
-Fixes: 728883948b0d ("drm/meson: Add G12A Support for VIU setup")
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220908155243.687143-1-stuart.menefy@mathembedded.com
+Fixes: d46c742f827f ("parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_viu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/parisc/ccio-dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
-index bb7e109534de..d4b907889a21 100644
---- a/drivers/gpu/drm/meson/meson_viu.c
-+++ b/drivers/gpu/drm/meson/meson_viu.c
-@@ -94,7 +94,7 @@ static void meson_viu_set_g12a_osd1_matrix(struct meson_drm *priv,
- 		priv->io_base + _REG(VPP_WRAP_OSD1_MATRIX_COEF11_12));
- 	writel(((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff),
- 		priv->io_base + _REG(VPP_WRAP_OSD1_MATRIX_COEF20_21));
--	writel((m[11] & 0x1fff) << 16,
-+	writel((m[11] & 0x1fff),
- 		priv->io_base +	_REG(VPP_WRAP_OSD1_MATRIX_COEF22));
- 
- 	writel(((m[18] & 0xfff) << 16) | (m[19] & 0xfff),
+diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
+index f69ab90b5e22..6052f264bbb0 100644
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1546,6 +1546,7 @@ static int __init ccio_probe(struct parisc_device *dev)
+ 	}
+ 	ccio_ioc_init(ioc);
+ 	if (ccio_init_resources(ioc)) {
++		iounmap(ioc->ioc_regs);
+ 		kfree(ioc);
+ 		return -ENOMEM;
+ 	}
 -- 
 2.35.1
 
