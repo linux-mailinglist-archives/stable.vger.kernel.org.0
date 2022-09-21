@@ -2,151 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1105C0381
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FCC5C03F7
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232415AbiIUQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:06:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
+        id S231189AbiIUQVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232343AbiIUQFg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:05:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9656E2A439;
-        Wed, 21 Sep 2022 08:54:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58E71B830EB;
-        Wed, 21 Sep 2022 15:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2213C43470;
-        Wed, 21 Sep 2022 15:54:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663775691;
-        bh=mZEjU9sKh4ZHqsW67cldg1I7i6KLgb+SX4bzxU6CYwQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SkhF4lr4feLhxqcH8ZCpum+XDsyrDBWZWWdT3eBtsjoqrvZZ8Jf69kwOOq6svklDi
-         wTYSQhQpigMj/xJOXU6GFXA38QbOnDoqk7AKbc23qNxVCQ0j76pXg88z/QAVHXZIqJ
-         CuYb2b7jalnP4J63yBEGdMAS0TYiFprEChFfShiGAq1NIscwaOOkoxx/2QaFj7O7/a
-         rkPUOSNux9bcBaj1BPH2dj7XyZr+crDoY05qfi2gr3qlWzX48gMwqfNsJMdG9WH2/d
-         wEzUNMa9lFr66XEA/V3ybUvLm06ZpchtpG0rqDc7P+GsF59D9mNQtW38O+wzzJs7w+
-         l7w7sS330moxQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
-        decui@microsoft.com, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9] Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
-Date:   Wed, 21 Sep 2022 11:54:49 -0400
-Message-Id: <20220921155449.235520-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S230057AbiIUQVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:21:39 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C7B5598CB4;
+        Wed, 21 Sep 2022 09:04:59 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4279013D5;
+        Wed, 21 Sep 2022 08:56:45 -0700 (PDT)
+Received: from bogus (e103737-lin.cambridge.arm.com [10.1.197.49])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 635593F5A1;
+        Wed, 21 Sep 2022 08:56:37 -0700 (PDT)
+Date:   Wed, 21 Sep 2022 16:56:34 +0100
+From:   Sudeep Holla <sudeep.holla@arm.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Dien Pham <dien.pham.ry@renesas.com>,
+        Gaku Inami <gaku.inami.xh@renesas.com>
+Cc:     Cristian Marussi <cristian.marussi@arm.com>,
+        linux-arm-kernel@lists.infradead.org, Peng Fan <peng.fan@nxp.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Nicolas Pitre <npitre@baylibre.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "firmware: arm_scmi: Add clock management to the
+ SCMI power domain"
+Message-ID: <20220921155634.owr5lncydsfpo7ua@bogus>
+References: <20220919122033.86126-1-ulf.hansson@linaro.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220919122033.86126-1-ulf.hansson@linaro.org>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Hi Dien, Gaku,
 
-[ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
+On Mon, Sep 19, 2022 at 02:20:33PM +0200, Ulf Hansson wrote:
+> This reverts commit a3b884cef873 ("firmware: arm_scmi: Add clock management
+> to the SCMI power domain").
+> 
+> Using the GENPD_FLAG_PM_CLK tells genpd to gate/ungate the consumer
+> device's clock(s) during runtime suspend/resume through the PM clock API.
+> More precisely, in genpd_runtime_resume() the clock(s) for the consumer
+> device would become ungated prior to the driver-level ->runtime_resume()
+> callbacks gets invoked.
+> 
+> This behaviour isn't a good fit for all platforms/drivers. For example, a
+> driver may need to make some preparations of its device in its
+> ->runtime_resume() callback, like calling clk_set_rate() before the
+> clock(s) should be ungated. In these cases, it's easier to let the clock(s)
+> to be managed solely by the driver, rather than at the PM domain level.
+> 
+> For these reasons, let's drop the use GENPD_FLAG_PM_CLK for the SCMI PM
+> domain, as to enable it to be more easily adopted across ARM platforms.
+> 
+> Fixes: a3b884cef873 ("firmware: arm_scmi: Add clock management to the SCMI power domain")
+> Cc: Nicolas Pitre <npitre@baylibre.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> ---
+> 
+> To get some more background to $subject patch, please have a look at the
+> lore-link below.
+> 
+> https://lore.kernel.org/all/DU0PR04MB94173B45A2CFEE3BF1BD313A88409@DU0PR04MB9417.eurprd04.prod.outlook.com/
+>
 
-Passed through PCI device sometimes misbehave on Gen1 VMs when Hyper-V
-DRM driver is also loaded. Looking at IOMEM assignment, we can see e.g.
+If you have any objections, this is your last chance to speak up before
+the original change gets reverted in the mainline with this patch.
 
-$ cat /proc/iomem
-...
-f8000000-fffbffff : PCI Bus 0000:00
-  f8000000-fbffffff : 0000:00:08.0
-    f8000000-f8001fff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
-...
-fe0000000-fffffffff : PCI Bus 0000:00
-  fe0000000-fe07fffff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
-    fe0000000-fe07fffff : 2ba2:00:02.0
-      fe0000000-fe07fffff : mlx4_core
+Hi Ulf,
 
-the interesting part is the 'f8000000' region as it is actually the
-VM's framebuffer:
+I don't have any other SCMI changes for v6.0 fixes or v6.1
+I am fine if you are happy to take this via your tree or I can send it
+to SoC team. Let me know. I will give final one or 2 days for Renesas
+to get back if they really care much.
 
-$ lspci -v
-...
-0000:00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA (prog-if 00 [VGA controller])
-	Flags: bus master, fast devsel, latency 0, IRQ 11
-	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
-...
-
- hv_vmbus: registering driver hyperv_drm
- hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Synthvid Version major 3, minor 5
- hyperv_drm 0000:00:08.0: vgaarb: deactivate vga console
- hyperv_drm 0000:00:08.0: BAR 0: can't reserve [mem 0xf8000000-0xfbffffff]
- hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Cannot request framebuffer, boot fb still active?
-
-Note: "Cannot request framebuffer" is not a fatal error in
-hyperv_setup_gen1() as the code assumes there's some other framebuffer
-device there but we actually have some other PCI device (mlx4 in this
-case) config space there!
-
-The problem appears to be that vmbus_allocate_mmio() can use dedicated
-framebuffer region to serve any MMIO request from any device. The
-semantics one might assume of a parameter named "fb_overlap_ok"
-aren't implemented because !fb_overlap_ok essentially has no effect.
-The existing semantics are really "prefer_fb_overlap". This patch
-implements the expected and needed semantics, which is to not allocate
-from the frame buffer space when !fb_overlap_ok.
-
-Note, Gen2 VMs are usually unaffected by the issue because
-framebuffer region is already taken by EFI fb (in case kernel supports
-it) but Gen1 VMs may have this region unclaimed by the time Hyper-V PCI
-pass-through driver tries allocating MMIO space if Hyper-V DRM/FB drivers
-load after it. Devices can be brought up in any sequence so let's
-resolve the issue by always ignoring 'fb_mmio' region for non-FB
-requests, even if the region is unclaimed.
-
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20220827130345.1320254-4-vkuznets@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hv/vmbus_drv.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 3248aa7a35b3..cb3e22f10d68 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1186,7 +1186,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 			bool fb_overlap_ok)
- {
- 	struct resource *iter, *shadow;
--	resource_size_t range_min, range_max, start;
-+	resource_size_t range_min, range_max, start, end;
- 	const char *dev_n = dev_name(&device_obj->device);
- 	int retval;
- 
-@@ -1221,6 +1221,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 		range_max = iter->end;
- 		start = (range_min + align - 1) & ~(align - 1);
- 		for (; start + size - 1 <= range_max; start += align) {
-+			end = start + size - 1;
-+
-+			/* Skip the whole fb_mmio region if not fb_overlap_ok */
-+			if (!fb_overlap_ok && fb_mmio &&
-+			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
-+			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
-+				continue;
-+
- 			shadow = __request_region(iter, start, size, NULL,
- 						  IORESOURCE_BUSY);
- 			if (!shadow)
--- 
-2.35.1
-
+--
+Regards,
+Sudeep
