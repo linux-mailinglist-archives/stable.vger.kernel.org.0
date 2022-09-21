@@ -2,99 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32FFE5BFB16
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 11:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F925BFBC8
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 11:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230195AbiIUJfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 05:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33978 "EHLO
+        id S231266AbiIUJzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 05:55:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbiIUJfr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 05:35:47 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3985582D04;
-        Wed, 21 Sep 2022 02:35:46 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 79DE3139F;
-        Wed, 21 Sep 2022 02:35:52 -0700 (PDT)
-Received: from [10.57.18.118] (unknown [10.57.18.118])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A0C373F73D;
-        Wed, 21 Sep 2022 02:35:43 -0700 (PDT)
-Message-ID: <2ce32413-d338-5032-71f1-7da183b2c561@arm.com>
-Date:   Wed, 21 Sep 2022 10:35:42 +0100
+        with ESMTP id S231613AbiIUJzV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 05:55:21 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E93F25C6;
+        Wed, 21 Sep 2022 02:55:08 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1oawRe-0004yz-68; Wed, 21 Sep 2022 11:55:06 +0200
+Message-ID: <e3353084-264c-859a-3b42-a98e29f039cf@leemhuis.info>
+Date:   Wed, 21 Sep 2022 11:55:05 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [RESEND PATCH v5 2/2] dmaengine: mxs: fix section mismatch
-Content-Language: en-GB
-To:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        linux-kernel@vger.kernel.org
-Cc:     linux-amarula@amarulasolutions.com,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
- <20220904141020.2947725-2-dario.binacchi@amarulasolutions.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20220904141020.2947725-2-dario.binacchi@amarulasolutions.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: Ext4: Buffered random writes performance regression with
+ dioread_nolock enabled
+Content-Language: en-US, de-DE
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     hazem ahmed mohamed <hazem.ahmed.abuelfotoh@gmail.com>,
+        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
+        "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
+References: <CACX6voDfcTQzQJj=5Q-SLi0in1hXpo=Ri28rX73Og3GTObPBWA@mail.gmail.com>
+ <48bb6266-2d5c-ffcd-6982-4fd02bfdcfc3@leemhuis.info>
+ <Yyp59DELlYXpoCBC@mit.edu>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <Yyp59DELlYXpoCBC@mit.edu>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-10.6 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1663754108;7b6f0d50;
+X-HE-SMSGID: 1oawRe-0004yz-68
+X-Spam-Status: No, score=-5.6 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-09-04 15:10, Dario Binacchi wrote:
-> The patch was suggested by the following modpost warning:
+On 21.09.22 04:41, Theodore Ts'o wrote:
+> Hazem started separate e-mail threads on this issue (separated by
+> about an hour), and I replied to the earlier one here:
 > 
-> WARNING: modpost: vmlinux.o(.data+0xa3900): Section mismatch in reference from the variable mxs_dma_driver to the function .init.text:mxs_dma_probe()
-> The variable mxs_dma_driver references
-> the function __init mxs_dma_probe()
-> If the reference is valid then annotate the
-> variable with __init* or __refdata (see linux/init.h) or name the variable:
-> *_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+>     https://lore.kernel.org/all/Yypx6VQRbl3bFP2v@mit.edu/
 
-This is very wrong - even *with* platform_driver_probe(), the driver may 
-remain registered beyond init, so when the driver core walks the list 
-trying to match a driver for some other device later it can access freed 
-data and crash. Which is absolutely no fun to debug...
+#regbot monitor: https://lore.kernel.org/all/Yypx6VQRbl3bFP2v@mit.edu/
 
-The correct fix is to remove the __init annotation from the probe 
-routine. If you want to support deferred probe, consider that even your 
-own probe call might potentially be delayed until after initdata is freed.
-
-Thanks,
-Robin.
-
-> Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-> Cc: stable@vger.kernel.org
-> ---
+> TL;DR:
 > 
-> (no changes since v1)
+> 1)  The patch landed in 5.6, and improved performance for some
+> workloads, and also fixed a potential security problem (exposure of
+> stale data caused by a race).
 > 
->   drivers/dma/mxs-dma.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> 2)  If you are using a storage device >= 128GB, and a version of
+> e2fsprogs v1.43.2 (released six years ago), the journal size will be
+> 1GB, which Hazem reported resolved the problem.
 > 
-> diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-> index 18f8154b859b..a01953e06048 100644
-> --- a/drivers/dma/mxs-dma.c
-> +++ b/drivers/dma/mxs-dma.c
-> @@ -834,7 +834,7 @@ static int __init mxs_dma_probe(struct platform_device *pdev)
->   	return 0;
->   }
->   
-> -static struct platform_driver mxs_dma_driver = {
-> +static struct platform_driver mxs_dma_driver __initdata = {
->   	.driver		= {
->   		.name	= "mxs-dma",
->   		.of_match_table = mxs_dma_dt_ids,
+> 3) I disagree that we should revert this commit, as it only changes a
+> default.  If you prefer the older behavior, you can change it with a
+> mount option.
+
+Great, thx for clarifying, in that case let me remove this from the
+tracking:
+
+#regzbot invalid: caused by a change of defaults that (among others) was
+done for security reasons, see Ted's answer in
+https://lore.kernel.org/all/Yypx6VQRbl3bFP2v@mit.edu/ for details
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
