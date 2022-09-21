@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C212C5C0204
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08CBA5C0291
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231354AbiIUPrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:47:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50632 "EHLO
+        id S229935AbiIUPyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:54:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231161AbiIUPqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCDB76E2EC;
-        Wed, 21 Sep 2022 08:46:44 -0700 (PDT)
+        with ESMTP id S231821AbiIUPwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:52:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08CE3C144;
+        Wed, 21 Sep 2022 08:49:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A29EB81D4E;
-        Wed, 21 Sep 2022 15:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E194EC433D6;
-        Wed, 21 Sep 2022 15:46:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75D7F63138;
+        Wed, 21 Sep 2022 15:49:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68AC2C433D6;
+        Wed, 21 Sep 2022 15:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775202;
-        bh=8KchVOiklKldhDSmnwE9qC9ds7RMp8LSqO/hd4CFmxA=;
+        s=korg; t=1663775370;
+        bh=T4HvC8yXhIBoI7Uz+o4CufFA8Nd+teDpEZ+zCprH8uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrwoWYndGtJqjIroAnMNuX+ITi0yRi1tE/YK0mflp6hVqSg1KpfPkvGI9pj7/pLIY
-         ZXiFhpWlfNUS07QJJzULA1NiLlgFnyLxAIPZQbLMH/1fwLSwRn2PIalCF+svd7Rg65
-         NwHiDXrgxCqyj3IKl9EqI6XJbUoBDi5wimeg3Xcw=
+        b=siwDE4RVpihCwjAIo/3l4MeYL4XplCLkaK3DVr8tyRf7l5VKMSOpU+3dJsN8aTxxE
+         +jKkbHrJkeNtq4h7CMgXxSSsUICybhXreeoSH3IYqsNRh33Bu7NcxqSQ7NhIXAayYh
+         B7m69o9G79xSckkVVycXoIMAfcqhuniifH4ncrSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stuart Menefy <stuart.menefy@mathembedded.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Molly Sophia <mollysophia379@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 13/38] drm/meson: Fix OSD1 RGB to YCbCr coefficient
+Subject: [PATCH 5.15 07/45] pinctrl: qcom: sc8180x: Fix wrong pin numbers
 Date:   Wed, 21 Sep 2022 17:45:57 +0200
-Message-Id: <20220921153646.711370175@linuxfoundation.org>
+Message-Id: <20220921153647.148379218@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Menefy <stuart.menefy@mathembedded.com>
+From: Molly Sophia <mollysophia379@gmail.com>
 
-[ Upstream commit 6463d3930ba5b6addcfc8f80a4543976a2fc7656 ]
+[ Upstream commit 48ec73395887694f13c9452b4dcfb43710451757 ]
 
-VPP_WRAP_OSD1_MATRIX_COEF22.Coeff22 is documented as being bits 0-12,
-not 16-28.
+The pin numbers for UFS_RESET and SDC2_* are not
+consistent in the pinctrl driver for sc8180x.
+So fix it.
 
-Without this the output tends to have a pink hue, changing it results
-in better color accuracy.
-
-The vendor kernel doesn't use this register. However the code which
-sets VIU2_OSD1_MATRIX_COEF22 also uses bits 0-12. There is a slightly
-different style of registers for configuring some of the other matrices,
-which do use bits 16-28 for this coefficient, but those have names
-ending in MATRIX_COEF22_30, and this is not one of those.
-
-Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
-Fixes: 728883948b0d ("drm/meson: Add G12A Support for VIU setup")
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220908155243.687143-1-stuart.menefy@mathembedded.com
+Signed-off-by: Molly Sophia <mollysophia379@gmail.com>
+Fixes: 97423113ec4b ("pinctrl: qcom: Add sc8180x TLMM driver")
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220807122645.13830-3-mollysophia379@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_viu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/qcom/pinctrl-sc8180x.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
-index bb7e109534de..d4b907889a21 100644
---- a/drivers/gpu/drm/meson/meson_viu.c
-+++ b/drivers/gpu/drm/meson/meson_viu.c
-@@ -94,7 +94,7 @@ static void meson_viu_set_g12a_osd1_matrix(struct meson_drm *priv,
- 		priv->io_base + _REG(VPP_WRAP_OSD1_MATRIX_COEF11_12));
- 	writel(((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff),
- 		priv->io_base + _REG(VPP_WRAP_OSD1_MATRIX_COEF20_21));
--	writel((m[11] & 0x1fff) << 16,
-+	writel((m[11] & 0x1fff),
- 		priv->io_base +	_REG(VPP_WRAP_OSD1_MATRIX_COEF22));
+diff --git a/drivers/pinctrl/qcom/pinctrl-sc8180x.c b/drivers/pinctrl/qcom/pinctrl-sc8180x.c
+index 32a2d8c5ceae..a4725ff12da0 100644
+--- a/drivers/pinctrl/qcom/pinctrl-sc8180x.c
++++ b/drivers/pinctrl/qcom/pinctrl-sc8180x.c
+@@ -530,10 +530,10 @@ DECLARE_MSM_GPIO_PINS(187);
+ DECLARE_MSM_GPIO_PINS(188);
+ DECLARE_MSM_GPIO_PINS(189);
  
- 	writel(((m[18] & 0xfff) << 16) | (m[19] & 0xfff),
+-static const unsigned int sdc2_clk_pins[] = { 190 };
+-static const unsigned int sdc2_cmd_pins[] = { 191 };
+-static const unsigned int sdc2_data_pins[] = { 192 };
+-static const unsigned int ufs_reset_pins[] = { 193 };
++static const unsigned int ufs_reset_pins[] = { 190 };
++static const unsigned int sdc2_clk_pins[] = { 191 };
++static const unsigned int sdc2_cmd_pins[] = { 192 };
++static const unsigned int sdc2_data_pins[] = { 193 };
+ 
+ enum sc8180x_functions {
+ 	msm_mux_adsp_ext,
 -- 
 2.35.1
 
