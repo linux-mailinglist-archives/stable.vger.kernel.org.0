@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB105BF34B
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 04:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B585BF3BB
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 04:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229471AbiIUCH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Sep 2022 22:07:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59418 "EHLO
+        id S229871AbiIUCm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Sep 2022 22:42:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbiIUCHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 22:07:55 -0400
+        with ESMTP id S230119AbiIUCmQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Sep 2022 22:42:16 -0400
 Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B3852467;
-        Tue, 20 Sep 2022 19:07:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE157D7A8;
+        Tue, 20 Sep 2022 19:42:14 -0700 (PDT)
 Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
         (authenticated bits=0)
         (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 28L27baS018728
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 28L2fupT001976
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 22:07:38 -0400
+        Tue, 20 Sep 2022 22:41:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1663726059; bh=3ohc6YQiQrAmEO861AamUK/Zf3us3MNirXCnBSsXsbs=;
+        t=1663728119; bh=t2Q8V+AEIFSC4FWyOVVZ3q/0L0fosOQqOKm2sowUgLU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=UwUFSoEld8CG3BMMq8pop268EWXXWl1XoEpBqoW1h2Y3/OKaqBVVcY4ZnsdCIzpNg
-         h91S3bupRx2elhJ4ZQ6C0hp9VDHoFtPW2Oy0X6VrfLIVrchUdGneOAqyJXXm29c8nm
-         mgcVntkBtXyVfij06N60RpPVhHasNL+35Jh4Bv4rnkeCF3qB9zV3syjd2LkRR9AHjL
-         MrAyZW7TXxLPZRNiUUW9P5RqmUoaIZjmBUO1ywCFx4IHVhviS6hMIz0MERfAoKKHjx
-         Tg7YAFofyCxkThZCoIF0UJ6MIkPpZgwgtoz4H50gdVn3yXr/Gscphzhe0ClioeRmZV
-         SOVmGH29H2w4w==
+        b=DBiS/xxerukulQL4UwQIAmdTUPF9ZSkwh0fPFFq45tIbzNTTWEtxhAsfkEW70KQS6
+         qVQtcbPI6J+lJlpLcMN+MNpep3yeA+QiSlt78GuRjpM0NlbsRU7CUd8lClb5b+pepC
+         DSS5we2t7YAFaleOQHG9zF1rC1W0QjD9Q0SMXgAHw2PHxAHAvVY8VlEORVR60ahCKx
+         r9VUo+eHY2Tjmw1u8rvxxTfK//3CQeIm7I52ipSmSoYVorRjTXvjyhmM9IYSb+90KY
+         ESIQQzwUFtn0JUDdW51LtlAvo1Y+u1sCQeYNRMUINshuUyBZAmigOj0rBhBZeJUCU6
+         5zAPxOdZN1BPg==
 Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 166A815C526C; Tue, 20 Sep 2022 22:07:37 -0400 (EDT)
-Date:   Tue, 20 Sep 2022 22:07:37 -0400
+        id C6C2515C526C; Tue, 20 Sep 2022 22:41:56 -0400 (EDT)
+Date:   Tue, 20 Sep 2022 22:41:56 -0400
 From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
-Cc:     "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
+To:     Thorsten Leemhuis <regressions@leemhuis.info>
+Cc:     hazem ahmed mohamed <hazem.ahmed.abuelfotoh@gmail.com>,
+        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
         "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
         "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
 Subject: Re: Ext4: Buffered random writes performance regression with
  dioread_nolock enabled
-Message-ID: <Yypx6VQRbl3bFP2v@mit.edu>
-References: <28460B7B-F66E-4BDC-9F6E-B7E77A3FEE83@amazon.com>
+Message-ID: <Yyp59DELlYXpoCBC@mit.edu>
+References: <CACX6voDfcTQzQJj=5Q-SLi0in1hXpo=Ri28rX73Og3GTObPBWA@mail.gmail.com>
+ <48bb6266-2d5c-ffcd-6982-4fd02bfdcfc3@leemhuis.info>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <28460B7B-F66E-4BDC-9F6E-B7E77A3FEE83@amazon.com>
+In-Reply-To: <48bb6266-2d5c-ffcd-6982-4fd02bfdcfc3@leemhuis.info>
 X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
         DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
@@ -56,64 +58,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 19, 2022 at 03:06:46PM +0000, Mohamed Abuelfotoh, Hazem wrote:
-> Hey Team,
-> 
-> 
->   *   I am sending this e-mail to report a performance regression that’s caused by commit 244adf6426(ext4: make dioread_nolock the default) , I am listing the performance regression symptoms below & our analysis for the reported regression.
+Hazem started separate e-mail threads on this issue (separated by
+about an hour), and I replied to the earlier one here:
 
-Performance regressions are always tricky; dioread_nolock improves on
-some workloads, and can cause regressions for others.  In this
-particular case, the choice to make it the default was to also fix a
-direct I/O vs. writeback race which can result in stale data being
-revealed (which is a security issue).
+    https://lore.kernel.org/all/Yypx6VQRbl3bFP2v@mit.edu/
 
-That being said...
+TL;DR:
 
-1)  as you've noted, this commit has been around since 5.6.
+1)  The patch landed in 5.6, and improved performance for some
+workloads, and also fixed a potential security problem (exposure of
+stale data caused by a race).
 
-2)  as you noted,
+2)  If you are using a storage device >= 128GB, and a version of
+e2fsprogs v1.43.2 (released six years ago), the journal size will be
+1GB, which Hazem reported resolved the problem.
 
-    Increasing the journal size from ext4 128 MiB to 1GiB will also
-    fix the problem .
-
-Since 2016, the commit bbd2f78cf63a ("libext2fs: allow the default
-journal size to go as large as a gigabyte") has been in e2fsprogs
-v1.43.2 and newer (the current version of e2fsprogs v1.46.5; v1.43.2
-was released in September 2016, six years ago).  Quoting the commit
-description:
-
-    Recent research has shown that for a metadata-heavy workload, a 128 MB
-    is journal be a bottleneck on HDD's, and that the optimal journal size
-    is proportional to number of unique metadata blocks that can be
-    modified (and written into the journal) in a 30 second window.  One
-    gigabyte should be sufficient for most workloads, which will be used
-    for file systems larger than 128 gigabytes.
-
-So this should not be a problem in practice, and if there are users
-who are using antedeluvian versions of e2fsprogs, or who have old file
-systems which were created many years ago, it's quite easy to adjust
-the journal size.  For example, to adjust the journal to be 2GiB (2048
-MiB), just run the commands:
-
-   tune2fs -O ^has_journal /dev/sdXX
-   tune2fs -O has_journal -J size=2048 /tmp/sdXX
-
-Hence, I disagree that we should revert commit 244adf6426.  It may be
-that for your workload and your file system configuration, using the
-mount option nodioread_nolock (or dioread_lock), may make sense.  But
-there were also workloads for which using dioread_nolock improved
-benchmark numbers, so the question of which is the better default is
-not at all obvious.
-
-That being said, I do have plans for a new writeback scheme which will
-replace dioread_nolock *and* dioread_lock, and which will hopefully be
-faster than either approach.
+3) I disagree that we should revert this commit, as it only changes a
+default.  If you prefer the older behavior, you can change it with a
+mount option.
 
 						- Ted
-
-P.S.  I'm puzzled by your comment, "we have to note that this should
-be only beneficial with extent-based files" --- while this is true,
-why does this matter?  Unless you're dealing with an ancient file
-system that was originally created as ext2 or ext3 and then converted
-to ext4, *all* ext4 files should be extent-based...
