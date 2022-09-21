@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 960125C039C
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:07:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2605C03A0
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232402AbiIUQHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:07:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45802 "EHLO
+        id S232535AbiIUQHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:07:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231849AbiIUQGr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE8FA3D69;
-        Wed, 21 Sep 2022 08:55:21 -0700 (PDT)
+        with ESMTP id S232408AbiIUQGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DEC1A3D74;
+        Wed, 21 Sep 2022 08:55:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BD5EB830DC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id F334DB830BE;
         Wed, 21 Sep 2022 15:54:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FD92C433C1;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A37F8C43141;
         Wed, 21 Sep 2022 15:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1663775648;
-        bh=E18brjcFXfPgkUGnMgoSp6ARZIt9tLyOR0rwKgBw5Ck=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Gr/L8v7i53XgvvR0Ejs2eozs1+Ft2kSh42Mt3J/ETSgolqiK4EmgCkPZHDh2Y95QW
-         X+SBA7fKzgUSu57zcGa3EaTLLdXxJHcZcmEackJVdj6398ZVIKJlWt/phIb+hTgRs7
-         4vRrfF5GPsEOYGBeaPQrIsnu1JGfiyFuPAnO7K24I6VquQmBZvwN9AaNGw+eFScDke
-         Ef03Ggmm2oRdtofMdwIJykz5khj68pllnS8AR2YVmdmoxBqoj0w0dllWX3Hcgou1dl
-         MUXAt6tGUpvUaDAzW7bhnsy17nOWErKcQsRLbKEniXXsOcg11DqLw1PMAptgCZDm3a
-         x8TmjLmLOJNbA==
+        bh=BXd3fk2wzt9SIyr2yvllbbQe8fh4vJOwvdAwHCSN1d8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lF73on3EVOdXGdkXnWB5fGf2m3PRFJNRMcnNwgY8nK5cVce3y95kprfK3fCdTScia
+         7/kOv8vaSobxYXXr1P7XD1vaH2Oxs9zirnnMGLqWLliXEpHcuRm1TpguiQzlZHbuF5
+         nJFUumrK10hooIQ9M6ZWZaOs//RxSzu+Vcvwxyz2+CxjaZzpEHRmlqjuVVXVewv99X
+         vzzWwJ9NkTTKV7C8Rmx/t3wWBgWhqnUPEuFro9gBwjPStVffOcE0Bgkz5cTFVS5+8X
+         dyx1wyg6qLI8BvVTCUbZtSwdv146TS/e8Og7thAAaH4gWr6+jV39J39v8pG5I4a0na
+         WjdYJQD01jG6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
-        decui@microsoft.com, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/10] Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
-Date:   Wed, 21 Sep 2022 11:53:58 -0400
-Message-Id: <20220921155407.235132-1-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 02/10] drm/gma500: Fix BUG: sleeping function called from invalid context errors
+Date:   Wed, 21 Sep 2022 11:53:59 -0400
+Message-Id: <20220921155407.235132-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220921155407.235132-1-sashal@kernel.org>
+References: <20220921155407.235132-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,98 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
+[ Upstream commit 63e37a79f7bd939314997e29c2f5a9f0ef184281 ]
 
-Passed through PCI device sometimes misbehave on Gen1 VMs when Hyper-V
-DRM driver is also loaded. Looking at IOMEM assignment, we can see e.g.
+gma_crtc_page_flip() was holding the event_lock spinlock while calling
+crtc_funcs->mode_set_base() which takes ww_mutex.
 
-$ cat /proc/iomem
-...
-f8000000-fffbffff : PCI Bus 0000:00
-  f8000000-fbffffff : 0000:00:08.0
-    f8000000-f8001fff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
-...
-fe0000000-fffffffff : PCI Bus 0000:00
-  fe0000000-fe07fffff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
-    fe0000000-fe07fffff : 2ba2:00:02.0
-      fe0000000-fe07fffff : mlx4_core
+The only reason to hold event_lock is to clear gma_crtc->page_flip_event
+on mode_set_base() errors.
 
-the interesting part is the 'f8000000' region as it is actually the
-VM's framebuffer:
+Instead unlock it after setting gma_crtc->page_flip_event and on
+errors re-take the lock and clear gma_crtc->page_flip_event it
+it is still set.
 
-$ lspci -v
-...
-0000:00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA (prog-if 00 [VGA controller])
-	Flags: bus master, fast devsel, latency 0, IRQ 11
-	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
-...
+This fixes the following WARN/stacktrace:
 
- hv_vmbus: registering driver hyperv_drm
- hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Synthvid Version major 3, minor 5
- hyperv_drm 0000:00:08.0: vgaarb: deactivate vga console
- hyperv_drm 0000:00:08.0: BAR 0: can't reserve [mem 0xf8000000-0xfbffffff]
- hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Cannot request framebuffer, boot fb still active?
+[  512.122953] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:870
+[  512.123004] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1253, name: gnome-shell
+[  512.123031] preempt_count: 1, expected: 0
+[  512.123048] RCU nest depth: 0, expected: 0
+[  512.123066] INFO: lockdep is turned off.
+[  512.123080] irq event stamp: 0
+[  512.123094] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+[  512.123134] hardirqs last disabled at (0): [<ffffffff8d0ec28c>] copy_process+0x9fc/0x1de0
+[  512.123176] softirqs last  enabled at (0): [<ffffffff8d0ec28c>] copy_process+0x9fc/0x1de0
+[  512.123207] softirqs last disabled at (0): [<0000000000000000>] 0x0
+[  512.123233] Preemption disabled at:
+[  512.123241] [<0000000000000000>] 0x0
+[  512.123275] CPU: 3 PID: 1253 Comm: gnome-shell Tainted: G        W         5.19.0+ #1
+[  512.123304] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
+[  512.123323] Call Trace:
+[  512.123346]  <TASK>
+[  512.123370]  dump_stack_lvl+0x5b/0x77
+[  512.123412]  __might_resched.cold+0xff/0x13a
+[  512.123458]  ww_mutex_lock+0x1e/0xa0
+[  512.123495]  psb_gem_pin+0x2c/0x150 [gma500_gfx]
+[  512.123601]  gma_pipe_set_base+0x76/0x240 [gma500_gfx]
+[  512.123708]  gma_crtc_page_flip+0x95/0x130 [gma500_gfx]
+[  512.123808]  drm_mode_page_flip_ioctl+0x57d/0x5d0
+[  512.123897]  ? drm_mode_cursor2_ioctl+0x10/0x10
+[  512.123936]  drm_ioctl_kernel+0xa1/0x150
+[  512.123984]  drm_ioctl+0x21f/0x420
+[  512.124025]  ? drm_mode_cursor2_ioctl+0x10/0x10
+[  512.124070]  ? rcu_read_lock_bh_held+0xb/0x60
+[  512.124104]  ? lock_release+0x1ef/0x2d0
+[  512.124161]  __x64_sys_ioctl+0x8d/0xd0
+[  512.124203]  do_syscall_64+0x58/0x80
+[  512.124239]  ? do_syscall_64+0x67/0x80
+[  512.124267]  ? trace_hardirqs_on_prepare+0x55/0xe0
+[  512.124300]  ? do_syscall_64+0x67/0x80
+[  512.124340]  ? rcu_read_lock_sched_held+0x10/0x80
+[  512.124377]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  512.124411] RIP: 0033:0x7fcc4a70740f
+[  512.124442] Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 18 48 8b 44 24 18 64 48 2b 04 25 28 00 00
+[  512.124470] RSP: 002b:00007ffda73f5390 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[  512.124503] RAX: ffffffffffffffda RBX: 000055cc9e474500 RCX: 00007fcc4a70740f
+[  512.124524] RDX: 00007ffda73f5420 RSI: 00000000c01864b0 RDI: 0000000000000009
+[  512.124544] RBP: 00007ffda73f5420 R08: 000055cc9c0b0cb0 R09: 0000000000000034
+[  512.124564] R10: 0000000000000000 R11: 0000000000000246 R12: 00000000c01864b0
+[  512.124584] R13: 0000000000000009 R14: 000055cc9df484d0 R15: 000055cc9af5d0c0
+[  512.124647]  </TASK>
 
-Note: "Cannot request framebuffer" is not a fatal error in
-hyperv_setup_gen1() as the code assumes there's some other framebuffer
-device there but we actually have some other PCI device (mlx4 in this
-case) config space there!
-
-The problem appears to be that vmbus_allocate_mmio() can use dedicated
-framebuffer region to serve any MMIO request from any device. The
-semantics one might assume of a parameter named "fb_overlap_ok"
-aren't implemented because !fb_overlap_ok essentially has no effect.
-The existing semantics are really "prefer_fb_overlap". This patch
-implements the expected and needed semantics, which is to not allocate
-from the frame buffer space when !fb_overlap_ok.
-
-Note, Gen2 VMs are usually unaffected by the issue because
-framebuffer region is already taken by EFI fb (in case kernel supports
-it) but Gen1 VMs may have this region unclaimed by the time Hyper-V PCI
-pass-through driver tries allocating MMIO space if Hyper-V DRM/FB drivers
-load after it. Devices can be brought up in any sequence so let's
-resolve the issue by always ignoring 'fb_mmio' region for non-FB
-requests, even if the region is unclaimed.
-
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20220827130345.1320254-4-vkuznets@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/gma500/gma_display.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 50d9113f5402..ecfc299834e1 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -2340,7 +2340,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 			bool fb_overlap_ok)
- {
- 	struct resource *iter, *shadow;
--	resource_size_t range_min, range_max, start;
-+	resource_size_t range_min, range_max, start, end;
- 	const char *dev_n = dev_name(&device_obj->device);
- 	int retval;
+diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
+index b03f7b8241f2..7162f4c946af 100644
+--- a/drivers/gpu/drm/gma500/gma_display.c
++++ b/drivers/gpu/drm/gma500/gma_display.c
+@@ -529,15 +529,18 @@ int gma_crtc_page_flip(struct drm_crtc *crtc,
+ 		WARN_ON(drm_crtc_vblank_get(crtc) != 0);
  
-@@ -2375,6 +2375,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 		range_max = iter->end;
- 		start = (range_min + align - 1) & ~(align - 1);
- 		for (; start + size - 1 <= range_max; start += align) {
-+			end = start + size - 1;
-+
-+			/* Skip the whole fb_mmio region if not fb_overlap_ok */
-+			if (!fb_overlap_ok && fb_mmio &&
-+			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
-+			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
-+				continue;
-+
- 			shadow = __request_region(iter, start, size, NULL,
- 						  IORESOURCE_BUSY);
- 			if (!shadow)
+ 		gma_crtc->page_flip_event = event;
++		spin_unlock_irqrestore(&dev->event_lock, flags);
+ 
+ 		/* Call this locked if we want an event at vblank interrupt. */
+ 		ret = crtc_funcs->mode_set_base(crtc, crtc->x, crtc->y, old_fb);
+ 		if (ret) {
+-			gma_crtc->page_flip_event = NULL;
+-			drm_crtc_vblank_put(crtc);
++			spin_lock_irqsave(&dev->event_lock, flags);
++			if (gma_crtc->page_flip_event) {
++				gma_crtc->page_flip_event = NULL;
++				drm_crtc_vblank_put(crtc);
++			}
++			spin_unlock_irqrestore(&dev->event_lock, flags);
+ 		}
+-
+-		spin_unlock_irqrestore(&dev->event_lock, flags);
+ 	} else {
+ 		ret = crtc_funcs->mode_set_base(crtc, crtc->x, crtc->y, old_fb);
+ 	}
 -- 
 2.35.1
 
