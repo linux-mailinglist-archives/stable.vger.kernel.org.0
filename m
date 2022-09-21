@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE2B5C02A2
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D09605C0233
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231715AbiIUPy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:54:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40016 "EHLO
+        id S231338AbiIUPt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:49:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231882AbiIUPxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 559D67C321;
-        Wed, 21 Sep 2022 08:50:13 -0700 (PDT)
+        with ESMTP id S231410AbiIUPtR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:49:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC4379DB71;
+        Wed, 21 Sep 2022 08:47:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E87CB82714;
-        Wed, 21 Sep 2022 15:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999B7C433C1;
-        Wed, 21 Sep 2022 15:49:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E2B2B82DF4;
+        Wed, 21 Sep 2022 15:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F22C433D7;
+        Wed, 21 Sep 2022 15:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775383;
-        bh=3brTycJ0De2vAzvXgwladuUXsxgrLWMn0uEYin+EqgQ=;
+        s=korg; t=1663775261;
+        bh=mydkNH3nKlmwcuJ7kkDzlu/pTI9/TP0+hAPsjtCuyKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUvw5cBgiMdQJCAr8fQTvv/og0GKS0WX7E741Pjn+vkAfJlrz9KTQuzC+cqHocWyI
-         FWB4rn1Lpa0JCSe4N3EFLF+fnpyz4Qy4Y7xHO8A+DIzjN2B53QV8H1rOAhCKlNSt+X
-         bfOm4WlXoHJW4SUfV/AcSYzXF68+wEXhd0uS7hYg=
+        b=0d17w9raxXdMcvNfOuIgSrKco7UiMEjO4EYIUpNB1nCfDkZ3HGFRSBPwUMw+BHf2o
+         p4qEUcsCdgZk4S/owNo8i8byYVUix4rww4OcaOLYw13JW2pDrU2V4+ra3IkRwHxViI
+         UlMtJixh6QWz+c6iQaaQPGKGB2EzycjzpQegqbK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jassi Brar <jaswinder.singh@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 27/45] arm64: dts: juno: Add missing MHU secure-irq
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.19 33/38] drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega
 Date:   Wed, 21 Sep 2022 17:46:17 +0200
-Message-Id: <20220921153647.784204824@linuxfoundation.org>
+Message-Id: <20220921153647.321201114@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jassi Brar <jaswinder.singh@linaro.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 422ab8fe15e30066d4c8e236b747c77069bfca45 ]
+commit e3163bc8ffdfdb405e10530b140135b2ee487f89 upstream.
 
-The MHU secure interrupt exists physically but is missing in the DT node.
+This mirrors what we do for other asics and this way we are
+sure the sdma doorbell range is properly initialized.
 
-Specify the interrupt in DT node to fix a warning on Arm Juno board:
-   mhu@2b1f0000: interrupts: [[0, 36, 4], [0, 35, 4]] is too short
+There is a comment about the way doorbells on gfx9 work that
+requires that they are initialized for other IPs before GFX
+is initialized.  However, the statement says that it applies to
+multimedia as well, but the VCN code currently initializes
+doorbells after GFX and there are no known issues there.  In my
+testing at least I don't see any problems on SDMA.
 
-Link: https://lore.kernel.org/r/20220801141005.599258-1-jassisinghbrar@gmail.com
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is a prerequisite for fixing the Unsupported Request error
+reported through AER during driver load.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216373
+
+The error was unnoticed before and got visible because of the commit
+referenced below. This doesn't fix anything in the commit below, rather
+fixes the issue in amdgpu exposed by the commit. The reference is only
+to associate this commit with below one so that both go together.
+
+Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/arm/juno-base.dtsi | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c |    5 +++++
+ drivers/gpu/drm/amd/amdgpu/soc15.c     |   22 ----------------------
+ 2 files changed, 5 insertions(+), 22 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
-index a2635b14da30..34e5549ea748 100644
---- a/arch/arm64/boot/dts/arm/juno-base.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
-@@ -26,7 +26,8 @@
- 		compatible = "arm,mhu", "arm,primecell";
- 		reg = <0x0 0x2b1f0000 0x0 0x1000>;
- 		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
-+			     <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
- 		#mbox-cells = <1>;
- 		clocks = <&soc_refclk100mhz>;
- 		clock-names = "apb_pclk";
--- 
-2.35.1
-
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -1504,6 +1504,11 @@ static int sdma_v4_0_start(struct amdgpu
+ 		WREG32_SDMA(i, mmSDMA0_CNTL, temp);
+ 
+ 		if (!amdgpu_sriov_vf(adev)) {
++			ring = &adev->sdma.instance[i].ring;
++			adev->nbio.funcs->sdma_doorbell_range(adev, i,
++				ring->use_doorbell, ring->doorbell_index,
++				adev->doorbell_index.sdma_doorbell_range);
++
+ 			/* unhalt engine */
+ 			temp = RREG32_SDMA(i, mmSDMA0_F32_CNTL);
+ 			temp = REG_SET_FIELD(temp, SDMA0_F32_CNTL, HALT, 0);
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -1211,22 +1211,6 @@ static int soc15_common_sw_fini(void *ha
+ 	return 0;
+ }
+ 
+-static void soc15_doorbell_range_init(struct amdgpu_device *adev)
+-{
+-	int i;
+-	struct amdgpu_ring *ring;
+-
+-	/* sdma/ih doorbell range are programed by hypervisor */
+-	if (!amdgpu_sriov_vf(adev)) {
+-		for (i = 0; i < adev->sdma.num_instances; i++) {
+-			ring = &adev->sdma.instance[i].ring;
+-			adev->nbio.funcs->sdma_doorbell_range(adev, i,
+-				ring->use_doorbell, ring->doorbell_index,
+-				adev->doorbell_index.sdma_doorbell_range);
+-		}
+-	}
+-}
+-
+ static int soc15_common_hw_init(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+@@ -1246,12 +1230,6 @@ static int soc15_common_hw_init(void *ha
+ 
+ 	/* enable the doorbell aperture */
+ 	soc15_enable_doorbell_aperture(adev, true);
+-	/* HW doorbell routing policy: doorbell writing not
+-	 * in SDMA/IH/MM/ACV range will be routed to CP. So
+-	 * we need to init SDMA/IH/MM/ACV doorbell range prior
+-	 * to CP ip block init and ring test.
+-	 */
+-	soc15_doorbell_range_init(adev);
+ 
+ 	return 0;
+ }
 
 
