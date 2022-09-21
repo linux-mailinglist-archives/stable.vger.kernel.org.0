@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 520325C0210
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D8155C0213
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231517AbiIUPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
+        id S231378AbiIUPri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231516AbiIUPrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:05 -0400
+        with ESMTP id S231561AbiIUPrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E5E9323D;
-        Wed, 21 Sep 2022 08:47:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6297A96FFB;
+        Wed, 21 Sep 2022 08:47:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5AF06312E;
-        Wed, 21 Sep 2022 15:47:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF019C433D6;
-        Wed, 21 Sep 2022 15:47:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5EB462C86;
+        Wed, 21 Sep 2022 15:47:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1313C433D6;
+        Wed, 21 Sep 2022 15:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775221;
-        bh=7r89XjSIqmxsdqJA11MBe+sbq2S+K17H1vE04rSMB7k=;
+        s=korg; t=1663775224;
+        bh=APIfy+CENXuoyhydiMfxIatMOxxvZLvNCfx6BXp/sOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1ZeQE2BXFDmWC/nmGKwJqL+vlkLg3v2ZG7eCy+aeLOcLScb8BaSQYOXTH4O0xGZ2
-         Pve2CnXbil351Tz0g9Rrh2K81/vO4SrN2K+vn9H8Z1jr/4i7rjDAcbkxIe9t2mPRjE
-         1qZ2x2jBnJ3jLB68Q/xwk9HhX90iM21n7eDWs1ek=
+        b=QpZUP4kCfJw2uZJutoqqTahhJg79gt915tzmaVkj5wwuikIBHKB3NsM99P4IJtZD/
+         Xc8La9NRFfuSIvJd5505k+W/qf+oDcmR/kjA9CH7j/Bk8WhAusDoEAO39hPIkdQByY
+         etOlpAZ77tfyNT52vcL29a3a17WE8gaOFi+/sL5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "=?UTF-8?q?Jo=C3=A3o=20H . =20Spies?=" <jhlspies@gmail.com>,
+        stable@vger.kernel.org, Michael Wu <michael@allwinnertech.com>,
+        Samuel Holland <samuel@sholland.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 04/38] pinctrl: rockchip: Enhance support for IRQ_TYPE_EDGE_BOTH
-Date:   Wed, 21 Sep 2022 17:45:48 +0200
-Message-Id: <20220921153646.447506473@linuxfoundation.org>
+Subject: [PATCH 5.19 05/38] pinctrl: sunxi: Fix name for A100 R_PIO
+Date:   Wed, 21 Sep 2022 17:45:49 +0200
+Message-Id: <20220921153646.475718080@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
 References: <20220921153646.298361220@linuxfoundation.org>
@@ -45,54 +45,45 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: João H. Spies <jhlspies@gmail.com>
+From: Michael Wu <michael@allwinnertech.com>
 
-[ Upstream commit b871656aa4f54e04207f62bdd0d7572be1d86b36 ]
+[ Upstream commit 76648c867c6c03b8a468d9c9222025873ecc613d ]
 
-Switching between falling/rising edges for IRQ_TYPE_EDGE_BOTH on pins that
-require debounce can cause the device to lose events due to a desync
-between pin state and irq type.
+The name of A100 R_PIO driver should be sun50i-a100-r-pinctrl,
+not sun50iw10p1-r-pinctrl.
 
-This problem is resolved by switching between IRQ_TYPE_LEVEL_LOW and
-IRQ_TYPE_LEVEL_HIGH instead.
-
-Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
-Signed-off-by: João H. Spies <jhlspies@gmail.com>
-Link: https://lore.kernel.org/r/20220808025121.110223-1-jhlspies@gmail.com
+Fixes: 473436e7647d6 ("pinctrl: sunxi: add support for the Allwinner A100 pin controller")
+Signed-off-by: Michael Wu <michael@allwinnertech.com>
+Acked-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20220819024541.74191-1-michael@allwinnertech.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-rockchip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
-index e342a6dc4c6c..bb953f647864 100644
---- a/drivers/gpio/gpio-rockchip.c
-+++ b/drivers/gpio/gpio-rockchip.c
-@@ -418,11 +418,11 @@ static int rockchip_irq_set_type(struct irq_data *d, unsigned int type)
- 			goto out;
- 		} else {
- 			bank->toggle_edge_mode |= mask;
--			level |= mask;
-+			level &= ~mask;
- 
- 			/*
- 			 * Determine gpio state. If 1 next interrupt should be
--			 * falling otherwise rising.
-+			 * low otherwise high.
- 			 */
- 			data = readl(bank->reg_base + bank->gpio_regs->ext_port);
- 			if (data & mask)
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c b/drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c
+index 21054fcacd34..18088f6f44b2 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c
+@@ -98,7 +98,7 @@ MODULE_DEVICE_TABLE(of, a100_r_pinctrl_match);
+ static struct platform_driver a100_r_pinctrl_driver = {
+ 	.probe	= a100_r_pinctrl_probe,
+ 	.driver	= {
+-		.name		= "sun50iw10p1-r-pinctrl",
++		.name		= "sun50i-a100-r-pinctrl",
+ 		.of_match_table	= a100_r_pinctrl_match,
+ 	},
+ };
 -- 
 2.35.1
 
