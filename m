@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 974735C0340
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C5C5C0311
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbiIUQBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56592 "EHLO
+        id S231965AbiIUQAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:00:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232719AbiIUQAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:00:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B311A9DF8F;
-        Wed, 21 Sep 2022 08:53:55 -0700 (PDT)
+        with ESMTP id S232257AbiIUP6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDDFA1D07;
+        Wed, 21 Sep 2022 08:52:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4C8FB830C9;
-        Wed, 21 Sep 2022 15:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05345C433D6;
-        Wed, 21 Sep 2022 15:52:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14EBF63171;
+        Wed, 21 Sep 2022 15:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DA4DC433C1;
+        Wed, 21 Sep 2022 15:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775542;
-        bh=jN0Lc6jlIOmgTulc4MuV92P93WKXoBBKqq7m2qRdg0g=;
+        s=korg; t=1663775545;
+        bh=ThcW4Y2CMWNnFQ5nObova8kNu3XVef5pFXO3EXiuha4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOksCevsErLwmgIRhoRNf5dZ21BEjnxpAmKXN5ap4+MkBD534ydygtSdqynkb854M
-         3ttByukG+68mtlw/c7zAhaUiRNvg96OI1rcLuQlhylZrdse0V+S2QWwV/HcZvakgHc
-         A+zuIrkkNqDy6prQihm6X5ZI310TwFZZ1CDJKuoE=
+        b=bQ0w0vJs7eo7BQT5lO7DU9NO8GAMWZzRo4cjl+XGix9YSCOapvvnTAaaMykAEjSCD
+         W2vmp1R96usw9//EIKLe3xd+dmIXGd4TJZJqCbzTbQzcQdvffIi52X7aICqoCOyCAp
+         4xEwMMLbIqvpr3EPFyadiZM54T3LwuKFQ0ZbYwgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 31/39] ALSA: hda/sigmatel: Keep power up while beep is enabled
-Date:   Wed, 21 Sep 2022 17:46:36 +0200
-Message-Id: <20220921153646.747170273@linuxfoundation.org>
+        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 32/39] ALSA: hda/tegra: Align BDL entry to 4KB boundary
+Date:   Wed, 21 Sep 2022 17:46:37 +0200
+Message-Id: <20220921153646.774902016@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
 References: <20220921153645.663680057@linuxfoundation.org>
@@ -52,69 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit 414d38ba871092aeac4ed097ac4ced89486646f7 ]
+[ Upstream commit 8d44e6044a0e885acdd01813768a0b27906d64fd ]
 
-It seems that the beep playback doesn't work well on IDT codec devices
-when the codec auto-pm is enabled.  Keep the power on while the beep
-switch is enabled.
+AZA HW may send a burst read/write request crossing 4K memory boundary.
+The 4KB boundary is not guaranteed by Tegra HDA HW. Make SW change to
+include the flag AZX_DCAPS_4K_BDLE_BOUNDARY to align BDLE to 4K
+boundary.
 
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1200544
-Link: https://lore.kernel.org/r/20220904072750.26164-1-tiwai@suse.de
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Link: https://lore.kernel.org/r/20220905172420.3801-1-mkumard@nvidia.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_sigmatel.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ sound/pci/hda/hda_tegra.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
-index c662431bf13a..e9d0b0a30b99 100644
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -209,6 +209,7 @@ struct sigmatel_spec {
- 
- 	/* beep widgets */
- 	hda_nid_t anabeep_nid;
-+	bool beep_power_on;
- 
- 	/* SPDIF-out mux */
- 	const char * const *spdif_labels;
-@@ -4447,6 +4448,26 @@ static int stac_suspend(struct hda_codec *codec)
- 	stac_shutup(codec);
- 	return 0;
- }
-+
-+static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
-+{
-+	struct sigmatel_spec *spec = codec->spec;
-+	int ret = snd_hda_gen_check_power_status(codec, nid);
-+
-+#ifdef CONFIG_SND_HDA_INPUT_BEEP
-+	if (nid == spec->gen.beep_nid && codec->beep) {
-+		if (codec->beep->enabled != spec->beep_power_on) {
-+			spec->beep_power_on = codec->beep->enabled;
-+			if (spec->beep_power_on)
-+				snd_hda_power_up_pm(codec);
-+			else
-+				snd_hda_power_down_pm(codec);
-+		}
-+		ret |= spec->beep_power_on;
-+	}
-+#endif
-+	return ret;
-+}
- #else
- #define stac_suspend		NULL
- #endif /* CONFIG_PM */
-@@ -4459,6 +4480,7 @@ static const struct hda_codec_ops stac_patch_ops = {
- 	.unsol_event = snd_hda_jack_unsol_event,
- #ifdef CONFIG_PM
- 	.suspend = stac_suspend,
-+	.check_power_status = stac_check_power_status,
- #endif
- 	.reboot_notify = stac_shutup,
- };
+diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
+index 07787698b973..1e44e337986e 100644
+--- a/sound/pci/hda/hda_tegra.c
++++ b/sound/pci/hda/hda_tegra.c
+@@ -479,7 +479,8 @@ MODULE_DEVICE_TABLE(of, hda_tegra_match);
+ static int hda_tegra_probe(struct platform_device *pdev)
+ {
+ 	const unsigned int driver_flags = AZX_DCAPS_CORBRP_SELF_CLEAR |
+-					  AZX_DCAPS_PM_RUNTIME;
++					  AZX_DCAPS_PM_RUNTIME |
++					  AZX_DCAPS_4K_BDLE_BOUNDARY;
+ 	struct snd_card *card;
+ 	struct azx *chip;
+ 	struct hda_tegra *hda;
 -- 
 2.35.1
 
