@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DB75C0375
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 927805C0385
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbiIUQFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:05:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43238 "EHLO
+        id S232363AbiIUQG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:06:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232588AbiIUQEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:04:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34C06110F;
-        Wed, 21 Sep 2022 08:54:49 -0700 (PDT)
+        with ESMTP id S232360AbiIUQFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:05:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97DD59F8C3;
+        Wed, 21 Sep 2022 08:55:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0405CB830F3;
-        Wed, 21 Sep 2022 15:54:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C07C433C1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6D4263189;
+        Wed, 21 Sep 2022 15:54:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA4FFC43140;
         Wed, 21 Sep 2022 15:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663775687;
-        bh=7lT88kymb+yHRk7aKUfmIghEeBPzIMSI+gUmp/ehBBM=;
+        s=k20201202; t=1663775688;
+        bh=VwNcnLR2/LA/fz5sKeoJt9Vzelm+E+Rs4audF7yv7p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6fT0S4psDxGGHTGvSbrio5jO5h+rHJMSTKSP++DCOnJ8uUiQYcKe5Dd9Hyg/TFyR
-         bz527MMphcRp/xlSOU1PgmsOKRnkp24EmAZsyQzS9l4PJ5mdMLkPE3o5JYHk3blHaL
-         8ZSeLSfkdtFm+kr36MgzXarAif7WXfD2epMia3QqVb0BJEMsNKleb0qmoIk1gjZeYi
-         2nhf7rzvkmYh6JGubOQzISoXsbmPtcTybfOUeL1v/e69E+798zX8ft/d2x59Esek4L
-         hOL3MZ8Dxu20E5GjOoMO6PG4xcxUEjFixzo61o6siGZYK6lfKkPbiMTpNNVnKWQqVg
-         EzVLcww0boZ3w==
+        b=Z1+yq/aofyxj8frjclUkVBNyjhJcUqhnKroNAlsY8Sf7VEGFkC4m6kPyeB83hOiQl
+         zhywn4TAzCJCS7KyMH3QvsC+YAloyXL46gtAb5uGDVE3Knq3gQLyr3Ve5oM8DVAdbM
+         3Rh74WhjpQHyyPY2H69VIb8Ex+7ONTD0zdikhqv3qvHCqmCyzl0kDOhFm9ZJh/52MO
+         OxzAob9OYqSwJw1ge8th/JBlviEiGh87GBVZ+56Zw0UdzAji3oPgr//C+aO14sstCn
+         cKvr7TxKqnWzA8V6FfQjcj5fkX37DDtysL1EGKZTsTk9/yVm1rv8MNF50rVioPXgmA
+         aPxMxn3wEWsYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yao Wang1 <Yao.Wang1@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 2/3] drm/amd/display: Limit user regamma to a valid value
-Date:   Wed, 21 Sep 2022 11:54:42 -0400
-Message-Id: <20220921155444.235446-2-sashal@kernel.org>
+Cc:     Nathan Huckleberry <nhuck@google.com>,
+        Dan Carpenter <error27@gmail.com>, llvm@lists.linux.dev,
+        Nathan Chancellor <nathan@kernel.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, hjc@rock-chips.com,
+        airlied@linux.ie, daniel@ffwll.ch, ndesaulniers@google.com,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 3/3] drm/rockchip: Fix return type of cdn_dp_connector_mode_valid
+Date:   Wed, 21 Sep 2022 11:54:43 -0400
+Message-Id: <20220921155444.235446-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220921155444.235446-1-sashal@kernel.org>
 References: <20220921155444.235446-1-sashal@kernel.org>
@@ -63,53 +61,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yao Wang1 <Yao.Wang1@amd.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 3601d620f22e37740cf73f8278eabf9f2aa19eb7 ]
+[ Upstream commit b0b9408f132623dc88e78adb5282f74e4b64bb57 ]
 
-[Why]
-For HDR mode, we get total 512 tf_point and after switching to SDR mode
-we actually get 400 tf_point and the rest of points(401~512) still use
-dirty value from HDR mode. We should limit the rest of the points to max
-value.
+The mode_valid field in drm_connector_helper_funcs is expected to be of
+type:
+enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
+				     struct drm_display_mode *mode);
 
-[How]
-Limit the value when coordinates_x.x > 1, just like what we do in
-translate_from_linear_space for other re-gamma build paths.
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Signed-off-by: Yao Wang1 <Yao.Wang1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The return type of cdn_dp_connector_mode_valid should be changed from
+int to enum drm_mode_status.
+
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220913205555.155149-1-nhuck@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/rockchip/cdn-dp-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-index 11ea1a0e629b..4e866317ec25 100644
---- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-+++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-@@ -1206,6 +1206,7 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
- 	struct fixed31_32 lut2;
- 	struct fixed31_32 delta_lut;
- 	struct fixed31_32 delta_index;
-+	const struct fixed31_32 one = dc_fixpt_from_int(1);
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+index 3feab563e50a..3f992e5a75c9 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+@@ -284,8 +284,9 @@ static int cdn_dp_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
+ }
  
- 	i = 0;
- 	/* fixed_pt library has problems handling too small values */
-@@ -1234,6 +1235,9 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
- 			} else
- 				hw_x = coordinates_x[i].x;
- 
-+			if (dc_fixpt_le(one, hw_x))
-+				hw_x = one;
-+
- 			norm_x = dc_fixpt_mul(norm_factor, hw_x);
- 			index = dc_fixpt_floor(norm_x);
- 			if (index < 0 || index > 255)
+-static int cdn_dp_connector_mode_valid(struct drm_connector *connector,
+-				       struct drm_display_mode *mode)
++static enum drm_mode_status
++cdn_dp_connector_mode_valid(struct drm_connector *connector,
++			    struct drm_display_mode *mode)
+ {
+ 	struct cdn_dp_device *dp = connector_to_dp(connector);
+ 	struct drm_display_info *display_info = &dp->connector.display_info;
 -- 
 2.35.1
 
