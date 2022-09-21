@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A385C0344
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9975C0327
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbiIUQBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:01:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54004 "EHLO
+        id S232082AbiIUQAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232741AbiIUQAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:00:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5854A94138;
-        Wed, 21 Sep 2022 08:53:51 -0700 (PDT)
+        with ESMTP id S232605AbiIUQAD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:00:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0BD213E04;
+        Wed, 21 Sep 2022 08:53:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 391AFB830C1;
-        Wed, 21 Sep 2022 15:52:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80B0FC43143;
-        Wed, 21 Sep 2022 15:52:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775533;
-        bh=ytg24SidaYSBP4H8Utx5FohGolk1zys/IBm03XeRul8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmRqXEPqDM2a9xMTCJkEsn/ZcaXm98tXr2IMEMcL+Fbi+lTJYooz11f0G3/vj/xuH
-         xwo/a0KUpwK0whi/DeutvzMbaJH2yvJVTe3F9vkWxB6zp+vrb9JRzjKmBYQ0pACWa+
-         5R92UxP6XOtla/KZL413m6rkXDfRNGJNVQacwtmc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 39/39] ALSA: hda/sigmatel: Fix unused variable warning for beep power change
-Date:   Wed, 21 Sep 2022 17:46:44 +0200
-Message-Id: <20220921153646.980428296@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
-User-Agent: quilt/0.67
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7676A6282E;
+        Wed, 21 Sep 2022 15:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB2EEC433C1;
+        Wed, 21 Sep 2022 15:53:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663775613;
+        bh=F0QpExpqRDTwj0Px6tY3UgvVq9CTES248BvTZVN/jfE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MUOehtUEKu4u4hIZFUQtuxFNLNSfGl11AzN2jOdrkaavthdjd90gIBKR4jik1onkC
+         dSEcKH0dE12DKFSRpf1tQvudk9oSwlWuIaYryNZqZ6BgZvmsGz/F/dBWLLi/gzADRU
+         z0Ig244ppKaW8NYK9cLSi3e/B/nRiZyu16JkS4UnfFmKlc9J09BzvwrAYZPkxpgoOo
+         V9ahlQzGKZ3lIHBdlekhj2RTaulb9LV7+eKchPx8vhPkJVKWssXgFNAYEv15J+UpMq
+         f9/EH8KG+84HoMErzPyrEGDMQn/Z0838/loOxIRJaEmPqXUZwtNTVQIxE+XEkxGcgI
+         R19RilXgMOBVg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        decui@microsoft.com, linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 01/16] Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
+Date:   Wed, 21 Sep 2022 11:53:17 -0400
+Message-Id: <20220921155332.234913-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -52,33 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 51bdc8bb82525cd70feb92279c8b7660ad7948dd upstream.
+[ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
 
-The newly added stac_check_power_status() caused a compile warning
-when CONFIG_SND_HDA_INPUT_BEEP is disabled.  Fix it.
+Passed through PCI device sometimes misbehave on Gen1 VMs when Hyper-V
+DRM driver is also loaded. Looking at IOMEM assignment, we can see e.g.
 
-Fixes: 414d38ba8710 ("ALSA: hda/sigmatel: Keep power up while beep is enabled")
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20220905130630.2845-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+$ cat /proc/iomem
+...
+f8000000-fffbffff : PCI Bus 0000:00
+  f8000000-fbffffff : 0000:00:08.0
+    f8000000-f8001fff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
+...
+fe0000000-fffffffff : PCI Bus 0000:00
+  fe0000000-fe07fffff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
+    fe0000000-fe07fffff : 2ba2:00:02.0
+      fe0000000-fe07fffff : mlx4_core
+
+the interesting part is the 'f8000000' region as it is actually the
+VM's framebuffer:
+
+$ lspci -v
+...
+0000:00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA (prog-if 00 [VGA controller])
+	Flags: bus master, fast devsel, latency 0, IRQ 11
+	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
+...
+
+ hv_vmbus: registering driver hyperv_drm
+ hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Synthvid Version major 3, minor 5
+ hyperv_drm 0000:00:08.0: vgaarb: deactivate vga console
+ hyperv_drm 0000:00:08.0: BAR 0: can't reserve [mem 0xf8000000-0xfbffffff]
+ hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Cannot request framebuffer, boot fb still active?
+
+Note: "Cannot request framebuffer" is not a fatal error in
+hyperv_setup_gen1() as the code assumes there's some other framebuffer
+device there but we actually have some other PCI device (mlx4 in this
+case) config space there!
+
+The problem appears to be that vmbus_allocate_mmio() can use dedicated
+framebuffer region to serve any MMIO request from any device. The
+semantics one might assume of a parameter named "fb_overlap_ok"
+aren't implemented because !fb_overlap_ok essentially has no effect.
+The existing semantics are really "prefer_fb_overlap". This patch
+implements the expected and needed semantics, which is to not allocate
+from the frame buffer space when !fb_overlap_ok.
+
+Note, Gen2 VMs are usually unaffected by the issue because
+framebuffer region is already taken by EFI fb (in case kernel supports
+it) but Gen1 VMs may have this region unclaimed by the time Hyper-V PCI
+pass-through driver tries allocating MMIO space if Hyper-V DRM/FB drivers
+load after it. Devices can be brought up in any sequence so let's
+resolve the issue by always ignoring 'fb_mmio' region for non-FB
+requests, even if the region is unclaimed.
+
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/20220827130345.1320254-4-vkuznets@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_sigmatel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hv/vmbus_drv.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -4451,7 +4451,9 @@ static int stac_suspend(struct hda_codec
- 
- static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 547ae334e5cd..027029efb008 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -2309,7 +2309,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
+ 			bool fb_overlap_ok)
  {
-+#ifdef CONFIG_SND_HDA_INPUT_BEEP
- 	struct sigmatel_spec *spec = codec->spec;
-+#endif
- 	int ret = snd_hda_gen_check_power_status(codec, nid);
+ 	struct resource *iter, *shadow;
+-	resource_size_t range_min, range_max, start;
++	resource_size_t range_min, range_max, start, end;
+ 	const char *dev_n = dev_name(&device_obj->device);
+ 	int retval;
  
- #ifdef CONFIG_SND_HDA_INPUT_BEEP
-
+@@ -2344,6 +2344,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
+ 		range_max = iter->end;
+ 		start = (range_min + align - 1) & ~(align - 1);
+ 		for (; start + size - 1 <= range_max; start += align) {
++			end = start + size - 1;
++
++			/* Skip the whole fb_mmio region if not fb_overlap_ok */
++			if (!fb_overlap_ok && fb_mmio &&
++			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
++			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
++				continue;
++
+ 			shadow = __request_region(iter, start, size, NULL,
+ 						  IORESOURCE_BUSY);
+ 			if (!shadow)
+-- 
+2.35.1
 
