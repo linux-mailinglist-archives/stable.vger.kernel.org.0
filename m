@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A935C0335
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 554275C0292
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbiIUQAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56084 "EHLO
+        id S229939AbiIUPyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:54:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232083AbiIUP6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0FFBA0337;
-        Wed, 21 Sep 2022 08:51:48 -0700 (PDT)
+        with ESMTP id S231827AbiIUPwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:52:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E6E6AE74;
+        Wed, 21 Sep 2022 08:49:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 67A11CE1DEC;
-        Wed, 21 Sep 2022 15:50:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565CFC433C1;
-        Wed, 21 Sep 2022 15:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8D7D630B2;
+        Wed, 21 Sep 2022 15:48:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0237C433D6;
+        Wed, 21 Sep 2022 15:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775443;
-        bh=1T/Z2KvEm7OGMVSlMdj+JwHx3mo6B4tq2QxqS58Qryo=;
+        s=korg; t=1663775327;
+        bh=wCAQJ4eQrrJ3APQcolF3jIUnI0Y+3eKZnUZwa06m/G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNEnyGujhXFGUJKaOFxdD1WcBoXGl7lnSu/7cjFqJLgNVhGKUKu1Y37jdeOOO/C0q
-         6gHeDUNgKBRFRASwfjOV/8/Zgo90eXidqv1YqKmgZJkFps/EW/tKi0+HaX/P1SHUJ8
-         bS/NQIFoxoBen30jpD9RWQLppxMuX3i768pML+kM=
+        b=dSNqUb1c1c61QDu72FLrM/AQIakpoR1xk4DsVXsMdkcX8RWr0+wI1Oot+bwvafiKs
+         MsNpsmaTU3r6Wb4XsuKCMXMySu/0JtTOrHtAwe5d1RsSuLXuCD3Ids6UD9Hu2yXkCa
+         DBSD4X5U0Pn6aDeKRw4lejOmacXSOKPzFqIOUsoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/39] KVM: PPC: Book3S HV: Context tracking exit guest context before enabling irqs
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.15 16/45] of/device: Fix up of_dma_configure_id() stub
 Date:   Wed, 21 Sep 2022 17:46:06 +0200
-Message-Id: <20220921153645.732495616@linuxfoundation.org>
+Message-Id: <20220921153647.417919336@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,52 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 112665286d08c87e66d699e7cba43c1497ad165f ]
+commit 40bfe7a86d84cf08ac6a8fe2f0c8bf7a43edd110 upstream.
 
-Interrupts that occur in kernel mode expect that context tracking
-is set to kernel. Enabling local irqs before context tracking
-switches from guest to host means interrupts can come in and trigger
-warnings about wrong context, and possibly worse.
+Since the stub version of of_dma_configure_id() was added in commit
+a081bd4af4ce ("of/device: Add input id to of_dma_configure()"), it has
+not matched the signature of the full function, leading to build failure
+reports when code using this function is built on !OF configurations.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210130130852.2952424-3-npiggin@gmail.com
-Stable-dep-of: 235cee162459 ("KVM: PPC: Tick accounting should defer vtime accounting 'til after IRQ handling")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a081bd4af4ce ("of/device: Add input id to of_dma_configure()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Frank Rowand <frank.rowand@sony.com>
+Acked-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Link: https://lore.kernel.org/r/20220824153256.1437483-1-thierry.reding@gmail.com
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/linux/of_device.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 38b7a3491aac..d6c4e27f7ed9 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3399,8 +3399,9 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
+--- a/include/linux/of_device.h
++++ b/include/linux/of_device.h
+@@ -101,8 +101,9 @@ static inline struct device_node *of_cpu
+ }
  
- 	kvmppc_set_host_core(pcpu);
- 
-+	guest_exit_irqoff();
-+
- 	local_irq_enable();
--	guest_exit();
- 
- 	/* Let secondaries go back to the offline loop */
- 	for (i = 0; i < controlled_threads; ++i) {
-@@ -4235,8 +4236,9 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
- 
- 	kvmppc_set_host_core(pcpu);
- 
-+	guest_exit_irqoff();
-+
- 	local_irq_enable();
--	guest_exit();
- 
- 	cpumask_clear_cpu(pcpu, &kvm->arch.cpu_in_guest);
- 
--- 
-2.35.1
-
+ static inline int of_dma_configure_id(struct device *dev,
+-				   struct device_node *np,
+-				   bool force_dma)
++				      struct device_node *np,
++				      bool force_dma,
++				      const u32 *id)
+ {
+ 	return 0;
+ }
 
 
