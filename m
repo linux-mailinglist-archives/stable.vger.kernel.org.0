@@ -2,54 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 206015C01FA
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6554E5C01F9
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230391AbiIUPqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:46:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
+        id S230268AbiIUPqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230342AbiIUPqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0946E2EC;
-        Wed, 21 Sep 2022 08:46:29 -0700 (PDT)
+        with ESMTP id S230101AbiIUPq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38EBE7757A;
+        Wed, 21 Sep 2022 08:46:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 053DF630B2;
-        Wed, 21 Sep 2022 15:46:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF44CC433C1;
-        Wed, 21 Sep 2022 15:46:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1305B81D87;
+        Wed, 21 Sep 2022 15:46:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADFDC433C1;
+        Wed, 21 Sep 2022 15:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775188;
-        bh=CdanpR2DhJAU3KV5QrMSlmMJxGW/N+H5oCOHqL4nk44=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BqlFTNpl/j1lqM6eKn0YsKxullt6vClQCFXtXcpZZNEfW3DvSVSoWpsGHDK1s6jwY
-         5ujIjnHTA0pYoEqADyl5WD5GJ8N8U9Vvty9Qx6XWrZNssd47HGhkmX9f8mmWYg/3ml
-         fdNPvzPvVRTXfrCm0Rkg20zYhXh8b//4IAhXzYPs=
+        s=korg; t=1663775185;
+        bh=DcbErEt2arJeJ4nhb+KOUORAtda2BXEm/JUMBvLmwVM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WVf+c+k89JSWTK2D1iAc61O/x/zigYjNO2tZJS9wWIi84mNfr+BnG/DrsHxBPMLvI
+         BeH+QYe9oeQvZw2NzpdYsemy1/HWW85TV4y3Ca6dT4DdyzEvAGsVhN+swUftfQRIpx
+         YuJBC6EErXnicqe6MMOFDBokYnYPKTHZ1BvHMqaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.19 00/38] 5.19.11-rc1 review
-Date:   Wed, 21 Sep 2022 17:45:44 +0200
-Message-Id: <20220921153646.298361220@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 01/38] of: fdt: fix off-by-one error in unflatten_dt_nodes()
+Date:   Wed, 21 Sep 2022 17:45:45 +0200
+Message-Id: <20220921153646.345032150@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.11-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.19.11-rc1
-X-KernelTest-Deadline: 2022-09-23T15:36+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -61,197 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.19.11 release.
-There are 38 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-Responses should be made by Fri, 23 Sep 2022 15:36:33 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 2f945a792f67815abca26fa8a5e863ccf3fa1181 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.11-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-and the diffstat can be found below.
+Commit 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
+forgot to fix up the depth check in the loop body in unflatten_dt_nodes()
+which makes it possible to overflow the nps[] buffer...
 
-thanks,
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
 
-greg k-h
+Fixes: 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/7c354554-006f-6b31-c195-cdfe4caee392@omp.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/of/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--------------
-Pseudo-Shortlog of commits:
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 520ed965bb7a..583ca847a39c 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -314,7 +314,7 @@ static int unflatten_dt_nodes(const void *blob,
+ 	for (offset = 0;
+ 	     offset >= 0 && depth >= initial_depth;
+ 	     offset = fdt_next_node(blob, offset, &depth)) {
+-		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH))
++		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH - 1))
+ 			continue;
+ 
+ 		if (!IS_ENABLED(CONFIG_OF_KOBJ) &&
+-- 
+2.35.1
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.19.11-rc1
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/sigmatel: Fix unused variable warning for beep power change
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/sigmatel: Keep power up while beep is enabled
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
-
-Janne Grunau <j@jannau.net>
-    dt-bindings: apple,aic: Fix required item "apple,fiq-index" in affinity description
-
-sewookseo <sewookseo@google.com>
-    net: Find dst with sk's xfrm policy not ctl_sk
-
-Alex Deucher <alexander.deucher@amd.com>
-    drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega
-
-Alex Deucher <alexander.deucher@amd.com>
-    drm/amdgpu: move nbio ih_doorbell_range() into ih code for vega
-
-Lijo Lazar <lijo.lazar@amd.com>
-    drm/amdgpu: Don't enable LTR if not supported
-
-Alex Deucher <alexander.deucher@amd.com>
-    drm/amdgpu: make sure to init common IP before gmc
-
-Nirmoy Das <nirmoy.das@intel.com>
-    drm/i915: Set correct domains values at _i915_vma_move_to_active
-
-Ashutosh Dixit <ashutosh.dixit@intel.com>
-    drm/i915/gt: Fix perf limit reasons bit positions
-
-Ben Hutchings <benh@debian.org>
-    tools/include/uapi: Fix <asm/errno.h> for parisc and xtensa
-
-Helge Deller <deller@gmx.de>
-    parisc: Allow CONFIG_64BIT with ARCH=parisc
-
-Mikulas Patocka <mpatocka@redhat.com>
-    blk-lib: fix blkdev_issue_secure_erase
-
-Stefan Metzmacher <metze@samba.org>
-    cifs: always initialize struct msghdr smb_msg completely
-
-Stefan Metzmacher <metze@samba.org>
-    cifs: don't send down the destination address to sendmsg for a SOCK_STREAM
-
-Ronnie Sahlberg <lsahlber@redhat.com>
-    cifs: revalidate mapping when doing direct writes
-
-Jens Axboe <axboe@kernel.dk>
-    io_uring/msg_ring: check file type before putting
-
-Thierry Reding <treding@nvidia.com>
-    of/device: Fix up of_dma_configure_id() stub
-
-Yang Yingliang <yangyingliang@huawei.com>
-    parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
-
-Stefan Roesch <shr@fb.com>
-    block: blk_queue_enter() / __bio_queue_enter() must return -EAGAIN for nowait
-
-Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-    drm/i915/guc: Cancel GuC engine busyness worker synchronously
-
-Alan Previn <alan.previn.teres.alexis@intel.com>
-    drm/i915/guc: Don't update engine busyness stats too frequently
-
-Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-    drm/i915/vdsc: Set VDSC PIC_HEIGHT before using for DP DSC
-
-Sascha Hauer <s.hauer@pengutronix.de>
-    drm/rockchip: vop2: Fix eDP/HDMI sync polarities
-
-Stuart Menefy <stuart.menefy@mathembedded.com>
-    drm/meson: Fix OSD1 RGB to YCbCr coefficient
-
-Stuart Menefy <stuart.menefy@mathembedded.com>
-    drm/meson: Correct OSD1 global alpha value
-
-Chen-Yu Tsai <wenst@chromium.org>
-    drm/panel-edp: Fix delays for Innolux N116BCA-EA1
-
-Dan Aloni <dan.aloni@vastdata.com>
-    Revert "SUNRPC: Remove unreachable error condition"
-
-Anna Schumaker <Anna.Schumaker@Netapp.com>
-    NFSv4.2: Update mode bits after ALLOCATE and DEALLOCATE
-
-Pali Rohár <pali@kernel.org>
-    gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4: Turn off open-by-filehandle and NFS re-export for NFSv4.0
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    SUNRPC: Fix call completion races with call_decode()
-
-Michael Wu <michael@allwinnertech.com>
-    pinctrl: sunxi: Fix name for A100 R_PIO
-
-João H. Spies <jhlspies@gmail.com>
-    pinctrl: rockchip: Enhance support for IRQ_TYPE_EDGE_BOTH
-
-Molly Sophia <mollysophia379@gmail.com>
-    pinctrl: qcom: sc8180x: Fix wrong pin numbers
-
-Molly Sophia <mollysophia379@gmail.com>
-    pinctrl: qcom: sc8180x: Fix gpio_wakeirq_map
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    of: fdt: fix off-by-one error in unflatten_dt_nodes()
-
-
--------------
-
-Diffstat:
-
- .../bindings/interrupt-controller/apple,aic.yaml   |  2 +-
- Makefile                                           |  4 ++--
- arch/parisc/Kconfig                                | 12 +++++++++-
- block/blk-core.c                                   |  4 ++--
- block/blk-lib.c                                    | 11 ++++++---
- drivers/gpio/gpio-mpc8xxx.c                        |  1 +
- drivers/gpio/gpio-rockchip.c                       |  4 ++--
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c         | 14 ++++++++---
- drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c             |  9 +++++++-
- drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c             |  9 +++++++-
- drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c             |  9 +++++++-
- drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c             |  5 ++++
- drivers/gpu/drm/amd/amdgpu/soc15.c                 | 25 --------------------
- drivers/gpu/drm/amd/amdgpu/vega10_ih.c             |  4 ++++
- drivers/gpu/drm/amd/amdgpu/vega20_ih.c             |  4 ++++
- drivers/gpu/drm/i915/display/icl_dsi.c             |  2 ++
- drivers/gpu/drm/i915/display/intel_dp.c            |  1 +
- drivers/gpu/drm/i915/display/intel_vdsc.c          |  1 -
- drivers/gpu/drm/i915/gt/uc/intel_guc.h             |  8 +++++++
- drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c  | 20 +++++++++++++++-
- drivers/gpu/drm/i915/i915_reg.h                    | 16 ++++++-------
- drivers/gpu/drm/i915/i915_vma.c                    |  3 ++-
- drivers/gpu/drm/meson/meson_plane.c                |  2 +-
- drivers/gpu/drm/meson/meson_viu.c                  |  2 +-
- drivers/gpu/drm/panel/panel-edp.c                  |  3 ++-
- drivers/gpu/drm/rockchip/rockchip_drm_vop2.c       |  4 ++++
- drivers/of/fdt.c                                   |  2 +-
- drivers/parisc/ccio-dma.c                          |  1 +
- drivers/pinctrl/qcom/pinctrl-sc8180x.c             | 10 ++++----
- drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c      |  2 +-
- fs/cifs/connect.c                                  | 11 +++------
- fs/cifs/file.c                                     |  3 +++
- fs/cifs/transport.c                                |  6 +----
- fs/nfs/internal.h                                  | 25 ++++++++++++++++++++
- fs/nfs/nfs42proc.c                                 |  9 ++++++--
- fs/nfs/super.c                                     | 27 ++++++++++++++--------
- fs/nfs/write.c                                     | 25 --------------------
- include/linux/of_device.h                          |  5 ++--
- include/net/xfrm.h                                 |  2 ++
- io_uring/io_uring.c                                |  3 ++-
- kernel/cgroup/cgroup-v1.c                          |  2 ++
- net/ipv4/ip_output.c                               |  2 +-
- net/ipv4/tcp_ipv4.c                                |  2 ++
- net/ipv6/tcp_ipv6.c                                |  5 +++-
- net/sunrpc/clnt.c                                  |  3 +++
- net/sunrpc/xprt.c                                  |  8 +++----
- sound/pci/hda/patch_sigmatel.c                     | 24 +++++++++++++++++++
- tools/include/uapi/asm/errno.h                     |  4 ++--
- 48 files changed, 237 insertions(+), 123 deletions(-)
 
 
