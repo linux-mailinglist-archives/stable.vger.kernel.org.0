@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3F445C0316
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D39D45C02A1
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232058AbiIUQAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56036 "EHLO
+        id S231645AbiIUPyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232412AbiIUP7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:59:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96359C2FF;
-        Wed, 21 Sep 2022 08:52:54 -0700 (PDT)
+        with ESMTP id S231852AbiIUPxV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14171857E6;
+        Wed, 21 Sep 2022 08:49:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FDA5B830C0;
-        Wed, 21 Sep 2022 15:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6819C43470;
-        Wed, 21 Sep 2022 15:51:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D59063138;
+        Wed, 21 Sep 2022 15:49:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1A0C433B5;
+        Wed, 21 Sep 2022 15:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775494;
-        bh=kzCNxv+kLufdcqXotvyEBwyGJdVv5iQKf9LnXXFoGVc=;
+        s=korg; t=1663775398;
+        bh=4rwkvD/DNcjNXfcsWGkTsOeqnSDE+8I7hUNF1BK6CT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6yJdWeuULlr46rlSe9upNLIolH+bvmqU5hGopk9c3/m22CGIK0lQ1wKyLIQLnud1
-         8CPSVXwRSI1s1HAdUNw/LvbsAwcZoGgzKl/IgUvJTyncMqTWQMOknjurTDCyqI+i+S
-         ISDII03llVI0wcU34o/kvDUrgNvzZPBQzZEKWoks=
+        b=MWOoN64xFIIL9y05IuSjqJJK1vr3wdyugDTn6pwhZ2j27iBpy2YK31/UJFpIjyqrq
+         NLvF8OdYo7SuhN8vh6uBdt06n1uQkMYR7DtKUBo1rnR4IVr1rU7AG+FlLV/v44tUdD
+         Tw0RadwH1jsw+29bLYex8KvMG/CTDPn7/sha/css=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 25/39] Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed field"
+        stable@vger.kernel.org, Youling Tang <tangyouling@loongson.cn>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 40/45] mksysmap: Fix the mismatch of L0 symbols in System.map
 Date:   Wed, 21 Sep 2022 17:46:30 +0200
-Message-Id: <20220921153646.560456712@linuxfoundation.org>
+Message-Id: <20220921153648.313428306@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Youling Tang <tangyouling@loongson.cn>
 
-commit d02b006b29de14968ba4afa998bede0d55469e29 upstream.
+[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
 
-This reverts commit 32262e2e429cdb31f9e957e997d53458762931b7.
+When System.map was generated, the kernel used mksysmap to filter the
+kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
 
-The commit in question claims to determine the inverse of
-serial8250_get_divisor() but failed to notice that some drivers override
-the default implementation using a get_divisor() callback.
+$ cat System.map | grep L0
+9000000000221540 t L0
 
-This means that the computed line-speed values can be completely wrong
-and results in regular TCSETS requests failing (the incorrect values
-would also be passed to any overridden set_divisor() callback).
+The L0 symbol exists in System.map, but not in .tmp_System.map. When
+"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
+data" error message in link-vmlinux.sh script.
 
-Similarly, it also failed to honour the old (deprecated) ASYNC_SPD_FLAGS
-and would break applications relying on those when re-encoding the
-actual line speed.
-
-There are also at least two quirks, UART_BUG_QUOT and an OMAP1510
-workaround, which were happily ignored and that are now broken.
-
-Finally, even if the offending commit were to be implemented correctly,
-this is a new feature and not something which should be backported to
-stable.
-
-Cc: Pali Rohár <pali@kernel.org>
-Fixes: 32262e2e429c ("serial: 8250: Fix reporting real baudrate value in c_ospeed field")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211007133146.28949-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c |   17 -----------------
- 1 file changed, 17 deletions(-)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2547,19 +2547,6 @@ static unsigned int serial8250_get_divis
- 	return serial8250_do_get_divisor(port, baud, frac);
- }
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index 9aa23d15862a..ad8bbc52267d 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
  
--static unsigned int serial8250_compute_baud_rate(struct uart_port *port,
--						 unsigned int quot)
--{
--	if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8001)
--		return port->uartclk / 4;
--	else if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8002)
--		return port->uartclk / 8;
--	else if (port->type == PORT_NPCM)
--		return DIV_ROUND_CLOSEST(port->uartclk - 2 * (quot + 2), 16 * (quot + 2));
--	else
--		return DIV_ROUND_CLOSEST(port->uartclk, 16 * quot);
--}
--
- static unsigned char serial8250_compute_lcr(struct uart_8250_port *up,
- 					    tcflag_t c_cflag)
- {
-@@ -2701,14 +2688,11 @@ void serial8250_update_uartclk(struct ua
- 
- 	baud = serial8250_get_baud_rate(port, termios, NULL);
- 	quot = serial8250_get_divisor(port, baud, &frac);
--	baud = serial8250_compute_baud_rate(port, quot);
- 
- 	serial8250_rpm_get(up);
- 	spin_lock_irqsave(&port->lock, flags);
- 
- 	uart_update_timeout(port, termios->c_cflag, baud);
--	if (tty_termios_baud_rate(termios))
--		tty_termios_encode_baud_rate(termios, baud, baud);
- 
- 	serial8250_set_divisor(port, baud, quot, frac);
- 	serial_port_out(port, UART_LCR, up->lcr);
-@@ -2742,7 +2726,6 @@ serial8250_do_set_termios(struct uart_po
- 
- 	baud = serial8250_get_baud_rate(port, termios, old);
- 	quot = serial8250_get_divisor(port, baud, &frac);
--	baud = serial8250_compute_baud_rate(port, quot);
- 
- 	/*
- 	 * Ok, we're now changing the port state.  Do it with
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
+-- 
+2.35.1
+
 
 
