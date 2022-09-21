@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 653895C03D3
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B635D5C0390
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231546AbiIUQOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48864 "EHLO
+        id S232438AbiIUQHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232889AbiIUQOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:14:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3A585A84;
-        Wed, 21 Sep 2022 09:00:01 -0700 (PDT)
+        with ESMTP id S232338AbiIUQG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26AEA3464;
+        Wed, 21 Sep 2022 08:55:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D557EB830C6;
-        Wed, 21 Sep 2022 15:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F95AC433D6;
-        Wed, 21 Sep 2022 15:53:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F56C6313C;
+        Wed, 21 Sep 2022 15:53:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420B7C433D6;
+        Wed, 21 Sep 2022 15:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663775626;
-        bh=0zA5pwf1OCRIFOM7AXpOQOvVEQbh6eetXLifEDLltvM=;
+        s=k20201202; t=1663775635;
+        bh=ON79Ezb0W4s0GNf/NoqKu+FimfoSIUQjcZclqHc3mXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JTTXKm/qr2jTK8MVoP+dkFTYIfeN2UCdtpSSMQUQXebtNRIYG1yzOxwgn9XJQ5zjQ
-         I6TpCYXlxGAphBiYQ+KuaQ7PlT85jvioU09GDQnC3R+2Qqom0gqRUBjdNJ2HpHMXBh
-         vQS2sEB1oIjnK4ifO6uMluFH8pTp6cUQagxWEPH9QHDNDEcfc8SXj9oz6vpvymNNlq
-         rNcqYsGgYvmIns/akc0nJiB7DnRY03HHhlEjasYJ4n9ST/fjjngC1rtXC8QMBqpgf4
-         Lfz2ctbj8iLr709rjxhSYtCClpM9syR4FVfDp8VfnmPLByeAucoeLYFKrnzaH3ssRa
-         X3grjCasjnrRA==
+        b=kPeSYZyrxLRELOC/IWH30UIOFOnK0jtTWg6XLRsreStnucbI/p8u10xjLeO4XqG+5
+         gsWG/WuOfScBZq6oRi4gA4ZysEvNeMKbefM4zHrUQECl7Qqg/7aZOJKxVgvyxYiyui
+         AHA3Uml6E16i187tZNh1o2g/76+VQIfc97I7IWHxwrQrbDMhDPhzxUNUrReuRihKq3
+         dPZ5q+D4CZjAit3ZvBBEUrW/ni8fweewGibD+/Sx0wwrQCI7q5Hx4OXmhQvqMUwqCj
+         yVkCaks+qTXZQlLq4p645ZZkOaRgG4R0TvSuXAWJp9Rs740ESgUy9+FVk4TbFddZfY
+         mH8tMmbJ23RMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Wang <KevinYang.Wang@amd.com>,
+Cc:     Candice Li <candice.li@amd.com>,
         Hawking Zhang <Hawking.Zhang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Likun.Gao@amd.com, john.clements@amd.com, tao.zhou1@amd.com,
-        candice.li@amd.com, guchun.chen@amd.com, Bokun.Zhang@amd.com,
-        andrey.grodzovsky@amd.com, Xiaojian.Du@amd.com,
+        tao.zhou1@amd.com, YiPeng.Chai@amd.com, john.clements@amd.com,
+        Stanley.Yang@amd.com, mukul.joshi@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 08/16] drm/amdgpu: change the alignment size of TMR BO to 1M
-Date:   Wed, 21 Sep 2022 11:53:24 -0400
-Message-Id: <20220921155332.234913-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 10/16] drm/amdgpu: Skip reset error status for psp v13_0_0
+Date:   Wed, 21 Sep 2022 11:53:26 -0400
+Message-Id: <20220921155332.234913-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220921155332.234913-1-sashal@kernel.org>
 References: <20220921155332.234913-1-sashal@kernel.org>
@@ -61,51 +60,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Wang <KevinYang.Wang@amd.com>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit 36de13fdb04abef3ee03ade5129ab146de63983b ]
+[ Upstream commit 86875d558b91cb46f43be112799c06ecce60ec1e ]
 
-align TMR BO size TO tmr size is not necessary,
-modify the size to 1M to avoid re-create BO fail
-when serious VRAM fragmentation.
+No need to reset error status since only umc ras supported on psp v13_0_0.
 
-v2:
-add new macro PSP_TMR_ALIGNMENT for TMR BO alignment size
-
-Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
+Signed-off-by: Candice Li <candice.li@amd.com>
 Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 2b00f8fe15a8..7b8d4484c3c4 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -748,7 +748,7 @@ static int psp_tmr_init(struct psp_context *psp)
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+index dac202ae864d..9193ca5d6fe7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+@@ -1805,7 +1805,8 @@ static void amdgpu_ras_log_on_err_counter(struct amdgpu_device *adev)
+ 		amdgpu_ras_query_error_status(adev, &info);
  
- 	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
--	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_SIZE(psp->adev),
-+	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_ALIGNMENT,
- 				      AMDGPU_GEM_DOMAIN_VRAM,
- 				      &psp->tmr_bo, &psp->tmr_mc_addr, pptr);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-index e431f4994931..cd366c7f311f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-@@ -36,6 +36,7 @@
- #define PSP_CMD_BUFFER_SIZE	0x1000
- #define PSP_1_MEG		0x100000
- #define PSP_TMR_SIZE(adev)	((adev)->asic_type == CHIP_ALDEBARAN ? 0x800000 : 0x400000)
-+#define PSP_TMR_ALIGNMENT	0x100000
- #define PSP_FW_NAME_LEN		0x24
- 
- enum psp_shared_mem_size {
+ 		if (adev->ip_versions[MP0_HWIP][0] != IP_VERSION(11, 0, 2) &&
+-		    adev->ip_versions[MP0_HWIP][0] != IP_VERSION(11, 0, 4)) {
++		    adev->ip_versions[MP0_HWIP][0] != IP_VERSION(11, 0, 4) &&
++		    adev->ip_versions[MP0_HWIP][0] != IP_VERSION(13, 0, 0)) {
+ 			if (amdgpu_ras_reset_error_status(adev, info.head.block))
+ 				dev_warn(adev->dev, "Failed to reset error counter and error status");
+ 		}
 -- 
 2.35.1
 
