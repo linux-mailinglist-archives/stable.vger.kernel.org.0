@@ -2,191 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B5A5C01E8
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 206015C01FA
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbiIUPn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:43:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44232 "EHLO
+        id S230391AbiIUPqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:46:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229794AbiIUPnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:43:17 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E78B78
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 08:43:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663774996; x=1695310996;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=yQoaXbVBL1heR2IDd/Dw1lpLSPjnk1Hs4Lb4/P+HbZI=;
-  b=inLAdseu+5TV+K4JwWf+iHTOQ0ikiVkE1VDX0fzffUiZlCUIw/U5XrP2
-   t1JfS6V0eyGdWezvjMcqAK1K5GoRCyWPAJHkPSGORsTYA3XnN5IdKKqCN
-   rNvkeN1Q7sQo2PJmttOYZPkRg0L6OJ4VlIX8Gix10BO0tyuzm2kr40eQR
-   NrM/nHYDmDdJZMx5iQ9VXOiqRLfFd+7etOW1303skLOW/l6HcKOt1+rae
-   yTIk1wf3/ktRLDx43IS5y27jfj+04OpRYtL3FvJGjELKwabCZauvlZ8cl
-   P4Fqls1+zf8kfFkWSW65juIslR/utPYUjbFkS3nn9xOQIE9bF8fb2eabb
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10477"; a="280410982"
-X-IronPort-AV: E=Sophos;i="5.93,333,1654585200"; 
-   d="scan'208";a="280410982"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2022 08:43:15 -0700
-X-IronPort-AV: E=Sophos;i="5.93,333,1654585200"; 
-   d="scan'208";a="681824910"
-Received: from ashyti-mobl2.igk.intel.com (HELO intel.com) ([172.28.180.68])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2022 08:43:12 -0700
-Date:   Wed, 21 Sep 2022 17:43:10 +0200
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@linux.intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/gt: Restrict forced preemption to the active
- context
-Message-ID: <YysxDrwznmEhMjgf@ashyti-mobl2.lan>
-References: <20220921135258.1714873-1-andrzej.hajda@intel.com>
+        with ESMTP id S230342AbiIUPqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0946E2EC;
+        Wed, 21 Sep 2022 08:46:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 053DF630B2;
+        Wed, 21 Sep 2022 15:46:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF44CC433C1;
+        Wed, 21 Sep 2022 15:46:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1663775188;
+        bh=CdanpR2DhJAU3KV5QrMSlmMJxGW/N+H5oCOHqL4nk44=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BqlFTNpl/j1lqM6eKn0YsKxullt6vClQCFXtXcpZZNEfW3DvSVSoWpsGHDK1s6jwY
+         5ujIjnHTA0pYoEqADyl5WD5GJ8N8U9Vvty9Qx6XWrZNssd47HGhkmX9f8mmWYg/3ml
+         fdNPvzPvVRTXfrCm0Rkg20zYhXh8b//4IAhXzYPs=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.19 00/38] 5.19.11-rc1 review
+Date:   Wed, 21 Sep 2022 17:45:44 +0200
+Message-Id: <20220921153646.298361220@linuxfoundation.org>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220921135258.1714873-1-andrzej.hajda@intel.com>
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.11-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.19.11-rc1
+X-KernelTest-Deadline: 2022-09-23T15:36+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrzej and Chris,
+This is the start of the stable review cycle for the 5.19.11 release.
+There are 38 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-On Wed, Sep 21, 2022 at 03:52:58PM +0200, Andrzej Hajda wrote:
-> From: Chris Wilson <chris.p.wilson@intel.com>
-> 
-> When we submit a new pair of contexts to ELSP for execution, we start a
-> timer by which point we expect the HW to have switched execution to the
-> pending contexts. If the promotion to the new pair of contexts has not
-> occurred, we declare the executing context to have hung and force the
-> preemption to take place by resetting the engine and resubmitting the
-> new contexts.
-> 
-> This can lead to an unfair situation where almost all of the preemption
-> timeout is consumed by the first context which just switches into the
-> second context immediately prior to the timer firing and triggering the
-> preemption reset (assuming that the timer interrupts before we process
-> the CS events for the context switch). The second context hasn't yet had
-> a chance to yield to the incoming ELSP (and send the ACk for the
-> promotion) and so ends up being blamed for the reset.
-> 
-> If we see that a context switch has occurred since setting the
-> preemption timeout, but have not yet received the ACK for the ELSP
-> promotion, rearm the preemption timer and check again. This is
-> especially significant if the first context was not schedulable and so
-> we used the shortest timer possible, greatly increasing the chance of
-> accidentally blaming the second innocent context.
-> 
-> Fixes: 3a7a92aba8fb ("drm/i915/execlists: Force preemption")
-> Fixes: d12acee84ffb ("drm/i915/execlists: Cancel banned contexts on schedule-out")
-> Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: Andi Shyti <andi.shyti@linux.intel.com>
-> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> Tested-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-> ---
-> Hi,
-> 
-> This patch is upstreamed from internal branch. So I have removed
-> R-B by Andi. Andi let me know if your R-B still apply.
+Responses should be made by Fri, 23 Sep 2022 15:36:33 +0000.
+Anything received after that time might be too late.
 
-yes, I know this patch and my r-b holds:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.11-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+and the diffstat can be found below.
 
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+thanks,
 
-Anyway, thanks Chris for the comments and the clear explanation
-both in the commit log and in between the code.
+greg k-h
 
-Andi
+-------------
+Pseudo-Shortlog of commits:
 
-> Regards
-> Andrzej
-> ---
->  drivers/gpu/drm/i915/gt/intel_engine_types.h  | 15 +++++++++++++
->  .../drm/i915/gt/intel_execlists_submission.c  | 21 ++++++++++++++++++-
->  2 files changed, 35 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> index 633a7e5dba3b4b..6b5d4ea22b673b 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> @@ -165,6 +165,21 @@ struct intel_engine_execlists {
->  	 */
->  	struct timer_list preempt;
->  
-> +	/**
-> +	 * @preempt_target: active request at the time of the preemption request
-> +	 *
-> +	 * We force a preemption to occur if the pending contexts have not
-> +	 * been promoted to active upon receipt of the CS ack event within
-> +	 * the timeout. This timeout maybe chosen based on the target,
-> +	 * using a very short timeout if the context is no longer schedulable.
-> +	 * That short timeout may not be applicable to other contexts, so
-> +	 * if a context switch should happen within before the preemption
-> +	 * timeout, we may shoot early at an innocent context. To prevent this,
-> +	 * we record which context was active at the time of the preemption
-> +	 * request and only reset that context upon the timeout.
-> +	 */
-> +	const struct i915_request *preempt_target;
-> +
->  	/**
->  	 * @ccid: identifier for contexts submitted to this engine
->  	 */
-> diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-> index 4b909cb88cdfb7..c718e6dc40b515 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-> @@ -1241,6 +1241,9 @@ static unsigned long active_preempt_timeout(struct intel_engine_cs *engine,
->  	if (!rq)
->  		return 0;
->  
-> +	/* Only allow ourselves to force reset the currently active context */
-> +	engine->execlists.preempt_target = rq;
-> +
->  	/* Force a fast reset for terminated contexts (ignoring sysfs!) */
->  	if (unlikely(intel_context_is_banned(rq->context) || bad_request(rq)))
->  		return INTEL_CONTEXT_BANNED_PREEMPT_TIMEOUT_MS;
-> @@ -2427,8 +2430,24 @@ static void execlists_submission_tasklet(struct tasklet_struct *t)
->  	GEM_BUG_ON(inactive - post > ARRAY_SIZE(post));
->  
->  	if (unlikely(preempt_timeout(engine))) {
-> +		const struct i915_request *rq = *engine->execlists.active;
-> +
-> +		/*
-> +		 * If after the preempt-timeout expired, we are still on the
-> +		 * same active request/context as before we initiated the
-> +		 * preemption, reset the engine.
-> +		 *
-> +		 * However, if we have processed a CS event to switch contexts,
-> +		 * but not yet processed the CS event for the pending
-> +		 * preemption, reset the timer allowing the new context to
-> +		 * gracefully exit.
-> +		 */
->  		cancel_timer(&engine->execlists.preempt);
-> -		engine->execlists.error_interrupt |= ERROR_PREEMPT;
-> +		if (rq == engine->execlists.preempt_target)
-> +			engine->execlists.error_interrupt |= ERROR_PREEMPT;
-> +		else
-> +			set_timer_ms(&engine->execlists.preempt,
-> +				     active_preempt_timeout(engine, rq));
->  	}
->  
->  	if (unlikely(READ_ONCE(engine->execlists.error_interrupt))) {
-> -- 
-> 2.34.1
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.19.11-rc1
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/sigmatel: Fix unused variable warning for beep power change
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/sigmatel: Keep power up while beep is enabled
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
+
+Janne Grunau <j@jannau.net>
+    dt-bindings: apple,aic: Fix required item "apple,fiq-index" in affinity description
+
+sewookseo <sewookseo@google.com>
+    net: Find dst with sk's xfrm policy not ctl_sk
+
+Alex Deucher <alexander.deucher@amd.com>
+    drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega
+
+Alex Deucher <alexander.deucher@amd.com>
+    drm/amdgpu: move nbio ih_doorbell_range() into ih code for vega
+
+Lijo Lazar <lijo.lazar@amd.com>
+    drm/amdgpu: Don't enable LTR if not supported
+
+Alex Deucher <alexander.deucher@amd.com>
+    drm/amdgpu: make sure to init common IP before gmc
+
+Nirmoy Das <nirmoy.das@intel.com>
+    drm/i915: Set correct domains values at _i915_vma_move_to_active
+
+Ashutosh Dixit <ashutosh.dixit@intel.com>
+    drm/i915/gt: Fix perf limit reasons bit positions
+
+Ben Hutchings <benh@debian.org>
+    tools/include/uapi: Fix <asm/errno.h> for parisc and xtensa
+
+Helge Deller <deller@gmx.de>
+    parisc: Allow CONFIG_64BIT with ARCH=parisc
+
+Mikulas Patocka <mpatocka@redhat.com>
+    blk-lib: fix blkdev_issue_secure_erase
+
+Stefan Metzmacher <metze@samba.org>
+    cifs: always initialize struct msghdr smb_msg completely
+
+Stefan Metzmacher <metze@samba.org>
+    cifs: don't send down the destination address to sendmsg for a SOCK_STREAM
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: revalidate mapping when doing direct writes
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring/msg_ring: check file type before putting
+
+Thierry Reding <treding@nvidia.com>
+    of/device: Fix up of_dma_configure_id() stub
+
+Yang Yingliang <yangyingliang@huawei.com>
+    parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
+
+Stefan Roesch <shr@fb.com>
+    block: blk_queue_enter() / __bio_queue_enter() must return -EAGAIN for nowait
+
+Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+    drm/i915/guc: Cancel GuC engine busyness worker synchronously
+
+Alan Previn <alan.previn.teres.alexis@intel.com>
+    drm/i915/guc: Don't update engine busyness stats too frequently
+
+Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+    drm/i915/vdsc: Set VDSC PIC_HEIGHT before using for DP DSC
+
+Sascha Hauer <s.hauer@pengutronix.de>
+    drm/rockchip: vop2: Fix eDP/HDMI sync polarities
+
+Stuart Menefy <stuart.menefy@mathembedded.com>
+    drm/meson: Fix OSD1 RGB to YCbCr coefficient
+
+Stuart Menefy <stuart.menefy@mathembedded.com>
+    drm/meson: Correct OSD1 global alpha value
+
+Chen-Yu Tsai <wenst@chromium.org>
+    drm/panel-edp: Fix delays for Innolux N116BCA-EA1
+
+Dan Aloni <dan.aloni@vastdata.com>
+    Revert "SUNRPC: Remove unreachable error condition"
+
+Anna Schumaker <Anna.Schumaker@Netapp.com>
+    NFSv4.2: Update mode bits after ALLOCATE and DEALLOCATE
+
+Pali Rohár <pali@kernel.org>
+    gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFSv4: Turn off open-by-filehandle and NFS re-export for NFSv4.0
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: Fix call completion races with call_decode()
+
+Michael Wu <michael@allwinnertech.com>
+    pinctrl: sunxi: Fix name for A100 R_PIO
+
+João H. Spies <jhlspies@gmail.com>
+    pinctrl: rockchip: Enhance support for IRQ_TYPE_EDGE_BOTH
+
+Molly Sophia <mollysophia379@gmail.com>
+    pinctrl: qcom: sc8180x: Fix wrong pin numbers
+
+Molly Sophia <mollysophia379@gmail.com>
+    pinctrl: qcom: sc8180x: Fix gpio_wakeirq_map
+
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    of: fdt: fix off-by-one error in unflatten_dt_nodes()
+
+
+-------------
+
+Diffstat:
+
+ .../bindings/interrupt-controller/apple,aic.yaml   |  2 +-
+ Makefile                                           |  4 ++--
+ arch/parisc/Kconfig                                | 12 +++++++++-
+ block/blk-core.c                                   |  4 ++--
+ block/blk-lib.c                                    | 11 ++++++---
+ drivers/gpio/gpio-mpc8xxx.c                        |  1 +
+ drivers/gpio/gpio-rockchip.c                       |  4 ++--
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c         | 14 ++++++++---
+ drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c             |  9 +++++++-
+ drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c             |  9 +++++++-
+ drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c             |  9 +++++++-
+ drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c             |  5 ++++
+ drivers/gpu/drm/amd/amdgpu/soc15.c                 | 25 --------------------
+ drivers/gpu/drm/amd/amdgpu/vega10_ih.c             |  4 ++++
+ drivers/gpu/drm/amd/amdgpu/vega20_ih.c             |  4 ++++
+ drivers/gpu/drm/i915/display/icl_dsi.c             |  2 ++
+ drivers/gpu/drm/i915/display/intel_dp.c            |  1 +
+ drivers/gpu/drm/i915/display/intel_vdsc.c          |  1 -
+ drivers/gpu/drm/i915/gt/uc/intel_guc.h             |  8 +++++++
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c  | 20 +++++++++++++++-
+ drivers/gpu/drm/i915/i915_reg.h                    | 16 ++++++-------
+ drivers/gpu/drm/i915/i915_vma.c                    |  3 ++-
+ drivers/gpu/drm/meson/meson_plane.c                |  2 +-
+ drivers/gpu/drm/meson/meson_viu.c                  |  2 +-
+ drivers/gpu/drm/panel/panel-edp.c                  |  3 ++-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop2.c       |  4 ++++
+ drivers/of/fdt.c                                   |  2 +-
+ drivers/parisc/ccio-dma.c                          |  1 +
+ drivers/pinctrl/qcom/pinctrl-sc8180x.c             | 10 ++++----
+ drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c      |  2 +-
+ fs/cifs/connect.c                                  | 11 +++------
+ fs/cifs/file.c                                     |  3 +++
+ fs/cifs/transport.c                                |  6 +----
+ fs/nfs/internal.h                                  | 25 ++++++++++++++++++++
+ fs/nfs/nfs42proc.c                                 |  9 ++++++--
+ fs/nfs/super.c                                     | 27 ++++++++++++++--------
+ fs/nfs/write.c                                     | 25 --------------------
+ include/linux/of_device.h                          |  5 ++--
+ include/net/xfrm.h                                 |  2 ++
+ io_uring/io_uring.c                                |  3 ++-
+ kernel/cgroup/cgroup-v1.c                          |  2 ++
+ net/ipv4/ip_output.c                               |  2 +-
+ net/ipv4/tcp_ipv4.c                                |  2 ++
+ net/ipv6/tcp_ipv6.c                                |  5 +++-
+ net/sunrpc/clnt.c                                  |  3 +++
+ net/sunrpc/xprt.c                                  |  8 +++----
+ sound/pci/hda/patch_sigmatel.c                     | 24 +++++++++++++++++++
+ tools/include/uapi/asm/errno.h                     |  4 ++--
+ 48 files changed, 237 insertions(+), 123 deletions(-)
+
+
