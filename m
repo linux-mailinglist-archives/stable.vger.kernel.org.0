@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F625C0332
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADEB85C02F2
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbiIUQAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
+        id S232047AbiIUP45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:56:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbiIUP6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E85A1A5F;
-        Wed, 21 Sep 2022 08:52:18 -0700 (PDT)
+        with ESMTP id S231818AbiIUP4U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:56:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491399F8E4;
+        Wed, 21 Sep 2022 08:50:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD7B963168;
-        Wed, 21 Sep 2022 15:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB940C433D6;
-        Wed, 21 Sep 2022 15:52:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A073B830B8;
+        Wed, 21 Sep 2022 15:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA77C433C1;
+        Wed, 21 Sep 2022 15:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775536;
-        bh=w/n5KhdA3MVKZUaifbVJ8pga5w6qC0rPdRyADTfyPrc=;
+        s=korg; t=1663775410;
+        bh=ud/Pi+cuP+gqMTTqZ9ZZDw5VSFtPItKboOPoa5IOVnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ft3QqJ8fHOqf6hDzsfYhBgNRVkT6gmnFcdMfh1oy8hOsZIS708YdBgbVI2toIEgUK
-         MPueij7yYhgLYpsg/ierXpfK6vudWvksLtGrsXi+onhLE3ynXrQ6Wax5Z9/A698NVn
-         GMTiawi+dCQoCZRe/kzoIPNFicHPPu4b4GF+CP00=
+        b=ikJxUniz3960TZOdTismkhNZx9crMzj5ztgS50RpCgitqNE4YAzaxPmdedYz5gP2g
+         d1Vh4wml88ZhL16v+S1c+gM6bsAAOcCnIYxw5GmSoAvnaMLAWex9gh3V72H8J7M9aN
+         Pcywt4V2Lq5chJy//bhU647caVHO9oLw5dyXGhbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 29/39] rxrpc: Fix calc of resend age
+        stable@vger.kernel.org,
+        syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.15 44/45] cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
 Date:   Wed, 21 Sep 2022 17:46:34 +0200
-Message-Id: <20220921153646.690594739@linuxfoundation.org>
+Message-Id: <20220921153648.485339644@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 214a9dc7d852216e83acac7b75bc18f01ce184c2 ]
+commit 43626dade36fa74d3329046f4ae2d7fdefe401c6 upstream.
 
-Fix the calculation of the resend age to add a microsecond value as
-microseconds, not nanoseconds.
+syzbot is hitting percpu_rwsem_assert_held(&cpu_hotplug_lock) warning at
+cpuset_attach() [1], for commit 4f7e7236435ca0ab ("cgroup: Fix
+threadgroup_rwsem <-> cpus_read_lock() deadlock") missed that
+cpuset_attach() is also called from cgroup_attach_task_all().
+Add cpus_read_lock() like what cgroup_procs_write_start() does.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://syzkaller.appspot.com/bug?extid=29d3a3b4d86c8136ad9e [1]
+Reported-by: syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 4f7e7236435ca0ab ("cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/call_event.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup-v1.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
-index f8ecad2b730e..2a93e7b5fbd0 100644
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -166,7 +166,7 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
- 	_enter("{%d,%d}", call->tx_hard_ack, call->tx_top);
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -59,6 +59,7 @@ int cgroup_attach_task_all(struct task_s
+ 	int retval = 0;
  
- 	now = ktime_get_real();
--	max_age = ktime_sub(now, jiffies_to_usecs(call->peer->rto_j));
-+	max_age = ktime_sub_us(now, jiffies_to_usecs(call->peer->rto_j));
+ 	mutex_lock(&cgroup_mutex);
++	cpus_read_lock();
+ 	percpu_down_write(&cgroup_threadgroup_rwsem);
+ 	for_each_root(root) {
+ 		struct cgroup *from_cgrp;
+@@ -75,6 +76,7 @@ int cgroup_attach_task_all(struct task_s
+ 			break;
+ 	}
+ 	percpu_up_write(&cgroup_threadgroup_rwsem);
++	cpus_read_unlock();
+ 	mutex_unlock(&cgroup_mutex);
  
- 	spin_lock_bh(&call->lock);
- 
--- 
-2.35.1
-
+ 	return retval;
 
 
