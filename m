@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 021195C032B
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4315C0225
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232119AbiIUQAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56592 "EHLO
+        id S229519AbiIUPsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:48:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232477AbiIUP7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:59:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE1AE6352;
-        Wed, 21 Sep 2022 08:52:57 -0700 (PDT)
+        with ESMTP id S231610AbiIUPrz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4FA091D13;
+        Wed, 21 Sep 2022 08:47:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B59EB8309E;
-        Wed, 21 Sep 2022 15:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7624DC433D6;
-        Wed, 21 Sep 2022 15:51:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6608FB82714;
+        Wed, 21 Sep 2022 15:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB644C433D6;
+        Wed, 21 Sep 2022 15:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775511;
-        bh=GmYtHqZTuF5fWSgoRICml3viR5xWpFXum0y9yUTkJaY=;
+        s=korg; t=1663775246;
+        bh=ROmjALs2aLv+mU6hjgmn6dS843ULyMub8FPpmP4DHrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxHwE1oDnoMVypf0ZAf3AubC50WWn+1nCg7LHMPitkQdmBLOlYlksJeVlHJTNL5YO
-         AQhHEdr8fp8tsU5T1Iv3Fk2jo35u1W14Moseu0K0EEfccaUYVO1Vu4CGIGMd/y4Dwc
-         ICOJyxBCJsqRnvOEgfL1UA1jbFEmK79wVEODx73U=
+        b=OSo/R639pqZVTsW+VBiAf702QNd8qOPx69MeadDxnaGfpdxKRJKobXNuhewY+ebz0
+         WOBzHzY3XOBPyRGRvxU0r62QQHgZrxKzNEKT4/LlC58C/CF8jdcttxjAnhaqafyfdq
+         1UXHWGWf5PecRReHlSSsfI+jB4a210T3D2924ZnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 07/39] powerpc/pseries/mobility: refactor node lookup during DT update
+        stable@vger.kernel.org, Ashutosh Dixit <ashutosh.dixit@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Sujaritha Sundaresan <sujaritha.sundaresan@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.19 28/38] drm/i915/gt: Fix perf limit reasons bit positions
 Date:   Wed, 21 Sep 2022 17:46:12 +0200
-Message-Id: <20220921153645.970431712@linuxfoundation.org>
+Message-Id: <20220921153647.157448691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,154 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Ashutosh Dixit <ashutosh.dixit@intel.com>
 
-[ Upstream commit 2efd7f6eb9b7107e469837d8452e750d7d080a5d ]
+commit d654f60898d56ffda461ef4ffd7bbe15159feb8d upstream.
 
-In pseries_devicetree_update(), with each call to ibm,update-nodes the
-partition firmware communicates the node to be deleted or updated by
-placing its phandle in the work buffer. Each of delete_dt_node(),
-update_dt_node(), and add_dt_node() have duplicate lookups using the
-phandle value and corresponding refcount management.
+Perf limit reasons bit positions were off by one.
 
-Move the lookup and of_node_put() into pseries_devicetree_update(),
-and emit a warning on any failed lookups.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201207215200.1785968-29-nathanl@linux.ibm.com
-Stable-dep-of: 319fa1a52e43 ("powerpc/pseries/mobility: ignore ibm, platform-facilities updates")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fa68bff7cf27 ("drm/i915/gt: Add sysfs throttle frequency interfaces")
+Cc: stable@vger.kernel.org # v5.18+
+Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
+Acked-by: Andi Shyti <andi.shyti@linux.intel.com>
+Reviewed-by: Sujaritha Sundaresan <sujaritha.sundaresan@intel.com>
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220908155821.1662110-1-ashutosh.dixit@intel.com
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+(cherry picked from commit 60017f34fc334d1bb25476b0b0996b4073e76c90)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/mobility.c | 49 ++++++++---------------
- 1 file changed, 17 insertions(+), 32 deletions(-)
+ drivers/gpu/drm/i915/i915_reg.h |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index 2f73cb5bf12d..acf1664d1ad7 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -59,18 +59,10 @@ static int mobility_rtas_call(int token, char *buf, s32 scope)
- 	return rc;
- }
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -1849,14 +1849,14 @@
  
--static int delete_dt_node(__be32 phandle)
-+static int delete_dt_node(struct device_node *dn)
- {
--	struct device_node *dn;
--
--	dn = of_find_node_by_phandle(be32_to_cpu(phandle));
--	if (!dn)
--		return -ENOENT;
--
- 	pr_debug("removing node %pOFfp\n", dn);
--
- 	dlpar_detach_node(dn);
--	of_node_put(dn);
- 	return 0;
- }
+ #define GT0_PERF_LIMIT_REASONS		_MMIO(0x1381a8)
+ #define   GT0_PERF_LIMIT_REASONS_MASK	0xde3
+-#define   PROCHOT_MASK			REG_BIT(1)
+-#define   THERMAL_LIMIT_MASK		REG_BIT(2)
+-#define   RATL_MASK			REG_BIT(6)
+-#define   VR_THERMALERT_MASK		REG_BIT(7)
+-#define   VR_TDC_MASK			REG_BIT(8)
+-#define   POWER_LIMIT_4_MASK		REG_BIT(9)
+-#define   POWER_LIMIT_1_MASK		REG_BIT(11)
+-#define   POWER_LIMIT_2_MASK		REG_BIT(12)
++#define   PROCHOT_MASK			REG_BIT(0)
++#define   THERMAL_LIMIT_MASK		REG_BIT(1)
++#define   RATL_MASK			REG_BIT(5)
++#define   VR_THERMALERT_MASK		REG_BIT(6)
++#define   VR_TDC_MASK			REG_BIT(7)
++#define   POWER_LIMIT_4_MASK		REG_BIT(8)
++#define   POWER_LIMIT_1_MASK		REG_BIT(10)
++#define   POWER_LIMIT_2_MASK		REG_BIT(11)
  
-@@ -135,10 +127,9 @@ static int update_dt_property(struct device_node *dn, struct property **prop,
- 	return 0;
- }
- 
--static int update_dt_node(__be32 phandle, s32 scope)
-+static int update_dt_node(struct device_node *dn, s32 scope)
- {
- 	struct update_props_workarea *upwa;
--	struct device_node *dn;
- 	struct property *prop = NULL;
- 	int i, rc, rtas_rc;
- 	char *prop_data;
-@@ -155,14 +146,8 @@ static int update_dt_node(__be32 phandle, s32 scope)
- 	if (!rtas_buf)
- 		return -ENOMEM;
- 
--	dn = of_find_node_by_phandle(be32_to_cpu(phandle));
--	if (!dn) {
--		kfree(rtas_buf);
--		return -ENOENT;
--	}
--
- 	upwa = (struct update_props_workarea *)&rtas_buf[0];
--	upwa->phandle = phandle;
-+	upwa->phandle = cpu_to_be32(dn->phandle);
- 
- 	do {
- 		rtas_rc = mobility_rtas_call(update_properties_token, rtas_buf,
-@@ -221,26 +206,18 @@ static int update_dt_node(__be32 phandle, s32 scope)
- 		cond_resched();
- 	} while (rtas_rc == 1);
- 
--	of_node_put(dn);
- 	kfree(rtas_buf);
- 	return 0;
- }
- 
--static int add_dt_node(__be32 parent_phandle, __be32 drc_index)
-+static int add_dt_node(struct device_node *parent_dn, __be32 drc_index)
- {
- 	struct device_node *dn;
--	struct device_node *parent_dn;
- 	int rc;
- 
--	parent_dn = of_find_node_by_phandle(be32_to_cpu(parent_phandle));
--	if (!parent_dn)
--		return -ENOENT;
--
- 	dn = dlpar_configure_connector(drc_index, parent_dn);
--	if (!dn) {
--		of_node_put(parent_dn);
-+	if (!dn)
- 		return -ENOENT;
--	}
- 
- 	rc = dlpar_attach_node(dn, parent_dn);
- 	if (rc)
-@@ -248,7 +225,6 @@ static int add_dt_node(__be32 parent_phandle, __be32 drc_index)
- 
- 	pr_debug("added node %pOFfp\n", dn);
- 
--	of_node_put(parent_dn);
- 	return rc;
- }
- 
-@@ -281,22 +257,31 @@ int pseries_devicetree_update(s32 scope)
- 			data++;
- 
- 			for (i = 0; i < node_count; i++) {
-+				struct device_node *np;
- 				__be32 phandle = *data++;
- 				__be32 drc_index;
- 
-+				np = of_find_node_by_phandle(be32_to_cpu(phandle));
-+				if (!np) {
-+					pr_warn("Failed lookup: phandle 0x%x for action 0x%x\n",
-+						be32_to_cpu(phandle), action);
-+					continue;
-+				}
-+
- 				switch (action) {
- 				case DELETE_DT_NODE:
--					delete_dt_node(phandle);
-+					delete_dt_node(np);
- 					break;
- 				case UPDATE_DT_NODE:
--					update_dt_node(phandle, scope);
-+					update_dt_node(np, scope);
- 					break;
- 				case ADD_DT_NODE:
- 					drc_index = *data++;
--					add_dt_node(phandle, drc_index);
-+					add_dt_node(np, drc_index);
- 					break;
- 				}
- 
-+				of_node_put(np);
- 				cond_resched();
- 			}
- 		}
--- 
-2.35.1
-
+ #define CHV_CLK_CTL1			_MMIO(0x101100)
+ #define VLV_CLK_CTL2			_MMIO(0x101104)
 
 
