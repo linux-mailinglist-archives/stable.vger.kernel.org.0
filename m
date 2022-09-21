@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD6E5C0229
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2596B5C02EC
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231229AbiIUPtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:49:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
+        id S232072AbiIUP5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:57:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231666AbiIUPsi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:48:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D58F57C304;
-        Wed, 21 Sep 2022 08:47:39 -0700 (PDT)
+        with ESMTP id S231933AbiIUP4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:56:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920DF9E2C9;
+        Wed, 21 Sep 2022 08:50:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2480C6312A;
-        Wed, 21 Sep 2022 15:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16B24C433C1;
-        Wed, 21 Sep 2022 15:47:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FD66B8236C;
+        Wed, 21 Sep 2022 15:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C81EC433C1;
+        Wed, 21 Sep 2022 15:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775258;
-        bh=iqaezEEeiDG99/bBFyg4bCNJe4txiqLmFcEDC6sXYqc=;
+        s=korg; t=1663775452;
+        bh=tPurWEEhB1tjacmXIiMYZ8dsf94axedVu01GjbMSARc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSAeoSkttwf9IK8i6N/Nq6wvBR+EKIbzYhaknuzJZLnqU1sc/RmihlPdEdhPoWi8B
-         WIAOn99LBPa4bj7GWFc9C9r2JGdDhbu7i7zM1X9gHuCLuZby901YXcOEXruhfNTKVs
-         GuhnYJAYbAvMHS6z6eZxZS9h000lbNvJVBbNhYGY=
+        b=CKhMtomc9VDu15Y5JSVZlq50opUXW4Jj+UgjjbmSsRnO+6tr1rt6WlDwTibOUWDva
+         KgHwCavKLpwS+2de/Yq9FQ6XcnlQsbaZ9E4424o3Gmwhvv0OOSdJL4OEDYh7lRYY5u
+         O2564dvEIyQEUyaa9Z87XzJiEkWeFXBEEG5QCNoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.19 32/38] drm/amdgpu: move nbio ih_doorbell_range() into ih code for vega
-Date:   Wed, 21 Sep 2022 17:46:16 +0200
-Message-Id: <20220921153647.292908167@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/39] of: fdt: fix off-by-one error in unflatten_dt_nodes()
+Date:   Wed, 21 Sep 2022 17:46:17 +0200
+Message-Id: <20220921153646.153746553@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
+References: <20220921153645.663680057@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit dc1d85cb790f2091eea074cee24a704b2d6c4a06 upstream.
+[ Upstream commit 2f945a792f67815abca26fa8a5e863ccf3fa1181 ]
 
-This mirrors what we do for other asics and this way we are
-sure the ih doorbell range is properly initialized.
+Commit 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
+forgot to fix up the depth check in the loop body in unflatten_dt_nodes()
+which makes it possible to overflow the nps[] buffer...
 
-There is a comment about the way doorbells on gfx9 work that
-requires that they are initialized for other IPs before GFX
-is initialized.  In this case IH is initialized before GFX,
-so there should be no issue.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
 
-This is a prerequisite for fixing the Unsupported Request error
-reported through AER during driver load.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216373
-
-The error was unnoticed before and got visible because of the commit
-referenced below. This doesn't fix anything in the commit below, rather
-fixes the issue in amdgpu exposed by the commit. The reference is only
-to associate this commit with below one so that both go together.
-
-Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
-
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/7c354554-006f-6b31-c195-cdfe4caee392@omp.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc15.c     |    3 ---
- drivers/gpu/drm/amd/amdgpu/vega10_ih.c |    4 ++++
- drivers/gpu/drm/amd/amdgpu/vega20_ih.c |    4 ++++
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/of/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -1224,9 +1224,6 @@ static void soc15_doorbell_range_init(st
- 				ring->use_doorbell, ring->doorbell_index,
- 				adev->doorbell_index.sdma_doorbell_range);
- 		}
--
--		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
--						adev->irq.ih.doorbell_index);
- 	}
- }
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 57ff31b6b1e4..5a1b8688b460 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -315,7 +315,7 @@ static int unflatten_dt_nodes(const void *blob,
+ 	for (offset = 0;
+ 	     offset >= 0 && depth >= initial_depth;
+ 	     offset = fdt_next_node(blob, offset, &depth)) {
+-		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH))
++		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH - 1))
+ 			continue;
  
---- a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-@@ -289,6 +289,10 @@ static int vega10_ih_irq_init(struct amd
- 		}
- 	}
- 
-+	if (!amdgpu_sriov_vf(adev))
-+		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
-+						    adev->irq.ih.doorbell_index);
-+
- 	pci_set_master(adev->pdev);
- 
- 	/* enable interrupts */
---- a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-@@ -340,6 +340,10 @@ static int vega20_ih_irq_init(struct amd
- 		}
- 	}
- 
-+	if (!amdgpu_sriov_vf(adev))
-+		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
-+						    adev->irq.ih.doorbell_index);
-+
- 	pci_set_master(adev->pdev);
- 
- 	/* enable interrupts */
+ 		if (!IS_ENABLED(CONFIG_OF_KOBJ) &&
+-- 
+2.35.1
+
 
 
