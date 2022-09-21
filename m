@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DF75C03A2
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4507C5C0384
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232544AbiIUQHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56480 "EHLO
+        id S232429AbiIUQG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbiIUQG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:56 -0400
+        with ESMTP id S232365AbiIUQFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:05:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7687A3D5D;
-        Wed, 21 Sep 2022 08:55:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26BAB3F31C;
+        Wed, 21 Sep 2022 08:54:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97454628E5;
-        Wed, 21 Sep 2022 15:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAA6C433B5;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 772BE63176;
+        Wed, 21 Sep 2022 15:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C6FC433D6;
         Wed, 21 Sep 2022 15:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1663775615;
-        bh=Jh04ZgCVJUOdoccO5CyvPwcmwvALBeyaIwi9Zen4+4k=;
+        bh=QU8P21MuAyq1H6RBQVtU3ITuaSUzlij2SD4xr4QQmzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrxF8zRX5lEK2kpmm//YiWcIHiLwQgQvyaR6CHUU+8AzgtYYIL0OI1hnk8DTNzuwg
-         0Qoo+/PqT6YCT4iHtYWOaMB5WF8PeeVrD+czfSavVWhBdc5hBEFW/R77i7uz6qsAC1
-         wrHGaxkn44OtGaceLJkXarNWaAlbBLx35YLVyVrXab7xYuHZiJU0God5JAVDNJElev
-         07uiGTms8oaqYjKMSn/pxQNTyVDYpbknV45nzUbhj/G0FXCuhbW1BG1mIVRXZOCtc0
-         026Rv/zFYsZ7OpYvmQ0lE30Wrkp8fGW+RNzy6DCVTINF2kbhon+JmdriIx1J7NrLxW
-         LCCtVJPgZ9Trg==
+        b=RS9XxNVaehHfTtZ6qG9gfFvp8TVd4009nXknORT6xp1Ntuy4zvai4b3gEYqZW7xPn
+         ZlaH8Bn/poJmME3FMZoSfffClN2HRQgf34KjskbljNBgMqtjppqpW0Pry1LM9eOgw5
+         GL+GgyYh3+iaDYbjM0RK7jfpJXyljEuIn9vmlOrHmLY2223xGx/ojINd/jV8+INCxd
+         kfLYAuNjM6GD/YWl9JUhBSYI2qOonS9oPExTV+eR8bywlEUWe1L6xBVgdbT6N3yGrD
+         EZ+qKse7UzOP2veaY77KLx9YCawTBRDENXjPwCOhW6ZDltd4XH4rXT7YH0p5fzTIO5
+         7z+dCbWj2KfCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 04/16] drm/gma500: Fix (vblank) IRQs not working after suspend/resume
-Date:   Wed, 21 Sep 2022 11:53:20 -0400
-Message-Id: <20220921155332.234913-4-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>, linusw@kernel.org,
+        kaloz@openwrt.org, khalasa@piap.pl,
+        linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 05/16] gpio: ixp4xx: Make irqchip immutable
+Date:   Wed, 21 Sep 2022 11:53:21 -0400
+Message-Id: <20220921155332.234913-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220921155332.234913-1-sashal@kernel.org>
 References: <20220921155332.234913-1-sashal@kernel.org>
@@ -56,204 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 235fdbc32d559db21e580f85035c59372704f09e ]
+[ Upstream commit 94e9bc73d85aa6ecfe249e985ff57abe0ab35f34 ]
 
-Fix gnome-shell (and other page-flip users) hanging after suspend/resume
-because of the gma500's IRQs not working.
+This turns the IXP4xx GPIO irqchip into an immutable
+irqchip, a bit different from the standard template due
+to being hierarchical.
 
-This fixes 2 problems with the IRQ handling:
+Tested on the IXP4xx which uses drivers/ata/pata_ixp4xx_cf.c
+for a rootfs on compact flash with IRQs from this GPIO
+block to the CF ATA controller.
 
-1. gma_power_off() calls gma_irq_uninstall() which does a free_irq(), but
-   gma_power_on() called gma_irq_preinstall() + gma_irq_postinstall() which
-   do not call request_irq. Replace the pre- + post-install calls with
-   gma_irq_install() which does prep + request + post.
-
-2. After fixing 1. IRQs still do not work on a Packard Bell Dot SC (Intel
-   Atom N2600, cedarview) netbook.
-
-   Cederview uses MSI interrupts and it seems that the BIOS re-configures
-   things back to normal APIC based interrupts during S3 suspend. There is
-   some MSI PCI-config registers save/restore code which tries to deal with
-   this, but on the Packard Bell Dot SC this is not sufficient to restore
-   MSI IRQ functionality after a suspend/resume.
-
-   Replace the PCI-config registers save/restore with pci_disable_msi() on
-   suspend + pci_enable_msi() on resume. Fixing e.g. gnome-shell hanging.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-4-hdegoede@redhat.com
+Cc: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/cdv_device.c      |  4 +---
- drivers/gpu/drm/gma500/oaktrail_device.c |  5 +----
- drivers/gpu/drm/gma500/power.c           |  8 +-------
- drivers/gpu/drm/gma500/psb_drv.c         |  2 +-
- drivers/gpu/drm/gma500/psb_drv.h         |  5 +----
- drivers/gpu/drm/gma500/psb_irq.c         | 15 ++++++++++++---
- drivers/gpu/drm/gma500/psb_irq.h         |  2 +-
- 7 files changed, 18 insertions(+), 23 deletions(-)
+ drivers/gpio/gpio-ixp4xx.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/cdv_device.c b/drivers/gpu/drm/gma500/cdv_device.c
-index dd32b484dd82..ce96234f3df2 100644
---- a/drivers/gpu/drm/gma500/cdv_device.c
-+++ b/drivers/gpu/drm/gma500/cdv_device.c
-@@ -581,11 +581,9 @@ static const struct psb_offset cdv_regmap[2] = {
- static int cdv_chip_setup(struct drm_device *dev)
- {
- 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
--	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	INIT_WORK(&dev_priv->hotplug_work, cdv_hotplug_work_func);
- 
--	if (pci_enable_msi(pdev))
--		dev_warn(dev->dev, "Enabling MSI failed!\n");
-+	dev_priv->use_msi = true;
- 	dev_priv->regmap = cdv_regmap;
- 	gma_get_core_freq(dev);
- 	psb_intel_opregion_init(dev);
-diff --git a/drivers/gpu/drm/gma500/oaktrail_device.c b/drivers/gpu/drm/gma500/oaktrail_device.c
-index 5923a9c89312..f90e628cb482 100644
---- a/drivers/gpu/drm/gma500/oaktrail_device.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_device.c
-@@ -501,12 +501,9 @@ static const struct psb_offset oaktrail_regmap[2] = {
- static int oaktrail_chip_setup(struct drm_device *dev)
- {
- 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
--	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	int ret;
- 
--	if (pci_enable_msi(pdev))
--		dev_warn(dev->dev, "Enabling MSI failed!\n");
--
-+	dev_priv->use_msi = true;
- 	dev_priv->regmap = oaktrail_regmap;
- 
- 	ret = mid_chip_setup(dev);
-diff --git a/drivers/gpu/drm/gma500/power.c b/drivers/gpu/drm/gma500/power.c
-index b91de6d36e41..66873085d450 100644
---- a/drivers/gpu/drm/gma500/power.c
-+++ b/drivers/gpu/drm/gma500/power.c
-@@ -139,8 +139,6 @@ static void gma_suspend_pci(struct pci_dev *pdev)
- 	dev_priv->regs.saveBSM = bsm;
- 	pci_read_config_dword(pdev, 0xFC, &vbt);
- 	dev_priv->regs.saveVBT = vbt;
--	pci_read_config_dword(pdev, PSB_PCIx_MSI_ADDR_LOC, &dev_priv->msi_addr);
--	pci_read_config_dword(pdev, PSB_PCIx_MSI_DATA_LOC, &dev_priv->msi_data);
- 
- 	pci_disable_device(pdev);
- 	pci_set_power_state(pdev, PCI_D3hot);
-@@ -168,9 +166,6 @@ static bool gma_resume_pci(struct pci_dev *pdev)
- 	pci_restore_state(pdev);
- 	pci_write_config_dword(pdev, 0x5c, dev_priv->regs.saveBSM);
- 	pci_write_config_dword(pdev, 0xFC, dev_priv->regs.saveVBT);
--	/* restoring MSI address and data in PCIx space */
--	pci_write_config_dword(pdev, PSB_PCIx_MSI_ADDR_LOC, dev_priv->msi_addr);
--	pci_write_config_dword(pdev, PSB_PCIx_MSI_DATA_LOC, dev_priv->msi_data);
- 	ret = pci_enable_device(pdev);
- 
- 	if (ret != 0)
-@@ -223,8 +218,7 @@ int gma_power_resume(struct device *_dev)
- 	mutex_lock(&power_mutex);
- 	gma_resume_pci(pdev);
- 	gma_resume_display(pdev);
--	gma_irq_preinstall(dev);
--	gma_irq_postinstall(dev);
-+	gma_irq_install(dev);
- 	mutex_unlock(&power_mutex);
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/gma500/psb_drv.c b/drivers/gpu/drm/gma500/psb_drv.c
-index 1d8744f3e702..54e756b48606 100644
---- a/drivers/gpu/drm/gma500/psb_drv.c
-+++ b/drivers/gpu/drm/gma500/psb_drv.c
-@@ -383,7 +383,7 @@ static int psb_driver_load(struct drm_device *dev, unsigned long flags)
- 	PSB_WVDC32(0xFFFFFFFF, PSB_INT_MASK_R);
- 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
- 
--	gma_irq_install(dev, pdev->irq);
-+	gma_irq_install(dev);
- 
- 	dev->max_vblank_count = 0xffffff; /* only 24 bits of frame count */
- 
-diff --git a/drivers/gpu/drm/gma500/psb_drv.h b/drivers/gpu/drm/gma500/psb_drv.h
-index 0ddfec1a0851..4c3fc5eaf6ad 100644
---- a/drivers/gpu/drm/gma500/psb_drv.h
-+++ b/drivers/gpu/drm/gma500/psb_drv.h
-@@ -490,6 +490,7 @@ struct drm_psb_private {
- 	int rpm_enabled;
- 
- 	/* MID specific */
-+	bool use_msi;
- 	bool has_gct;
- 	struct oaktrail_gct_data gct_data;
- 
-@@ -499,10 +500,6 @@ struct drm_psb_private {
- 	/* Register state */
- 	struct psb_save_area regs;
- 
--	/* MSI reg save */
--	uint32_t msi_addr;
--	uint32_t msi_data;
--
- 	/* Hotplug handling */
- 	struct work_struct hotplug_work;
- 
-diff --git a/drivers/gpu/drm/gma500/psb_irq.c b/drivers/gpu/drm/gma500/psb_irq.c
-index e6e6d61bbeab..038f18ed0a95 100644
---- a/drivers/gpu/drm/gma500/psb_irq.c
-+++ b/drivers/gpu/drm/gma500/psb_irq.c
-@@ -316,17 +316,24 @@ void gma_irq_postinstall(struct drm_device *dev)
- 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
+diff --git a/drivers/gpio/gpio-ixp4xx.c b/drivers/gpio/gpio-ixp4xx.c
+index 312309be0287..56656fb519f8 100644
+--- a/drivers/gpio/gpio-ixp4xx.c
++++ b/drivers/gpio/gpio-ixp4xx.c
+@@ -63,6 +63,14 @@ static void ixp4xx_gpio_irq_ack(struct irq_data *d)
+ 	__raw_writel(BIT(d->hwirq), g->base + IXP4XX_REG_GPIS);
  }
  
--int gma_irq_install(struct drm_device *dev, unsigned int irq)
-+int gma_irq_install(struct drm_device *dev)
- {
-+	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	int ret;
- 
--	if (irq == IRQ_NOTCONNECTED)
-+	if (dev_priv->use_msi && pci_enable_msi(pdev)) {
-+		dev_warn(dev->dev, "Enabling MSI failed!\n");
-+		dev_priv->use_msi = false;
-+	}
++static void ixp4xx_gpio_mask_irq(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
 +
-+	if (pdev->irq == IRQ_NOTCONNECTED)
- 		return -ENOTCONN;
++	irq_chip_mask_parent(d);
++	gpiochip_disable_irq(gc, d->hwirq);
++}
++
+ static void ixp4xx_gpio_irq_unmask(struct irq_data *d)
+ {
+ 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+@@ -72,6 +80,7 @@ static void ixp4xx_gpio_irq_unmask(struct irq_data *d)
+ 	if (!(g->irq_edge & BIT(d->hwirq)))
+ 		ixp4xx_gpio_irq_ack(d);
  
- 	gma_irq_preinstall(dev);
- 
- 	/* PCI devices require shared interrupts. */
--	ret = request_irq(irq, gma_irq_handler, IRQF_SHARED, dev->driver->name, dev);
-+	ret = request_irq(pdev->irq, gma_irq_handler, IRQF_SHARED, dev->driver->name, dev);
- 	if (ret)
- 		return ret;
- 
-@@ -369,6 +376,8 @@ void gma_irq_uninstall(struct drm_device *dev)
- 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
- 
- 	free_irq(pdev->irq, dev);
-+	if (dev_priv->use_msi)
-+		pci_disable_msi(pdev);
++	gpiochip_enable_irq(gc, d->hwirq);
+ 	irq_chip_unmask_parent(d);
  }
  
- int gma_crtc_enable_vblank(struct drm_crtc *crtc)
-diff --git a/drivers/gpu/drm/gma500/psb_irq.h b/drivers/gpu/drm/gma500/psb_irq.h
-index b51e395194ff..7648f69824a5 100644
---- a/drivers/gpu/drm/gma500/psb_irq.h
-+++ b/drivers/gpu/drm/gma500/psb_irq.h
-@@ -17,7 +17,7 @@ struct drm_device;
+@@ -149,12 +158,14 @@ static int ixp4xx_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ 	return irq_chip_set_type_parent(d, IRQ_TYPE_LEVEL_HIGH);
+ }
  
- void gma_irq_preinstall(struct drm_device *dev);
- void gma_irq_postinstall(struct drm_device *dev);
--int  gma_irq_install(struct drm_device *dev, unsigned int irq);
-+int  gma_irq_install(struct drm_device *dev);
- void gma_irq_uninstall(struct drm_device *dev);
+-static struct irq_chip ixp4xx_gpio_irqchip = {
++static const struct irq_chip ixp4xx_gpio_irqchip = {
+ 	.name = "IXP4GPIO",
+ 	.irq_ack = ixp4xx_gpio_irq_ack,
+-	.irq_mask = irq_chip_mask_parent,
++	.irq_mask = ixp4xx_gpio_mask_irq,
+ 	.irq_unmask = ixp4xx_gpio_irq_unmask,
+ 	.irq_set_type = ixp4xx_gpio_irq_set_type,
++	.flags = IRQCHIP_IMMUTABLE,
++	GPIOCHIP_IRQ_RESOURCE_HELPERS,
+ };
  
- int  gma_crtc_enable_vblank(struct drm_crtc *crtc);
+ static int ixp4xx_gpio_child_to_parent_hwirq(struct gpio_chip *gc,
+@@ -263,7 +274,7 @@ static int ixp4xx_gpio_probe(struct platform_device *pdev)
+ 	g->gc.owner = THIS_MODULE;
+ 
+ 	girq = &g->gc.irq;
+-	girq->chip = &ixp4xx_gpio_irqchip;
++	gpio_irq_chip_set_chip(girq, &ixp4xx_gpio_irqchip);
+ 	girq->fwnode = g->fwnode;
+ 	girq->parent_domain = parent;
+ 	girq->child_to_parent_hwirq = ixp4xx_gpio_child_to_parent_hwirq;
 -- 
 2.35.1
 
