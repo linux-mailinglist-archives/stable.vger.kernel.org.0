@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 082A65C0338
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8E95C02BE
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232171AbiIUQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51282 "EHLO
+        id S231901AbiIUPzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232277AbiIUP6y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE5EA1A7C;
-        Wed, 21 Sep 2022 08:52:25 -0700 (PDT)
+        with ESMTP id S232029AbiIUPx7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD179DF89;
+        Wed, 21 Sep 2022 08:50:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8320863158;
-        Wed, 21 Sep 2022 15:51:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 857CBC433C1;
-        Wed, 21 Sep 2022 15:51:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01C66B830B7;
+        Wed, 21 Sep 2022 15:49:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6632CC433C1;
+        Wed, 21 Sep 2022 15:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775487;
-        bh=l/ULhgbHsdxFPXP5MHqHn9qPO8Py2KwwRtVGoKwr2rU=;
+        s=korg; t=1663775391;
+        bh=twmucRWLWBA5JA6EpwBqMb0aNPgZceHCV2b5nbdmFUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6Stedx044t3YzIhQVVagrBUHBKbtI4BhwV7BlWjbs1m1uUXT+/zoeYFDJWu/pwCa
-         HrY3xduD0V/B+UOChPeyu2I4rNL+zOH5j2F8wE7Dci6twGIHWLdiAWYMsBSLKbNXw/
-         YcIHzGxA/RSpQvS++XQci16UB6FpiU4V3y4t2Gf0=
+        b=LHHQLoi2delNFp+D+8moE6oM3sKu2HEYPurjjCP/mWaul7A2BffcjLmqcCsmhMddr
+         gSmHoOckrSjdjo8zYuETGz8JoDjOgYdxxhx5LfPTH6NSdzqbctDAj4PlD2+q0hkDAM
+         228C7vEJBFAnaFxDrBpUOaZsW7UDq34FRSat46Zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <benh@debian.org>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 23/39] tools/include/uapi: Fix <asm/errno.h> for parisc and xtensa
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 38/45] MIPS: OCTEON: irq: Fix octeon_irq_force_ciu_mapping()
 Date:   Wed, 21 Sep 2022 17:46:28 +0200
-Message-Id: <20220921153646.493424372@linuxfoundation.org>
+Message-Id: <20220921153648.216170861@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <benh@debian.org>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 95363747a6f39e88a3052fcf6ce6237769495ce0 upstream.
+[ Upstream commit ba912afbd611d3a5f22af247721a071ad1d5b9e0 ]
 
-tools/include/uapi/asm/errno.h currently attempts to include
-non-existent arch-specific errno.h header for xtensa.
-Remove this case so that <asm-generic/errno.h> is used instead,
-and add the missing arch-specific header for parisc.
+For irq_domain_associate() to work the virq descriptor has to be
+pre-allocated in advance. Otherwise the following happens:
 
-Signed-off-by: Ben Hutchings <benh@debian.org>
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
-Cc: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: CPU: 0 PID: 0 at .../kernel/irq/irqdomain.c:527 irq_domain_associate+0x298/0x2e8
+error: virq128 is not allocated
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.78-... #1
+        ...
+Call Trace:
+[<ffffffff801344c4>] show_stack+0x9c/0x130
+[<ffffffff80769550>] dump_stack+0x90/0xd0
+[<ffffffff801576d0>] __warn+0x118/0x130
+[<ffffffff80157734>] warn_slowpath_fmt+0x4c/0x70
+[<ffffffff801b83c0>] irq_domain_associate+0x298/0x2e8
+[<ffffffff80a43bb8>] octeon_irq_init_ciu+0x4c8/0x53c
+[<ffffffff80a76cbc>] of_irq_init+0x1e0/0x388
+[<ffffffff80a452cc>] init_IRQ+0x4c/0xf4
+[<ffffffff80a3cc00>] start_kernel+0x404/0x698
+
+Use irq_alloc_desc_at() to avoid the above problem.
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/uapi/asm/errno.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/cavium-octeon/octeon-irq.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/tools/include/uapi/asm/errno.h b/tools/include/uapi/asm/errno.h
-index d30439b4b8ab..869379f91fe4 100644
---- a/tools/include/uapi/asm/errno.h
-+++ b/tools/include/uapi/asm/errno.h
-@@ -9,8 +9,8 @@
- #include "../../../arch/alpha/include/uapi/asm/errno.h"
- #elif defined(__mips__)
- #include "../../../arch/mips/include/uapi/asm/errno.h"
--#elif defined(__xtensa__)
--#include "../../../arch/xtensa/include/uapi/asm/errno.h"
-+#elif defined(__hppa__)
-+#include "../../../arch/parisc/include/uapi/asm/errno.h"
- #else
- #include <asm-generic/errno.h>
- #endif
+diff --git a/arch/mips/cavium-octeon/octeon-irq.c b/arch/mips/cavium-octeon/octeon-irq.c
+index be5d4afcd30f..353dfeee0a6d 100644
+--- a/arch/mips/cavium-octeon/octeon-irq.c
++++ b/arch/mips/cavium-octeon/octeon-irq.c
+@@ -127,6 +127,16 @@ static void octeon_irq_free_cd(struct irq_domain *d, unsigned int irq)
+ static int octeon_irq_force_ciu_mapping(struct irq_domain *domain,
+ 					int irq, int line, int bit)
+ {
++	struct device_node *of_node;
++	int ret;
++
++	of_node = irq_domain_get_of_node(domain);
++	if (!of_node)
++		return -EINVAL;
++	ret = irq_alloc_desc_at(irq, of_node_to_nid(of_node));
++	if (ret < 0)
++		return ret;
++
+ 	return irq_domain_associate(domain, irq, line << 6 | bit);
+ }
+ 
 -- 
-2.37.3
+2.35.1
 
 
 
