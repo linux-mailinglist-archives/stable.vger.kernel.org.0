@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 316955C029B
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336B85C021B
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiIUPyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:54:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        id S231402AbiIUPsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231409AbiIUPxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:22 -0400
+        with ESMTP id S231638AbiIUPrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7ECB13F06;
-        Wed, 21 Sep 2022 08:49:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276259A9EE;
+        Wed, 21 Sep 2022 08:47:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F580B830AF;
-        Wed, 21 Sep 2022 15:49:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C5F5C433D7;
-        Wed, 21 Sep 2022 15:48:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00344B830A1;
+        Wed, 21 Sep 2022 15:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 337E4C433C1;
+        Wed, 21 Sep 2022 15:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775338;
-        bh=Pty2kD4tYPOLUNGbx/iMh4Z5d8Q8KTKQnMyIeZHS3/s=;
+        s=korg; t=1663775233;
+        bh=v90XGXtjV5KepYTypBN1Kkz6+3fOaoGS4G1/0MG3RGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGapixIlIpg92pJkAHDgRG1OOSlKFIP8WD85FPK9BTpYu9IogO9GhnzPFS5tH42my
-         pWlEgwd6M9bkFtndFklCTlS4vy+yOMNgfxLzVfVMDSWifF+60i9D/bFA52zsd7QJiF
-         BQjv7PzOU3S75TfVyk8o+Q6FGSr4wBTx0SKDefow=
+        b=g9V10HSGhdzEysDDcZBhlJLCxzXK9KY86BVwC/SqbmIOH9F766a4x9DNlLBc9LjbR
+         7UeTfU52fYlXjMcFOewGzQb+sskXlUd/hQftLmS4Kd86p7vwx8S+W5hdtrgmhAeOQc
+         e7BnunW49lH/Zlw0wCeFZPe5EyypSMjp6taBldr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        kexec@lists.infradead.org, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Will Deacon <will@kernel.org>, Coiby Xu <coxu@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 02/45] arm64: kexec_file: use more system keyrings to verify kernel image signature
+Subject: [PATCH 5.19 08/38] gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
 Date:   Wed, 21 Sep 2022 17:45:52 +0200
-Message-Id: <20220921153647.005448861@linuxfoundation.org>
+Message-Id: <20220921153646.560374153@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,71 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coxu@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 0d519cadf75184a24313568e7f489a7fc9b1be3b ]
+[ Upstream commit 279c12df8d2efb28def9d037f288cbfb97c30fe2 ]
 
-Currently, when loading a kernel image via the kexec_file_load() system
-call, arm64 can only use the .builtin_trusted_keys keyring to verify
-a signature whereas x86 can use three more keyrings i.e.
-.secondary_trusted_keys, .machine and .platform keyrings. For example,
-one resulting problem is kexec'ing a kernel image  would be rejected
-with the error "Lockdown: kexec: kexec of unsigned images is restricted;
-see man kernel_lockdown.7".
+Commit e39d5ef67804 ("powerpc/5xxx: extend mpc8xxx_gpio driver to support
+mpc512x gpios") implemented support for IRQ_TYPE_LEVEL_LOW flow type in
+mpc512x via falling edge type. Do same for mpc85xx which support was added
+in commit 345e5c8a1cc3 ("powerpc: Add interrupt support to mpc8xxx_gpio").
 
-This patch set enables arm64 to make use of the same keyrings as x86 to
-verify the signature kexec'ed kernel image.
+Fixes probing of lm90 hwmon driver on mpc85xx based board which use level
+interrupt. Without it kernel prints error and refuse lm90 to work:
 
-Fixes: 732b7b93d849 ("arm64: kexec_file: add kernel signature verification support")
-Cc: stable@vger.kernel.org # 105e10e2cf1c: kexec_file: drop weak attribute from functions
-Cc: stable@vger.kernel.org # 34d5960af253: kexec: clean up arch_kexec_kernel_verify_sig
-Cc: stable@vger.kernel.org # 83b7bb2d49ae: kexec, KEYS: make the code in bzImage64_verify_sig generic
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Co-developed-by: Michal Suchanek <msuchanek@suse.de>
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+    [   15.258370] genirq: Setting trigger mode 8 for irq 49 failed (mpc8xxx_irq_set_type+0x0/0xf8)
+    [   15.267168] lm90 0-004c: cannot request IRQ 49
+    [   15.272708] lm90: probe of 0-004c failed with error -22
+
+Fixes: 345e5c8a1cc3 ("powerpc: Add interrupt support to mpc8xxx_gpio")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/kexec_image.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/gpio/gpio-mpc8xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/kernel/kexec_image.c b/arch/arm64/kernel/kexec_image.c
-index 9ec34690e255..5ed6a585f21f 100644
---- a/arch/arm64/kernel/kexec_image.c
-+++ b/arch/arm64/kernel/kexec_image.c
-@@ -14,7 +14,6 @@
- #include <linux/kexec.h>
- #include <linux/pe.h>
- #include <linux/string.h>
--#include <linux/verification.h>
- #include <asm/byteorder.h>
- #include <asm/cpufeature.h>
- #include <asm/image.h>
-@@ -130,18 +129,10 @@ static void *image_load(struct kimage *image,
- 	return NULL;
- }
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index a964e25ea620..763256efddc2 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -172,6 +172,7 @@ static int mpc8xxx_irq_set_type(struct irq_data *d, unsigned int flow_type)
  
--#ifdef CONFIG_KEXEC_IMAGE_VERIFY_SIG
--static int image_verify_sig(const char *kernel, unsigned long kernel_len)
--{
--	return verify_pefile_signature(kernel, kernel_len, NULL,
--				       VERIFYING_KEXEC_PE_SIGNATURE);
--}
--#endif
--
- const struct kexec_file_ops kexec_image_ops = {
- 	.probe = image_probe,
- 	.load = image_load,
- #ifdef CONFIG_KEXEC_IMAGE_VERIFY_SIG
--	.verify_sig = image_verify_sig,
-+	.verify_sig = kexec_kernel_verify_pe_sig,
- #endif
- };
+ 	switch (flow_type) {
+ 	case IRQ_TYPE_EDGE_FALLING:
++	case IRQ_TYPE_LEVEL_LOW:
+ 		raw_spin_lock_irqsave(&mpc8xxx_gc->lock, flags);
+ 		gc->write_reg(mpc8xxx_gc->regs + GPIO_ICR,
+ 			gc->read_reg(mpc8xxx_gc->regs + GPIO_ICR)
 -- 
 2.35.1
 
