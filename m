@@ -2,93 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FCC5C03F7
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B405C0405
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbiIUQVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:21:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37220 "EHLO
+        id S231405AbiIUQYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:24:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230057AbiIUQVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:21:39 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C7B5598CB4;
-        Wed, 21 Sep 2022 09:04:59 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4279013D5;
-        Wed, 21 Sep 2022 08:56:45 -0700 (PDT)
-Received: from bogus (e103737-lin.cambridge.arm.com [10.1.197.49])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 635593F5A1;
-        Wed, 21 Sep 2022 08:56:37 -0700 (PDT)
-Date:   Wed, 21 Sep 2022 16:56:34 +0100
-From:   Sudeep Holla <sudeep.holla@arm.com>
-To:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Dien Pham <dien.pham.ry@renesas.com>,
-        Gaku Inami <gaku.inami.xh@renesas.com>
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        linux-arm-kernel@lists.infradead.org, Peng Fan <peng.fan@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Nicolas Pitre <npitre@baylibre.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "firmware: arm_scmi: Add clock management to the
- SCMI power domain"
-Message-ID: <20220921155634.owr5lncydsfpo7ua@bogus>
-References: <20220919122033.86126-1-ulf.hansson@linaro.org>
+        with ESMTP id S232087AbiIUQYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:24:23 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F042B0B35
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 09:07:15 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id i15-20020a17090a4b8f00b0020073b4ac27so6347717pjh.3
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 09:07:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=bxNCiZLqEvXwoJkPGjN/DbBeQGNhmz3HvRtOAeWQl9U=;
+        b=aG0WeZ5nEB0q8W3q7aC89wYSR9uRZdSp88sOjQcFnZso3aRMDE4LaRI7yuOTeVQ8gr
+         xFubAp3wDB2rCkzXI64AoycHfvSaoQUOgkdNf6D3UjiSg3gN8kqZy+OSXY49ztL1pHsl
+         y8647YzLpP1u7r6+YzwgGPC8haqhmzABZmk4+W8vJ+1Zc4CN7ZoeAmIIGMVGvG2ydJ4K
+         SAFIA9TejKezU7QYplV+9k5zeoXcf/+JbwskBEhrZNE94iFGtw30n6fqx5ZSKHZ2K/SE
+         9ugM/1bX7nniC9qa51U1E5RzAZTE3Le+HFXvXh3n68VE5Y2tcNtXW9ebruiGBWedtO+s
+         gsNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=bxNCiZLqEvXwoJkPGjN/DbBeQGNhmz3HvRtOAeWQl9U=;
+        b=obYbu9M6FN/Msm+8XuQfpCDg1hSTXF1DbczM++kg2EBAS3kkFDeFByntjiISPTLMnm
+         g1jXCexHS4xFWIDIyI53NneJZjXxVROJRA1RF+QPM6vEDa4Ht3giBkkjyLaDIzRC7A0y
+         lXM/M0eAYQYgBLuYJeA5V9jQoiALrqLT0whvXeZphpr1fpZUVHorsXuVPvbqwNuzuYLt
+         hEBmhS9t85rp8oP1DyQY3rlsZ+Qzssd70ZHUkXzaUJ/32OgWdMcKK6HarKG7m3svAyON
+         7fOukLbm1ivAd7uw0xjBU87pZOvKsdOHf+4psnWpVYP9f0uMStFRl/kxO9EslIoH+faa
+         S0iQ==
+X-Gm-Message-State: ACrzQf0kJokxxEPY7m0yAqTNJ6zMn3wROA0Pkl+LarxMLozUALKNZRym
+        ZU/23tRHnqzkLUBr9toOZFlNrIk4wYt6C5+KMbA=
+X-Google-Smtp-Source: AMsMyM5M9SqEcfNKFJTW9I/GBBUR0Y+GnDRDCEJYFYj7VxME5l3Pp/PdB2r/ZiYcpoSdj1FOPXvWkQ==
+X-Received: by 2002:a17:903:189:b0:178:3df7:f32e with SMTP id z9-20020a170903018900b001783df7f32emr5422102plg.47.1663776388350;
+        Wed, 21 Sep 2022 09:06:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q10-20020aa7842a000000b00546d8c2185dsm2439787pfn.170.2022.09.21.09.06.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Sep 2022 09:06:27 -0700 (PDT)
+Message-ID: <632b3683.a70a0220.e762e.4fc9@mx.google.com>
+Date:   Wed, 21 Sep 2022 09:06:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919122033.86126-1-ulf.hansson@linaro.org>
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.19.10-36-g00099e2e5131
+Subject: stable-rc/queue/5.19 baseline: 154 runs,
+ 1 regressions (v5.19.10-36-g00099e2e5131)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,TVD_SPACE_RATIO
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Dien, Gaku,
+stable-rc/queue/5.19 baseline: 154 runs, 1 regressions (v5.19.10-36-g00099e=
+2e5131)
 
-On Mon, Sep 19, 2022 at 02:20:33PM +0200, Ulf Hansson wrote:
-> This reverts commit a3b884cef873 ("firmware: arm_scmi: Add clock management
-> to the SCMI power domain").
-> 
-> Using the GENPD_FLAG_PM_CLK tells genpd to gate/ungate the consumer
-> device's clock(s) during runtime suspend/resume through the PM clock API.
-> More precisely, in genpd_runtime_resume() the clock(s) for the consumer
-> device would become ungated prior to the driver-level ->runtime_resume()
-> callbacks gets invoked.
-> 
-> This behaviour isn't a good fit for all platforms/drivers. For example, a
-> driver may need to make some preparations of its device in its
-> ->runtime_resume() callback, like calling clk_set_rate() before the
-> clock(s) should be ungated. In these cases, it's easier to let the clock(s)
-> to be managed solely by the driver, rather than at the PM domain level.
-> 
-> For these reasons, let's drop the use GENPD_FLAG_PM_CLK for the SCMI PM
-> domain, as to enable it to be more easily adopted across ARM platforms.
-> 
-> Fixes: a3b884cef873 ("firmware: arm_scmi: Add clock management to the SCMI power domain")
-> Cc: Nicolas Pitre <npitre@baylibre.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
-> 
-> To get some more background to $subject patch, please have a look at the
-> lore-link below.
-> 
-> https://lore.kernel.org/all/DU0PR04MB94173B45A2CFEE3BF1BD313A88409@DU0PR04MB9417.eurprd04.prod.outlook.com/
->
+Regressions Summary
+-------------------
 
-If you have any objections, this is your last chance to speak up before
-the original change gets reverted in the mainline with this patch.
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
 
-Hi Ulf,
 
-I don't have any other SCMI changes for v6.0 fixes or v6.1
-I am fine if you are happy to take this via your tree or I can send it
-to SoC team. Let me know. I will give final one or 2 days for Renesas
-to get back if they really care much.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
+nel/v5.19.10-36-g00099e2e5131/plan/baseline/
 
---
-Regards,
-Sudeep
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.19
+  Describe: v5.19.10-36-g00099e2e5131
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      00099e2e5131207ca27f8e6705f29256152be9d3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/632b079d2fa7ce7f06355661
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.10-=
+36-g00099e2e5131/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-sc7180-trogdor-lazor-limozeen.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.10-=
+36-g00099e2e5131/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-sc7180-trogdor-lazor-limozeen.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/632b079d2fa7ce7f06355=
+662
+        failing since 2 days (last pass: v5.19.9-55-g7dbe36eefdad, first fa=
+il: v5.19.9-56-g29b6ff678b0e) =
+
+ =20
