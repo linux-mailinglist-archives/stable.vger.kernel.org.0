@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 617AC5C036D
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:04:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DF75C03A2
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231858AbiIUQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:04:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
+        id S232544AbiIUQHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232543AbiIUQEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:04:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD8B6425;
-        Wed, 21 Sep 2022 08:54:32 -0700 (PDT)
+        with ESMTP id S232204AbiIUQG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7687A3D5D;
+        Wed, 21 Sep 2022 08:55:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 423DF63171;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97454628E5;
         Wed, 21 Sep 2022 15:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D5DDC4314E;
-        Wed, 21 Sep 2022 15:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAA6C433B5;
+        Wed, 21 Sep 2022 15:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663775614;
-        bh=GBcGwIueOLO58Yp/xzMrac4ghKpdtAPg/t5F7+WWSzs=;
+        s=k20201202; t=1663775615;
+        bh=Jh04ZgCVJUOdoccO5CyvPwcmwvALBeyaIwi9Zen4+4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfJXi8mkjT/tzSHx7Tt4cYNIijPyFEnBQlG/pySEcxA0W3fpg884xun/SP9gTH3mY
-         DAQKyG2QDKooFtZO54Pf8c7+kmGYsNopVO3+2iXCt9GFf2t+4AbHItmPIfot3uBROA
-         qeXO/9j0PB/yoVj1EYCli0lWrq516L33kUnSIy9dBzLNmlAANVmX4brzCLslHaub4G
-         3GZ1i9VsBTHZJmOQW0bWUuUxLY8nVt9Dit/GeLLWDWhbFe8ngZ93GYeH2owrTwMBxL
-         3CNLOcUIQHdu4NntwKWRgK53z/YieJ3CcmEkEvchUfVaJgFCSP35vT7x7efGkn/JJ4
-         s2+TTr7u7JAiw==
+        b=CrxF8zRX5lEK2kpmm//YiWcIHiLwQgQvyaR6CHUU+8AzgtYYIL0OI1hnk8DTNzuwg
+         0Qoo+/PqT6YCT4iHtYWOaMB5WF8PeeVrD+czfSavVWhBdc5hBEFW/R77i7uz6qsAC1
+         wrHGaxkn44OtGaceLJkXarNWaAlbBLx35YLVyVrXab7xYuHZiJU0God5JAVDNJElev
+         07uiGTms8oaqYjKMSn/pxQNTyVDYpbknV45nzUbhj/G0FXCuhbW1BG1mIVRXZOCtc0
+         026Rv/zFYsZ7OpYvmQ0lE30Wrkp8fGW+RNzy6DCVTINF2kbhon+JmdriIx1J7NrLxW
+         LCCtVJPgZ9Trg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
         Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
         daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 03/16] drm/gma500: Fix WARN_ON(lock->magic != lock) error
-Date:   Wed, 21 Sep 2022 11:53:19 -0400
-Message-Id: <20220921155332.234913-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 04/16] drm/gma500: Fix (vblank) IRQs not working after suspend/resume
+Date:   Wed, 21 Sep 2022 11:53:20 -0400
+Message-Id: <20220921155332.234913-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220921155332.234913-1-sashal@kernel.org>
 References: <20220921155332.234913-1-sashal@kernel.org>
@@ -58,103 +58,202 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit b6f25c3b94f2aadbf5cbef954db4073614943d74 ]
+[ Upstream commit 235fdbc32d559db21e580f85035c59372704f09e ]
 
-psb_gem_unpin() calls dma_resv_lock() but the underlying ww_mutex
-gets destroyed by drm_gem_object_release() move the
-drm_gem_object_release() call in psb_gem_free_object() to after
-the unpin to fix the below warning:
+Fix gnome-shell (and other page-flip users) hanging after suspend/resume
+because of the gma500's IRQs not working.
 
-[   79.693962] ------------[ cut here ]------------
-[   79.693992] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-[   79.694015] WARNING: CPU: 0 PID: 240 at kernel/locking/mutex.c:582 __ww_mutex_lock.constprop.0+0x569/0xfb0
-[   79.694052] Modules linked in: rfcomm snd_seq_dummy snd_hrtimer qrtr bnep ath9k ath9k_common ath9k_hw snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_codec_hdmi snd_hda_intel ath3k snd_intel_dspcfg mac80211 snd_intel_sdw_acpi btusb snd_hda_codec btrtl btbcm btintel btmtk bluetooth at24 snd_hda_core snd_hwdep uvcvideo snd_seq libarc4 videobuf2_vmalloc ath videobuf2_memops videobuf2_v4l2 videobuf2_common snd_seq_device videodev acer_wmi intel_powerclamp coretemp mc snd_pcm joydev sparse_keymap ecdh_generic pcspkr wmi_bmof cfg80211 i2c_i801 i2c_smbus snd_timer snd r8169 rfkill lpc_ich soundcore acpi_cpufreq zram rtsx_pci_sdmmc mmc_core serio_raw rtsx_pci gma500_gfx(E) video wmi ip6_tables ip_tables i2c_dev fuse
-[   79.694436] CPU: 0 PID: 240 Comm: plymouthd Tainted: G        W   E      6.0.0-rc3+ #490
-[   79.694457] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
-[   79.694469] RIP: 0010:__ww_mutex_lock.constprop.0+0x569/0xfb0
-[   79.694496] Code: ff 85 c0 0f 84 15 fb ff ff 8b 05 ca 3c 11 01 85 c0 0f 85 07 fb ff ff 48 c7 c6 30 cb 84 aa 48 c7 c7 a3 e1 82 aa e8 ac 29 f8 ff <0f> 0b e9 ed fa ff ff e8 5b 83 8a ff 85 c0 74 10 44 8b 0d 98 3c 11
-[   79.694513] RSP: 0018:ffffad1dc048bbe0 EFLAGS: 00010282
-[   79.694623] RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000000
-[   79.694636] RDX: 0000000000000001 RSI: ffffffffaa8b0ffc RDI: 00000000ffffffff
-[   79.694650] RBP: ffffad1dc048bc80 R08: 0000000000000000 R09: ffffad1dc048ba90
-[   79.694662] R10: 0000000000000003 R11: ffffffffaad62fe8 R12: ffff9ff302103138
-[   79.694675] R13: ffff9ff306ec8000 R14: ffff9ff307779078 R15: ffff9ff3014c0270
-[   79.694690] FS:  00007ff1cccf1740(0000) GS:ffff9ff3bc200000(0000) knlGS:0000000000000000
-[   79.694705] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   79.694719] CR2: 0000559ecbcb4420 CR3: 0000000013210000 CR4: 00000000000006f0
-[   79.694734] Call Trace:
-[   79.694749]  <TASK>
-[   79.694761]  ? __schedule+0x47f/0x1670
-[   79.694796]  ? psb_gem_unpin+0x27/0x1a0 [gma500_gfx]
-[   79.694830]  ? lock_is_held_type+0xe3/0x140
-[   79.694864]  ? ww_mutex_lock+0x38/0xa0
-[   79.694885]  ? __cond_resched+0x1c/0x30
-[   79.694902]  ww_mutex_lock+0x38/0xa0
-[   79.694925]  psb_gem_unpin+0x27/0x1a0 [gma500_gfx]
-[   79.694964]  psb_gem_unpin+0x199/0x1a0 [gma500_gfx]
-[   79.694996]  drm_gem_object_release_handle+0x50/0x60
-[   79.695020]  ? drm_gem_object_handle_put_unlocked+0xf0/0xf0
-[   79.695042]  idr_for_each+0x4b/0xb0
-[   79.695066]  ? _raw_spin_unlock_irqrestore+0x30/0x60
-[   79.695095]  drm_gem_release+0x1c/0x30
-[   79.695118]  drm_file_free.part.0+0x1ea/0x260
-[   79.695150]  drm_release+0x6a/0x120
-[   79.695175]  __fput+0x9f/0x260
-[   79.695203]  task_work_run+0x59/0xa0
-[   79.695227]  do_exit+0x387/0xbe0
-[   79.695250]  ? seqcount_lockdep_reader_access.constprop.0+0x82/0x90
-[   79.695275]  ? lockdep_hardirqs_on+0x7d/0x100
-[   79.695304]  do_group_exit+0x33/0xb0
-[   79.695331]  __x64_sys_exit_group+0x14/0x20
-[   79.695353]  do_syscall_64+0x58/0x80
-[   79.695376]  ? up_read+0x17/0x20
-[   79.695401]  ? lock_is_held_type+0xe3/0x140
-[   79.695429]  ? asm_exc_page_fault+0x22/0x30
-[   79.695450]  ? lockdep_hardirqs_on+0x7d/0x100
-[   79.695473]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[   79.695493] RIP: 0033:0x7ff1ccefe3f1
-[   79.695516] Code: Unable to access opcode bytes at RIP 0x7ff1ccefe3c7.
-[   79.695607] RSP: 002b:00007ffed4413378 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-[   79.695629] RAX: ffffffffffffffda RBX: 00007ff1cd0159e0 RCX: 00007ff1ccefe3f1
-[   79.695644] RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000000
-[   79.695656] RBP: 0000000000000000 R08: ffffffffffffff80 R09: 00007ff1cd020b20
-[   79.695671] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ff1cd0159e0
-[   79.695684] R13: 0000000000000000 R14: 00007ff1cd01aee8 R15: 00007ff1cd01af00
-[   79.695733]  </TASK>
-[   79.695746] irq event stamp: 725979
-[   79.695757] hardirqs last  enabled at (725979): [<ffffffffa9132d54>] finish_task_switch.isra.0+0xe4/0x3f0
-[   79.695780] hardirqs last disabled at (725978): [<ffffffffa9eb4113>] __schedule+0xdd3/0x1670
-[   79.695803] softirqs last  enabled at (725974): [<ffffffffa90fbc9d>] __irq_exit_rcu+0xed/0x160
-[   79.695825] softirqs last disabled at (725969): [<ffffffffa90fbc9d>] __irq_exit_rcu+0xed/0x160
-[   79.695845] ---[ end trace 0000000000000000 ]---
+This fixes 2 problems with the IRQ handling:
+
+1. gma_power_off() calls gma_irq_uninstall() which does a free_irq(), but
+   gma_power_on() called gma_irq_preinstall() + gma_irq_postinstall() which
+   do not call request_irq. Replace the pre- + post-install calls with
+   gma_irq_install() which does prep + request + post.
+
+2. After fixing 1. IRQs still do not work on a Packard Bell Dot SC (Intel
+   Atom N2600, cedarview) netbook.
+
+   Cederview uses MSI interrupts and it seems that the BIOS re-configures
+   things back to normal APIC based interrupts during S3 suspend. There is
+   some MSI PCI-config registers save/restore code which tries to deal with
+   this, but on the Packard Bell Dot SC this is not sufficient to restore
+   MSI IRQ functionality after a suspend/resume.
+
+   Replace the PCI-config registers save/restore with pci_disable_msi() on
+   suspend + pci_enable_msi() on resume. Fixing e.g. gnome-shell hanging.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-3-hdegoede@redhat.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-4-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/gem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/gma500/cdv_device.c      |  4 +---
+ drivers/gpu/drm/gma500/oaktrail_device.c |  5 +----
+ drivers/gpu/drm/gma500/power.c           |  8 +-------
+ drivers/gpu/drm/gma500/psb_drv.c         |  2 +-
+ drivers/gpu/drm/gma500/psb_drv.h         |  5 +----
+ drivers/gpu/drm/gma500/psb_irq.c         | 15 ++++++++++++---
+ drivers/gpu/drm/gma500/psb_irq.h         |  2 +-
+ 7 files changed, 18 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/gem.c b/drivers/gpu/drm/gma500/gem.c
-index dffe37490206..4b7627a72637 100644
---- a/drivers/gpu/drm/gma500/gem.c
-+++ b/drivers/gpu/drm/gma500/gem.c
-@@ -112,12 +112,12 @@ static void psb_gem_free_object(struct drm_gem_object *obj)
+diff --git a/drivers/gpu/drm/gma500/cdv_device.c b/drivers/gpu/drm/gma500/cdv_device.c
+index dd32b484dd82..ce96234f3df2 100644
+--- a/drivers/gpu/drm/gma500/cdv_device.c
++++ b/drivers/gpu/drm/gma500/cdv_device.c
+@@ -581,11 +581,9 @@ static const struct psb_offset cdv_regmap[2] = {
+ static int cdv_chip_setup(struct drm_device *dev)
  {
- 	struct psb_gem_object *pobj = to_psb_gem_object(obj);
+ 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
+-	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	INIT_WORK(&dev_priv->hotplug_work, cdv_hotplug_work_func);
  
--	drm_gem_object_release(obj);
+-	if (pci_enable_msi(pdev))
+-		dev_warn(dev->dev, "Enabling MSI failed!\n");
++	dev_priv->use_msi = true;
+ 	dev_priv->regmap = cdv_regmap;
+ 	gma_get_core_freq(dev);
+ 	psb_intel_opregion_init(dev);
+diff --git a/drivers/gpu/drm/gma500/oaktrail_device.c b/drivers/gpu/drm/gma500/oaktrail_device.c
+index 5923a9c89312..f90e628cb482 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_device.c
++++ b/drivers/gpu/drm/gma500/oaktrail_device.c
+@@ -501,12 +501,9 @@ static const struct psb_offset oaktrail_regmap[2] = {
+ static int oaktrail_chip_setup(struct drm_device *dev)
+ {
+ 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
+-	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	int ret;
+ 
+-	if (pci_enable_msi(pdev))
+-		dev_warn(dev->dev, "Enabling MSI failed!\n");
 -
- 	/* Undo the mmap pin if we are destroying the object */
- 	if (pobj->mmapping)
- 		psb_gem_unpin(pobj);
++	dev_priv->use_msi = true;
+ 	dev_priv->regmap = oaktrail_regmap;
  
-+	drm_gem_object_release(obj);
+ 	ret = mid_chip_setup(dev);
+diff --git a/drivers/gpu/drm/gma500/power.c b/drivers/gpu/drm/gma500/power.c
+index b91de6d36e41..66873085d450 100644
+--- a/drivers/gpu/drm/gma500/power.c
++++ b/drivers/gpu/drm/gma500/power.c
+@@ -139,8 +139,6 @@ static void gma_suspend_pci(struct pci_dev *pdev)
+ 	dev_priv->regs.saveBSM = bsm;
+ 	pci_read_config_dword(pdev, 0xFC, &vbt);
+ 	dev_priv->regs.saveVBT = vbt;
+-	pci_read_config_dword(pdev, PSB_PCIx_MSI_ADDR_LOC, &dev_priv->msi_addr);
+-	pci_read_config_dword(pdev, PSB_PCIx_MSI_DATA_LOC, &dev_priv->msi_data);
+ 
+ 	pci_disable_device(pdev);
+ 	pci_set_power_state(pdev, PCI_D3hot);
+@@ -168,9 +166,6 @@ static bool gma_resume_pci(struct pci_dev *pdev)
+ 	pci_restore_state(pdev);
+ 	pci_write_config_dword(pdev, 0x5c, dev_priv->regs.saveBSM);
+ 	pci_write_config_dword(pdev, 0xFC, dev_priv->regs.saveVBT);
+-	/* restoring MSI address and data in PCIx space */
+-	pci_write_config_dword(pdev, PSB_PCIx_MSI_ADDR_LOC, dev_priv->msi_addr);
+-	pci_write_config_dword(pdev, PSB_PCIx_MSI_DATA_LOC, dev_priv->msi_data);
+ 	ret = pci_enable_device(pdev);
+ 
+ 	if (ret != 0)
+@@ -223,8 +218,7 @@ int gma_power_resume(struct device *_dev)
+ 	mutex_lock(&power_mutex);
+ 	gma_resume_pci(pdev);
+ 	gma_resume_display(pdev);
+-	gma_irq_preinstall(dev);
+-	gma_irq_postinstall(dev);
++	gma_irq_install(dev);
+ 	mutex_unlock(&power_mutex);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/gma500/psb_drv.c b/drivers/gpu/drm/gma500/psb_drv.c
+index 1d8744f3e702..54e756b48606 100644
+--- a/drivers/gpu/drm/gma500/psb_drv.c
++++ b/drivers/gpu/drm/gma500/psb_drv.c
+@@ -383,7 +383,7 @@ static int psb_driver_load(struct drm_device *dev, unsigned long flags)
+ 	PSB_WVDC32(0xFFFFFFFF, PSB_INT_MASK_R);
+ 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
+ 
+-	gma_irq_install(dev, pdev->irq);
++	gma_irq_install(dev);
+ 
+ 	dev->max_vblank_count = 0xffffff; /* only 24 bits of frame count */
+ 
+diff --git a/drivers/gpu/drm/gma500/psb_drv.h b/drivers/gpu/drm/gma500/psb_drv.h
+index 0ddfec1a0851..4c3fc5eaf6ad 100644
+--- a/drivers/gpu/drm/gma500/psb_drv.h
++++ b/drivers/gpu/drm/gma500/psb_drv.h
+@@ -490,6 +490,7 @@ struct drm_psb_private {
+ 	int rpm_enabled;
+ 
+ 	/* MID specific */
++	bool use_msi;
+ 	bool has_gct;
+ 	struct oaktrail_gct_data gct_data;
+ 
+@@ -499,10 +500,6 @@ struct drm_psb_private {
+ 	/* Register state */
+ 	struct psb_save_area regs;
+ 
+-	/* MSI reg save */
+-	uint32_t msi_addr;
+-	uint32_t msi_data;
+-
+ 	/* Hotplug handling */
+ 	struct work_struct hotplug_work;
+ 
+diff --git a/drivers/gpu/drm/gma500/psb_irq.c b/drivers/gpu/drm/gma500/psb_irq.c
+index e6e6d61bbeab..038f18ed0a95 100644
+--- a/drivers/gpu/drm/gma500/psb_irq.c
++++ b/drivers/gpu/drm/gma500/psb_irq.c
+@@ -316,17 +316,24 @@ void gma_irq_postinstall(struct drm_device *dev)
+ 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
+ }
+ 
+-int gma_irq_install(struct drm_device *dev, unsigned int irq)
++int gma_irq_install(struct drm_device *dev)
+ {
++	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	int ret;
+ 
+-	if (irq == IRQ_NOTCONNECTED)
++	if (dev_priv->use_msi && pci_enable_msi(pdev)) {
++		dev_warn(dev->dev, "Enabling MSI failed!\n");
++		dev_priv->use_msi = false;
++	}
 +
- 	WARN_ON(pobj->in_gart && !pobj->stolen);
++	if (pdev->irq == IRQ_NOTCONNECTED)
+ 		return -ENOTCONN;
  
- 	release_resource(&pobj->resource);
+ 	gma_irq_preinstall(dev);
+ 
+ 	/* PCI devices require shared interrupts. */
+-	ret = request_irq(irq, gma_irq_handler, IRQF_SHARED, dev->driver->name, dev);
++	ret = request_irq(pdev->irq, gma_irq_handler, IRQF_SHARED, dev->driver->name, dev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -369,6 +376,8 @@ void gma_irq_uninstall(struct drm_device *dev)
+ 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
+ 
+ 	free_irq(pdev->irq, dev);
++	if (dev_priv->use_msi)
++		pci_disable_msi(pdev);
+ }
+ 
+ int gma_crtc_enable_vblank(struct drm_crtc *crtc)
+diff --git a/drivers/gpu/drm/gma500/psb_irq.h b/drivers/gpu/drm/gma500/psb_irq.h
+index b51e395194ff..7648f69824a5 100644
+--- a/drivers/gpu/drm/gma500/psb_irq.h
++++ b/drivers/gpu/drm/gma500/psb_irq.h
+@@ -17,7 +17,7 @@ struct drm_device;
+ 
+ void gma_irq_preinstall(struct drm_device *dev);
+ void gma_irq_postinstall(struct drm_device *dev);
+-int  gma_irq_install(struct drm_device *dev, unsigned int irq);
++int  gma_irq_install(struct drm_device *dev);
+ void gma_irq_uninstall(struct drm_device *dev);
+ 
+ int  gma_crtc_enable_vblank(struct drm_crtc *crtc);
 -- 
 2.35.1
 
