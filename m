@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B635D5C0390
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 706A75C038A
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbiIUQHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:07:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
+        id S232410AbiIUQGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232338AbiIUQG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26AEA3464;
-        Wed, 21 Sep 2022 08:55:06 -0700 (PDT)
+        with ESMTP id S232412AbiIUQGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:06:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E64199B58;
+        Wed, 21 Sep 2022 08:55:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F56C6313C;
-        Wed, 21 Sep 2022 15:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420B7C433D6;
-        Wed, 21 Sep 2022 15:53:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 107B0B830C0;
+        Wed, 21 Sep 2022 15:53:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95233C433D6;
+        Wed, 21 Sep 2022 15:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663775635;
-        bh=ON79Ezb0W4s0GNf/NoqKu+FimfoSIUQjcZclqHc3mXk=;
+        s=k20201202; t=1663775637;
+        bh=Tb00sjBAY3nprOehK04zLLPf89XDrBubey8KUxfTO+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPeSYZyrxLRELOC/IWH30UIOFOnK0jtTWg6XLRsreStnucbI/p8u10xjLeO4XqG+5
-         gsWG/WuOfScBZq6oRi4gA4ZysEvNeMKbefM4zHrUQECl7Qqg/7aZOJKxVgvyxYiyui
-         AHA3Uml6E16i187tZNh1o2g/76+VQIfc97I7IWHxwrQrbDMhDPhzxUNUrReuRihKq3
-         dPZ5q+D4CZjAit3ZvBBEUrW/ni8fweewGibD+/Sx0wwrQCI7q5Hx4OXmhQvqMUwqCj
-         yVkCaks+qTXZQlLq4p645ZZkOaRgG4R0TvSuXAWJp9Rs740ESgUy9+FVk4TbFddZfY
-         mH8tMmbJ23RMg==
+        b=HrVEvto0RxZ+O6eu6Tbg52XPc2HEOR+GP/esAIinmPUwf+tEiU5HjMvQ4tuzA4xiL
+         JfDLo+n1VsHaswTBEImbmwLZjiPucrfGeySIbDrs/tgRWfjzHs0QEt9QFuYyUTFwjU
+         kquM+ekL+AivlkSpQuYrREiRGsFkDcgffnNp4EGl9RHbNJkboLiPK16saxreXPv7P2
+         l0uYdmtX82RmBvpz3kBdlhsXKa/OKfHqNOe3XUR2NeVOPkpdfGnZbFs2h/Z+qN5NHP
+         F26L8HetPaYHc6RHXU9C867ENfYXrKY7kmBhSOCeqZlWAYmts1M2PXNf/MLHLYU1D9
+         Hrmi9Yp3r6KGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Candice Li <candice.li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+Cc:     Yao Wang1 <Yao.Wang1@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        tao.zhou1@amd.com, YiPeng.Chai@amd.com, john.clements@amd.com,
-        Stanley.Yang@amd.com, mukul.joshi@amd.com,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, HaoPing.Liu@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 10/16] drm/amdgpu: Skip reset error status for psp v13_0_0
-Date:   Wed, 21 Sep 2022 11:53:26 -0400
-Message-Id: <20220921155332.234913-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 11/16] drm/amd/display: Limit user regamma to a valid value
+Date:   Wed, 21 Sep 2022 11:53:27 -0400
+Message-Id: <20220921155332.234913-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220921155332.234913-1-sashal@kernel.org>
 References: <20220921155332.234913-1-sashal@kernel.org>
@@ -60,34 +63,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Candice Li <candice.li@amd.com>
+From: Yao Wang1 <Yao.Wang1@amd.com>
 
-[ Upstream commit 86875d558b91cb46f43be112799c06ecce60ec1e ]
+[ Upstream commit 3601d620f22e37740cf73f8278eabf9f2aa19eb7 ]
 
-No need to reset error status since only umc ras supported on psp v13_0_0.
+[Why]
+For HDR mode, we get total 512 tf_point and after switching to SDR mode
+we actually get 400 tf_point and the rest of points(401~512) still use
+dirty value from HDR mode. We should limit the rest of the points to max
+value.
 
-Signed-off-by: Candice Li <candice.li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+[How]
+Limit the value when coordinates_x.x > 1, just like what we do in
+translate_from_linear_space for other re-gamma build paths.
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Yao Wang1 <Yao.Wang1@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index dac202ae864d..9193ca5d6fe7 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -1805,7 +1805,8 @@ static void amdgpu_ras_log_on_err_counter(struct amdgpu_device *adev)
- 		amdgpu_ras_query_error_status(adev, &info);
+diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+index 64a38f08f497..5a51be753e87 100644
+--- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
++++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+@@ -1603,6 +1603,7 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 	struct fixed31_32 lut2;
+ 	struct fixed31_32 delta_lut;
+ 	struct fixed31_32 delta_index;
++	const struct fixed31_32 one = dc_fixpt_from_int(1);
  
- 		if (adev->ip_versions[MP0_HWIP][0] != IP_VERSION(11, 0, 2) &&
--		    adev->ip_versions[MP0_HWIP][0] != IP_VERSION(11, 0, 4)) {
-+		    adev->ip_versions[MP0_HWIP][0] != IP_VERSION(11, 0, 4) &&
-+		    adev->ip_versions[MP0_HWIP][0] != IP_VERSION(13, 0, 0)) {
- 			if (amdgpu_ras_reset_error_status(adev, info.head.block))
- 				dev_warn(adev->dev, "Failed to reset error counter and error status");
- 		}
+ 	i = 0;
+ 	/* fixed_pt library has problems handling too small values */
+@@ -1631,6 +1632,9 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 			} else
+ 				hw_x = coordinates_x[i].x;
+ 
++			if (dc_fixpt_le(one, hw_x))
++				hw_x = one;
++
+ 			norm_x = dc_fixpt_mul(norm_factor, hw_x);
+ 			index = dc_fixpt_floor(norm_x);
+ 			if (index < 0 || index > 255)
 -- 
 2.35.1
 
