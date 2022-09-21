@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 527C55C01FD
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC445C026E
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231209AbiIUPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50398 "EHLO
+        id S231370AbiIUPwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiIUPqg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2CE37A752;
-        Wed, 21 Sep 2022 08:46:35 -0700 (PDT)
+        with ESMTP id S231572AbiIUPve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:51:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD689E884;
+        Wed, 21 Sep 2022 08:49:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C924B81D4E;
-        Wed, 21 Sep 2022 15:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC60C433C1;
-        Wed, 21 Sep 2022 15:46:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 782FD63141;
+        Wed, 21 Sep 2022 15:49:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA3AC433D6;
+        Wed, 21 Sep 2022 15:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775193;
-        bh=g1RKYksMN4B918rVOxEEsGtuG8Q/r3hPQIjUx2+npIM=;
+        s=korg; t=1663775361;
+        bh=8h1b+0s6o2B2gx/ZKPPZXC5/T0oHPjx9k7Z6hbcGS04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wARFgvBxwQwsRZnPahr88JTfdMM7OuLlVkUq8yORI9RIn2GigmXcbSi7nMfBrxv1m
-         1UM/Ov1FMcvoGOPR5DpOTp1bfa7hlg8cZsOzXdwuQGBl/9lZ4krtvhkn325seeVYp8
-         HnH9ugH5wzskatkj7pvnDXLYb7wGGuwgk7ijBcxA=
+        b=zGQTafKXxuQtvjCMu8T8+TjlNB3uMV4Z8HNzWWXLnoNOSNE+htM5WsMVuG8FqQX5k
+         8DcpFhTUEjiMBvjYTNiPr8ljXc7xpTOv50yKfyE1eqIaeOtm42M/oVQ56lGFJoEJiP
+         LVBEqknV1lejqepn7qjJ74RUcdwU9B4pWUO4UI5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Sergiu Moga <sergiu.moga@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 10/38] Revert "SUNRPC: Remove unreachable error condition"
+Subject: [PATCH 5.15 04/45] tty: serial: atmel: Preserve previous USART mode if RS485 disabled
 Date:   Wed, 21 Sep 2022 17:45:54 +0200
-Message-Id: <20220921153646.626147278@linuxfoundation.org>
+Message-Id: <20220921153647.062857015@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Sergiu Moga <sergiu.moga@microchip.com>
 
-[ Upstream commit 13bd9014180425f5a35eaf3735971d582c299292 ]
+[ Upstream commit 692a8ebcfc24f4a5bea0eb2967e450f584193da6 ]
 
-This reverts commit efe57fd58e1cb77f9186152ee12a8aa4ae3348e0.
+Whenever the atmel_rs485_config() driver method would be called,
+the USART mode is reset to normal mode before even checking if
+RS485 flag is set, thus resulting in losing the previous USART
+mode in the case where the checking fails.
 
-The assumption that it is impossible to return an ERR pointer from
-rpc_run_task() no longer holds due to commit 25cf32ad5dba ("SUNRPC:
-Handle allocation failure in rpc_new_task()").
+Some tools, such as `linux-serial-test`, lead to the driver calling
+this method when doing the setup of the serial port: after setting the
+port mode (Hardware Flow Control, Normal Mode, RS485 Mode, etc.),
+`linux-serial-test` tries to enable/disable RS485 depending on
+the commandline arguments that were passed.
 
-Fixes: 25cf32ad5dba ('SUNRPC: Handle allocation failure in rpc_new_task()')
-Fixes: efe57fd58e1c ('SUNRPC: Remove unreachable error condition')
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Example of how this issue could reveal itself:
+When doing a serial communication with Hardware Flow Control through
+`linux-serial-test`, the tool would lead to the driver roughly doing
+the following:
+- set the corresponding bit to 1 (ATMEL_US_USMODE_HWHS bit in the
+ATMEL_US_MR register) through the atmel_set_termios() to enable
+Hardware Flow Control
+- disable RS485 through the atmel_config_rs485() method
+Thus, when the latter is called, the mode will be reset and the
+previously set bit is unset, leaving USART in normal mode instead of
+the expected Hardware Flow Control mode.
+
+This fix ensures that this reset is only done if the checking for
+RS485 succeeds and that the previous mode is preserved otherwise.
+
+Fixes: e8faff7330a35 ("ARM: 6092/1: atmel_serial: support for RS485 communications")
+Cc: stable <stable@kernel.org>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Sergiu Moga <sergiu.moga@microchip.com>
+Link: https://lore.kernel.org/r/20220824142902.502596-1-sergiu.moga@microchip.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/atmel_serial.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index c1a01947530f..db8c0de1de42 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2858,6 +2858,9 @@ int rpc_clnt_test_and_add_xprt(struct rpc_clnt *clnt,
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index 92383c8610ee..c0a86558ceaa 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -295,9 +295,6 @@ static int atmel_config_rs485(struct uart_port *port,
  
- 	task = rpc_call_null_helper(clnt, xprt, NULL, RPC_TASK_ASYNC,
- 			&rpc_cb_add_xprt_call_ops, data);
-+	if (IS_ERR(task))
-+		return PTR_ERR(task);
-+
- 	data->xps->xps_nunique_destaddr_xprts++;
- 	rpc_put_task(task);
- success:
+ 	mode = atmel_uart_readl(port, ATMEL_US_MR);
+ 
+-	/* Resetting serial mode to RS232 (0x0) */
+-	mode &= ~ATMEL_US_USMODE;
+-
+ 	if (rs485conf->flags & SER_RS485_ENABLED) {
+ 		dev_dbg(port->dev, "Setting UART to RS485\n");
+ 		if (rs485conf->flags & SER_RS485_RX_DURING_TX)
+@@ -307,6 +304,7 @@ static int atmel_config_rs485(struct uart_port *port,
+ 
+ 		atmel_uart_writel(port, ATMEL_US_TTGR,
+ 				  rs485conf->delay_rts_after_send);
++		mode &= ~ATMEL_US_USMODE;
+ 		mode |= ATMEL_US_USMODE_RS485;
+ 	} else {
+ 		dev_dbg(port->dev, "Setting UART to RS232\n");
 -- 
 2.35.1
 
