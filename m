@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 554275C0292
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 014A05C0253
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229939AbiIUPyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:54:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37450 "EHLO
+        id S231663AbiIUPve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231827AbiIUPwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E6E6AE74;
-        Wed, 21 Sep 2022 08:49:51 -0700 (PDT)
+        with ESMTP id S231674AbiIUPu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:50:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3639E109;
+        Wed, 21 Sep 2022 08:48:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8D7D630B2;
-        Wed, 21 Sep 2022 15:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0237C433D6;
-        Wed, 21 Sep 2022 15:48:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1AF5B830A9;
+        Wed, 21 Sep 2022 15:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46248C433C1;
+        Wed, 21 Sep 2022 15:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775327;
-        bh=wCAQJ4eQrrJ3APQcolF3jIUnI0Y+3eKZnUZwa06m/G0=;
+        s=korg; t=1663775290;
+        bh=VwfPmT+r4JBjMcl3dP6pVX8+6/2Px5nfAtk/MRLgww8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dSNqUb1c1c61QDu72FLrM/AQIakpoR1xk4DsVXsMdkcX8RWr0+wI1Oot+bwvafiKs
-         MsNpsmaTU3r6Wb4XsuKCMXMySu/0JtTOrHtAwe5d1RsSuLXuCD3Ids6UD9Hu2yXkCa
-         DBSD4X5U0Pn6aDeKRw4lejOmacXSOKPzFqIOUsoI=
+        b=qwDc7y5c1X3VMqMVan9on0acJUAWuZQ+fW7jzsPdZoJMPW0jk9BKx4NyN10ytBIQI
+         8tdQWXJ8/h9dR7GrtjnfASr9QFlQKudsKq/XWaBKtpZtVuRm7A3Qls2yATFa7SmYWA
+         r7S1mQE9eF4hnbtSjsGnk7ZD2HFyiEkYScwgNaq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Frank Rowand <frank.rowand@sony.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.15 16/45] of/device: Fix up of_dma_configure_id() stub
-Date:   Wed, 21 Sep 2022 17:46:06 +0200
-Message-Id: <20220921153647.417919336@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.19 23/38] cifs: dont send down the destination address to sendmsg for a SOCK_STREAM
+Date:   Wed, 21 Sep 2022 17:46:07 +0200
+Message-Id: <20220921153646.995429999@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Stefan Metzmacher <metze@samba.org>
 
-commit 40bfe7a86d84cf08ac6a8fe2f0c8bf7a43edd110 upstream.
+commit 17d3df38dc5f4cec9b0ac6eb79c1859b6e2693a4 upstream.
 
-Since the stub version of of_dma_configure_id() was added in commit
-a081bd4af4ce ("of/device: Add input id to of_dma_configure()"), it has
-not matched the signature of the full function, leading to build failure
-reports when code using this function is built on !OF configurations.
+This is ignored anyway by the tcp layer.
 
-Fixes: a081bd4af4ce ("of/device: Add input id to of_dma_configure()")
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Reviewed-by: Frank Rowand <frank.rowand@sony.com>
-Acked-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Link: https://lore.kernel.org/r/20220824153256.1437483-1-thierry.reding@gmail.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/of_device.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/cifs/transport.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/of_device.h
-+++ b/include/linux/of_device.h
-@@ -101,8 +101,9 @@ static inline struct device_node *of_cpu
- }
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -196,8 +196,8 @@ smb_send_kvec(struct TCP_Server_Info *se
  
- static inline int of_dma_configure_id(struct device *dev,
--				   struct device_node *np,
--				   bool force_dma)
-+				      struct device_node *np,
-+				      bool force_dma,
-+				      const u32 *id)
- {
- 	return 0;
- }
+ 	*sent = 0;
+ 
+-	smb_msg->msg_name = (struct sockaddr *) &server->dstaddr;
+-	smb_msg->msg_namelen = sizeof(struct sockaddr);
++	smb_msg->msg_name = NULL;
++	smb_msg->msg_namelen = 0;
+ 	smb_msg->msg_control = NULL;
+ 	smb_msg->msg_controllen = 0;
+ 	if (server->noblocksnd)
 
 
