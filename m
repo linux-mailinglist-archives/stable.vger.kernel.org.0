@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E6E5C0339
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC655C0247
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232177AbiIUQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
+        id S231139AbiIUPvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:51:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232468AbiIUP7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:59:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A4DA1D69;
-        Wed, 21 Sep 2022 08:53:08 -0700 (PDT)
+        with ESMTP id S231419AbiIUPuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:50:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 418509C23D;
+        Wed, 21 Sep 2022 08:48:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E416315F;
-        Wed, 21 Sep 2022 15:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79795C433C1;
-        Wed, 21 Sep 2022 15:51:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 730A4B830AC;
+        Wed, 21 Sep 2022 15:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A310BC433D6;
+        Wed, 21 Sep 2022 15:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775505;
-        bh=K/vbOOLXz+bkdNR0K8xtc/tnoLZdRLzs6vj2b/igVbo=;
+        s=korg; t=1663775300;
+        bh=5KUO50411rAj2jsiN5w6CxZ3fOpgl7KcLMMlqaAIV3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgfsokOofoU/qBhkCg+1MrijiETzs12lqe3vLPMnPauVDGB0v1R/hm0TudsGY8mVR
-         ylV2OHMmtCDwZACvXtGrZnbPXa6F1o2LDYYsIFFnt3I3WesVFAgHzNMNfHgTDKL7Ez
-         71Xo8MGrDT2dh99TSzMYnnIV7GmrtxVrdVl7w/I4=
+        b=gvdjBk1GR81QuwNs1aKxO0eaYvgAeVu1e0c6aiSILDbchDLKkxy57FLluQINl2J2O
+         FA8jzj8NBTYBBFZfkPHeoAd1ySvmtNK5PRCvlUgokr1fO3+o71z7xY6l1IASqiHvlq
+         dMdPOjh31Rj6lj1S/9mVzB0b3tdzXkOnthU/BqIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        stable@kernel.org
-Subject: [PATCH 5.10 05/39] parisc: Flush kernel data mapping in set_pte_at() when installing pte for user page
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.19 26/38] parisc: Allow CONFIG_64BIT with ARCH=parisc
 Date:   Wed, 21 Sep 2022 17:46:10 +0200
-Message-Id: <20220921153645.891734199@linuxfoundation.org>
+Message-Id: <20220921153647.082807190@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +51,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 38860b2c8bb1b92f61396eb06a63adff916fc31d ]
+commit 805ce8614958c925877ba6b6dc26cdf9f8800474 upstream.
 
-For years, there have been random segmentation faults in userspace on
-SMP PA-RISC machines.  It occurred to me that this might be a problem in
-set_pte_at().  MIPS and some other architectures do cache flushes when
-installing PTEs with the present bit set.
+The previous patch triggered a build failure for the debian kernel,
+which has CONFIG_64BIT enabled, uses the CROSS_COMPILER environment
+variable and uses ARCH=parisc to configure the kernel for 64-bit
+support.
 
-Here I have adapted the code in update_mmu_cache() to flush the kernel
-mapping when the kernel flush is deferred, or when the kernel mapping
-may alias with the user mapping.  This simplifies calls to
-update_mmu_cache().
+This patch weakens the previous patch while keeping the recommended way
+to configure the kernel with:
+    ARCH=parisc     -> build 32-bit kernel
+    ARCH=parisc64   -> build 64-bit kernel
+while adding the possibility for debian to configure a 64-bit kernel
+even if ARCH=parisc is set (PA8X00 CPU has to be selected and
+CONFIG_64BIT needs to be enabled).
 
-I also changed the barrier in set_pte() from a compiler barrier to a
-full memory barrier.  I know this change is not sufficient to fix the
-problem.  It might not be needed.
+The downside of this patch is, that we now have a small window open
+again where people may get it wrong: if they enable CONFIG_64BIT and try
+to compile with a 32-bit compiler.
 
-I have had a few days of operation with 5.14.16 to 5.15.1 and haven't
-seen any random segmentation faults on rp3440 or c8000 so far.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Fixes: 3dcfb729b5f4 ("parisc: Make CONFIG_64BIT available for ARCH=parisc64 only")
 Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@kernel.org # 5.12+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.15+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/pgtable.h | 10 ++++++++--
- arch/parisc/kernel/cache.c        |  4 ++--
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ arch/parisc/Kconfig |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/parisc/include/asm/pgtable.h b/arch/parisc/include/asm/pgtable.h
-index 39017210dbf0..8964798b8274 100644
---- a/arch/parisc/include/asm/pgtable.h
-+++ b/arch/parisc/include/asm/pgtable.h
-@@ -76,6 +76,8 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
- 	purge_tlb_end(flags);
- }
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -225,8 +225,18 @@ config MLONGCALLS
+ 	  Enabling this option will probably slow down your kernel.
  
-+extern void __update_cache(pte_t pte);
+ config 64BIT
+-	def_bool "$(ARCH)" = "parisc64"
++	def_bool y if "$(ARCH)" = "parisc64"
++	bool "64-bit kernel" if "$(ARCH)" = "parisc"
+ 	depends on PA8X00
++	help
++	  Enable this if you want to support 64bit kernel on PA-RISC platform.
 +
- /* Certain architectures need to do special things when PTEs
-  * within a page table are directly modified.  Thus, the following
-  * hook is made available.
-@@ -83,11 +85,14 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
- #define set_pte(pteptr, pteval)			\
- 	do {					\
- 		*(pteptr) = (pteval);		\
--		barrier();			\
-+		mb();				\
- 	} while(0)
++	  At the moment, only people willing to use more than 2GB of RAM,
++	  or having a 64bit-only capable PA-RISC machine should say Y here.
++
++	  Since there is no 64bit userland on PA-RISC, there is no point to
++	  enable this option otherwise. The 64bit kernel is significantly bigger
++	  and slower than the 32bit one.
  
- #define set_pte_at(mm, addr, pteptr, pteval)	\
- 	do {					\
-+		if (pte_present(pteval) &&	\
-+		    pte_user(pteval))		\
-+			__update_cache(pteval);	\
- 		*(pteptr) = (pteval);		\
- 		purge_tlb_entries(mm, addr);	\
- 	} while (0)
-@@ -305,6 +310,7 @@ extern unsigned long *empty_zero_page;
- 
- #define pte_none(x)     (pte_val(x) == 0)
- #define pte_present(x)	(pte_val(x) & _PAGE_PRESENT)
-+#define pte_user(x)	(pte_val(x) & _PAGE_USER)
- #define pte_clear(mm, addr, xp)  set_pte_at(mm, addr, xp, __pte(0))
- 
- #define pmd_flag(x)	(pmd_val(x) & PxD_FLAG_MASK)
-@@ -412,7 +418,7 @@ extern void paging_init (void);
- 
- #define PG_dcache_dirty         PG_arch_1
- 
--extern void update_mmu_cache(struct vm_area_struct *, unsigned long, pte_t *);
-+#define update_mmu_cache(vms,addr,ptep) __update_cache(*ptep)
- 
- /* Encode and de-code a swap entry */
- 
-diff --git a/arch/parisc/kernel/cache.c b/arch/parisc/kernel/cache.c
-index 86a1a63563fd..c81ab0cb8925 100644
---- a/arch/parisc/kernel/cache.c
-+++ b/arch/parisc/kernel/cache.c
-@@ -83,9 +83,9 @@ EXPORT_SYMBOL(flush_cache_all_local);
- #define pfn_va(pfn)	__va(PFN_PHYS(pfn))
- 
- void
--update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t *ptep)
-+__update_cache(pte_t pte)
- {
--	unsigned long pfn = pte_pfn(*ptep);
-+	unsigned long pfn = pte_pfn(pte);
- 	struct page *page;
- 
- 	/* We don't have pte special.  As a result, we can be called with
--- 
-2.35.1
-
+ choice
+ 	prompt "Kernel page size"
 
 
