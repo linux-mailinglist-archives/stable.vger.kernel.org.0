@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3EE5C0400
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C765C03EA
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbiIUQXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:23:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35608 "EHLO
+        id S230206AbiIUQSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230016AbiIUQX2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:23:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9A84AFAEA;
-        Wed, 21 Sep 2022 09:06:25 -0700 (PDT)
+        with ESMTP id S232280AbiIUQSb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:18:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694B5AB427;
+        Wed, 21 Sep 2022 09:03:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60F9DB830B7;
-        Wed, 21 Sep 2022 15:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A80CAC433D7;
-        Wed, 21 Sep 2022 15:51:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96D8462C89;
+        Wed, 21 Sep 2022 15:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97338C433C1;
+        Wed, 21 Sep 2022 15:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775497;
-        bh=MvrFLzVPgqzDsrlIxsZUvsUYtPzd3vuBgQC+nZ43MeU=;
+        s=korg; t=1663775524;
+        bh=fkYpudiHPscLgnit5w4FUkSx8lrTbPqaBC1zpSxdbZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1CrPub/9v6qFU1Bwg83TqPXKRJo3aBr5DLsJKQ4O3vBTwucsFmN0466os7qKa+7i
-         tbgMp3TNfjkdCIjjPDhbJAKnI97Y6RlWDHN9YiNP2dj3Pjb/7OXU4XDvRL7u/pQHAC
-         NMU460Ois6Eb1nSbubdxheaOwU/2c5NPPGlpux5I=
+        b=pMPrLX4L3DFJYoDmTVPTsccj9SVoh7w2e1o78PfZMESPlnXjWJgkP3SN2NnQcuYZt
+         pH5SfzfyhmfddUKrd1Gkh+iPS7aQ+EoW11vxoVo/+xpbBpFcP2FpEJHwAhCXAYINK2
+         NG3p5XD+Iaebr/t+PbEWJx+wxXlJ4Qn3GncnQR0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/39] ASoC: nau8824: Fix semaphore unbalance at error paths
-Date:   Wed, 21 Sep 2022 17:46:31 +0200
-Message-Id: <20220921153646.596226371@linuxfoundation.org>
+Subject: [PATCH 5.10 28/39] rxrpc: Fix local destruction being repeated
+Date:   Wed, 21 Sep 2022 17:46:33 +0200
+Message-Id: <20220921153646.653432137@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
 References: <20220921153645.663680057@linuxfoundation.org>
@@ -53,99 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 5628560e90395d3812800a8e44a01c32ffa429ec ]
+[ Upstream commit d3d863036d688313f8d566b87acd7d99daf82749 ]
 
-The semaphore of nau8824 wasn't properly unlocked at some error
-handling code paths, hence this may result in the unbalance (and
-potential lock-up).  Fix them to handle the semaphore up properly.
+If the local processor work item for the rxrpc local endpoint gets requeued
+by an event (such as an incoming packet) between it getting scheduled for
+destruction and the UDP socket being closed, the rxrpc_local_destroyer()
+function can get run twice.  The second time it can hang because it can end
+up waiting for cleanup events that will never happen.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220823081000.2965-3-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/nau8824.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ net/rxrpc/local_object.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
-index c8ccfa2fff84..a95fe3fff1db 100644
---- a/sound/soc/codecs/nau8824.c
-+++ b/sound/soc/codecs/nau8824.c
-@@ -1072,6 +1072,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 	struct snd_soc_component *component = dai->component;
- 	struct nau8824 *nau8824 = snd_soc_component_get_drvdata(component);
- 	unsigned int val_len = 0, osr, ctrl_val, bclk_fs, bclk_div;
-+	int err = -EINVAL;
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index 8c2881054266..ebbf1b03b62c 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -424,6 +424,9 @@ static void rxrpc_local_processor(struct work_struct *work)
+ 		container_of(work, struct rxrpc_local, processor);
+ 	bool again;
  
- 	nau8824_sema_acquire(nau8824, HZ);
- 
-@@ -1088,7 +1089,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		osr &= NAU8824_DAC_OVERSAMPLE_MASK;
- 		if (nau8824_clock_check(nau8824, substream->stream,
- 			nau8824->fs, osr))
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
- 			NAU8824_CLK_DAC_SRC_MASK,
- 			osr_dac_sel[osr].clk_src << NAU8824_CLK_DAC_SRC_SFT);
-@@ -1098,7 +1099,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		osr &= NAU8824_ADC_SYNC_DOWN_MASK;
- 		if (nau8824_clock_check(nau8824, substream->stream,
- 			nau8824->fs, osr))
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
- 			NAU8824_CLK_ADC_SRC_MASK,
- 			osr_adc_sel[osr].clk_src << NAU8824_CLK_ADC_SRC_SFT);
-@@ -1119,7 +1120,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		else if (bclk_fs <= 256)
- 			bclk_div = 0;
- 		else
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap,
- 			NAU8824_REG_PORT0_I2S_PCM_CTRL_2,
- 			NAU8824_I2S_LRC_DIV_MASK | NAU8824_I2S_BLK_DIV_MASK,
-@@ -1140,15 +1141,17 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		val_len |= NAU8824_I2S_DL_32;
- 		break;
- 	default:
--		return -EINVAL;
-+		goto error;
- 	}
- 
- 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
- 		NAU8824_I2S_DL_MASK, val_len);
-+	err = 0;
- 
-+ error:
- 	nau8824_sema_release(nau8824);
- 
--	return 0;
-+	return err;
- }
- 
- static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
-@@ -1157,8 +1160,6 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 	struct nau8824 *nau8824 = snd_soc_component_get_drvdata(component);
- 	unsigned int ctrl1_val = 0, ctrl2_val = 0;
- 
--	nau8824_sema_acquire(nau8824, HZ);
--
- 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
- 	case SND_SOC_DAIFMT_CBM_CFM:
- 		ctrl2_val |= NAU8824_I2S_MS_MASTER;
-@@ -1200,6 +1201,8 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 		return -EINVAL;
- 	}
- 
-+	nau8824_sema_acquire(nau8824, HZ);
++	if (local->dead)
++		return;
 +
- 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
- 		NAU8824_I2S_DF_MASK | NAU8824_I2S_BP_MASK |
- 		NAU8824_I2S_PCMB_EN, ctrl1_val);
+ 	trace_rxrpc_local(local->debug_id, rxrpc_local_processing,
+ 			  atomic_read(&local->usage), NULL);
+ 
 -- 
 2.35.1
 
