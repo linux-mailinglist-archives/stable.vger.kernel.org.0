@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 843425C023A
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B72055C0246
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229471AbiIUPuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
+        id S230062AbiIUPu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230525AbiIUPtq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:49:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67AE9DF9A;
-        Wed, 21 Sep 2022 08:48:07 -0700 (PDT)
+        with ESMTP id S230126AbiIUPuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:50:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E31B9E2E9;
+        Wed, 21 Sep 2022 08:48:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38E92B830A1;
-        Wed, 21 Sep 2022 15:47:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE39C433D6;
-        Wed, 21 Sep 2022 15:47:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B70BF6312C;
+        Wed, 21 Sep 2022 15:48:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9125BC433C1;
+        Wed, 21 Sep 2022 15:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775273;
-        bh=e4CTjNg0VHlzgBruGLyh0ezOhAX+QdTKZInHbKUri8o=;
+        s=korg; t=1663775282;
+        bh=wCAQJ4eQrrJ3APQcolF3jIUnI0Y+3eKZnUZwa06m/G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gou3j0q5c2HnICQvPLUm0ZUPtww4TMNv360WQgdvg1i48vCplC3YH0LzpP6L23TDF
-         +IkNdyI4H3+Cf1vSU90f9e7R6BEmNXlWY6B3SLIhudn6ROFu9jvBJF5XXf2yE/Xu5Y
-         rp3/dBzPe9mwdewCNBqrKO7fWdjCPKq60N6xAFU8=
+        b=AuZuBt56E/Gs/r/Pd+IjwjVWUg5jnskpPtzdNdGCy+W9Nnba2Al0agFcksgyT2HNQ
+         9fD4NZBj+8ebgn03lk/xwk3ITDEVerTx7H4ilvL2w4SmrVtJDSVtM3DO61a0ZnnYmB
+         2qLNemZWgwHja3rP9RHshjBhR7f3TagG3/mAIuRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 19/38] parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
-Date:   Wed, 21 Sep 2022 17:46:03 +0200
-Message-Id: <20220921153646.880729410@linuxfoundation.org>
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.19 20/38] of/device: Fix up of_dma_configure_id() stub
+Date:   Wed, 21 Sep 2022 17:46:04 +0200
+Message-Id: <20220921153646.910874595@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
 References: <20220921153646.298361220@linuxfoundation.org>
@@ -52,35 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 38238be4e881a5d0abbe4872b4cd6ed790be06c8 ]
+commit 40bfe7a86d84cf08ac6a8fe2f0c8bf7a43edd110 upstream.
 
-Add missing iounmap() before return from ccio_probe(), if ccio_init_resources()
-fails.
+Since the stub version of of_dma_configure_id() was added in commit
+a081bd4af4ce ("of/device: Add input id to of_dma_configure()"), it has
+not matched the signature of the full function, leading to build failure
+reports when code using this function is built on !OF configurations.
 
-Fixes: d46c742f827f ("parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a081bd4af4ce ("of/device: Add input id to of_dma_configure()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Frank Rowand <frank.rowand@sony.com>
+Acked-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Link: https://lore.kernel.org/r/20220824153256.1437483-1-thierry.reding@gmail.com
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/ccio-dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/of_device.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index f69ab90b5e22..6052f264bbb0 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1546,6 +1546,7 @@ static int __init ccio_probe(struct parisc_device *dev)
- 	}
- 	ccio_ioc_init(ioc);
- 	if (ccio_init_resources(ioc)) {
-+		iounmap(ioc->ioc_regs);
- 		kfree(ioc);
- 		return -ENOMEM;
- 	}
--- 
-2.35.1
-
+--- a/include/linux/of_device.h
++++ b/include/linux/of_device.h
+@@ -101,8 +101,9 @@ static inline struct device_node *of_cpu
+ }
+ 
+ static inline int of_dma_configure_id(struct device *dev,
+-				   struct device_node *np,
+-				   bool force_dma)
++				      struct device_node *np,
++				      bool force_dma,
++				      const u32 *id)
+ {
+ 	return 0;
+ }
 
 
