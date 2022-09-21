@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DC85C02B4
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527C55C01FD
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231868AbiIUPyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40204 "EHLO
+        id S231209AbiIUPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232023AbiIUPx6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3892F9F0F4;
-        Wed, 21 Sep 2022 08:50:24 -0700 (PDT)
+        with ESMTP id S230474AbiIUPqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2CE37A752;
+        Wed, 21 Sep 2022 08:46:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E6D63147;
-        Wed, 21 Sep 2022 15:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6E2C433D6;
-        Wed, 21 Sep 2022 15:49:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C924B81D4E;
+        Wed, 21 Sep 2022 15:46:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC60C433C1;
+        Wed, 21 Sep 2022 15:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775358;
-        bh=Jxgrg6W4341DNVv5KQzE6tPsH4Ks3+HSQEmFwxDq8PA=;
+        s=korg; t=1663775193;
+        bh=g1RKYksMN4B918rVOxEEsGtuG8Q/r3hPQIjUx2+npIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I66HeRiDM871liZ2cP+GMQUkiibdyJPOFRidi7XI41XkXCGUWfwvs+RpEThsE+dzP
-         roa49Fgs1Zqu34bBTmeD68e/r3sQccCP6aWOWMp+ExfFTrAoD7Ci9um29pjDolXeMy
-         Txa6kJcd3pXnUAQNixTTRIEg/6vQR1SSwvgesQtk=
+        b=wARFgvBxwQwsRZnPahr88JTfdMM7OuLlVkUq8yORI9RIn2GigmXcbSi7nMfBrxv1m
+         1UM/Ov1FMcvoGOPR5DpOTp1bfa7hlg8cZsOzXdwuQGBl/9lZ4krtvhkn325seeVYp8
+         HnH9ugH5wzskatkj7pvnDXLYb7wGGuwgk7ijBcxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Richard Genoud <richard.genoud@gmail.com>,
-        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 03/45] serial: atmel: remove redundant assignment in rs485_config
-Date:   Wed, 21 Sep 2022 17:45:53 +0200
-Message-Id: <20220921153647.034378740@linuxfoundation.org>
+Subject: [PATCH 5.19 10/38] Revert "SUNRPC: Remove unreachable error condition"
+Date:   Wed, 21 Sep 2022 17:45:54 +0200
+Message-Id: <20220921153646.626147278@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+From: Dan Aloni <dan.aloni@vastdata.com>
 
-[ Upstream commit 60efd0513916f195dd85bfbf21653f74f9ab019c ]
+[ Upstream commit 13bd9014180425f5a35eaf3735971d582c299292 ]
 
-In uart_set_rs485_config() the serial core already assigns the passed
-serial_rs485 struct to the uart port.
+This reverts commit efe57fd58e1cb77f9186152ee12a8aa4ae3348e0.
 
-So remove the assignment from the drivers rs485_config() function to avoid
-redundancy.
+The assumption that it is impossible to return an ERR pointer from
+rpc_run_task() no longer holds due to commit 25cf32ad5dba ("SUNRPC:
+Handle allocation failure in rpc_new_task()").
 
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Acked-by: Richard Genoud <richard.genoud@gmail.com>
-Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Link: https://lore.kernel.org/r/20220410104642.32195-10-LinoSanfilippo@gmx.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 692a8ebcfc24 ("tty: serial: atmel: Preserve previous USART mode if RS485 disabled")
+Fixes: 25cf32ad5dba ('SUNRPC: Handle allocation failure in rpc_new_task()')
+Fixes: efe57fd58e1c ('SUNRPC: Remove unreachable error condition')
+Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/atmel_serial.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/sunrpc/clnt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index dd350c590880..92383c8610ee 100644
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -298,11 +298,9 @@ static int atmel_config_rs485(struct uart_port *port,
- 	/* Resetting serial mode to RS232 (0x0) */
- 	mode &= ~ATMEL_US_USMODE;
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index c1a01947530f..db8c0de1de42 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2858,6 +2858,9 @@ int rpc_clnt_test_and_add_xprt(struct rpc_clnt *clnt,
  
--	port->rs485 = *rs485conf;
--
- 	if (rs485conf->flags & SER_RS485_ENABLED) {
- 		dev_dbg(port->dev, "Setting UART to RS485\n");
--		if (port->rs485.flags & SER_RS485_RX_DURING_TX)
-+		if (rs485conf->flags & SER_RS485_RX_DURING_TX)
- 			atmel_port->tx_done_mask = ATMEL_US_TXRDY;
- 		else
- 			atmel_port->tx_done_mask = ATMEL_US_TXEMPTY;
+ 	task = rpc_call_null_helper(clnt, xprt, NULL, RPC_TASK_ASYNC,
+ 			&rpc_cb_add_xprt_call_ops, data);
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++
+ 	data->xps->xps_nunique_destaddr_xprts++;
+ 	rpc_put_task(task);
+ success:
 -- 
 2.35.1
 
