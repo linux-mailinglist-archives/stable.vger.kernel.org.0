@@ -2,133 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BD25E566C
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 00:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587465E56A0
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 01:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229814AbiIUW5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 18:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41868 "EHLO
+        id S229667AbiIUXMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 19:12:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiIUW45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 18:56:57 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3076FA8CC9
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 15:56:55 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id d64-20020a17090a6f4600b00202ce056566so311783pjk.4
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 15:56:55 -0700 (PDT)
+        with ESMTP id S229663AbiIUXMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 19:12:51 -0400
+Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC28AA6C40
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 16:12:50 -0700 (PDT)
+Received: by mail-vs1-xe34.google.com with SMTP id a129so8524183vsc.0
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 16:12:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=/iiyDDBOSitO40lHti1guOB927grBcpa5/Smc/n5/EI=;
-        b=kdZanGjzKpWQlWl+9bCq36Y1wKD/1g9R6g+kK4+TvNDZ1G4TiVFdqD1gghewNRmxMJ
-         UL7/n8NoCeaVHAlln4i3703bIv51Tu1uzbfku/zJSrAhJiIR9+GMakegR01LmJnCzpnq
-         a8Yb2t8uF8qpHT5wV6FeN01ImnhEfsWnjA/Cc+kDPjhj82cSbZBMUg1FJ0GskX42i3r6
-         I24ZT7CJtLAHZrYbHDD0anrvG7qwZ1bA5IPLs3oh2L/56mtAWyeG1ArH3oDO4QvxZ4Ly
-         6luLkX+MfGxNEHFXtBS8SDOMHkDqf3BrCs3xdDRBoDHPhXNAX9Ya4KaHqURqqxrONhrl
-         KcWw==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date;
+        bh=US+w0Gq+INOQrtAru6YjsXTHnvEG5Z6SscPUTt4BrLg=;
+        b=ccQk6ctski/X7NPndeHupVPi+6zqN0cgXy1PPzzjUrgjvNxHHUcW1gpm1tGRwovqyN
+         GsNsVPuiVIVduQ7oauyKIIZqtKngMfUeUARkNEJ/re+5heRO76ISBHzAYiJcG8UC2E2E
+         E4cvNQQedKEpd5IcIaChHIcdxmqAAF3SQYUSqNg1STfBKMxbaf1vjpRWshBpk1JPpXd5
+         iEBV/JJDK5iF2gxEF/Le98I3OOfn6fQc/GaI7GUNDyd3FlnIsgrghMzbcJ0kv64bN0Q3
+         DBbiBpuXgWbftNrYXsBOS/E59ko8D9LfMIWtFMjTXcM9JSAO3w1+aQWnyNfZp+Ow+3YF
+         I18Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=/iiyDDBOSitO40lHti1guOB927grBcpa5/Smc/n5/EI=;
-        b=dOhFl8IPhYuE1o0ouDtnFA3rneNwKD0LM22ZzRL2DTQG+kAYI7jGnM69RFl6jrvYT3
-         kVnezbgqKP4PB+p0cgedjKTclGO+L3wppKFJslX7+2b5FaVOr0imZmSvBmR93Jx2tc5p
-         lGwSZigEMsbw+MTIYmJEQSo1uZvGtJpjsjlLkhKjZQACR64NPIXbhmmF0BDbKfzZVl84
-         3SjlCQNWJCrlo0lmEWMj39iLRVSimIjuZPHuvXSRJLexIAeG6994GwYNHdVZ/FMXeAXZ
-         Jruq1z6eAlEMj07Ez1rorhFH3ZzN6Dj5ZhxSOQo5BLV+GAedDl+IYYroU1trfspCnnCU
-         HybA==
-X-Gm-Message-State: ACrzQf3wDWXZ+1bJQtH4ydAjl66+v/vtWkyIvUMjd3FERW88Ej/FxQfL
-        ccqjfADSWK9W+cuaGeqxrXAgtUzYlbbQxNt7IfE=
-X-Google-Smtp-Source: AMsMyM6u59UoricuRlpPNMNgCgKL3SYyoZmJtu0+pzQByTDKeOlugpyabgGcsL5YHLra6lWOqm8OYA==
-X-Received: by 2002:a17:90b:4b88:b0:202:e381:e643 with SMTP id lr8-20020a17090b4b8800b00202e381e643mr11884682pjb.148.1663801015363;
-        Wed, 21 Sep 2022 15:56:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id jf13-20020a170903268d00b00172b87d97cbsm2547437plb.67.2022.09.21.15.56.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Sep 2022 15:56:55 -0700 (PDT)
-Message-ID: <632b96b7.170a0220.2b1b2.62f1@mx.google.com>
-Date:   Wed, 21 Sep 2022 15:56:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=US+w0Gq+INOQrtAru6YjsXTHnvEG5Z6SscPUTt4BrLg=;
+        b=gJt2Myc4hz/WI6lJ+FfAu2mtdlIzZ0UVTRs8bcboQ4lFMXLjhwHN2Gz/eVFzA0NzoE
+         P0qaSv2Q+mL+mXy+Y2+QxKGgjDKB6THCVo6vRaadMCd4gBW3zBvpXdfgS+k3othB33g7
+         cniL4voUoWxgrjDgjmR/O4YnsIr0b6jSgoGpdkjqEnladZ2+bMKOc6RvSG+jOGOolQ3x
+         4O5ErOG2GbljbE7HrW0y35JFYIyMprOstkIoJD6p+iHukcbKaTpINaddIPO+JM52cUO3
+         8mioFOOO+/wQZO24XB1kLM6/n9KVHMKNK8Sn7B1C9mbwn8faknaSaSLV4DdT5aC+aaMy
+         YuTA==
+X-Gm-Message-State: ACrzQf0fr7XuCSNCobl36x5Uhi4GTHW3OT/FE3hvIPltG1T9sOdaWIDq
+        +nT/PAY5ITY/fC9A9khCRI4FVvqE+tSr1loohHI=
+X-Google-Smtp-Source: AMsMyM5mQpYFjA+XrxOlR70JPp41SFlxCWm8GhqzvitfLNUlAGxqoWZiQGh+GKzTzHOK1nIC8y84tQHevX/ck0ZCTYs=
+X-Received: by 2002:a67:a20d:0:b0:39b:181d:bd35 with SMTP id
+ l13-20020a67a20d000000b0039b181dbd35mr296124vse.39.1663801969706; Wed, 21 Sep
+ 2022 16:12:49 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a59:dc08:0:b0:2f5:ab27:9a96 with HTTP; Wed, 21 Sep 2022
+ 16:12:49 -0700 (PDT)
+Reply-To: krp2014@live.fr
+From:   "Mrs. Kish Patrick" <mrs.rubeccarosemary@gmail.com>
+Date:   Wed, 21 Sep 2022 23:12:49 +0000
+Message-ID: <CAPJ18zO-B+KiwhmfqUQNq3de3uccHvuCyFA39cjQuib7gZ6kwg@mail.gmail.com>
+Subject: INFORMATION
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.10-40-g8d4fd61ab089
-Subject: stable-rc/linux-5.19.y baseline: 151 runs,
- 1 regressions (v5.19.10-40-g8d4fd61ab089)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_60,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_HK_NAME_FM_MR_MRS,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:e34 listed in]
+        [list.dnswl.org]
+        *  1.5 BAYES_60 BODY: Bayes spam probability is 60 to 80%
+        *      [score: 0.6621]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [mrs.rubeccarosemary[at]gmail.com]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [krp2014[at]live.fr]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.19.y baseline: 151 runs, 1 regressions (v5.19.10-40-g8d4f=
-d61ab089)
-
-Regressions Summary
--------------------
-
-platform       | arch | lab     | compiler | defconfig           | regressi=
-ons
----------------+------+---------+----------+---------------------+---------=
----
-imx6qp-sabresd | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
-nel/v5.19.10-40-g8d4fd61ab089/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.19.y
-  Describe: v5.19.10-40-g8d4fd61ab089
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8d4fd61ab089cbb028a32652f9096cf53dfe54b3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch | lab     | compiler | defconfig           | regressi=
-ons
----------------+------+---------+----------+---------------------+---------=
----
-imx6qp-sabresd | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/632b64f63a068919303556ae
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-0-40-g8d4fd61ab089/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx6qp-s=
-abresd.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-0-40-g8d4fd61ab089/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx6qp-s=
-abresd.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632b64f63a06891930355=
-6af
-        new failure (last pass: v5.19.9-39-gf5066a94bca4) =
-
- =20
+--=20
+Dear Friend,
+It=E2=80=99s just my urgent need for foreign partner that made me to contac=
+t
+you via your email. The details will send to you as soon as i heard
+from
+you.
+Mrs. Kish Patrick
