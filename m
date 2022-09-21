@@ -2,98 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B375BF589
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 06:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14AB95BF5CE
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 07:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiIUEo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 00:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51422 "EHLO
+        id S229905AbiIUFKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 01:10:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229811AbiIUEo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 00:44:26 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8CD97E827;
-        Tue, 20 Sep 2022 21:44:25 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id b23so4730717pfp.9;
-        Tue, 20 Sep 2022 21:44:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date;
-        bh=QvCStQH9wWobodRWutr5mV7TPPRrro8caiAVbbSMeAw=;
-        b=M9IoHazJ/8Rc9MI/UxoGN6jKsOSMKrX35y2GS7AqghechlMDFEjsoh1s/lf+GHffGG
-         UaBc4NhH61owmUpUxeestiA8RxhGObHEfx2yiSd+YoUTeV/TJKq90ORHobvV67mo3Y3x
-         2mUwTHxUiObzLSMGR0lUfDfjapQYbQjI4GUaSmUt1A16poWNCsuW9O1meos3q6Mlp17o
-         sZQ86rPyOt2FSoIVVO9bjxCGs/BD/alvJ5a7X3PuQOE4vP5YsnK8A5l5+jlgWu7Vpp9J
-         UpkHkXGLUCBbjSEe83weEn089+idev3Ij8hfatBBkMM0nY9QK9vjFW84yppYqr0CFlrD
-         CaTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=QvCStQH9wWobodRWutr5mV7TPPRrro8caiAVbbSMeAw=;
-        b=wPfep5jGyrywNvtg02dvgIrhRnOs9DA5a2fxe5HfXfFA/oHxMIRtbE4qPctzj5Ewn7
-         wvm0xOpV6lx+A5J+AanlN1FvN5yDLeggxVQMB+TvEYanyXn4rYLp9zzUdHxi4o44ZuQh
-         q8h9IW/REovB+hQTzNWdbHpIAb/cQ+/IZ7QZhjNkLkmfyF5lFo1vXf8OHznk7qZrNwmT
-         lfdL//NOm8zDHeaRfkQDQzC32Ac/MTB9Orc4RDionMVOnVLiXZg7WyIHBYfAliQ1S8bS
-         fObgCsTUAqJY1hRTwvAG6vIZEeeTWPvuQHaoJVJ3pt2YHsDfhL0o2GNS78hzdMg1GMX9
-         JZwQ==
-X-Gm-Message-State: ACrzQf1Jc89CkE6Q8QGWCKaSpftQI4WuFQzgU8WX3HXkFQq/c3ivYTvT
-        xC/Mpv2HX2IOhSlI0Yxm+To=
-X-Google-Smtp-Source: AMsMyM7XhRL4gXDZPwHm37mPuhOCN3dCuo6MXMRo9ipXtoy/jcC/OZmhnXvBwwsLUo5tYDBrbSy20g==
-X-Received: by 2002:a63:86c6:0:b0:43a:bd68:5075 with SMTP id x189-20020a6386c6000000b0043abd685075mr8103197pgd.512.1663735465393;
-        Tue, 20 Sep 2022 21:44:25 -0700 (PDT)
-Received: from localhost ([2406:7400:63:83c4:dfab:3b6f:2c7f:db86])
-        by smtp.gmail.com with ESMTPSA id r2-20020a170902c60200b0016dc2366722sm825262plr.77.2022.09.20.21.44.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Sep 2022 21:44:24 -0700 (PDT)
-Date:   Wed, 21 Sep 2022 10:14:19 +0530
-From:   "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>
-To:     hazem ahmed mohamed <hazem.ahmed.abuelfotoh@gmail.com>
-Cc:     "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
-        "tytso@mit.edu" <tytso@mit.edu>,
-        "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
-Subject: Re: Ext4: Buffered random writes performance regression with
- dioread_nolock enabled
-Message-ID: <20220921044419.epojssm3g4j3qkup@riteshh-domain>
-References: <CACX6voDfcTQzQJj=5Q-SLi0in1hXpo=Ri28rX73Og3GTObPBWA@mail.gmail.com>
+        with ESMTP id S229522AbiIUFKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 01:10:47 -0400
+Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B833A78BC6;
+        Tue, 20 Sep 2022 22:10:46 -0700 (PDT)
+Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id 544DC72C90B;
+        Wed, 21 Sep 2022 08:10:45 +0300 (MSK)
+Received: from altlinux.org (sole.flsd.net [185.75.180.6])
+        by imap.altlinux.org (Postfix) with ESMTPSA id 3EC6D4A4826;
+        Wed, 21 Sep 2022 08:10:45 +0300 (MSK)
+Date:   Wed, 21 Sep 2022 08:10:45 +0300
+From:   Vitaly Chikunov <vt@altlinux.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.15 22/41] video: fbdev: pxa3xx-gcu: Fix integer
+ overflow in pxa3xx_gcu_write
+Message-ID: <20220921051045.dqnivsbrigwqlkan@altlinux.org>
+References: <20220628022100.595243-1-sashal@kernel.org>
+ <20220628022100.595243-22-sashal@kernel.org>
+ <20220919082143.g4gn5ssbzolnc57b@altlinux.org>
+ <YyjsKkg+qG5ieCAC@sashalap>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACX6voDfcTQzQJj=5Q-SLi0in1hXpo=Ri28rX73Og3GTObPBWA@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <YyjsKkg+qG5ieCAC@sashalap>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22/09/19 04:18PM, hazem ahmed mohamed wrote:
-> Hey Team,
-> 
-> 
-> 
-> I am sending this e-mail to report a performance regression that’s
-> caused by commit 244adf6426(ext4: make dioread_nolock the default) , I
-> am listing the performance regression symptoms below & our analysis
-> for the reported regression.
-> 
+Sasha,
 
-Although you did mention you already tested on the latest kernel too and there
-too you saw a similar performance regression.
-But no harm in also double checking if you have this patch [1]. 
-This does fixes a similar problem AFAIU.
+On Mon, Sep 19, 2022 at 06:24:42PM -0400, Sasha Levin wrote:
+> On Mon, Sep 19, 2022 at 11:21:43AM +0300, Vitaly Chikunov wrote:
+> > On Mon, Jun 27, 2022 at 10:20:41PM -0400, Sasha Levin wrote:
+> > > From: Hyunwoo Kim <imv4bel@gmail.com>
+> > > 
+> > > [ Upstream commit a09d2d00af53b43c6f11e6ab3cb58443c2cac8a7 ]
+> > > 
+> > > In pxa3xx_gcu_write, a count parameter of type size_t is passed to words of
+> > > type int.  Then, copy_from_user() may cause a heap overflow because it is used
+> > > as the third argument of copy_from_user().
+> > 
+> > Why this commit is still not in the stable branches?
+> 
+> Mostly because it's not tagged for stable.
+> 
+> But really, looks like I've missed a batch a few months ago, I can push
+> it for the next release cycle.
+> 
+> > Isn't this is the fix for CVE-2022-39842[1]?
+> 
+> How the heck did this thing get a CVE?
 
+More than that, they also assign high severity score to it:
+  CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
 
-[1]: https://lore.kernel.org/linux-ext4/20200520133119.1383-1-jack@suse.cz/
+  Confidentiality Impact (C)  High
+  Integrity Impact (I)        High
+  Availability Impact (A)     High
 
--ritesh
+Thanks,
+
+> 
+> -- 
+> Thanks,
+> Sasha
