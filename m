@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0935C02DD
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C212C5C0204
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232050AbiIUP4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39220 "EHLO
+        id S231354AbiIUPrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:47:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232108AbiIUPyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:54:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539C29F1B6;
-        Wed, 21 Sep 2022 08:50:31 -0700 (PDT)
+        with ESMTP id S231161AbiIUPqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:46:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCDB76E2EC;
+        Wed, 21 Sep 2022 08:46:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21C0FB830A7;
-        Wed, 21 Sep 2022 15:49:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60866C433C1;
-        Wed, 21 Sep 2022 15:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A29EB81D4E;
+        Wed, 21 Sep 2022 15:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E194EC433D6;
+        Wed, 21 Sep 2022 15:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775367;
-        bh=SNFdJ3w/mG2aN1OIziJV0McO1Xmp62FkAd6cnm7iISg=;
+        s=korg; t=1663775202;
+        bh=8KchVOiklKldhDSmnwE9qC9ds7RMp8LSqO/hd4CFmxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEsZuYjgwaaxiLx5k7Ch0IFhxj++8OpG5milQDU7vnRezKVHSAeBAqZZQ7vOyOVzM
-         O67BqrrFDAL4bUdiO/Ay5CrM343KpxaHn8Z1OutQN9b5LbEn3oKxtWs4vvEVrXUNA9
-         +mFX+Al+/CQz3iECs8BQ1yqc1tK4ZoTL+OVKj2tk=
+        b=GrwoWYndGtJqjIroAnMNuX+ITi0yRi1tE/YK0mflp6hVqSg1KpfPkvGI9pj7/pLIY
+         ZXiFhpWlfNUS07QJJzULA1NiLlgFnyLxAIPZQbLMH/1fwLSwRn2PIalCF+svd7Rg65
+         NwHiDXrgxCqyj3IKl9EqI6XJbUoBDi5wimeg3Xcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Molly Sophia <mollysophia379@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Stuart Menefy <stuart.menefy@mathembedded.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 06/45] pinctrl: qcom: sc8180x: Fix gpio_wakeirq_map
-Date:   Wed, 21 Sep 2022 17:45:56 +0200
-Message-Id: <20220921153647.120315519@linuxfoundation.org>
+Subject: [PATCH 5.19 13/38] drm/meson: Fix OSD1 RGB to YCbCr coefficient
+Date:   Wed, 21 Sep 2022 17:45:57 +0200
+Message-Id: <20220921153646.711370175@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Molly Sophia <mollysophia379@gmail.com>
+From: Stuart Menefy <stuart.menefy@mathembedded.com>
 
-[ Upstream commit 6124cec530c7d8faab96d340ab2df5161e5d1c8a ]
+[ Upstream commit 6463d3930ba5b6addcfc8f80a4543976a2fc7656 ]
 
-Currently in the wakeirq_map, gpio36 and gpio37 have the same wakeirq
-number, resulting in gpio37 being unable to trigger interrupts.
-It looks like that this is a typo in the wakeirq map. So fix it.
+VPP_WRAP_OSD1_MATRIX_COEF22.Coeff22 is documented as being bits 0-12,
+not 16-28.
 
-Signed-off-by: Molly Sophia <mollysophia379@gmail.com>
-Fixes: 97423113ec4b ("pinctrl: qcom: Add sc8180x TLMM driver")
-Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220807122645.13830-2-mollysophia379@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Without this the output tends to have a pink hue, changing it results
+in better color accuracy.
+
+The vendor kernel doesn't use this register. However the code which
+sets VIU2_OSD1_MATRIX_COEF22 also uses bits 0-12. There is a slightly
+different style of registers for configuring some of the other matrices,
+which do use bits 16-28 for this coefficient, but those have names
+ending in MATRIX_COEF22_30, and this is not one of those.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
+Fixes: 728883948b0d ("drm/meson: Add G12A Support for VIU setup")
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220908155243.687143-1-stuart.menefy@mathembedded.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sc8180x.c | 2 +-
+ drivers/gpu/drm/meson/meson_viu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-sc8180x.c b/drivers/pinctrl/qcom/pinctrl-sc8180x.c
-index 0d9654b4ab60..32a2d8c5ceae 100644
---- a/drivers/pinctrl/qcom/pinctrl-sc8180x.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sc8180x.c
-@@ -1582,7 +1582,7 @@ static const int sc8180x_acpi_reserved_gpios[] = {
- static const struct msm_gpio_wakeirq_map sc8180x_pdc_map[] = {
- 	{ 3, 31 }, { 5, 32 }, { 8, 33 }, { 9, 34 }, { 10, 100 }, { 12, 104 },
- 	{ 24, 37 }, { 26, 38 }, { 27, 41 }, { 28, 42 }, { 30, 39 }, { 36, 43 },
--	{ 37, 43 }, { 38, 45 }, { 39, 118 }, { 39, 125 }, { 41, 47 },
-+	{ 37, 44 }, { 38, 45 }, { 39, 118 }, { 39, 125 }, { 41, 47 },
- 	{ 42, 48 }, { 46, 50 }, { 47, 49 }, { 48, 51 }, { 49, 53 }, { 50, 52 },
- 	{ 51, 116 }, { 51, 123 }, { 53, 54 }, { 54, 55 }, { 55, 56 },
- 	{ 56, 57 }, { 58, 58 }, { 60, 60 }, { 68, 62 }, { 70, 63 }, { 76, 86 },
+diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
+index bb7e109534de..d4b907889a21 100644
+--- a/drivers/gpu/drm/meson/meson_viu.c
++++ b/drivers/gpu/drm/meson/meson_viu.c
+@@ -94,7 +94,7 @@ static void meson_viu_set_g12a_osd1_matrix(struct meson_drm *priv,
+ 		priv->io_base + _REG(VPP_WRAP_OSD1_MATRIX_COEF11_12));
+ 	writel(((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff),
+ 		priv->io_base + _REG(VPP_WRAP_OSD1_MATRIX_COEF20_21));
+-	writel((m[11] & 0x1fff) << 16,
++	writel((m[11] & 0x1fff),
+ 		priv->io_base +	_REG(VPP_WRAP_OSD1_MATRIX_COEF22));
+ 
+ 	writel(((m[18] & 0xfff) << 16) | (m[19] & 0xfff),
 -- 
 2.35.1
 
