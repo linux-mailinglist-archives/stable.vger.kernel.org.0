@@ -2,85 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE5B5BF6C0
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 08:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8286E5BF735
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 09:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiIUGxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 02:53:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58544 "EHLO
+        id S229602AbiIUHLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 03:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbiIUGxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 02:53:44 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26C466178;
-        Tue, 20 Sep 2022 23:53:43 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1oatc4-00073A-Ea; Wed, 21 Sep 2022 08:53:40 +0200
-Message-ID: <1d1844f0-c773-6222-36c6-862e14f6020d@leemhuis.info>
-Date:   Wed, 21 Sep 2022 08:53:39 +0200
+        with ESMTP id S229924AbiIUHLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 03:11:06 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D3283059
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 00:10:59 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id q9so5030900pgq.8
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 00:10:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=GmBYAuZT3UkYQ0amM6hXETgJRs/yrsroazuSEnOCz/A=;
+        b=x70B1DnEkY19F7U3l13W5RE7SVQdPaGCUny/+45RG7C4bj49tMGHaYCau+eLCVFpO8
+         Y14aOVc5aZGJTfJuV6QVbDCKDLCfimtpR4uNCRaB6vHqQDuRlQqW6ESQaXBmQWBRsEya
+         gUjDjUQTHwUu7uxm/JonljBYtAk7Sz/NHSE/QsX6dOaCTRNkddT2FyrsXVxxb7FGiWMV
+         QBqFX90Z7fX1ZZ69ItqQsKm6YjzON43wZcEyFdQkEWLYhdYXXgxporCsx3mi0SzHF/DT
+         l4dL4joj8av3MAZ/qTydEVsBIOLy7geFw8fZjofkMo+krbD1smW5V4KrFi/7vtJLMZM6
+         IZlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=GmBYAuZT3UkYQ0amM6hXETgJRs/yrsroazuSEnOCz/A=;
+        b=otxxgObrSormaeBNsyiZRmJA21Y92h13seoyNQMDM3sZDan6YhluuFmG3ujd+qRZKG
+         ZfEuVSqvouXumli8X1YwGt7YHEnNwYasl3uuYfn1Mx4m/2R1Mz+LU0ovlROOKVAvdjc+
+         miKKer/9mPRB//AdNRb4O4783P9pA8foyBD4p2wT42GacAbSx92UnP6U3YXXyf2if+vl
+         IK/cHXPhjL2cwsMp6U8xpXLfPdIXxNs517SWNMt1qVJ07hOuhK5Cpe4myCvJghi3brw3
+         XM0y39YbbKdaS+Z1QE8WxaUo7DaIOlKIuTEPIHkhu3J/QYVUXowC1CfWAAu5WsXjprpA
+         oLxg==
+X-Gm-Message-State: ACrzQf0jlNlWTHncUH03tPmz5aCvRwkAKMgaZKqPwgGGNtIRm0HS+YCS
+        sXmz3h0zwZD/AV2wS71kfWMF7A==
+X-Google-Smtp-Source: AMsMyM7z35WUVyMkD66TRjI+260b1lLsLFL41qgp2UvPZru59JOz0Xt8+tw/Jy2pNNMyeHS287uVLA==
+X-Received: by 2002:a05:6a00:1ad0:b0:545:b61b:fe7 with SMTP id f16-20020a056a001ad000b00545b61b0fe7mr27079571pfv.25.1663744258613;
+        Wed, 21 Sep 2022 00:10:58 -0700 (PDT)
+Received: from localhost ([122.171.20.238])
+        by smtp.gmail.com with ESMTPSA id b130-20020a621b88000000b0053e468a78a8sm1227692pfb.158.2022.09.21.00.10.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Sep 2022 00:10:57 -0700 (PDT)
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Cc:     linux-pm@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "v5 . 18+" <stable@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] cpufreq: qcom-cpufreq-hw: Fix uninitialized throttled_freq warning
+Date:   Wed, 21 Sep 2022 12:40:51 +0530
+Message-Id: <8342b10a2716ec267ab89ea827f851b78b68470a.1663744088.git.viresh.kumar@linaro.org>
+X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Content-Language: en-US, de-DE
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Joerg Roedel <joro@8bytes.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Getting the regression
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1663743223;3ac4ea60;
-X-HE-SMSGID: 1oatc4-00073A-Ea
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg! As you likely heard already, 5.19.9 introduced a regression
-that breaks Thunderbolt and USB-C docks (and apparently Wifi in some
-cases as well) on quite a few (many?) modern systems. It's one of those
-problems where I think "hey, we ideally should fix this in stable as
-fast as possible" we briefly talked about last week on the LPC hallways.
-That made me wonder how to actually archive that in this particular case
-while keeping all involved parties happy and not skipping any CI testing
-queues considered important.
+Commit 6240aaad75e1 was supposed to drop the reference count to the OPP,
+instead it avoided more stuff if the OPP isn't found. This isn't
+entirely correct. We already have a frequency value available, we just
+couldn't align it with an OPP in case of IS_ERR(opp).
 
-FWIW, here are a few few reports about the issue (I assume there are
-some for Arch Linux and openSUSE Tumbleweed as well, but didn't check).
+Lets continue with updating thermal pressure, etc, even if we aren't
+able to find an OPP here.
 
-https://lore.kernel.org/linux-iommu/485A6EA5-6D58-42EA-B298-8571E97422DE@getmailspring.com/
-https://bugzilla.kernel.org/show_bug.cgi?id=216497
-https://bugzilla.redhat.com/show_bug.cgi?id=2128458
-https://bugzilla.redhat.com/show_bug.cgi?id=2127753
+This fixes warning generated by the 'smatch' tool.
 
-A revert of the culprit (9cd4f1434479f ("iommu/vt-d: Fix possible
-recursive locking in intel_iommu_init()"); in 5.19.y it's 	9516acba29e3)
-for mainline is here:
-https://lore.kernel.org/lkml/20220920081701.3453504-1-baolu.lu@linux.intel.com/
+Fixes: 6240aaad75e1 ("cpufreq: qcom-hw: fix the opp entries refcounting")
+Cc: v5.18+ <stable@vger.kernel.org> # v5.18+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/cpufreq/qcom-cpufreq-hw.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-A few hours ago the revert was queued to get send to Joerg:
-https://lore.kernel.org/linux-iommu/20220921024054.3570256-1-baolu.lu@linux.intel.com/
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index d5ef3c66c762..bb32659820ce 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -316,14 +316,14 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+ 	if (IS_ERR(opp)) {
+ 		dev_warn(dev, "Can't find the OPP for throttling: %pe!\n", opp);
+ 	} else {
+-		throttled_freq = freq_hz / HZ_PER_KHZ;
+-
+-		/* Update thermal pressure (the boost frequencies are accepted) */
+-		arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
+-
+ 		dev_pm_opp_put(opp);
+ 	}
+ 
++	throttled_freq = freq_hz / HZ_PER_KHZ;
++
++	/* Update thermal pressure (the boost frequencies are accepted) */
++	arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
++
+ 	/*
+ 	 * In the unlikely case policy is unregistered do not enable
+ 	 * polling or h/w interrupt
+-- 
+2.31.1.272.g89b43f80a514
 
-I fear it could easily take another week to get this fixed in stable
-depending on how fast the patch makes it to mainline and the timing of
-the next 5.19.y release and its -rc phase. That to me sounds like way
-too long for a problem like this that apparently plagues quite a few
-people.
-
-That made me wonder: would you in cases like this be willing to start
-the -rc phase for a interim 5.19.y release with just that revert while
-it's still heading towards mainline? Then the CI systems that test
-stable -rcs could chew on things already; and the new stable release
-could go out right after the revert landed in mainline (unless the
-testing finds any problems, of course).
-
-Ciao, Thorsten
