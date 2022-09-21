@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B46CF5C027A
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F935C0238
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231713AbiIUPx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39248 "EHLO
+        id S230232AbiIUPuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231706AbiIUPw3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:52:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B672AE17;
-        Wed, 21 Sep 2022 08:49:47 -0700 (PDT)
+        with ESMTP id S231635AbiIUPto (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:49:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC2F9E127;
+        Wed, 21 Sep 2022 08:48:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8BD262C83;
-        Wed, 21 Sep 2022 15:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E444FC433D6;
-        Wed, 21 Sep 2022 15:48:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2A2063134;
+        Wed, 21 Sep 2022 15:48:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC9CC433C1;
+        Wed, 21 Sep 2022 15:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775324;
-        bh=e4CTjNg0VHlzgBruGLyh0ezOhAX+QdTKZInHbKUri8o=;
+        s=korg; t=1663775285;
+        bh=0jQRjovtLmJ+JpC0ZRGxXIXRjH2x78eKIRdqyG2/Io4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+LPHZKlV4DfercFN1ruBTDeS5ndot33M0s64Cz2VEckaScYUARA9P3Vwd08lJ1Mk
-         Hhw+yk1SFwTuN2b19xPxekgqdPT/tVgMPXLuXjZXgd1MAzEREr0oZPARK9gYYvvz8V
-         X/HTjn28nNd+81k8u7npxIViATmeHlI4VFSftD2M=
+        b=hEF0cqny+fk78/7qjfw0aP4Fn8xRNCBVclYz1zI3rZLRWM9Os1gYSib1BT8N8hHie
+         4j7szHyjhwIKiWt9tr+I2guhnvIGoI2ODlEoqGmaDmwmgLe5wU8LYDAbH5bNBsvlqS
+         UCMoQSsUtoQ4LORv7VooBSqGoc2CnTYtr6EqdGwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 15/45] parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 21/38] io_uring/msg_ring: check file type before putting
 Date:   Wed, 21 Sep 2022 17:46:05 +0200
-Message-Id: <20220921153647.390012264@linuxfoundation.org>
+Message-Id: <20220921153646.939592037@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +51,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 38238be4e881a5d0abbe4872b4cd6ed790be06c8 ]
+commit fc7222c3a9f56271fba02aabbfbae999042f1679 upstream.
 
-Add missing iounmap() before return from ccio_probe(), if ccio_init_resources()
-fails.
+If we're invoked with a fixed file, follow the normal rules of not
+calling io_fput_file(). Fixed files are permanently registered to the
+ring, and do not need putting separately.
 
-Fixes: d46c742f827f ("parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: aa184e8671f0 ("io_uring: don't attempt to IOPOLL for MSG_RING requests")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/ccio-dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ io_uring/io_uring.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index f69ab90b5e22..6052f264bbb0 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1546,6 +1546,7 @@ static int __init ccio_probe(struct parisc_device *dev)
- 	}
- 	ccio_ioc_init(ioc);
- 	if (ccio_init_resources(ioc)) {
-+		iounmap(ioc->ioc_regs);
- 		kfree(ioc);
- 		return -ENOMEM;
- 	}
--- 
-2.35.1
-
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -5061,7 +5061,8 @@ done:
+ 		req_set_fail(req);
+ 	__io_req_complete(req, issue_flags, ret, 0);
+ 	/* put file to avoid an attempt to IOPOLL the req */
+-	io_put_file(req->file);
++	if (!(req->flags & REQ_F_FIXED_FILE))
++		io_put_file(req->file);
+ 	req->file = NULL;
+ 	return 0;
+ }
 
 
