@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D725C02E9
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 754E45C0324
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbiIUP4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:56:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38820 "EHLO
+        id S232045AbiIUQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:00:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232029AbiIUP4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:56:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C02D69F778;
-        Wed, 21 Sep 2022 08:50:39 -0700 (PDT)
+        with ESMTP id S232268AbiIUP6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC36A1D0A;
+        Wed, 21 Sep 2022 08:52:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3297CB82714;
-        Wed, 21 Sep 2022 15:50:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F71C433D6;
-        Wed, 21 Sep 2022 15:50:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2339763153;
+        Wed, 21 Sep 2022 15:51:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33DACC433C1;
+        Wed, 21 Sep 2022 15:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775437;
-        bh=aejl/wSgMh8SUJ5sgcngytoh6f7XGaSgzCQC5BVcXMk=;
+        s=korg; t=1663775479;
+        bh=/CVu9TEVrm3dQdfEgyhnyWNcNsU//GUguQ3RL6GFzSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EkpeyHKkfMaaW8vBhWgx9xVocOBfe/ItSb3chOSclCf2LWJnZQZSIab98rKw2RkH6
-         z6LgwFbt601O4eR3yZDnDFGJhxwnLXHhTnIZheAxEDSTTXSmxhpiNTdt30SuFxy4XX
-         LVZyLNeEMoPZQULr+j9aAxd/JOB98KgNnmNqf/1g=
+        b=gfLFscIjKI+D7H0dEDHVGtD63w842g56BrKI8bD8gMaGRZV/LPQK0FZ4k9CgrdVtj
+         ZgOoyR9DyrSKqx8B23Ps/9/dhbcBI2fRYsFcpiYyx/Qd7Gu34Hd0DPauX9lQi27WPx
+         kZbYrwOC5j/rbcCTvWo1q2WLA1AP9L4AdYA2QBAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 35/45] ALSA: hda/tegra: Align BDL entry to 4KB boundary
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.10 20/39] of/device: Fix up of_dma_configure_id() stub
 Date:   Wed, 21 Sep 2022 17:46:25 +0200
-Message-Id: <20220921153648.082995468@linuxfoundation.org>
+Message-Id: <20220921153646.403849777@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
+References: <20220921153645.663680057@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohan Kumar <mkumard@nvidia.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 8d44e6044a0e885acdd01813768a0b27906d64fd ]
+commit 40bfe7a86d84cf08ac6a8fe2f0c8bf7a43edd110 upstream.
 
-AZA HW may send a burst read/write request crossing 4K memory boundary.
-The 4KB boundary is not guaranteed by Tegra HDA HW. Make SW change to
-include the flag AZX_DCAPS_4K_BDLE_BOUNDARY to align BDLE to 4K
-boundary.
+Since the stub version of of_dma_configure_id() was added in commit
+a081bd4af4ce ("of/device: Add input id to of_dma_configure()"), it has
+not matched the signature of the full function, leading to build failure
+reports when code using this function is built on !OF configurations.
 
-Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
-Link: https://lore.kernel.org/r/20220905172420.3801-1-mkumard@nvidia.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a081bd4af4ce ("of/device: Add input id to of_dma_configure()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Frank Rowand <frank.rowand@sony.com>
+Acked-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Link: https://lore.kernel.org/r/20220824153256.1437483-1-thierry.reding@gmail.com
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_tegra.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/of_device.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
-index 773f4903550a..f0e556f2ccf6 100644
---- a/sound/pci/hda/hda_tegra.c
-+++ b/sound/pci/hda/hda_tegra.c
-@@ -451,7 +451,8 @@ MODULE_DEVICE_TABLE(of, hda_tegra_match);
- static int hda_tegra_probe(struct platform_device *pdev)
+--- a/include/linux/of_device.h
++++ b/include/linux/of_device.h
+@@ -113,8 +113,9 @@ static inline struct device_node *of_cpu
+ }
+ 
+ static inline int of_dma_configure_id(struct device *dev,
+-				   struct device_node *np,
+-				   bool force_dma)
++				      struct device_node *np,
++				      bool force_dma,
++				      const u32 *id)
  {
- 	const unsigned int driver_flags = AZX_DCAPS_CORBRP_SELF_CLEAR |
--					  AZX_DCAPS_PM_RUNTIME;
-+					  AZX_DCAPS_PM_RUNTIME |
-+					  AZX_DCAPS_4K_BDLE_BOUNDARY;
- 	struct snd_card *card;
- 	struct azx *chip;
- 	struct hda_tegra *hda;
--- 
-2.35.1
-
+ 	return 0;
+ }
 
 
