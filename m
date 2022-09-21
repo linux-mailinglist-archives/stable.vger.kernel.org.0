@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A8A5C020E
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:47:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520325C0210
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbiIUPrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:47:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50776 "EHLO
+        id S231517AbiIUPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230246AbiIUPrC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82CA92F4F;
-        Wed, 21 Sep 2022 08:47:00 -0700 (PDT)
+        with ESMTP id S231516AbiIUPrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E5E9323D;
+        Wed, 21 Sep 2022 08:47:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BF87B82912;
-        Wed, 21 Sep 2022 15:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E1C0C433D7;
-        Wed, 21 Sep 2022 15:46:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5AF06312E;
+        Wed, 21 Sep 2022 15:47:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF019C433D6;
+        Wed, 21 Sep 2022 15:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775218;
-        bh=8xqtOQLIJHmSa37FahNLXbW40Isx/pVyE1Otd7wZkj4=;
+        s=korg; t=1663775221;
+        bh=7r89XjSIqmxsdqJA11MBe+sbq2S+K17H1vE04rSMB7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MynKv0Qce3PmnsFwZKcbxM11jjwTToUNXn/I+0/6Gi8tSO0dRwET/PV28cj03PrgR
-         pKUCuFjUKOpgjOpwuT2fETitp5vPmOv0NSBNUExudhryhOTPpFZytDFKkXkpT6S9ey
-         6cIwwEyP4dXJ/jEDYxuGe0kdcP4b3FKys0A3G2UA=
+        b=P1ZeQE2BXFDmWC/nmGKwJqL+vlkLg3v2ZG7eCy+aeLOcLScb8BaSQYOXTH4O0xGZ2
+         Pve2CnXbil351Tz0g9Rrh2K81/vO4SrN2K+vn9H8Z1jr/4i7rjDAcbkxIe9t2mPRjE
+         1qZ2x2jBnJ3jLB68Q/xwk9HhX90iM21n7eDWs1ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Molly Sophia <mollysophia379@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        "=?UTF-8?q?Jo=C3=A3o=20H . =20Spies?=" <jhlspies@gmail.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 03/38] pinctrl: qcom: sc8180x: Fix wrong pin numbers
-Date:   Wed, 21 Sep 2022 17:45:47 +0200
-Message-Id: <20220921153646.418905460@linuxfoundation.org>
+Subject: [PATCH 5.19 04/38] pinctrl: rockchip: Enhance support for IRQ_TYPE_EDGE_BOTH
+Date:   Wed, 21 Sep 2022 17:45:48 +0200
+Message-Id: <20220921153646.447506473@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
 References: <20220921153646.298361220@linuxfoundation.org>
@@ -45,52 +45,54 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Molly Sophia <mollysophia379@gmail.com>
+From: João H. Spies <jhlspies@gmail.com>
 
-[ Upstream commit 48ec73395887694f13c9452b4dcfb43710451757 ]
+[ Upstream commit b871656aa4f54e04207f62bdd0d7572be1d86b36 ]
 
-The pin numbers for UFS_RESET and SDC2_* are not
-consistent in the pinctrl driver for sc8180x.
-So fix it.
+Switching between falling/rising edges for IRQ_TYPE_EDGE_BOTH on pins that
+require debounce can cause the device to lose events due to a desync
+between pin state and irq type.
 
-Signed-off-by: Molly Sophia <mollysophia379@gmail.com>
-Fixes: 97423113ec4b ("pinctrl: qcom: Add sc8180x TLMM driver")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220807122645.13830-3-mollysophia379@gmail.com
+This problem is resolved by switching between IRQ_TYPE_LEVEL_LOW and
+IRQ_TYPE_LEVEL_HIGH instead.
+
+Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
+Signed-off-by: João H. Spies <jhlspies@gmail.com>
+Link: https://lore.kernel.org/r/20220808025121.110223-1-jhlspies@gmail.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sc8180x.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-rockchip.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-sc8180x.c b/drivers/pinctrl/qcom/pinctrl-sc8180x.c
-index b4bf009fe23e..704a99d2f93c 100644
---- a/drivers/pinctrl/qcom/pinctrl-sc8180x.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sc8180x.c
-@@ -530,10 +530,10 @@ DECLARE_MSM_GPIO_PINS(187);
- DECLARE_MSM_GPIO_PINS(188);
- DECLARE_MSM_GPIO_PINS(189);
+diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
+index e342a6dc4c6c..bb953f647864 100644
+--- a/drivers/gpio/gpio-rockchip.c
++++ b/drivers/gpio/gpio-rockchip.c
+@@ -418,11 +418,11 @@ static int rockchip_irq_set_type(struct irq_data *d, unsigned int type)
+ 			goto out;
+ 		} else {
+ 			bank->toggle_edge_mode |= mask;
+-			level |= mask;
++			level &= ~mask;
  
--static const unsigned int sdc2_clk_pins[] = { 190 };
--static const unsigned int sdc2_cmd_pins[] = { 191 };
--static const unsigned int sdc2_data_pins[] = { 192 };
--static const unsigned int ufs_reset_pins[] = { 193 };
-+static const unsigned int ufs_reset_pins[] = { 190 };
-+static const unsigned int sdc2_clk_pins[] = { 191 };
-+static const unsigned int sdc2_cmd_pins[] = { 192 };
-+static const unsigned int sdc2_data_pins[] = { 193 };
- 
- enum sc8180x_functions {
- 	msm_mux_adsp_ext,
+ 			/*
+ 			 * Determine gpio state. If 1 next interrupt should be
+-			 * falling otherwise rising.
++			 * low otherwise high.
+ 			 */
+ 			data = readl(bank->reg_base + bank->gpio_regs->ext_port);
+ 			if (data & mask)
 -- 
 2.35.1
 
