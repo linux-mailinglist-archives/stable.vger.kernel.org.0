@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E05B15C0244
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D56D25C0271
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231665AbiIUPuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:50:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50652 "EHLO
+        id S231829AbiIUPwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:52:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbiIUPuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:50:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82AA9A9D7;
-        Wed, 21 Sep 2022 08:48:26 -0700 (PDT)
+        with ESMTP id S231739AbiIUPvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:51:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02D6F02;
+        Wed, 21 Sep 2022 08:49:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D8A863126;
-        Wed, 21 Sep 2022 15:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB80FC433C1;
-        Wed, 21 Sep 2022 15:48:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49F63B82714;
+        Wed, 21 Sep 2022 15:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD31AC433C1;
+        Wed, 21 Sep 2022 15:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775303;
-        bh=oc6alvbrAk656ZrKOEIJJIun1IBR2lDaOl7X6JBRJKo=;
+        s=korg; t=1663775312;
+        bh=v90XGXtjV5KepYTypBN1Kkz6+3fOaoGS4G1/0MG3RGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvBIlQ5wKlF777Yya+s6pik7O4LfNM6Sn0j3n/XLj/ClO6fOeR6CvkDodIXHRzLZK
-         YuNodbMqnJdj2+HVwJEL1Vj4QL4b4tyI/VKlS2lP8tyVcCptOdMfjruL++3WivuezX
-         uhEQRHpB/llICKr03wlbZmK8bpKweZVKXAFcAdZ8=
+        b=BY6RifzPQouoeDm8OPRqg/IvW873bn6Cslk9Flc9psDbi1es7Hvr4Pqq5S7lcUQKT
+         omGoPjc+9qdZpszwqoaly8xP6sIUTKOWyCTvcl9uNkJtDXPG/BJvo5IWmabLg46shx
+         hFVIh5JQMdpLd42o4+rlulgxKe6/Yx9i5XJWCjPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        Ashutosh Dixit <ashutosh.dixit@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 17/38] drm/i915/guc: Cancel GuC engine busyness worker synchronously
+Subject: [PATCH 5.15 11/45] gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
 Date:   Wed, 21 Sep 2022 17:46:01 +0200
-Message-Id: <20220921153646.824146216@linuxfoundation.org>
+Message-Id: <20220921153647.266445929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit aee5ae7c8492eaca2be20d202887c9c716ffc86f ]
+[ Upstream commit 279c12df8d2efb28def9d037f288cbfb97c30fe2 ]
 
-The worker is canceled in gt_park path, but earlier it was assumed that
-gt_park path cannot sleep and the cancel is asynchronous. This caused a
-race with suspend flow where the worker runs after suspend and causes an
-unclaimed register access warning. Cancel the worker synchronously since
-the gt_park is indeed allowed to sleep.
+Commit e39d5ef67804 ("powerpc/5xxx: extend mpc8xxx_gpio driver to support
+mpc512x gpios") implemented support for IRQ_TYPE_LEVEL_LOW flow type in
+mpc512x via falling edge type. Do same for mpc85xx which support was added
+in commit 345e5c8a1cc3 ("powerpc: Add interrupt support to mpc8xxx_gpio").
 
-v2: Fix author name and sign-off mismatch
+Fixes probing of lm90 hwmon driver on mpc85xx based board which use level
+interrupt. Without it kernel prints error and refuse lm90 to work:
 
-Signed-off-by: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4419
-Fixes: 77cdd054dd2c ("drm/i915/pmu: Connect engine busyness stats from GuC to pmu")
-Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220827002135.139349-1-umesh.nerlige.ramappa@intel.com
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-(cherry picked from commit 31335aa8e08be3fe10c50aecd2f11aba77544a78)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+    [   15.258370] genirq: Setting trigger mode 8 for irq 49 failed (mpc8xxx_irq_set_type+0x0/0xf8)
+    [   15.267168] lm90 0-004c: cannot request IRQ 49
+    [   15.272708] lm90: probe of 0-004c failed with error -22
+
+Fixes: 345e5c8a1cc3 ("powerpc: Add interrupt support to mpc8xxx_gpio")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-mpc8xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-index 96022f49f9b5..d7e4681d7297 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -1438,7 +1438,12 @@ void intel_guc_busyness_park(struct intel_gt *gt)
- 	if (!guc_submission_initialized(guc))
- 		return;
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index a964e25ea620..763256efddc2 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -172,6 +172,7 @@ static int mpc8xxx_irq_set_type(struct irq_data *d, unsigned int flow_type)
  
--	cancel_delayed_work(&guc->timestamp.work);
-+	/*
-+	 * There is a race with suspend flow where the worker runs after suspend
-+	 * and causes an unclaimed register access warning. Cancel the worker
-+	 * synchronously here.
-+	 */
-+	cancel_delayed_work_sync(&guc->timestamp.work);
- 
- 	/*
- 	 * Before parking, we should sample engine busyness stats if we need to.
+ 	switch (flow_type) {
+ 	case IRQ_TYPE_EDGE_FALLING:
++	case IRQ_TYPE_LEVEL_LOW:
+ 		raw_spin_lock_irqsave(&mpc8xxx_gc->lock, flags);
+ 		gc->write_reg(mpc8xxx_gc->regs + GPIO_ICR,
+ 			gc->read_reg(mpc8xxx_gc->regs + GPIO_ICR)
 -- 
 2.35.1
 
