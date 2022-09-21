@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4315C0225
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF575C026F
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbiIUPsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50768 "EHLO
+        id S231644AbiIUPwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231610AbiIUPrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4FA091D13;
-        Wed, 21 Sep 2022 08:47:29 -0700 (PDT)
+        with ESMTP id S231720AbiIUPvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:51:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE0B339;
+        Wed, 21 Sep 2022 08:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6608FB82714;
-        Wed, 21 Sep 2022 15:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB644C433D6;
-        Wed, 21 Sep 2022 15:47:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D6B76313C;
+        Wed, 21 Sep 2022 15:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E66CC433D6;
+        Wed, 21 Sep 2022 15:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775246;
-        bh=ROmjALs2aLv+mU6hjgmn6dS843ULyMub8FPpmP4DHrw=;
+        s=korg; t=1663775347;
+        bh=jnrtrwVThl7jBOaHqlfiiHiaXpyyPz87zg3tkY08qJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSo/R639pqZVTsW+VBiAf702QNd8qOPx69MeadDxnaGfpdxKRJKobXNuhewY+ebz0
-         WOBzHzY3XOBPyRGRvxU0r62QQHgZrxKzNEKT4/LlC58C/CF8jdcttxjAnhaqafyfdq
-         1UXHWGWf5PecRReHlSSsfI+jB4a210T3D2924ZnA=
+        b=VUT3/NW9hmcQAaPJYQhmuVxDuYlXY8yVJZ52Ky8OwUcyYiD3xZJX/rVzHBXSFdA+y
+         eliaU5FURzggPNkgaw+9m5SYwR986RXmFruLIRmUa9F2VpMQw9BH0LPphRvzif5wLA
+         kRaAxz5bvluYyW+KmvrpFlygG7Rl8t1ULB0+OEf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashutosh Dixit <ashutosh.dixit@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Sujaritha Sundaresan <sujaritha.sundaresan@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.19 28/38] drm/i915/gt: Fix perf limit reasons bit positions
+        stable@vger.kernel.org, Gustaw Smolarczyk <wielkiegie@gmail.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 22/45] drm/amdgpu: Dont enable LTR if not supported
 Date:   Wed, 21 Sep 2022 17:46:12 +0200
-Message-Id: <20220921153647.157448691@linuxfoundation.org>
+Message-Id: <20220921153647.598306582@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +53,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashutosh Dixit <ashutosh.dixit@intel.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-commit d654f60898d56ffda461ef4ffd7bbe15159feb8d upstream.
+commit 6c20490663553cd7e07d8de8af482012329ab9d6 upstream.
 
-Perf limit reasons bit positions were off by one.
+As per PCIE Base Spec r4.0 Section 6.18
+'Software must not enable LTR in an Endpoint unless the Root Complex
+and all intermediate Switches indicate support for LTR.'
 
-Fixes: fa68bff7cf27 ("drm/i915/gt: Add sysfs throttle frequency interfaces")
-Cc: stable@vger.kernel.org # v5.18+
-Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Acked-by: Andi Shyti <andi.shyti@linux.intel.com>
-Reviewed-by: Sujaritha Sundaresan <sujaritha.sundaresan@intel.com>
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220908155821.1662110-1-ashutosh.dixit@intel.com
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-(cherry picked from commit 60017f34fc334d1bb25476b0b0996b4073e76c90)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+This fixes the Unsupported Request error reported through AER during
+ASPM enablement.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216455
+
+The error was unnoticed before and got visible because of the commit
+referenced below. This doesn't fix anything in the commit below, rather
+fixes the issue in amdgpu exposed by the commit. The reference is only
+to associate this commit with below one so that both go together.
+
+Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+
+Reported-by: Gustaw Smolarczyk <wielkiegie@gmail.com>
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/i915_reg.h |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -1849,14 +1849,14 @@
+Cc: stable@vger.kernel.org
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+---
+ drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c |    9 ++++++++-
+ drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c |    9 ++++++++-
+ drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c |    9 ++++++++-
+ 3 files changed, 24 insertions(+), 3 deletions(-)
+
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
+@@ -366,6 +366,7 @@ static void nbio_v2_3_enable_aspm(struct
+ 		WREG32_PCIE(smnPCIE_LC_CNTL, data);
+ }
  
- #define GT0_PERF_LIMIT_REASONS		_MMIO(0x1381a8)
- #define   GT0_PERF_LIMIT_REASONS_MASK	0xde3
--#define   PROCHOT_MASK			REG_BIT(1)
--#define   THERMAL_LIMIT_MASK		REG_BIT(2)
--#define   RATL_MASK			REG_BIT(6)
--#define   VR_THERMALERT_MASK		REG_BIT(7)
--#define   VR_TDC_MASK			REG_BIT(8)
--#define   POWER_LIMIT_4_MASK		REG_BIT(9)
--#define   POWER_LIMIT_1_MASK		REG_BIT(11)
--#define   POWER_LIMIT_2_MASK		REG_BIT(12)
-+#define   PROCHOT_MASK			REG_BIT(0)
-+#define   THERMAL_LIMIT_MASK		REG_BIT(1)
-+#define   RATL_MASK			REG_BIT(5)
-+#define   VR_THERMALERT_MASK		REG_BIT(6)
-+#define   VR_TDC_MASK			REG_BIT(7)
-+#define   POWER_LIMIT_4_MASK		REG_BIT(8)
-+#define   POWER_LIMIT_1_MASK		REG_BIT(10)
-+#define   POWER_LIMIT_2_MASK		REG_BIT(11)
++#ifdef CONFIG_PCIEASPM
+ static void nbio_v2_3_program_ltr(struct amdgpu_device *adev)
+ {
+ 	uint32_t def, data;
+@@ -387,9 +388,11 @@ static void nbio_v2_3_program_ltr(struct
+ 	if (def != data)
+ 		WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
+ }
++#endif
  
- #define CHV_CLK_CTL1			_MMIO(0x101100)
- #define VLV_CLK_CTL2			_MMIO(0x101104)
+ static void nbio_v2_3_program_aspm(struct amdgpu_device *adev)
+ {
++#ifdef CONFIG_PCIEASPM
+ 	uint32_t def, data;
+ 
+ 	def = data = RREG32_PCIE(smnPCIE_LC_CNTL);
+@@ -445,7 +448,10 @@ static void nbio_v2_3_program_aspm(struc
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL6, data);
+ 
+-	nbio_v2_3_program_ltr(adev);
++	/* Don't bother about LTR if LTR is not enabled
++	 * in the path */
++	if (adev->pdev->ltr_path)
++		nbio_v2_3_program_ltr(adev);
+ 
+ 	def = data = RREG32_SOC15(NBIO, 0, mmRCC_BIF_STRAP3);
+ 	data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
+@@ -469,6 +475,7 @@ static void nbio_v2_3_program_aspm(struc
+ 	data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
++#endif
+ }
+ 
+ static void nbio_v2_3_apply_lc_spc_mode_wa(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c
+@@ -278,6 +278,7 @@ static void nbio_v6_1_init_registers(str
+ 		WREG32_PCIE(smnPCIE_CI_CNTL, data);
+ }
+ 
++#ifdef CONFIG_PCIEASPM
+ static void nbio_v6_1_program_ltr(struct amdgpu_device *adev)
+ {
+ 	uint32_t def, data;
+@@ -299,9 +300,11 @@ static void nbio_v6_1_program_ltr(struct
+ 	if (def != data)
+ 		WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
+ }
++#endif
+ 
+ static void nbio_v6_1_program_aspm(struct amdgpu_device *adev)
+ {
++#ifdef CONFIG_PCIEASPM
+ 	uint32_t def, data;
+ 
+ 	def = data = RREG32_PCIE(smnPCIE_LC_CNTL);
+@@ -357,7 +360,10 @@ static void nbio_v6_1_program_aspm(struc
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL6, data);
+ 
+-	nbio_v6_1_program_ltr(adev);
++	/* Don't bother about LTR if LTR is not enabled
++	 * in the path */
++	if (adev->pdev->ltr_path)
++		nbio_v6_1_program_ltr(adev);
+ 
+ 	def = data = RREG32_PCIE(smnRCC_BIF_STRAP3);
+ 	data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
+@@ -381,6 +387,7 @@ static void nbio_v6_1_program_aspm(struc
+ 	data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
++#endif
+ }
+ 
+ const struct amdgpu_nbio_funcs nbio_v6_1_funcs = {
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c
+@@ -630,6 +630,7 @@ const struct amdgpu_nbio_ras_funcs nbio_
+ 	.ras_fini = amdgpu_nbio_ras_fini,
+ };
+ 
++#ifdef CONFIG_PCIEASPM
+ static void nbio_v7_4_program_ltr(struct amdgpu_device *adev)
+ {
+ 	uint32_t def, data;
+@@ -651,9 +652,11 @@ static void nbio_v7_4_program_ltr(struct
+ 	if (def != data)
+ 		WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
+ }
++#endif
+ 
+ static void nbio_v7_4_program_aspm(struct amdgpu_device *adev)
+ {
++#ifdef CONFIG_PCIEASPM
+ 	uint32_t def, data;
+ 
+ 	def = data = RREG32_PCIE(smnPCIE_LC_CNTL);
+@@ -709,7 +712,10 @@ static void nbio_v7_4_program_aspm(struc
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL6, data);
+ 
+-	nbio_v7_4_program_ltr(adev);
++	/* Don't bother about LTR if LTR is not enabled
++	 * in the path */
++	if (adev->pdev->ltr_path)
++		nbio_v7_4_program_ltr(adev);
+ 
+ 	def = data = RREG32_PCIE(smnRCC_BIF_STRAP3);
+ 	data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
+@@ -733,6 +739,7 @@ static void nbio_v7_4_program_aspm(struc
+ 	data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
++#endif
+ }
+ 
+ const struct amdgpu_nbio_funcs nbio_v7_4_funcs = {
 
 
