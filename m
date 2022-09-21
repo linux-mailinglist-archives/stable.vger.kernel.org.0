@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 585555C0277
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF0975C0224
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230310AbiIUPxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:53:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57366 "EHLO
+        id S229525AbiIUPsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:48:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231765AbiIUPwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:52:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9261055E;
-        Wed, 21 Sep 2022 08:49:38 -0700 (PDT)
+        with ESMTP id S231630AbiIUPsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:48:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4530D96FD3;
+        Wed, 21 Sep 2022 08:47:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40BEDB830A9;
-        Wed, 21 Sep 2022 15:49:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745A0C433D6;
-        Wed, 21 Sep 2022 15:49:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8136EB830A0;
+        Wed, 21 Sep 2022 15:47:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7459C433D6;
+        Wed, 21 Sep 2022 15:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775355;
-        bh=gpGbiPYmFVOo/lLFhBYn1vWhkcCQKUcxoGDoaiLWFy4=;
+        s=korg; t=1663775255;
+        bh=3ivMZ11AgPCuYA4AoxzTj/EVjww+87Beeoga76D963M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lx4N+nvoKMU4TSaadfBiXdkBTS02UyS0zPsBpRcyGA2keKZ2sMNjkMGHsqmr1ThJf
-         2FSCG8R1MjFbOEtc4BfbrXu+mwqWpEc7W2KMAQPJuLsAWXfj8kcMVM4Ddwp916nUVh
-         I8NDzaCauvuNtuTL7ycIOplwrrka29Bxtlt9JqkM=
+        b=HmqKppku515muD6EuOaRDsK7dSp5SJe/Vcgp4aPtBu5/i+VhLevOB99hphlX3gS1Y
+         HVBeLbmVLSR/sU0a8fMQfPT5x0T3Ii+shhIi0ZekvIbzbGAQ4SOYVN/eJ/6mBVjOLx
+         72rHtPEb3JrK4MDrXP+iuq2qvrkI03cvsy6uM9qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Howlett <liam.howlett@oracle.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Carlos Llamas <cmllamas@google.com>
-Subject: [PATCH 5.15 25/45] binder: remove inaccurate mmap_assert_locked()
+        stable@vger.kernel.org, Gustaw Smolarczyk <wielkiegie@gmail.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.19 31/38] drm/amdgpu: Dont enable LTR if not supported
 Date:   Wed, 21 Sep 2022 17:46:15 +0200
-Message-Id: <20220921153647.712630577@linuxfoundation.org>
+Message-Id: <20220921153647.245053881@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+References: <20220921153646.298361220@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +53,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-Acquiring the mmap_lock during exit_mmap() was only added recently in
-v5.17 by commit 64591e8605d6 ("mm: protect free_pgtables with mmap_lock
-write lock in exit_mmap"). Soon after, asserts for holding this lock
-were added to the binder_alloc_set_vma() callback by the following two
-fix commits in mainline: commit b0cab80ecd54 ("android: binder: fix
-lockdep check on clearing vma") and commit a43cfc87caaf ("android:
-binder: stop saving a pointer to the VMA").
+commit 6c20490663553cd7e07d8de8af482012329ab9d6 upstream.
 
-These two fix commits were picked for stable trees including v5.15 were
-unfortunately the mmap_lock is not held during exit_mmap() yet and this
-unmet dependency leads to the following BUG report:
+As per PCIE Base Spec r4.0 Section 6.18
+'Software must not enable LTR in an Endpoint unless the Root Complex
+and all intermediate Switches indicate support for LTR.'
 
-  ------------[ cut here ]------------
-  kernel BUG at include/linux/mmap_lock.h:156!
-  Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-  Modules linked in:
-  CPU: 3 PID: 437 Comm: binder Not tainted 5.15.68 #5
-  Hardware name: linux,dummy-virt (DT)
-  pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  pc : binder_alloc_vma_close+0x6c/0x70
-  lr : binder_alloc_vma_close+0x6c/0x70
-  sp : ffff800008687a70
-  x29: ffff800008687a70 x28: ffff02a7ccf89d00 x27: ffff02a7c92f99e8
-  x26: 000000000000012a x25: ffff02a7c6284740 x24: ffff02a7ccf8a360
-  x23: ffff02a7c92f9980 x22: 1ffff000010d0f6c x21: ffff02a7c92f99e8
-  x20: ffff02a7c92f9980 x19: ffff02a7d16b79a8 x18: 0000ffffe1702d20
-  x17: 3334373239343932 x16: 34206e6163735f74 x15: 78656e5f616d756e
-  x14: 0a30303030303030 x13: 7366666f5f6e6163 x12: ffff60550564a12b
-  x11: 1fffe0550564a12a x10: ffff60550564a12a x9 : dfff800000000000
-  x8 : ffff02a82b250957 x7 : 0000000000000001 x6 : ffff60550564a12a
-  x5 : ffff02a82b250950 x4 : dfff800000000000 x3 : 0000000000000000
-  x2 : 0000000000000000 x1 : ffff02a7ccf89d00 x0 : 0000000000000374
-  Call trace:
-   binder_alloc_vma_close+0x6c/0x70
-   binder_vma_close+0x38/0xf4
-   remove_vma+0x4c/0x94
-   exit_mmap+0x14c/0x2bc
-   __mmput+0x70/0x19c
-   mmput+0x68/0x80
-   do_exit+0x484/0xeb0
-   do_group_exit+0x5c/0x100
-   [...]
+This fixes the Unsupported Request error reported through AER during
+ASPM enablement.
 
-This patch removes the inaccurate assert specifically from v5.15 since
-it's the only release with such issue. Note the mmap_lock is technically
-not needed here as the mm->mm_users has dropped to zero at this point.
-More context: https://lore.kernel.org/all/YxpQaio7xm3z9TUw@google.com/.
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216455
 
-Fixes: b0cab80ecd54 ("android: binder: fix lockdep check on clearing vma")
-Fixes: a43cfc87caaf ("android: binder: stop saving a pointer to the VMA")
-Cc: Liam Howlett <liam.howlett@oracle.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: <stable@vger.kernel.org> # v5.15
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
+The error was unnoticed before and got visible because of the commit
+referenced below. This doesn't fix anything in the commit below, rather
+fixes the issue in amdgpu exposed by the commit. The reference is only
+to associate this commit with below one so that both go together.
+
+Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+
+Reported-by: Gustaw Smolarczyk <wielkiegie@gmail.com>
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder_alloc.c |    7 -------
- 1 file changed, 7 deletions(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -315,16 +315,9 @@ static inline void binder_alloc_set_vma(
+Cc: stable@vger.kernel.org
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+---
+ drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c |    9 ++++++++-
+ drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c |    9 ++++++++-
+ drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c |    9 ++++++++-
+ 3 files changed, 24 insertions(+), 3 deletions(-)
+
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
+@@ -380,6 +380,7 @@ static void nbio_v2_3_enable_aspm(struct
+ 		WREG32_PCIE(smnPCIE_LC_CNTL, data);
+ }
+ 
++#ifdef CONFIG_PCIEASPM
+ static void nbio_v2_3_program_ltr(struct amdgpu_device *adev)
  {
- 	unsigned long vm_start = 0;
+ 	uint32_t def, data;
+@@ -401,9 +402,11 @@ static void nbio_v2_3_program_ltr(struct
+ 	if (def != data)
+ 		WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
+ }
++#endif
  
--	/*
--	 * Allow clearing the vma with holding just the read lock to allow
--	 * munmapping downgrade of the write lock before freeing and closing the
--	 * file using binder_alloc_vma_close().
--	 */
- 	if (vma) {
- 		vm_start = vma->vm_start;
- 		mmap_assert_write_locked(alloc->vma_vm_mm);
--	} else {
--		mmap_assert_locked(alloc->vma_vm_mm);
- 	}
+ static void nbio_v2_3_program_aspm(struct amdgpu_device *adev)
+ {
++#ifdef CONFIG_PCIEASPM
+ 	uint32_t def, data;
  
- 	alloc->vma_addr = vm_start;
+ 	def = data = RREG32_PCIE(smnPCIE_LC_CNTL);
+@@ -459,7 +462,10 @@ static void nbio_v2_3_program_aspm(struc
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL6, data);
+ 
+-	nbio_v2_3_program_ltr(adev);
++	/* Don't bother about LTR if LTR is not enabled
++	 * in the path */
++	if (adev->pdev->ltr_path)
++		nbio_v2_3_program_ltr(adev);
+ 
+ 	def = data = RREG32_SOC15(NBIO, 0, mmRCC_BIF_STRAP3);
+ 	data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
+@@ -483,6 +489,7 @@ static void nbio_v2_3_program_aspm(struc
+ 	data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
++#endif
+ }
+ 
+ static void nbio_v2_3_apply_lc_spc_mode_wa(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c
+@@ -282,6 +282,7 @@ static void nbio_v6_1_init_registers(str
+ 			mmBIF_BX_DEV0_EPF0_VF0_HDP_MEM_COHERENCY_FLUSH_CNTL) << 2;
+ }
+ 
++#ifdef CONFIG_PCIEASPM
+ static void nbio_v6_1_program_ltr(struct amdgpu_device *adev)
+ {
+ 	uint32_t def, data;
+@@ -303,9 +304,11 @@ static void nbio_v6_1_program_ltr(struct
+ 	if (def != data)
+ 		WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
+ }
++#endif
+ 
+ static void nbio_v6_1_program_aspm(struct amdgpu_device *adev)
+ {
++#ifdef CONFIG_PCIEASPM
+ 	uint32_t def, data;
+ 
+ 	def = data = RREG32_PCIE(smnPCIE_LC_CNTL);
+@@ -361,7 +364,10 @@ static void nbio_v6_1_program_aspm(struc
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL6, data);
+ 
+-	nbio_v6_1_program_ltr(adev);
++	/* Don't bother about LTR if LTR is not enabled
++	 * in the path */
++	if (adev->pdev->ltr_path)
++		nbio_v6_1_program_ltr(adev);
+ 
+ 	def = data = RREG32_PCIE(smnRCC_BIF_STRAP3);
+ 	data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
+@@ -385,6 +391,7 @@ static void nbio_v6_1_program_aspm(struc
+ 	data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
++#endif
+ }
+ 
+ const struct amdgpu_nbio_funcs nbio_v6_1_funcs = {
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c
+@@ -673,6 +673,7 @@ struct amdgpu_nbio_ras nbio_v7_4_ras = {
+ };
+ 
+ 
++#ifdef CONFIG_PCIEASPM
+ static void nbio_v7_4_program_ltr(struct amdgpu_device *adev)
+ {
+ 	uint32_t def, data;
+@@ -694,9 +695,11 @@ static void nbio_v7_4_program_ltr(struct
+ 	if (def != data)
+ 		WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
+ }
++#endif
+ 
+ static void nbio_v7_4_program_aspm(struct amdgpu_device *adev)
+ {
++#ifdef CONFIG_PCIEASPM
+ 	uint32_t def, data;
+ 
+ 	if (adev->ip_versions[NBIO_HWIP][0] == IP_VERSION(7, 4, 4))
+@@ -755,7 +758,10 @@ static void nbio_v7_4_program_aspm(struc
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL6, data);
+ 
+-	nbio_v7_4_program_ltr(adev);
++	/* Don't bother about LTR if LTR is not enabled
++	 * in the path */
++	if (adev->pdev->ltr_path)
++		nbio_v7_4_program_ltr(adev);
+ 
+ 	def = data = RREG32_PCIE(smnRCC_BIF_STRAP3);
+ 	data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
+@@ -779,6 +785,7 @@ static void nbio_v7_4_program_aspm(struc
+ 	data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
+ 	if (def != data)
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
++#endif
+ }
+ 
+ const struct amdgpu_nbio_funcs nbio_v7_4_funcs = {
 
 
