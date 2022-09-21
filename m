@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2596B5C02EC
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE2B5C02A2
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232072AbiIUP5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:57:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40100 "EHLO
+        id S231715AbiIUPy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:54:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231933AbiIUP4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:56:23 -0400
+        with ESMTP id S231882AbiIUPxi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920DF9E2C9;
-        Wed, 21 Sep 2022 08:50:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 559D67C321;
+        Wed, 21 Sep 2022 08:50:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FD66B8236C;
-        Wed, 21 Sep 2022 15:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C81EC433C1;
-        Wed, 21 Sep 2022 15:50:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E87CB82714;
+        Wed, 21 Sep 2022 15:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999B7C433C1;
+        Wed, 21 Sep 2022 15:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775452;
-        bh=tPurWEEhB1tjacmXIiMYZ8dsf94axedVu01GjbMSARc=;
+        s=korg; t=1663775383;
+        bh=3brTycJ0De2vAzvXgwladuUXsxgrLWMn0uEYin+EqgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKhMtomc9VDu15Y5JSVZlq50opUXW4Jj+UgjjbmSsRnO+6tr1rt6WlDwTibOUWDva
-         KgHwCavKLpwS+2de/Yq9FQ6XcnlQsbaZ9E4424o3Gmwhvv0OOSdJL4OEDYh7lRYY5u
-         O2564dvEIyQEUyaa9Z87XzJiEkWeFXBEEG5QCNoE=
+        b=GUvw5cBgiMdQJCAr8fQTvv/og0GKS0WX7E741Pjn+vkAfJlrz9KTQuzC+cqHocWyI
+         FWB4rn1Lpa0JCSe4N3EFLF+fnpyz4Qy4Y7xHO8A+DIzjN2B53QV8H1rOAhCKlNSt+X
+         bfOm4WlXoHJW4SUfV/AcSYzXF68+wEXhd0uS7hYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/39] of: fdt: fix off-by-one error in unflatten_dt_nodes()
+        stable@vger.kernel.org, Jassi Brar <jaswinder.singh@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 27/45] arm64: dts: juno: Add missing MHU secure-irq
 Date:   Wed, 21 Sep 2022 17:46:17 +0200
-Message-Id: <20220921153646.153746553@linuxfoundation.org>
+Message-Id: <20220921153647.784204824@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Jassi Brar <jaswinder.singh@linaro.org>
 
-[ Upstream commit 2f945a792f67815abca26fa8a5e863ccf3fa1181 ]
+[ Upstream commit 422ab8fe15e30066d4c8e236b747c77069bfca45 ]
 
-Commit 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
-forgot to fix up the depth check in the loop body in unflatten_dt_nodes()
-which makes it possible to overflow the nps[] buffer...
+The MHU secure interrupt exists physically but is missing in the DT node.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
+Specify the interrupt in DT node to fix a warning on Arm Juno board:
+   mhu@2b1f0000: interrupts: [[0, 36, 4], [0, 35, 4]] is too short
 
-Fixes: 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/7c354554-006f-6b31-c195-cdfe4caee392@omp.ru
+Link: https://lore.kernel.org/r/20220801141005.599258-1-jassisinghbrar@gmail.com
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/arm/juno-base.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 57ff31b6b1e4..5a1b8688b460 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -315,7 +315,7 @@ static int unflatten_dt_nodes(const void *blob,
- 	for (offset = 0;
- 	     offset >= 0 && depth >= initial_depth;
- 	     offset = fdt_next_node(blob, offset, &depth)) {
--		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH))
-+		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH - 1))
- 			continue;
- 
- 		if (!IS_ENABLED(CONFIG_OF_KOBJ) &&
+diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+index a2635b14da30..34e5549ea748 100644
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -26,7 +26,8 @@
+ 		compatible = "arm,mhu", "arm,primecell";
+ 		reg = <0x0 0x2b1f0000 0x0 0x1000>;
+ 		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
++			     <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+ 		#mbox-cells = <1>;
+ 		clocks = <&soc_refclk100mhz>;
+ 		clock-names = "apb_pclk";
 -- 
 2.35.1
 
