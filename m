@@ -2,118 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBF85BFEEF
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 15:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B767E5BFF14
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 15:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229862AbiIUN1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 09:27:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49490 "EHLO
+        id S229936AbiIUNnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 09:43:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229494AbiIUN1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 09:27:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF5582766
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 06:27:52 -0700 (PDT)
+        with ESMTP id S229580AbiIUNnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 09:43:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A4D40569
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 06:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCFCBB810AA
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 13:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C778C433C1;
-        Wed, 21 Sep 2022 13:27:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663766869;
-        bh=QfGPWgmfg/Vj9s0KpoKCmJaybyqRppXNaNxQOmOF6KY=;
-        h=Subject:To:From:Date:From;
-        b=P9lha0rhM9T1roQv3RrEwmVg14CBK+cBo3kZcbpUqUvEjtmPbLIB7ENrW9uYVBl3U
-         bSTWUOVs0J62Xzj0gpdE9GmjGJy/xpVfoXEc6pq875jUvi//1CE27ucL1ttdaiJY+i
-         ZeqMVCES2S9lRVUldL5gzwuFVNJzP3tejb6QASzU=
-Subject: patch "fpga: m10bmc-sec: Fix possible memory leak of flash_buf" added to char-misc-linus
-To:     russell.h.weight@intel.com, dan.carpenter@oracle.com,
-        lkp@intel.com, stable@vger.kernel.org, trix@redhat.com,
-        yilun.xu@intel.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Sep 2022 15:27:46 +0200
-Message-ID: <166376686612587@kroah.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 471AEB82FC1
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 13:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 117FAC433D7
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 13:43:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663767818;
+        bh=Gmuw7RYv066IxRae4zmwgZqYaBan3eu2R7Ak+x42SkI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=epzRSJ0jyAlPZ16JH3+XPj16W+fgflBh69EoIUoCn+iYNALhGhq0EGN7hyvK6/xnz
+         tCrpO2MgL9f/JKcaFVIpdYkwWnKD81N8BqNwoKaIfVpULQLmOvz2ZVdroMjawrta0o
+         ltKZ/KorHpLGLupVh7L0N+yDipDQXa6ThxHz29DxoZb9DXxNv+/aKxvEEYH4WGYHYT
+         oaAootsA0LfuR1MUG3VujCM5P1GmGhokDptfnnqRKL295GKdkC9Z7vl9faJN982WEV
+         SSAWusvTxydhhjpXEPqqtH0teulP5+KXcoBUaMngLqObOmac7yPzK5i/UYTPtLUnEo
+         byWIA2B/BIBDA==
+Received: by mail-lf1-f51.google.com with SMTP id o2so9259584lfc.10
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 06:43:37 -0700 (PDT)
+X-Gm-Message-State: ACrzQf10mcexbRdDAbfV0HO59fE1cPls345QFNXPJ3qxyCJQ0YgpI5Ub
+        0EWBQCMIBJANavmL1GZQGy9BKB5H2b6sK7s+eQUAng==
+X-Google-Smtp-Source: AMsMyM79gcUQDdS+aheFYCBSJgkOeTa2g6z7vtIVxydF5XAVlYV8l3YcMmi9Yn+KvZ/xQuuFPV3NVrj9PpUfx7TqFJ4=
+X-Received: by 2002:a2e:920a:0:b0:26c:f7b:95db with SMTP id
+ k10-20020a2e920a000000b0026c0f7b95dbmr9324650ljg.156.1663767805783; Wed, 21
+ Sep 2022 06:43:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20220920075951.929132-1-roberto.sassu@huaweicloud.com> <20220920075951.929132-3-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20220920075951.929132-3-roberto.sassu@huaweicloud.com>
+From:   KP Singh <kpsingh@kernel.org>
+Date:   Wed, 21 Sep 2022 15:43:14 +0200
+X-Gmail-Original-Message-ID: <CACYkzJ7or3+zwZShXC7TdzhSbN4O9wEk6KEkbRBFh85=HZ87PQ@mail.gmail.com>
+Message-ID: <CACYkzJ7or3+zwZShXC7TdzhSbN4O9wEk6KEkbRBFh85=HZ87PQ@mail.gmail.com>
+Subject: Re: [PATCH v18 02/13] btf: Export bpf_dynptr definition
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+        martin.lau@linux.dev, song@kernel.org, yhs@fb.com,
+        john.fastabend@gmail.com, sdf@google.com, haoluo@google.com,
+        jolsa@kernel.org, mykolal@fb.com, dhowells@redhat.com,
+        jarkko@kernel.org, rostedt@goodmis.org, mingo@redhat.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        shuah@kernel.org, bpf@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
+        deso@posteo.net, memxor@gmail.com,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Joanne Koong <joannelkoong@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Sep 20, 2022 at 10:01 AM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
+>
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+>
+> eBPF dynamic pointers is a new feature recently added to upstream. It binds
+> together a pointer to a memory area and its size. The internal kernel
+> structure bpf_dynptr_kern is not accessible by eBPF programs in user space.
+> They instead see bpf_dynptr, which is then translated to the internal
+> kernel structure by the eBPF verifier.
+>
+> The problem is that it is not possible to include at the same time the uapi
+> include linux/bpf.h and the vmlinux BTF vmlinux.h, as they both contain the
+> definition of some structures/enums. The compiler complains saying that the
+> structures/enums are redefined.
+>
+> As bpf_dynptr is defined in the uapi include linux/bpf.h, this makes it
+> impossible to include vmlinux.h. However, in some cases, e.g. when using
+> kfuncs, vmlinux.h has to be included. The only option until now was to
+> include vmlinux.h and add the definition of bpf_dynptr directly in the eBPF
+> program source code from linux/bpf.h.
+>
+> Solve the problem by using the same approach as for bpf_timer (which also
+> follows the same scheme with the _kern suffix for the internal kernel
+> structure).
+>
+> Add the following line in one of the dynamic pointer helpers,
+> bpf_dynptr_from_mem():
+>
+> BTF_TYPE_EMIT(struct bpf_dynptr);
+>
+> Cc: stable@vger.kernel.org
+> Cc: Joanne Koong <joannelkoong@gmail.com>
+> Fixes: 97e03f521050c ("bpf: Add verifier support for dynptrs")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Acked-by: Yonghong Song <yhs@fb.com>
 
-This is a note to let you know that I've just added the patch titled
+I tested this out and it works, however for the BPF signing use case
+where "bpf_dynptr_kern" is added to struct bpf_prog_aux one still
+ends up defining the __ksym extern with bpf_dynptr_kern.
 
-    fpga: m10bmc-sec: Fix possible memory leak of flash_buf
+But let's discuss that when the series is posted.
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 468c9d928a8f38fdfaa61b05e81473cc7c8a6461 Mon Sep 17 00:00:00 2001
-From: Russ Weight <russell.h.weight@intel.com>
-Date: Fri, 16 Sep 2022 16:52:05 -0700
-Subject: fpga: m10bmc-sec: Fix possible memory leak of flash_buf
-
-There is an error check following the allocation of flash_buf that returns
-without freeing flash_buf. It makes more sense to do the error check
-before the allocation and the reordering eliminates the memory leak.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 154afa5c31cd ("fpga: m10bmc-sec: expose max10 flash update count")
-Signed-off-by: Russ Weight <russell.h.weight@intel.com>
-Reviewed-by: Tom Rix <trix@redhat.com>
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220916235205.106873-1-russell.h.weight@intel.com
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
----
- drivers/fpga/intel-m10-bmc-sec-update.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/fpga/intel-m10-bmc-sec-update.c b/drivers/fpga/intel-m10-bmc-sec-update.c
-index 72c677c910de..133e511355c9 100644
---- a/drivers/fpga/intel-m10-bmc-sec-update.c
-+++ b/drivers/fpga/intel-m10-bmc-sec-update.c
-@@ -148,10 +148,6 @@ static ssize_t flash_count_show(struct device *dev,
- 	stride = regmap_get_reg_stride(sec->m10bmc->regmap);
- 	num_bits = FLASH_COUNT_SIZE * 8;
- 
--	flash_buf = kmalloc(FLASH_COUNT_SIZE, GFP_KERNEL);
--	if (!flash_buf)
--		return -ENOMEM;
--
- 	if (FLASH_COUNT_SIZE % stride) {
- 		dev_err(sec->dev,
- 			"FLASH_COUNT_SIZE (0x%x) not aligned to stride (0x%x)\n",
-@@ -160,6 +156,10 @@ static ssize_t flash_count_show(struct device *dev,
- 		return -EINVAL;
- 	}
- 
-+	flash_buf = kmalloc(FLASH_COUNT_SIZE, GFP_KERNEL);
-+	if (!flash_buf)
-+		return -ENOMEM;
-+
- 	ret = regmap_bulk_read(sec->m10bmc->regmap, STAGING_FLASH_COUNT,
- 			       flash_buf, FLASH_COUNT_SIZE / stride);
- 	if (ret) {
--- 
-2.37.3
-
-
+Tested-by: KP Singh <kpsingh@kernel.org>
