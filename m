@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B005C036B
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 617AC5C036D
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231687AbiIUQEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:04:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45536 "EHLO
+        id S231858AbiIUQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232517AbiIUQED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:04:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88EC7656B;
-        Wed, 21 Sep 2022 08:54:34 -0700 (PDT)
+        with ESMTP id S232543AbiIUQEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 12:04:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD8B6425;
+        Wed, 21 Sep 2022 08:54:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D873B830CC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 423DF63171;
         Wed, 21 Sep 2022 15:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2665EC433D7;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D5DDC4314E;
         Wed, 21 Sep 2022 15:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1663775614;
-        bh=Q2ax4nHmUIsuSF4ftZGVkIdUdYbh9VYCFtJUZ59qKPw=;
+        bh=GBcGwIueOLO58Yp/xzMrac4ghKpdtAPg/t5F7+WWSzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNfheLbukkPI6W6hNGkbc62RWNzwm6h5Wab3yea1fqEqylTt7jvBa54nFTogtKvn6
-         O5N3FQ+01aOUwt6xsO7TId+tloqQXIiAooB36Z0ejInNPOd4CFs1kD5bc+Xun5t/fK
-         cSe3kLF+Zo6pk/D+r7i4sCtliYdJzcBTB1MQ+eWMlimi0Ys42LfdB0Tt0abY5EEEKr
-         far64Vs3FQ4iuTqycTF4KKFpDg3Ujnu0SmSqwLIweCpvpaELezxb5JuejodCrbMZtg
-         UA4LqVNW7zQfdD7YyjrCSpj0uMNGaiF91bfrvO+QSt0usCdsI6GucTkzbLyswurN1E
-         isuha9WA3T3XQ==
+        b=ZfJXi8mkjT/tzSHx7Tt4cYNIijPyFEnBQlG/pySEcxA0W3fpg884xun/SP9gTH3mY
+         DAQKyG2QDKooFtZO54Pf8c7+kmGYsNopVO3+2iXCt9GFf2t+4AbHItmPIfot3uBROA
+         qeXO/9j0PB/yoVj1EYCli0lWrq516L33kUnSIy9dBzLNmlAANVmX4brzCLslHaub4G
+         3GZ1i9VsBTHZJmOQW0bWUuUxLY8nVt9Dit/GeLLWDWhbFe8ngZ93GYeH2owrTwMBxL
+         3CNLOcUIQHdu4NntwKWRgK53z/YieJ3CcmEkEvchUfVaJgFCSP35vT7x7efGkn/JJ4
+         s2+TTr7u7JAiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
         Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
         daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 02/16] drm/gma500: Fix BUG: sleeping function called from invalid context errors
-Date:   Wed, 21 Sep 2022 11:53:18 -0400
-Message-Id: <20220921155332.234913-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 03/16] drm/gma500: Fix WARN_ON(lock->magic != lock) error
+Date:   Wed, 21 Sep 2022 11:53:19 -0400
+Message-Id: <20220921155332.234913-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220921155332.234913-1-sashal@kernel.org>
 References: <20220921155332.234913-1-sashal@kernel.org>
@@ -58,101 +58,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 63e37a79f7bd939314997e29c2f5a9f0ef184281 ]
+[ Upstream commit b6f25c3b94f2aadbf5cbef954db4073614943d74 ]
 
-gma_crtc_page_flip() was holding the event_lock spinlock while calling
-crtc_funcs->mode_set_base() which takes ww_mutex.
+psb_gem_unpin() calls dma_resv_lock() but the underlying ww_mutex
+gets destroyed by drm_gem_object_release() move the
+drm_gem_object_release() call in psb_gem_free_object() to after
+the unpin to fix the below warning:
 
-The only reason to hold event_lock is to clear gma_crtc->page_flip_event
-on mode_set_base() errors.
-
-Instead unlock it after setting gma_crtc->page_flip_event and on
-errors re-take the lock and clear gma_crtc->page_flip_event it
-it is still set.
-
-This fixes the following WARN/stacktrace:
-
-[  512.122953] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:870
-[  512.123004] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1253, name: gnome-shell
-[  512.123031] preempt_count: 1, expected: 0
-[  512.123048] RCU nest depth: 0, expected: 0
-[  512.123066] INFO: lockdep is turned off.
-[  512.123080] irq event stamp: 0
-[  512.123094] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-[  512.123134] hardirqs last disabled at (0): [<ffffffff8d0ec28c>] copy_process+0x9fc/0x1de0
-[  512.123176] softirqs last  enabled at (0): [<ffffffff8d0ec28c>] copy_process+0x9fc/0x1de0
-[  512.123207] softirqs last disabled at (0): [<0000000000000000>] 0x0
-[  512.123233] Preemption disabled at:
-[  512.123241] [<0000000000000000>] 0x0
-[  512.123275] CPU: 3 PID: 1253 Comm: gnome-shell Tainted: G        W         5.19.0+ #1
-[  512.123304] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
-[  512.123323] Call Trace:
-[  512.123346]  <TASK>
-[  512.123370]  dump_stack_lvl+0x5b/0x77
-[  512.123412]  __might_resched.cold+0xff/0x13a
-[  512.123458]  ww_mutex_lock+0x1e/0xa0
-[  512.123495]  psb_gem_pin+0x2c/0x150 [gma500_gfx]
-[  512.123601]  gma_pipe_set_base+0x76/0x240 [gma500_gfx]
-[  512.123708]  gma_crtc_page_flip+0x95/0x130 [gma500_gfx]
-[  512.123808]  drm_mode_page_flip_ioctl+0x57d/0x5d0
-[  512.123897]  ? drm_mode_cursor2_ioctl+0x10/0x10
-[  512.123936]  drm_ioctl_kernel+0xa1/0x150
-[  512.123984]  drm_ioctl+0x21f/0x420
-[  512.124025]  ? drm_mode_cursor2_ioctl+0x10/0x10
-[  512.124070]  ? rcu_read_lock_bh_held+0xb/0x60
-[  512.124104]  ? lock_release+0x1ef/0x2d0
-[  512.124161]  __x64_sys_ioctl+0x8d/0xd0
-[  512.124203]  do_syscall_64+0x58/0x80
-[  512.124239]  ? do_syscall_64+0x67/0x80
-[  512.124267]  ? trace_hardirqs_on_prepare+0x55/0xe0
-[  512.124300]  ? do_syscall_64+0x67/0x80
-[  512.124340]  ? rcu_read_lock_sched_held+0x10/0x80
-[  512.124377]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  512.124411] RIP: 0033:0x7fcc4a70740f
-[  512.124442] Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 18 48 8b 44 24 18 64 48 2b 04 25 28 00 00
-[  512.124470] RSP: 002b:00007ffda73f5390 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-[  512.124503] RAX: ffffffffffffffda RBX: 000055cc9e474500 RCX: 00007fcc4a70740f
-[  512.124524] RDX: 00007ffda73f5420 RSI: 00000000c01864b0 RDI: 0000000000000009
-[  512.124544] RBP: 00007ffda73f5420 R08: 000055cc9c0b0cb0 R09: 0000000000000034
-[  512.124564] R10: 0000000000000000 R11: 0000000000000246 R12: 00000000c01864b0
-[  512.124584] R13: 0000000000000009 R14: 000055cc9df484d0 R15: 000055cc9af5d0c0
-[  512.124647]  </TASK>
+[   79.693962] ------------[ cut here ]------------
+[   79.693992] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+[   79.694015] WARNING: CPU: 0 PID: 240 at kernel/locking/mutex.c:582 __ww_mutex_lock.constprop.0+0x569/0xfb0
+[   79.694052] Modules linked in: rfcomm snd_seq_dummy snd_hrtimer qrtr bnep ath9k ath9k_common ath9k_hw snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_codec_hdmi snd_hda_intel ath3k snd_intel_dspcfg mac80211 snd_intel_sdw_acpi btusb snd_hda_codec btrtl btbcm btintel btmtk bluetooth at24 snd_hda_core snd_hwdep uvcvideo snd_seq libarc4 videobuf2_vmalloc ath videobuf2_memops videobuf2_v4l2 videobuf2_common snd_seq_device videodev acer_wmi intel_powerclamp coretemp mc snd_pcm joydev sparse_keymap ecdh_generic pcspkr wmi_bmof cfg80211 i2c_i801 i2c_smbus snd_timer snd r8169 rfkill lpc_ich soundcore acpi_cpufreq zram rtsx_pci_sdmmc mmc_core serio_raw rtsx_pci gma500_gfx(E) video wmi ip6_tables ip_tables i2c_dev fuse
+[   79.694436] CPU: 0 PID: 240 Comm: plymouthd Tainted: G        W   E      6.0.0-rc3+ #490
+[   79.694457] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
+[   79.694469] RIP: 0010:__ww_mutex_lock.constprop.0+0x569/0xfb0
+[   79.694496] Code: ff 85 c0 0f 84 15 fb ff ff 8b 05 ca 3c 11 01 85 c0 0f 85 07 fb ff ff 48 c7 c6 30 cb 84 aa 48 c7 c7 a3 e1 82 aa e8 ac 29 f8 ff <0f> 0b e9 ed fa ff ff e8 5b 83 8a ff 85 c0 74 10 44 8b 0d 98 3c 11
+[   79.694513] RSP: 0018:ffffad1dc048bbe0 EFLAGS: 00010282
+[   79.694623] RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000000
+[   79.694636] RDX: 0000000000000001 RSI: ffffffffaa8b0ffc RDI: 00000000ffffffff
+[   79.694650] RBP: ffffad1dc048bc80 R08: 0000000000000000 R09: ffffad1dc048ba90
+[   79.694662] R10: 0000000000000003 R11: ffffffffaad62fe8 R12: ffff9ff302103138
+[   79.694675] R13: ffff9ff306ec8000 R14: ffff9ff307779078 R15: ffff9ff3014c0270
+[   79.694690] FS:  00007ff1cccf1740(0000) GS:ffff9ff3bc200000(0000) knlGS:0000000000000000
+[   79.694705] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   79.694719] CR2: 0000559ecbcb4420 CR3: 0000000013210000 CR4: 00000000000006f0
+[   79.694734] Call Trace:
+[   79.694749]  <TASK>
+[   79.694761]  ? __schedule+0x47f/0x1670
+[   79.694796]  ? psb_gem_unpin+0x27/0x1a0 [gma500_gfx]
+[   79.694830]  ? lock_is_held_type+0xe3/0x140
+[   79.694864]  ? ww_mutex_lock+0x38/0xa0
+[   79.694885]  ? __cond_resched+0x1c/0x30
+[   79.694902]  ww_mutex_lock+0x38/0xa0
+[   79.694925]  psb_gem_unpin+0x27/0x1a0 [gma500_gfx]
+[   79.694964]  psb_gem_unpin+0x199/0x1a0 [gma500_gfx]
+[   79.694996]  drm_gem_object_release_handle+0x50/0x60
+[   79.695020]  ? drm_gem_object_handle_put_unlocked+0xf0/0xf0
+[   79.695042]  idr_for_each+0x4b/0xb0
+[   79.695066]  ? _raw_spin_unlock_irqrestore+0x30/0x60
+[   79.695095]  drm_gem_release+0x1c/0x30
+[   79.695118]  drm_file_free.part.0+0x1ea/0x260
+[   79.695150]  drm_release+0x6a/0x120
+[   79.695175]  __fput+0x9f/0x260
+[   79.695203]  task_work_run+0x59/0xa0
+[   79.695227]  do_exit+0x387/0xbe0
+[   79.695250]  ? seqcount_lockdep_reader_access.constprop.0+0x82/0x90
+[   79.695275]  ? lockdep_hardirqs_on+0x7d/0x100
+[   79.695304]  do_group_exit+0x33/0xb0
+[   79.695331]  __x64_sys_exit_group+0x14/0x20
+[   79.695353]  do_syscall_64+0x58/0x80
+[   79.695376]  ? up_read+0x17/0x20
+[   79.695401]  ? lock_is_held_type+0xe3/0x140
+[   79.695429]  ? asm_exc_page_fault+0x22/0x30
+[   79.695450]  ? lockdep_hardirqs_on+0x7d/0x100
+[   79.695473]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   79.695493] RIP: 0033:0x7ff1ccefe3f1
+[   79.695516] Code: Unable to access opcode bytes at RIP 0x7ff1ccefe3c7.
+[   79.695607] RSP: 002b:00007ffed4413378 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+[   79.695629] RAX: ffffffffffffffda RBX: 00007ff1cd0159e0 RCX: 00007ff1ccefe3f1
+[   79.695644] RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000000
+[   79.695656] RBP: 0000000000000000 R08: ffffffffffffff80 R09: 00007ff1cd020b20
+[   79.695671] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ff1cd0159e0
+[   79.695684] R13: 0000000000000000 R14: 00007ff1cd01aee8 R15: 00007ff1cd01af00
+[   79.695733]  </TASK>
+[   79.695746] irq event stamp: 725979
+[   79.695757] hardirqs last  enabled at (725979): [<ffffffffa9132d54>] finish_task_switch.isra.0+0xe4/0x3f0
+[   79.695780] hardirqs last disabled at (725978): [<ffffffffa9eb4113>] __schedule+0xdd3/0x1670
+[   79.695803] softirqs last  enabled at (725974): [<ffffffffa90fbc9d>] __irq_exit_rcu+0xed/0x160
+[   79.695825] softirqs last disabled at (725969): [<ffffffffa90fbc9d>] __irq_exit_rcu+0xed/0x160
+[   79.695845] ---[ end trace 0000000000000000 ]---
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-2-hdegoede@redhat.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-3-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/gma_display.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/gma500/gem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
-index 34ec3fca09ba..12287c9bb4d8 100644
---- a/drivers/gpu/drm/gma500/gma_display.c
-+++ b/drivers/gpu/drm/gma500/gma_display.c
-@@ -531,15 +531,18 @@ int gma_crtc_page_flip(struct drm_crtc *crtc,
- 		WARN_ON(drm_crtc_vblank_get(crtc) != 0);
+diff --git a/drivers/gpu/drm/gma500/gem.c b/drivers/gpu/drm/gma500/gem.c
+index dffe37490206..4b7627a72637 100644
+--- a/drivers/gpu/drm/gma500/gem.c
++++ b/drivers/gpu/drm/gma500/gem.c
+@@ -112,12 +112,12 @@ static void psb_gem_free_object(struct drm_gem_object *obj)
+ {
+ 	struct psb_gem_object *pobj = to_psb_gem_object(obj);
  
- 		gma_crtc->page_flip_event = event;
-+		spin_unlock_irqrestore(&dev->event_lock, flags);
- 
- 		/* Call this locked if we want an event at vblank interrupt. */
- 		ret = crtc_funcs->mode_set_base(crtc, crtc->x, crtc->y, old_fb);
- 		if (ret) {
--			gma_crtc->page_flip_event = NULL;
--			drm_crtc_vblank_put(crtc);
-+			spin_lock_irqsave(&dev->event_lock, flags);
-+			if (gma_crtc->page_flip_event) {
-+				gma_crtc->page_flip_event = NULL;
-+				drm_crtc_vblank_put(crtc);
-+			}
-+			spin_unlock_irqrestore(&dev->event_lock, flags);
- 		}
+-	drm_gem_object_release(obj);
 -
--		spin_unlock_irqrestore(&dev->event_lock, flags);
- 	} else {
- 		ret = crtc_funcs->mode_set_base(crtc, crtc->x, crtc->y, old_fb);
- 	}
+ 	/* Undo the mmap pin if we are destroying the object */
+ 	if (pobj->mmapping)
+ 		psb_gem_unpin(pobj);
+ 
++	drm_gem_object_release(obj);
++
+ 	WARN_ON(pobj->in_gart && !pobj->stolen);
+ 
+ 	release_resource(&pobj->resource);
 -- 
 2.35.1
 
