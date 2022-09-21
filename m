@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17A595C02D9
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:55:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED815C0300
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbiIUPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:55:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38296 "EHLO
+        id S232098AbiIUP6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:58:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232077AbiIUPyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:54:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7670F9F1A2;
-        Wed, 21 Sep 2022 08:50:30 -0700 (PDT)
+        with ESMTP id S232100AbiIUP5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:57:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE41A025A;
+        Wed, 21 Sep 2022 08:51:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29B88B830AC;
-        Wed, 21 Sep 2022 15:49:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C3FC433C1;
-        Wed, 21 Sep 2022 15:49:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 922BE6313C;
+        Wed, 21 Sep 2022 15:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E46C433D6;
+        Wed, 21 Sep 2022 15:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775395;
-        bh=PiPB3YXJpRtdxlglaBYvNy66rA4xrQRCPhLTiCXSEBE=;
+        s=korg; t=1663775491;
+        bh=/svY6D8V5JfD8BnwrmWDILcFtql5BiIckjIaZs3HME4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMH7rJDIBItpqZE/UeszK18UPErmba41DGWxpTJVpxzGqdQFgHhUIfHNWsFcPdJW3
-         1+6GQKOvnIaGkbOz5ryhCDzEtr2yhILZtNDPyZ+dsGT7CyfA2rHfeOGty2omTyaJQ6
-         DNYS1Cfouz9yE2bsXJsdSYJxaW2gET+f7sgrkXbg=
+        b=nePOkMx/r8QfHiGHtgwp5tP7kTBUL0Nb/c2+bxbpL3LL6U0SJwqHwdfWSUZAUPQ3C
+         1xAU8QU0aMvafLl9Ki7/u0swdaQHuaMGvLArEqKym8MA0ZP6v7xVr64xerz4cAU/jk
+         raW9CMEOlM7AhfPmg3ds0tuFLLYeKrcr/YL0QSGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Steven Price <steven.price@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 39/45] drm/panfrost: devfreq: set opp to the recommended one to configure regulator
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Stefan Ghinea <stefan.ghinea@windriver.com>
+Subject: [PATCH 5.10 24/39] video: fbdev: i740fb: Error out if pixclock equals zero
 Date:   Wed, 21 Sep 2022 17:46:29 +0200
-Message-Id: <20220921153648.265528220@linuxfoundation.org>
+Message-Id: <20220921153646.522403400@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-References: <20220921153646.931277075@linuxfoundation.org>
+In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
+References: <20220921153645.663680057@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Péron <peron.clem@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit d76034a427a2660b080bc155e4fd8f6393eefb48 ]
+commit 15cf0b82271b1823fb02ab8c377badba614d95d5 upstream.
 
-Enabling panfrost GPU OPP with dynamic regulator will make OPP
-responsible to enable and configure it.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-Unfortunately OPP configure and enable the regulator when an OPP
-is asked to be set, which is not the case during
-panfrost_devfreq_init().
+Fix this by checking whether 'pixclock' is zero in the function
+i740fb_check_var().
 
-This leave the regulator unconfigured and if no GPU load is
-triggered, no OPP is asked to be set which make the regulator framework
-switching it off during regulator_late_cleanup() without
-noticing and therefore make the board hang as any access to GPU
-memory space make bus locks up.
+The following log reveals it:
 
-Call dev_pm_opp_set_opp() with the recommend OPP in
-panfrost_devfreq_init() to enable the regulator, this will properly
-configure and enable the regulator and will avoid any switch off
-by regulator_late_cleanup().
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:i740fb_decode_var drivers/video/fbdev/i740fb.c:444 [inline]
+RIP: 0010:i740fb_set_par+0x272f/0x3bb0 drivers/video/fbdev/i740fb.c:739
+Call Trace:
+    fb_set_var+0x604/0xeb0 drivers/video/fbdev/core/fbmem.c:1036
+    do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1112
+    fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1191
+    vfs_ioctl fs/ioctl.c:51 [inline]
+    __do_sys_ioctl fs/ioctl.c:874 [inline]
 
-Suggested-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Clément Péron <peron.clem@gmail.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220906153034.153321-5-peron.clem@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_devfreq.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/video/fbdev/i740fb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_devfreq.c b/drivers/gpu/drm/panfrost/panfrost_devfreq.c
-index 194af7f607a6..be36dd060a2b 100644
---- a/drivers/gpu/drm/panfrost/panfrost_devfreq.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_devfreq.c
-@@ -132,6 +132,17 @@ int panfrost_devfreq_init(struct panfrost_device *pfdev)
- 		return PTR_ERR(opp);
+--- a/drivers/video/fbdev/i740fb.c
++++ b/drivers/video/fbdev/i740fb.c
+@@ -662,6 +662,9 @@ static int i740fb_decode_var(const struc
  
- 	panfrost_devfreq_profile.initial_freq = cur_freq;
+ static int i740fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ {
++	if (!var->pixclock)
++		return -EINVAL;
 +
-+	/*
-+	 * Set the recommend OPP this will enable and configure the regulator
-+	 * if any and will avoid a switch off by regulator_late_cleanup()
-+	 */
-+	ret = dev_pm_opp_set_opp(dev, opp);
-+	if (ret) {
-+		DRM_DEV_ERROR(dev, "Couldn't set recommended OPP\n");
-+		return ret;
-+	}
-+
- 	dev_pm_opp_put(opp);
- 
- 	/*
--- 
-2.35.1
-
+ 	switch (var->bits_per_pixel) {
+ 	case 8:
+ 		var->red.offset	= var->green.offset = var->blue.offset = 0;
 
 
