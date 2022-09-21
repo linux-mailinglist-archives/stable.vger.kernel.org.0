@@ -2,146 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 113635BF932
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 10:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4776F5BF96A
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 10:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229624AbiIUI2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 04:28:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51446 "EHLO
+        id S231248AbiIUIgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 04:36:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229825AbiIUI1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 04:27:53 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7055B8307A;
-        Wed, 21 Sep 2022 01:27:42 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id lc7so12041924ejb.0;
-        Wed, 21 Sep 2022 01:27:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=7heNxsmzeCJMCboW48gJRU3lnBaNyKK1ZKFS0gVn9ig=;
-        b=arZwDiUxQVi/fGwGijH/ZarWMhsOVcu0w3XVgeXboS5WqHpRqZG9NuGCasNoSXgHmC
-         /+dK1wqAXgKr8YJWCb1rEHU69VA+IvZzyBCqzBDob+P16PpsefR/vagip1beUkE2OLoc
-         z6WeCQFZ1ToLfjpg9EqTA25iFJRebWUKO7aoIRCOqA6Y5T6ATTptL7akffSQOHfnV6Qb
-         kYmq5x9bfZMXhOWkilm17aBup2nPqArAykkoJc0FS03OxCcdFGnPfJe94NmrNEilDL/9
-         e6KOsZGCl1ZLk5ToIwV0lhIuecRHBQRnSzk3cT87TaClgvFIoiEfCYyf2Lf1IO/2bNHH
-         cZOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=7heNxsmzeCJMCboW48gJRU3lnBaNyKK1ZKFS0gVn9ig=;
-        b=RGV4uJo1kNvIh5UpkK3CFuTdBZLWACRmzndHE8Fq8svaUVcRvPD+UQMFwWVkYorvPF
-         ELGQ45G8ltz/m3/NdLuirGp1LTPBXF08ZbaDuHi2JewDx8morumBfYowjrWIMKDTBirg
-         VEB/Rb3cDgyWjdEP5GCWD5kvwvDihmdm/sdam3r1Guc9qMgauY4VFOHO/5BKYDNvRqPf
-         macy/apqAjo0+pZX0AN7hhXCho8Xcx1FWMr3RHBwHpuDBTE70N3PjKqzmXnDY9pAsQvi
-         dd7AM1zfcMwBs06XmGYKzeUlm1Vrif5MvuYXIcybURqsLctp8+8BXF12DEpPYkpOEkxW
-         8SOA==
-X-Gm-Message-State: ACrzQf3ja7FDtqdZWaAY3XmAkkXQ1Z5p+fisMxQIjNhjtEqyvA86ig7A
-        tITj8kyot7nLqaRKdBG3KOZAwPXQTrs=
-X-Google-Smtp-Source: AMsMyM7I/KS1GvOaN+r07SgivcB9KHzApPg7eWvpRorPUgnciuXPb8/PrYFEGBxgN42fIT1LmhqMYg==
-X-Received: by 2002:a17:906:4548:b0:77d:3c16:2e9b with SMTP id s8-20020a170906454800b0077d3c162e9bmr20331873ejq.757.1663748860419;
-        Wed, 21 Sep 2022 01:27:40 -0700 (PDT)
-Received: from localhost (212.191.202.62.dynamic.cgnat.res.cust.swisscom.ch. [62.202.191.212])
-        by smtp.gmail.com with ESMTPSA id b1-20020a1709063ca100b0077fbef08212sm1015635ejh.22.2022.09.21.01.27.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Sep 2022 01:27:39 -0700 (PDT)
-From:   Kumar Kartikeya Dwivedi <memxor@gmail.com>
-To:     bpf@vger.kernel.org
-Cc:     stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Joanne Koong <joannelkoong@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH bpf] bpf: Gate dynptr API behind CAP_BPF
-Date:   Wed, 21 Sep 2022 10:27:38 +0200
-Message-Id: <20220921082738.7938-1-memxor@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S231174AbiIUIgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 04:36:18 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02177832FF
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 01:36:16 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1oavDK-0000Tb-Dq
+        for stable@vger.kernel.org; Wed, 21 Sep 2022 10:36:14 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id DFA67E858F
+        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 08:36:12 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id B2F41E8572;
+        Wed, 21 Sep 2022 08:36:10 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 046baafd;
+        Wed, 21 Sep 2022 08:36:10 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thorsten Scherer <t.scherer@eckelmann.de>
+Subject: [PATCH net 1/3] can: flexcan: flexcan_mailbox_read() fix return value for drop = true
+Date:   Wed, 21 Sep 2022 10:36:07 +0200
+Message-Id: <20220921083609.419768-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220921083609.419768-1-mkl@pengutronix.de>
+References: <20220921083609.419768-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2632; i=memxor@gmail.com; h=from:subject; bh=DCkrIGzoXk6j2Jta3oGROnjii8WwNZfXOBF07njClLc=; b=owEBbQKS/ZANAwAKAUzgyIZIvxHKAcsmYgBjKsqJf/tZiyCRF/E4lP3QXyRX4+O9TJAmmqJUL/Si ftl9+t+JAjMEAAEKAB0WIQRLvip+Buz51YI8YRFM4MiGSL8RygUCYyrKiQAKCRBM4MiGSL8RyjlmD/ sHY0q/AkIs/YYZqRk3Uu2E1qJ2RRe1amJ2+cI8/EiPIw2dm4wKwkkJJJxBiKUekK2kHIc47U2xW/w2 OdZ0g/a1j4ke+05+DM3mE9N9vbL5JYSn8CIx4WywLKpT6HKCsFnr43B0DCiAXBLM9+6xCpFA/Bu+ww GHWb/khTEZ9ashht8G61U81Kh8plRbrexxjzbRIftlkSg5z+au7fsOeICzA88Oj098eQFH8LmaaKUT AMRNKl2YzIVnsobA1uFJdqxeusDKH6E0gRQR1beXVNIxDjuNLrivXQhFZ+K7mxh3wDmFkKs/r8xdvV gZcshoQhRRLErX0aXXx+QeplhS/ov+5DhVNEy0/Hves9SDEMVuAKGI1Fu9/o8RECBtAw3boB6SAk3r BOOnxZXK+qJDsULvKIys6NMKsBD+j6POnWQoopMF0GxGRRUXCYz8pYU+gQw8rw5V5MraovuBOOtkhe qRyWU/soOdQ3IUPFV03T68pOkpXqFn0mWts3cRgRYoveknI+V4yQ372d7yTZnPbGVS4CmMRWkhyEg4 ALOVzInIawfASh08H+1oekxNdRKpKT73xdJiZxQKh4qmHDgXp7XdTx/3SRb1MIAWrV5XkRsy/wBuT8 pezthitU+rVrjdPddwWaeR8C3S5LAiBh0Yd4XGH6lW3YANj7SSf3zmqazKmg==
-X-Developer-Key: i=memxor@gmail.com; a=openpgp; fpr=4BBE2A7E06ECF9D5823C61114CE0C88648BF11CA
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This has been enabled for unprivileged programs for only one kernel
-release, hence the expected annoyances due to this move are low. Users
-using ringbuf can stick to non-dynptr APIs. The actual use cases dynptr
-is meant to serve may not make sense in unprivileged BPF programs.
+The following happened on an i.MX25 using flexcan with many packets on
+the bus:
 
-Hence, gate these helpers behind CAP_BPF and limit use to privileged
-BPF programs.
+The rx-offload queue reached a length more than skb_queue_len_max. In
+can_rx_offload_offload_one() the drop variable was set to true which
+made the call to .mailbox_read() (here: flexcan_mailbox_read()) to
+_always_ return ERR_PTR(-ENOBUFS) and drop the rx'ed CAN frame. So
+can_rx_offload_offload_one() returned ERR_PTR(-ENOBUFS), too.
 
-Fixes: 263ae152e962 ("bpf: Add bpf_dynptr_from_mem for local dynptrs")
-Fixes: bc34dee65a65 ("bpf: Dynptr support for ring buffers")
-Fixes: 13bbbfbea759 ("bpf: Add bpf_dynptr_read and bpf_dynptr_write")
-Fixes: 34d4ef5775f7 ("bpf: Add dynptr data slices")
-Cc: stable@vger.kernel.org # v5.19+
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+can_rx_offload_irq_offload_fifo() looks as follows:
+
+| 	while (1) {
+| 		skb = can_rx_offload_offload_one(offload, 0);
+| 		if (IS_ERR(skb))
+| 			continue;
+| 		if (!skb)
+| 			break;
+| 		...
+| 	}
+
+The flexcan driver wrongly always returns ERR_PTR(-ENOBUFS) if drop is
+requested, even if there is no CAN frame pending. As the i.MX25 is a
+single core CPU, while the rx-offload processing is active, there is
+no thread to process packets from the offload queue. So the queue
+doesn't get any shorter and this results is a tight loop.
+
+Instead of always returning ERR_PTR(-ENOBUFS) if drop is requested,
+return NULL if no CAN frame is pending.
+
+Changes since v1: https://lore.kernel.org/all/20220810144536.389237-1-u.kleine-koenig@pengutronix.de
+- don't break in can_rx_offload_irq_offload_fifo() in case of an error,
+  return NULL in flexcan_mailbox_read() in case of no pending CAN frame
+  instead
+
+Fixes: 4e9c9484b085 ("can: rx-offload: Prepare for CAN FD support")
+Link: https://lore.kernel.org/all/20220811094254.1864367-1-mkl@pengutronix.de
+Cc: stable@vger.kernel.org # v5.5
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Tested-by: Thorsten Scherer <t.scherer@eckelmann.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- kernel/bpf/helpers.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/net/can/flexcan/flexcan-core.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
-index 41aeaf3862ec..f57a08b6dddb 100644
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -1607,26 +1607,12 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 		return &bpf_ringbuf_discard_proto;
- 	case BPF_FUNC_ringbuf_query:
- 		return &bpf_ringbuf_query_proto;
--	case BPF_FUNC_ringbuf_reserve_dynptr:
--		return &bpf_ringbuf_reserve_dynptr_proto;
--	case BPF_FUNC_ringbuf_submit_dynptr:
--		return &bpf_ringbuf_submit_dynptr_proto;
--	case BPF_FUNC_ringbuf_discard_dynptr:
--		return &bpf_ringbuf_discard_dynptr_proto;
- 	case BPF_FUNC_strncmp:
- 		return &bpf_strncmp_proto;
- 	case BPF_FUNC_strtol:
- 		return &bpf_strtol_proto;
- 	case BPF_FUNC_strtoul:
- 		return &bpf_strtoul_proto;
--	case BPF_FUNC_dynptr_from_mem:
--		return &bpf_dynptr_from_mem_proto;
--	case BPF_FUNC_dynptr_read:
--		return &bpf_dynptr_read_proto;
--	case BPF_FUNC_dynptr_write:
--		return &bpf_dynptr_write_proto;
--	case BPF_FUNC_dynptr_data:
--		return &bpf_dynptr_data_proto;
- 	default:
- 		break;
+diff --git a/drivers/net/can/flexcan/flexcan-core.c b/drivers/net/can/flexcan/flexcan-core.c
+index f857968efed7..ccb438eca517 100644
+--- a/drivers/net/can/flexcan/flexcan-core.c
++++ b/drivers/net/can/flexcan/flexcan-core.c
+@@ -941,11 +941,6 @@ static struct sk_buff *flexcan_mailbox_read(struct can_rx_offload *offload,
+ 	u32 reg_ctrl, reg_id, reg_iflag1;
+ 	int i;
+ 
+-	if (unlikely(drop)) {
+-		skb = ERR_PTR(-ENOBUFS);
+-		goto mark_as_read;
+-	}
+-
+ 	mb = flexcan_get_mb(priv, n);
+ 
+ 	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX) {
+@@ -974,6 +969,11 @@ static struct sk_buff *flexcan_mailbox_read(struct can_rx_offload *offload,
+ 		reg_ctrl = priv->read(&mb->can_ctrl);
  	}
-@@ -1659,6 +1645,20 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 		return &bpf_for_each_map_elem_proto;
- 	case BPF_FUNC_loop:
- 		return &bpf_loop_proto;
-+	case BPF_FUNC_ringbuf_reserve_dynptr:
-+		return &bpf_ringbuf_reserve_dynptr_proto;
-+	case BPF_FUNC_ringbuf_submit_dynptr:
-+		return &bpf_ringbuf_submit_dynptr_proto;
-+	case BPF_FUNC_ringbuf_discard_dynptr:
-+		return &bpf_ringbuf_discard_dynptr_proto;
-+	case BPF_FUNC_dynptr_from_mem:
-+		return &bpf_dynptr_from_mem_proto;
-+	case BPF_FUNC_dynptr_read:
-+		return &bpf_dynptr_read_proto;
-+	case BPF_FUNC_dynptr_write:
-+		return &bpf_dynptr_write_proto;
-+	case BPF_FUNC_dynptr_data:
-+		return &bpf_dynptr_data_proto;
- 	default:
- 		break;
- 	}
---
-2.34.1
+ 
++	if (unlikely(drop)) {
++		skb = ERR_PTR(-ENOBUFS);
++		goto mark_as_read;
++	}
++
+ 	if (reg_ctrl & FLEXCAN_MB_CNT_EDL)
+ 		skb = alloc_canfd_skb(offload->dev, &cfd);
+ 	else
+
+base-commit: 6a1dbfefdae4f7809b3e277cc76785dac0ac1cd0
+-- 
+2.35.1
+
 
