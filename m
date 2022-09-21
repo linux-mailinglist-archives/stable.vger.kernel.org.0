@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA9785C0256
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107E35C032E
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbiIUPvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51712 "EHLO
+        id S232127AbiIUQAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:00:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231630AbiIUPvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:51:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E35429E6BD;
-        Wed, 21 Sep 2022 08:48:54 -0700 (PDT)
+        with ESMTP id S232484AbiIUP7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:59:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 692EFA2235;
+        Wed, 21 Sep 2022 08:53:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34CCDB830A2;
-        Wed, 21 Sep 2022 15:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DB76C433D6;
-        Wed, 21 Sep 2022 15:48:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77C6B6312C;
+        Wed, 21 Sep 2022 15:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735F6C433D6;
+        Wed, 21 Sep 2022 15:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775294;
-        bh=WqbU4bRX8dq5JfsA1AgVgblRWyx1f/Vw5GJBaC3Mdaw=;
+        s=korg; t=1663775499;
+        bh=dFE3C9ghUTZrYZYjoc5fWsVgl4ell7HANJEgLZfMXtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVPqRIh5Mvo7bjF3FAgoOVdKrAPZxxRglT8RsT0R8QtGzEfVq6kzUk9R7iyf49FEY
-         VXhTzMbNxj7UEddi+Klbcu2LEP2sTgawvzq/qntS3YlelHwcK29ia8e8C0n0WS1GlO
-         tSpe71/yZP+GybuYEFPwAXsFcxEnBjj9/L0ZK01c=
+        b=0neogc8ALkdodamaftvcG6sd7g7AIWa5fOE7NQntT3M7OamEUxPsIoIrBDEKJncYS
+         0XqKaB6EH5N+YxokiwLl7b0lyR639NudYD3f5JoWcI1vk5YiIt5KOCbeKZEDPHNJh4
+         JKaLZfKxBSdZwSP6ZDaxGJI0ckA5dSiOY8W6KCkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.19 24/38] cifs: always initialize struct msghdr smb_msg completely
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 03/39] serial: 8250: Fix reporting real baudrate value in c_ospeed field
 Date:   Wed, 21 Sep 2022 17:46:08 +0200
-Message-Id: <20220921153647.023752565@linuxfoundation.org>
+Message-Id: <20220921153645.815577016@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
+References: <20220921153645.663680057@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit bedc8f76b3539ac4f952114b316bcc2251e808ce upstream.
+[ Upstream commit 32262e2e429cdb31f9e957e997d53458762931b7 ]
 
-So far we were just lucky because the uninitialized members
-of struct msghdr are not used by default on a SOCK_STREAM tcp
-socket.
+In most cases it is not possible to set exact baudrate value to hardware.
 
-But as new things like msg_ubuf and sg_from_iter where added
-recently, we should play on the safe side and avoid potention
-problems in future.
+So fix reporting real baudrate value which was set to hardware via c_ospeed
+termios field. It can be retrieved by ioctl(TCGETS2) from userspace.
 
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Real baudrate value is calculated from chosen hardware divisor and base
+clock. It is implemented in a new function serial8250_compute_baud_rate()
+which is inverse of serial8250_get_divisor() function.
+
+With this change is fixed also UART timeout value (it is updated via
+uart_update_timeout() function), which is calculated from the now fixed
+baudrate value too.
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20210927093704.19768-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c   |   11 +++--------
- fs/cifs/transport.c |    6 +-----
- 2 files changed, 4 insertions(+), 13 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -707,9 +707,6 @@ cifs_readv_from_socket(struct TCP_Server
- 	int length = 0;
- 	int total_read;
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 9d60418e4adb..eaf4eb33a78d 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2547,6 +2547,19 @@ static unsigned int serial8250_get_divisor(struct uart_port *port,
+ 	return serial8250_do_get_divisor(port, baud, frac);
+ }
  
--	smb_msg->msg_control = NULL;
--	smb_msg->msg_controllen = 0;
--
- 	for (total_read = 0; msg_data_left(smb_msg); total_read += length) {
- 		try_to_freeze();
- 
-@@ -765,7 +762,7 @@ int
- cifs_read_from_socket(struct TCP_Server_Info *server, char *buf,
- 		      unsigned int to_read)
++static unsigned int serial8250_compute_baud_rate(struct uart_port *port,
++						 unsigned int quot)
++{
++	if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8001)
++		return port->uartclk / 4;
++	else if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8002)
++		return port->uartclk / 8;
++	else if (port->type == PORT_NPCM)
++		return DIV_ROUND_CLOSEST(port->uartclk - 2 * (quot + 2), 16 * (quot + 2));
++	else
++		return DIV_ROUND_CLOSEST(port->uartclk, 16 * quot);
++}
++
+ static unsigned char serial8250_compute_lcr(struct uart_8250_port *up,
+ 					    tcflag_t c_cflag)
  {
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
- 	struct kvec iov = {.iov_base = buf, .iov_len = to_read};
- 	iov_iter_kvec(&smb_msg.msg_iter, READ, &iov, 1, to_read);
+@@ -2688,11 +2701,14 @@ void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
  
-@@ -775,15 +772,13 @@ cifs_read_from_socket(struct TCP_Server_
- ssize_t
- cifs_discard_from_socket(struct TCP_Server_Info *server, size_t to_read)
- {
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
+ 	baud = serial8250_get_baud_rate(port, termios, NULL);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
++	baud = serial8250_compute_baud_rate(port, quot);
+ 
+ 	serial8250_rpm_get(up);
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
+ 	uart_update_timeout(port, termios->c_cflag, baud);
++	if (tty_termios_baud_rate(termios))
++		tty_termios_encode_baud_rate(termios, baud, baud);
+ 
+ 	serial8250_set_divisor(port, baud, quot, frac);
+ 	serial_port_out(port, UART_LCR, up->lcr);
+@@ -2726,6 +2742,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
+ 
+ 	baud = serial8250_get_baud_rate(port, termios, old);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
++	baud = serial8250_compute_baud_rate(port, quot);
  
  	/*
- 	 *  iov_iter_discard already sets smb_msg.type and count and iov_offset
- 	 *  and cifs_readv_from_socket sets msg_control and msg_controllen
- 	 *  so little to initialize in struct msghdr
- 	 */
--	smb_msg.msg_name = NULL;
--	smb_msg.msg_namelen = 0;
- 	iov_iter_discard(&smb_msg.msg_iter, READ, to_read);
- 
- 	return cifs_readv_from_socket(server, &smb_msg);
-@@ -793,7 +788,7 @@ int
- cifs_read_page_from_socket(struct TCP_Server_Info *server, struct page *page,
- 	unsigned int page_offset, unsigned int to_read)
- {
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
- 	struct bio_vec bv = {
- 		.bv_page = page, .bv_len = to_read, .bv_offset = page_offset};
- 	iov_iter_bvec(&smb_msg.msg_iter, READ, &bv, 1, to_read);
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -196,10 +196,6 @@ smb_send_kvec(struct TCP_Server_Info *se
- 
- 	*sent = 0;
- 
--	smb_msg->msg_name = NULL;
--	smb_msg->msg_namelen = 0;
--	smb_msg->msg_control = NULL;
--	smb_msg->msg_controllen = 0;
- 	if (server->noblocksnd)
- 		smb_msg->msg_flags = MSG_DONTWAIT + MSG_NOSIGNAL;
- 	else
-@@ -311,7 +307,7 @@ __smb_send_rqst(struct TCP_Server_Info *
- 	sigset_t mask, oldmask;
- 	size_t total_len = 0, sent, size;
- 	struct socket *ssocket = server->ssocket;
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
- 	__be32 rfc1002_marker;
- 
- 	if (cifs_rdma_enabled(server)) {
+ 	 * Ok, we're now changing the port state.  Do it with
+-- 
+2.35.1
+
 
 
