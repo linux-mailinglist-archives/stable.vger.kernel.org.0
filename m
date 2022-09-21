@@ -2,82 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14AB95BF5CE
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 07:10:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA715BF610
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 08:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbiIUFKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 01:10:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46522 "EHLO
+        id S229490AbiIUGIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 02:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229522AbiIUFKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 01:10:47 -0400
-Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B833A78BC6;
-        Tue, 20 Sep 2022 22:10:46 -0700 (PDT)
-Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id 544DC72C90B;
-        Wed, 21 Sep 2022 08:10:45 +0300 (MSK)
-Received: from altlinux.org (sole.flsd.net [185.75.180.6])
-        by imap.altlinux.org (Postfix) with ESMTPSA id 3EC6D4A4826;
-        Wed, 21 Sep 2022 08:10:45 +0300 (MSK)
-Date:   Wed, 21 Sep 2022 08:10:45 +0300
-From:   Vitaly Chikunov <vt@altlinux.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.15 22/41] video: fbdev: pxa3xx-gcu: Fix integer
- overflow in pxa3xx_gcu_write
-Message-ID: <20220921051045.dqnivsbrigwqlkan@altlinux.org>
-References: <20220628022100.595243-1-sashal@kernel.org>
- <20220628022100.595243-22-sashal@kernel.org>
- <20220919082143.g4gn5ssbzolnc57b@altlinux.org>
- <YyjsKkg+qG5ieCAC@sashalap>
+        with ESMTP id S229496AbiIUGIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 02:08:48 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08407C1CA
+        for <stable@vger.kernel.org>; Tue, 20 Sep 2022 23:08:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663740526; x=1695276526;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=6EnqeurB9knvf7hjHnRGpP20ctHeBAKLCwcD/QCEq+s=;
+  b=I8r6t6a7xwqYoi9AlZiU6NdlL/2tIqFcBU8Y1LS3a/8rGiAYkuIeSDDd
+   9iAPmQvOUk8e8GNI8uYaPuU/sSyaiXGAo+dQggkXY4+8shDy3sCce8148
+   BQQR3eoisTZ1NM1Tnut1KcTSMp4b/DoQ6x5AKCAkQBmq/7RXtfDXBX8pP
+   76qPtTRvEmcqs5/KQ6xE5rbdE5N/apny25qcxjR8688aA8VXt3y6T+0Pj
+   ZH5MynVOYf62NCiNzjLRSbfhS3drYKHsiRh3fLl34OpQvf9INMOoLokBC
+   JRADmepdW5oNgzF2YoJrOF+6r28NxYd3KwRP0G+oYaUYfX4fI1DzpO0wr
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10476"; a="298629967"
+X-IronPort-AV: E=Sophos;i="5.93,332,1654585200"; 
+   d="scan'208";a="298629967"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2022 23:08:46 -0700
+X-IronPort-AV: E=Sophos;i="5.93,332,1654585200"; 
+   d="scan'208";a="649914489"
+Received: from jzha151-mobl1.ccr.corp.intel.com (HELO [10.254.208.217]) ([10.254.208.217])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2022 23:08:44 -0700
+Message-ID: <de65f9ae-dd74-3f70-35c7-861832a1de7b@linux.intel.com>
+Date:   Wed, 21 Sep 2022 14:08:42 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <YyjsKkg+qG5ieCAC@sashalap>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Cc:     baolu.lu@linux.intel.com, kevin.tian@intel.com, baolu.lu@intel.com,
+        raghunathan.srinivasan@intel.com, iommu@lists.linux.dev,
+        joro@8bytes.org, will@kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] iommu/vt-d: Check correct capability for sagaw
+ determination
+Content-Language: en-US
+To:     Yi Liu <yi.l.liu@intel.com>
+References: <20220916071212.2223869-1-yi.l.liu@intel.com>
+ <20220916071212.2223869-2-yi.l.liu@intel.com>
+ <a5f2141a-d819-20de-1e6c-b9e93323998a@linux.intel.com>
+ <23d38de5-3aab-3fe7-2b17-cbf1ab8d6cab@intel.com>
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <23d38de5-3aab-3fe7-2b17-cbf1ab8d6cab@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha,
-
-On Mon, Sep 19, 2022 at 06:24:42PM -0400, Sasha Levin wrote:
-> On Mon, Sep 19, 2022 at 11:21:43AM +0300, Vitaly Chikunov wrote:
-> > On Mon, Jun 27, 2022 at 10:20:41PM -0400, Sasha Levin wrote:
-> > > From: Hyunwoo Kim <imv4bel@gmail.com>
-> > > 
-> > > [ Upstream commit a09d2d00af53b43c6f11e6ab3cb58443c2cac8a7 ]
-> > > 
-> > > In pxa3xx_gcu_write, a count parameter of type size_t is passed to words of
-> > > type int.  Then, copy_from_user() may cause a heap overflow because it is used
-> > > as the third argument of copy_from_user().
-> > 
-> > Why this commit is still not in the stable branches?
+On 2022/9/21 11:35, Yi Liu wrote:
+> On 2022/9/21 10:44, Baolu Lu wrote:
+>> On 9/16/22 3:12 PM, Yi Liu wrote:
+>>> Check 5-level paging capability for 57 bits address width instead of
+>>> checking 1GB large page capability.
+>>>
+>>> Fixes: 53fc7ad6edf2 ("iommu/vt-d: Correctly calculate sagaw value of 
+>>> IOMMU")
+>>> Cc:stable@vger.kernel.org
+>>> Reported-by: Raghunathan Srinivasan<raghunathan.srinivasan@intel.com>
+>>> Signed-off-by: Yi Liu<yi.l.liu@intel.com>
+>>
+>> Queued for v6.0. Thank you very much!
+>>
+>> https://lore.kernel.org/linux-iommu/20220921024054.3570256-1-baolu.lu@linux.intel.com
 > 
-> Mostly because it's not tagged for stable.
+> grt. btw. how about below? not sure why it didn't show up in this 
+> series. 🙁
 > 
-> But really, looks like I've missed a batch a few months ago, I can push
-> it for the next release cycle.
-> 
-> > Isn't this is the fix for CVE-2022-39842[1]?
-> 
-> How the heck did this thing get a CVE?
+> https://lore.kernel.org/linux-iommu/BN9PR11MB5276F062B5C0C08F10EFB49F8C4C9@BN9PR11MB5276.namprd11.prod.outlook.com/
 
-More than that, they also assign high severity score to it:
-  CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+This is not a fix. I will queue it for v6.1-rc1 later.
 
-  Confidentiality Impact (C)  High
-  Integrity Impact (I)        High
-  Availability Impact (A)     High
-
-Thanks,
-
-> 
-> -- 
-> Thanks,
-> Sasha
+Best regards,
+baolu
