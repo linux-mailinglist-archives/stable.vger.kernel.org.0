@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 481365C021C
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3DC85C02B4
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231582AbiIUPsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:48:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50478 "EHLO
+        id S231868AbiIUPyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231645AbiIUPrh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:47:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3ABE80F5C;
-        Wed, 21 Sep 2022 08:47:19 -0700 (PDT)
+        with ESMTP id S232023AbiIUPx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:53:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3892F9F0F4;
+        Wed, 21 Sep 2022 08:50:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F130B830A3;
-        Wed, 21 Sep 2022 15:47:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4461FC433B5;
-        Wed, 21 Sep 2022 15:47:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E6D63147;
+        Wed, 21 Sep 2022 15:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6E2C433D6;
+        Wed, 21 Sep 2022 15:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775236;
-        bh=yNHMkSLrb9vN/yMd9ISBZTSflWXS1fggNsB3gjeKxJM=;
+        s=korg; t=1663775358;
+        bh=Jxgrg6W4341DNVv5KQzE6tPsH4Ks3+HSQEmFwxDq8PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDwao/qTEIkc3ToyMIcRjINEjHTLFBN6iUFihHBOEyTIpRkO/aEv7c9if9AWIhOM4
-         uyogsabjUCdJK/54HO5IYIi3acAREoiUMqYeaANTYM0hmQ02u4k0YySHHQKAahE1qK
-         piHxqfFmueJU4fVkMzp7Xb85/NdBmefJRPzK0J4k=
+        b=I66HeRiDM871liZ2cP+GMQUkiibdyJPOFRidi7XI41XkXCGUWfwvs+RpEThsE+dzP
+         roa49Fgs1Zqu34bBTmeD68e/r3sQccCP6aWOWMp+ExfFTrAoD7Ci9um29pjDolXeMy
+         Txa6kJcd3pXnUAQNixTTRIEg/6vQR1SSwvgesQtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yue Cui <cuiyue-fnst@fujitsu.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Richard Genoud <richard.genoud@gmail.com>,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 09/38] NFSv4.2: Update mode bits after ALLOCATE and DEALLOCATE
+Subject: [PATCH 5.15 03/45] serial: atmel: remove redundant assignment in rs485_config
 Date:   Wed, 21 Sep 2022 17:45:53 +0200
-Message-Id: <20220921153646.597985540@linuxfoundation.org>
+Message-Id: <20220921153647.034378740@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-References: <20220921153646.298361220@linuxfoundation.org>
+In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
+References: <20220921153646.931277075@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,121 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-[ Upstream commit d7a5118635e725d195843bda80cc5c964d93ef31 ]
+[ Upstream commit 60efd0513916f195dd85bfbf21653f74f9ab019c ]
 
-The fallocate call invalidates suid and sgid bits as part of normal
-operation. We need to mark the mode bits as invalid when using fallocate
-with an suid so these will be updated the next time the user looks at them.
+In uart_set_rs485_config() the serial core already assigns the passed
+serial_rs485 struct to the uart port.
 
-This fixes xfstests generic/683 and generic/684.
+So remove the assignment from the drivers rs485_config() function to avoid
+redundancy.
 
-Reported-by: Yue Cui <cuiyue-fnst@fujitsu.com>
-Fixes: 913eca1aea87 ("NFS: Fallocate should use the nfs4_fattr_bitmap")
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Acked-by: Richard Genoud <richard.genoud@gmail.com>
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Link: https://lore.kernel.org/r/20220410104642.32195-10-LinoSanfilippo@gmx.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 692a8ebcfc24 ("tty: serial: atmel: Preserve previous USART mode if RS485 disabled")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/internal.h  | 25 +++++++++++++++++++++++++
- fs/nfs/nfs42proc.c |  9 +++++++--
- fs/nfs/write.c     | 25 -------------------------
- 3 files changed, 32 insertions(+), 27 deletions(-)
+ drivers/tty/serial/atmel_serial.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 8f8cd6e2d4db..597e3ce3f148 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -604,6 +604,31 @@ static inline gfp_t nfs_io_gfp_mask(void)
- 	return GFP_KERNEL;
- }
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index dd350c590880..92383c8610ee 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -298,11 +298,9 @@ static int atmel_config_rs485(struct uart_port *port,
+ 	/* Resetting serial mode to RS232 (0x0) */
+ 	mode &= ~ATMEL_US_USMODE;
  
-+/*
-+ * Special version of should_remove_suid() that ignores capabilities.
-+ */
-+static inline int nfs_should_remove_suid(const struct inode *inode)
-+{
-+	umode_t mode = inode->i_mode;
-+	int kill = 0;
-+
-+	/* suid always must be killed */
-+	if (unlikely(mode & S_ISUID))
-+		kill = ATTR_KILL_SUID;
-+
-+	/*
-+	 * sgid without any exec bits is just a mandatory locking mark; leave
-+	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
-+	 */
-+	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
-+		kill |= ATTR_KILL_SGID;
-+
-+	if (unlikely(kill && S_ISREG(mode)))
-+		return kill;
-+
-+	return 0;
-+}
-+
- /* unlink.c */
- extern struct rpc_task *
- nfs_async_rename(struct inode *old_dir, struct inode *new_dir,
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 068c45b3bc1a..6dab9e408372 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -78,10 +78,15 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
- 
- 	status = nfs4_call_sync(server->client, server, msg,
- 				&args.seq_args, &res.seq_res, 0);
--	if (status == 0)
-+	if (status == 0) {
-+		if (nfs_should_remove_suid(inode)) {
-+			spin_lock(&inode->i_lock);
-+			nfs_set_cache_invalid(inode, NFS_INO_INVALID_MODE);
-+			spin_unlock(&inode->i_lock);
-+		}
- 		status = nfs_post_op_update_inode_force_wcc(inode,
- 							    res.falloc_fattr);
+-	port->rs485 = *rs485conf;
 -
-+	}
- 	if (msg->rpc_proc == &nfs4_procedures[NFSPROC4_CLNT_ALLOCATE])
- 		trace_nfs4_fallocate(inode, &args, status);
- 	else
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 5d7e1c206184..4212473c69ee 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1497,31 +1497,6 @@ void nfs_commit_prepare(struct rpc_task *task, void *calldata)
- 	NFS_PROTO(data->inode)->commit_rpc_prepare(task, data);
- }
- 
--/*
-- * Special version of should_remove_suid() that ignores capabilities.
-- */
--static int nfs_should_remove_suid(const struct inode *inode)
--{
--	umode_t mode = inode->i_mode;
--	int kill = 0;
--
--	/* suid always must be killed */
--	if (unlikely(mode & S_ISUID))
--		kill = ATTR_KILL_SUID;
--
--	/*
--	 * sgid without any exec bits is just a mandatory locking mark; leave
--	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
--	 */
--	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
--		kill |= ATTR_KILL_SGID;
--
--	if (unlikely(kill && S_ISREG(mode)))
--		return kill;
--
--	return 0;
--}
--
- static void nfs_writeback_check_extend(struct nfs_pgio_header *hdr,
- 		struct nfs_fattr *fattr)
- {
+ 	if (rs485conf->flags & SER_RS485_ENABLED) {
+ 		dev_dbg(port->dev, "Setting UART to RS485\n");
+-		if (port->rs485.flags & SER_RS485_RX_DURING_TX)
++		if (rs485conf->flags & SER_RS485_RX_DURING_TX)
+ 			atmel_port->tx_done_mask = ATMEL_US_TXRDY;
+ 		else
+ 			atmel_port->tx_done_mask = ATMEL_US_TXEMPTY;
 -- 
 2.35.1
 
