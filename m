@@ -2,147 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6F015C01D1
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7E55C01BF
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 17:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbiIUPk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 11:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
+        id S229767AbiIUPio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 11:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230487AbiIUPkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:40:02 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58CA29A69A
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 08:38:08 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id k10so9879605lfm.4
-        for <stable@vger.kernel.org>; Wed, 21 Sep 2022 08:38:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=4fyDdd6hcvCfFZT9i19QE30bk4gB/G2w/iEESMxgbKA=;
-        b=svch8Vd6r5prc+EGUm5IRQ9iK6HudwOgs+E0/t3t6ZepH24yrJ3rb2q47vhpC/hSa5
-         eePSlz7Zb9Lw/5kBu1F+jrYiKW7u52M1oCGfMoxtxNcI7w52YP4ggol4vHs61087fQPn
-         zkxiUfstNdQLdKfuWntvkdn1pHs/VU98DT/nkc+fv9e+Ftq30wa8TJirz10+nLEQ2ViN
-         klJweBcRNlRpLGskSeJfL+qoawD1pAP/J3TUiQ+9G8AWEAWBch5rrkVYmw3a4n8m7z8D
-         Lw/hWf8MxPimo84973uQKVzW4JGaWScCmK/FaP7kjWGNqXvuYj0rKOpgn5Uy4E/17WQD
-         3YnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=4fyDdd6hcvCfFZT9i19QE30bk4gB/G2w/iEESMxgbKA=;
-        b=sjHqWyQQ64Xo1XF/K4ec3SzSsKLzU3tQW9xFBoS8n5p2XF8e7ZW4UdvZNuk3C10eOP
-         e4dLgQPBG0J/aqwXrQehz36vptDD+t1YFB/WQ1b+d3x0rAdT+dq46FSQIre6P5cC1BHn
-         BIA1RHrw5n/JnSHXUHlJeYBrq+QM/kTH/Ludd9yGQz5lQB1r/XlWMeokVZiluP6ER7s3
-         2V9iXfVOtbx2I5CZCShT6qUnZX4lpcI6wEbM0yjDcNVIfoGaF7su07daR384FoBaBtaF
-         4Y5TIjKxcKbgK1gDn5bpMr8korfCmS13HHGsVggbeiTZv4Fa6EqxLzRLBHFssBHeKysS
-         1ETA==
-X-Gm-Message-State: ACrzQf1EC1vMrnmAILqt0KacjytMcU6iRgX6bjh4Twf5GO7FhJ8eerEC
-        aYQ/AhQsQd9j44ekduDoyFvDu3oh1w7Vpg==
-X-Google-Smtp-Source: AMsMyM4kgLEzuRCbwB9NE7eQli7CQSYE21f8z+xxXzyue6Db7mHLo03HzBf6cA9GZU7GrFsDfz3CmA==
-X-Received: by 2002:a2e:9d94:0:b0:26b:de12:7c9 with SMTP id c20-20020a2e9d94000000b0026bde1207c9mr9055575ljj.244.1663774098321;
-        Wed, 21 Sep 2022 08:28:18 -0700 (PDT)
-Received: from [192.168.0.21] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id n21-20020a05651203f500b00494a8fecacesm474505lfq.192.2022.09.21.08.28.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 Sep 2022 08:28:17 -0700 (PDT)
-Message-ID: <df350235-3c50-c7ac-eb62-5fbc501fed0a@linaro.org>
-Date:   Wed, 21 Sep 2022 17:28:16 +0200
+        with ESMTP id S231431AbiIUPiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:38:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA739E6B3;
+        Wed, 21 Sep 2022 08:34:15 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E895662C64;
+        Wed, 21 Sep 2022 15:34:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7EF4C433C1;
+        Wed, 21 Sep 2022 15:34:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1663774442;
+        bh=JhebLJakorI9e3uYtDL3TF6zYEH7dOBs64b2sF4QskI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TKlmOQVLKd1Bl1xAvrpriBI+ECrXyjXs0f4AG/XChZRX6cN53N0W3npSh90M7MXUj
+         b0UNp3kSj8SWEp+yoQCqTPKWrxbLU018Mx98tbJkB8MtYOK9XPU5P6fruiR1o8IU40
+         ji6xjRpVAPZ7so+7X7lG6KnxodV3xKRJA0MKLIQY=
+Date:   Wed, 21 Sep 2022 17:33:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chandan Babu R <chandan.babu@oracle.com>
+Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
+        stable@vger.kernel.org, djwong@kernel.org, amir73il@gmail.com,
+        leah.rumancik@gmail.com
+Subject: Re: [PATCH 5.4 00/17] xfs stable patches for 5.4.y (from v5.5)
+Message-ID: <Yysu56U3OYFozSLD@kroah.com>
+References: <20220921032352.307699-1-chandan.babu@oracle.com>
+ <YyrS7dE8UtDydjZF@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH 1/2] ASoC: wcd9335: fix order of Slimbus unprepare/disable
-Content-Language: en-US
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Banajit Goswami <bgoswami@quicinc.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, Vinod Koul <vkoul@kernel.org>,
-        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20220921145354.1683791-1-krzysztof.kozlowski@linaro.org>
- <20916c9d-3598-7c40-ee77-1148c3d2e4b1@linux.intel.com>
- <af3bd3f4-dcd9-8f6c-6323-de1b53301225@linaro.org>
- <9a210b04-2ff2-df98-ad1a-89e9d8b0f686@linaro.org>
- <fd74e77c-f3d3-1f09-2e5a-0a94e2a3eeea@linux.intel.com>
- <5e34eadc-ef6a-abeb-6bce-347593c275b7@linaro.org>
- <dd61f44e-8d4a-ac2e-0af4-56ced642c4bd@linux.intel.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <dd61f44e-8d4a-ac2e-0af4-56ced642c4bd@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YyrS7dE8UtDydjZF@kroah.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21/09/2022 17:25, Pierre-Louis Bossart wrote:
->>>>
->>>> Wait, no, this is correct. Please point to what is wrong in kernel doc.
->>>> I don't see it. :(
->>>
->>> the TRIGGER_STOP and TRIGGER_PAUSE_PUSH do the same thing. There is no
->>> specific mapping of disable() to TRIGGER_STOP and unprepare() to
->>> TRIGGER_PAUSE_PUSH as the documentation hints at.
->>
->> Which TRIGGER_STOP and TRIGGER_PAUSE_PUSH? In one specific codec driver?
->> If yes, I don't think Slimbus documentation should care how actual users
->> implement it (e.g. coalesce states).
+On Wed, Sep 21, 2022 at 11:01:33AM +0200, Greg KH wrote:
+> On Wed, Sep 21, 2022 at 08:53:35AM +0530, Chandan Babu R wrote:
+> > Hi Greg,
+> > 
+> > This 5.4.y backport series contains fixes from v5.5. The patchset has
+> > been acked by Darrick.
+> > 
+> > Brian Foster (2):
+> >   xfs: stabilize insert range start boundary to avoid COW writeback race
+> >   xfs: use bitops interface for buf log item AIL flag check
+> > 
+> > Chandan Babu R (1):
+> >   MAINTAINERS: add Chandan as xfs maintainer for 5.4.y
+> > 
+> > Christoph Hellwig (1):
+> >   xfs: slightly tweak an assert in xfs_fs_map_blocks
+> > 
+> > Darrick J. Wong (11):
+> >   xfs: replace -EIO with -EFSCORRUPTED for corrupt metadata
+> >   xfs: add missing assert in xfs_fsmap_owner_from_rmap
+> >   xfs: range check ri_cnt when recovering log items
+> >   xfs: attach dquots and reserve quota blocks during unwritten
+> >     conversion
+> >   xfs: convert EIO to EFSCORRUPTED when log contents are invalid
+> >   xfs: constify the buffer pointer arguments to error functions
+> >   xfs: always log corruption errors
+> >   xfs: fix some memory leaks in log recovery
+> >   xfs: refactor agfl length computation function
+> >   xfs: split the sunit parameter update into two parts
+> >   xfs: don't commit sunit/swidth updates to disk if that would cause
+> >     repair failures
+> > 
+> > Dave Chinner (1):
+> >   iomap: iomap that extends beyond EOF should be marked dirty
+> > 
+> > kaixuxia (1):
+> >   xfs: Fix deadlock between AGI and AGF when target_ip exists in
+> >     xfs_rename()
+> > 
+> >  MAINTAINERS                    |   3 +-
+> >  fs/xfs/libxfs/xfs_alloc.c      |  27 ++++--
+> >  fs/xfs/libxfs/xfs_attr_leaf.c  |  12 ++-
+> >  fs/xfs/libxfs/xfs_bmap.c       |  16 +++-
+> >  fs/xfs/libxfs/xfs_btree.c      |   5 +-
+> >  fs/xfs/libxfs/xfs_da_btree.c   |  24 +++--
+> >  fs/xfs/libxfs/xfs_dir2.c       |   4 +-
+> >  fs/xfs/libxfs/xfs_dir2.h       |   2 +
+> >  fs/xfs/libxfs/xfs_dir2_leaf.c  |   4 +-
+> >  fs/xfs/libxfs/xfs_dir2_node.c  |  12 ++-
+> >  fs/xfs/libxfs/xfs_dir2_sf.c    |  28 +++++-
+> >  fs/xfs/libxfs/xfs_ialloc.c     |  64 +++++++++++++
+> >  fs/xfs/libxfs/xfs_ialloc.h     |   1 +
+> >  fs/xfs/libxfs/xfs_inode_fork.c |   6 ++
+> >  fs/xfs/libxfs/xfs_refcount.c   |   4 +-
+> >  fs/xfs/libxfs/xfs_rtbitmap.c   |   6 +-
+> >  fs/xfs/xfs_acl.c               |  15 ++-
+> >  fs/xfs/xfs_attr_inactive.c     |  10 +-
+> >  fs/xfs/xfs_attr_list.c         |   5 +-
+> >  fs/xfs/xfs_bmap_item.c         |   7 +-
+> >  fs/xfs/xfs_bmap_util.c         |  12 +++
+> >  fs/xfs/xfs_buf_item.c          |   2 +-
+> >  fs/xfs/xfs_dquot.c             |   2 +-
+> >  fs/xfs/xfs_error.c             |  27 +++++-
+> >  fs/xfs/xfs_error.h             |   7 +-
+> >  fs/xfs/xfs_extfree_item.c      |   5 +-
+> >  fs/xfs/xfs_fsmap.c             |   1 +
+> >  fs/xfs/xfs_inode.c             |  32 ++++++-
+> >  fs/xfs/xfs_inode_item.c        |   5 +-
+> >  fs/xfs/xfs_iomap.c             |  17 ++++
+> >  fs/xfs/xfs_iops.c              |  10 +-
+> >  fs/xfs/xfs_log_recover.c       |  72 +++++++++-----
+> >  fs/xfs/xfs_message.c           |   2 +-
+> >  fs/xfs/xfs_message.h           |   2 +-
+> >  fs/xfs/xfs_mount.c             | 168 +++++++++++++++++++++++----------
+> >  fs/xfs/xfs_pnfs.c              |   4 +-
+> >  fs/xfs/xfs_qm.c                |  13 ++-
+> >  fs/xfs/xfs_refcount_item.c     |   5 +-
+> >  fs/xfs/xfs_rmap_item.c         |   9 +-
+> >  fs/xfs/xfs_trace.h             |  21 +++++
+> >  include/linux/iomap.h          |   2 +
+> >  41 files changed, 523 insertions(+), 150 deletions(-)
+> > 
+> > -- 
+> > 2.35.1
+> > 
 > 
-> In both of the patches you just modified :-)
+> All now queued up, thanks.
 
-Yeah, but this is just some implementation. How this implementation
-calls, e.g. whether they split STOP from PAUSE is not the concern of
-Slimbus.
+Any specific reason why you didn't also include 2 other commits in this
+series, that fix issues that were created by some patches in this
+series?
 
-> 
-> diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-> index 06c6adbe5920..d2548fdf9ae5 100644
-> --- a/sound/soc/codecs/wcd9335.c
-> +++ b/sound/soc/codecs/wcd9335.c
-> @@ -1972,8 +1972,8 @@ static int wcd9335_trigger(struct
-> snd_pcm_substream *substream, int cmd,
->  	case SNDRV_PCM_TRIGGER_STOP:
->  	case SNDRV_PCM_TRIGGER_SUSPEND:
->  	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-> -		slim_stream_unprepare(dai_data->sruntime);
->  		slim_stream_disable(dai_data->sruntime);
-> +		slim_stream_unprepare(dai_data->sruntime);
->  		break;
->  	default:
-> 
-> diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
-> index f56907d0942d..28175c746b9a 100644
-> --- a/sound/soc/codecs/wcd934x.c
-> +++ b/sound/soc/codecs/wcd934x.c
-> @@ -1913,8 +1913,8 @@ static int wcd934x_trigger(struct
-> snd_pcm_substream *substream, int cmd,
->  	case SNDRV_PCM_TRIGGER_STOP:
->  	case SNDRV_PCM_TRIGGER_SUSPEND:
->  	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-> -		slim_stream_unprepare(dai_data->sruntime);
->  		slim_stream_disable(dai_data->sruntime);
-> +		slim_stream_unprepare(dai_data->sruntime);
->  		break;
->  	default:
->  		break;
-> 
-> the bus provides helpers to be used in well-defined transitions. A codec
-> driver doing whatever it wants whenever it wants would create chaos for
-> the bus.
+I am referring to:
+	496b9bcd62b0 ("xfs: fix use-after-free when aborting corrupt attr inactivation")
+	6da1b4b1ab36 ("xfs: fix an ABBA deadlock in xfs_rename")
 
-True, but it's the problem of the codec, not the Slimbus.
+Do you want me to add them to, or are they not relevant anymore?
 
-Best regards,
-Krzysztof
+thanks,
 
+greg k-h
