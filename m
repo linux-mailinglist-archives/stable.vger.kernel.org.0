@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 754E45C0324
-	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 096315C0319
+	for <lists+stable@lfdr.de>; Wed, 21 Sep 2022 18:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232045AbiIUQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Sep 2022 12:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55970 "EHLO
+        id S232067AbiIUQAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Sep 2022 12:00:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232268AbiIUP6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:53 -0400
+        with ESMTP id S232263AbiIUP6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Sep 2022 11:58:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC36A1D0A;
-        Wed, 21 Sep 2022 08:52:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B367CA1D33;
+        Wed, 21 Sep 2022 08:52:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2339763153;
-        Wed, 21 Sep 2022 15:51:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33DACC433C1;
-        Wed, 21 Sep 2022 15:51:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF09263141;
+        Wed, 21 Sep 2022 15:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD5DC433C1;
+        Wed, 21 Sep 2022 15:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663775479;
-        bh=/CVu9TEVrm3dQdfEgyhnyWNcNsU//GUguQ3RL6GFzSg=;
+        s=korg; t=1663775482;
+        bh=ROCsXVVApkm6chEKbL7Np0y3c7d+KTGop1OC8skkiyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfLFscIjKI+D7H0dEDHVGtD63w842g56BrKI8bD8gMaGRZV/LPQK0FZ4k9CgrdVtj
-         ZgOoyR9DyrSKqx8B23Ps/9/dhbcBI2fRYsFcpiYyx/Qd7Gu34Hd0DPauX9lQi27WPx
-         kZbYrwOC5j/rbcCTvWo1q2WLA1AP9L4AdYA2QBAE=
+        b=nKHf7EcRGITZKGgz7fv3coiCv1SfmAiVsFcGFxUnwj6OxNWR3RXeU1ETkracsIs5F
+         3BC3ZnaFWjMAe1j85N/tE45KAgjcXuxuaKx8OP87MN54YF0sLIsH9Nc+wXYHaK47Lx
+         KwJ7JQ89mKBii8Y06B1FzdexSw7c6W0AjU4V3qRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Frank Rowand <frank.rowand@sony.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.10 20/39] of/device: Fix up of_dma_configure_id() stub
-Date:   Wed, 21 Sep 2022 17:46:25 +0200
-Message-Id: <20220921153646.403849777@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 21/39] cifs: revalidate mapping when doing direct writes
+Date:   Wed, 21 Sep 2022 17:46:26 +0200
+Message-Id: <20220921153646.431596699@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
 References: <20220921153645.663680057@linuxfoundation.org>
@@ -54,40 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 40bfe7a86d84cf08ac6a8fe2f0c8bf7a43edd110 upstream.
+commit 7500a99281dfed2d4a84771c933bcb9e17af279b upstream.
 
-Since the stub version of of_dma_configure_id() was added in commit
-a081bd4af4ce ("of/device: Add input id to of_dma_configure()"), it has
-not matched the signature of the full function, leading to build failure
-reports when code using this function is built on !OF configurations.
+Kernel bugzilla: 216301
 
-Fixes: a081bd4af4ce ("of/device: Add input id to of_dma_configure()")
+When doing direct writes we need to also invalidate the mapping in case
+we have a cached copy of the affected page(s) in memory or else
+subsequent reads of the data might return the old/stale content
+before we wrote an update to the server.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Reviewed-by: Frank Rowand <frank.rowand@sony.com>
-Acked-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Link: https://lore.kernel.org/r/20220824153256.1437483-1-thierry.reding@gmail.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/of_device.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/cifs/file.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/of_device.h
-+++ b/include/linux/of_device.h
-@@ -113,8 +113,9 @@ static inline struct device_node *of_cpu
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3244,6 +3244,9 @@ static ssize_t __cifs_writev(
+ 
+ ssize_t cifs_direct_writev(struct kiocb *iocb, struct iov_iter *from)
+ {
++	struct file *file = iocb->ki_filp;
++
++	cifs_revalidate_mapping(file->f_inode);
+ 	return __cifs_writev(iocb, from, true);
  }
  
- static inline int of_dma_configure_id(struct device *dev,
--				   struct device_node *np,
--				   bool force_dma)
-+				      struct device_node *np,
-+				      bool force_dma,
-+				      const u32 *id)
- {
- 	return 0;
- }
 
 
