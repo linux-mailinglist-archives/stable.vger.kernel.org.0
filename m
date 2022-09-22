@@ -2,55 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E58F5E68E3
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 18:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB40E5E68FE
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 19:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231747AbiIVQzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 12:55:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44656 "EHLO
+        id S230051AbiIVRBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 13:01:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231689AbiIVQzv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 12:55:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AEC0EEB6A;
-        Thu, 22 Sep 2022 09:55:49 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 355A561174;
-        Thu, 22 Sep 2022 16:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BADD0C433C1;
-        Thu, 22 Sep 2022 16:55:47 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="fycoWGBA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1663865745;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N73clIXixeJ/JM4wCsOBXre5Rf6uhDiyb/I7sNh+v+4=;
-        b=fycoWGBAAwuWPYDyBcastWyRZEkRPbxgxzUMeUh/nKVm6Q8TRp1kVyNV5HpFzFsaB147tR
-        uAJxLDIAINR8BR9RxfbUbK0JAdvae1Vz1IN+IRFVVPjSnlEp/j/3lXIt7hd4HKrfGrzU+N
-        +rKLeRG8Js2VhF6JhmY8L2N8XbdrZm4=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id f720e13b (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Thu, 22 Sep 2022 16:55:44 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Tejun Heo <tj@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jack Vogel <jack.vogel@oracle.com>,
-        sultan@kerneltoast.com, Sherry Yang <sherry.yang@oracle.com>
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
-Subject: [PATCH] random: use tasklet rather than workqueue for mixing fast pool
-Date:   Thu, 22 Sep 2022 18:55:28 +0200
-Message-Id: <20220922165528.3679479-1-Jason@zx2c4.com>
-In-Reply-To: <YyyRMam6Eu8nmeCd@zx2c4.com>
-References: <YyyRMam6Eu8nmeCd@zx2c4.com>
+        with ESMTP id S229780AbiIVRBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 13:01:50 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E97AF6F58;
+        Thu, 22 Sep 2022 10:01:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663866109; x=1695402109;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to;
+  bh=qCYHm4gaDtc3s29RTgpAEXNzALg1JlVgHM8D+GW9n+4=;
+  b=A80rl5jyBCpdeFEHru1PSgwgtAm/AWnzljGGPfYDUi2AUJ/9wO9uiHBK
+   qOavy+o0CnVsPXFTATVAmXt+n5RRwc0ltr4sW5uuh+sbEkkPz76ylyV0R
+   AjMiVkb2gXQwwXlo6fUBP3PgE87gIipIGhKMNLDvW5d9iIpqDa4Gzpvt5
+   0qzcVDNAUJ3Aq2ppcql5PjcwW+OvHvAYjUjo+9GzbWQZYxYahZV1anUKq
+   CJbBkLhdGYw5g4l6PNU106RpqzsYomwpF6bFdxMpQlPf3BOzdab5POXde
+   42lkFbLp4wkcE8t8UP98oIvxtAML1S6j1QY4tVNBCXHjWAfmlw71nFZxa
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10478"; a="299078222"
+X-IronPort-AV: E=Sophos;i="5.93,337,1654585200"; 
+   d="scan'208,223";a="299078222"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2022 10:01:48 -0700
+X-IronPort-AV: E=Sophos;i="5.93,337,1654585200"; 
+   d="scan'208,223";a="948675428"
+Received: from sponnura-mobl1.amr.corp.intel.com (HELO [10.209.58.200]) ([10.209.58.200])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2022 10:01:46 -0700
+Content-Type: multipart/mixed; boundary="------------3lBZGQfj2C8pWp3quwOFRdc1"
+Message-ID: <88c17568-8694-940a-0f1f-9d345e8dcbdb@intel.com>
+Date:   Thu, 22 Sep 2022 10:01:46 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH] ACPI: processor_idle: Skip dummy wait for processors
+ based on the Zen microarchitecture
+Content-Language: en-US
+To:     K Prateek Nayak <kprateek.nayak@amd.com>,
+        linux-kernel@vger.kernel.org
+Cc:     rafael@kernel.org, lenb@kernel.org, linux-acpi@vger.kernel.org,
+        linux-pm@vger.kernel.org, dave.hansen@linux.intel.com,
+        bp@alien8.de, tglx@linutronix.de, andi@lisas.de, puwen@hygon.cn,
+        mario.limonciello@amd.com, peterz@infradead.org,
+        rui.zhang@intel.com, gpiccoli@igalia.com,
+        daniel.lezcano@linaro.org, ananth.narayan@amd.com,
+        gautham.shenoy@amd.com, Calvin Ong <calvin.ong@amd.com>,
+        stable@vger.kernel.org, regressions@lists.linux.dev
+References: <20220921063638.2489-1-kprateek.nayak@amd.com>
+ <20e78a49-25df-c83d-842e-1d624655cfd7@intel.com>
+ <0885eecb-042f-3b74-2965-7d657de59953@amd.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+In-Reply-To: <0885eecb-042f-3b74-2965-7d657de59953@amd.com>
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,118 +70,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Previously, the fast pool was dumped into the main pool peroidically in
-the fast pool's hard IRQ handler. This worked fine and there weren't
-problems with it, until RT came around. Since RT converts spinlocks into
-sleeping locks, problems cropped up. Rather than switching to raw
-spinlocks, the RT developers preferred we make the transformation from
-originally doing:
+This is a multi-part message in MIME format.
+--------------3lBZGQfj2C8pWp3quwOFRdc1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-    do_some_stuff()
-    spin_lock()
-    do_some_other_stuff()
-    spin_unlock()
+On 9/22/22 09:54, K Prateek Nayak wrote:
+> 
+> On 9/22/2022 10:14 PM, Dave Hansen wrote:
+>> On 9/20/22 23:36, K Prateek Nayak wrote:
+>>> Cc: stable@vger.kernel.org
+>>> Cc: regressions@lists.linux.dev
+>> *Is* this a regression?
+> On second thought, it is not a regression.
+> Will remove the tag on v2.
 
-to doing:
+What were you planning for v2?
 
-    do_some_stuff()
-    queue_work_on(some_other_stuff_worker)
+Rafael suggested something like the attached patch.  It's not nearly as
+fragile as the Zen check you proposed earlier.
 
-This is an ordinary pattern done all over the kernel. However, Sherry
-noticed a 10% performance regression in qperf TCP over a 40gbps
-InfiniBand card. Quoting her message:
+Any testing or corrections on the commentary would be appreciated.
+--------------3lBZGQfj2C8pWp3quwOFRdc1
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-ACPI-processor-idle-Limit-Dummy-wait-workaround-to-o.patch"
+Content-Disposition: attachment;
+ filename*0="0001-ACPI-processor-idle-Limit-Dummy-wait-workaround-to-o.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
 
-> MT27500 Family [ConnectX-3] cards:
-> Infiniband device 'mlx4_0' port 1 status:
-> default gid: fe80:0000:0000:0000:0010:e000:0178:9eb1
-> base lid: 0x6
-> sm lid: 0x1
-> state: 4: ACTIVE
-> phys state: 5: LinkUp
-> rate: 40 Gb/sec (4X QDR)
-> link_layer: InfiniBand
->
-> Cards are configured with IP addresses on private subnet for IPoIB
-> performance testing.
-> Regression identified in this bug is in TCP latency in this stack as reported
-> by qperf tcp_lat metric:
->
-> We have one system listen as a qperf server:
-> [root@yourQperfServer ~]# qperf
->
-> Have the other system connect to qperf server as a client (in this
-> case, it’s X7 server with Mellanox card):
-> [root@yourQperfClient ~]# numactl -m0 -N0 qperf 20.20.20.101 -v -uu -ub --time 60 --wait_server 20 -oo msg_size:4K:1024K:*2 tcp_lat
+RnJvbSA1NGU0NjY4MTIyZDQ0N2VlODBlYzQ2NWYyNDRiMTlkOTY4YzRhN2M2IE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBEYXZlIEhhbnNlbiA8ZGF2ZS5oYW5zZW5AaW50ZWwu
+Y29tPgpEYXRlOiBUaHUsIDIyIFNlcCAyMDIyIDA5OjIyOjI2IC0wNzAwClN1YmplY3Q6IFtQ
+QVRDSF0gQUNQSTogcHJvY2Vzc29yIGlkbGU6IExpbWl0ICJEdW1teSB3YWl0IiB3b3JrYXJv
+dW5kIHRvIG9sZAogSW50ZWwgc3lzdGVtcwoKT2xkLCBjaXJjYSAyMDAyIGNoaXBzZXRzIGhh
+dmUgYSBidWc6IHRoZXkgZG9uJ3QgZ28gaWRsZSB3aGVuIHRoZXkgYXJlCnN1cHBvc2VkIHRv
+LiAgU28sIGEgd29ya2Fyb3VuZCB3YXMgYWRkZWQgdG8gc2xvdyB0aGUgQ1BVIGRvd24gYW5k
+CmVuc3VyZSB0aGF0IHRoZSBDUFUgd2FpdHMgYSBiaXQgZm9yIHRoZSBjaGlwc2V0IHRvIGFj
+dHVhbGx5IGdvIGlkbGUuClRoaXMgd29ya2Fyb3VuZCBpcyBhbmNpZW50IGFuZCBoYXMgYmVl
+biBpbiBwbGFjZSBpbiBzb21lIGZvcm0gc2luY2UKdGhlIG9yaWdpbmFsIGtlcm5lbCBBQ1BJ
+IGltcGxlbWVudGF0aW9uLgoKQnV0LCB0aGlzIHdvcmthcm91bmQgaXMgdmVyeSBwYWluZnVs
+IG9uIG1vZGVybiBzeXN0ZW1zLiAgVGhlICJpbmIoKSIKY2FuIHRha2UgdGhvdXNhbmRzIG9m
+IGN5Y2xlcyAoc2VlIExpbms6IGZvciBzb21lIG1vcmUgZGV0YWlsZWQKYXJjaGFlb2xvZ3kp
+LgoKRmlyc3QgYW5kIGZvcmVtb3N0LCBtb2Rlcm4gc3lzdGVtcyBzaG91bGQgbm90IGJlIHVz
+aW5nIHRoaXMgY29kZS4KVHlwaWNhbCBJbnRlbCBzeXN0ZW1zIGhhdmUgbm90IHVzZWQgaXQg
+aW4gb3ZlciBhIGRlY2FkZSBiZWNhdXNlIGl0CmlzIGhvcnJpYmx5IGluZmVyaW9yIHRvIE1X
+QUlULWJhc2VkIGlkbGUuCgpEZXNwaXRlIHRoaXMsIHBlb3BsZSBkbyBzZWVtIHRvIGJlIHRy
+aXBwaW5nIG92ZXIgdGhpcyB3b3JrYXJvdW5kIG9uCkFNRCBDUFVzIHRvZGF5LgoKTGltaXQg
+dGhlICJkdW1teSB3YWl0IiB3b3JrYXJvdW5kIHRvIEludGVsIHN5c3RlbXMuICBTaW5jZSB0
+aGlzCmNvZGUgaXMgb25seSB1c2VkIG9uIGFuY2llbnQgSW50ZWwgc3lzdGVtcywgdGhpcyBm
+aXggc2hvdWxkIHJlbmRlciBpdApoYXJtbGVzcyBldmVyeXdoZXJlIGVsc2UsIGluY2x1ZGlu
+ZyB0aGUgbW9kZXJuIEFNRCBvbmVzLgoKU2lnbmVkLW9mZi1ieTogRGF2ZSBIYW5zZW4gPGRh
+dmUuaGFuc2VuQGxpbnV4LmludGVsLmNvbT4KQ2M6IExlbiBCcm93biA8bGVuYkBrZXJuZWwu
+b3JnPgpTdWdnZXN0ZWQtYnk6IFJhZmFlbCBKLiBXeXNvY2tpIDxyYWZhZWwuai53eXNvY2tp
+QGludGVsLmNvbT4KUmVwb3J0ZWQtYnk6IEsgUHJhdGVlayBOYXlhayA8a3ByYXRlZWsubmF5
+YWtAYW1kLmNvbT4KTGluazogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvYWxsLzIwMjIwOTIx
+MDYzNjM4LjI0ODktMS1rcHJhdGVlay5uYXlha0BhbWQuY29tLwotLS0KIGRyaXZlcnMvYWNw
+aS9wcm9jZXNzb3JfaWRsZS5jIHwgMjMgKysrKysrKysrKysrKysrKysrKystLS0KIDEgZmls
+ZSBjaGFuZ2VkLCAyMCBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvYWNwaS9wcm9jZXNzb3JfaWRsZS5jIGIvZHJpdmVycy9hY3BpL3Byb2Nl
+c3Nvcl9pZGxlLmMKaW5kZXggMTZhMTY2M2QwMmQ0Li45ZjQwOTE3YzQ5ZWYgMTAwNjQ0Ci0t
+LSBhL2RyaXZlcnMvYWNwaS9wcm9jZXNzb3JfaWRsZS5jCisrKyBiL2RyaXZlcnMvYWNwaS9w
+cm9jZXNzb3JfaWRsZS5jCkBAIC01MzEsMTAgKzUzMSwyNyBAQCBzdGF0aWMgdm9pZCB3YWl0
+X2Zvcl9mcmVlemUodm9pZCkKIAkvKiBObyBkZWxheSBpcyBuZWVkZWQgaWYgd2UgYXJlIGlu
+IGd1ZXN0ICovCiAJaWYgKGJvb3RfY3B1X2hhcyhYODZfRkVBVFVSRV9IWVBFUlZJU09SKSkK
+IAkJcmV0dXJuOworCS8qCisJICogTW9kZXJuICg+PU5laGFsZW0pIEludGVsIHN5c3RlbXMg
+dXNlIEFDUEkgdmlhIGludGVsX2lkbGUsCisJICogbm90IHRoaXMgY29kZS4gIEFzc3VtZSB0
+aGF0IGFueSBJbnRlbCBzeXN0ZW1zIHVzaW5nIHRoaXMKKwkgKiBhcmUgYW5jaWVudCBhbmQg
+bWF5IG5lZWQgdGhlIGR1bW15IHdhaXQuICBUaGlzIGFsc28gYXNzdW1lcworCSAqIHRoYXQg
+dGhlIG1vdGl2YXRpbmcgY2hpcHNldCBpc3N1ZSB3YXMgSW50ZWwtb25seS4KKwkgKi8KKwlp
+ZiAoYm9vdF9jcHVfZGF0YS54ODZfdmVuZG9yICE9IFg4Nl9WRU5ET1JfSU5URUwpCisJCXJl
+dHVybjsKICNlbmRpZgotCS8qIER1bW15IHdhaXQgb3AgLSBtdXN0IGRvIHNvbWV0aGluZyB1
+c2VsZXNzIGFmdGVyIFBfTFZMMiByZWFkCi0JICAgYmVjYXVzZSBjaGlwc2V0cyBjYW5ub3Qg
+Z3VhcmFudGVlIHRoYXQgU1RQQ0xLIyBzaWduYWwKLQkgICBnZXRzIGFzc2VydGVkIGluIHRp
+bWUgdG8gZnJlZXplIGV4ZWN1dGlvbiBwcm9wZXJseS4gKi8KKwkvKgorCSAqIER1bW15IHdh
+aXQgb3AgLSBtdXN0IGRvIHNvbWV0aGluZyB1c2VsZXNzIGFmdGVyIFBfTFZMMiByZWFkCisJ
+ICogYmVjYXVzZSBjaGlwc2V0cyBjYW5ub3QgZ3VhcmFudGVlIHRoYXQgU1RQQ0xLIyBzaWdu
+YWwgZ2V0cworCSAqIGFzc2VydGVkIGluIHRpbWUgdG8gZnJlZXplIGV4ZWN1dGlvbiBwcm9w
+ZXJseQorCSAqCisJICogVGhpcyB3b3JrYXJvdW5kIGhhcyBiZWVuIGluIHBsYWNlIHNpbmNl
+IHRoZSBvcmlnaW5hbCBBQ1BJCisJICogaW1wbGVtZW50YXRpb24gd2FzIG1lcmdlZCwgY2ly
+Y2EgMjAwMi4KKwkgKgorCSAqIElmIGEgcHJvZmlsZSBpcyBwb2ludGluZyB0byB0aGlzIGlu
+c3RydWN0aW9uLCBwbGVhc2UgZmlyc3QKKwkgKiBjb25zaWRlciBtb3ZpbmcgeW91ciBzeXN0
+ZW0gdG8gYSBtb3JlIG1vZGVybiBpZGxlCisJICogbWVjaGFuaXNtLgorCSAqLwogCWlubChh
+Y3BpX2dibF9GQURULnhwbV90aW1lcl9ibG9jay5hZGRyZXNzKTsKIH0KIAotLSAKMi4yNS4x
+Cgo=
 
-Rather than incur the scheduling latency from queue_work_on, we can
-instead switch to a tasklet, which will run on the same core -- exactly
-what we want -- and happen during context transition without additional
-scheduling latency, and minimized logic in the enqueuing path.
-
-Hopefully this restores performance from prior to the RT changes.
-
-Reported-by: Sherry Yang <sherry.yang@oracle.com>
-Suggested-by: Sultan Alsawaf <sultan@kerneltoast.com>
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/YyuREcGAXV9828w5@zx2c4.com/
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
-Hi Sherry,
-
-I'm not going to commit to this until I receive your `Tested-by:`, so
-please let me know if this fixes the problem. If not, we'll try
-something else.
-
-Thanks,
-Jason
-
- drivers/char/random.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 520a385c7dab..ad17b36cf977 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -918,13 +918,16 @@ EXPORT_SYMBOL_GPL(unregister_random_vmfork_notifier);
- #endif
- 
- struct fast_pool {
--	struct work_struct mix;
-+	struct tasklet_struct mix;
- 	unsigned long pool[4];
- 	unsigned long last;
- 	unsigned int count;
- };
- 
-+static void mix_interrupt_randomness(struct tasklet_struct *work);
-+
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
-+	.mix = { .use_callback = true, .callback = mix_interrupt_randomness },
- #ifdef CONFIG_64BIT
- #define FASTMIX_PERM SIPHASH_PERMUTATION
- 	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 }
-@@ -973,7 +976,7 @@ int __cold random_online_cpu(unsigned int cpu)
- }
- #endif
- 
--static void mix_interrupt_randomness(struct work_struct *work)
-+static void mix_interrupt_randomness(struct tasklet_struct *work)
- {
- 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
- 	/*
-@@ -1027,10 +1030,8 @@ void add_interrupt_randomness(int irq)
- 	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
- 		return;
- 
--	if (unlikely(!fast_pool->mix.func))
--		INIT_WORK(&fast_pool->mix, mix_interrupt_randomness);
- 	fast_pool->count |= MIX_INFLIGHT;
--	queue_work_on(raw_smp_processor_id(), system_highpri_wq, &fast_pool->mix);
-+	tasklet_hi_schedule(&fast_pool->mix);
- }
- EXPORT_SYMBOL_GPL(add_interrupt_randomness);
- 
--- 
-2.37.3
-
+--------------3lBZGQfj2C8pWp3quwOFRdc1--
