@@ -2,54 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 268EB5E5C00
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 09:13:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53D3D5E5C16
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 09:15:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230357AbiIVHMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 03:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55884 "EHLO
+        id S230214AbiIVHPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 03:15:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230364AbiIVHMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 03:12:12 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31261C88A9;
-        Thu, 22 Sep 2022 00:11:52 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id fv3so8917405pjb.0;
-        Thu, 22 Sep 2022 00:11:52 -0700 (PDT)
+        with ESMTP id S230203AbiIVHOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 03:14:51 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F272F3;
+        Thu, 22 Sep 2022 00:14:35 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id v4so8251527pgi.10;
+        Thu, 22 Sep 2022 00:14:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=7P4/MoUd89O1+A8bGYH6BhOc7UW55SCbrR2sakyuDZs=;
-        b=cDPR71YiCfI/nr6sTEi7NepjawVwGuNAy+dEFtsTyaNTl93iWIRvruUoqcdCXphb2t
-         OQfISlrtInzsol4LOPkdNT4gLwcvA10hhStRFj0ZT1/6JO5a9uPFxQDMMnQ2DQyu80WX
-         7zq1HT0DhRmBCaAdp+lG7eQfdt6cbuevQ+ymt/jppc2DxUm2kyO6ICgQ51VFRyJRnVJW
-         rE9ZApi7AvQfL/9FgsemGxItnowiFUxbayoTSNllV5S4/ltikYg9nxS2NzuFFy22nqXd
-         ICEzE+S1OtfNJZjgxm7mgcKQYkNi60RoXd7jIwjlZ0GD1qMyRvI5C7QexD99TBaTL0dg
-         lJeA==
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=qwhBFHkrFRI0WL04887MY0VeyA92ERb/4wYotDwfmBM=;
+        b=NNhVJia7tlvKFUrqhM3RWviBK6nFJYkH1DQfUtvX/7vtQX2S8GGlKNLVSSKLNrrbl7
+         b4HEFpuery6qrqZ+K3P95/1AgnKV7TsoNqfG99F0VFdBQiHsBdtOs1BVOjQhslOPKlQz
+         fIy1bb2Bt3Bi/LnQGr/xkwMZZK9I+eX2uCdU9yIVmATMRRevbsV0qVlWj1jPV4z/LWSv
+         xcXVmMNsK8IUGeuH8ohxy9QvhKjCtEtIdxqIGi+zEQ23QTQSM22o9vWOKtY1shm/DAVd
+         4NImNOhbmFjvp2huWnnut5sye9J6P0kYdtxw5KtO/TobIZX9nnlNF54GTfWLyWbF3kK3
+         3Gsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=7P4/MoUd89O1+A8bGYH6BhOc7UW55SCbrR2sakyuDZs=;
-        b=NcLbJ0Y95ZP7/JwJEj3H7w6lY7mfEsCi21smxcwf5l6/5PbE3jQHT+9IuOtrdCzZW2
-         DCoz4LCJfjhJ7IIk9KjHyHF6813uvg4o0QyZ4JVSOJS5loFJ0j/Stnhes/f14DTOcB7k
-         yKh4evvqiqGoiehUt/Omk01CBBamdn8T+A+G/KzcztLK0vGSlW1tvaEnauodD6fOe8jP
-         A4DqhKg67c9h1U6+yL57kVPQ1/r+748l+IrjKqOIrppbkemOQ1qlz59K2XpPAipS3cXa
-         P6vDz+VexmkiQcRN2/eS970k7TPEWRUcVXyLp6ZGoE64ygXr+FdIuYXYePghadlvth0C
-         LCKw==
-X-Gm-Message-State: ACrzQf1UCSmCcGmO9UzJCoS5/NbVhDLRARjT+XO2lBi8wB0CDekS/B71
-        ixWbR50qY2Ho7kBKosk3NP4=
-X-Google-Smtp-Source: AMsMyM44m8nPBgTU9GsK/fBLG7EG7voI+gWqkrcw+vUsn+mG/tB9/JXLSkLXgc8evn0Ta+BAngTujA==
-X-Received: by 2002:a17:902:d502:b0:177:f287:269d with SMTP id b2-20020a170902d50200b00177f287269dmr1905914plg.140.1663830708961;
-        Thu, 22 Sep 2022 00:11:48 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-90.three.co.id. [180.214.233.90])
-        by smtp.gmail.com with ESMTPSA id x20-20020a17090300d400b0017693722e7dsm3250581plc.6.2022.09.22.00.11.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Sep 2022 00:11:47 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 4C5F81002A8; Thu, 22 Sep 2022 14:11:43 +0700 (WIB)
-Date:   Thu, 22 Sep 2022 14:11:43 +0700
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=qwhBFHkrFRI0WL04887MY0VeyA92ERb/4wYotDwfmBM=;
+        b=HLahgflfMcE/8BHSvtGUAXsGlQlMMa60BN3UNwrKkzqRHLjkQFCnArmnZE4Em2G1zE
+         wFyUSCu2UHnSfu2sfrNv8tzv6nST9iu5GlInGq/IbUBmihtKxFkuFAwt4Kx6FXLPpOl7
+         ZSv/HhHQSPPJhmS6QdBWCwGeaJd1XFr+sDbkAxmikEeLjPgc1DiipEw1KOZ5ZYFeGe5u
+         2nwNkn73m0c5NqY229WNgCvf6eln2091xCISf31i+GQ4z4EaEHCIwoC2fYz0VUmCYM6R
+         ZP5Ci6vl5ccFotdGcWR3MYP9ExmkMCduNOZutGnRUm2c9vo3QSaE3SYMhUSApAznANGt
+         gKLw==
+X-Gm-Message-State: ACrzQf0YCr79sntBccI19n2aRA47J3pR6+dvr8idL+9vbgMkDH8Y/FCR
+        oumTbNeEaXs7dBJZTDIpsAU=
+X-Google-Smtp-Source: AMsMyM5+tonk6+Bj0IEsMjXpLHRQtzzua4ppeoKomf8hNy4oCZbZ+FlgygGqDA9jKdea+2GuF3x5Ww==
+X-Received: by 2002:a05:6a00:2290:b0:541:f19:5197 with SMTP id f16-20020a056a00229000b005410f195197mr2044161pfe.42.1663830874472;
+        Thu, 22 Sep 2022 00:14:34 -0700 (PDT)
+Received: from [192.168.43.80] (subs03-180-214-233-90.three.co.id. [180.214.233.90])
+        by smtp.gmail.com with ESMTPSA id d20-20020a056a00199400b00537eb00850asm3529248pfl.130.2022.09.22.00.14.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Sep 2022 00:14:33 -0700 (PDT)
+Message-ID: <acaf048d-4b7d-a72b-baaf-6f6dbf62b861@gmail.com>
+Date:   Thu, 22 Sep 2022 14:14:25 +0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH 5.19 00/38] 5.19.11-rc1 review
+Content-Language: en-US
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -58,54 +64,29 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         slade@sladewatkins.com
-Subject: Re: [PATCH 5.19 00/38] 5.19.11-rc1 review
-Message-ID: <YywKrx5hyO8pEZNR@debian.me>
 References: <20220921153646.298361220@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3okefcpLheQNPjjI"
-Content-Disposition: inline
-In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+ <YywKrx5hyO8pEZNR@debian.me>
+In-Reply-To: <YywKrx5hyO8pEZNR@debian.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 9/22/22 14:11, Bagas Sanjaya wrote:
+> Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+> powerpc (ps3_defconfig, GCC 12.1.0).
+> 
+> Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> 
 
---3okefcpLheQNPjjI
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oops, wrong message replied, ignore my Tested-by tag.
 
-On Wed, Sep 21, 2022 at 05:45:44PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.11 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
+-- 
 An old man doll... just what I always wanted! - Clara
-
---3okefcpLheQNPjjI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCYywKkgAKCRD2uYlJVVFO
-ox2sAQD9fAi9DYE3iQ31NlP7K5xWx421JILzY5doQwTjhoaksgD9ErFmX6f1PePL
-gT61pRSAEMaQOSSYlyR80ewxlSTH1wQ=
-=WclU
------END PGP SIGNATURE-----
-
---3okefcpLheQNPjjI--
