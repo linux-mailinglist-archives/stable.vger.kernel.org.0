@@ -2,268 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C105E5ECC
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 11:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7525E5EDA
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 11:46:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiIVJnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 05:43:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35570 "EHLO
+        id S229743AbiIVJqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 05:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229492AbiIVJnQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 05:43:16 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5AA5D4A9C
-        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 02:43:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663839795; x=1695375795;
-  h=date:from:to:cc:subject:message-id:references:
-   in-reply-to:mime-version;
-  bh=EPTpK8gutKArEkFZ81VB/+sNpHO438XhXV6sIgeevvg=;
-  b=k0x6L3dJdN04YubMAPieNomIIJgNzQE2SkWOIkO4F+AxUbtx2MN0PPNU
-   ashQHRlqeO0jvuW4KauWMMpUegJWMmYFf+4uUYcpYbhjxbIZjLyoUs1+F
-   5ZA23pp+bAIbhAnuZYZXYFDaA/wxa/8kWgu7TRzmNMsF/0MSSLVt2PvDm
-   CGM5WnVCs7QpC9x+Tsv5cGQTmdc+30oqtD0HNEvvv29UcUEcapBTzs0ih
-   ANf8qbsW5+9bth253qCU9VAuOVFjI9tSGtaBytcWt285jICeD5VVKCWXn
-   ry3+ghc1x9je7rPO5YHjXNVhl3nmIeNCmtT4+jGV+Xd7C23Blc7CuuQZ3
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10477"; a="301661640"
-X-IronPort-AV: E=Sophos;i="5.93,335,1654585200"; 
-   d="scan'208";a="301661640"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2022 02:43:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,335,1654585200"; 
-   d="scan'208";a="688230342"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by fmsmga004.fm.intel.com with ESMTP; 22 Sep 2022 02:43:15 -0700
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 22 Sep 2022 02:43:14 -0700
-Received: from fmsmsx607.amr.corp.intel.com (10.18.126.87) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 22 Sep 2022 02:43:13 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx607.amr.corp.intel.com (10.18.126.87) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31 via Frontend Transport; Thu, 22 Sep 2022 02:43:13 -0700
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.108)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2375.31; Thu, 22 Sep 2022 02:43:14 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UKUn6CNyLLykIpHtw1AsmRpT3UyPrntHhz8AxRVCULQDuzux6g9gPmtRAWcG4wENVVeL8I7RJ8Pm/+8Pw8PJjEVKIgHO/RuX66/TQ5UVB3mdrAQpJV4mzwTJbQua9tGWBZcmupvM7ZWzgVhBFdHdr0scQa1xw494tPs9E8owx9L9Glw9UKEI1R04AHlnLWBByIcFAmkxhapsP20IYhFJnlfrZ5SHEK56HLofqeRNpnzvjKdIioZ6pnXEjwxUQgey1kJOLjq7e0cAhhI+SLlh2wfXWxP6FxucKl5EocUVxAszokshJwqPl4uRREW9gz/9rVyNm8Oo1sOvFwFk4iaQgQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5Vd9ss7X2QZ0pELINrEl1Ort0FscnVE7D8aE1P8a+bo=;
- b=d0Ewtkx0BpoyVcxi/IJuKXdClj2bl+7Mddefy+H4uF/cPLB9oZYhGLcb0raJpMiK0cCJaWgDq4qGdGt8L1nFqW+V7zmvqhF6Qszkjvb0CkX2n6qVKGaRlj7jk8kmQHQnpXtdbGgAFXsajZppRoj+NNPaQSxTUhdPPEPgsUyw77iyzBSe703L4DT0A86cNd25Yv0iLDrWrx/MjUGN6G7f4naUorWnRm53JGHDGXLSrbM5TCrEr4S3UVMU3KRjQk8fwDsgz7P1l3V8Sow/rC55QmwuJ0m/WohaKaP9AP3TEUgMj/NaoOG8E41qPzYdP3xZn0r4K2Ucdrn5DJtanQjTEg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from MN0PR11MB6059.namprd11.prod.outlook.com (2603:10b6:208:377::9)
- by BL1PR11MB5445.namprd11.prod.outlook.com (2603:10b6:208:30b::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.16; Thu, 22 Sep
- 2022 09:43:11 +0000
-Received: from MN0PR11MB6059.namprd11.prod.outlook.com
- ([fe80::7ea6:6f6c:f2dc:cec7]) by MN0PR11MB6059.namprd11.prod.outlook.com
- ([fe80::7ea6:6f6c:f2dc:cec7%3]) with mapi id 15.20.5632.017; Thu, 22 Sep 2022
- 09:43:11 +0000
-Date:   Thu, 22 Sep 2022 05:43:06 -0400
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-CC:     <intel-gfx@lists.freedesktop.org>,
-        Daniel J Blueman <daniel@quora.org>,
-        <stable@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Allow D3 when we are not actively
- managing a known PCI device.
-Message-ID: <YywuKoAg35X1Pclh@intel.com>
-References: <20220921173914.1606359-1-rodrigo.vivi@intel.com>
- <2f318650-b01a-a526-8b74-bff99d5b2010@linux.intel.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <2f318650-b01a-a526-8b74-bff99d5b2010@linux.intel.com>
-X-ClientProxiedBy: BYAPR08CA0072.namprd08.prod.outlook.com
- (2603:10b6:a03:117::49) To MN0PR11MB6059.namprd11.prod.outlook.com
- (2603:10b6:208:377::9)
+        with ESMTP id S229492AbiIVJqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 05:46:44 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B57D4A83
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 02:46:43 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id sd10so11379702ejc.2
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 02:46:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date;
+        bh=hRCYYiumHAcy2FWq/eEk3hZ9Y8DhnwA96ZLwPN5poIw=;
+        b=UhGC0K24D+JVH9cAnZJSXjoL45ev1hjyRmMKYjNgy0sc2jKka0MvBA41oMpIPHjz2l
+         XT1LRUAfA8mTujnSNwMlu09Mj2WsGN0HBAe87Ui7otCVpbbQUaaDFTqt40u9HdNAp1u9
+         gf13B57mfGHbI2dU3VMI7dclaKBQxfmxljubSdLR430DqpWfHNwrgi4dVOGfLBtBVwTS
+         vL5QY8QmLW+kmF9gBXGN+BwwU2WCl9U9R6PQI2e0C3oT/33SAkbaBV4864DsvfS5IcZ0
+         r4wCDALVqBW7QM/g2dJMkPTdvq0Y5XiweNEaxhMN3ArofRZeaspWNvnB6BSuknzBYM/P
+         T/Qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=hRCYYiumHAcy2FWq/eEk3hZ9Y8DhnwA96ZLwPN5poIw=;
+        b=7gGxNwZym30ecu+DxPmgaG5MuhDSxgrDXozXcjKXhf2AePW5m8jlZrMdN/7hHPEO+6
+         d7JI5b+ndtSC9QRxAr58NxswAMOqksvHGR8GeQwOkI4ptx+/c5/FKUnAC1vQFSE2mhqX
+         7hQPThfeW8eLBEJQrDUai5JIFDa4umZ43+7MJawj/BePE6TWokiNIu/KZ0gsdlJxs2Co
+         D8vFfrCGDZqqKi8nmRSoxsnTRh/pOilLeP/5W8r7LLe8Y8ofO2P5oIu/nXp8V8kIT16J
+         K5F2PIUsrH/7Iafwewe2w1gYM9/rcSgM62+Zz+6jYSst6vU2NYk7oNp6WUw4qQeJ3ZJU
+         jkSg==
+X-Gm-Message-State: ACrzQf1680SahxYlmC/ua2o7fDMallkpyBuaG5eZBDaga4jO3R1bEh1m
+        6b4VzOuMksFqTadm/XXeiumKFRcO00ZtLDNUpLqH0w==
+X-Google-Smtp-Source: AMsMyM58IsyFu6NnF5lyhXrKJpDPlbxi9jxWGVJGhWUlhbtnDf/HM/nzbCdBHuF8TxFmPkiwsIchAn3qB3Ir602YR1E=
+X-Received: by 2002:a17:906:fe46:b0:73d:939a:ec99 with SMTP id
+ wz6-20020a170906fe4600b0073d939aec99mr2039353ejb.169.1663840001362; Thu, 22
+ Sep 2022 02:46:41 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN0PR11MB6059:EE_|BL1PR11MB5445:EE_
-X-MS-Office365-Filtering-Correlation-Id: 87046a8f-3e6f-429d-585b-08da9c7edcec
-X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: gcCMIN2+XBWTsYrNwBn0VyLp9XRfrl3rt+guE9d+OuPiQC4Jec/eCUzjv0AxvL+w28HaHLQvnIDGRi1eesdjBOMjEzuuMm3YP4dXo7UbFt52znrbmNDvIsuybvWeeSBZgKpK7qAodgv/b1RMWWKoplC8zKhzhhVJZV1Txfs6Q8pHDwjAFHqaSqioGCsvksBGh+p4BT6bc0PZbsff+YhPRV+P8kZceYOjRL6q1wQ9u+F82pokL1O7jBjuBWlOEcw7bt6oC+8VLNw6KxtFWdYY/YnK2OeN5pmY+Ws4GxXIYCsPca3cZvjgZ4bdJjACn1Lh/RBHuKNaS/awnMkz9DsPQrZPBccPIFsMmsGcF9OrT2n9ZKN6EpG01lcXDUREyxBuqxKnBXYQFgAffTLB/J/xQedqvSEQ1jfVrkTUTv3uoG4p4/2wyC4wJ2teSla/EVIjoAW5ry4idLPFFHqhksXoWDDPgFmwSTAYVvMg+vwC535a5phG7fyAQz2la/DLiMFQAFh3pl3Mn6A0FhSnKn7Aa7zKsu9R4BLWSjvzuZ1ZlJF+lwByHkimflZhKTT4/FK0BZu4/A0lKcDyc3WCiG9w6xcyVmmS3TNoxqQwdsBCJ6ZBNXCAiRAfpPAMtYPIWqdIkLr1FvTqdIrgu6rObnlqI5PyqLcZmi9QrNFyermyv5ufbRuTh/7cFpOh1PQ66YIb1/1IndcXSRx0BR39ZCn/TA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR11MB6059.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(376002)(136003)(346002)(366004)(39860400002)(396003)(451199015)(6666004)(8676002)(86362001)(2906002)(66476007)(478600001)(6916009)(6512007)(26005)(82960400001)(316002)(36756003)(54906003)(44832011)(38100700002)(2616005)(6486002)(53546011)(8936002)(66556008)(186003)(4326008)(6506007)(41300700001)(83380400001)(66946007)(5660300002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Wzgplb1B6myRp43mnHBPawIXwsDqU8FhbB2b/JEHHssP+AXx+jG+MF8tHmsq?=
- =?us-ascii?Q?iDFSXxkhFJcxSNCKtT1JBbjxqVn11cCl1MkJoK/cuyZqp1QKjsg8CU0uJ0ju?=
- =?us-ascii?Q?8muFVhrp5VB5LilFrnneY28ZPOG4c8BXRjTh+8ATfXHVx8qiY4z0h9V4+yhg?=
- =?us-ascii?Q?GWGYZmBSIl6tio139RZDUP0xzZbNkW8TlX2T3NVYEfByOfjl7YHqD3fE0LtM?=
- =?us-ascii?Q?c2gHuHiFmJopz11nQ08j23umzHshEkUlXgptxA9XOcRc6LN16FPSmaCcVjp2?=
- =?us-ascii?Q?Ij8j0IZZrXyymR6MakLjBacaZ8L5D8fjSCyLy0k9dZOx3t1H2ddzBoKcGAbb?=
- =?us-ascii?Q?UuDTXgTw13N1ni+vgDEvJCg+ywSSAyg6gb6q5EsZ7/sq6ZCzcU8zCpd1p4Cf?=
- =?us-ascii?Q?XkHOzl2lfa46JKVSxU1hnl4GkOvG7pLTa3Tfr7pRXDv0T/dPLRVgVMlj7k/K?=
- =?us-ascii?Q?826OMmvuyOqACL+hMXnR6wd/SnEV0Cv5ZSH5PnHcv5yjTGyrMA+ST1YiQkam?=
- =?us-ascii?Q?XeM1NwWcGpnW8uoGYF0gpN723szzlPPxqRxtCDlwlD21tynLExLPwZQBZtf2?=
- =?us-ascii?Q?5TnwO2r9EBHbDKOG2be2lT43lgxF35nssIgfPMwOnbhrl+NXBf7QcwJpLa2H?=
- =?us-ascii?Q?K24GYJwcihrps13K1ekAXsskbwLHRPvq4LGC/jFDY2nDwlBJQNUqmfjaPkeI?=
- =?us-ascii?Q?3UnUjvXvlNOJLQF380tsbXxNAPHux+efPsfB+JeGQeWBhLN9gmAz1S4obSdG?=
- =?us-ascii?Q?5cjCqMS7gSxZ+7pFRObrCW82mmp+M+8IloyXezoTiAWpcY1NqPGwJEfKz88y?=
- =?us-ascii?Q?RSoGlEhqzLrP2kBXQ+pF4H3Iwz+7AuZRJRgoFmHir0WvoEzJ4E9PmTQsXDw4?=
- =?us-ascii?Q?xx/cstPnIhEiM5GfwmaeFbT1HSeI3GyqJkGW4OS4zcD5iTUMT5SNmJTxl7mr?=
- =?us-ascii?Q?+QBHToZ9a0VfG7lhoCtSJ2/Z24+bbgeOcPXa1rUeyLnZIfVUUoqrliZv853i?=
- =?us-ascii?Q?bdr9cNsoW80U/j0RkGDqkn5xuS3IUOKQXZB6+O+phN+HnukjmPTi2ovEcAGo?=
- =?us-ascii?Q?V63hi96jrflrSEo/qAvJZ5xgrGEkvI7Ea9rhzKltYxxtCG5r/q6/T4WW5o3s?=
- =?us-ascii?Q?BFyHl0Iz1rvypGT9Ai7hXDLm8qpuTDdUJX7cmIeTeU/CVXtq6PWi+vNqUkJs?=
- =?us-ascii?Q?b5/36cWTdonfQac07lGT6ow61/8j4BaLq+ewHVDXrJHLkqcchUfTeSxaxyFI?=
- =?us-ascii?Q?GJpUWo2KUU8ZfBSze4Q3GJ5FsC9c6Y7YLuiQu9bIXCXT4TRC+nDygLHIUQjf?=
- =?us-ascii?Q?uMPDqY4Zs1E4/3zsBM9QZvaz9ybftv3951enqdgQkM5/1hKF5XnWhw9SstAq?=
- =?us-ascii?Q?ruSP2YZ0dgEYeH+bvGY8+UnSWjkkuojClxhxp+Zy6sL0ukT/udAuP+8fF2c7?=
- =?us-ascii?Q?SpN0YhfjLqL6Om04LQ60FjOLEQHONKqaLE493p6fQ7PxneDsi23hoSzN1c10?=
- =?us-ascii?Q?T8X+wc33hGCnQUmyuSbTXP09UBMivRNyCH0SDbVKpO+O1hsru6F9ynoct0Kq?=
- =?us-ascii?Q?lgg0Ffe/xw6UEAnN+cZDSGS22PcTYKAI8VCC5CRt7nf96xCSgaAgAd2/IjEF?=
- =?us-ascii?Q?iQ=3D=3D?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 87046a8f-3e6f-429d-585b-08da9c7edcec
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR11MB6059.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Sep 2022 09:43:11.5603
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: h6jPWBBw/7DkOKW4rRnffBtFSAoJcZYxB2wZDDKyZh9+4wVs4PJYQPlMZidNISSWeDxePIvQE0yVht7BUwxQyw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR11MB5445
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220921153645.663680057@linuxfoundation.org>
+In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 22 Sep 2022 15:16:29 +0530
+Message-ID: <CA+G9fYtS97fKxEP1ZSUDOBsa8c0ktC8nGKPSxWjDNbBHwpE7Hw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/39] 5.10.145-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 22, 2022 at 08:56:00AM +0100, Tvrtko Ursulin wrote:
-> 
-> On 21/09/2022 18:39, Rodrigo Vivi wrote:
-> > The force_probe protection actively avoids the probe of i915 to
-> > manage a device that is currently under development. It is a nice
-> > protection for future users when getting a new platform but using
-> > some older kernel.
-> > 
-> > However, when we avoid the probe we don't take back the registration
-> > of the device. We cannot give up the registration anyway since we can
-> > have multiple devices present. For instance an integrated and a discrete
-> > one.
-> > 
-> > When this scenario occurs, the user will not be able to change any
-> > of the runtime pm configuration of the unmanaged device. So, it will
-> > be blocked in D0 state wasting power. This is specially bad in the
-> > case where we have a discrete platform attached, but the user is
-> > able to fully use the integrated one for everything else.
-> > 
-> > So, let's put the protected and unmanaged device in D3. So we can
-> > save some power.
-> > 
-> > Reported-by: Daniel J Blueman <daniel@quora.org>
-> > Cc: stable@vger.kernel.org
-> > Cc: Daniel J Blueman <daniel@quora.org>
-> > Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> > Cc: Anshuman Gupta <anshuman.gupta@intel.com>
-> > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > ---
-> >   drivers/gpu/drm/i915/i915_pci.c | 8 ++++++++
-> >   1 file changed, 8 insertions(+)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/i915_pci.c b/drivers/gpu/drm/i915/i915_pci.c
-> > index 77e7df21f539..fc3e7c69af2a 100644
-> > --- a/drivers/gpu/drm/i915/i915_pci.c
-> > +++ b/drivers/gpu/drm/i915/i915_pci.c
-> > @@ -25,6 +25,7 @@
-> >   #include <drm/drm_color_mgmt.h>
-> >   #include <drm/drm_drv.h>
-> >   #include <drm/i915_pciids.h>
-> > +#include <linux/pm_runtime.h>
-> >   #include "gt/intel_gt_regs.h"
-> >   #include "gt/intel_sa_media.h"
-> > @@ -1304,6 +1305,7 @@ static int i915_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-> >   {
-> >   	struct intel_device_info *intel_info =
-> >   		(struct intel_device_info *) ent->driver_data;
-> > +	struct device *kdev = &pdev->dev;
-> >   	int err;
-> >   	if (intel_info->require_force_probe &&
-> > @@ -1314,6 +1316,12 @@ static int i915_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-> >   			 "module parameter or CONFIG_DRM_I915_FORCE_PROBE=%04x configuration option,\n"
-> >   			 "or (recommended) check for kernel updates.\n",
-> >   			 pdev->device, pdev->device, pdev->device);
-> > +
-> > +		/* Let's not waste power if we are not managing the device */
-> > +		pm_runtime_use_autosuspend(kdev);
-> > +		pm_runtime_allow(kdev);
-> > +		pm_runtime_put_autosuspend(kdev);
-> 
-> This sequence is black magic to me so can't really comment on the specifics. But in general, what I think I've figured out is, that the PCI core calls our runtime resume callback before probe:
-> 
-> local_pci_probe:
-> ...
->         /*
->          * Unbound PCI devices are always put in D0, regardless of
->          * runtime PM status.  During probe, the device is set to
->          * active and the usage count is incremented.  If the driver
->          * supports runtime PM, it should call pm_runtime_put_noidle(),
->          * or any other runtime PM helper function decrementing the usage
->          * count, in its probe routine and pm_runtime_get_noresume() in
->          * its remove routine.
->          */
->         pm_runtime_get_sync(dev);
->         pci_dev->driver = pci_drv;
->         rc = pci_drv->probe(pci_dev, ddi->id);
->         if (!rc)
->                 return rc;
->         if (rc < 0) {
->                 pci_dev->driver = NULL;
->                 pm_runtime_put_sync(dev);
->                 return rc;
->         }
-> 
+On Wed, 21 Sept 2022 at 21:22, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.145 release.
+> There are 39 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 23 Sep 2022 15:36:33 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.145-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Yes, in Linux the default is D0 for any unmanaged device. But then the
-user can go there in the sysfs and change the power/control to 'auto'
-and get the device to D3.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> And if probe fails it calls pm_runtime_put_sync which presumably does not provide the symmetry we need?
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-The main problem I see is that when the probe fail in our case we don't
-unregister and i915 is still listed as controlling that device as we could
-see with lspci --nnv.
+NOTE:
+As we have already reported from the previous stable rc review
+about the gpiod test runs causing kernel crash on 5.19. 5.15 and 5.10
 
-And any attempt to change the control to 'auto' fails. So we are forever
-stuck in D0.
+This is caused by commit 303e6da99429 ("gpio: mockup: remove gpio
+debugfs when remove device")
 
-So, I really believe it is better to bring the device to D3 then leaving
-it there blocked in D0 forever.
+Crash log:
+---------
 
-Or forcing users to use another parameter to entirely avoid i915 to get
-this device at first place.
++ cd ./automated/linux/gpiod
++ ./gpiod.sh /opt/libgpiod/bin/
+[INFO]  libgpiod test suite
+[INFO]  117 tests registered
+[INFO]  checking the linux kernel version
+[INFO]  kernel release is v5.10.145 - ok to run tests
+[INFO]  using gpio-tools from '/usr/bin'
+[   12.960531] Unable to handle kernel NULL pointer dereference at
+virtual address 00000000000000a0
+[   12.961269] Mem abort info:
+[   12.961490]   ESR =3D 0x96000006
+[   12.961749]   EC =3D 0x25: DABT (current EL), IL =3D 32 bits
+[   12.962164]   SET =3D 0, FnV =3D 0
+[   12.962389]   EA =3D 0, S1PTW =3D 0
+[   12.962652] Data abort info:
+[   12.962881]   ISV =3D 0, ISS =3D 0x00000006
+[   12.963163]   CM =3D 0, WnR =3D 0
+[   12.963749] user pgtable: 4k pages, 48-bit VAs, pgdp=3D000000010460c000
+[   12.964233] [00000000000000a0] pgd=3D0000000104421003,
+p4d=3D0000000104421003, pud=3D00000001045cf003, pmd=3D0000000000000000
+[   12.965008] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[   12.965413] Modules linked in: gpio_mockup(-) cfg80211 bluetooth
+rfkill crct10dif_ce drm fuse
+[   12.966052] CPU: 3 PID: 369 Comm: gpiod-test Not tainted 5.10.145-rc1 #1
+[   12.966533] Hardware name: linux,dummy-virt (DT)
+[   12.966868] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=3D--)
+[   12.967317] pc : down_write+0x24/0x70
+[   12.967603] lr : simple_recursive_removal+0x58/0x274
 
-> 
-> Anyway since I can't provide meaningful review I'll copy Imre since I think he worked in the area in the past. Just so more eyes is better.
-> 
-> Regards,
-> 
-> Tvrtko
-> 
-> 
-> > +
-> >   		return -ENODEV;
-> >   	}
+https://lore.kernel.org/lkml/CAMRc=3DMc_DkKN0qM9dBj_Pz2LeEhmT29GwmVf0tbunGk=
+aOaYUqA@mail.gmail.com/
+
+## Build
+* kernel: 5.10.145-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: ca8291e3d06f6d6be2c539455efd2c40cb2bfbab
+* git describe: v5.10.144-40-gca8291e3d06f
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.144-40-gca8291e3d06f
+
+## No Test Regressions (compared to v5.10.144)
+
+## No Metric Regressions (compared to v5.10.144)
+
+## No Test Fixes (compared to v5.10.144)
+
+## No Metric Fixes (compared to v5.10.144)
+
+## Test result summary
+total: 101642, pass: 89442, fail: 765, skip: 11240, xfail: 195
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 333 total, 333 passed, 0 failed
+* arm64: 65 total, 63 passed, 2 failed
+* i386: 55 total, 53 passed, 2 failed
+* mips: 56 total, 56 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 55 passed, 5 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 24 total, 24 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 58 total, 56 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
