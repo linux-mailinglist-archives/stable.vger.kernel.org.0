@@ -2,75 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 733395E66EF
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 17:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF36A5E6707
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 17:25:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbiIVPV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 11:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
+        id S232120AbiIVPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 11:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231945AbiIVPV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 11:21:58 -0400
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F63DF6851;
-        Thu, 22 Sep 2022 08:21:56 -0700 (PDT)
-Received: by mail-qt1-x830.google.com with SMTP id h21so6502058qta.3;
-        Thu, 22 Sep 2022 08:21:56 -0700 (PDT)
+        with ESMTP id S232035AbiIVPZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 11:25:43 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92986EF09D
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 08:25:39 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id e67so3340335pgc.12
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 08:25:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date;
-        bh=EHgGy1b4fKR2VlhBEDXkInmqsgSWH6kP/tOJUohtCnU=;
-        b=b1x7BJhFdALiDbdINeWXxQwoJhbNHuUcLLLFwNz/X5WtIQdFsjwcFPUscwh+6bU1Mm
-         RIj2NRvE5PgUIC4Y8XCek//ayoD9GFN3+jd+TBty9l1CZ+R4KfZG+yb1NMUwTXop1wUP
-         yXjPTSARbkHX81YUff1RvhsCj4aCZ+dH5CsCyQJRmdxt/C2CKsDenw5NtCxugTPIdZAQ
-         ST8ymrA75BmyRfmGYm4bQOYc0B7FLIDAdzhGZceIdUnnyZSXQoWWLxmUS8DQRGx6YxA3
-         VWHkkvtmzc5Ky6RCVDLAowDKYXSarUzgZ5cjCaOTZu5eUdqkeMz3Nyw6n25/6CP8oGVn
-         uKmA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=KHgkOhuLJtXZZudnejL34dLakBXAzoLyHdgZdraeRyE=;
+        b=gNXHzZhGxkLuF8Vb5Fw12NaRQTHlnmUeARWJ292QNeR3gGVuXy9y/Bp+A8O/06Aa5k
+         LdrlDX4UA4YiBUDB6KgspIryFvQnnQ6yjcDAf2dkxoIeuICTe8gFDVIgPKgoN5l2fExx
+         SLUFArUQVCF1NnaEZ9uv4kSuz33eK3VOFktX7pj6swQLfixK5R6xVz7APFKI1dYzBbBG
+         lex9/g3R1zOPCgx6pZFIFRV1bmIr1miYZBSuxL70C0bz394CGfTnGqPfi7b5NzhG0RNi
+         4QFeGcl3QRfgXGP/gmFYuebVtaA6oiGKQ9krqqqcMh8VMyp/JqKu5WV8Ij0Ei5fV/tuL
+         /3MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:from:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=EHgGy1b4fKR2VlhBEDXkInmqsgSWH6kP/tOJUohtCnU=;
-        b=RlPnijidB7G1rlkrfv0I7B4snlkmouf3RWEIyFcsc0/e//7jkBSZL2Syu9EOXa3BP4
-         2ARC2IfqEgB4+p8ABh64iv+LbI85zeUK0nh5z4PXMVHCKkVFYvKxWNU4/14AVxstGw6h
-         htdqBi1mRv2p5rLXJyQ0iNsgjOQ2deQ4CKNtTES4j9Pp1+nLOX6UT+yyoihngLHoK25w
-         klIXh3d/nd+1VcbHkCF3Dhh3vnZYEM+Y2xkCKyGhebCdzvMfzNAIAlR3WLQyn3+a+V0M
-         qhcN6G5PgfzXWsC2EC2BP/s0rfYwwmgzy1yNs+njUn7nTh2DSlOxVV9nGJkU2oSoYoM5
-         LAVA==
-X-Gm-Message-State: ACrzQf2SVJOo/z7Rd+lnIE1STMmU/HoZD5QUESe+6l6aMtcdEE20F1To
-        mnjalXRcYQvpQ7WdQKvmbTw=
-X-Google-Smtp-Source: AMsMyM5CRzrCNQ1BnOCTZiPkVmExfKWdkM/ggKr1EEVHDjkBNt/qIWOitKdVVxcFF108eJiygbRPPg==
-X-Received: by 2002:ac8:5209:0:b0:35b:b179:9ca1 with SMTP id r9-20020ac85209000000b0035bb1799ca1mr3361696qtn.260.1663860115665;
-        Thu, 22 Sep 2022 08:21:55 -0700 (PDT)
-Received: from [192.168.1.102] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id c3-20020a37e103000000b006ce3fcee2bdsm3861031qkm.50.2022.09.22.08.21.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Sep 2022 08:21:55 -0700 (PDT)
-Message-ID: <e76947a1-7990-84dc-641e-375e95b86528@gmail.com>
-Date:   Thu, 22 Sep 2022 08:21:53 -0700
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=KHgkOhuLJtXZZudnejL34dLakBXAzoLyHdgZdraeRyE=;
+        b=2rWfHx+MPRf7mZt668jzQp4bkM26t8Q29xkJCIsUQfqJ82UwE5mlGLOtfxf4sxLwLn
+         2tTQ2eta9FklXQxO8a5z/EtFon7AEqT3UEZAwk3J0cJDMA9XklWqaU2O1UfEREz0r9kd
+         tEA5tVwgIPIv0iy2as8Gi0E5opao8hKoy17jJcfhVcQck2VVrZFhZ/p/P3IqY6xrSDKC
+         /VsQWCwkIUSGL3McwqttP0zj6/NHVW+DuAuO1rcmkGjIhg18CaeUYZMz9UEOt0cQKwnu
+         0REJb6U5gI6PPIx4Fnt+SXagMazW34OtL5FlsV6oSRZNhOxwVN7NBuUS7P+BVIb3C7Av
+         SxAQ==
+X-Gm-Message-State: ACrzQf3MOjPFD0c5mjMYfatysT1xXOEWnu5+z+a6EVAlwUtrJ64+EAw+
+        96jDqOmbcq7IkghCB2ZH6qqR/4o76517bolptyg=
+X-Google-Smtp-Source: AMsMyM7UIGpg1iV8A0XEYeJQ7bFoAcCRNk7csM6o1y9/DYPpUR9p8nsvUa72UnOha/1X7qh5q+eUkg==
+X-Received: by 2002:aa7:9605:0:b0:53e:8062:43fc with SMTP id q5-20020aa79605000000b0053e806243fcmr4194930pfg.39.1663860337884;
+        Thu, 22 Sep 2022 08:25:37 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e23-20020aa79817000000b00540b35628a4sm4619112pfl.123.2022.09.22.08.25.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Sep 2022 08:25:37 -0700 (PDT)
+Message-ID: <632c7e71.a70a0220.ecbd0.9bdc@mx.google.com>
+Date:   Thu, 22 Sep 2022 08:25:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.15 00/45] 5.15.70-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220921153646.931277075@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20220921153646.931277075@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.144-39-g7cb536a33eb23
+Subject: stable-rc/queue/5.10 baseline: 136 runs,
+ 2 regressions (v5.10.144-39-g7cb536a33eb23)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,28 +70,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/21/22 08:45, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.70 release.
-> There are 45 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 23 Sep 2022 15:36:33 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.70-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/5.10 baseline: 136 runs, 2 regressions (v5.10.144-39-g7cb53=
+6a33eb23)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Regressions Summary
+-------------------
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+platform | arch | lab          | compiler | defconfig           | regressio=
+ns
+---------+------+--------------+----------+---------------------+----------=
+--
+panda    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1        =
+  =
+
+panda    | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1        =
+  =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.144-39-g7cb536a33eb23/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.144-39-g7cb536a33eb23
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7cb536a33eb2348c2200a83816b2f9d19a15a962 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab          | compiler | defconfig           | regressio=
+ns
+---------+------+--------------+----------+---------------------+----------=
+--
+panda    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/632c4e4bc30c7e7ca235565a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.144=
+-39-g7cb536a33eb23/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.144=
+-39-g7cb536a33eb23/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/632c4e4bc30c7e7ca2355=
+65b
+        failing since 30 days (last pass: v5.10.136-539-g2b0d128e38cdb, fir=
+st fail: v5.10.137-150-g8b56d7183e67) =
+
+ =
+
+
+
+platform | arch | lab          | compiler | defconfig           | regressio=
+ns
+---------+------+--------------+----------+---------------------+----------=
+--
+panda    | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/632c49c2bd68ed886d355645
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.144=
+-39-g7cb536a33eb23/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.144=
+-39-g7cb536a33eb23/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/632c49c2bd68ed886d355=
+646
+        failing since 30 days (last pass: v5.10.136-539-g2b0d128e38cdb, fir=
+st fail: v5.10.137-150-g8b56d7183e67) =
+
+ =20
