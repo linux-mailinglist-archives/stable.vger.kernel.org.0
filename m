@@ -2,161 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB7A5E5DED
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 10:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E3FD5E5E39
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 11:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230264AbiIVIuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 04:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55088 "EHLO
+        id S229990AbiIVJPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 05:15:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229995AbiIVIuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 04:50:14 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6616661DB3;
-        Thu, 22 Sep 2022 01:50:13 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id n10so14304170wrw.12;
-        Thu, 22 Sep 2022 01:50:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=IbHmDlkI8PWGiRIhKV3Nxtu4KGb99fNIelKZ9TKdJDo=;
-        b=SUmPm7gc5cElvH2/gCaFcawYNGdwCmOM+TAHUa54w1AnkH3QpQw/I99c/X3XF3HTKD
-         f2B423MOCSfM8brtXVPlYWB4h7CoZHz1YYNlh8wbCgPw5py+5XG8Jktg7bZvCXBF0OfE
-         S+BD0Lk4J9d5erkJ2xaOioVtfRN2+gnn5k6KhcOT5fVHBT72aGQoQ/DMvFjQtxjHabmI
-         NEARBo6WOjSnM1FEBjotCTh3jqqRFUnCScllPHhpx8uQolX3o2rOaOTyzoHr9yWoFPqN
-         KOZbWX0ZgwzoAHyAkwEUmI2X8eyYlTw16HQ/0c91DpXY9lBrh8pPucL7iX65b+9OCG6m
-         3ntg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=IbHmDlkI8PWGiRIhKV3Nxtu4KGb99fNIelKZ9TKdJDo=;
-        b=i45zlvi/mgEmZiqeUwPoGjgBEDVC8mT6XR1T2Ky0AS3Gm1xqrFoS62KmmnRug6NuYp
-         yOve6i6Bc3d5udwmZYBTVcvnbe1iXh61Sybz7W7MpXDBPydlixRjBK1roREZw6PbriO4
-         7HWvTVG79YYhLTKGxjCrvCm8akq4mPm1QelU+F7cC5LSwnyb5R9KyrtJxK7WsnTtchI1
-         bA5F2SMm66kFSj9FCp4Pp2pjWc6G77mMr873JewBPdRSLd6tBNulPSjx1/rbtGfwcfvN
-         SDN9gnal6ISdxn4hRFLfZhd2I5DhTc6HtGzUeSNpfk1Ce5k1AVBWyHRtNclzwB3UZMlG
-         mi7A==
-X-Gm-Message-State: ACrzQf2ncl3MOWvahWgw5bSNu8EOWjGgd0+GrZ9xvhfLe5K0spXKGHQ0
-        a/XMDNmH8oxsv9/4sH6CY/0=
-X-Google-Smtp-Source: AMsMyM7xahyZpM0t4vES63vBpiRq9Ej2ySYFoIw99YR3jqJB7+IsC71lJRf4bcZlxD8qlqE9fU8PPA==
-X-Received: by 2002:a5d:5c06:0:b0:22a:7b52:cda6 with SMTP id cc6-20020a5d5c06000000b0022a7b52cda6mr1220476wrb.485.1663836611695;
-        Thu, 22 Sep 2022 01:50:11 -0700 (PDT)
-Received: from amir-ThinkPad-T480.lan ([5.29.8.191])
-        by smtp.gmail.com with ESMTPSA id x12-20020adfffcc000000b0022ac672654dsm4434722wrs.58.2022.09.22.01.50.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Sep 2022 01:50:11 -0700 (PDT)
-From:   Amir Goldstein <amir73il@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        Varsha Teratipally <teratipally@google.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, linux-xfs@vger.kernel.org,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.10] xfs: fix up non-directory creation in SGID directories
-Date:   Thu, 22 Sep 2022 11:49:56 +0300
-Message-Id: <20220922084956.74262-1-amir73il@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229624AbiIVJPq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 05:15:46 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C3CB40F6;
+        Thu, 22 Sep 2022 02:15:44 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id AFA9C219C9;
+        Thu, 22 Sep 2022 09:15:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1663838142; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0nJel4HKBq2pcIN2vnt5G5EqJOO7OGmT27bntvu5tyU=;
+        b=CJH0ulDFIv8vK/NuyJes/w7roVw9H/+UgNa06LoVK7HfKdODqCZ8nJnClJEXmvTl6a0wnZ
+        Q4dMkFSI0KkBaM5571DRHzB8S/3x5M0hgwOd3UiT5zI1xqQ6ve6UbrZ0LpADN4LqITcXj/
+        rTCl8fGm5Zs44lNPKtCmV6jnTFowo6o=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1663838142;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0nJel4HKBq2pcIN2vnt5G5EqJOO7OGmT27bntvu5tyU=;
+        b=S0hdF5Z8mcPMmf5P6KcwiWlAmzMCm35hcToHrAfDUDOHwnYSNeQKrP1bS6baOECOqdkoQf
+        xuRf6nVcMOtCqrAA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8F5EF1346B;
+        Thu, 22 Sep 2022 09:15:42 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id +Iv0Ir4nLGNxeQAAMHmgww
+        (envelope-from <jack@suse.cz>); Thu, 22 Sep 2022 09:15:42 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 0C796A0684; Thu, 22 Sep 2022 11:15:42 +0200 (CEST)
+Date:   Thu, 22 Sep 2022 11:15:42 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     jack@suse.cz, harshadshirwadkar@gmail.com, stable@vger.kernel.org,
+        ritesh.list@gmail.com, stefan.wahren@i2se.com,
+        ojaswin@linux.ibm.com, linux-ext4@vger.kernel.org,
+        regressions@leemhuis.info
+Subject: Re: [PATCH 1/5] ext4: Make mballoc try target group first even with
+ mb_optimize_scan
+Message-ID: <20220922091542.pkhedytey7wzp5fi@quack3>
+References: <20220908091301.147-1-jack@suse.cz>
+ <20220908092136.11770-1-jack@suse.cz>
+ <166381513758.2957616.15274082762134894004.b4-ty@mit.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/mixed; boundary="sufjmcoi5s6ibxqm"
+Content-Disposition: inline
+In-Reply-To: <166381513758.2957616.15274082762134894004.b4-ty@mit.edu>
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
 
-commit 01ea173e103edd5ec41acec65b9261b87e123fc2 upstream.
+--sufjmcoi5s6ibxqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-XFS always inherits the SGID bit if it is set on the parent inode, while
-the generic inode_init_owner does not do this in a few cases where it can
-create a possible security problem, see commit 0fa3ecd87848
-("Fix up non-directory creation in SGID directories") for details.
+On Wed 21-09-22 22:52:34, Theodore Ts'o wrote:
+> On Thu, 8 Sep 2022 11:21:24 +0200, Jan Kara wrote:
+> > One of the side-effects of mb_optimize_scan was that the optimized
+> > functions to select next group to try were called even before we tried
+> > the goal group. As a result we no longer allocate files close to
+> > corresponding inodes as well as we don't try to expand currently
+> > allocated extent in the same group. This results in reaim regression
+> > with workfile.disk workload of upto 8% with many clients on my test
+> > machine:
+> > 
+> > [...]
+> 
+> Applied, thanks!
+> 
+> [1/5] ext4: Make mballoc try target group first even with mb_optimize_scan
+>       commit: 4fca50d440cc5d4dc570ad5484cc0b70b381bc2a
+> [2/5] ext4: Avoid unnecessary spreading of allocations among groups
+>       commit: 1940265ede6683f6317cba0d428ce6505eaca944
+> [3/5] ext4: Make directory inode spreading reflect flexbg size
+>       commit: 613c5a85898d1cd44e68f28d65eccf64a8ace9cf
+> [4/5] ext4: Use locality group preallocation for small closed files
+>       commit: a9f2a2931d0e197ab28c6007966053fdababd53f
+> [5/5] ext4: Use buckets for cr 1 block scan instead of rbtree
+>       commit: 83e80a6e3543f37f74c8e48a5f305b054b65ce2a
 
-Switch XFS to use the generic helper for the normal path to fix this,
-just keeping the simple field inheritance open coded for the case of the
-non-sgid case with the bsdgrpid mount option.
+Thanks Ted! I just have locally a small fixup to the series that was reported
+by Smatch. It is attached, either fold it into the last patch or just merge
+it as a separate patch. Thanks!
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-off-by: Darrick J. Wong <djwong@kernel.org>
----
-
-Hi Greg,
-
-This is an old debt of a patch that was dropped during review of my
-batch of 5.10.y xfs backports from v5.12 [1].
-
-Recently, Varsha requested the inclusion of this fix in 5.10.y
-and Darrick has Acked it [2].
-
-I have another series of SGID related fixes that also apply to 5.15.y
-which I am collaborating on testing with Leah, but as both Christian and
-Christoph commented in the original patch review [3], this fix from
-v5.12 is independent of the rest of the SGID fixes and is well worth
-backporting.
-
-Thanks,
-Amir.
-
-[1] https://lore.kernel.org/linux-xfs/20220606143255.685988-1-amir73il@gmail.com/
-[2] https://lore.kernel.org/linux-xfs/YyIDzPTn99XLTCFp@magnolia/
-[3] https://lore.kernel.org/linux-xfs/20220608082654.GA16753@lst.de/
-
- fs/xfs/xfs_inode.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index 929ed3bc5619..19008838df76 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -802,6 +802,7 @@ xfs_ialloc(
- 	xfs_buf_t	**ialloc_context,
- 	xfs_inode_t	**ipp)
- {
-+	struct inode	*dir = pip ? VFS_I(pip) : NULL;
- 	struct xfs_mount *mp = tp->t_mountp;
- 	xfs_ino_t	ino;
- 	xfs_inode_t	*ip;
-@@ -847,18 +848,17 @@ xfs_ialloc(
- 		return error;
- 	ASSERT(ip != NULL);
- 	inode = VFS_I(ip);
--	inode->i_mode = mode;
- 	set_nlink(inode, nlink);
--	inode->i_uid = current_fsuid();
- 	inode->i_rdev = rdev;
- 	ip->i_d.di_projid = prid;
- 
--	if (pip && XFS_INHERIT_GID(pip)) {
--		inode->i_gid = VFS_I(pip)->i_gid;
--		if ((VFS_I(pip)->i_mode & S_ISGID) && S_ISDIR(mode))
--			inode->i_mode |= S_ISGID;
-+	if (dir && !(dir->i_mode & S_ISGID) &&
-+	    (mp->m_flags & XFS_MOUNT_GRPID)) {
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = dir->i_gid;
-+		inode->i_mode = mode;
- 	} else {
--		inode->i_gid = current_fsgid();
-+		inode_init_owner(inode, dir, mode);
- 	}
- 
- 	/*
+								Honza
 -- 
-2.25.1
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
 
+--sufjmcoi5s6ibxqm
+Content-Type: text/x-patch; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-ext4-Fixup-possible-uninitialized-variable-access-in.patch"
+
+From 8885b11fb253e08ecfa90a28beffb01719af84f5 Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Thu, 22 Sep 2022 11:09:29 +0200
+Subject: [PATCH] ext4: Fixup possible uninitialized variable access in
+ ext4_mb_choose_next_group_cr1()
+
+Variable 'grp' may be left uninitialized if there's no group with
+suitable average fragment size (or larger). Fix the problem by
+initializing it earlier.
+
+Fixes: 83e80a6e3543 ("ext4: use buckets for cr 1 block scan instead of rbtree")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/ext4/mballoc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 71f5b67d7f28..9dad93059945 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -910,7 +910,7 @@ static void ext4_mb_choose_next_group_cr1(struct ext4_allocation_context *ac,
+ 		int *new_cr, ext4_group_t *group, ext4_group_t ngroups)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(ac->ac_sb);
+-	struct ext4_group_info *grp, *iter;
++	struct ext4_group_info *grp = NULL, *iter;
+ 	int i;
+ 
+ 	if (unlikely(ac->ac_flags & EXT4_MB_CR1_OPTIMIZED)) {
+@@ -927,7 +927,6 @@ static void ext4_mb_choose_next_group_cr1(struct ext4_allocation_context *ac,
+ 			read_unlock(&sbi->s_mb_avg_fragment_size_locks[i]);
+ 			continue;
+ 		}
+-		grp = NULL;
+ 		list_for_each_entry(iter, &sbi->s_mb_avg_fragment_size[i],
+ 				    bb_avg_fragment_size_node) {
+ 			if (sbi->s_mb_stats)
+-- 
+2.35.3
+
+
+--sufjmcoi5s6ibxqm--
