@@ -2,109 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B35615E5FDC
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 12:28:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDD45E5FF5
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 12:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbiIVK21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 06:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
+        id S230371AbiIVKcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 06:32:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229621AbiIVK20 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 06:28:26 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B9FB40F2;
-        Thu, 22 Sep 2022 03:28:21 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id t7so14718036wrm.10;
-        Thu, 22 Sep 2022 03:28:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=39GM4exFZ1dlE3OVAWRYlZvqw5JA5gOJ994ehU2e7TA=;
-        b=IaQ2doisxZ4iy0vO/Fy/iyDjQS812rqvmA2Xwt5Bo0rUC56kb9HTznzxVItWqctf5K
-         TSyYThm9BI/ZN+oSGRMQ+w6L0F6qrmilljNJ5s78zQL3tEqaySWm12z23GBpo1PV4Zh9
-         vq18gyXCEI7AVIFDDaoy/W9d19ncieQt5xxCK5CV2VxxCl/SMkHQJVLUzX52Cn0U+DtU
-         fEbMjPqxq9nwfQt+dTcBXWG3Vo8UAETGjOpewkPLfiNC6pjF2s2gy9X+7bB0wSmO8eMB
-         cpphVv3uUk9fg6jO/7GhWQV/RWeNdXtqv6JIkMalplHWRx3kYyJWc+2AzSmIznXy7baj
-         pFsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=39GM4exFZ1dlE3OVAWRYlZvqw5JA5gOJ994ehU2e7TA=;
-        b=XyRyWurIdLhiepsgrbTZ9kohQabmRvr6D1M1bGXYXKx1hSStmCjIQdTwHfZTLOg5Jd
-         ojCdZnwLQqloXL8c6tRi/GqbwZRTd6hGA5+2OxVTOp7Z323G7cvX82fN9yjkKQQZK0s9
-         Pex55NarKbPG5LtCkPQjrNt2BcbRVfs73WuDv3FiPgMUBlD/hmstLSLDzfCbYqXW8aFi
-         e/DQs9cjdfX+hyifVOkUv6EMR2nhuVN8mDIHhTn9RQPCiv+5NQq9AkIzxksZxh8j483L
-         hZkn486oYjeWPIBEelo+kVSErD1MbfBd5r339yp3X2ViFJfqWXSYWJC6xkA3ht6ZfQ1K
-         oGtw==
-X-Gm-Message-State: ACrzQf2buPVHjT4MdaaNh5nkStu0Ltb9pTA6aOaOJDt0QnP28/qVLn2q
-        v3D8PoSO6LmtCM5G+iGoR6I=
-X-Google-Smtp-Source: AMsMyM6ijGzvdt6xuyU9mbrG3Pj+NoJ0cXXesSnCUTizB9B4aaDio2CiF9/AxrJ7fv5lxqNdzknY8A==
-X-Received: by 2002:adf:b646:0:b0:221:76eb:b3ba with SMTP id i6-20020adfb646000000b0022176ebb3bamr1510666wre.237.1663842499939;
-        Thu, 22 Sep 2022 03:28:19 -0700 (PDT)
-Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
-        by smtp.gmail.com with ESMTPSA id w12-20020a05600c474c00b003a5f3f5883dsm5712398wmo.17.2022.09.22.03.28.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Sep 2022 03:28:19 -0700 (PDT)
-Date:   Thu, 22 Sep 2022 11:28:17 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 00/39] 5.10.145-rc1 review
-Message-ID: <Yyw4wfkUvhlIg3I4@debian>
-References: <20220921153645.663680057@linuxfoundation.org>
+        with ESMTP id S230075AbiIVKcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 06:32:23 -0400
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [IPv6:2001:67c:2050:0:465::201])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F800D6916;
+        Thu, 22 Sep 2022 03:32:19 -0700 (PDT)
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4MYBRh1LdCz9sQw;
+        Thu, 22 Sep 2022 12:32:16 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1663842736;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WcSMI9o79BEi4BYCfBNfXpEPRAzEwth0h8PN/3Lb7hI=;
+        b=sF2Iw8irqYZ2giNv4jI/4zOj2NNyXc/XzeLxn3FgZUAbcWqYukOlcammalA0BUgPIPolrE
+        Rw78XacPNgbBb8wl1rZ9E7xMwS9g3GNYVjQ8s08CpOrL/08nz+RTTEBVdcW5cIvvAEFsQo
+        dT2qURjeRkQVGYFxIDDbJPU9dWfYDC5nUcjs2EihxPlN4MogHNuEjo8kRQ3xkHRTlsEeK/
+        DE4EVV8UM2D0uFVqppeRENRSxUfIla5KB8+RRW6koBfZifIzBEips6GWimF4MAvKcowY6g
+        dQ1IOHWyhzXNEN6oEoSEPlMuiM3uP0LC4RJVlrL6DaLyRsChBpfp/XhQuiS87Q==
+Message-ID: <d91aaff1-470f-cfdf-41cf-031eea9d6aca@mailbox.org>
+Date:   Thu, 22 Sep 2022 12:32:13 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220921153645.663680057@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Subject: Re: [PATCH AUTOSEL 5.4 3/5] drm/amdgpu: use dirty framebuffer helper
+Content-Language: en-CA
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     guchun.chen@amd.com, airlied@linux.ie, contact@emersion.fr,
+        dri-devel@lists.freedesktop.org, Xinhui.Pan@amd.com,
+        amd-gfx@lists.freedesktop.org, aurabindo.pillai@amd.com,
+        seanpaul@chromium.org, Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        daniel@ffwll.ch, Alex Deucher <alexander.deucher@amd.com>,
+        evan.quan@amd.com, christian.koenig@amd.com, greenfoo@u92.eu
+References: <20220921155436.235371-1-sashal@kernel.org>
+ <20220921155436.235371-3-sashal@kernel.org>
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel.daenzer@mailbox.org>
+In-Reply-To: <20220921155436.235371-3-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-ID: 739b6371571c7f7200f
+X-MBO-RS-META: wc3htxwqz1fpkxzby6gtuenpjfyxefbx
+X-Rspamd-Queue-Id: 4MYBRh1LdCz9sQw
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Wed, Sep 21, 2022 at 05:46:05PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.145 release.
-> There are 39 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2022-09-21 17:54, Sasha Levin wrote:
+> From: Hamza Mahfooz <hamza.mahfooz@amd.com>
 > 
-> Responses should be made by Fri, 23 Sep 2022 15:36:33 +0000.
-> Anything received after that time might be too late.
+> [ Upstream commit 66f99628eb24409cb8feb5061f78283c8b65f820 ]
+> 
+> Currently, we aren't handling DRM_IOCTL_MODE_DIRTYFB. So, use
+> drm_atomic_helper_dirtyfb() as the dirty callback in the amdgpu_fb_funcs
+> struct.
+> 
+> Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+> Acked-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> index b588e0e409e7..d8687868407d 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> @@ -35,6 +35,7 @@
+>  #include <linux/pci.h>
+>  #include <linux/pm_runtime.h>
+>  #include <drm/drm_crtc_helper.h>
+> +#include <drm/drm_damage_helper.h>
+>  #include <drm/drm_edid.h>
+>  #include <drm/drm_gem_framebuffer_helper.h>
+>  #include <drm/drm_fb_helper.h>
+> @@ -495,6 +496,7 @@ bool amdgpu_display_ddc_probe(struct amdgpu_connector *amdgpu_connector,
+>  static const struct drm_framebuffer_funcs amdgpu_fb_funcs = {
+>  	.destroy = drm_gem_fb_destroy,
+>  	.create_handle = drm_gem_fb_create_handle,
+> +	.dirty = drm_atomic_helper_dirtyfb,
+>  };
+>  
+>  uint32_t amdgpu_display_supported_domains(struct amdgpu_device *adev,
 
-Build test (gcc version 11.3.1 20220919):
-mips: 63 configs -> no failure
-arm: 104 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
-
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/1875
-[2]. https://openqa.qa.codethink.co.uk/tests/1879
+This patch has issues, see https://patchwork.freedesktop.org/patch/503749/ .
 
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+-- 
+Earthling Michel Dänzer            |                  https://redhat.com
+Libre software enthusiast          |         Mesa and Xwayland developer
 
---
-Regards
-Sudip
