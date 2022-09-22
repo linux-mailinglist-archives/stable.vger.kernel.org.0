@@ -2,92 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A33475E61A4
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 13:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F395E6184
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 13:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231551AbiIVLqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 07:46:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45356 "EHLO
+        id S231613AbiIVLna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 07:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231712AbiIVLp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 07:45:27 -0400
-Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D663DBFC
-        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 04:44:43 -0700 (PDT)
-Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
-        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id 189B8802AE55
-        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 11:44:32 +0000 (UTC)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 255CF10047D89
-        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 11:42:58 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id bKbZovG9NaT2RbKbZoag6f; Thu, 22 Sep 2022 11:42:58 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=BO52EHcG c=1 sm=1 tr=0 ts=632c4a42
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=xOM3xZuef0cA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Imf6IfHGtkP/4sw/nFiRH/xsZftDLRctRzMEVr6dPLU=; b=qtn+ShjRGxqXXEaUA6rGg+lYPc
-        LMYceXic2rddouOqpNK+z6Ck1su77Runpe5uyLYaknxclSl3nu5bYWyF4SofwOKRK5L/TBqhyT9KT
-        Yv77UNGXPk9y/YpnQejUwWrrFMDG79YyjCuWWK63ckRoBPgbJ/ndBl8JqHMz8UfNPDIIrlolHe2LO
-        tXzWAegEbl9BQFB8XPB6MOvhgpGGx2ZVlCvXwSiBoKuQ848F0TeIPEkTBtKWkL1IKY0ej/7x0Z7dU
-        OqdgnoHXLMRWdyYZSlaSDoKirBl07Z9gsrwZNyb4SUz6w2pwXlD72gu13KWEhDbh1fk6+8vjgfjlf
-        pDRwMIPg==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:45774 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1obKbX-002Tis-8o;
-        Thu, 22 Sep 2022 05:42:55 -0600
-Subject: Re: [PATCH 5.19 00/39] 5.19.11-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220921164741.757857192@linuxfoundation.org>
-In-Reply-To: <20220921164741.757857192@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <bd907a2d-76ad-f350-5f15-d5656f6edf15@w6rz.net>
-Date:   Thu, 22 Sep 2022 04:42:47 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S230428AbiIVLnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 07:43:08 -0400
+Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2995FCA7B;
+        Thu, 22 Sep 2022 04:42:51 -0700 (PDT)
+Received: from [141.14.220.45] (g45.guest.molgen.mpg.de [141.14.220.45])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id ECD2961EA192A;
+        Thu, 22 Sep 2022 13:42:48 +0200 (CEST)
+Message-ID: <ae96779e-e3a7-b4b5-78fc-e5b53d456ece@molgen.mpg.de>
+Date:   Thu, 22 Sep 2022 13:42:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: nfs_scan_commit: BUG: unable to handle page fault for address:
+ 000000001d473c07
+To:     Trond Myklebust <trondmy@hammerspace.com>
+Cc:     Anna Schumaker <anna@kernel.org>, linux-nfs@vger.kernel.org,
+        stable@vger.kernel.org, it+linux-nfs@molgen.mpg.de
+References: <c5d8485b-0dbc-5192-4dc6-10ef2b86b520@molgen.mpg.de>
+ <e845f65cb78d31aa1982da4bc752ee2e5191f10f.camel@hammerspace.com>
 Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1obKbX-002Tis-8o
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:45774
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+In-Reply-To: <e845f65cb78d31aa1982da4bc752ee2e5191f10f.camel@hammerspace.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -95,26 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/21/22 9:47 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.11 release.
-> There are 39 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 23 Sep 2022 16:47:28 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.11-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Dear Trond,
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Tested-by: Ron Economos <re@w6rz.net>
+Thank you for the quick reply.
 
+Am 21.09.22 um 14:44 schrieb Trond Myklebust:
+
+> On Wed, 2022-09-21 at 13:42 +0200, Paul Menzel wrote:
+
+>> Moving from Linux 5.10.113 to 5.15.69, starting Mozilla Thunderbird or
+>> Mozilla Firefox with the home on NFS, both programs get killed, and
+>> Linux 5.15.69 logs:
+>>
+>> ```
+>> [ 3827.604396] BUG: unable to handle page fault for address: 000000001d473c07
+>> [ 3827.611297] #PF: supervisor read access in kernel mode
+>> [ 3827.616452] #PF: error_code(0x0000) - not-present page
+>> [ 3827.621604] PGD 0 P4D 0
+>> [ 3827.624152] Oops: 0000 [#1] SMP PTI
+>> [ 3827.627657] CPU: 0 PID: 2378 Comm: firefox Not tainted 5.15.69.mx64.435 #1
+>> [ 3827.634551] Hardware name: Dell Inc. Precision Tower 3620/0MWYPT, BIOS 2.20.0 12/09/2021
+
+[…]
+
+>> [ 3827.743328] Call Trace:
+>> [ 3827.745779]  <TASK>
+>> [ 3827.747883]  nfs_scan_commit+0x76/0xb0 [nfs]
+>> [ 3827.752167]  __nfs_commit_inode+0x108/0x180 [nfs]
+>> [ 3827.756886]  nfs_wb_all+0x59/0x110 [nfs]
+>> [ 3827.760822]  nfs4_inode_return_delegation+0x58/0x90 [nfsv4]
+>> [ 3827.766413]  nfs4_proc_remove+0x101/0x110 [nfsv4]
+>> [ 3827.771130]  nfs_unlink+0xf5/0x2d0 [nfs]
+>> [ 3827.775065]  vfs_unlink+0x10b/0x280
+>> [ 3827.778563]  do_unlinkat+0x19e/0x2c0
+>> [ 3827.782158]  __x64_sys_unlink+0x3e/0x60
+>> [ 3827.786002]  ? __x64_sys_readlink+0x1b/0x30
+>> [ 3827.790192]  do_syscall_64+0x40/0x90
+>> [ 3827.793779]  entry_SYSCALL_64_after_hwframe+0x61/0xcb
+
+[…]
+
+>> ```
+>>
+> 
+> Does cherry-picking commit 6e176d47160c ("NFSv4: Fixes for
+> nfs4_inode_return_delegation()") into 5.15.69 from the upstream kernel
+> tree fix the problem?
+> 
+> 8<---------------------------------------------------
+> From 6e176d47160cec8bcaa28d9aa06926d72d54237c Mon Sep 17 00:00:00 2001
+> From: Trond Myklebust <trond.myklebust@hammerspace.com>
+> Date: Sun, 10 Oct 2021 10:58:12 +0200
+> Subject: [PATCH] NFSv4: Fixes for nfs4_inode_return_delegation()
+
+[…]
+
+Indeed with that commit, present since v5.16-rc1, we are unable to 
+reproduce the issue, so it seems to be the fix. It looks like there are 
+not a lot of 5.15 NFS users out there. ;-)
+
+
+Kind regards,
+
+Paul
