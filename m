@@ -2,94 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0AA5E614B
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 13:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33475E61A4
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 13:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229492AbiIVLij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 07:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39746 "EHLO
+        id S231551AbiIVLqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 07:46:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230444AbiIVLii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 07:38:38 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DAF58991B;
-        Thu, 22 Sep 2022 04:38:37 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1obKXL-0000Le-JK; Thu, 22 Sep 2022 13:38:35 +0200
-Message-ID: <ddec1a2f-1d55-ac42-9877-0d7119d087cd@leemhuis.info>
-Date:   Thu, 22 Sep 2022 13:38:35 +0200
+        with ESMTP id S231712AbiIVLp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 07:45:27 -0400
+Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D663DBFC
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 04:44:43 -0700 (PDT)
+Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
+        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id 189B8802AE55
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 11:44:32 +0000 (UTC)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 255CF10047D89
+        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 11:42:58 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id bKbZovG9NaT2RbKbZoag6f; Thu, 22 Sep 2022 11:42:58 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=BO52EHcG c=1 sm=1 tr=0 ts=632c4a42
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=xOM3xZuef0cA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Imf6IfHGtkP/4sw/nFiRH/xsZftDLRctRzMEVr6dPLU=; b=qtn+ShjRGxqXXEaUA6rGg+lYPc
+        LMYceXic2rddouOqpNK+z6Ck1su77Runpe5uyLYaknxclSl3nu5bYWyF4SofwOKRK5L/TBqhyT9KT
+        Yv77UNGXPk9y/YpnQejUwWrrFMDG79YyjCuWWK63ckRoBPgbJ/ndBl8JqHMz8UfNPDIIrlolHe2LO
+        tXzWAegEbl9BQFB8XPB6MOvhgpGGx2ZVlCvXwSiBoKuQ848F0TeIPEkTBtKWkL1IKY0ej/7x0Z7dU
+        OqdgnoHXLMRWdyYZSlaSDoKirBl07Z9gsrwZNyb4SUz6w2pwXlD72gu13KWEhDbh1fk6+8vjgfjlf
+        pDRwMIPg==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:45774 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1obKbX-002Tis-8o;
+        Thu, 22 Sep 2022 05:42:55 -0600
+Subject: Re: [PATCH 5.19 00/39] 5.19.11-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220921164741.757857192@linuxfoundation.org>
+In-Reply-To: <20220921164741.757857192@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <bd907a2d-76ad-f350-5f15-d5656f6edf15@w6rz.net>
+Date:   Thu, 22 Sep 2022 04:42:47 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Content-Language: en-US, de-DE
-To:     Jason Wittlin-Cohen <jwittlincohen@gmail.com>
-Cc:     stable@vger.kernel.org, linux-scsi@vger.kernel.org,
-        alim.akhtar@samsung.com, Kiwoong Kim <kwmad.kim@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        regressions@lists.linux.dev
-References: <CADy0EvLGJmZe-x9wzWSB6+tDKNuLHd8Km3J5MiWWYQRR2ctS3A@mail.gmail.com>
- <350ec615-ffe8-2e0e-149d-4bf45932a585@acm.org>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: [REGRESSION] introduced in 5.10.140 causes drives to drop from
- LSI SAS controller (Bisected to 6d17a112e9a63ff6a5edffd1676b99e0ffbcd269)
-In-Reply-To: <350ec615-ffe8-2e0e-149d-4bf45932a585@acm.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1663846717;ef969561;
-X-HE-SMSGID: 1obKXL-0000Le-JK
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1obKbX-002Tis-8o
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:45774
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker.
+On 9/21/22 9:47 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.11 release.
+> There are 39 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 23 Sep 2022 16:47:28 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.11-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On 15.09.22 04:48, Bart Van Assche wrote:
-> On 9/14/22 19:21, Jason Wittlin-Cohen wrote:
->> 8d5c106fe216bf16080d7070c37adf56a9227e60 is the first bad commit
->> commit 8d5c106fe216bf16080d7070c37adf56a9227e60
->> Author: Kiwoong Kim <kwmad.kim@samsung.com
->> <mailto:kwmad.kim@samsung.com>>
->> Date: Tue Aug 2 10:42:31 2022 +0900
->>
->> scsi: ufs: core: Enable link lost interrupt
->>
->> commit 6d17a112e9a63ff6a5edffd1676b99e0ffbcd269 upstream.
->>
->> Link lost is treated as fatal error with commit c99b9b230149 ("scsi: ufs:
->> Treat link loss as fatal error"), but the event isn't registered as
->> interrupt source. Enable it.
-> 
-> Something must have gone wrong during the bisection process. Commit
-> 8d5c106fe216 ("scsi: ufs: core: Enable link lost interrupt") only
-> affects the UFS driver and hence cannot change the behavior of a SAS
-> controller. How about repeating the bisection process?
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Hmm, nothing happened here for a week. :-/ That's not how this should be
-when it comes to regressions...
+Tested-by: Ron Economos <re@w6rz.net>
 
-Jason, any news on this? A answer to Greg's question ("Does this also
-have problems in the latest 5.15 and 5.19 release)") would be helpful.
-Also: when your wrote "Running [...] a bisected kernel with commit
-6d17a112e9a63ff6a5edffd1676b99e0ffbcd269 removed, [...]" I assume you
-tested this with 5.10.y?
-
-Side note: Sure, a bisection can easily got wrong, as Bart outlined. But
-you also wrote "Running [...] a bisected kernel with commit
-6d17a112e9a63ff6a5edffd1676b99e0ffbcd269 removed, [...]" sounds a lot
-like the bisection didn't go sideways. Are you sure you nothing went
-wrong when you tested this revert?
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
-
-#regzbot introduced 8d5c106fe216bf1608
-#regzbot poke
