@@ -2,87 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF505E5D40
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 10:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2235E5D6D
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 10:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbiIVISC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 04:18:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60052 "EHLO
+        id S229518AbiIVI1G convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 22 Sep 2022 04:27:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230220AbiIVIR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 04:17:56 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC503CD1F6;
-        Thu, 22 Sep 2022 01:17:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=qFznKR8LE1hs5qx50v8ZXbR+2FR7aIXxVNAOIFHaJP0=; b=YrrcmJKNHKRAJseBmsEUuL5P3G
-        tfTSPLqLeBO5/WHziL3uhgDlFMhOTjewoCtJnvnm6bdXdgbH0xr1d+fTXzDrom99AjhX+LT0V+AcL
-        0xZC/tXBVWZmm+0O3PAC+Piucm3c27rkwOYeiRXVsa9gIxoL0JcOI5iVr0/uHa28/Gtovc3QLM/Wp
-        GWT1bUpF3x/83YfLRs4nZW9i6azPMdGfQy+gNAoBsr/RQ2jBi7V7R9+vBfo4jt+qm+mq9apy5OORX
-        7RBPsus6LHbfNubhkk64o8Xtw+Y1YCjdrXjA3mq5T5NCoDdGA+4a4T2bJHHrU8T1vxXguuxsEXk4I
-        iOuArs4g==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1obHOP-006s1C-U4; Thu, 22 Sep 2022 08:17:10 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 8C4413001FD;
-        Thu, 22 Sep 2022 10:17:05 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 3A529200FBDFB; Thu, 22 Sep 2022 10:17:05 +0200 (CEST)
-Date:   Thu, 22 Sep 2022 10:17:05 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     K Prateek Nayak <kprateek.nayak@amd.com>,
-        linux-kernel@vger.kernel.org, rafael@kernel.org, lenb@kernel.org,
-        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
-        dave.hansen@linux.intel.com, tglx@linutronix.de, andi@lisas.de,
-        puwen@hygon.cn, mario.limonciello@amd.com, rui.zhang@intel.com,
-        gpiccoli@igalia.com, daniel.lezcano@linaro.org,
-        ananth.narayan@amd.com, gautham.shenoy@amd.com,
-        Calvin Ong <calvin.ong@amd.com>, stable@vger.kernel.org,
-        regressions@lists.linux.dev
-Subject: Re: [PATCH] ACPI: processor_idle: Skip dummy wait for processors
- based on the Zen microarchitecture
-Message-ID: <YywaAcTdLSuDlRfl@hirez.programming.kicks-ass.net>
-References: <20220921063638.2489-1-kprateek.nayak@amd.com>
- <YysnE8rcZAOOj28A@hirez.programming.kicks-ass.net>
- <YytqfVUCWfv0XyZO@zn.tnic>
+        with ESMTP id S229774AbiIVI1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 04:27:05 -0400
+Received: from relay.hostedemail.com (smtprelay0012.hostedemail.com [216.40.44.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65F6A6C47;
+        Thu, 22 Sep 2022 01:27:04 -0700 (PDT)
+Received: from omf06.hostedemail.com (a10.router.float.18 [10.200.18.1])
+        by unirelay10.hostedemail.com (Postfix) with ESMTP id 259E6C061F;
+        Thu, 22 Sep 2022 08:27:03 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf06.hostedemail.com (Postfix) with ESMTPA id 8CEE52000F;
+        Thu, 22 Sep 2022 08:26:53 +0000 (UTC)
+Message-ID: <e4852207ed36662a7c53e36fbbc31a71c5a3396e.camel@perches.com>
+Subject: Re: Linux 4.14.294
+From:   Joe Perches <joe@perches.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        jslaby@suse.cz, Jason Wang <wangborong@cdjrlc.com>
+Date:   Thu, 22 Sep 2022 01:26:59 -0700
+In-Reply-To: <YywGcg/Qgf8B8wEj@kroah.com>
+References: <1663669061118192@kroah.com> <1663669061138255@kroah.com>
+         <e9863ed5576cb93a6fd9b59cd19be9b71fda597d.camel@perches.com>
+         <445878e0-d8c9-558f-73b7-8d39fa1a5cde@gmail.com>
+         <YywGcg/Qgf8B8wEj@kroah.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YytqfVUCWfv0XyZO@zn.tnic>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Stat-Signature: bjrms6qdzbj3dhwgd3ebncaj9d97ht5r
+X-Rspamd-Server: rspamout08
+X-Rspamd-Queue-Id: 8CEE52000F
+X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,
+        SPF_NONE,UNPARSEABLE_RELAY autolearn=no autolearn_force=no
+        version=3.4.6
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1+NdiIdZEbtLJlhSoSwTaZfYWxLK19czDc=
+X-HE-Tag: 1663835213-739647
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 21, 2022 at 09:48:13PM +0200, Borislav Petkov wrote:
-> On Wed, Sep 21, 2022 at 05:00:35PM +0200, Peter Zijlstra wrote:
-> > On Wed, Sep 21, 2022 at 12:06:38PM +0530, K Prateek Nayak wrote:
-> > > Processors based on the Zen microarchitecture support IOPORT based deeper
-> > > C-states. 
+On Thu, 2022-09-22 at 08:53 +0200, Greg Kroah-Hartman wrote:
+> On Thu, Sep 22, 2022 at 11:02:21AM +0700, Bagas Sanjaya wrote:
+> > On 9/22/22 01:03, Joe Perches wrote:
+> > > On Tue, 2022-09-20 at 12:17 +0200, Greg Kroah-Hartman wrote:
+> > > []
+> > > > diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+> > > []
+> > > > @@ -118,7 +118,7 @@ struct report_list {
+> > > >   * @multi_packet_cnt:	Count of fragmented packet count
+> > > >   *
+> > > >   * This structure is used to store completion flags and per client data like
+> > > > - * like report description, number of HID devices etc.
+> > > > + * report description, number of HID devices etc.
+> > > >   */
+> > > >  struct ishtp_cl_data {
+> > > >  	/* completion flags */
+> > > 
+> > > Needless backporting of typo fixes reduces confidence in the
+> > > backport process.
+> > > 
 > > 
-> > I've just gotta ask; why the heck are you using IO port based idle
-> > states in 2022 ?!?! You have have MWAIT, right?
+> > The upstream commit 94553f8a218540 ("HID: ishtp-hid-clientHID: ishtp-hid-client:
+> > Fix comment typo") didn't Cc: stable, but got AUTOSELed [1].
+> > 
+> > I think we should only AUTOSEL patches that have explicit Cc: stable.
 > 
-> They have both. And both is Intel technology. And as I'm sure you
-> know AMD can't do their own thing - they kinda have to follow Intel.
-> Unfortunately.
-> 
-> Are you saying modern Intel chipsets don't do IO-based C-states anymore?
+> That's not how AUTOSEL works or why it is there at all, sorry.
 
-I've no idea what they do, but Linux exclusively uses MWAIT on Intel as
-per intel_idle.c.
-
-MWAIT also cuts down on IPIs because it wakes from the TIF write.
+Perhaps not, but why is AUTOSEL choosing this and why is
+this being applied without apparent human review?
 
