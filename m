@@ -2,77 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB105E5BB6
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 08:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 268EB5E5C00
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 09:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbiIVG7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 02:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41328 "EHLO
+        id S230357AbiIVHMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 03:12:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229570AbiIVG7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 02:59:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56394B6D76;
-        Wed, 21 Sep 2022 23:59:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFEE7B82748;
-        Thu, 22 Sep 2022 06:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10556C433C1;
-        Thu, 22 Sep 2022 06:59:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663829944;
-        bh=LkOfiXS8DzcdT8MAp1XGqo0docBpokRUmM/Rlp4siGQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OfozlvThpEpSspZsIFcjWlOw9Za+8IIWfXYIwi1J4aqcuXzk+CANhMearP1lQY+Aw
-         v501SEERtnbAC7pJ1O0MNxurWDGB7YMc2wk6W5HvrupxCqe/j8huRci+3mIYjBlOsQ
-         qTRfHLFPJ3mWkhHwTbezO4Il5Eg/7DEG0YsUOk8s=
-Date:   Thu, 22 Sep 2022 08:59:34 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
+        with ESMTP id S230364AbiIVHMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 03:12:12 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31261C88A9;
+        Thu, 22 Sep 2022 00:11:52 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id fv3so8917405pjb.0;
+        Thu, 22 Sep 2022 00:11:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date;
+        bh=7P4/MoUd89O1+A8bGYH6BhOc7UW55SCbrR2sakyuDZs=;
+        b=cDPR71YiCfI/nr6sTEi7NepjawVwGuNAy+dEFtsTyaNTl93iWIRvruUoqcdCXphb2t
+         OQfISlrtInzsol4LOPkdNT4gLwcvA10hhStRFj0ZT1/6JO5a9uPFxQDMMnQ2DQyu80WX
+         7zq1HT0DhRmBCaAdp+lG7eQfdt6cbuevQ+ymt/jppc2DxUm2kyO6ICgQ51VFRyJRnVJW
+         rE9ZApi7AvQfL/9FgsemGxItnowiFUxbayoTSNllV5S4/ltikYg9nxS2NzuFFy22nqXd
+         ICEzE+S1OtfNJZjgxm7mgcKQYkNi60RoXd7jIwjlZ0GD1qMyRvI5C7QexD99TBaTL0dg
+         lJeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=7P4/MoUd89O1+A8bGYH6BhOc7UW55SCbrR2sakyuDZs=;
+        b=NcLbJ0Y95ZP7/JwJEj3H7w6lY7mfEsCi21smxcwf5l6/5PbE3jQHT+9IuOtrdCzZW2
+         DCoz4LCJfjhJ7IIk9KjHyHF6813uvg4o0QyZ4JVSOJS5loFJ0j/Stnhes/f14DTOcB7k
+         yKh4evvqiqGoiehUt/Omk01CBBamdn8T+A+G/KzcztLK0vGSlW1tvaEnauodD6fOe8jP
+         A4DqhKg67c9h1U6+yL57kVPQ1/r+748l+IrjKqOIrppbkemOQ1qlz59K2XpPAipS3cXa
+         P6vDz+VexmkiQcRN2/eS970k7TPEWRUcVXyLp6ZGoE64ygXr+FdIuYXYePghadlvth0C
+         LCKw==
+X-Gm-Message-State: ACrzQf1UCSmCcGmO9UzJCoS5/NbVhDLRARjT+XO2lBi8wB0CDekS/B71
+        ixWbR50qY2Ho7kBKosk3NP4=
+X-Google-Smtp-Source: AMsMyM44m8nPBgTU9GsK/fBLG7EG7voI+gWqkrcw+vUsn+mG/tB9/JXLSkLXgc8evn0Ta+BAngTujA==
+X-Received: by 2002:a17:902:d502:b0:177:f287:269d with SMTP id b2-20020a170902d50200b00177f287269dmr1905914plg.140.1663830708961;
+        Thu, 22 Sep 2022 00:11:48 -0700 (PDT)
+Received: from debian.me (subs03-180-214-233-90.three.co.id. [180.214.233.90])
+        by smtp.gmail.com with ESMTPSA id x20-20020a17090300d400b0017693722e7dsm3250581plc.6.2022.09.22.00.11.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Sep 2022 00:11:47 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id 4C5F81002A8; Thu, 22 Sep 2022 14:11:43 +0700 (WIB)
+Date:   Thu, 22 Sep 2022 14:11:43 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 5.10 25/39] Revert "serial: 8250: Fix reporting real
- baudrate value in c_ospeed field"
-Message-ID: <YywH1v2EB7CPnCww@kroah.com>
-References: <20220921153645.663680057@linuxfoundation.org>
- <20220921153646.560456712@linuxfoundation.org>
- <20220921200502.GA32055@duo.ucw.cz>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.19 00/38] 5.19.11-rc1 review
+Message-ID: <YywKrx5hyO8pEZNR@debian.me>
+References: <20220921153646.298361220@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="3okefcpLheQNPjjI"
 Content-Disposition: inline
-In-Reply-To: <20220921200502.GA32055@duo.ucw.cz>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220921153646.298361220@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 21, 2022 at 10:05:02PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Johan Hovold <johan@kernel.org>
-> > 
-> > commit d02b006b29de14968ba4afa998bede0d55469e29 upstream.
-> > 
-> > This reverts commit 32262e2e429cdb31f9e957e997d53458762931b7.
-> > 
-> > The commit in question claims to determine the inverse of
-> > serial8250_get_divisor() but failed to notice that some drivers override
-> > the default implementation using a get_divisor() callback.
-> 
-> I believe it would be better to remove bad commit and its revert,
-> since it was not yet released.
 
-No, our tools keep picking the original up as "hey, you missed this
-one!", so I just added the revert here to make sure all is good going
-forward.
+--3okefcpLheQNPjjI
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On Wed, Sep 21, 2022 at 05:45:44PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.11 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
-greg k-h
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.1.0).
+
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--3okefcpLheQNPjjI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCYywKkgAKCRD2uYlJVVFO
+ox2sAQD9fAi9DYE3iQ31NlP7K5xWx421JILzY5doQwTjhoaksgD9ErFmX6f1PePL
+gT61pRSAEMaQOSSYlyR80ewxlSTH1wQ=
+=WclU
+-----END PGP SIGNATURE-----
+
+--3okefcpLheQNPjjI--
