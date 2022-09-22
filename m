@@ -2,112 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C555E6C8F
-	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 22:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D11405E6C01
+	for <lists+stable@lfdr.de>; Thu, 22 Sep 2022 21:50:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbiIVUBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 16:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59578 "EHLO
+        id S232430AbiIVTt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 15:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbiIVUBW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 16:01:22 -0400
-X-Greylist: delayed 604 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 22 Sep 2022 13:00:30 PDT
-Received: from rhlx01.hs-esslingen.de (rhlx01.hs-esslingen.DE [IPv6:2001:7c0:700::10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA0836781;
-        Thu, 22 Sep 2022 13:00:30 -0700 (PDT)
-Received: by rhlx01.hs-esslingen.de (Postfix, from userid 102)
-        id A8BA6277FBA8; Thu, 22 Sep 2022 21:42:15 +0200 (CEST)
-Date:   Thu, 22 Sep 2022 21:42:15 +0200
-From:   Andreas Mohr <andi@lisas.de>
-To:     Dave Hansen <dave.hansen@intel.com>
-Cc:     K Prateek Nayak <kprateek.nayak@amd.com>,
-        linux-kernel@vger.kernel.org, rafael@kernel.org, lenb@kernel.org,
-        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
-        dave.hansen@linux.intel.com, bp@alien8.de, tglx@linutronix.de,
-        andi@lisas.de, puwen@hygon.cn, mario.limonciello@amd.com,
-        peterz@infradead.org, rui.zhang@intel.com, gpiccoli@igalia.com,
-        daniel.lezcano@linaro.org, ananth.narayan@amd.com,
-        gautham.shenoy@amd.com, Calvin Ong <calvin.ong@amd.com>,
-        stable@vger.kernel.org, regressions@lists.linux.dev
-Subject: Re: [PATCH] ACPI: processor_idle: Skip dummy wait for processors
- based on the Zen microarchitecture
-Message-ID: <Yyy6l94G0O2B7Yh1@rhlx01.hs-esslingen.de>
-References: <20220921063638.2489-1-kprateek.nayak@amd.com>
- <20e78a49-25df-c83d-842e-1d624655cfd7@intel.com>
- <0885eecb-042f-3b74-2965-7d657de59953@amd.com>
- <88c17568-8694-940a-0f1f-9d345e8dcbdb@intel.com>
+        with ESMTP id S232490AbiIVTtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 15:49:55 -0400
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4B92C11B;
+        Thu, 22 Sep 2022 12:49:51 -0700 (PDT)
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28MJk0oL027564;
+        Thu, 22 Sep 2022 19:49:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=qcppdkim1;
+ bh=AJNwSWYhPDM+mTEDrbxNPzoDZcYGtMDN77+331lqXFU=;
+ b=MRBzVieHOfip1Wn8UUEPaJDI5EiZs4hsYBZD5tnmAoQevvSN3oW8CZytMUsx3hmVf+uH
+ NBaW1RdlYkCiD3cXvaSUQqokyLsYRccJZVjal1fTEDYIdFD5Pu+Hz89dqSrhBFX4zNuj
+ yCkZf42M6DctULE32LqbwCcgFcpFWFtxe1JwQeN5SfISMVahuY5d+65LlrDwPNfJ1r9x
+ izHnqNBnvQbzVCvhkI1bcvjdHjxquoesvKI4Ds8X5x1mnP3SXtngDdut8T/4GIao8cTv
+ W7SjNHWCuk2ydzxoUzpWLZB68gtMBH6Iz1FPAXqQb3nfrgx0aMplZS6WhzNbyIU/y/J4 2g== 
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3jrg4ctecf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Sep 2022 19:49:01 +0000
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+        by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 28MJmxE4029024
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Sep 2022 19:48:59 GMT
+Received: from [10.110.101.161] (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29; Thu, 22 Sep
+ 2022 12:48:58 -0700
+Message-ID: <668ebc3a-b731-cd0c-0f60-ba9faabbf978@quicinc.com>
+Date:   Thu, 22 Sep 2022 12:48:49 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <88c17568-8694-940a-0f1f-9d345e8dcbdb@intel.com>
-X-Priority: none
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_NONE,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [Freedreno] [PATCH v2 01/10] drm/msm: fix use-after-free on probe
+ deferral
+To:     Johan Hovold <johan+linaro@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        "Rob Clark" <robdclark@gmail.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+CC:     <dri-devel@lists.freedesktop.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        <linux-arm-msm@vger.kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        <freedreno@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        <stable@vger.kernel.org>, Sean Paul <sean@poorly.run>,
+        Steev Klimaszewski <steev@kali.org>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+References: <20220913085320.8577-1-johan+linaro@kernel.org>
+ <20220913085320.8577-2-johan+linaro@kernel.org>
+Content-Language: en-US
+From:   Kuogee Hsieh <quic_khsieh@quicinc.com>
+In-Reply-To: <20220913085320.8577-2-johan+linaro@kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: XFS2v7F2z7Z4grplLaqVY6tfI2QTR_EF
+X-Proofpoint-ORIG-GUID: XFS2v7F2z7Z4grplLaqVY6tfI2QTR_EF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-22_14,2022-09-22_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 suspectscore=0 phishscore=0 spamscore=0 mlxlogscore=999
+ clxscore=1011 lowpriorityscore=0 adultscore=0 malwarescore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209220128
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On Thu, Sep 22, 2022 at 10:01:46AM -0700, Dave Hansen wrote:
-> diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
-> index 16a1663d02d4..9f40917c49ef 100644
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -531,10 +531,27 @@ static void wait_for_freeze(void)
->  	/* No delay is needed if we are in guest */
->  	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
->  		return;
-> +	/*
-> +	 * Modern (>=Nehalem) Intel systems use ACPI via intel_idle,
-> +	 * not this code.  Assume that any Intel systems using this
-> +	 * are ancient and may need the dummy wait.  This also assumes
-> +	 * that the motivating chipset issue was Intel-only.
-> +	 */
-> +	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
-> +		return;
->  #endif
-> -	/* Dummy wait op - must do something useless after P_LVL2 read
-> -	   because chipsets cannot guarantee that STPCLK# signal
-> -	   gets asserted in time to freeze execution properly. */
+On 9/13/2022 1:53 AM, Johan Hovold wrote:
+> The bridge counter was never reset when tearing down the DRM device so
+> that stale pointers to deallocated structures would be accessed on the
+> next tear down (e.g. after a second late bind deferral).
+>
+> Given enough bridges and a few probe deferrals this could currently also
+> lead to data beyond the bridge array being corrupted.
+>
+> Fixes: d28ea556267c ("drm/msm: properly add and remove internal bridges")
+> Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
+> Cc: stable@vger.kernel.org      # 3.12
+> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-16 years ago,
-I did my testing on a VIA 8233/8235 chipset (AMD Athlon/Duron) system......
-(plus reading VIA spec PDFs which mentioned "STPCLK#" etc.).
-
-
-
-
-AFAIR I was doing kernel profiling (via oprofile, IIRC)
-for painful performance hotspots (read: I/O accesses etc.), and
-this was one resulting place which I stumbled over.
-And if I'm not completely mistaken,
-that dummy wait I/O op *was* needed (else "nice" effects)
-on my system (put loud and clear: *non*-Intel).
-
-
-
-So one can see where my profiling effort went
-(*optimizing* things, not degrading them)
---> hints that current Zen3-originating effort is not
-about a regression in the "regression bug" sense -
-merely a (albeit rather appreciable/sizeable... congrats!)
-performance deterioration vs.
-an optimal (currently non-achieved) software implementation state
-(also: of PORT-based handling [vs. MWAIT], mind you!).
-
-
-I still have that VIA hardware, but inactive
-(had the oh-so-usual capacitors issue :( ).
-
-
-Sorry for sabotaging your current fix efforts ;-) -
-but thank you very much for your work/discussion
-in this very central/hotpath area! (this extends to all of you...)
-
-Greetings
-
-Andreas Mohr
+> ---
+>   drivers/gpu/drm/msm/msm_drv.c | 1 +
+>   1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+> index 391d86b54ded..d254fe2507ec 100644
+> --- a/drivers/gpu/drm/msm/msm_drv.c
+> +++ b/drivers/gpu/drm/msm/msm_drv.c
+> @@ -241,6 +241,7 @@ static int msm_drm_uninit(struct device *dev)
+>   
+>   	for (i = 0; i < priv->num_bridges; i++)
+>   		drm_bridge_remove(priv->bridges[i]);
+> +	priv->num_bridges = 0;
+>   
+>   	pm_runtime_get_sync(dev);
+>   	msm_irq_uninstall(ddev);
