@@ -2,69 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACDB25E75A5
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 10:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254CC5E7687
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 11:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230159AbiIWIZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Sep 2022 04:25:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55532 "EHLO
+        id S229839AbiIWJMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Sep 2022 05:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230116AbiIWIZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 04:25:09 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4FBFFA40
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 01:25:07 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id d12-20020a05600c3acc00b003b4c12e47f3so2759396wms.4
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 01:25:07 -0700 (PDT)
+        with ESMTP id S229808AbiIWJMH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 05:12:07 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A1111DFF0
+        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 02:12:05 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id cc5so19432124wrb.6
+        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 02:12:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=ke09TjycQ0LINpMRhSyB/jx12xEQs5rDcMmrlCsezKA=;
-        b=ZmFhiTFV585Hf9AhTdWzZQnGaLPHIGDz9k60x/LzqDMttxUXfFxC/ce+x5z8AVl5lm
-         v7A6PYU09n3KQPe8XYIpUgbif2bkvnxVrMPWiL5u0bzA8xV3Ko/MF5Z9yqp4peitktgJ
-         kYHlT+FQd9a6oa7vaGtxsfUnvp/6mwzV2DI8hzhczdXOISZN7vRCH3BwqR7G0BREmEEo
-         pIt6AYadCT4G8pvctbwbR+70O4gtvCoW+LA96Hj5qeAzs4cQn0BAkHQDzg9B8zVWYdKJ
-         U3sOm4H7HmviYywDRcjwcmjMHFr4rG21bKYL6SdSFdpfyWQVpbTdwyFbtGg0ierX8d/s
-         pQWw==
+        h=content-transfer-encoding:in-reply-to:organization:from:reply-to
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date;
+        bh=yOhBcsSjO+MpzEhoe8MX0+hDz2sg0Smantc0+52tgkE=;
+        b=NjlqivXbtpQ5CRPwvLVYTWRRKOozg7t6ougcXLcAl9rRG7ABs+TlL/HReI/tSZjG44
+         fcO/MY/f7yRHW+LAdUucAa9lxh+knCGFWTqz0jszx/C/ZP6pvgBU3PInPUeY1/55oQtE
+         6Owj1nMJglWOnZ89roBuak811ui20t0gErNDe/99puoK9nctXPdzM/5RpYFpidIPtl6p
+         SxlAP7l95SC5jmdEfYViACDknDV+tDUhBfwBN5UMIlXWXz9737qkS9ukG3mVLVjG1BAp
+         dXIdlRPYxRJrQ0iUJtIh/yD2+2/qwg97AQcWFBsR5S6zRXu/nO3ieFrkJof8DX7Ro9HG
+         vJHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=ke09TjycQ0LINpMRhSyB/jx12xEQs5rDcMmrlCsezKA=;
-        b=Zo469FYVEixdvfGJIkKAho1thT4DxsOX3O6ku2Kr7z3B8l7L1PxOcRTqpq03LtWrng
-         VBopyk18SStX1IwltUqNzkhQjFNHUYD0RmhrT5wzWkMhp+MKmFBLOetdeGiqTjS/h1fZ
-         vgqQd1zqVfkitnnfuZMc239fQi0g95q9MgS/DvlG8sUzAcApiS+n7MLYn6AE38vGRQsF
-         hJSiRS+rGoZWh5NSxze3RWWfN8cClgdmamP9CQTtnPr51/9EeFp21RT6C2UkpsJ8SImz
-         DeovVBLGPINXSAh4cBZX13Z8uOpXJJykTuR+MLQWdxbOgFxSlkos2YRPlTDBc+aGpjmQ
-         feYQ==
-X-Gm-Message-State: ACrzQf3S8ciTsG09Eg0Cg3VVxl1bXTwZLmCFaKEaMTYcRnNznLVMtwqq
-        BFnKZfjI9rd12NO7QP/evwRptscZipiZ3ymUnA307A==
-X-Google-Smtp-Source: AMsMyM5rR5jhX+vNbFH9pE5yPOQkUsNINX6qJT7F9rZsp53/ty7BgPHKXULs6U/AyqAQPTQxa5wG3Y+Qobzw2qStsKU=
-X-Received: by 2002:a7b:ca54:0:b0:3b4:fb06:9b1 with SMTP id
- m20-20020a7bca54000000b003b4fb0609b1mr4945582wml.67.1663921506179; Fri, 23
- Sep 2022 01:25:06 -0700 (PDT)
+        h=content-transfer-encoding:in-reply-to:organization:from:reply-to
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=yOhBcsSjO+MpzEhoe8MX0+hDz2sg0Smantc0+52tgkE=;
+        b=c6QnuEhTm2lEDZILYC1j2eu4Gg8eC9kN7Tz8pzDupa1W5OCUAM4W9+TG7pFVL0M3pd
+         dRrU/aJyFfTxWatIAOOKXIJNksNpkvoEb0iqqMSbI8Bw+9OMP6ojEOaYYKD1s8JfJ5T0
+         jvjvosaQP3YgLBDfHYxDFlDsXZhnlzGBEFJVSJMhvNYTqRxwZi47lZokZfO8n6qiFNSp
+         16QZvp32/AM25W6G0qE6yrrAKC48VFnwycXA10fTR4eJz5I3AN/PR+aMgG7scF3WoVSI
+         DeFXVlv/wOu0RXwrD60+wJi/kUfKYxAp75WjN12MXtgVDhFwXtDTE622+e5d/SOHubV9
+         yTwg==
+X-Gm-Message-State: ACrzQf3ZHInCpijmdyTnALd6nA2FaK3klnu9SPoOFuQ+F3qsUfwg4m25
+        v3/173VbpXpbFKIP3zsSlK/5JhTM/Z+HgipG
+X-Google-Smtp-Source: AMsMyM4as+Pxy/mIXDrxTa6jW7JBFzmQns6zeg2+qRdsIpV8qVNxU+HJKLnue+tm/4+m4R+F/xlsIw==
+X-Received: by 2002:a05:6000:1788:b0:22b:315b:450f with SMTP id e8-20020a056000178800b0022b315b450fmr4801695wrg.615.1663924324444;
+        Fri, 23 Sep 2022 02:12:04 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:982:cbb0:5990:ddf8:daac:3833? ([2a01:e0a:982:cbb0:5990:ddf8:daac:3833])
+        by smtp.gmail.com with ESMTPSA id az41-20020a05600c602900b003b492b30822sm2050892wmb.2.2022.09.23.02.12.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 23 Sep 2022 02:12:03 -0700 (PDT)
+Message-ID: <db3b3082-5278-7ed8-4322-2422cec227a5@linaro.org>
+Date:   Fri, 23 Sep 2022 11:12:02 +0200
 MIME-Version: 1.0
-References: <20220919122033.86126-1-ulf.hansson@linaro.org>
- <20220921155634.owr5lncydsfpo7ua@bogus> <CAPDyKFpgHDzc5Rv+0Tn4zegDTrc_wuymez02XLEdVUaEOornNw@mail.gmail.com>
- <20220922110406.cuovmxtw2jkn4f4h@bogus>
-In-Reply-To: <20220922110406.cuovmxtw2jkn4f4h@bogus>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Fri, 23 Sep 2022 10:24:29 +0200
-Message-ID: <CAPDyKFoACBZJVfdcbVd8hnw=BP-OH6kk06jpYqUsDHRAgjrTbQ@mail.gmail.com>
-Subject: Re: [PATCH] Revert "firmware: arm_scmi: Add clock management to the
- SCMI power domain"
-To:     Sudeep Holla <sudeep.holla@arm.com>
-Cc:     Dien Pham <dien.pham.ry@renesas.com>,
-        Gaku Inami <gaku.inami.xh@renesas.com>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        linux-arm-kernel@lists.infradead.org, Peng Fan <peng.fan@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Nicolas Pitre <npitre@baylibre.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 5.15 247/779] drm/meson: encoder_hdmi: switch to bridge
+ DRM_BRIDGE_ATTACH_NO_CONNECTOR
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Stefan Agner <stefan@agner.ch>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-amlogic@lists.infradead.org
+References: <20220815180337.130757997@linuxfoundation.org>
+ <20220815180347.894058731@linuxfoundation.org>
+ <892a917454bd0bbfe8a4d34a5170fe50@agner.ch>
+ <685b64f60375b69c5c790286f1386be3@agner.ch> <YyBoACiWvW1UnfQA@kroah.com>
+Reply-To: neil.armstrong@linaro.org
+From:   Neil Armstrong <neil.armstrong@linaro.org>
+Organization: Linaro Developer Services
+In-Reply-To: <YyBoACiWvW1UnfQA@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,78 +83,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 22 Sept 2022 at 13:04, Sudeep Holla <sudeep.holla@arm.com> wrote:
->
-> On Wed, Sep 21, 2022 at 08:46:21PM +0200, Ulf Hansson wrote:
-> > On Wed, 21 Sept 2022 at 17:56, Sudeep Holla <sudeep.holla@arm.com> wrote:
-> > >
-> > > Hi Dien, Gaku,
-> > >
-> > > On Mon, Sep 19, 2022 at 02:20:33PM +0200, Ulf Hansson wrote:
-> > > > This reverts commit a3b884cef873 ("firmware: arm_scmi: Add clock management
-> > > > to the SCMI power domain").
-> > > >
-> > > > Using the GENPD_FLAG_PM_CLK tells genpd to gate/ungate the consumer
-> > > > device's clock(s) during runtime suspend/resume through the PM clock API.
-> > > > More precisely, in genpd_runtime_resume() the clock(s) for the consumer
-> > > > device would become ungated prior to the driver-level ->runtime_resume()
-> > > > callbacks gets invoked.
-> > > >
-> > > > This behaviour isn't a good fit for all platforms/drivers. For example, a
-> > > > driver may need to make some preparations of its device in its
-> > > > ->runtime_resume() callback, like calling clk_set_rate() before the
-> > > > clock(s) should be ungated. In these cases, it's easier to let the clock(s)
-> > > > to be managed solely by the driver, rather than at the PM domain level.
-> > > >
-> > > > For these reasons, let's drop the use GENPD_FLAG_PM_CLK for the SCMI PM
-> > > > domain, as to enable it to be more easily adopted across ARM platforms.
-> > > >
-> > > > Fixes: a3b884cef873 ("firmware: arm_scmi: Add clock management to the SCMI power domain")
-> > > > Cc: Nicolas Pitre <npitre@baylibre.com>
-> > > > Cc: stable@vger.kernel.org
-> > > > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> > > > ---
-> > > >
-> > > > To get some more background to $subject patch, please have a look at the
-> > > > lore-link below.
-> > > >
-> > > > https://lore.kernel.org/all/DU0PR04MB94173B45A2CFEE3BF1BD313A88409@DU0PR04MB9417.eurprd04.prod.outlook.com/
-> > > >
-> > >
-> > > If you have any objections, this is your last chance to speak up before
-> > > the original change gets reverted in the mainline with this patch.
-> > >
-> > > Hi Ulf,
-> > >
-> > > I don't have any other SCMI changes for v6.0 fixes or v6.1
-> > > I am fine if you are happy to take this via your tree or I can send it
-> > > to SoC team. Let me know. I will give final one or 2 days for Renesas
-> > > to get back if they really care much.
-> >
-> > I have a slew of fixes for mmc that I intend to send next week, I can
-> > funnel them through that pull request.
-> >
-> > Assuming, Renesas folkz are okay, I consider that as an ack from you, right?
-> >
->
-> Yes for official reasons, here is the formal :)
->
-> Acked-by: Sudeep Holla <sudeep.holla@arm.com>
->
+Hi Greg,
 
-Thanks!
+On 13/09/2022 13:22, Greg Kroah-Hartman wrote:
+> On Mon, Sep 12, 2022 at 08:48:24PM +0200, Stefan Agner wrote:
+>> On 2022-09-12 18:08, Stefan Agner wrote:
+>>> On 2022-08-15 19:58, Greg Kroah-Hartman wrote:
+>>>> From: Neil Armstrong <narmstrong@baylibre.com>
+>>>>
+>>>> [ Upstream commit 0af5e0b41110e2da872030395231ab19c45be931 ]
+>>>>
+>>>> This implements the necessary change to no more use the embedded
+>>>> connector in dw-hdmi and use the dedicated bridge connector driver
+>>>> by passing DRM_BRIDGE_ATTACH_NO_CONNECTOR to the bridge attach call.
+>>>>
+>>>> The necessary connector properties are added to handle the same
+>>>> functionalities as the embedded dw-hdmi connector, i.e. the HDR
+>>>> metadata, the CEC notifier & other flags.
+>>>>
+>>>> The dw-hdmi output_port is set to 1 in order to look for a connector
+>>>> next bridge in order to get DRM_BRIDGE_ATTACH_NO_CONNECTOR working.
+>>>
+>>> HDMI on ODROID-N2+ was working with v5.15.60, and stopped working with
+>>> v5.15.61. Reverting this commit (and two dependent refcount leak) to be
+>>> the culprit. Reverting just the refcount leaks is not enough to get HDMI
+>>> working, so I assume it is this commit.
+>>>
+>>> I haven't investigated much beyond that, maybe its simple a case of a
+>>> missing kernel configuration? DRM_DISPLAY_CONNECTOR is compiled, and the
+>>> module display_connector is loaded, so that part seemed to have worked.
+>>>
+>>> Any ideas welcome.
+>>>
+>>> FWIW, I track the issue in the HAOS tracker at
+>>> https://github.com/home-assistant/operating-system/issues/2120.
+>>
+>> It seems that backporting commit 7cd70656d128 ("drm/bridge:
+>> display-connector: implement bus fmts callbacks") fixes the problem
+>> without reverting this commit.
+>>
+>> @Greg, can we backport this commit as well?
+> 
+> sure, now queued up, thanks.
 
-> in case you manage to get this in via your tree.
+Backport of 7cd70656d128 ("drm/bridge: display-connector: implement bus fmts callbacks") is still missing in 5.15-stable.
 
-I have now queued up the patch through
-git://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git fixes
+Thanks,
+Neil
 
-Let's see how it goes when it gets tested in linux-next.
+> 
+> greg k-h
+> 
 
->
-> --
-> Regards,
-> Sudeep
-
-Kind regards
-Uffe
