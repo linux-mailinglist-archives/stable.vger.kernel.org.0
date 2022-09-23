@@ -2,123 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 995E35E751E
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 09:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D12A5E754B
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 09:58:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbiIWHq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Sep 2022 03:46:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
+        id S231164AbiIWH6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Sep 2022 03:58:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230241AbiIWHqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 03:46:32 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE8F7AC16;
-        Fri, 23 Sep 2022 00:46:26 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1obdOC-0001G0-LO; Fri, 23 Sep 2022 09:46:24 +0200
-Message-ID: <d9a3460b-0ed6-4bfa-5bdd-032f4bc4ebce@leemhuis.info>
-Date:   Fri, 23 Sep 2022 09:46:24 +0200
+        with ESMTP id S231163AbiIWH6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 03:58:31 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB5812E407;
+        Fri, 23 Sep 2022 00:58:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=OBb/Vyt/knoHoeVbmT/onk2LeOhkHBZeeIy4HQ7B610=; b=kbx8x+vJdxxg0SYtDk6TZ/8TQ0
+        LRgsxJZK09kxU4gmM2WloCSBDUu4eSWhSD4GWQXXHQTmkESIqSLqInRQCVl+N98wZqz+lvMK7Gohh
+        lGEaPydkRwFl0hvrvnc+OAIp1oT07orwd6jaiouTzuYj/o9bd1VflVdaf42S50eCYqBtezEK8N0qB
+        EI85G4Dzlkg1aWZSVGWmcNplNbVOrJ6Gfn8Fsc8VQexstnwQamqQOirbg+SSMQm1Q4sAIf/3f9NPW
+        lAt1/dKXB7IKFHQLKijTg+0jw5jLSlunoSIHlGlrfgB0hGHgaXQKHv5Ta7qMhuv5en7RHhWppGVK/
+        E6EC9rYA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1obdZI-00FAQd-33; Fri, 23 Sep 2022 07:57:54 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 386193001FD;
+        Fri, 23 Sep 2022 09:57:51 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 1970C207C83B0; Fri, 23 Sep 2022 09:57:51 +0200 (CEST)
+Date:   Fri, 23 Sep 2022 09:57:51 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Andreas Mohr <andi@lisas.de>,
+        K Prateek Nayak <kprateek.nayak@amd.com>,
+        linux-kernel@vger.kernel.org, rafael@kernel.org, lenb@kernel.org,
+        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
+        dave.hansen@linux.intel.com, bp@alien8.de, tglx@linutronix.de,
+        puwen@hygon.cn, mario.limonciello@amd.com, rui.zhang@intel.com,
+        gpiccoli@igalia.com, daniel.lezcano@linaro.org,
+        ananth.narayan@amd.com, gautham.shenoy@amd.com,
+        Calvin Ong <calvin.ong@amd.com>, stable@vger.kernel.org,
+        regressions@lists.linux.dev
+Subject: Re: [PATCH] ACPI: processor_idle: Skip dummy wait for processors
+ based on the Zen microarchitecture
+Message-ID: <Yy1m/5topydhbWS2@hirez.programming.kicks-ass.net>
+References: <20220921063638.2489-1-kprateek.nayak@amd.com>
+ <20e78a49-25df-c83d-842e-1d624655cfd7@intel.com>
+ <0885eecb-042f-3b74-2965-7d657de59953@amd.com>
+ <88c17568-8694-940a-0f1f-9d345e8dcbdb@intel.com>
+ <Yyy6l94G0O2B7Yh1@rhlx01.hs-esslingen.de>
+ <YyzBLc+OFIN2BMz5@rhlx01.hs-esslingen.de>
+ <4d61b9c0-ee00-c5f6-bef1-622b80c79714@intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Content-Language: en-US, de-DE
-References: <f6755107-b62c-a388-0ab5-0a6633bf9082@garloff.de>
-Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-nfs <linux-nfs@vger.kernel.org>,
-        Kurt Garloff <kurt@garloff.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>
-Subject: Re: linux-5.15.69 breaks nfs client
-In-Reply-To: <f6755107-b62c-a388-0ab5-0a6633bf9082@garloff.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1663919186;60e90cd8;
-X-HE-SMSGID: 1obdOC-0001G0-LO
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d61b9c0-ee00-c5f6-bef1-622b80c79714@intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker. CCing the regression
-mailing list, as it should be in the loop for all regressions, as
-explained here:
-https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html
-Also CCing the stable ml, the NFS maintainers, and the authors of
-31b992b3c39b, too.
-
-On 22.09.22 23:46, Kurt Garloff wrote:
+On Thu, Sep 22, 2022 at 02:21:31PM -0700, Dave Hansen wrote:
+> FWIW, I'd much rather do something like
 > 
-> a freshly compiled 5.15.69 kernel showed hangs with NFS.
-> Typically mkdir would end up in a 'D' process state, but I
-> have seen ls -l hanging as well.
-> Server is kernel NFS 5.15.69.
+> 	if ((boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
+> 	    (boot_cpu_data.x86_model >= 0xF))
+> 		return;
 > 
-> After reverting the last three NFS related commits,
-> a68a734b19af NFS: Fix WARN_ON due to unionization of nfs_inode.nrequests
-> 3b97deb4abf5 NFS: Fix another fsync() issue after a server reboot
-> 31b992b3c39b NFS: Save some space in the inode
+> 	inl(slow_whatever);
 > 
-> things work normally again.
-> 
-> As you can see, I suspected 31b992b3c39b ...
+> than a Zen check.  AMD has, as far as I know, been a lot more sequential
+> and sane about model numbers than Intel, and there are some AMD model
+> number range checks in the codebase today.
 
-FWIW, that's e591b298d7ec in mainline.
+Some might be broken; apparently their SoC/Entertainment divisions has a
+few out of order SKUs that were not listed in their regular documents.
+(yay interweb)
 
-> I know this report is light on details; if nothing like this has been
-> reported yet, let me know and I'll try to find some time to investigate
-> further.
-> 
-> PS: Please keep me on Cc, I'm not subscribed to linux-nfs.
-
-I wonder if this is this is a dup of this report:
-
-https://lore.kernel.org/all/c5d8485b-0dbc-5192-4dc6-10ef2b86b520@molgen.mpg.de/
-
-In that thread Trond mentioned
-```
-I believe this is a dependency that was introduced by the back port of
-commit e591b298d7ec ("NFS: Save some space in the inode") into 5.15.68.
-So the reason it wasn't seen is because the change is very recent.
-
-FYI Greg and Sasha: please also consider pulling 6e176d47160c ("NFSv4:
-Fixes for nfs4_inode_return_delegation()") into that stable series.
-```
-
-Anyway, for the rest of this mail:
-[TLDR: I'm adding this regression report to the list of tracked
-regressions; all text from me you find below is based on a few templates
-paragraphs you might have encountered already already in similar form.]
-
-Thanks for the report. To be sure below issue doesn't fall through the
-cracks unnoticed, I'm adding it to regzbot, my Linux kernel regression
-tracking bot:
-
-#regzbot ^introduced 31b992b3c39b
-#regzbot ignore-activity
-
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply -- ideally with also
-telling regzbot about it, as explained here:
-https://linux-regtracking.leemhuis.info/tracked-regression/
-
-Reminder for developers: When fixing the issue, add 'Link:' tags
-pointing to the report (the mail this one replies to), as explained for
-in the Linux kernel's documentation; above webpage explains why this is
-important for tracked regressions.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
+I ran into this when I tried doing a Zen2 range check for retbleed. In
+the end we ended up using the availablility of STIBP as a heuristic to
+indentify Zen2+ or something.
