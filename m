@@ -2,101 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70A3A5E7102
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 02:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C40B5E714B
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 03:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbiIWA7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Sep 2022 20:59:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43740 "EHLO
+        id S229864AbiIWBSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Sep 2022 21:18:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229665AbiIWA7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Sep 2022 20:59:34 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 966A921BD
-        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 17:59:31 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id 9so10879356pfz.12
-        for <stable@vger.kernel.org>; Thu, 22 Sep 2022 17:59:31 -0700 (PDT)
+        with ESMTP id S230232AbiIWBSD (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Thu, 22 Sep 2022 21:18:03 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF03115F61
+        for <Stable@vger.kernel.org>; Thu, 22 Sep 2022 18:18:03 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id 9so10912557pfz.12
+        for <Stable@vger.kernel.org>; Thu, 22 Sep 2022 18:18:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=zUURCqFsPJ0++1UISwKVFigZFjRPyYFwg3WX49XZqB0=;
-        b=fm+3chTmqI62okWG0kjgJIfWMf5N0zHMQ5ViiaK0O3QpRW1tfmCkPQdYvX1265kzMF
-         4wG1JJFpAx6xkb/kl5ViWHvCXt80CcJBcOPRwA02jgctV554ZhijstpICZU0yycnCw8A
-         bz1iym1Owjvo4okvjhR5qSfw0bd+24Ljukg2E=
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date;
+        bh=aFU7vI8uPXu7Vi9JdYshVrmH0KwnbZHsJeAT55jVwKU=;
+        b=MHDKHCK5XxPgYupoKSpCLMlaxcDtFei4N22PVq//uMbbkwnIoy1b5gnTw5B9ii/6rM
+         GGhbtGXROXf+RjE1hrqpsu0gCbEJ08uwXO8f/3OaabY9uO8wViZXCrxRGfNc1EWL80st
+         LDi0Jx+lqlxo5U5lRQ7zdnrhf+5EkLsBFqS357+8SNONX63/ig3aprsALjA0crk+QlB8
+         QSvR6i51sQ7c5bwZY/SkiDeJmN/yLC30zthMIAVVbASLgSBks+AUK8iJtSp9w1JV+BnI
+         SjTZZW7JaDSTTk+peG8W1kEc4copBh7xZH/NkgZX3ucTtT/AYNpwlFc5y4xZnessfCTc
+         QTxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=zUURCqFsPJ0++1UISwKVFigZFjRPyYFwg3WX49XZqB0=;
-        b=zZ7GOnQwprDF2Nk5iBEDVnEFv3GNFViXKWQuN2nSNJOJwxRhpxDt0OLgi7jbYup0vx
-         +gHLmRPkWm5iLTzmagbeiHBdssxa03wu+bNOyYfKcCsClCbN3uPxhNhNZ+8JxrnqwTmX
-         j8mKPmEmLzt2XZYHdUyDQ3sMmp5pS1yMo/5I1BhpQpVEKQZ16H6g/ALl80hCLCwHodC5
-         PvBVjvDV7WvQcjAPMk//OXQvsqoh/jhQOHr7KyWtbatv9b/C8NT4CJJd+qp1zREdhtCv
-         wsBGywrti1wjTKJxv6vzIZgU2km7/UoeQ9wGum6Wv7PoHZoEP/48IkGlz86ecZwjAiq+
-         a5tQ==
-X-Gm-Message-State: ACrzQf07PAysepDvD4i2SBQqG96dIEJI7YZmg9tQPVDBcDJ/p7DvMDDd
-        xsRKGPjO1pbD/wJC/+DuY6RkRA==
-X-Google-Smtp-Source: AMsMyM5MooqD6aywJFynn+PaY22Xz0manESWBePduvhYSPk3ktw+blBKFMUWBvtXxWlfzex13+22/Q==
-X-Received: by 2002:a63:1554:0:b0:43b:f03d:8651 with SMTP id 20-20020a631554000000b0043bf03d8651mr5269327pgv.422.1663894771119;
-        Thu, 22 Sep 2022 17:59:31 -0700 (PDT)
-Received: from localhost ([2620:15c:202:201:626:f1d5:7c9d:6576])
-        by smtp.gmail.com with UTF8SMTPSA id e16-20020a056a0000d000b0053b208b55d1sm5066933pfj.85.2022.09.22.17.59.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Sep 2022 17:59:30 -0700 (PDT)
-From:   Daniel Verkamp <dverkamp@chromium.org>
-To:     x86@kernel.org, linux-kernel@vger.kernel.org
-Cc:     Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
-        Daniel Verkamp <dverkamp@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH] x86: also disable FSRM if ERMS is disabled
-Date:   Thu, 22 Sep 2022 17:58:27 -0700
-Message-Id: <20220923005827.1533380-1-dverkamp@chromium.org>
-X-Mailer: git-send-email 2.37.3.998.g577e59143f-goog
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=aFU7vI8uPXu7Vi9JdYshVrmH0KwnbZHsJeAT55jVwKU=;
+        b=eYou33H4yC16fNn1xghNb+MMqt/xkSqR58Y8gfeVWkjUgmFoDA9fJMIvTNgHZ1B7wO
+         /y5+Ph3qj1gfMKUcHbeGxhZt8cc/gEVfnX0wPbaIkLGoDA3CR6Yh23Vh8S/X9ZBfuc75
+         BQINV+VB5ie6CiYi9Sq1C9Z0PitvX4LBx1LVqf7ReJ367SFPKQ1rayOIqIDJAj3TaAWE
+         3TH2az5uQht5Swr7ly6ja+3WR3yi+DsZ2LrOxLUN8OhhC1Bk4VZROeirfSmlHddyAvY9
+         IjEc7El+yQIydo1ncGSKGYPj50A1GrO6fgMvZo3j4jsSQ38r4nOTiZ3RXwcNJ/BNAwT+
+         egDA==
+X-Gm-Message-State: ACrzQf0sY71MCsRR0QHuCy7mYkLYYIuFuRvRClcg2Lr+1tDqtJH5+jdn
+        bRAz0iYP6VzX9D48x8F9vUydzTcAGaHI0kTqSxY=
+X-Google-Smtp-Source: AMsMyM5S4oDUGv8nZcP7SCfLGbAkG3IhhfX7Nj7ycd+T7Jm8QUIbBSWmhqz+OTeaJJOevUpfIYOihkHHgf97U0mYBgo=
+X-Received: by 2002:aa7:9851:0:b0:53e:87eb:1ffa with SMTP id
+ n17-20020aa79851000000b0053e87eb1ffamr6501309pfq.35.1663895882787; Thu, 22
+ Sep 2022 18:18:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Received: by 2002:a05:6a06:1888:b0:577:4d4:a7d5 with HTTP; Thu, 22 Sep 2022
+ 18:18:02 -0700 (PDT)
+From:   "Dr. Ogala Solution Temple" <ogalasolutiontemple@gmail.com>
+Date:   Thu, 22 Sep 2022 18:18:02 -0700
+Message-ID: <CAD58yf8X3BzsUqow9m9iLFarHbemDcFOEp3iw4nAYtP++myrzg@mail.gmail.com>
+Subject: =?UTF-8?B?UHLDqXN0YW1v?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=2.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,LOTS_OF_MONEY,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_MONEY autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the "Fast Short REP MOVSB" path of memmove, if we take the path where
-the FSRM flag is enabled but the ERMS flag is not, there is no longer a
-check for length >= 0x20 (both alternatives will be replaced with NOPs).
-If a memmove() requiring a forward copy of less than 0x20 bytes happens
-in this case, the `sub $0x20, %rdx` will cause the length to roll around
-to a huge value and the copy will eventually hit a page fault.
+Bienvenido a la FIRMA DE PR=C3=89STAMOS GARRY JONES. Ofrecemos pr=C3=A9stam=
+os
+comerciales y personales seguros y confidenciales con tasas de inter=C3=A9s
+m=C3=ADnimas, tan bajas como el 2 % anual, con un per=C3=ADodo de reembolso=
+ de 1
+a 10 a=C3=B1os, y puede obtener financiamiento para necesidades personales,
+empresas de peque=C3=B1a y mediana escala (PYME) y grandes empresas.
+negocios/corporaciones. Puede pedir prestado entre $ 10,000 a $
+50,000,000 d=C3=B3lares.
 
-This is not intended to happen, as the comment above the alternatives
-mentions "FSRM implies ERMS".
-
-However, there is a check in early_init_intel() that can disable ERMS,
-so we should also be disabling FSRM in this path to maintain correctness
-of the memmove() optimization.
-
-Cc: stable@vger.kernel.org
-Fixes: f444a5ff95dc ("x86/cpufeatures: Add support for fast short REP; MOVSB")
-Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
----
- arch/x86/kernel/cpu/intel.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
-index 2d7ea5480ec3..71b412f820c7 100644
---- a/arch/x86/kernel/cpu/intel.c
-+++ b/arch/x86/kernel/cpu/intel.c
-@@ -328,6 +328,7 @@ static void early_init_intel(struct cpuinfo_x86 *c)
- 			pr_info("Disabled fast string operations\n");
- 			setup_clear_cpu_cap(X86_FEATURE_REP_GOOD);
- 			setup_clear_cpu_cap(X86_FEATURE_ERMS);
-+			setup_clear_cpu_cap(X86_FEATURE_FSRM);
- 		}
- 	}
- 
--- 
-2.37.3.998.g577e59143f-goog
-
+Saludos,
+Sr. Garry Jones.
+CEO
+FIRMA DE PR=C3=89STAMOS GARRY JONES
