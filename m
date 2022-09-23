@@ -2,799 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 426AC5E7E75
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 17:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72B55E7E8F
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 17:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbiIWPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Sep 2022 11:33:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56848 "EHLO
+        id S232692AbiIWPib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Sep 2022 11:38:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbiIWPdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 11:33:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B95143540;
-        Fri, 23 Sep 2022 08:33:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0596626ED;
-        Fri, 23 Sep 2022 15:33:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F1BEC433C1;
-        Fri, 23 Sep 2022 15:33:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663947188;
-        bh=0891r3VYlRWg4PSYsxa7IRuK++wcQOqds9e6+32Id4c=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=g43KXuUIxzUdNFj6wq4kY5tEcssmGgAZXU7Uki4Rs5w6G1E+WRfWm9kTqVPrNSZVc
-         WU93LV3Ila/VxutjaeIZJFaBLfZNomu+Js9e7uJEfehXNP8drv3SBPUTIYHukvHcQ0
-         KJCFQlxaC6L+mIuvawmOXiO35RT4GTXXFdFGvstoY+dUMbjyPvmx2CGm4n4NwaRDkU
-         OD0LZdUgFsq0EoqHww4HvTJM6fbcgOwILlqTNQ/IrVzNzdqSBl1WOBhsTkAD1Ji3FG
-         7NkN44EQ2sKgx5okA1nqG9quUlcglwEbQ4E5i0u0JkOzKph7SCPrWqQFF6C93qrQKo
-         43vfQN/yVW83Q==
-Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-1278a61bd57so760285fac.7;
-        Fri, 23 Sep 2022 08:33:08 -0700 (PDT)
-X-Gm-Message-State: ACrzQf3+Zm7KsoP6Iuu/hTsTX1hmzkvQQP8Ljkj+QpWh7v8r4c0igP43
-        5T0M3DiAMGxXm6NsrzghmDBie7py1na4lFOc5DU=
-X-Google-Smtp-Source: AMsMyM4v0AlwvrKjxomDEo5MqPyGxhMVgghQqFma/32ukA1gbhW5xfbWTNValrzjIRAu6Ecy3fvH70rnnAhLSgvsUaU=
-X-Received: by 2002:a05:6870:46a6:b0:12d:130c:2fd5 with SMTP id
- a38-20020a05687046a600b0012d130c2fd5mr11319444oap.92.1663947187188; Fri, 23
- Sep 2022 08:33:07 -0700 (PDT)
+        with ESMTP id S229810AbiIWPi3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 11:38:29 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2072.outbound.protection.outlook.com [40.107.92.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1951B14597B;
+        Fri, 23 Sep 2022 08:38:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=A4BB9nlYD1dASQgheQN3f+2t0ug9ZNE+Mj2O622Mjiupi3g78NyN52I8bL44PTh4p0aXnjVQSSeVyhZf83W1kOpESwD7s2aF3SADY7pox0ILAW232xTQaSGCwVF2Vhz5CRDrLRfV42mz2e/O3J4Y6NICaAJDt1OGOrJ0S0Oe1D/7mpHlGk06RNlvrNEiqt2M5XKn9YFyi3aQ7wA+DCNjzKmpoYUArTD16Sfb4KRCQhx8zW44uZyfAB4ONICsSN/WXTpJVHcKB3nIgIjhSINl8J8LS5Gzex2oDGh/1wC9ODEyBZvEjrsjVxRyR6B4sb2QvsTFAX+PHiK7J+dzMMnjUw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=vaDOp18KZgjGCatwH/nGibVybsVFQicr0BZkwpxA2ZM=;
+ b=JZQQjMtmN5siPVhLeiIl2U/ns99/03rIoBrOrwuLpWxl0m2QngY3HeqLAesqFlCJP/0wKU4NE111B2N+oit9EsKjW4gUTvsd4gskpinCxq57VUEzI7SJYb+PRZVLLuIqOQNCYioEP7loGsEwfjH4cyr6eCEumQ1oY5zAM/O3M/C7PRE+sBRxjNcTplUdZmrItsFruxvIF7gfbywGsziU5fMo2yQwc8EhRMQOB8RLH0BMSgxbM8vf5HAxSxhs0eZfHoMCcymV3sNPC1J2mXuFi2C4hX4MVZjfi/up3LkRurVSzMbX1Y0Ie0nn2XZNCNUshAwFXiMN7AfdXABtFRdC3A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=vaDOp18KZgjGCatwH/nGibVybsVFQicr0BZkwpxA2ZM=;
+ b=p4ZrM55sB2bHADC2rRTBNDRZbcVnT154NEaxuVy5YBAvprnryCb4TteuiF7gAK/4JM08qW1KfvkGWqRGe8MdDF2a1vfX1icHqkuqCYZRE3Gi09hKn7JggccFCHB8lKCq2V3MkN8SnihCrwbOnz6bbXSpmEOC9JydX7wfwRXdrfk=
+Received: from BN9PR03CA0358.namprd03.prod.outlook.com (2603:10b6:408:f6::33)
+ by DM6PR12MB4044.namprd12.prod.outlook.com (2603:10b6:5:21d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.20; Fri, 23 Sep
+ 2022 15:38:25 +0000
+Received: from BN8NAM11FT050.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:f6:cafe::8b) by BN9PR03CA0358.outlook.office365.com
+ (2603:10b6:408:f6::33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.20 via Frontend
+ Transport; Fri, 23 Sep 2022 15:38:24 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ BN8NAM11FT050.mail.protection.outlook.com (10.13.177.5) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5654.14 via Frontend Transport; Fri, 23 Sep 2022 15:38:24 +0000
+Received: from BLR5CG134614W.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.28; Fri, 23 Sep
+ 2022 10:38:15 -0500
+From:   K Prateek Nayak <kprateek.nayak@amd.com>
+To:     <linux-kernel@vger.kernel.org>
+CC:     <rafael@kernel.org>, <lenb@kernel.org>,
+        <linux-acpi@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <dave.hansen@linux.intel.com>, <bp@alien8.de>,
+        <tglx@linutronix.de>, <andi@lisas.de>, <puwen@hygon.cn>,
+        <mario.limonciello@amd.com>, <peterz@infradead.org>,
+        <rui.zhang@intel.com>, <gpiccoli@igalia.com>,
+        <daniel.lezcano@linaro.org>, <ananth.narayan@amd.com>,
+        <gautham.shenoy@amd.com>, K Prateek Nayak <kprateek.nayak@amd.com>,
+        "Calvin Ong" <calvin.ong@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2] x86,acpi: Limit "Dummy wait" workaround to older AMD and Intel processors
+Date:   Fri, 23 Sep 2022 21:08:01 +0530
+Message-ID: <20220923153801.9167-1-kprateek.nayak@amd.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20220811100912.126447-1-bingjingc@synology.com>
- <20220811100912.126447-3-bingjingc@synology.com> <CAL3q7H60vU2SNto+vqo7bc6f8+0bWSTV-yMZ+mTOu-hWt_wejA@mail.gmail.com>
- <CAMmgxWFpRRp_gGXXncBzoJgsmmbfdtBtfysntW7JpxFBxBNPJQ@mail.gmail.com>
- <CAL3q7H5aD3zZuDg3uru2AFavmzTG2ysjyjPFv3nYhUj4CkfAmQ@mail.gmail.com> <CAMmgxWFE7gTrVWyoOkYHjA4+q7=LZpnimsTQDugsRtXG1A56Zw@mail.gmail.com>
-In-Reply-To: <CAMmgxWFE7gTrVWyoOkYHjA4+q7=LZpnimsTQDugsRtXG1A56Zw@mail.gmail.com>
-From:   Filipe Manana <fdmanana@kernel.org>
-Date:   Fri, 23 Sep 2022 16:32:30 +0100
-X-Gmail-Original-Message-ID: <CAL3q7H540e8Rpxg5Rdv20OFueYhb4PPt2YQs5oZ82N8dciWx1A@mail.gmail.com>
-Message-ID: <CAL3q7H540e8Rpxg5Rdv20OFueYhb4PPt2YQs5oZ82N8dciWx1A@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] btrfs: send: fix failures when processing inodes
- with no links
-To:     bingjing chang <bxxxjxxg@gmail.com>
-Cc:     bingjingc <bingjingc@synology.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
-        linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Robbie Ko <robbieko@synology.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT050:EE_|DM6PR12MB4044:EE_
+X-MS-Office365-Filtering-Correlation-Id: d3ef8b6c-2281-47ab-aeab-08da9d79a733
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XSsr5Ru4gijz6wsHkTTtpjNDNTZrGTqvXOgkUYPj6ov5zPUvgeCH9/4QJSt5EnMEQ0YZ5uJifY4tza1vIfHaVXqqccuWcS04X/SboimKUD+UgXOrZbzEJBvrgeLceV4l/Rhck+uDS6d/I3iw8ntVpsaPs52g8A+ZJCltBELhQZceiKpRJ871E03VA0BgYhpGnxtB4QxLdaaqkrrFbPwDhbjuD2c+itHQxwJWtUT458CqrY0mI0eO7KlyaHmlY60kUcRpvTqJD9/hpHvKusdYdc6WQp7I/9KtuzWbGm0NG7G7dnHNb/1o7B/5+diBQkcS/HplJuAjE3GKY/u25f8UW/Rrwvi0HJ48Ns0bkVXa+xyc7jTT0mPrYSStQqIrKPUNicKLY1o8PDR3Aom2e+wyZXe0dhtfKisZAErI068GySn4vGPL9NWkVR35jo04qL3BMc4DJ8ydfqYavgpVg34fJLCRjZy4i7U5C0MHVzf1BTu9HXfWE2Gg7pLVLF7atJFFjeQHwOuZ8Ykh4nB1T+LZoo1eKULblFgfsolmlRZAhnuPRWDtgjbzIRWIOLSWsUJ22Fc/luWyl5ZZjwlXDxEmeTCe8pFQFTkdKFJxXj2RXdCbKdScvwR06nCnv9XDDexKP6K93mULsOOIZBXiWQzoSP4I8L0z9JhgKdcQRx7iV5kGhN97rzv0+L0jHjQL6h7OR7nUUb+CUZ+J2YGUWkEo8V9fb9N7+NPBmu27OkivhrRodLocSv+bYOOvv34mhElkzpxoF25sJY0B+9LSWkUrH9ZmyQuPO/a8RMM43j9pn2DX3RbXkdA7P5v6fV2gBwT+TcOi+oSpYzJCygYgiukFL7qZ7+xfcxEdjk3RSQ6D3QvmFZCmuHBSxBP7gZxckZgq
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(396003)(376002)(136003)(346002)(39860400002)(451199015)(46966006)(36840700001)(40470700004)(26005)(966005)(6916009)(2906002)(6666004)(7696005)(36756003)(54906003)(1076003)(16526019)(186003)(2616005)(86362001)(70206006)(70586007)(83380400001)(4326008)(47076005)(426003)(336012)(36860700001)(316002)(40480700001)(41300700001)(8936002)(8676002)(5660300002)(7416002)(81166007)(82310400005)(478600001)(40460700003)(82740400003)(356005)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Sep 2022 15:38:24.7507
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: d3ef8b6c-2281-47ab-aeab-08da9d79a733
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT050.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4044
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 23, 2022 at 3:16 PM bingjing chang <bxxxjxxg@gmail.com> wrote:
->
-> Filipe Manana <fdmanana@kernel.org> =E6=96=BC 2022=E5=B9=B49=E6=9C=8822=
-=E6=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=886:08=E5=AF=AB=E9=81=93=EF=BC=
-=9A
-> >
-> > ,
-> >
-> > On Fri, Aug 12, 2022 at 3:36 PM bingjing chang <bxxxjxxg@gmail.com> wro=
-te:
-> > >
-> > > Filipe Manana <fdmanana@kernel.org> =E6=96=BC 2022=E5=B9=B48=E6=9C=88=
-11=E6=97=A5 =E9=80=B1=E5=9B=9B =E6=99=9A=E4=B8=8A8:00=E5=AF=AB=E9=81=93=EF=
-=BC=9A
-> > > >
-> > > > On Thu, Aug 11, 2022 at 11:09 AM bingjingc <bingjingc@synology.com>=
- wrote:
-> > > > >
-> > > > > From: BingJing Chang <bingjingc@synology.com>
-> > > > >
-> > > > > There is a bug causing send failures when processing an orphan di=
-rectory
-> > > > > with no links. In commit 46b2f4590aab ("Btrfs: fix send failure w=
-hen root
-> > > > > has deleted files still open")', the orphan inode issue was addre=
-ssed. The
-> > > > > send operation fails with a ENOENT error because of any attempts =
-to
-> > > > > generate a path for the inode with a link count of zero. Therefor=
-e, in that
-> > > > > patch, sctx->ignore_cur_inode was introduced to be set if the cur=
-rent inode
-> > > > > has a link count of zero for bypassing some unnecessary steps. An=
-d a helper
-> > > > > function btrfs_unlink_all_paths() was introduced and called to cl=
-ean up old
-> > > > > paths found in the parent snapshot. However, not only regular fil=
-es but
-> > > > > also directories can be orphan inodes. So if the send operation m=
-eets an
-> > > > > orphan directory, it will issue a wrong unlink command for that d=
-irectory
-> > > > > now. Soon the receive operation fails with a EISDIR error. Beside=
-s, the
-> > > > > send operation also fails with a ENOENT error later when it tries=
- to
-> > > > > generate a path of it.
-> > > > >
-> > > > > Similar example but making an orphan dir for an incremental send:
-> > > > >
-> > > > >   $ btrfs subvolume create vol
-> > > > >   $ mkdir vol/dir
-> > > > >   $ touch vol/dir/foo
-> > > > >
-> > > > >   $ btrfs subvolume snapshot -r vol snap1
-> > > > >   $ btrfs subvolume snapshot -r vol snap2
-> > > > >
-> > > > >   # Turn the second snapshot to RW mode and delete the whole dir =
-while
-> > > > >   # holding an open file descriptor on it.
-> > > > >   $ btrfs property set snap2 ro false
-> > > > >   $ exec 73<snap2/dir
-> > > > >   $ rm -rf snap2/dir
-> > > > >
-> > > > >   # Set the second snapshot back to RO mode and do an incremental=
- send.
-> > > > >   $ btrfs property set snap2 ro true
-> > > > >   $ mkdir receive_dir
-> > > > >   $ btrfs send snap2 -p snap1 | btrfs receive receive_dir/
-> > > > >   At subvol snap2
-> > > > >   At snapshot snap2
-> > > > >   ERROR: send ioctl failed with -2: No such file or directory
-> > > > >   ERROR: unlink dir failed. Is a directory
-> > > > >
-> > > > > Actually, orphan inodes are more common use cases in cascading ba=
-ckups.
-> > > > > (Please see the illustration below.) In a cascading backup, a use=
-r wants
-> > > > > to replicate a couple of snapshots from Machine A to Machine B an=
-d from
-> > > > > Machine B to Machine C. Machine B doesn't take any RO snapshots f=
-or
-> > > > > sending. All a receiver does is create an RW snapshot of its pare=
-nt
-> > > > > snapshot, apply the send stream and turn it into RO mode at the e=
-nd. Even
-> > > > > if all paths of some inodes are deleted in applying the send stre=
-am, these
-> > > > > inodes would not be deleted and become orphans after changing the=
- subvolume
-> > > > > from RW to RO. Moreover, orphan inodes can occur not only in send=
- snapshots
-> > > > > but also in parent snapshots because Machine B may do a batch rep=
-lication
-> > > > > of a couple of snapshots.
-> > > > >
-> > > > > An illustration for cascading backups:
-> > > > > Machine A (snapshot {1..n}) --> Machine B --> Machine C
-> > > > >
-> > > > > The intuition to solve the problem is to delete all the items of =
-orphan
-> > > > > inodes before using these snapshots for sending. I used to think =
-that the
-> > > > > reasonable timing for doing that is during the ioctl of changing =
-the
-> > > > > subvolume from RW to RO because it sounds good that we will not m=
-odify the
-> > > > > fs tree of a RO snapshot anymore. However, attempting to do the o=
-rphan
-> > > > > cleanup in the ioctl would be pointless. Because if someone is ho=
-lding an
-> > > > > open file descriptor on the inode, the reference count of the ino=
-de will
-> > > > > never drop to 0. Then iput() cannot trigger eviction, which final=
-ly deletes
-> > > > > all the items of it. So we try to extend the original patch to ha=
-ndle
-> > > > > orphans in send/parent snapshots. Here are several cases that nee=
-d to be
-> > > > > considered:
-> > > > >
-> > > > > Case 1: BTRFS_COMPARE_TREE_NEW
-> > > > >        |  send snapshot  | action
-> > > > >  --------------------------------
-> > > > >  nlink |        0        | ignore
-> > > > >
-> > > > > In case 1, when we get a BTRFS_COMPARE_TREE_NEW tree comparison r=
-esult,
-> > > > > it means that a new inode is found in the send snapshot and it do=
-esn't
-> > > > > appear in the parent snapshot. Since this inode has a link count =
-of zero
-> > > > > (It's an orphan and there're no paths for it.), we can leverage
-> > > > > sctx->ignore_cur_inode in the original patch to prevent it from b=
-eing
-> > > > > created.
-> > > > >
-> > > > > Case 2: BTRFS_COMPARE_TREE_DELETED
-> > > > >        | parent snapshot | action
-> > > > >  ----------------------------------
-> > > > >  nlink |        0        | as usual
-> > > > >
-> > > > > In case 2, when we get a BTRFS_COMPARE_TREE_DELETED tree comparis=
-on
-> > > > > result, it means that the inode only appears in the parent snapsh=
-ot.
-> > > > > As usual, the send operation will try to delete all its paths. Ho=
-wever,
-> > > > > this inode has a link count of zero, so no paths of it will be fo=
-und. No
-> > > > > deletion operations will be issued. We don't need to change any l=
-ogic.
-> > > > >
-> > > > > Case 3: BTRFS_COMPARE_TREE_CHANGED
-> > > > >            |       | parent snapshot | send snapshot | action
-> > > > >  ----------------------------------------------------------------=
--------
-> > > > >  subcase 1 | nlink |        0        |       0       | ignore
-> > > > >  subcase 2 | nlink |       >0        |       0       | new_gen(de=
-letion)
-> > > > >  subcase 3 | nlink |        0        |      >0       | new_gen(cr=
-eation)
-> > > > >
-> > > > > In case 3, when we get a BTRFS_COMPARE_TREE_CHANGED tree comparis=
-on result,
-> > > > > it means that the inode appears in both snapshots. Here're three =
-subcases.
-> > > > >
-> > > > > First, if the inode has link counts of zero in both snapshots. Si=
-nce there
-> > > > > are no paths for this inode in (source/destination) parent snapsh=
-ots and we
-> > > > > don't care about whether there is also an orphan inode in destina=
-tion or
-> > > > > not, we can set sctx->ignore_cur_inode on to prevent it from bein=
-g created.
-> > > > >
-> > > > > For the second and the third subcases, if there're paths in one s=
-napshot
-> > > > > and there're no paths in the other snapshot for this inode. We ca=
-n treat
-> > > > > this inode as a new generation. We can also leverage the logic ha=
-ndling a
-> > > > > new generation of an inode with small adjustments. Then it will d=
-elete all
-> > > > > old paths and create a new inode with new attributes and paths on=
-ly when
-> > > > > there's a positive link count in the send snapshot. In subcase 2,=
- the
-> > > > > send operation only needs to delete all old paths as in the paren=
-t
-> > > > > snapshot. But it may require more operations for a directory to r=
-emove its
-> > > > > old paths. If a not-empty directory is going to be deleted (becau=
-se it has
-> > > > > a link count of zero in the send snapshot) but there're files/dir=
-ectories
-> > > > > with bigger inode numbers under it, the send operation will need =
-to rename
-> > > > > it to its orphan name first. After processing and deleting the la=
-st item
-> > > > > under this directory, the send operation will check this director=
-y, aka
-> > > > > the parent directory of the last item, again and issue a rmdir op=
-eration
-> > > > > to remove it finally. Therefore, we also need to treat inodes wit=
-h a link
-> > > > > count of zero as if they didn't exist in get_cur_inode_state(), w=
-hich is
-> > > > > used in process_recorded_refs(). By doing this, when reviewing a =
-directory
-> > > > > with orphan names after the last item under it has been deleted, =
-the send
-> > > > > operation now can properly issue a rmdir operation. Otherwise, wi=
-thout
-> > > > > doing this, the orphan directory with an orphan name would be kep=
-t here
-> > > > > at the end due to the existing inode with a link count of zero be=
-ing found.
-> > > > > In subcase 3, as in case 2, no old paths would be found, so no de=
-letion
-> > > > > operations will be issued. The send operation will only create a =
-new one
-> > > > > for that inode.
-> > > > >
-> > > > > Note that subcase 3 is not a common case. That's because it's eas=
-y to
-> > > > > reduce the hard links of an inode, but once all valid paths are r=
-emoved,
-> > > > > there're no valid paths for creating other hard links. The only w=
-ay to do
-> > > > > that is trying to send an older snapshot after a newer snapshot h=
-as been
-> > > > > sent.
-> > > > >
-> > > > > Cc: <stable@vger.kernel.org> # 4.9: 46b2f4590aab: Btrfs: fix send
-> > > > > failure when root has deleted files still open
-> > > > > Cc: <stable@vger.kernel.org> # 4.9: 71ecfc133b03: btrfs: send:
-> > > > > introduce recorded_ref_alloc and recorded_ref_free
-> > > > > Cc: <stable@vger.kernel.org> # 4.9: 3aa5bd367fa5: btrfs: send: fi=
-x
-> > > > > sending link commands for existing file paths
-> > > > > Cc: <stable@vger.kernel.org> # 4.9: 0d8869fb6b6f8: btrfs: send: a=
-lways
-> > > > > use the rbtree based inode ref management infrastructure
-> > > >
-> > > > Btw, lines with CC, Fixes, etc, tags should not be broken even if t=
-hey
-> > > > are wider than 74 characters.
-> > > >
-> > >
-> > > Okay, thank you for telling me that.
-> > >
-> > > > So, in v1 when I gave you that example of CC stable tags, it wasn't
-> > > > meant for you to literally copy-paste them.
-> > > >
-> > > > First I asked if the purpose of the original Fixes tag was to backp=
-ort
-> > > > the fix to stable releases.
-> > > > Was that the intention? You didn't provide an answer about that.
-> > > >
-> > >
-> > > Oh, I misunderstood your suggestion. I'm sorry about that.
-> > > Our intention is to report this bug and try to provide a reasonable a=
-nd
-> > > acceptable fix for it. Backporting is not our goal.
-> > >
-> > > > Then I told if that was the case, the proper way would be adding CC
-> > > > stable tags and listing any
-> > > > dependencies. I gave those 4 as examples with commits that are fair=
-ly
-> > > > recent and obvious dependencies,
-> > > > but I also said that probably there's a lot more missing - especial=
-ly
-> > > > if we want to backport to as far as 4.9.
-> > > >
-> > >
-> > > > Even with just those 4 dependencies, some of those commits are fair=
-ly
-> > > > large, and that may be frowned upon
-> > > > according to stable backport rules (listed at
-> > > > https://www.kernel.org/doc/Documentation/process/stable-kernel-rule=
-s.rst).
-> > > > For e.g., patches with over 100 lines changed.
-> > > >
-> > > > Now, did you actually verify if there were more dependencies? (and =
-test)
-> > > > And do you really want to go as far as 4.9 (currently the oldest
-> > > > stable release)?
-> > >
-> > > No, I didn't. I used to think the CC tag was a very cool feature, whi=
-ch
-> > > just putting a few commits lets backport easily when I read your mail=
-,
-> > > so I copied and pasted these 4 commits in the beginning of revising
-> > > the patch v2. However, I'm wrong.
-> > >
-> > > > I seriously doubt that those 4 commits are the only dependencies in
-> > > > order to be able to cleanly backport to 4.9 and other old branches.
-> > > >
-> > > > It may be better to backport only to a few younger stable branches,=
- or
-> > > > just provide later a version of the patch to
-> > > > apply to each desired stable branch (once the fix is in Linus' tree
-> > > > and in a -rc release).
-> > > >
-> > > > If you are not interested in backporting to stable or don't have th=
-e
-> > > > time to verify the dependencies and test, then just remove all the
-> > > > stable tags.
-> > > > Just leave a fixes tag:
-> > > >
-> > > > Fixes: 31db9f7c23fbf7 ("Btrfs: introduce BTRFS_IOC_SEND for btrfs s=
-end/receive")
-> > > >
-> > >
-> > > Since backporting is not our goal. I will just leave the fix tag here=
-.
-> > >
-> > > > Also, please don't forget to send a test case for fstests, covering=
- as
-> > > > many cases as possible (not just the example
-> > > > at the beginning of the changelog).
-> > > >
-> > >
-> > > Okay, I will submit a test case covering all cases.
-> > > Because I still need to spend time learning how to use the fssum util=
-ity
-> > > for the last test case you reviewed, so I will submit the test case l=
-ater.
-> >
-> > BingJing, any progress with the test case?
-> > We would love to have that in fstests to help prevent regressions in th=
-e future.
-> >
-> > Thanks.
-> >
->
-> Hi Filipe,
->
-> I used to wait the git pull of my patch to the master branch, then I can
-> attach the commit uuid in tests as before. However, it seems that there'r=
-e
-> troubles for the maintainer to pull all of the bug fixes into the new
-> kernel 6.0 at once.
+Processors based on the Zen microarchitecture support IOPORT based deeper
+C-states. The ACPI idle driver reads the
+acpi_gbl_FADT.xpm_timer_block.address in the IOPORT based C-state exit
+path which is claimed to be a "Dummy wait op" and has been around since
+ACPI's introduction to Linux dating back to Andy Grover's Mar 14, 2002
+posting [1].
 
-Ah, yes, it will only be in 6.1, so it should land in Linus' tree in
-about 2 weeks maybe (we are at 6.0-rc6, next week is likely the final
-rc7).
-If you want to wait for that, it's fine. Just wanted to check if you
-needed any help and that it wasn't forgotten.
+Old, circa 2002 chipsets have a bug which was elaborated by Andreas Mohr
+back in 2006 in commit b488f02156d3d ("ACPI: restore comment justifying
+'extra' P_LVLx access") where the commit log claims:
+"this dummy read was about: STPCLK# doesn't get asserted in time on
+(some) chipsets, which is why we need to have a dummy I/O read to delay
+further instruction processing until the CPU is fully stopped."
 
-Thanks!
+This workaround is very painful on modern systems with a large number of
+cores. The "inl()" can take thousands of cycles. Sampling certain
+workloads with IBS on AMD Zen3 system shows that a significant amount of
+time is spent in the dummy op, which incorrectly gets accounted as
+C-State residency. A large C-State residency value can prime the cpuidle
+governor to recommend a deeper C-State during the subsequent idle
+instances, starting a vicious cycle, leading to performance degradation
+on workloads that rapidly switch between busy and idle phases.
+(For the extent of the performance degradation refer link [2])
 
->
-> Okay, I will try to create a test covering the cases this weekend.
-> Sorry for the inconvenience made.
->
-> Thanks.
->
-> > >
-> > > Thanks.
-> > >
-> > > > Thanks.
-> > > >
-> > > > > Reviewed-by: Robbie Ko <robbieko@synology.com>
-> > > > > Signed-off-by: BingJing Chang <bingjingc@synology.com>
-> > > > > ---
-> > > > >  fs/btrfs/send.c | 214 +++++++++++++++++++-----------------------=
-------
-> > > > >  1 file changed, 85 insertions(+), 129 deletions(-)
-> > > > >
-> > > > > diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-> > > > > index f8d77a33b9b7..6ab1ba66ff4b 100644
-> > > > > --- a/fs/btrfs/send.c
-> > > > > +++ b/fs/btrfs/send.c
-> > > > > @@ -850,6 +850,7 @@ struct btrfs_inode_info {
-> > > > >         u64 gid;
-> > > > >         u64 rdev;
-> > > > >         u64 attr;
-> > > > > +       u64 nlink;
-> > > > >  };
-> > > > >
-> > > > >  /*
-> > > > > @@ -888,6 +889,7 @@ static int get_inode_info(struct btrfs_root *=
-root, u64 ino,
-> > > > >         info->uid =3D btrfs_inode_uid(path->nodes[0], ii);
-> > > > >         info->gid =3D btrfs_inode_gid(path->nodes[0], ii);
-> > > > >         info->rdev =3D btrfs_inode_rdev(path->nodes[0], ii);
-> > > > > +       info->nlink =3D btrfs_inode_nlink(path->nodes[0], ii);
-> > > > >         /*
-> > > > >          * Transfer the unchanged u64 value of btrfs_inode_item::=
-flags, that's
-> > > > >          * otherwise logically split to 32/32 parts.
-> > > > > @@ -1652,19 +1654,22 @@ static int get_cur_inode_state(struct sen=
-d_ctx *sctx, u64 ino, u64 gen)
-> > > > >         int right_ret;
-> > > > >         u64 left_gen;
-> > > > >         u64 right_gen;
-> > > > > +       struct btrfs_inode_info info;
-> > > > >
-> > > > > -       ret =3D get_inode_gen(sctx->send_root, ino, &left_gen);
-> > > > > +       ret =3D get_inode_info(sctx->send_root, ino, &info);
-> > > > >         if (ret < 0 && ret !=3D -ENOENT)
-> > > > >                 goto out;
-> > > > > -       left_ret =3D ret;
-> > > > > +       left_ret =3D (info.nlink =3D=3D 0) ? -ENOENT : ret;
-> > > > > +       left_gen =3D info.gen;
-> > > > >
-> > > > >         if (!sctx->parent_root) {
-> > > > >                 right_ret =3D -ENOENT;
-> > > > >         } else {
-> > > > > -               ret =3D get_inode_gen(sctx->parent_root, ino, &ri=
-ght_gen);
-> > > > > +               ret =3D get_inode_info(sctx->parent_root, ino, &i=
-nfo);
-> > > > >                 if (ret < 0 && ret !=3D -ENOENT)
-> > > > >                         goto out;
-> > > > > -               right_ret =3D ret;
-> > > > > +               right_ret =3D (info.nlink =3D=3D 0) ? -ENOENT : r=
-et;
-> > > > > +               right_gen =3D info.gen;
-> > > > >         }
-> > > > >
-> > > > >         if (!left_ret && !right_ret) {
-> > > > > @@ -6413,86 +6418,6 @@ static int finish_inode_if_needed(struct s=
-end_ctx *sctx, int at_end)
-> > > > >         return ret;
-> > > > >  }
-> > > > >
-> > > > > -struct parent_paths_ctx {
-> > > > > -       struct list_head *refs;
-> > > > > -       struct send_ctx *sctx;
-> > > > > -};
-> > > > > -
-> > > > > -static int record_parent_ref(int num, u64 dir, int index, struct=
- fs_path *name,
-> > > > > -                            void *ctx)
-> > > > > -{
-> > > > > -       struct parent_paths_ctx *ppctx =3D ctx;
-> > > > > -
-> > > > > -       /*
-> > > > > -        * Pass 0 as the generation for the directory, we don't c=
-are about it
-> > > > > -        * here as we have no new references to add, we just want=
- to delete all
-> > > > > -        * references for an inode.
-> > > > > -        */
-> > > > > -       return record_ref_in_tree(&ppctx->sctx->rbtree_deleted_re=
-fs, ppctx->refs,
-> > > > > -                                 name, dir, 0, ppctx->sctx);
-> > > > > -}
-> > > > > -
-> > > > > -/*
-> > > > > - * Issue unlink operations for all paths of the current inode fo=
-und in the
-> > > > > - * parent snapshot.
-> > > > > - */
-> > > > > -static int btrfs_unlink_all_paths(struct send_ctx *sctx)
-> > > > > -{
-> > > > > -       LIST_HEAD(deleted_refs);
-> > > > > -       struct btrfs_path *path;
-> > > > > -       struct btrfs_root *root =3D sctx->parent_root;
-> > > > > -       struct btrfs_key key;
-> > > > > -       struct btrfs_key found_key;
-> > > > > -       struct parent_paths_ctx ctx;
-> > > > > -       int iter_ret =3D 0;
-> > > > > -       int ret;
-> > > > > -
-> > > > > -       path =3D alloc_path_for_send();
-> > > > > -       if (!path)
-> > > > > -               return -ENOMEM;
-> > > > > -
-> > > > > -       key.objectid =3D sctx->cur_ino;
-> > > > > -       key.type =3D BTRFS_INODE_REF_KEY;
-> > > > > -       key.offset =3D 0;
-> > > > > -
-> > > > > -       ctx.refs =3D &deleted_refs;
-> > > > > -       ctx.sctx =3D sctx;
-> > > > > -
-> > > > > -       btrfs_for_each_slot(root, &key, &found_key, path, iter_re=
-t) {
-> > > > > -               if (found_key.objectid !=3D key.objectid)
-> > > > > -                       break;
-> > > > > -               if (found_key.type !=3D key.type &&
-> > > > > -                   found_key.type !=3D BTRFS_INODE_EXTREF_KEY)
-> > > > > -                       break;
-> > > > > -
-> > > > > -               ret =3D iterate_inode_ref(root, path, &found_key,=
- 1,
-> > > > > -                                       record_parent_ref, &ctx);
-> > > > > -               if (ret < 0)
-> > > > > -                       goto out;
-> > > > > -       }
-> > > > > -       /* Catch error found during iteration */
-> > > > > -       if (iter_ret < 0) {
-> > > > > -               ret =3D iter_ret;
-> > > > > -               goto out;
-> > > > > -       }
-> > > > > -
-> > > > > -       while (!list_empty(&deleted_refs)) {
-> > > > > -               struct recorded_ref *ref;
-> > > > > -
-> > > > > -               ref =3D list_first_entry(&deleted_refs, struct re=
-corded_ref, list);
-> > > > > -               ret =3D send_unlink(sctx, ref->full_path);
-> > > > > -               if (ret < 0)
-> > > > > -                       goto out;
-> > > > > -               recorded_ref_free(ref);
-> > > > > -       }
-> > > > > -       ret =3D 0;
-> > > > > -out:
-> > > > > -       btrfs_free_path(path);
-> > > > > -       if (ret)
-> > > > > -               __free_recorded_refs(&deleted_refs);
-> > > > > -       return ret;
-> > > > > -}
-> > > > > -
-> > > > >  static void close_current_inode(struct send_ctx *sctx)
-> > > > >  {
-> > > > >         u64 i_size;
-> > > > > @@ -6583,25 +6508,37 @@ static int changed_inode(struct send_ctx =
-*sctx,
-> > > > >          * file descriptor against it or turning a RO snapshot in=
-to RW mode,
-> > > > >          * keep an open file descriptor against a file, delete it=
- and then
-> > > > >          * turn the snapshot back to RO mode before using it for =
-a send
-> > > > > -        * operation. So if we find such cases, ignore the inode =
-and all its
-> > > > > -        * items completely if it's a new inode, or if it's a cha=
-nged inode
-> > > > > -        * make sure all its previous paths (from the parent snap=
-shot) are all
-> > > > > -        * unlinked and all other the inode items are ignored.
-> > > > > +        * operation. The former is what the receiver operation d=
-oes.
-> > > > > +        * Therefore, if we want to send these snapshots soon aft=
-er they're
-> > > > > +        * received, we need to handle orphan inodes as well. Mor=
-eover,
-> > > > > +        * orphans can appear not only in the send snapshot but a=
-lso in the
-> > > > > +        * parent snapshot. Here are several cases:
-> > > > > +        *
-> > > > > +        * Case 1: BTRFS_COMPARE_TREE_NEW
-> > > > > +        *       |  send snapshot  | action
-> > > > > +        * --------------------------------
-> > > > > +        * nlink |        0        | ignore
-> > > > > +        *
-> > > > > +        * Case 2: BTRFS_COMPARE_TREE_DELETED
-> > > > > +        *       | parent snapshot | action
-> > > > > +        * ----------------------------------
-> > > > > +        * nlink |        0        | as usual
-> > > > > +        * Note: No unlinks will be sent because there're no path=
-s for it.
-> > > > > +        *
-> > > > > +        * Case 3: BTRFS_COMPARE_TREE_CHANGED
-> > > > > +        *           |       | parent snapshot | send snapshot | =
-action
-> > > > > +        * ------------------------------------------------------=
------------------
-> > > > > +        * subcase 1 | nlink |        0        |       0       | =
-ignore
-> > > > > +        * subcase 2 | nlink |       >0        |       0       | =
-new_gen(deletion)
-> > > > > +        * subcase 3 | nlink |        0        |      >0       | =
-new_gen(creation)
-> > > > > +        *
-> > > > >          */
-> > > > > -       if (result =3D=3D BTRFS_COMPARE_TREE_NEW ||
-> > > > > -           result =3D=3D BTRFS_COMPARE_TREE_CHANGED) {
-> > > > > -               u32 nlinks;
-> > > > > -
-> > > > > -               nlinks =3D btrfs_inode_nlink(sctx->left_path->nod=
-es[0], left_ii);
-> > > > > -               if (nlinks =3D=3D 0) {
-> > > > > +       if (result =3D=3D BTRFS_COMPARE_TREE_NEW) {
-> > > > > +               if (btrfs_inode_nlink(sctx->left_path->nodes[0], =
-left_ii) =3D=3D
-> > > > > +                                     0) {
-> > > > >                         sctx->ignore_cur_inode =3D true;
-> > > > > -                       if (result =3D=3D BTRFS_COMPARE_TREE_CHAN=
-GED)
-> > > > > -                               ret =3D btrfs_unlink_all_paths(sc=
-tx);
-> > > > >                         goto out;
-> > > > >                 }
-> > > > > -       }
-> > > > > -
-> > > > > -       if (result =3D=3D BTRFS_COMPARE_TREE_NEW) {
-> > > > >                 sctx->cur_inode_gen =3D left_gen;
-> > > > >                 sctx->cur_inode_new =3D true;
-> > > > >                 sctx->cur_inode_deleted =3D false;
-> > > > > @@ -6622,6 +6559,18 @@ static int changed_inode(struct send_ctx *=
-sctx,
-> > > > >                 sctx->cur_inode_mode =3D btrfs_inode_mode(
-> > > > >                                 sctx->right_path->nodes[0], right=
-_ii);
-> > > > >         } else if (result =3D=3D BTRFS_COMPARE_TREE_CHANGED) {
-> > > > > +               u32 new_nlinks, old_nlinks;
-> > > > > +
-> > > > > +               new_nlinks =3D btrfs_inode_nlink(sctx->left_path-=
->nodes[0],
-> > > > > +                                              left_ii);
-> > > > > +               old_nlinks =3D btrfs_inode_nlink(sctx->right_path=
-->nodes[0],
-> > > > > +                                              right_ii);
-> > > > > +               if (new_nlinks =3D=3D 0 && old_nlinks =3D=3D 0) {
-> > > > > +                       sctx->ignore_cur_inode =3D true;
-> > > > > +                       goto out;
-> > > > > +               } else if (new_nlinks =3D=3D 0 || old_nlinks =3D=
-=3D 0) {
-> > > > > +                       sctx->cur_inode_new_gen =3D 1;
-> > > > > +               }
-> > > > >                 /*
-> > > > >                  * We need to do some special handling in case th=
-e inode was
-> > > > >                  * reported as changed with a changed generation =
-number. This
-> > > > > @@ -6648,38 +6597,45 @@ static int changed_inode(struct send_ctx =
-*sctx,
-> > > > >                         /*
-> > > > >                          * Now process the inode as if it was new=
-.
-> > > > >                          */
-> > > > > -                       sctx->cur_inode_gen =3D left_gen;
-> > > > > -                       sctx->cur_inode_new =3D true;
-> > > > > -                       sctx->cur_inode_deleted =3D false;
-> > > > > -                       sctx->cur_inode_size =3D btrfs_inode_size=
-(
-> > > > > -                                       sctx->left_path->nodes[0]=
-, left_ii);
-> > > > > -                       sctx->cur_inode_mode =3D btrfs_inode_mode=
-(
-> > > > > -                                       sctx->left_path->nodes[0]=
-, left_ii);
-> > > > > -                       sctx->cur_inode_rdev =3D btrfs_inode_rdev=
-(
-> > > > > -                                       sctx->left_path->nodes[0]=
-, left_ii);
-> > > > > -                       ret =3D send_create_inode_if_needed(sctx)=
-;
-> > > > > -                       if (ret < 0)
-> > > > > -                               goto out;
-> > > > > +                       if (new_nlinks > 0) {
-> > > > > +                               sctx->cur_inode_gen =3D left_gen;
-> > > > > +                               sctx->cur_inode_new =3D true;
-> > > > > +                               sctx->cur_inode_deleted =3D false=
-;
-> > > > > +                               sctx->cur_inode_size =3D btrfs_in=
-ode_size(
-> > > > > +                                               sctx->left_path->=
-nodes[0],
-> > > > > +                                               left_ii);
-> > > > > +                               sctx->cur_inode_mode =3D btrfs_in=
-ode_mode(
-> > > > > +                                               sctx->left_path->=
-nodes[0],
-> > > > > +                                               left_ii);
-> > > > > +                               sctx->cur_inode_rdev =3D btrfs_in=
-ode_rdev(
-> > > > > +                                               sctx->left_path->=
-nodes[0],
-> > > > > +                                               left_ii);
-> > > > > +                               ret =3D send_create_inode_if_need=
-ed(sctx);
-> > > > > +                               if (ret < 0)
-> > > > > +                                       goto out;
-> > > > >
-> > > > > -                       ret =3D process_all_refs(sctx, BTRFS_COMP=
-ARE_TREE_NEW);
-> > > > > -                       if (ret < 0)
-> > > > > -                               goto out;
-> > > > > -                       /*
-> > > > > -                        * Advance send_progress now as we did no=
-t get into
-> > > > > -                        * process_recorded_refs_if_needed in the=
- new_gen case.
-> > > > > -                        */
-> > > > > -                       sctx->send_progress =3D sctx->cur_ino + 1=
-;
-> > > > > +                               ret =3D process_all_refs(sctx,
-> > > > > +                                               BTRFS_COMPARE_TRE=
-E_NEW);
-> > > > > +                               if (ret < 0)
-> > > > > +                                       goto out;
-> > > > > +                               /*
-> > > > > +                                * Advance send_progress now as w=
-e did not get
-> > > > > +                                * into process_recorded_refs_if_=
-needed in the
-> > > > > +                                * new_gen case.
-> > > > > +                                */
-> > > > > +                               sctx->send_progress =3D sctx->cur=
-_ino + 1;
-> > > > >
-> > > > > -                       /*
-> > > > > -                        * Now process all extents and xattrs of =
-the inode as if
-> > > > > -                        * they were all new.
-> > > > > -                        */
-> > > > > -                       ret =3D process_all_extents(sctx);
-> > > > > -                       if (ret < 0)
-> > > > > -                               goto out;
-> > > > > -                       ret =3D process_all_new_xattrs(sctx);
-> > > > > -                       if (ret < 0)
-> > > > > -                               goto out;
-> > > > > +                               /*
-> > > > > +                                * Now process all extents and xa=
-ttrs of the
-> > > > > +                                * inode as if they were all new.
-> > > > > +                                */
-> > > > > +                               ret =3D process_all_extents(sctx)=
-;
-> > > > > +                               if (ret < 0)
-> > > > > +                                       goto out;
-> > > > > +                               ret =3D process_all_new_xattrs(sc=
-tx);
-> > > > > +                               if (ret < 0)
-> > > > > +                                       goto out;
-> > > > > +                       }
-> > > > >                 } else {
-> > > > >                         sctx->cur_inode_gen =3D left_gen;
-> > > > >                         sctx->cur_inode_new =3D false;
-> > > > > --
-> > > > > 2.37.1
-> > > > >
+The dummy wait is unnecessary on processors based on the Zen
+microarchitecture (AMD family 17h+ and HYGON). Skip it to prevent
+polluting the C-state residency information. Among the pre-family 17h
+AMD processors, there has been at least one report of an AMD Athlon on a
+VIA chipset (circa 2006) where this this problem was seen (see [3] for
+report by Andreas Mohr).
+
+Modern Intel processors use MWAIT based C-States in the intel_idle driver
+and are not impacted by this code path. For older Intel processors that
+use the acpi_idle driver, a workaround was suggested by Dave Hansen and
+Rafael J. Wysocki to regard all Intel chipsets using the IOPORT based
+C-state management as being affected by this problem (see [4] for
+workaround proposed).
+
+For these reasons, mark all the Intel processors and pre-family 17h
+AMD processors with x86_BUG_STPCLK. In the acpi_idle driver, restrict the
+dummy wait during IOPORT based C-state transitions to only these
+processors.
+
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/mpe/linux-fullhistory.git/commit/?id=972c16130d9dc182cedcdd408408d9eacc7d6a2d [1]
+Link: https://lore.kernel.org/lkml/20220921063638.2489-1-kprateek.nayak@amd.com/ [2]
+Link: https://lore.kernel.org/lkml/Yyy6l94G0O2B7Yh1@rhlx01.hs-esslingen.de/ [3]
+Link: https://lore.kernel.org/lkml/88c17568-8694-940a-0f1f-9d345e8dcbdb@intel.com/ [4]
+
+Suggested-by: Calvin Ong <calvin.ong@amd.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+CC: Pu Wen <puwen@hygon.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
+---
+v1->v2:
+o Introduce X86_BUG_STPCLK to mark chipsets as being affected by the
+  STPCLK# signal assertion issue.
+o Mark all Intel chipsets and pre fam-17h AMD chipsets as being affected
+  by the X86_BUG_STPCLK.
+o Skip dummy xpm_timer_block read in IOPORT based C-state exit path in
+  ACPI processor_idle if chipset is not affected by X86_BUG_STPCLK.
+---
+ arch/x86/include/asm/cpufeatures.h |  1 +
+ arch/x86/kernel/cpu/amd.c          | 12 ++++++++++++
+ arch/x86/kernel/cpu/intel.c        | 12 ++++++++++++
+ drivers/acpi/processor_idle.c      |  8 ++++++++
+ 4 files changed, 33 insertions(+)
+
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index ef4775c6db01..fcd3617ed315 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -460,5 +460,6 @@
+ #define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
+ #define X86_BUG_RETBLEED		X86_BUG(27) /* CPU is affected by RETBleed */
+ #define X86_BUG_EIBRS_PBRSB		X86_BUG(28) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
++#define X86_BUG_STPCLK			X86_BUG(29) /* STPCLK# signal does not get asserted in time during IOPORT based C-state entry */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 48276c0e479d..8cb5887a53a3 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -988,6 +988,18 @@ static void init_amd(struct cpuinfo_x86 *c)
+ 	if (!cpu_has(c, X86_FEATURE_XENPV))
+ 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
+ 
++	/*
++	 * CPUs based on the Zen microarchitecture (Fam 17h onward) can
++	 * guarantee that STPCLK# signal is asserted in time after the
++	 * P_LVL2 read to freeze execution after an IOPORT based C-state
++	 * entry. Among the older AMD processors, there has been at least
++	 * one report of an AMD Athlon processor on a VIA chipset
++	 * (circa 2006) having this issue. Mark all these older AMD
++	 * processor families as being affected.
++	 */
++	if (c->x86 < 0x17)
++		set_cpu_bug(c, X86_BUG_STPCLK);
++
+ 	/*
+ 	 * Turn on the Instructions Retired free counter on machines not
+ 	 * susceptible to erratum #1054 "Instructions Retired Performance
+diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+index 2d7ea5480ec3..96fe1320c238 100644
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -696,6 +696,18 @@ static void init_intel(struct cpuinfo_x86 *c)
+ 		((c->x86_model == INTEL_FAM6_ATOM_GOLDMONT)))
+ 		set_cpu_bug(c, X86_BUG_MONITOR);
+ 
++	/*
++	 * Intel chipsets prior to Nehalem used the ACPI processor_idle
++	 * driver for C-state management. Some of these processors that
++	 * used IOPORT based C-states could not guarantee that STPCLK#
++	 * signal gets asserted in time after P_LVL2 read to freeze
++	 * execution properly. Since a clear cut-off point is not known
++	 * as to when this bug was solved, mark all the chipsets as
++	 * being affected. Only the ones that use IOPORT based C-state
++	 * transitions via the acpi_idle driver will be impacted.
++	 */
++	set_cpu_bug(c, X86_BUG_STPCLK);
++
+ #ifdef CONFIG_X86_64
+ 	if (c->x86 == 15)
+ 		c->x86_cache_alignment = c->x86_clflush_size * 2;
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 16a1663d02d4..493f9ccdb72d 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -528,6 +528,14 @@ static int acpi_idle_bm_check(void)
+ static void wait_for_freeze(void)
+ {
+ #ifdef	CONFIG_X86
++	/*
++	 * A dummy wait operation is only required for those chipsets
++	 * that cannot assert STPCLK# signal in time after P_LVL2 read.
++	 * If a chipset is not affected by this problem, skip it.
++	 */
++	if (!static_cpu_has_bug(X86_BUG_STPCLK))
++		return;
++
+ 	/* No delay is needed if we are in guest */
+ 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
+ 		return;
+-- 
+2.25.1
+
