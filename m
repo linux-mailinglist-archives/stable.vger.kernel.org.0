@@ -2,208 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C830D5E80C6
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 19:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 347825E811A
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 19:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231879AbiIWRdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Sep 2022 13:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48760 "EHLO
+        id S231379AbiIWRuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Sep 2022 13:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231876AbiIWRdw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 13:33:52 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4758E14D30F
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 10:33:51 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id w20so777194ply.12
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 10:33:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=gc9DD81phvVavPqc7tW2o8HbZduyVvn8F5tToxAvHLU=;
-        b=3vYyLuYoSqkUDwbWvt2QAsWyiOsmQaUUNDUrI+BxH7pYLA/y+ptC31MML09/uS/vJb
-         1Fmm7sYLUDOsW778nSC1r3T+tqiSx7hqXzwXmOXnDYC2BlNglDoSjHvLUD9LCMJWrF97
-         jwSWayInBASb9taIyzV9691sDUc9gyM+0Gm/MzbDCzvFA6oEjLv3zl3gJVOk4uakr0j6
-         GWxLZhKRomTIZBc3PQxezBnHm6ZrsdG830heItVq6wIBNpVqaqMFbgQtU+524e0HfJES
-         Ek6NdqG1xB8dhhAR+DJde4u5XBV0zzhOr+EoCIpoSUGaAX78slIza5uvnKKUAINgKHl/
-         8WiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=gc9DD81phvVavPqc7tW2o8HbZduyVvn8F5tToxAvHLU=;
-        b=OZ//RDo3angXhdjFlp3ovY6Gl71E8mF4hd/8NiLS4bVbZzSM9ouTEWLPSLZPr8z44Z
-         nKDXrmfy7sgx1QoC5jVsqFCqRBWXC8DIKoEg56H2O6nfPIfZh34PA/k1kFAhRUd5sBOr
-         M+obej8gdLqAC8916r6gV8QXfxJjHRkLCl4ShWKdgzVc6JW8Pd3qAR3hFPK6IhXWJY5t
-         l0y20WKpkOpKrOLAFl5en+Nj422beX4nNG6b9z0cvrcl+5EZy2q9P3uEn4K0+bdTfXDu
-         IGpTRlXoM6H/khF3TgDg/KXtD6CNrdlvcgoI0qwZ9sKoAS5/eCuyaYohIfcplk5zxRUc
-         wdEQ==
-X-Gm-Message-State: ACrzQf2mJDRA48lS+ZEq3Zi2Q079qFGO7GCf5ohw6/I264bi66dw7AJi
-        EAlSz4dx8U2Jy42fedVAs2Mh3VxNUkVD02DJcM4=
-X-Google-Smtp-Source: AMsMyM4bTuF8fOy18c6fS1zKUI/lomUwkcLro3S++vnrcyLV2UYfBVpIkkNl9CoMKe0LmWZSOZdr3A==
-X-Received: by 2002:a17:90a:8906:b0:202:d763:72ab with SMTP id u6-20020a17090a890600b00202d76372abmr10651538pjn.56.1663954430661;
-        Fri, 23 Sep 2022 10:33:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 207-20020a6215d8000000b00537a6b81bb7sm6878099pfv.148.2022.09.23.10.33.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Sep 2022 10:33:50 -0700 (PDT)
-Message-ID: <632dedfe.620a0220.1bf29.dea6@mx.google.com>
-Date:   Fri, 23 Sep 2022 10:33:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229577AbiIWRuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 13:50:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF433B736
+        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 10:49:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FF8F61E54
+        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 17:49:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DDB8C433D6;
+        Fri, 23 Sep 2022 17:49:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1663955397;
+        bh=k6N/80+pTwFG67f5Inh0ukvK5duh3gzsvJUWfvmiqcY=;
+        h=Subject:To:Cc:From:Date:From;
+        b=RRJ+OWyYbJU1aCW+JGvf+zEvRcslRjcTXHrNYuRAI4956D0XiviHC85V/lwiF6SEa
+         w7ztQi6EYFy5RmF4MF631G9nWRkgVvy1YzKaWquD3/1Q7epei2McgBbtbALlm00gY8
+         rGH12RMsDPAW2GJ2T40P5LnlqZ5nnTiuiYBtHrsw=
+Subject: FAILED: patch "[PATCH] ALSA: hda: Fix Nvidia dp infoframe" failed to apply to 5.15-stable tree
+To:     mkumard@nvidia.com, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 23 Sep 2022 19:49:55 +0200
+Message-ID: <166395539518089@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.69-44-g09c929d3da79
-Subject: stable-rc/queue/5.15 baseline: 131 runs,
- 3 regressions (v5.15.69-44-g09c929d3da79)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 131 runs, 3 regressions (v5.15.69-44-g09c929=
-d3da79)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Possible dependencies:
 
-panda     | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1       =
-   =
+f89e409402e2 ("ALSA: hda: Fix Nvidia dp infoframe")
+85f29492929b ("ALSA: hda/tegra: Update scratch reg. communication")
+f43156a9563f ("ALSA: hda/tegra: Add Tegra234 hda driver support")
+d278dc9151a0 ("ALSA: hda/tegra: Fix Tegra194 HDA reset failure")
 
-panda     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+thanks,
 
+greg k-h
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.69-44-g09c929d3da79/plan/baseline/
+------------------ original commit in Linus's tree ------------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.69-44-g09c929d3da79
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      09c929d3da79f2afbe426846f7573a6c3f9b3380 =
+From f89e409402e2aeb3bc3aa44d2b7a597959e4e6af Mon Sep 17 00:00:00 2001
+From: Mohan Kumar <mkumard@nvidia.com>
+Date: Tue, 13 Sep 2022 12:28:18 +0530
+Subject: [PATCH] ALSA: hda: Fix Nvidia dp infoframe
 
+Nvidia HDA HW expects infoframe data bytes order same for both
+HDMI and DP i.e infoframe data starts from 5th bytes offset. As
+dp infoframe structure has 4th byte as valid infoframe data, use
+hdmi infoframe structure for nvidia dp infoframe to match HW behvaior.
 
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913065818.13015-1-mkumard@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
-Test Regressions
----------------- =
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index acaf6b790ee1..c9d9aa6351ec 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -170,6 +170,8 @@ struct hdmi_spec {
+ 	bool dyn_pcm_no_legacy;
+ 	/* hdmi interrupt trigger control flag for Nvidia codec */
+ 	bool hdmi_intr_trig_ctrl;
++	bool nv_dp_workaround; /* workaround DP audio infoframe for Nvidia */
++
+ 	bool intel_hsw_fixup;	/* apply Intel platform-specific fixups */
+ 	/*
+ 	 * Non-generic VIA/NVIDIA specific
+@@ -679,15 +681,24 @@ static void hdmi_pin_setup_infoframe(struct hda_codec *codec,
+ 				     int ca, int active_channels,
+ 				     int conn_type)
+ {
++	struct hdmi_spec *spec = codec->spec;
+ 	union audio_infoframe ai;
+ 
+ 	memset(&ai, 0, sizeof(ai));
+-	if (conn_type == 0) { /* HDMI */
++	if ((conn_type == 0) || /* HDMI */
++		/* Nvidia DisplayPort: Nvidia HW expects same layout as HDMI */
++		(conn_type == 1 && spec->nv_dp_workaround)) {
+ 		struct hdmi_audio_infoframe *hdmi_ai = &ai.hdmi;
+ 
+-		hdmi_ai->type		= 0x84;
+-		hdmi_ai->ver		= 0x01;
+-		hdmi_ai->len		= 0x0a;
++		if (conn_type == 0) { /* HDMI */
++			hdmi_ai->type		= 0x84;
++			hdmi_ai->ver		= 0x01;
++			hdmi_ai->len		= 0x0a;
++		} else {/* Nvidia DP */
++			hdmi_ai->type		= 0x84;
++			hdmi_ai->ver		= 0x1b;
++			hdmi_ai->len		= 0x11 << 2;
++		}
+ 		hdmi_ai->CC02_CT47	= active_channels - 1;
+ 		hdmi_ai->CA		= ca;
+ 		hdmi_checksum_audio_infoframe(hdmi_ai);
+@@ -3617,6 +3628,7 @@ static int patch_nvhdmi_2ch(struct hda_codec *codec)
+ 	spec->pcm_playback.rates = SUPPORTED_RATES;
+ 	spec->pcm_playback.maxbps = SUPPORTED_MAXBPS;
+ 	spec->pcm_playback.formats = SUPPORTED_FORMATS;
++	spec->nv_dp_workaround = true;
+ 	return 0;
+ }
+ 
+@@ -3756,6 +3768,7 @@ static int patch_nvhdmi(struct hda_codec *codec)
+ 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
+ 		nvhdmi_chmap_cea_alloc_validate_get_type;
+ 	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
++	spec->nv_dp_workaround = true;
+ 
+ 	codec->link_down_at_suspend = 1;
+ 
+@@ -3779,6 +3792,7 @@ static int patch_nvhdmi_legacy(struct hda_codec *codec)
+ 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
+ 		nvhdmi_chmap_cea_alloc_validate_get_type;
+ 	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
++	spec->nv_dp_workaround = true;
+ 
+ 	codec->link_down_at_suspend = 1;
+ 
+@@ -3993,6 +4007,7 @@ static int tegra_hdmi_init(struct hda_codec *codec)
+ 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
+ 		nvhdmi_chmap_cea_alloc_validate_get_type;
+ 	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
++	spec->nv_dp_workaround = true;
+ 
+ 	return 0;
+ }
 
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/632dbbdea392fcc554355642
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.69-=
-44-g09c929d3da79/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.69-=
-44-g09c929d3da79/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632dbbdea392fcc554355=
-643
-        failing since 1 day (last pass: v5.15.69-17-g7d846e6eef7f, first fa=
-il: v5.15.69-45-g01bb9cc9bf6e) =
-
- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-panda     | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/632dbee41098d227bd35564f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.69-=
-44-g09c929d3da79/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.69-=
-44-g09c929d3da79/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632dbee41098d227bd355=
-650
-        failing since 38 days (last pass: v5.15.60-48-g789367af88749, first=
- fail: v5.15.60-779-ge1dae9850fdff) =
-
- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-panda     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/632dbc4f1867f74bed35564b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.69-=
-44-g09c929d3da79/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.69-=
-44-g09c929d3da79/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/632dbc4f1867f74bed355=
-64c
-        failing since 31 days (last pass: v5.15.61-1-geccb923b9eab2, first =
-fail: v5.15.62-232-g7f3b8845612d) =
-
- =20
