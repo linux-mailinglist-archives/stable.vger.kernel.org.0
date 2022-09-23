@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB18E5E811D
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 19:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4655E811F
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 19:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230018AbiIWRvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Sep 2022 13:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49608 "EHLO
+        id S232300AbiIWRvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Sep 2022 13:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbiIWRvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 13:51:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A165F1296BE
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 10:51:13 -0700 (PDT)
+        with ESMTP id S231701AbiIWRvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 13:51:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42CF61296BE
+        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 10:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE3DF61CB7
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 17:51:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9B25C433C1;
-        Fri, 23 Sep 2022 17:51:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0226EB80FF1
+        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 17:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60810C433D6;
+        Fri, 23 Sep 2022 17:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663955472;
-        bh=U7ZW2aypcl5X95jd7LhpoYz0/qKwJ4IWWkddMUyfx9c=;
+        s=korg; t=1663955480;
+        bh=YRX7rxvpIDaRsEoEje6Q/ul8GCMQQJfcuH05xhH007w=;
         h=Subject:To:Cc:From:Date:From;
-        b=xv8TsL+KHJ9Pw58xgivCx71hmvoWw5k9LkhrURsQCwIxxkXbyfsW743NwC8ltMKQx
-         JCNAZHcFlI5ScQlAikPlTGRO+GXoGeUnihD5Gk++dHGJAX0NRsjP/PCZxWNE1Ylgrf
-         aJDgciEsdlXNIqyozyXaf19XmRsaTQnHvB3SdoII=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Re-arrange quirk table entries" failed to apply to 4.19-stable tree
+        b=ZyUfGq1tckhwPfh7X/7q47wmgVU9bYn0Nb0ebTIPvs1ZX9iccK3ExZ5IlPCBuXa0A
+         EOmiBXq+fujkBAGLEwaVjFJS2c0pkfw82Z7RRs7tTaJlnwjZNZRgr/nAHlXEz4dWrS
+         c5jCdoiGXa6uOqkSF2kLCAdv/zaytn2sMYnxDABY=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Re-arrange quirk table entries" failed to apply to 4.14-stable tree
 To:     tiwai@suse.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 23 Sep 2022 19:51:09 +0200
-Message-ID: <166395546924941@kroah.com>
+Message-ID: <16639554692891@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
