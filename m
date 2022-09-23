@@ -2,136 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 254CC5E7687
-	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 11:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 449835E769D
+	for <lists+stable@lfdr.de>; Fri, 23 Sep 2022 11:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229839AbiIWJMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Sep 2022 05:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40776 "EHLO
+        id S229640AbiIWJQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Sep 2022 05:16:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiIWJMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 05:12:07 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A1111DFF0
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 02:12:05 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id cc5so19432124wrb.6
-        for <stable@vger.kernel.org>; Fri, 23 Sep 2022 02:12:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:organization:from:reply-to
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date;
-        bh=yOhBcsSjO+MpzEhoe8MX0+hDz2sg0Smantc0+52tgkE=;
-        b=NjlqivXbtpQ5CRPwvLVYTWRRKOozg7t6ougcXLcAl9rRG7ABs+TlL/HReI/tSZjG44
-         fcO/MY/f7yRHW+LAdUucAa9lxh+knCGFWTqz0jszx/C/ZP6pvgBU3PInPUeY1/55oQtE
-         6Owj1nMJglWOnZ89roBuak811ui20t0gErNDe/99puoK9nctXPdzM/5RpYFpidIPtl6p
-         SxlAP7l95SC5jmdEfYViACDknDV+tDUhBfwBN5UMIlXWXz9737qkS9ukG3mVLVjG1BAp
-         dXIdlRPYxRJrQ0iUJtIh/yD2+2/qwg97AQcWFBsR5S6zRXu/nO3ieFrkJof8DX7Ro9HG
-         vJHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:reply-to
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=yOhBcsSjO+MpzEhoe8MX0+hDz2sg0Smantc0+52tgkE=;
-        b=c6QnuEhTm2lEDZILYC1j2eu4Gg8eC9kN7Tz8pzDupa1W5OCUAM4W9+TG7pFVL0M3pd
-         dRrU/aJyFfTxWatIAOOKXIJNksNpkvoEb0iqqMSbI8Bw+9OMP6ojEOaYYKD1s8JfJ5T0
-         jvjvosaQP3YgLBDfHYxDFlDsXZhnlzGBEFJVSJMhvNYTqRxwZi47lZokZfO8n6qiFNSp
-         16QZvp32/AM25W6G0qE6yrrAKC48VFnwycXA10fTR4eJz5I3AN/PR+aMgG7scF3WoVSI
-         DeFXVlv/wOu0RXwrD60+wJi/kUfKYxAp75WjN12MXtgVDhFwXtDTE622+e5d/SOHubV9
-         yTwg==
-X-Gm-Message-State: ACrzQf3ZHInCpijmdyTnALd6nA2FaK3klnu9SPoOFuQ+F3qsUfwg4m25
-        v3/173VbpXpbFKIP3zsSlK/5JhTM/Z+HgipG
-X-Google-Smtp-Source: AMsMyM4as+Pxy/mIXDrxTa6jW7JBFzmQns6zeg2+qRdsIpV8qVNxU+HJKLnue+tm/4+m4R+F/xlsIw==
-X-Received: by 2002:a05:6000:1788:b0:22b:315b:450f with SMTP id e8-20020a056000178800b0022b315b450fmr4801695wrg.615.1663924324444;
-        Fri, 23 Sep 2022 02:12:04 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:982:cbb0:5990:ddf8:daac:3833? ([2a01:e0a:982:cbb0:5990:ddf8:daac:3833])
-        by smtp.gmail.com with ESMTPSA id az41-20020a05600c602900b003b492b30822sm2050892wmb.2.2022.09.23.02.12.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Sep 2022 02:12:03 -0700 (PDT)
-Message-ID: <db3b3082-5278-7ed8-4322-2422cec227a5@linaro.org>
-Date:   Fri, 23 Sep 2022 11:12:02 +0200
+        with ESMTP id S231145AbiIWJQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Sep 2022 05:16:34 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7152D12E43B;
+        Fri, 23 Sep 2022 02:16:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663924593; x=1695460593;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=HfmuNTF9PCvY3XjUF0ERD/w3l40lUTylJCwpgx7Bsdo=;
+  b=PqFXmmGXPvHqcXBC5IEf1lnoIhDWnFBJ0W9hD4NNTucPatCV4boflG3a
+   5fB+mEo4etJOBo1X7D0zZ9PlkvIJwB42rfHLh9oo54VpD4vBZZPZoO01O
+   eQxzSYS6Im7+P9CDIjbn3xqqvzUuEkLoC1Xc/ZiK6uQ1pZ7FOklhZMNea
+   n2Tq+Qg6xY/i6pBsg7f51Gcmax5hOezzcQrnewFjv/fhbJxPaZOHb0iVa
+   QgAxyKERxUv2kHNIeYa4HONpMiA0B7Thr1YK2+04+fCDd+Ieo58m1Fa2D
+   5CiGppF28q1joiFNerB61uGE/Ir/C8qJidpUkvdr6Tdx0PCAzkQTYD+K7
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10478"; a="300537200"
+X-IronPort-AV: E=Sophos;i="5.93,337,1654585200"; 
+   d="scan'208";a="300537200"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2022 02:16:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,337,1654585200"; 
+   d="scan'208";a="865230721"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga006.fm.intel.com with ESMTP; 23 Sep 2022 02:16:31 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1001)
+        id F3082F7; Fri, 23 Sep 2022 12:16:48 +0300 (EEST)
+Date:   Fri, 23 Sep 2022 12:16:48 +0300
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     Andreas Noever <andreas.noever@gmail.com>,
+        Michael Jamet <michael.jamet@intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Mehta Sanju <Sanju.Mehta@amd.com>, stable@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] thunderbolt: Explicitly enable lane adapter hotplug
+ events at startup
+Message-ID: <Yy15gKzHyMcitY/N@black.fi.intel.com>
+References: <20220922160730.898-1-mario.limonciello@amd.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 5.15 247/779] drm/meson: encoder_hdmi: switch to bridge
- DRM_BRIDGE_ATTACH_NO_CONNECTOR
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stefan Agner <stefan@agner.ch>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-amlogic@lists.infradead.org
-References: <20220815180337.130757997@linuxfoundation.org>
- <20220815180347.894058731@linuxfoundation.org>
- <892a917454bd0bbfe8a4d34a5170fe50@agner.ch>
- <685b64f60375b69c5c790286f1386be3@agner.ch> <YyBoACiWvW1UnfQA@kroah.com>
-Reply-To: neil.armstrong@linaro.org
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Organization: Linaro Developer Services
-In-Reply-To: <YyBoACiWvW1UnfQA@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220922160730.898-1-mario.limonciello@amd.com>
+X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Hi Mario,
 
-On 13/09/2022 13:22, Greg Kroah-Hartman wrote:
-> On Mon, Sep 12, 2022 at 08:48:24PM +0200, Stefan Agner wrote:
->> On 2022-09-12 18:08, Stefan Agner wrote:
->>> On 2022-08-15 19:58, Greg Kroah-Hartman wrote:
->>>> From: Neil Armstrong <narmstrong@baylibre.com>
->>>>
->>>> [ Upstream commit 0af5e0b41110e2da872030395231ab19c45be931 ]
->>>>
->>>> This implements the necessary change to no more use the embedded
->>>> connector in dw-hdmi and use the dedicated bridge connector driver
->>>> by passing DRM_BRIDGE_ATTACH_NO_CONNECTOR to the bridge attach call.
->>>>
->>>> The necessary connector properties are added to handle the same
->>>> functionalities as the embedded dw-hdmi connector, i.e. the HDR
->>>> metadata, the CEC notifier & other flags.
->>>>
->>>> The dw-hdmi output_port is set to 1 in order to look for a connector
->>>> next bridge in order to get DRM_BRIDGE_ATTACH_NO_CONNECTOR working.
->>>
->>> HDMI on ODROID-N2+ was working with v5.15.60, and stopped working with
->>> v5.15.61. Reverting this commit (and two dependent refcount leak) to be
->>> the culprit. Reverting just the refcount leaks is not enough to get HDMI
->>> working, so I assume it is this commit.
->>>
->>> I haven't investigated much beyond that, maybe its simple a case of a
->>> missing kernel configuration? DRM_DISPLAY_CONNECTOR is compiled, and the
->>> module display_connector is loaded, so that part seemed to have worked.
->>>
->>> Any ideas welcome.
->>>
->>> FWIW, I track the issue in the HAOS tracker at
->>> https://github.com/home-assistant/operating-system/issues/2120.
->>
->> It seems that backporting commit 7cd70656d128 ("drm/bridge:
->> display-connector: implement bus fmts callbacks") fixes the problem
->> without reverting this commit.
->>
->> @Greg, can we backport this commit as well?
+On Thu, Sep 22, 2022 at 11:07:29AM -0500, Mario Limonciello wrote:
+> Software that has run before the USB4 CM in Linux runs may have disabled
+> hotplug events for a given lane adapter.
 > 
-> sure, now queued up, thanks.
-
-Backport of 7cd70656d128 ("drm/bridge: display-connector: implement bus fmts callbacks") is still missing in 5.15-stable.
-
-Thanks,
-Neil
-
+> Other CMs such as that one distributed with Windows 11 will enable hotplug
+> events. Do the same thing in the Linux CM which fixes hotplug events on
+> "AMD Pink Sardine".
 > 
-> greg k-h
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> ---
+> v1->v2:
+>  * Only send second patch as first was merged already
+>  * s/usb4_enable_hotplug/usb4_port_hotplug_enable/
+>  * Clarify intended users in documentation comment
+>  * Only call for lane adapters
+>  * Add stable tag
 > 
+>  drivers/thunderbolt/switch.c  |  4 ++++
+>  drivers/thunderbolt/tb.h      |  1 +
+>  drivers/thunderbolt/tb_regs.h |  1 +
+>  drivers/thunderbolt/usb4.c    | 20 ++++++++++++++++++++
+>  4 files changed, 26 insertions(+)
+> 
+> diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
+> index 77d7f07ca075..3213239d12c8 100644
+> --- a/drivers/thunderbolt/switch.c
+> +++ b/drivers/thunderbolt/switch.c
+> @@ -778,6 +778,10 @@ static int tb_init_port(struct tb_port *port)
+>  
+>  			if (!tb_port_read(port, &hop, TB_CFG_HOPS, 0, 2))
+>  				port->ctl_credits = hop.initial_credits;
+> +
+> +			res = usb4_port_hotplug_enable(port);
+> +			if (res)
 
+I think this does not belong here in tb_init_port(). This is called from
+both FW and SW CM paths and we don't want to confuse the FW CM more than
+necessary ;-)
+
+So instead I think this should be added to tb_plug_events_active().
+
+Otherwise looks good to me.
+
+> +				return res;
+>  		}
+>  		if (!port->ctl_credits)
+>  			port->ctl_credits = 2;
+> diff --git a/drivers/thunderbolt/tb.h b/drivers/thunderbolt/tb.h
+> index 5db76de40cc1..332159f984fc 100644
+> --- a/drivers/thunderbolt/tb.h
+> +++ b/drivers/thunderbolt/tb.h
+> @@ -1174,6 +1174,7 @@ int usb4_switch_add_ports(struct tb_switch *sw);
+>  void usb4_switch_remove_ports(struct tb_switch *sw);
+>  
+>  int usb4_port_unlock(struct tb_port *port);
+> +int usb4_port_hotplug_enable(struct tb_port *port);
+>  int usb4_port_configure(struct tb_port *port);
+>  void usb4_port_unconfigure(struct tb_port *port);
+>  int usb4_port_configure_xdomain(struct tb_port *port);
+> diff --git a/drivers/thunderbolt/tb_regs.h b/drivers/thunderbolt/tb_regs.h
+> index 166054110388..bbe38b2d9057 100644
+> --- a/drivers/thunderbolt/tb_regs.h
+> +++ b/drivers/thunderbolt/tb_regs.h
+> @@ -308,6 +308,7 @@ struct tb_regs_port_header {
+>  #define ADP_CS_5				0x05
+>  #define ADP_CS_5_LCA_MASK			GENMASK(28, 22)
+>  #define ADP_CS_5_LCA_SHIFT			22
+> +#define ADP_CS_5_DHP				BIT(31)
+>  
+>  /* TMU adapter registers */
+>  #define TMU_ADP_CS_3				0x03
+> diff --git a/drivers/thunderbolt/usb4.c b/drivers/thunderbolt/usb4.c
+> index 3a2e7126db9d..f0b5a8f1ed3a 100644
+> --- a/drivers/thunderbolt/usb4.c
+> +++ b/drivers/thunderbolt/usb4.c
+> @@ -1046,6 +1046,26 @@ int usb4_port_unlock(struct tb_port *port)
+>  	return tb_port_write(port, &val, TB_CFG_PORT, ADP_CS_4, 1);
+>  }
+>  
+> +/**
+> + * usb4_port_hotplug_enable() - Enables hotplug for a port
+> + * @port: USB4 port to operate on
+> + *
+> + * Enables hot plug events on a given port. This is only intended
+> + * to be used on lane, DP-IN, and DP-OUT adapters.
+> + */
+> +int usb4_port_hotplug_enable(struct tb_port *port)
+> +{
+> +	int ret;
+> +	u32 val;
+> +
+> +	ret = tb_port_read(port, &val, TB_CFG_PORT, ADP_CS_5, 1);
+> +	if (ret)
+> +		return ret;
+> +
+> +	val &= ~ADP_CS_5_DHP;
+> +	return tb_port_write(port, &val, TB_CFG_PORT, ADP_CS_5, 1);
+> +}
+> +
+>  static int usb4_port_set_configured(struct tb_port *port, bool configured)
+>  {
+>  	int ret;
+> -- 
+> 2.34.1
