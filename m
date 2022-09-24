@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A1C35E8A3C
-	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 10:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7148B5E8A3D
+	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 10:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbiIXInO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Sep 2022 04:43:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
+        id S233249AbiIXIoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Sep 2022 04:44:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233249AbiIXInN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 04:43:13 -0400
+        with ESMTP id S233104AbiIXIoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 04:44:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44765B5A4C
-        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 01:43:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0795B5A4C
+        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 01:44:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4436B80DFF
-        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 08:43:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 511CDC433C1;
-        Sat, 24 Sep 2022 08:43:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A729B80E1C
+        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 08:44:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB9D4C433D7;
+        Sat, 24 Sep 2022 08:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664008989;
-        bh=toark5FadJ36pNHQLt7NyscAq/OsdBqJU4ighfDgSz4=;
+        s=korg; t=1664009040;
+        bh=5QnkSNzMLq24BghEagS9HLTaFSVpPTDL7QG+fOauemk=;
         h=Subject:To:Cc:From:Date:From;
-        b=lB8HNU9FF9xC9QOeQ3bv4xny7ojniQGd7ai4fHvzOpWsBEQc1dPKh2+CxCFbK6O2g
-         gk8wpVsWQekXlrfushogpnpGz1ULAWCJIwhWkmlB351UFZn3dy3zIKxTJ0tLxn8VbR
-         JXnNDu4b0WOqJaxXTn6XT1SzDKbjMiEGAhEk54nM=
-Subject: FAILED: patch "[PATCH] KVM: x86: Inject #UD on emulated XSETBV if XSAVES isn't" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com, vkuznets@redhat.com
+        b=ikAquBVWqy8OUQhUrr/sjQ9BOCqJWZMGZPzy6kvAQqOTKyZ9CEkCQxyj+ig+7sCwB
+         ly4Gn5nj9vSY2UlQJ/W1Cyfg0QaonJTGtEbYtY23wiBoSXrtauIpN9Zpq15AFNWJai
+         adE1y3bWjIvmNocJls60jJeDOWtrEhzi5K+GXlbI=
+Subject: FAILED: patch "[PATCH] arm64: topology: fix possible overflow in amu_fie_setup()" failed to apply to 5.10-stable tree
+To:     s.shtylyov@omp.ru, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Sep 2022 10:43:06 +0200
-Message-ID: <1664008986215177@kroah.com>
+Date:   Sat, 24 Sep 2022 10:43:57 +0200
+Message-ID: <166400903732228@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-50b2d49bafa1 ("KVM: x86: Inject #UD on emulated XSETBV if XSAVES isn't enabled")
-92f9895c146d ("KVM: x86: Move XSETBV emulation to common code")
-63129754178c ("KVM: SVM: Pass struct kvm_vcpu to exit handlers (and many, many other places)")
-2a32a77cefa6 ("KVM: SVM: merge update_cr0_intercept into svm_set_cr0")
-11f0cbf0c605 ("KVM: nSVM: Trace VM-Enter consistency check failures")
-6906e06db9b0 ("KVM: nSVM: Add missing checks for reserved bits to svm_set_nested_state()")
-c08f390a75c1 ("KVM: nSVM: only copy L1 non-VMLOAD/VMSAVE data in svm_set_nested_state()")
-9e8f0fbfff1a ("KVM: nSVM: rename functions and variables according to vmcbXY nomenclature")
-193015adf40d ("KVM: nSVM: Track the ASID generation of the vmcb vmrun through the vmcb")
-af18fa775d07 ("KVM: nSVM: Track the physical cpu of the vmcb vmrun through the vmcb")
-4995a3685f1b ("KVM: SVM: Use a separate vmcb for the nested L2 guest")
-6d1b867d0456 ("KVM: SVM: Don't strip the C-bit from CR2 on #PF interception")
-43c11d91fb1e ("KVM: x86: to track if L1 is running L2 VM")
-9e46f6c6c959 ("KVM: SVM: Clear the CR4 register on reset")
-2df8d3807ce7 ("KVM: SVM: Fix nested VM-Exit on #GP interception handling")
-d2df592fd8c6 ("KVM: nSVM: prepare guest save area while is_guest_mode is true")
-a04aead144fd ("KVM: nSVM: fix running nested guests when npt=0")
-996ff5429e98 ("KVM: x86: move kvm_inject_gp up from kvm_set_dr to callers")
-e6c804a848d6 ("KVM: SVM: Move AVIC vCPU kicking snippet to helper function")
-ca29e14506bd ("KVM: x86: SEV: Treat C-bit as legal GPA bit regardless of vCPU mode")
+d4955c0ad77d ("arm64: topology: fix possible overflow in amu_fie_setup()")
+eec73529a932 ("arch_topology: Rename freq_scale as arch_freq_scale")
+a5f1b187cd24 ("arm64: topology: Make AMUs work with modular cpufreq drivers")
+47b10b737c07 ("arm64: topology: Reorder init_amu_fie() a bit")
+384e5699e101 ("arm64: topology: Avoid the have_policy check")
+5ba836eb9fdb ("Merge tag 'arm64-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux")
 
 thanks,
 
@@ -81,55 +67,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 50b2d49bafa16e6311ab2da82f5aafc5f9ada99b Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 24 Aug 2022 03:30:57 +0000
-Subject: [PATCH] KVM: x86: Inject #UD on emulated XSETBV if XSAVES isn't
- enabled
+From d4955c0ad77dbc684fc716387070ac24801b8bca Mon Sep 17 00:00:00 2001
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
+Date: Fri, 16 Sep 2022 23:17:07 +0300
+Subject: [PATCH] arm64: topology: fix possible overflow in amu_fie_setup()
 
-Inject #UD when emulating XSETBV if CR4.OSXSAVE is not set.  This also
-covers the "XSAVE not supported" check, as setting CR4.OSXSAVE=1 #GPs if
-XSAVE is not supported (and userspace gets to keep the pieces if it
-forces incoherent vCPU state).
+cpufreq_get_hw_max_freq() returns max frequency in kHz as *unsigned int*,
+while freq_inv_set_max_ratio() gets passed this frequency in Hz as 'u64'.
+Multiplying max frequency by 1000 can potentially result in overflow --
+multiplying by 1000ULL instead should avoid that...
 
-Add a comment to kvm_emulate_xsetbv() to call out that the CPU checks
-CR4.OSXSAVE before checking for intercepts.  AMD'S APM implies that #UD
-has priority (says that intercepts are checked before #GP exceptions),
-while Intel's SDM says nothing about interception priority.  However,
-testing on hardware shows that both AMD and Intel CPUs prioritize the #UD
-over interception.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
 
-Fixes: 02d4160fbd76 ("x86: KVM: add xsetbv to the emulator")
-Cc: stable@vger.kernel.org
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220824033057.3576315-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: cd0ed03a8903 ("arm64: use activity monitors for frequency invariance")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/01493d64-2bce-d968-86dc-11a122a9c07d@omp.ru
+Signed-off-by: Will Deacon <will@kernel.org>
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index d5ec3a2ed5a4..aacb28c83e43 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -4132,6 +4132,9 @@ static int em_xsetbv(struct x86_emulate_ctxt *ctxt)
- {
- 	u32 eax, ecx, edx;
- 
-+	if (!(ctxt->ops->get_cr(ctxt, 4) & X86_CR4_OSXSAVE))
-+		return emulate_ud(ctxt);
-+
- 	eax = reg_read(ctxt, VCPU_REGS_RAX);
- 	edx = reg_read(ctxt, VCPU_REGS_RDX);
- 	ecx = reg_read(ctxt, VCPU_REGS_RCX);
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index c95cf18a796c..b0c47b41c264 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1065,6 +1065,7 @@ static int __kvm_set_xcr(struct kvm_vcpu *vcpu, u32 index, u64 xcr)
- 
- int kvm_emulate_xsetbv(struct kvm_vcpu *vcpu)
- {
-+	/* Note, #UD due to CR4.OSXSAVE=0 has priority over the intercept. */
- 	if (static_call(kvm_x86_get_cpl)(vcpu) != 0 ||
- 	    __kvm_set_xcr(vcpu, kvm_rcx_read(vcpu), kvm_read_edx_eax(vcpu))) {
- 		kvm_inject_gp(vcpu, 0);
+diff --git a/arch/arm64/kernel/topology.c b/arch/arm64/kernel/topology.c
+index ad2bfc794257..44ebf5b2fc4b 100644
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -237,7 +237,7 @@ static void amu_fie_setup(const struct cpumask *cpus)
+ 	for_each_cpu(cpu, cpus) {
+ 		if (!freq_counters_valid(cpu) ||
+ 		    freq_inv_set_max_ratio(cpu,
+-					   cpufreq_get_hw_max_freq(cpu) * 1000,
++					   cpufreq_get_hw_max_freq(cpu) * 1000ULL,
+ 					   arch_timer_get_rate()))
+ 			return;
+ 	}
 
