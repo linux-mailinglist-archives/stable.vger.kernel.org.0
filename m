@@ -2,129 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8AB5E8A35
-	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 10:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2A35E8A32
+	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 10:38:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbiIXIjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Sep 2022 04:39:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56480 "EHLO
+        id S232972AbiIXIie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Sep 2022 04:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233391AbiIXIjI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 04:39:08 -0400
-Received: from www.linuxtv.org (www.linuxtv.org [130.149.80.248])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23111192AD
-        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 01:39:08 -0700 (PDT)
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1oc0gk-009Ssc-Ey; Sat, 24 Sep 2022 08:39:06 +0000
-From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-Date:   Sat, 24 Sep 2022 08:32:27 +0000
-Subject: [git:media_stage/master] media: venus: Fix NV12 decoder buffer discovery on HFI_VERSION_1XX
-To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1oc0gk-009Ssc-Ey@www.linuxtv.org>
-X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229601AbiIXIid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 04:38:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7B413F12
+        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 01:38:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0EF060BED
+        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 08:38:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E23F7C433C1;
+        Sat, 24 Sep 2022 08:38:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664008712;
+        bh=oINJB7TXHwgvWM7AQEPXLYU0EeX37twjqgRXCIXRtyk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=bKZMcwGtvBZrtLOZY1xsymUvaZf62HADhiMcPSh0++O9blVf2802INI7cXfi4aYGO
+         WiGIMF+hH6+6GC1Ys7tJh1PRc1T6O8MXLJ2IGMCbUMClm0y6KqYL9iufJRTaDYJLNl
+         l1uLGf49648TzJzyXdEsW+7eQjK8PAt52dq8YHmA=
+Subject: FAILED: patch "[PATCH] riscv: make t-head erratas depend on MMU" failed to apply to 5.19-stable tree
+To:     heiko@sntech.de, guoren@kernel.org, lkp@intel.com,
+        palmer@rivosinc.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 24 Sep 2022 10:38:29 +0200
+Message-ID: <1664008709163103@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: venus: Fix NV12 decoder buffer discovery on HFI_VERSION_1XX
-Author:  Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Date:    Tue Jul 26 04:14:55 2022 +0200
+The patch below does not apply to the 5.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-HFI_VERSION_1XX uses HFI_BUFFER_OUTPUT not HFI_BUFFER_OUTPUT2 for decoder
-buffers.
+Possible dependencies:
 
-venus_helper_check_format() places a constraint on an output buffer to be
-of type HFI_BUFFER_OUTPUT2. HFI_1XX uses HFI_BUFFER_OUTPUT though.
+2a2018c3ac84 ("riscv: make t-head erratas depend on MMU")
+d20ec7529236 ("riscv: implement cache-management errata for T-Head SoCs")
+1631ba1259d6 ("riscv: Add support for non-coherent devices using zicbom extension")
+1771c8c9e65a ("riscv: remove usage of function-pointers from cpufeatures and t-head errata")
 
-Switching to the logic used in venus_helper_get_out_fmts() first checking
-for HFI_BUFFER_OUTPUT and then HFI_BUFFER_OUTPUT2 resolves on HFI_1XX.
+thanks,
 
-db410c before:
-root@linaro-alip:~# v4l2-ctl  -d /dev/video0 --list-formats
-ioctl: VIDIOC_ENUM_FMT
-        Type: Video Capture Multiplanar
+greg k-h
 
-        [0]: 'MPG4' (MPEG-4 Part 2 ES, compressed)
-        [1]: 'H263' (H.263, compressed)
-        [2]: 'H264' (H.264, compressed)
-        [3]: 'VP80' (VP8, compressed)
+------------------ original commit in Linus's tree ------------------
 
-root@linaro-alip:~# v4l2-ctl  -d /dev/video1 --list-formats
-ioctl: VIDIOC_ENUM_FMT
-        Type: Video Capture Multiplanar
+From 2a2018c3ac84c2dc7cfbad117ce9339ea0914622 Mon Sep 17 00:00:00 2001
+From: Heiko Stuebner <heiko@sntech.de>
+Date: Wed, 7 Sep 2022 17:49:32 +0200
+Subject: [PATCH] riscv: make t-head erratas depend on MMU
 
-db410c after:
-root@linaro-alip:~# v4l2-ctl  -d /dev/video0 --list-formats
-ioctl: VIDIOC_ENUM_FMT
-        Type: Video Capture Multiplanar
+Both basic extensions of SVPBMT and ZICBOM depend on CONFIG_MMU.
+Make the T-Head errata implementations of the similar functionality
+also depend on it to prevent build errors.
 
-        [0]: 'MPG4' (MPEG-4 Part 2 ES, compressed)
-        [1]: 'H263' (H.263, compressed)
-        [2]: 'H264' (H.264, compressed)
-        [3]: 'VP80' (VP8, compressed)
+Fixes: a35707c3d850 ("riscv: add memory-type errata for T-Head")
+Fixes: d20ec7529236 ("riscv: implement cache-management errata for T-Head SoCs")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220907154932.2858518-1-heiko@sntech.de
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-root@linaro-alip:~# v4l2-ctl  -d /dev/video1 --list-formats
-ioctl: VIDIOC_ENUM_FMT
-        Type: Video Capture Multiplanar
-
-        [0]: 'NV12' (Y/CbCr 4:2:0)
-
-Validated playback with ffplay on db410c with h264 and vp8 decoding.
-
-Fixes: 9593126dae3e ("media: venus: Add a handling of QC08C compressed format")
-Cc: stable@vger.kernel.org  # v5.19
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-
- drivers/media/platform/qcom/venus/helpers.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
----
-
-diff --git a/drivers/media/platform/qcom/venus/helpers.c b/drivers/media/platform/qcom/venus/helpers.c
-index 60de4200375d..ab6a29ffc81e 100644
---- a/drivers/media/platform/qcom/venus/helpers.c
-+++ b/drivers/media/platform/qcom/venus/helpers.c
-@@ -1800,7 +1800,7 @@ bool venus_helper_check_format(struct venus_inst *inst, u32 v4l2_pixfmt)
- 	struct venus_core *core = inst->core;
- 	u32 fmt = to_hfi_raw_fmt(v4l2_pixfmt);
- 	struct hfi_plat_caps *caps;
--	u32 buftype;
-+	bool found;
+diff --git a/arch/riscv/Kconfig.erratas b/arch/riscv/Kconfig.erratas
+index 6850e9389930..f3623df23b5f 100644
+--- a/arch/riscv/Kconfig.erratas
++++ b/arch/riscv/Kconfig.erratas
+@@ -46,7 +46,7 @@ config ERRATA_THEAD
  
- 	if (!fmt)
- 		return false;
-@@ -1809,12 +1809,13 @@ bool venus_helper_check_format(struct venus_inst *inst, u32 v4l2_pixfmt)
- 	if (!caps)
- 		return false;
+ config ERRATA_THEAD_PBMT
+ 	bool "Apply T-Head memory type errata"
+-	depends on ERRATA_THEAD && 64BIT
++	depends on ERRATA_THEAD && 64BIT && MMU
+ 	select RISCV_ALTERNATIVE_EARLY
+ 	default y
+ 	help
+@@ -57,7 +57,7 @@ config ERRATA_THEAD_PBMT
  
--	if (inst->session_type == VIDC_SESSION_TYPE_DEC)
--		buftype = HFI_BUFFER_OUTPUT2;
--	else
--		buftype = HFI_BUFFER_OUTPUT;
-+	found = find_fmt_from_caps(caps, HFI_BUFFER_OUTPUT, fmt);
-+	if (found)
-+		goto done;
- 
--	return find_fmt_from_caps(caps, buftype, fmt);
-+	found = find_fmt_from_caps(caps, HFI_BUFFER_OUTPUT2, fmt);
-+done:
-+	return found;
- }
- EXPORT_SYMBOL_GPL(venus_helper_check_format);
- 
+ config ERRATA_THEAD_CMO
+ 	bool "Apply T-Head cache management errata"
+-	depends on ERRATA_THEAD
++	depends on ERRATA_THEAD && MMU
+ 	select RISCV_DMA_NONCOHERENT
+ 	default y
+ 	help
+
