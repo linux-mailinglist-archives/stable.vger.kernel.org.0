@@ -2,80 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B78985E894D
-	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 09:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9270B5E8A45
+	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 10:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233599AbiIXHv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Sep 2022 03:51:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
+        id S233484AbiIXIvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Sep 2022 04:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233342AbiIXHv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 03:51:26 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D42F2115A4F
-        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 00:51:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664005885; x=1695541885;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=5323Rt7T0/a6FsucFEL5Muya6AO19Jm5jaZf0r+6E2g=;
-  b=UrWHSpvY2hWOR+T4ENc/kbl+FEB4AEwLoxqxC+KnUAXtUpGCRNPF/1DU
-   jNhQVcOCPWaJIuQa6GMUDiuxThGCa5eKZ7boYZ/htRhePRGpFbIUfIrky
-   QCnsLjtXBhAwDp6+aFAPmsHTzDJGmaVGacTfRzVD2+LfTitvGxyDHwLS2
-   6rAfpbzRaszY9RHWk3kYBDyqnR75FVde2Q90gcfcXLR3Blle/nve67e0q
-   o5AbtpKvl/smP56EBZ7e+yDWvIB8kFUHkvcpIluc8aZs/4/VwMk+vhJMu
-   aaG0c9NrL4h6HWGuDjTWpCHOLdHX4V+qceimZCVGXbOu6ONc8I1v6dhHk
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10479"; a="300737398"
-X-IronPort-AV: E=Sophos;i="5.93,341,1654585200"; 
-   d="scan'208";a="300737398"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2022 00:51:25 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,341,1654585200"; 
-   d="scan'208";a="598142226"
-Received: from lkp-server01.sh.intel.com (HELO c0a60f19fe7e) ([10.239.97.150])
-  by orsmga006.jf.intel.com with ESMTP; 24 Sep 2022 00:51:24 -0700
-Received: from kbuild by c0a60f19fe7e with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1obzwZ-0006K4-1s;
-        Sat, 24 Sep 2022 07:51:23 +0000
-Date:   Sat, 24 Sep 2022 15:50:58 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Shuai Xue <xueshuai@linux.alibaba.com>
-Cc:     stable@vger.kernel.org, kbuild-all@lists.01.org
-Subject: Re: [PATCH v2] ACPI: APEI: do not add task_work to kernel thread to
- avoid memory leak
-Message-ID: <Yy624noLRK752NW6@320659cf58f4>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220924074953.83064-1-xueshuai@linux.alibaba.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S233403AbiIXIvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 04:51:16 -0400
+Received: from www.linuxtv.org (www.linuxtv.org [130.149.80.248])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABFA2F1D7E
+        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 01:51:15 -0700 (PDT)
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1oc0RB-009RDN-7J; Sat, 24 Sep 2022 08:23:01 +0000
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Date:   Sat, 24 Sep 2022 07:04:32 +0000
+Subject: [git:media_stage/master] media: ipu3-imgu: Fix NULL pointer dereference in active selection access
+To:     linuxtv-commits@linuxtv.org
+Cc:     stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1oc0RB-009RDN-7J@www.linuxtv.org>
+X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+This is an automatic generated email to let you know that the following patch were queued:
 
-Thanks for your patch.
+Subject: media: ipu3-imgu: Fix NULL pointer dereference in active selection access
+Author:  Sakari Ailus <sakari.ailus@linux.intel.com>
+Date:    Thu Aug 25 20:36:37 2022 +0200
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+What the IMGU driver did was that it first acquired the pointers to active
+and try V4L2 subdev state, and only then figured out which one to use.
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH v2] ACPI: APEI: do not add task_work to kernel thread to avoid memory leak
-Link: https://lore.kernel.org/stable/20220924074953.83064-1-xueshuai%40linux.alibaba.com
+The problem with that approach and a later patch (see Fixes: tag) is that
+as sd_state argument to v4l2_subdev_get_try_crop() et al is NULL, there is
+now an attempt to dereference that.
 
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+Fix this.
 
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Also rewrap lines a little.
 
+Fixes: 0d346d2a6f54 ("media: v4l2-subdev: add subdev-wide state struct")
+Cc: stable@vger.kernel.org # for v5.14 and later
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
+ drivers/staging/media/ipu3/ipu3-v4l2.c | 31 ++++++++++++++-----------------
+ 1 file changed, 14 insertions(+), 17 deletions(-)
 
+---
+
+diff --git a/drivers/staging/media/ipu3/ipu3-v4l2.c b/drivers/staging/media/ipu3/ipu3-v4l2.c
+index d1c539cefba8..2234bb8d48b3 100644
+--- a/drivers/staging/media/ipu3/ipu3-v4l2.c
++++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
+@@ -192,33 +192,30 @@ static int imgu_subdev_get_selection(struct v4l2_subdev *sd,
+ 				     struct v4l2_subdev_state *sd_state,
+ 				     struct v4l2_subdev_selection *sel)
+ {
+-	struct v4l2_rect *try_sel, *r;
+-	struct imgu_v4l2_subdev *imgu_sd = container_of(sd,
+-							struct imgu_v4l2_subdev,
+-							subdev);
++	struct imgu_v4l2_subdev *imgu_sd =
++		container_of(sd, struct imgu_v4l2_subdev, subdev);
+ 
+ 	if (sel->pad != IMGU_NODE_IN)
+ 		return -EINVAL;
+ 
+ 	switch (sel->target) {
+ 	case V4L2_SEL_TGT_CROP:
+-		try_sel = v4l2_subdev_get_try_crop(sd, sd_state, sel->pad);
+-		r = &imgu_sd->rect.eff;
+-		break;
++		if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
++			sel->r = *v4l2_subdev_get_try_crop(sd, sd_state,
++							   sel->pad);
++		else
++			sel->r = imgu_sd->rect.eff;
++		return 0;
+ 	case V4L2_SEL_TGT_COMPOSE:
+-		try_sel = v4l2_subdev_get_try_compose(sd, sd_state, sel->pad);
+-		r = &imgu_sd->rect.bds;
+-		break;
++		if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
++			sel->r = *v4l2_subdev_get_try_compose(sd, sd_state,
++							      sel->pad);
++		else
++			sel->r = imgu_sd->rect.bds;
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+-
+-	if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
+-		sel->r = *try_sel;
+-	else
+-		sel->r = *r;
+-
+-	return 0;
+ }
+ 
+ static int imgu_subdev_set_selection(struct v4l2_subdev *sd,
