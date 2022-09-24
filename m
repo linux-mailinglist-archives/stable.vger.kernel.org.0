@@ -2,139 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF415E8CE2
-	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 14:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECEA25E8CE4
+	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 14:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230435AbiIXM7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Sep 2022 08:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38478 "EHLO
+        id S230451AbiIXM7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Sep 2022 08:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230446AbiIXM7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 08:59:07 -0400
+        with ESMTP id S230446AbiIXM7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 08:59:12 -0400
 Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EED110FE19;
-        Sat, 24 Sep 2022 05:59:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0F410F70A;
+        Sat, 24 Sep 2022 05:59:11 -0700 (PDT)
 Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28OBefWw030222;
-        Sat, 24 Sep 2022 12:58:59 GMT
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28OBf06i030381;
+        Sat, 24 Sep 2022 12:59:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=corp-2022-7-12;
- bh=1ag9RncpoVcywSr9KbfiCpt9Byd+/I1IVd3bbnoAnAs=;
- b=At6kFrAVBnbvJhEsLpWBz0hc+wWVWDa+8zN1VD/7Hgs87mb5R3CwAVThHX2qQDe7L5zb
- Lz5Pp5OEtbeIts2MTvM9Qv1f9Xgznw/wY0t0otY+TYkcRE3w/jY3T+rIu4EKMpIQIWV5
- HQiFMLwybXXHZXPJa0sFBy5xiCaqIsro2vN6J6fWL0NoQJVn6GQNNXuVJLhkeCGM0J5C
- hCUIQAb4xhTYafMoRRGJV1T5WtfkiuoRn+aEAcbDov/x3PQRckoz4rPV/WxYoeiZg9+P
- n8bYXdHo9yh4SsJodBbJn6MdvGHmuUiBdNgAI1DFcZtGxGZbKvrkdk/LyONhLYvgQDom Vg== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3jssub8gjb-1
+ bh=CX7XJuPxcvIrHE7zCnPO1cphrX4cAw1wIwSBpW2pW9Q=;
+ b=VIdv8uATPvNiNzjhi6PNVDA6vYw2YxsGka4wCEozLSeA04Fjm3DWcbe84e9fEyzkliCg
+ pqLwJb+ku8cYzvjBTEGXd09c7aiuxEqRiX1kZPFWPr6BkOX5qNJmJFFihPh9/UgQM6ni
+ 4FJkkJQKTM22zvU3O8s6euI8Mv/IJ/iilIW9zrX3uNrV4a6asYEX9Lc4o0ta0W3HW1tp
+ 5myucsYefpnWNq6i2Wk62dhRPRU47EYSrfknTYUqVMEGHfSHMnfej+9eiTta4RtCWauZ
+ slD03FRThU/xTqDHoHQEvZMsUveiDXKgAcXuQTw0qAoSVwkJOZkvvlI7BCdep3NYQNv5 0g== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3jssub8gjf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 24 Sep 2022 12:58:59 +0000
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 28O4d2s6036701;
-        Sat, 24 Sep 2022 12:58:58 GMT
-Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2047.outbound.protection.outlook.com [104.47.51.47])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3jsrb1s14d-1
+        Sat, 24 Sep 2022 12:59:07 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 28O4d937002826;
+        Sat, 24 Sep 2022 12:59:06 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3jsrb1s6p7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 24 Sep 2022 12:58:58 +0000
+        Sat, 24 Sep 2022 12:59:06 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BW9xcSRg01J+PHQ8Cl01O/QiofsO9bHSQfPHBVRUIxYcIyroG32x6kQdl/eeZ4LFWNHRhLy15LoPpe1zSwvXc0z9heuH+aL0r6WPOytXECc30wrrWfx9pBYxRsyl8W9G16UyotTW4QNtfqojXNwFBiCCjP2jtDdEgAA94+KQghqfs91GhjQBXzILcrbtd4WYEnSmQZrNhzwelaA+ZMjUdUzULZGelwgZfoJhMYboPkbPqUWvJuQpY/smtqwuzZy+dK1XxNLpxoLojE5r7lDjPqdej6JQWJlI/hCVdG9qg3i+3B4bNhZxBGXfU89CTmzTJ90hBKDW3QI6NavkIip6vw==
+ b=S8Se+KbcPYCvGFCq1RjuFDPaw7MEmJcYUFbnc8KIg5u3rkOjwjAtJlrY12AVGx1u8GVD5NFxp/A0VotyoV2Tp6Z/QtnVgSf/lA61V3fW9kWij9VU4d89wq1jGsaBM0kxl3JzLBBtdo/QDrDYg3T0BGpSwUb39rFAibzrVBVkZGYKdmBOd/1F1F3ZPomJFvGFePvLzzYZ4qRif7duRfwWe3+cpC0Ooe9s5GX+bGIqJuif2eGJWfSNnleH5+ThaJEw9DZxC4GOtMqiI1Phmux2L69JAFTMV/ol7akRB0lVU7P+zMCUYhwFAwv7tVVNP+8MC53eQRzasOUxWf84gpRi2Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1ag9RncpoVcywSr9KbfiCpt9Byd+/I1IVd3bbnoAnAs=;
- b=GSkjT7/H4lWsnaU2yWVoGrvDLGpyHyQ1CCRg8VoZrIdr0GbQWckOnEdnGCCkPZuuzr+OofdogwSuW5KrzVpCr8Tp0ueGjpXkf34tZmfCtDqKgQSvTqz8pNSqZg7+JwykoU2yFV3LfGkGe1xJ0QfOo9Es5ESnCNDe7YXh48TN1UpsLhT8ZUlUooxP0pSfzjXVkopDeRIwgDMcWAll63GlrByIzTSxcrtJSvNbkkfxNx7piUjtexVFfbt7XSDgZ9JdoK2SZCDDIHmx7x+R8TyRGuw4LibePhxsivajn5IGYqCnFiQP9WvqKgraPSZiUAHl99ebghcnpukcWzm14fY9mw==
+ bh=CX7XJuPxcvIrHE7zCnPO1cphrX4cAw1wIwSBpW2pW9Q=;
+ b=GFjsue3y16F0xPlbCMFuabme64FGnuZgGcvi9BvXul47eTAKkhI7Mq31Gj85HtC36A+5hdatYg/HENAw3sywXxsiTW3ipD96IOp24UbAAiHXn+9dFQvySEYSPgYW7YyGpz+8ZTtfTRcpwJUw3/tObGMIdJdRQlv7KBep8Un02z5/JfVjF9IO0xcMwEjLKurmU534IKpqhcIXPNk2KXEAxroixn+n7RKMDrIHXQXQYabRfpRK+av5wHLzYZtEGIDmwNYtCDRasss2NgqzJpzRDv7uxEfetj7eEncOREmlYUUiqzIkRzIUIDU290aLh1D2Nl4yV35oiDtBiytoAAi7EQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1ag9RncpoVcywSr9KbfiCpt9Byd+/I1IVd3bbnoAnAs=;
- b=OLCQdfnL6qRlxiQl3jbdG5x26jMzyGwEjR7PO3NNiqHd2lXngY4ySGZobyoSRoLlCWV4nfkCgGqXZTWX+wJclrKyxbfzZEVCUdHUvyczbHxyRDS3pFmkVOacxFvjgi0DYO6Rn+z6UdIpGmqyzPW2kwyUsEMpcKhj9UciFJF6ZDw=
+ bh=CX7XJuPxcvIrHE7zCnPO1cphrX4cAw1wIwSBpW2pW9Q=;
+ b=NEHORQi1TpOqTp4MuglW3aQwvDIftOAofeL8LkqG+ebKuj4lEKBggzdFlvbJjHYaDQqUrsv4+28WAmo1eFR2naULWi+E/AF3T+4SRAOnmEUYMYYKpjkXjv0wa5iqxWV/IztjWNAr7EfBkTXkjvmY3wD8Ve2rKTQw0BoTXo7CCN4=
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com (2603:10b6:806:22b::9)
- by BLAPR10MB5108.namprd10.prod.outlook.com (2603:10b6:208:330::17) with
+ by DM6PR10MB4233.namprd10.prod.outlook.com (2603:10b6:5:213::16) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.22; Sat, 24 Sep
- 2022 12:58:56 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.24; Sat, 24 Sep
+ 2022 12:59:04 +0000
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::822f:1816:1c2c:43d1]) by SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::822f:1816:1c2c:43d1%7]) with mapi id 15.20.5654.022; Sat, 24 Sep 2022
- 12:58:56 +0000
+ 12:59:03 +0000
 From:   Chandan Babu R <chandan.babu@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
         stable@vger.kernel.org, djwong@kernel.org, chandan.babu@oracle.com,
         amir73il@gmail.com, leah.rumancik@gmail.com
-Subject: [PATCH 5.4 V2 16/19] xfs: split the sunit parameter update into two parts
-Date:   Sat, 24 Sep 2022 18:26:53 +0530
-Message-Id: <20220924125656.101069-17-chandan.babu@oracle.com>
+Subject: [PATCH 5.4 V2 17/19] xfs: don't commit sunit/swidth updates to disk if that would cause repair failures
+Date:   Sat, 24 Sep 2022 18:26:54 +0530
+Message-Id: <20220924125656.101069-18-chandan.babu@oracle.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220924125656.101069-1-chandan.babu@oracle.com>
 References: <20220924125656.101069-1-chandan.babu@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: TYAPR01CA0114.jpnprd01.prod.outlook.com
- (2603:1096:404:2a::30) To SA1PR10MB5867.namprd10.prod.outlook.com
+X-ClientProxiedBy: TYCP286CA0012.JPNP286.PROD.OUTLOOK.COM
+ (2603:1096:400:26c::16) To SA1PR10MB5867.namprd10.prod.outlook.com
  (2603:10b6:806:22b::9)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA1PR10MB5867:EE_|BLAPR10MB5108:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6beac056-1804-44e6-d241-08da9e2c8a8c
+X-MS-TrafficTypeDiagnostic: SA1PR10MB5867:EE_|DM6PR10MB4233:EE_
+X-MS-Office365-Filtering-Correlation-Id: 66a97367-8d46-4e67-b346-08da9e2c8ecc
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: RBYPDPzOaIyZBSSxncQbOahve8PznsBZaElY/hcwkxBAf6b7mUGnn9GtqXhtnuhOzzXYhfC5CQCRJU/6OgVOyGKOJuUjz0xqbI+x+hKr9FxSM/yAZQIhA2KYGbNFw0ksKZ8ghXa3x3x1lZhJR3Cq5wD7cIK/vZvxKDsfS8Offg+YCPHMoP+q5XFzB6UzylGhARd6nnvSP8fMgrKQA7stF4J+6Yeo2SwZb1Q7M61g78YgsTWuzIZat3SH3Fpo6P7x2eKIHEb/ryYzTguq3xmFFTWyOYbChLdwg+hbiLg7LO5Mnyg4HkgVCLCMVamTJIos4MFmMz9L3TfSqyYsKI6wtUAP4Q933O1Yk5rvo4tjb5iztU6l7QXqhK7+oPY6EpyPOjLq3wSYP9ODnGgNMoYvcLy6MPZ5cYEVl73s4rb4EQUJ8fXF+zgc5oj/MZfIwp3DWPws3uDjcRQ3DlA2kTURalNgtf+s03/TVXQcpMrLGhCwBSYiK5suooFV7vv1Y0y62JWAyIlRpjf4gXlNORGuGccmrdU1lHdgPkF6rOscem/JM5oVyyHRppcKxy3O4uW7ZuM8vqguLR+MubZyqYg+QsX2WGGwjx8IsuLyiwUgDU8LjqeIBOERFY3bVYGAEtDwFRiswQPCKamVfAEI88icS1MUhOARRnEFbfacPWwmIOpdnTfpI6X6E+2jAvphgV5+leIrAnoIktYu0lFQ1kZSPQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(136003)(346002)(376002)(396003)(366004)(39860400002)(451199015)(8936002)(6666004)(38100700002)(83380400001)(6916009)(478600001)(316002)(6486002)(4326008)(66946007)(86362001)(66556008)(66476007)(8676002)(26005)(6512007)(36756003)(6506007)(1076003)(41300700001)(186003)(15650500001)(2906002)(5660300002)(2616005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: kmQu7l8ynXO2y1Q3MrChVlLwXwoSWjjA6SkMLq8sCDP4f28RY+TrFytRjGFtpFQYh2jsL8TRh2i2Sd6beuAXv8Z9Her5mHDAlJ2El7TL9I79cfBK4kxFC8rDQxHctjucvwZJmIeUsrtp9TKiOjBOPcnFAQpl4amdBYOG+ipCOLpa4JcPvU0O20Sh34LUi7I+28XI4Pr6nC2G7ncReWyr6xcgT9ww9UvzwWZ23arvcE4KNHoJgMRk9LFmdvWFxZFirwVbb3OQCphYui2iF16S19EUcg5/6wMhbHFLnVjcsPUV98ou1WJ3UpEjpVuHihzEegcU4mEiN1u/jwsuSipxzxZzNjfknAWfZ3bQeulQiXbeIiKVgHz2YyDptINqNd9+/YA+1RKmmYj1hH3/u7p0hs0MucM0RPhC/hCDKWVl1ZivA4Vg5AY0U5Wt5YXnqpisBV9QWNzWkF/khZhDylXpgePLxx2b/3hgCWCk1EVeWCcuTgbM5067Ovb2U6LC3fvkjpyXhfO8SNnj39Vt0YsNVzdzszFayXwa1ZY+nG0DYq/tVBLNj33McqnAK0M95Fg1+U+mriHc1rLafGFLnS35D2G5j7q+XL57CWRgyWjDm6Tg1XHAHbaTaloq4uBE0WiJ4Wg0FB+d9/ami28GAWzHKvAZn4A1Mb2gbbu0DyZHBwor9/qCD697Y3pBJ3YmnEirgHtYozdN0pM+x2npO1ndFxXzQTpYkWwZavDEqruXtt0cXIJAo6vH/y8RG9AwvuJyWS9dGXb9N+4ZMEcDOKLh7fAMg1zwyVEhFKsZdn9kJlI=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(366004)(396003)(39860400002)(136003)(376002)(346002)(451199015)(36756003)(86362001)(2906002)(15650500001)(38100700002)(5660300002)(316002)(66556008)(6512007)(26005)(66476007)(2616005)(66946007)(478600001)(966005)(6486002)(6666004)(6916009)(6506007)(8936002)(1076003)(4326008)(8676002)(186003)(41300700001)(83380400001)(21314003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?oBE0pjl4r6tDWuBFJ24AoHbovlTxbcrdDCeiY7LXO4hSJelFB08ubSCM2/5+?=
- =?us-ascii?Q?/HtQFp6BiwbZNAC/o4ylgFiIW9FeP5myz3uRIGXzZat/jp7q5Kf+pgdV0E14?=
- =?us-ascii?Q?AbZ2agXVHAVamAjorXvxSW+UieLicsS+y32nSwLGnDbQCPgNYNgFq5+0EEsT?=
- =?us-ascii?Q?r4g6APuyYa/3C+DsCKf30YMQnIaWYHO11eP+TePxaCUS6WisScuVWA6B8UGF?=
- =?us-ascii?Q?W/EGpywXSwFtTnH58PUM+XJnH/afqrgiIjfRBdprV0TTHeqJ5ZIXaDTmsdRX?=
- =?us-ascii?Q?HqyQYSk4Z9pDNKJH+MustvbRMn09irEWjmvFjqoIVyynQldyacHOnDxdBBCR?=
- =?us-ascii?Q?CE5d1Cu1ZGQvmtUI5S9Z56v6ES+wGS33SlmtHam/QrjNeHwLiVMA9WvcyBjg?=
- =?us-ascii?Q?g74KPb8HmQtqBodJ9Z5iX2ecVZFA3t+GbysiyPSJJy9k1yMmfLjtgNAXVv5a?=
- =?us-ascii?Q?KnN8/3z3h/v3n35FJ01ThIAcgsyj6WeZCPZjuP/fVr3k7PhQPsBol0grqc86?=
- =?us-ascii?Q?HqzPFyzhr4l8ko/ihaAcBHID8D8gI9oZjdRBHY/C+pi7NyjfBfo7yxCgpAff?=
- =?us-ascii?Q?iYNwoz7XWthVnNbDp5FWo6EekAnDXY702LfYEet5ZsgC32/P/FKpvFm/ogy1?=
- =?us-ascii?Q?C45ku9NPHWYXJ7RtwxtUG+Bv0aVAWiD4IAZ/JVIbsWY+OCQbE6aeS/gSVe1C?=
- =?us-ascii?Q?av2jgWhCF+yg/K3l7vAFA3QGaWay112JLqTY5grHavleoUtJdMtRnoDo1Hfc?=
- =?us-ascii?Q?n2Qj7Sei3rac9fymJY91E4zdwnOWiTsxcd2+Yl0IN0JDyR7sV2JZr8+s0ilT?=
- =?us-ascii?Q?bHMZuoV19SbzSCAmkxAHvE5wfW8bkSRHraPFdA/LUCHHsx3Mf93bpMAfEFQA?=
- =?us-ascii?Q?KCGKbROgrRHyRq2SYsUaNBlUYw1Hg4202NXYB5fEfXqcihGWtclAjJzI4tKN?=
- =?us-ascii?Q?eiEIaCkTOGBzHhKipW5Y2sc8GfKgRipMmsQ5vKikLoaGpvFj/jTPMtMLgPlk?=
- =?us-ascii?Q?o4NMOF2D42LFxlT6EfNkx47TKJr+OlHJFfQUzGsCrjteLRGt1dBX6PdbFwa7?=
- =?us-ascii?Q?gZP9zcJNup7U1gWcdEk2VzPCkR8FkJbW0kn4QxvDEln2IRto5LiNUm4j8it6?=
- =?us-ascii?Q?Bv4uQOfO3XIW/MZjqT8oAKEPPVrNPEU/jzcGjmW0G362PWwSf0ol/O6AeHDF?=
- =?us-ascii?Q?Gc/nYnMXu8toijQTCRYlvB7qZnb75sWClJnT82MkGf8KomvFImLhbrCQ2yhW?=
- =?us-ascii?Q?NSUIfuIZHkZwM439iF6b1+UBMLDVCPYXkBrSotq6NAbTUs4XxtNdJ2A8Kc5h?=
- =?us-ascii?Q?/HTx8cnmLf6tLFBiOFs+p29DtyEtTuxnxBtjpan8cSGdEpV9RpSzxwuEIqdE?=
- =?us-ascii?Q?mpvbxIW8ATlSclUswLNm8WXkMcLPtJQsH8oq+FJkxTxZdqZWMlaq7LcMz/A2?=
- =?us-ascii?Q?h0WuWeBqzNXZDsDVpBCrkhWpGBxFCfL5ChMoZM5Z3EXc2KN+7rRqdsC5foE+?=
- =?us-ascii?Q?r78P8N6hmUVwp4ztzw4lCquZT+MqbmB/EscBXDmWwDaV6CjcPMQhZB2GQJNU?=
- =?us-ascii?Q?temb2VcUFSqkkH5XCwPuQNJxiCXNiog6K+lo3aRAO7Su+2yGM4xSaaMd8tJG?=
- =?us-ascii?Q?lw=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?nOFc51lLY4QiN62suVEbJYoni7HJLTdZuw1TYIGe3F+vvMQ/GrDOsi/u5DlO?=
+ =?us-ascii?Q?63W5nRhvFbHbkAfHDvt2g3rNtWyaa6TQk4QLjGfjDyIVZWq9yE0HDhn21vFP?=
+ =?us-ascii?Q?IvBFrZ80ubmaPC6RjR9AQ6bOyfPQlFy2WxPJxT4KVOetpTK6DnvaS6PeHLa9?=
+ =?us-ascii?Q?G3vWcdrXjYTJ0uhXAO1lwMOD0SsgehWNCf3I3dU4CbW04E2xtJ7YG+BNjez0?=
+ =?us-ascii?Q?nssPtwvoJ8ig0VfRo0M0PhBpq5Z6WW/ECPv+XHyqGoNnvkt51lunHt1N1E3b?=
+ =?us-ascii?Q?BEOocFyrozeah9sYVeo1ztjs9H3QuRdynnLD0WdWaAbBoAb0l0LTbxreQp2S?=
+ =?us-ascii?Q?q+2wX3XV7e2F0/gMZex7gul7IClLs6MG21C06zcnG/BjhHnH/tmLE6aQh2oq?=
+ =?us-ascii?Q?9Pj9Th1EEfEQwdUgDnBjmlob4TPifxdOQGnn8zCJyfiAQ4q38QRxUpZSJMY5?=
+ =?us-ascii?Q?eJmovqNGxD9CiOlFMwQsoBX4eTV7ZapfVhL2LuSGaxMjhdcmRJcZC5sSBqQI?=
+ =?us-ascii?Q?t6YdN4Dkv8wiDIu1Pzxxzx10rpbXPUsImyL2RULDP+u6jlinhm97Nit4B4yD?=
+ =?us-ascii?Q?tY8oqlwv+CTx2U5G6xdXfFhvV/b8ilyDHjrMdhrxl3qhMzYHxSWMCUR/obxW?=
+ =?us-ascii?Q?6jAc5WFGSvSHIgfzxSjqZgSDSZj94i8l+t7EggmjLElB8Ay0oUqAdCSC25Kk?=
+ =?us-ascii?Q?xNfDxAGPL6kUAOLsPBtbE12KoG3jQfLtm4Hrb9XIXnRjYcULOmm9Xnbb9awz?=
+ =?us-ascii?Q?W1ekzxLi3/yfbGn9DG73a+WWxTD3dOn5GrL8z0NxcuPZex3Ky5gxNtZt6PG/?=
+ =?us-ascii?Q?bzpBRi5O7Arokgs0QoZYPH260e4/ki8k47+YeWcpx2ucYuywA2g1ZkJA+qJi?=
+ =?us-ascii?Q?t8B1y4S+ahmM2XISMDlLB0RyQXQcunaHjn7Fc1a+a9vI3LA8ayE9fqTyMSgX?=
+ =?us-ascii?Q?6Lo84A5QsFbCBRG2XygK3DEsnEgIf7KuHgi1AarGDv5+87auupNqLesphAZD?=
+ =?us-ascii?Q?VQ8SYic9wLaTLd+Qy+MAooU41U7+WY+kh9GdkzdEQF8t9FX37qZH27G8WD2O?=
+ =?us-ascii?Q?QWnFRoRfcbZjA2nBH+C2A5Mrb6CPtU0rgigd1w51xnQo7KyOSpCs9z4ovFF8?=
+ =?us-ascii?Q?7GTZ5d2txUFkYt3K6Z3Q8ZjGBuw7xu79Rjd4nuz6wl3DPp0w+tSir5ABw11T?=
+ =?us-ascii?Q?1f5LH94a7zmFnK/CA845CfH7afGFUJLSH59SPkWop1hNaigYe5aFc4Ufbk8b?=
+ =?us-ascii?Q?o33JJF/kQI9prHD9pDhYqqbLRtN3I9qeLH17uoSgPUpP72Hvl2HSQonnnjTc?=
+ =?us-ascii?Q?JraEDkjNB72WJnswn176S3PK98Dy4QcD9w5RKOjHt5J7A8oyMjmhT3qSOXAt?=
+ =?us-ascii?Q?jllNi6o2CdTsdODeYFuyqD9bTI/gp1s0Mb1A/33PkYVRtt5Jgea4EEPveqdM?=
+ =?us-ascii?Q?+HS33bbsICSEsvnUd1svJ1RYB8UJjqs5CjJSs8G76/Vxv7AVWLu6ahz/I3c2?=
+ =?us-ascii?Q?gZNarylLFF8ZrukyNH5uWzzxzvucK9HNrTeo+7y4CD1K8EiBxSjzHA4vMZeO?=
+ =?us-ascii?Q?Vu4mgJVUFtpfipcWKG07xMeuLhHlNFoPxksn/pHf4yic390/ebKhGKXbkrOv?=
+ =?us-ascii?Q?dA=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6beac056-1804-44e6-d241-08da9e2c8a8c
+X-MS-Exchange-CrossTenant-Network-Message-Id: 66a97367-8d46-4e67-b346-08da9e2c8ecc
 X-MS-Exchange-CrossTenant-AuthSource: SA1PR10MB5867.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2022 12:58:56.7518
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2022 12:59:03.8812
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xdRoUtGcFSvVYGEpNPpxt5yWgOL27ndfTEuqBngpIg4En7vDPO5dGAUE3PTeWOMjtnfKVYDbSfC9T+xKuKrYjw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5108
+X-MS-Exchange-CrossTenant-UserPrincipalName: kToawyivSqU759OvNQ3XRt4gWw2rlyFzs6G/GxDREd82nsfrO9CDvJq/K+J8WkuuepTSnfLWM+A33bU8zvMP2g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB4233
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-24_06,2022-09-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 bulkscore=0 mlxscore=0
- phishscore=0 mlxlogscore=999 adultscore=0 malwarescore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2209240098
-X-Proofpoint-GUID: yBD6z_IzvxInc_75MvYE60RHMfBNJDSr
-X-Proofpoint-ORIG-GUID: yBD6z_IzvxInc_75MvYE60RHMfBNJDSr
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209240098
+X-Proofpoint-GUID: kXVSLweceOTM5SuuYSJt52FYyeeqO_Zh
+X-Proofpoint-ORIG-GUID: kXVSLweceOTM5SuuYSJt52FYyeeqO_Zh
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -147,187 +147,233 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit 4f5b1b3a8fa07dc8ecedfaf539b3deed8931a73e upstream.
+commit 13eaec4b2adf2657b8167b67e27c97cc7314d923 upstream.
 
-If the administrator provided a sunit= mount option, we need to validate
-the raw parameter, convert the mount option units (512b blocks) into the
-internal unit (fs blocks), and then validate that the (now cooked)
-parameter doesn't screw anything up on disk.  The incore inode geometry
-computation can depend on the new sunit option, but a subsequent patch
-will make validating the cooked value depends on the computed inode
-geometry, so break the sunit update into two steps.
+Alex Lyakas reported[1] that mounting an xfs filesystem with new sunit
+and swidth values could cause xfs_repair to fail loudly.  The problem
+here is that repair calculates the where mkfs should have allocated the
+root inode, based on the superblock geometry.  The allocation decisions
+depend on sunit, which means that we really can't go updating sunit if
+it would lead to a subsequent repair failure on an otherwise correct
+filesystem.
 
+Port from xfs_repair some code that computes the location of the root
+inode and teach mount to skip the ondisk update if it would cause
+problems for repair.  Along the way we'll update the documentation,
+provide a function for computing the minimum AGFL size instead of
+open-coding it, and cut down some indenting in the mount code.
+
+Note that we allow the mount to proceed (and new allocations will
+reflect this new geometry) because we've never screened this kind of
+thing before.  We'll have to wait for a new future incompat feature to
+enforce correct behavior, alas.
+
+Note that the geometry reporting always uses the superblock values, not
+the incore ones, so that is what xfs_info and xfs_growfs will report.
+
+[1] https://lore.kernel.org/linux-xfs/20191125130744.GA44777@bfoster/T/#m00f9594b511e076e2fcdd489d78bc30216d72a7d
+
+Reported-by: Alex Lyakas <alex@zadara.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Reviewed-by: Brian Foster <bfoster@redhat.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 ---
- fs/xfs/xfs_mount.c | 123 ++++++++++++++++++++++++++-------------------
- 1 file changed, 72 insertions(+), 51 deletions(-)
+ fs/xfs/libxfs/xfs_ialloc.c | 64 ++++++++++++++++++++++++++++++++++++++
+ fs/xfs/libxfs/xfs_ialloc.h |  1 +
+ fs/xfs/xfs_mount.c         | 45 ++++++++++++++++++++++++++-
+ fs/xfs/xfs_trace.h         | 21 +++++++++++++
+ 4 files changed, 130 insertions(+), 1 deletion(-)
 
+diff --git a/fs/xfs/libxfs/xfs_ialloc.c b/fs/xfs/libxfs/xfs_ialloc.c
+index 443cf33f6666..c3e0c2f61be4 100644
+--- a/fs/xfs/libxfs/xfs_ialloc.c
++++ b/fs/xfs/libxfs/xfs_ialloc.c
+@@ -2854,3 +2854,67 @@ xfs_ialloc_setup_geometry(
+ 	else
+ 		igeo->ialloc_align = 0;
+ }
++
++/* Compute the location of the root directory inode that is laid out by mkfs. */
++xfs_ino_t
++xfs_ialloc_calc_rootino(
++	struct xfs_mount	*mp,
++	int			sunit)
++{
++	struct xfs_ino_geometry	*igeo = M_IGEO(mp);
++	xfs_agblock_t		first_bno;
++
++	/*
++	 * Pre-calculate the geometry of AG 0.  We know what it looks like
++	 * because libxfs knows how to create allocation groups now.
++	 *
++	 * first_bno is the first block in which mkfs could possibly have
++	 * allocated the root directory inode, once we factor in the metadata
++	 * that mkfs formats before it.  Namely, the four AG headers...
++	 */
++	first_bno = howmany(4 * mp->m_sb.sb_sectsize, mp->m_sb.sb_blocksize);
++
++	/* ...the two free space btree roots... */
++	first_bno += 2;
++
++	/* ...the inode btree root... */
++	first_bno += 1;
++
++	/* ...the initial AGFL... */
++	first_bno += xfs_alloc_min_freelist(mp, NULL);
++
++	/* ...the free inode btree root... */
++	if (xfs_sb_version_hasfinobt(&mp->m_sb))
++		first_bno++;
++
++	/* ...the reverse mapping btree root... */
++	if (xfs_sb_version_hasrmapbt(&mp->m_sb))
++		first_bno++;
++
++	/* ...the reference count btree... */
++	if (xfs_sb_version_hasreflink(&mp->m_sb))
++		first_bno++;
++
++	/*
++	 * ...and the log, if it is allocated in the first allocation group.
++	 *
++	 * This can happen with filesystems that only have a single
++	 * allocation group, or very odd geometries created by old mkfs
++	 * versions on very small filesystems.
++	 */
++	if (mp->m_sb.sb_logstart &&
++	    XFS_FSB_TO_AGNO(mp, mp->m_sb.sb_logstart) == 0)
++		 first_bno += mp->m_sb.sb_logblocks;
++
++	/*
++	 * Now round first_bno up to whatever allocation alignment is given
++	 * by the filesystem or was passed in.
++	 */
++	if (xfs_sb_version_hasdalign(&mp->m_sb) && igeo->ialloc_align > 0)
++		first_bno = roundup(first_bno, sunit);
++	else if (xfs_sb_version_hasalign(&mp->m_sb) &&
++			mp->m_sb.sb_inoalignmt > 1)
++		first_bno = roundup(first_bno, mp->m_sb.sb_inoalignmt);
++
++	return XFS_AGINO_TO_INO(mp, 0, XFS_AGB_TO_AGINO(mp, first_bno));
++}
+diff --git a/fs/xfs/libxfs/xfs_ialloc.h b/fs/xfs/libxfs/xfs_ialloc.h
+index 323592d563d5..72b3468b97b1 100644
+--- a/fs/xfs/libxfs/xfs_ialloc.h
++++ b/fs/xfs/libxfs/xfs_ialloc.h
+@@ -152,5 +152,6 @@ int xfs_inobt_insert_rec(struct xfs_btree_cur *cur, uint16_t holemask,
+ 
+ int xfs_ialloc_cluster_alignment(struct xfs_mount *mp);
+ void xfs_ialloc_setup_geometry(struct xfs_mount *mp);
++xfs_ino_t xfs_ialloc_calc_rootino(struct xfs_mount *mp, int sunit);
+ 
+ #endif	/* __XFS_IALLOC_H__ */
 diff --git a/fs/xfs/xfs_mount.c b/fs/xfs/xfs_mount.c
-index 5a0ce0c2c4bb..5c2539e13a0b 100644
+index 5c2539e13a0b..bbcf48a625b2 100644
 --- a/fs/xfs/xfs_mount.c
 +++ b/fs/xfs/xfs_mount.c
-@@ -365,66 +365,76 @@ xfs_readsb(
+@@ -31,7 +31,7 @@
+ #include "xfs_reflink.h"
+ #include "xfs_extent_busy.h"
+ #include "xfs_health.h"
+-
++#include "xfs_trace.h"
+ 
+ static DEFINE_MUTEX(xfs_uuid_table_mutex);
+ static int xfs_uuid_table_size;
+@@ -364,6 +364,42 @@ xfs_readsb(
+ 	return error;
  }
  
- /*
-- * Update alignment values based on mount options and sb values
-+ * If we were provided with new sunit/swidth values as mount options, make sure
-+ * that they pass basic alignment and superblock feature checks, and convert
-+ * them into the same units (FSB) that everything else expects.  This step
-+ * /must/ be done before computing the inode geometry.
-  */
- STATIC int
--xfs_update_alignment(xfs_mount_t *mp)
-+xfs_validate_new_dalign(
-+	struct xfs_mount	*mp)
- {
--	xfs_sb_t	*sbp = &(mp->m_sb);
-+	if (mp->m_dalign == 0)
++/*
++ * If the sunit/swidth change would move the precomputed root inode value, we
++ * must reject the ondisk change because repair will stumble over that.
++ * However, we allow the mount to proceed because we never rejected this
++ * combination before.  Returns true to update the sb, false otherwise.
++ */
++static inline int
++xfs_check_new_dalign(
++	struct xfs_mount	*mp,
++	int			new_dalign,
++	bool			*update_sb)
++{
++	struct xfs_sb		*sbp = &mp->m_sb;
++	xfs_ino_t		calc_ino;
++
++	calc_ino = xfs_ialloc_calc_rootino(mp, new_dalign);
++	trace_xfs_check_new_dalign(mp, new_dalign, calc_ino);
++
++	if (sbp->sb_rootino == calc_ino) {
++		*update_sb = true;
 +		return 0;
- 
--	if (mp->m_dalign) {
++	}
++
++	xfs_warn(mp,
++"Cannot change stripe alignment; would require moving root inode.");
++
 +	/*
-+	 * If stripe unit and stripe width are not multiples
-+	 * of the fs blocksize turn off alignment.
++	 * XXX: Next time we add a new incompat feature, this should start
++	 * returning -EINVAL to fail the mount.  Until then, spit out a warning
++	 * that we're ignoring the administrator's instructions.
 +	 */
-+	if ((BBTOB(mp->m_dalign) & mp->m_blockmask) ||
-+	    (BBTOB(mp->m_swidth) & mp->m_blockmask)) {
-+		xfs_warn(mp,
-+	"alignment check failed: sunit/swidth vs. blocksize(%d)",
-+			mp->m_sb.sb_blocksize);
-+		return -EINVAL;
-+	} else {
- 		/*
--		 * If stripe unit and stripe width are not multiples
--		 * of the fs blocksize turn off alignment.
-+		 * Convert the stripe unit and width to FSBs.
- 		 */
--		if ((BBTOB(mp->m_dalign) & mp->m_blockmask) ||
--		    (BBTOB(mp->m_swidth) & mp->m_blockmask)) {
-+		mp->m_dalign = XFS_BB_TO_FSBT(mp, mp->m_dalign);
-+		if (mp->m_dalign && (mp->m_sb.sb_agblocks % mp->m_dalign)) {
- 			xfs_warn(mp,
--		"alignment check failed: sunit/swidth vs. blocksize(%d)",
--				sbp->sb_blocksize);
-+		"alignment check failed: sunit/swidth vs. agsize(%d)",
-+				 mp->m_sb.sb_agblocks);
- 			return -EINVAL;
--		} else {
--			/*
--			 * Convert the stripe unit and width to FSBs.
--			 */
--			mp->m_dalign = XFS_BB_TO_FSBT(mp, mp->m_dalign);
--			if (mp->m_dalign && (sbp->sb_agblocks % mp->m_dalign)) {
--				xfs_warn(mp,
--			"alignment check failed: sunit/swidth vs. agsize(%d)",
--					 sbp->sb_agblocks);
--				return -EINVAL;
--			} else if (mp->m_dalign) {
--				mp->m_swidth = XFS_BB_TO_FSBT(mp, mp->m_swidth);
--			} else {
--				xfs_warn(mp,
--			"alignment check failed: sunit(%d) less than bsize(%d)",
--					 mp->m_dalign, sbp->sb_blocksize);
--				return -EINVAL;
--			}
--		}
--
--		/*
--		 * Update superblock with new values
--		 * and log changes
--		 */
--		if (xfs_sb_version_hasdalign(sbp)) {
--			if (sbp->sb_unit != mp->m_dalign) {
--				sbp->sb_unit = mp->m_dalign;
--				mp->m_update_sb = true;
--			}
--			if (sbp->sb_width != mp->m_swidth) {
--				sbp->sb_width = mp->m_swidth;
--				mp->m_update_sb = true;
--			}
-+		} else if (mp->m_dalign) {
-+			mp->m_swidth = XFS_BB_TO_FSBT(mp, mp->m_swidth);
- 		} else {
- 			xfs_warn(mp,
--	"cannot change alignment: superblock does not support data alignment");
-+		"alignment check failed: sunit(%d) less than bsize(%d)",
-+				 mp->m_dalign, mp->m_sb.sb_blocksize);
- 			return -EINVAL;
- 		}
-+	}
-+
-+	if (!xfs_sb_version_hasdalign(&mp->m_sb)) {
-+		xfs_warn(mp,
-+"cannot change alignment: superblock does not support data alignment");
-+		return -EINVAL;
-+	}
-+
++	xfs_warn(mp, "Skipping superblock stripe alignment update.");
++	*update_sb = false;
 +	return 0;
 +}
 +
-+/* Update alignment values based on mount options and sb values. */
-+STATIC int
-+xfs_update_alignment(
-+	struct xfs_mount	*mp)
-+{
-+	struct xfs_sb		*sbp = &mp->m_sb;
+ /*
+  * If we were provided with new sunit/swidth values as mount options, make sure
+  * that they pass basic alignment and superblock feature checks, and convert
+@@ -424,10 +460,17 @@ xfs_update_alignment(
+ 	struct xfs_sb		*sbp = &mp->m_sb;
+ 
+ 	if (mp->m_dalign) {
++		bool		update_sb;
++		int		error;
 +
-+	if (mp->m_dalign) {
-+		if (sbp->sb_unit == mp->m_dalign &&
-+		    sbp->sb_width == mp->m_swidth)
-+			return 0;
+ 		if (sbp->sb_unit == mp->m_dalign &&
+ 		    sbp->sb_width == mp->m_swidth)
+ 			return 0;
+ 
++		error = xfs_check_new_dalign(mp, mp->m_dalign, &update_sb);
++		if (error || !update_sb)
++			return error;
 +
-+		sbp->sb_unit = mp->m_dalign;
-+		sbp->sb_width = mp->m_swidth;
-+		mp->m_update_sb = true;
- 	} else if ((mp->m_flags & XFS_MOUNT_NOALIGN) != XFS_MOUNT_NOALIGN &&
- 		    xfs_sb_version_hasdalign(&mp->m_sb)) {
--			mp->m_dalign = sbp->sb_unit;
--			mp->m_swidth = sbp->sb_width;
-+		mp->m_dalign = sbp->sb_unit;
-+		mp->m_swidth = sbp->sb_width;
- 	}
+ 		sbp->sb_unit = mp->m_dalign;
+ 		sbp->sb_width = mp->m_swidth;
+ 		mp->m_update_sb = true;
+diff --git a/fs/xfs/xfs_trace.h b/fs/xfs/xfs_trace.h
+index eaae275ed430..ffb398c1de69 100644
+--- a/fs/xfs/xfs_trace.h
++++ b/fs/xfs/xfs_trace.h
+@@ -3609,6 +3609,27 @@ DEFINE_KMEM_EVENT(kmem_alloc_large);
+ DEFINE_KMEM_EVENT(kmem_realloc);
+ DEFINE_KMEM_EVENT(kmem_zone_alloc);
  
- 	return 0;
-@@ -692,12 +702,12 @@ xfs_mountfs(
- 	}
- 
- 	/*
--	 * Check if sb_agblocks is aligned at stripe boundary
--	 * If sb_agblocks is NOT aligned turn off m_dalign since
--	 * allocator alignment is within an ag, therefore ag has
--	 * to be aligned at stripe boundary.
-+	 * If we were given new sunit/swidth options, do some basic validation
-+	 * checks and convert the incore dalign and swidth values to the
-+	 * same units (FSB) that everything else uses.  This /must/ happen
-+	 * before computing the inode geometry.
- 	 */
--	error = xfs_update_alignment(mp);
-+	error = xfs_validate_new_dalign(mp);
- 	if (error)
- 		goto out;
- 
-@@ -708,6 +718,17 @@ xfs_mountfs(
- 	xfs_rmapbt_compute_maxlevels(mp);
- 	xfs_refcountbt_compute_maxlevels(mp);
- 
-+	/*
-+	 * Check if sb_agblocks is aligned at stripe boundary.  If sb_agblocks
-+	 * is NOT aligned turn off m_dalign since allocator alignment is within
-+	 * an ag, therefore ag has to be aligned at stripe boundary.  Note that
-+	 * we must compute the free space and rmap btree geometry before doing
-+	 * this.
-+	 */
-+	error = xfs_update_alignment(mp);
-+	if (error)
-+		goto out;
++TRACE_EVENT(xfs_check_new_dalign,
++	TP_PROTO(struct xfs_mount *mp, int new_dalign, xfs_ino_t calc_rootino),
++	TP_ARGS(mp, new_dalign, calc_rootino),
++	TP_STRUCT__entry(
++		__field(dev_t, dev)
++		__field(int, new_dalign)
++		__field(xfs_ino_t, sb_rootino)
++		__field(xfs_ino_t, calc_rootino)
++	),
++	TP_fast_assign(
++		__entry->dev = mp->m_super->s_dev;
++		__entry->new_dalign = new_dalign;
++		__entry->sb_rootino = mp->m_sb.sb_rootino;
++		__entry->calc_rootino = calc_rootino;
++	),
++	TP_printk("dev %d:%d new_dalign %d sb_rootino %llu calc_rootino %llu",
++		  MAJOR(__entry->dev), MINOR(__entry->dev),
++		  __entry->new_dalign, __entry->sb_rootino,
++		  __entry->calc_rootino)
++)
 +
- 	/* enable fail_at_unmount as default */
- 	mp->m_fail_unmount = true;
+ #endif /* _TRACE_XFS_H */
  
+ #undef TRACE_INCLUDE_PATH
 -- 
 2.35.1
 
