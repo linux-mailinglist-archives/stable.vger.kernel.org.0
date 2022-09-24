@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97DBD5E8AB3
-	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 11:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F5F65E8AF3
+	for <lists+stable@lfdr.de>; Sat, 24 Sep 2022 11:34:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbiIXJXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Sep 2022 05:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46376 "EHLO
+        id S233602AbiIXJeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Sep 2022 05:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbiIXJXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 05:23:01 -0400
+        with ESMTP id S233204AbiIXJeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 05:34:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A5B1397C0
-        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 02:23:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D546112E429;
+        Sat, 24 Sep 2022 02:34:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D581160AE2
-        for <stable@vger.kernel.org>; Sat, 24 Sep 2022 09:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C13DC433D6;
-        Sat, 24 Sep 2022 09:22:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664011379;
-        bh=IzG01qFivDp9c+m69TpJFpm04+le4HZzmysA/BM9FGE=;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70CA3608C3;
+        Sat, 24 Sep 2022 09:34:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 542DBC433C1;
+        Sat, 24 Sep 2022 09:34:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664012056;
+        bh=3mobUcHXtIiwJ/IgBy0YxctGCTuEvcBls7FCY9NGx94=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U8ZqMb5Dpr4t0wcxchwpJHJ5tj9ypZ23GjKIKXhJXB5KxqFjUfb5LdSpsAh0XqLl4
-         IUG87L7+Yg5CtE4wLeTP9Ht+pbWwSjYQghUZIRT49VX5Hg6WKgxuusiqCwi1zS/hcW
-         NiwRXcNzr1Uk9z/0kSPZhEFKosBAaR1c7plY40cdGOZktkTsfZztAxnV1zFP67sy4F
-         jZJIVX4fCoczr6vIQX4ncBpI1w1gUTmyrwSuhbyNGXKBFz7fq5KvrwrClR3bMv5r8i
-         BFJgW2MrT/z0DD9wsVPq1NBCazntC34R/jXl+A63ujcKLh6ppBE2CPRoSIsFcs2RRY
-         0aQwpGb5cYHCA==
-Date:   Sat, 24 Sep 2022 10:22:54 +0100
-From:   Conor Dooley <conor@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     palmer@rivosinc.com, ajones@ventanamicro.com, atishp@rivosinc.com,
-        conor.dooley@microchip.com, heiko@sntech.de, lkp@intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] RISC-V: Clean up the Zicbom block size
- probing" failed to apply to 5.19-stable tree
-Message-ID: <Yy7MbiS1cLXXQOBF@spud>
-References: <1664008733441@kroah.com>
+        b=WwI4czSd+PC2k+Gv5uUc0PfQbDuMvfCng+HMUKtnB711hP7bxapr7iMQBnl8KUtev
+         GJPt8x3FUhpAgWK2k2xNMhyhiIVvrMUPYzmGcHPTPKCKYrkKosNqQMAkyx4V0NtKj8
+         pEgW219IWo2sqggtMPPfTq+vFrA9EleWzOkE7FwY=
+Date:   Sat, 24 Sep 2022 11:34:13 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alex Elder <elder@linaro.org>
+Cc:     Douglas Anderson <dianders@chromium.org>, stable@vger.kernel.org,
+        swboyd@chromium.org, Mike Tipton <mdtipton@codeaurora.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Georgi Djakov <georgi.djakov@linaro.org>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: Re: [5.10 PATCH] interconnect: qcom: icc-rpmh: Add BCMs to commit
+ list in pre_aggregate
+Message-ID: <Yy7PFenCa0Sa3B3n@kroah.com>
+References: <20220922141725.5.10.1.I791715539cae1355e21827ca738b0b523a4a0f53@changeid>
+ <00eb82ca-8bf6-c744-d04d-96b97ce06b17@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1664008733441@kroah.com>
+In-Reply-To: <00eb82ca-8bf6-c744-d04d-96b97ce06b17@linaro.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,165 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 24, 2022 at 10:38:53AM +0200, gregkh@linuxfoundation.org wrote:
+On Thu, Sep 22, 2022 at 04:28:25PM -0500, Alex Elder wrote:
+> On 9/22/22 4:18 PM, Douglas Anderson wrote:
+> > From: Mike Tipton <mdtipton@codeaurora.org>
+> > 
+> > commit b95b668eaaa2574e8ee72f143c52075e9955177e upstream.
+> > 
+> > We're only adding BCMs to the commit list in aggregate(), but there are
+> > cases where pre_aggregate() is called without subsequently calling
+> > aggregate(). In particular, in icc_sync_state() when a node with initial
+> > BW has zero requests. Since BCMs aren't added to the commit list in
+> > these cases, we don't actually send the zero BW request to HW. So the
+> > resources remain on unnecessarily.
+> > 
+> > Add BCMs to the commit list in pre_aggregate() instead, which is always
+> > called even when there are no requests.
+> > 
+> > Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
+> > [georgi: remove icc_sync_state for platforms with incomplete support]
+> > Link: https://lore.kernel.org/r/20211125174751.25317-1-djakov@kernel.org
+> > Signed-off-by: Georgi Djakov <djakov@kernel.org>
+> > [dianders: dropped sm8350.c which isn't present in 5.10]
+> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
 > 
-> The patch below does not apply to the 5.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Whoops, sorry about that.
 > 
-> Possible dependencies:
-> 
-> 8f7e001e0325 ("RISC-V: Clean up the Zicbom block size probing")
+> Acked-by: Alex Elder <elder@linaro.org>
 
+Now queued up, thanks.
 
-> 3aefb2ee5bdd ("riscv: implement Zicbom-based CMO instructions + the t-head variant")
-
-This is a feature not a fix, I think the CC: stable tag may have been a
-mistake here - zicbom only landed this cycle.
-
-Thanks,
-Conor.
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 8f7e001e0325de63a42f23342ac3b8139150c5cf Mon Sep 17 00:00:00 2001
-> From: Palmer Dabbelt <palmer@rivosinc.com>
-> Date: Mon, 12 Sep 2022 23:48:01 +0100
-> Subject: [PATCH] RISC-V: Clean up the Zicbom block size probing
-> 
-> This fixes two issues: I truncated the warning's hart ID when porting to
-> the 64-bit hart ID code, and the original code's warning handling could
-> fire on an uninitialized hart ID.
-> 
-> The biggest change here is that riscv_cbom_block_size is no longer
-> initialized, as IMO the default isn't sane: there's nothing in the ISA
-> that mandates any specific cache block size, so falling back to one will
-> just silently produce the wrong answer on some systems.  This also
-> changes the probing order so the cache block size is known before
-> enabling Zicbom support.
-> 
-> CC: stable@vger.kernel.org
-> CC: Andrew Jones <ajones@ventanamicro.com>
-> CC: Heiko Stuebner <heiko@sntech.de>
-> CC: Atish Patra <atishp@rivosinc.com>
-> Fixes: 3aefb2ee5bdd ("riscv: implement Zicbom-based CMO instructions + the t-head variant")
-> Fixes: 1631ba1259d6 ("riscv: Add support for non-coherent devices using zicbom extension")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Reported-by: Conor Dooley <conor.dooley@microchip.com>
-> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> [Conor: fixed the redefinition errors]
-> Tested-by: Conor Dooley <conor.dooley@microchip.com>
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/20220912224800.998121-1-mail@conchuod.ie
-> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> 
-> diff --git a/arch/riscv/errata/thead/errata.c b/arch/riscv/errata/thead/errata.c
-> index 202c83f677b2..96648c176f37 100644
-> --- a/arch/riscv/errata/thead/errata.c
-> +++ b/arch/riscv/errata/thead/errata.c
-> @@ -37,6 +37,7 @@ static bool errata_probe_cmo(unsigned int stage,
->  	if (stage == RISCV_ALTERNATIVES_EARLY_BOOT)
->  		return false;
->  
-> +	riscv_cbom_block_size = L1_CACHE_BYTES;
->  	riscv_noncoherent_supported();
->  	return true;
->  #else
-> diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
-> index a60acaecfeda..a89c005b4bbf 100644
-> --- a/arch/riscv/include/asm/cacheflush.h
-> +++ b/arch/riscv/include/asm/cacheflush.h
-> @@ -43,6 +43,7 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
->  #endif /* CONFIG_SMP */
->  
->  #ifdef CONFIG_RISCV_ISA_ZICBOM
-> +extern unsigned int riscv_cbom_block_size;
->  void riscv_init_cbom_blocksize(void);
->  #else
->  static inline void riscv_init_cbom_blocksize(void) { }
-> diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-> index 95ef6e2bf45c..2dfc463b86bb 100644
-> --- a/arch/riscv/kernel/setup.c
-> +++ b/arch/riscv/kernel/setup.c
-> @@ -296,8 +296,8 @@ void __init setup_arch(char **cmdline_p)
->  	setup_smp();
->  #endif
->  
-> -	riscv_fill_hwcap();
->  	riscv_init_cbom_blocksize();
-> +	riscv_fill_hwcap();
->  	apply_boot_alternatives();
->  }
->  
-> diff --git a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoherent.c
-> index cd2225304c82..e3f9bdf47c5f 100644
-> --- a/arch/riscv/mm/dma-noncoherent.c
-> +++ b/arch/riscv/mm/dma-noncoherent.c
-> @@ -12,7 +12,7 @@
->  #include <linux/of_device.h>
->  #include <asm/cacheflush.h>
->  
-> -static unsigned int riscv_cbom_block_size = L1_CACHE_BYTES;
-> +unsigned int riscv_cbom_block_size;
->  static bool noncoherent_supported;
->  
->  void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
-> @@ -79,38 +79,41 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
->  void riscv_init_cbom_blocksize(void)
->  {
->  	struct device_node *node;
-> +	unsigned long cbom_hartid;
-> +	u32 val, probed_block_size;
->  	int ret;
-> -	u32 val;
->  
-> +	probed_block_size = 0;
->  	for_each_of_cpu_node(node) {
->  		unsigned long hartid;
-> -		int cbom_hartid;
->  
->  		ret = riscv_of_processor_hartid(node, &hartid);
->  		if (ret)
->  			continue;
->  
-> -		if (hartid < 0)
-> -			continue;
-> -
->  		/* set block-size for cbom extension if available */
->  		ret = of_property_read_u32(node, "riscv,cbom-block-size", &val);
->  		if (ret)
->  			continue;
->  
-> -		if (!riscv_cbom_block_size) {
-> -			riscv_cbom_block_size = val;
-> +		if (!probed_block_size) {
-> +			probed_block_size = val;
->  			cbom_hartid = hartid;
->  		} else {
-> -			if (riscv_cbom_block_size != val)
-> -				pr_warn("cbom-block-size mismatched between harts %d and %lu\n",
-> +			if (probed_block_size != val)
-> +				pr_warn("cbom-block-size mismatched between harts %lu and %lu\n",
->  					cbom_hartid, hartid);
->  		}
->  	}
-> +
-> +	if (probed_block_size)
-> +		riscv_cbom_block_size = probed_block_size;
->  }
->  #endif
->  
->  void riscv_noncoherent_supported(void)
->  {
-> +	WARN(!riscv_cbom_block_size,
-> +	     "Non-coherent DMA support enabled without a block size\n");
->  	noncoherent_supported = true;
->  }
-> 
+greg k-h
