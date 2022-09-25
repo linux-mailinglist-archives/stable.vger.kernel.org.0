@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA665E9172
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC7C5E9173
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229915AbiIYHck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Sep 2022 03:32:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57646 "EHLO
+        id S229567AbiIYHfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Sep 2022 03:35:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiIYHcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:32:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B053D3B94B
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:32:38 -0700 (PDT)
+        with ESMTP id S229763AbiIYHfo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:35:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5F113DE6
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:35:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E49761000
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:32:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C2A7C433D6;
-        Sun, 25 Sep 2022 07:32:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B3F2B80E80
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71397C433D6;
+        Sun, 25 Sep 2022 07:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664091157;
-        bh=ZPz+gM+6mF16t1+D7wLZ6VDVnHqpFUJRGAjq/ars9FA=;
+        s=korg; t=1664091341;
+        bh=H30ct3d2RSWkFKg0K+jG7vADeuQpz/f+7Kfd4N2PrCw=;
         h=Subject:To:Cc:From:Date:From;
-        b=awfRVPPzxEgBJv2TawlrmHtizL7Dv7wD/Z89Mr7GXK/zG6sfAd/YlDgtO5GkORdEd
-         jvsmtRKOQ7vWpkZYeuI2fY+ro5cH0YSEEpySvSiD8pm+vtdl82bGaLc6HHLRV6e+CL
-         PH3RzOcgo62Xbqpr/Ikzg+ug8czQYffX535En7o8=
-Subject: FAILED: patch "[PATCH] io_uring: ensure that cached task references are always put" failed to apply to 5.15-stable tree
-To:     axboe@kernel.dk, hominlab@gmail.com
+        b=S0PfteVws6vgTzOPAYWoEcG0uWPHVCUHbGUl9n7XKp8OiM1B7jGaFGQQuRXtq07qd
+         U4Sv6KqMGJ3hmBkUDerBkSd8KXyzVWP28hvSmCEMknyCtvZa8E3ZclSTuLcX8j0yBa
+         68e12BKnJo2tjUu7PmsoASjY02YVZr9BqNF0LnfY=
+Subject: FAILED: patch "[PATCH] cgroup: cgroup_get_from_id() must check the looked-up kn is a" failed to apply to 5.15-stable tree
+To:     ming.lei@redhat.com, mpatalan@redhat.com,
+        muneendra.kumar@broadcom.com, quic_mojha@quicinc.com, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 25 Sep 2022 09:32:34 +0200
-Message-ID: <166409115474111@kroah.com>
+Date:   Sun, 25 Sep 2022 09:35:38 +0200
+Message-ID: <1664091338227131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,26 +55,8 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-e775f93f2ab9 ("io_uring: ensure that cached task references are always put on exit")
-ed29b0b4fd83 ("io_uring: move to separate directory")
-60053be859b3 ("io_uring: remove extra ifs around io_commit_cqring")
-33ce2aff7d34 ("io_uring: code clean for some ctx usage")
-3d4aeb9f9805 ("io_uring: don't spinlock when not posting CQEs")
-04c76b41ca97 ("io_uring: add option to skip CQE posting")
-913a571affed ("io_uring: clean cqe filling functions")
-5ca7a8b3f698 ("io_uring: inform block layer of how many requests we are submitting")
-5a158c6b0d03 ("io_uring: reshuffle io_submit_state bits")
-6d63416dc57e ("io_uring: optimise plugging")
-54daa9b2d80a ("io_uring: correct fill events helpers types")
-867f8fa5aeb7 ("io_uring: inline io_req_needs_clean()")
-d17e56eb4907 ("io_uring: remove struct io_completion")
-d886e185a128 ("io_uring: control ->async_data with a REQ_F flag")
-fff4e40e3094 ("io_uring: delay req queueing into compl-batch list")
-51d48dab62ed ("io_uring: add more likely/unlikely() annotations")
-7e3709d57651 ("io_uring: optimise kiocb layout")
-30d51dd4ad20 ("io_uring: clean up buffer select")
-fc0ae0244bbb ("io_uring: init opcode in io_init_req()")
-22b2ca310afc ("io_uring: extra a helper for drain init")
+df02452f3df0 ("cgroup: cgroup_get_from_id() must check the looked-up kn is a directory")
+be288169712f ("cgroup: reduce dependency on cgroup_mutex")
 
 thanks,
 
@@ -81,48 +64,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e775f93f2ab976a2cdb4a7b53063cbe890904f73 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Fri, 23 Sep 2022 13:44:56 -0600
-Subject: [PATCH] io_uring: ensure that cached task references are always put
- on exit
+From df02452f3df069a59bc9e69c84435bf115cb6e37 Mon Sep 17 00:00:00 2001
+From: Ming Lei <ming.lei@redhat.com>
+Date: Fri, 23 Sep 2022 19:51:19 +0800
+Subject: [PATCH] cgroup: cgroup_get_from_id() must check the looked-up kn is a
+ directory
 
-io_uring caches task references to avoid doing atomics for each of them
-per request. If a request is put from the same task that allocated it,
-then we can maintain a per-ctx cache of them. This obviously relies
-on io_uring always pruning caches in a reliable way, and there's
-currently a case off io_uring fd release where we can miss that.
+cgroup has to be one kernfs dir, otherwise kernel panic is caused,
+especially cgroup id is provide from userspace.
 
-One example is a ring setup with IOPOLL, which relies on the task
-polling for completions, which will free them. However, if such a task
-submits a request and then exits or closes the ring without reaping
-the completion, then ring release will reap and put. If release happens
-from that very same task, the completed request task refs will get
-put back into the cache pool. This is problematic, as we're now beyond
-the point of pruning caches.
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Fixes: 6b658c4863c1 ("scsi: cgroup: Add cgroup_get_from_id()")
+Cc: Muneendra <muneendra.kumar@broadcom.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Acked-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Cc: stable@vger.kernel.org # v5.14+
+Signed-off-by: Tejun Heo <tj@kernel.org>
 
-Manually drop these caches after doing an IOPOLL reap. This releases
-references from the current task, which is enough. If another task
-happens to be doing the release, then the caching will not be
-triggered and there's no issue.
-
-Cc: stable@vger.kernel.org
-Fixes: e98e49b2bbf7 ("io_uring: extend task put optimisations")
-Reported-by: Homin Rhee <hominlab@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index b9640ad5069f..2965b354efc8 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -2648,6 +2648,9 @@ static __cold void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 		io_kill_timeouts(ctx, NULL, true);
- 		/* if we failed setting up the ctx, we might not have any rings */
- 		io_iopoll_try_reap_events(ctx);
-+		/* drop cached put refs after potentially doing completions */
-+		if (current->io_uring)
-+			io_uring_drop_tctx_refs(current);
- 	}
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index e4bb5d57f4d1..5f2090d051ac 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -6049,6 +6049,9 @@ struct cgroup *cgroup_get_from_id(u64 id)
+ 	if (!kn)
+ 		goto out;
  
- 	INIT_WORK(&ctx->exit_work, io_ring_exit_work);
++	if (kernfs_type(kn) != KERNFS_DIR)
++		goto put;
++
+ 	rcu_read_lock();
+ 
+ 	cgrp = rcu_dereference(*(void __rcu __force **)&kn->priv);
+@@ -6056,7 +6059,7 @@ struct cgroup *cgroup_get_from_id(u64 id)
+ 		cgrp = NULL;
+ 
+ 	rcu_read_unlock();
+-
++put:
+ 	kernfs_put(kn);
+ out:
+ 	return cgrp;
 
