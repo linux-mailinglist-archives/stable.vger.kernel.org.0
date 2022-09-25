@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 376875E90D4
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 05:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 418915E90DA
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 05:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbiIYDSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Sep 2022 23:18:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57152 "EHLO
+        id S229800AbiIYDSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Sep 2022 23:18:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiIYDSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 23:18:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE0633F311;
-        Sat, 24 Sep 2022 20:18:02 -0700 (PDT)
+        with ESMTP id S229869AbiIYDSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Sep 2022 23:18:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB35140BC6;
+        Sat, 24 Sep 2022 20:18:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90797B80DEE;
-        Sun, 25 Sep 2022 03:18:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 128ABC433D6;
-        Sun, 25 Sep 2022 03:18:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57E2261207;
+        Sun, 25 Sep 2022 03:18:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94F4CC433C1;
+        Sun, 25 Sep 2022 03:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664075880;
-        bh=TBQWJYDnI1VFe2YiW1HW4vwlj64AKQWTH+Rj9lXyibA=;
+        s=k20201202; t=1664075912;
+        bh=uqFM7PfQgGUpSCX1f9hr1rQTeJyyd1xV/4US1em1+gI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M2MC3Ey+3sGSjmE0gLaGOzvyyatTuha1bsGhiEu/eTySFhB35mqQjaPiUrOrqQPtX
-         TKie3Txx9mm6ORKY8i4IVZ31ilVDj1lAOfXA1lGypq+V+Vf43MOswi4b7r2k8hDgFR
-         VteY//FBvH4fE1Q3z9Vmkkh9Cp3boY6wrQaH7TWMDWTIKH2UBxaEnR/vPQR8owF0WF
-         MwpPPxkXK0zQLFLbiiF3+P/Cxu6Rn1X7btoRkmbeifIN432x9R6xSHtUSy6dds3Ix5
-         TG1z9Z3Ut3OcBwVpZNJ2YmDYHUWroNYN8eJj+vrM30OU67dQGxdv9A7kj56S1T/JiU
-         ZrvoLgF5VnLoA==
-Date:   Sat, 24 Sep 2022 23:17:58 -0400
+        b=Up9RV47JuuhVNWam0DaJXzNnRgeRbt0EHpedkC90uc8zovkIwVUx6gGlKtUAYTJhl
+         4HJsunjkbZUvhbEf3yordBhoZM22Hn/P1TKeF1aL68CytVdz93Buq5KdkrukKyDblw
+         FChKjJAk2ise5S0KrFDRqBZUtE11C0VLOILP/lg95U5msfv7TvZSUMFqoziY+a8bF8
+         PL0WsJeoGeYP5KaS83ALx0qyNWqsVB5BcqwE4QZfILCJSlVU6zEvZBD90I9Q/MckOA
+         ojeMMVolZmLUKTvdF9WOBz+xM8ZqRDztj9Xip6anULfCi5VzGl+Ik5lSsMopgR78qF
+         b96YcyXGp4/kw==
+Date:   Sat, 24 Sep 2022 23:18:31 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     Marc Zyngier <maz@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        linusw@kernel.org, kaloz@openwrt.org, khalasa@piap.pl,
-        linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 2/5] gpio: ixp4xx: Make irqchip immutable
-Message-ID: <Yy/IZjq+zVoKpfJ/@sashalap>
-References: <20220921155436.235371-1-sashal@kernel.org>
- <20220921155436.235371-2-sashal@kernel.org>
- <fec2e2e2e74d680d5f9de6d68fb5fe18@kernel.org>
- <CAMRc=MexqLhu3ZWt1AbzBestswqmHNpct1LQiif0JGECTjHz4Q@mail.gmail.com>
+To:     Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc:     Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, kys@microsoft.com,
+        haiyangz@microsoft.com, sthemmin@microsoft.com,
+        decui@microsoft.com, linux-hyperv@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.19 01/16] Drivers: hv: Never allocate anything
+ besides framebuffer from framebuffer memory region
+Message-ID: <Yy/IhxtFBvq0VoKN@sashalap>
+References: <20220921155332.234913-1-sashal@kernel.org>
+ <87illgog69.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAMRc=MexqLhu3ZWt1AbzBestswqmHNpct1LQiif0JGECTjHz4Q@mail.gmail.com>
+In-Reply-To: <87illgog69.fsf@redhat.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -57,44 +57,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 21, 2022 at 10:04:27PM +0200, Bartosz Golaszewski wrote:
->On Wed, Sep 21, 2022 at 6:57 PM Marc Zyngier <maz@kernel.org> wrote:
+On Wed, Sep 21, 2022 at 06:17:34PM +0200, Vitaly Kuznetsov wrote:
+>Sasha Levin <sashal@kernel.org> writes:
+>
+>> From: Vitaly Kuznetsov <vkuznets@redhat.com>
 >>
->> On 2022-09-21 16:54, Sasha Levin wrote:
->> > From: Linus Walleij <linus.walleij@linaro.org>
->> >
->> > [ Upstream commit 94e9bc73d85aa6ecfe249e985ff57abe0ab35f34 ]
->> >
->> > This turns the IXP4xx GPIO irqchip into an immutable
->> > irqchip, a bit different from the standard template due
->> > to being hierarchical.
->> >
->> > Tested on the IXP4xx which uses drivers/ata/pata_ixp4xx_cf.c
->> > for a rootfs on compact flash with IRQs from this GPIO
->> > block to the CF ATA controller.
->> >
->> > Cc: Marc Zyngier <maz@kernel.org>
->> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
->> > Acked-by: Marc Zyngier <maz@kernel.org>
->> > Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
->> > Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> Why? The required dependencies are only in 5,19, and are
->> definitely NOT a stable candidate...
->>
->> This isn't a fix by any stretch of the imagination.
+>> [ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
 >>
 >
->Hi Marc,
+>(this comment applies to all stable branches)
 >
->While I didn't mark it for stable (and it shouldn't go into any branch
->earlier than 5.19.x), I did send the patches making the irqchips
->immutable to Linus Torvalds as fixes as they technically do *fix* the
->warning emitted by gpiolib and make the implementation correct.
+>While this change seems to be worthy on its own, the underlying issue
+>with Gen1 Hyper-V VMs won't be resolved without
 >
->I think these patches should still be part of the v5.19.x stable branch.
+>commit 2a8a8afba0c3053d0ea8686182f6b2104293037e
+>Author: Vitaly Kuznetsov <vkuznets@redhat.com>
+>Date:   Sat Aug 27 15:03:44 2022 +0200
+>
+>    Drivers: hv: Always reserve framebuffer region for Gen1 VMs
+>
+>as 'fb_mmio' is still going to be unset in some cases without it.
 
-Yes, and as far as I see we are taking those fixes too.
+Which seems to fail building. Backports welcome :)
 
 -- 
 Thanks,
