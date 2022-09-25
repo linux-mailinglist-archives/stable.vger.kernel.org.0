@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B24345E917C
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A60F5E917F
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229589AbiIYHjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Sep 2022 03:39:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32834 "EHLO
+        id S229743AbiIYHj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Sep 2022 03:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbiIYHi7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:38:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E40E3BC4E
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:38:59 -0700 (PDT)
+        with ESMTP id S229539AbiIYHjZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:39:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E463BC4E
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:39:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE68A61268
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE79C433C1;
-        Sun, 25 Sep 2022 07:38:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2A75B80E96
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:39:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF92C433C1;
+        Sun, 25 Sep 2022 07:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664091538;
-        bh=tiF1yZ1ezYAhn3+rAwHoUityZVP/iSRarWhkv3cwFqA=;
+        s=korg; t=1664091562;
+        bh=M+yXNU2NRScjqQAkEBJsZHuacTp+oPa5sAslSdz5bJs=;
         h=Subject:To:Cc:From:Date:From;
-        b=aeFCH9sgJSZ7FzhrODoftpLXGn7AjY9WpAZwbkr9zvd5iG42689jHbjs/my9ZOEGz
-         JjWukZDpSoQu+T51Z2nXWghBW1CrnxyuSCc2NphDSmrEiolGrGEkR11kO/5hF59nmn
-         ZxdHVx3B44++MLYGCZRRphEH8S+sMdwC0lHYDTu0=
-Subject: FAILED: patch "[PATCH] serial: sifive: enable clocks for UART when probed" failed to apply to 5.15-stable tree
+        b=lXXThEnQvDKAan+7PUmB4MdoBp15dcXf3E9wys5+irk9jBu0v9TvXVB7pnKL0SlOX
+         uiEM8ClN9gYlvquplnsUZID1W8q9HMuLCc4gW3iFyOU/kQEuKro/xPHepb0MtYDGb8
+         To+a0DEVyVwV9j7EXQofEwLWjn39b02R5u1UjO6I=
+Subject: FAILED: patch "[PATCH] serial: sifive: enable clocks for UART when probed" failed to apply to 5.19-stable tree
 To:     olof@lixom.net, emil.renner.berthing@canonical.com,
         gregkh@linuxfoundation.org, palmer@dabbelt.com,
         palmer@rivosinc.com, paul.walmsley@sifive.com, stable@kernel.org,
         u.kleine-koenig@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 25 Sep 2022 09:38:47 +0200
-Message-ID: <166409152714166@kroah.com>
+Date:   Sun, 25 Sep 2022 09:39:19 +0200
+Message-ID: <1664091559151151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
