@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 733935E9155
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 717285E9156
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbiIYHMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Sep 2022 03:12:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40180 "EHLO
+        id S229548AbiIYHMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Sep 2022 03:12:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbiIYHMu (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 25 Sep 2022 03:12:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B2C3885
-        for <Stable@vger.kernel.org>; Sun, 25 Sep 2022 00:12:49 -0700 (PDT)
+        with ESMTP id S229515AbiIYHMy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:12:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3FD1A3B6
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:12:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DFDF60F9C
-        for <Stable@vger.kernel.org>; Sun, 25 Sep 2022 07:12:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5B7C433C1;
-        Sun, 25 Sep 2022 07:12:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69872B80C03
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:12:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7018C433D6;
+        Sun, 25 Sep 2022 07:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664089968;
-        bh=nCrz9nM6dG++ysO4GKCk1NKwjt/kEppyftyle+XPziM=;
+        s=korg; t=1664089971;
+        bh=psPD3Vhn/1wjelDw9B0+1W+vpki0g8N3ptcZAnjgsU0=;
         h=Subject:To:From:Date:From;
-        b=xw4lrOA1jyoSZonC1GWm6jIwSUS8tvIULaU2BRm53mngo8Y3/4aTyx0ReC9+QUpkU
-         iiKrUV8SR6AZxs1KLfk0jd3AVWkOK9WYJCacehxr8zkXN7esywx3qk4/3wg0GF6cgl
-         AeUrhB+u1qvMJC6D6BofCsOWULuda6uFWJaje7Q8=
-Subject: patch "iio: adc: ad7923: fix channel readings for some variants" added to char-misc-testing
-To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=p33BannWEx/sK3/yxAM2M0w2Gif9hhF6dblSbOApNSe7Os3krDlw5xV3w8TGA6zsk
+         0smwXAc5qvm+rpxo/4OVfbfj8/6RNFFfhEWk60bMEV1GRGFjpIBZyXGdP+XdmnBEfT
+         H/41A2qacqDC5jZFffvxHj1GRMa4GW8sKiMtqPtg=
+Subject: patch "iio: pressure: dps310: Refactor startup procedure" added to char-misc-testing
+To:     eajames@linux.ibm.com, Jonathan.Cameron@huawei.com,
+        andy.shevchenko@gmail.com, joel@jms.id.au, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 25 Sep 2022 09:10:06 +0200
-Message-ID: <1664089806186232@kroah.com>
+Date:   Sun, 25 Sep 2022 09:10:07 +0200
+Message-ID: <1664089807160240@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: ad7923: fix channel readings for some variants
+    iio: pressure: dps310: Refactor startup procedure
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,51 +64,242 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From f4f43f01cff2f29779343ade755191afd2581c77 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
-Date: Mon, 12 Sep 2022 10:12:21 +0200
-Subject: iio: adc: ad7923: fix channel readings for some variants
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From c2329717bdd3fa62f8a2f3d8d85ad0bee4556bd7 Mon Sep 17 00:00:00 2001
+From: Eddie James <eajames@linux.ibm.com>
+Date: Thu, 15 Sep 2022 14:57:18 -0500
+Subject: iio: pressure: dps310: Refactor startup procedure
 
-Some of the supported devices have 4 or 2 LSB trailing bits that should
-not be taken into account. Hence we need to shift these bits out which
-fits perfectly on the scan type shift property. This change fixes both
-raw and buffered reads.
+Move the startup procedure into a function, and correct a missing
+check on the return code for writing the PRS_CFG register.
 
-Fixes: f2f7a449707e ("iio:adc:ad7923: Add support for the ad7904/ad7914/ad7924")
-Fixes: 851644a60d20 ("iio: adc: ad7923: Add support for the ad7908/ad7918/ad7928")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220912081223.173584-2-nuno.sa@analog.com
-Cc: <Stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220915195719.136812-2-eajames@linux.ibm.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/ad7923.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/pressure/dps310.c | 188 ++++++++++++++++++----------------
+ 1 file changed, 99 insertions(+), 89 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7923.c b/drivers/iio/adc/ad7923.c
-index edad1f30121d..502253f53d96 100644
---- a/drivers/iio/adc/ad7923.c
-+++ b/drivers/iio/adc/ad7923.c
-@@ -93,6 +93,7 @@ enum ad7923_id {
- 			.sign = 'u',					\
- 			.realbits = (bits),				\
- 			.storagebits = 16,				\
-+			.shift = 12 - (bits),				\
- 			.endianness = IIO_BE,				\
- 		},							\
- 	}
-@@ -268,7 +269,8 @@ static int ad7923_read_raw(struct iio_dev *indio_dev,
- 			return ret;
+diff --git a/drivers/iio/pressure/dps310.c b/drivers/iio/pressure/dps310.c
+index 36fb7ae0d0a9..c706a8b423b5 100644
+--- a/drivers/iio/pressure/dps310.c
++++ b/drivers/iio/pressure/dps310.c
+@@ -159,6 +159,102 @@ static int dps310_get_coefs(struct dps310_data *data)
+ 	return 0;
+ }
  
- 		if (chan->address == EXTRACT(ret, 12, 4))
--			*val = EXTRACT(ret, 0, 12);
-+			*val = EXTRACT(ret, chan->scan_type.shift,
-+				       chan->scan_type.realbits);
- 		else
- 			return -EIO;
++/*
++ * Some versions of the chip will read temperatures in the ~60C range when
++ * it's actually ~20C. This is the manufacturer recommended workaround
++ * to correct the issue. The registers used below are undocumented.
++ */
++static int dps310_temp_workaround(struct dps310_data *data)
++{
++	int rc;
++	int reg;
++
++	rc = regmap_read(data->regmap, 0x32, &reg);
++	if (rc)
++		return rc;
++
++	/*
++	 * If bit 1 is set then the device is okay, and the workaround does not
++	 * need to be applied
++	 */
++	if (reg & BIT(1))
++		return 0;
++
++	rc = regmap_write(data->regmap, 0x0e, 0xA5);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x0f, 0x96);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x62, 0x02);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x0e, 0x00);
++	if (rc)
++		return rc;
++
++	return regmap_write(data->regmap, 0x0f, 0x00);
++}
++
++static int dps310_startup(struct dps310_data *data)
++{
++	int rc;
++	int ready;
++
++	/*
++	 * Set up pressure sensor in single sample, one measurement per second
++	 * mode
++	 */
++	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
++	if (rc)
++		return rc;
++
++	/*
++	 * Set up external (MEMS) temperature sensor in single sample, one
++	 * measurement per second mode
++	 */
++	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
++	if (rc)
++		return rc;
++
++	/* Temp and pressure shifts are disabled when PRC <= 8 */
++	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
++			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
++	if (rc)
++		return rc;
++
++	/* MEAS_CFG doesn't update correctly unless first written with 0 */
++	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
++			       DPS310_MEAS_CTRL_BITS, 0);
++	if (rc)
++		return rc;
++
++	/* Turn on temperature and pressure measurement in the background */
++	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
++			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
++			       DPS310_TEMP_EN | DPS310_BACKGROUND);
++	if (rc)
++		return rc;
++
++	/*
++	 * Calibration coefficients required for reporting temperature.
++	 * They are available 40ms after the device has started
++	 */
++	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
++				      ready & DPS310_COEF_RDY, 10000, 40000);
++	if (rc)
++		return rc;
++
++	rc = dps310_get_coefs(data);
++	if (rc)
++		return rc;
++
++	return dps310_temp_workaround(data);
++}
++
+ static int dps310_get_pres_precision(struct dps310_data *data)
+ {
+ 	int rc;
+@@ -677,52 +773,12 @@ static const struct iio_info dps310_info = {
+ 	.write_raw = dps310_write_raw,
+ };
  
+-/*
+- * Some verions of chip will read temperatures in the ~60C range when
+- * its actually ~20C. This is the manufacturer recommended workaround
+- * to correct the issue. The registers used below are undocumented.
+- */
+-static int dps310_temp_workaround(struct dps310_data *data)
+-{
+-	int rc;
+-	int reg;
+-
+-	rc = regmap_read(data->regmap, 0x32, &reg);
+-	if (rc < 0)
+-		return rc;
+-
+-	/*
+-	 * If bit 1 is set then the device is okay, and the workaround does not
+-	 * need to be applied
+-	 */
+-	if (reg & BIT(1))
+-		return 0;
+-
+-	rc = regmap_write(data->regmap, 0x0e, 0xA5);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x0f, 0x96);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x62, 0x02);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x0e, 0x00);
+-	if (rc < 0)
+-		return rc;
+-
+-	return regmap_write(data->regmap, 0x0f, 0x00);
+-}
+-
+ static int dps310_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct dps310_data *data;
+ 	struct iio_dev *iio;
+-	int rc, ready;
++	int rc;
+ 
+ 	iio = devm_iio_device_alloc(&client->dev,  sizeof(*data));
+ 	if (!iio)
+@@ -747,54 +803,8 @@ static int dps310_probe(struct i2c_client *client,
+ 	if (rc)
+ 		return rc;
+ 
+-	/*
+-	 * Set up pressure sensor in single sample, one measurement per second
+-	 * mode
+-	 */
+-	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
+-
+-	/*
+-	 * Set up external (MEMS) temperature sensor in single sample, one
+-	 * measurement per second mode
+-	 */
+-	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* Temp and pressure shifts are disabled when PRC <= 8 */
+-	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
+-			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* MEAS_CFG doesn't update correctly unless first written with 0 */
+-	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
+-			       DPS310_MEAS_CTRL_BITS, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* Turn on temperature and pressure measurement in the background */
+-	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
+-			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
+-			       DPS310_TEMP_EN | DPS310_BACKGROUND);
+-	if (rc < 0)
+-		return rc;
+-
+-	/*
+-	 * Calibration coefficients required for reporting temperature.
+-	 * They are available 40ms after the device has started
+-	 */
+-	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
+-				      ready & DPS310_COEF_RDY, 10000, 40000);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = dps310_get_coefs(data);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = dps310_temp_workaround(data);
+-	if (rc < 0)
++	rc = dps310_startup(data);
++	if (rc)
+ 		return rc;
+ 
+ 	rc = devm_iio_device_register(&client->dev, iio);
 -- 
 2.37.3
 
