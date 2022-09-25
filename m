@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC7C5E9173
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E2D65E9174
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbiIYHfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Sep 2022 03:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
+        id S229829AbiIYHgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Sep 2022 03:36:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229763AbiIYHfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:35:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5F113DE6
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:35:43 -0700 (PDT)
+        with ESMTP id S229574AbiIYHgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:36:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11463BC4E
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:36:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B3F2B80E80
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:35:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71397C433D6;
-        Sun, 25 Sep 2022 07:35:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6AD2FB80D3E
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:36:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C21EDC433D6;
+        Sun, 25 Sep 2022 07:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664091341;
-        bh=H30ct3d2RSWkFKg0K+jG7vADeuQpz/f+7Kfd4N2PrCw=;
+        s=korg; t=1664091361;
+        bh=ndmIGJgnsDTjewdTFXPwI3dBy3b8dGtKx71PKcKCc1I=;
         h=Subject:To:Cc:From:Date:From;
-        b=S0PfteVws6vgTzOPAYWoEcG0uWPHVCUHbGUl9n7XKp8OiM1B7jGaFGQQuRXtq07qd
-         U4Sv6KqMGJ3hmBkUDerBkSd8KXyzVWP28hvSmCEMknyCtvZa8E3ZclSTuLcX8j0yBa
-         68e12BKnJo2tjUu7PmsoASjY02YVZr9BqNF0LnfY=
-Subject: FAILED: patch "[PATCH] cgroup: cgroup_get_from_id() must check the looked-up kn is a" failed to apply to 5.15-stable tree
-To:     ming.lei@redhat.com, mpatalan@redhat.com,
-        muneendra.kumar@broadcom.com, quic_mojha@quicinc.com, tj@kernel.org
+        b=ufSz0lNIJX63SIvi6+g1g/dVfUVPvkhV7XmOJPCCGPAi0xLolgynmkTI4PJ1t62i9
+         C/aaMJoj/4bkpLCmG8HKkXZ7RxrPoRRhDdJoBGcMcqBZvMf7qimEU0PwQVFO9mwqCj
+         qp7Joxo28fudqTfCsorbhZc8/X/AkhJjnIbebmT4=
+Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix skipped IRQ lines during events" failed to apply to 5.19-stable tree
+To:     william.gray@linaro.org, gregkh@linuxfoundation.org,
+        stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 25 Sep 2022 09:35:38 +0200
-Message-ID: <1664091338227131@kroah.com>
+Date:   Sun, 25 Sep 2022 09:35:58 +0200
+Message-ID: <16640913585139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +48,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-df02452f3df0 ("cgroup: cgroup_get_from_id() must check the looked-up kn is a directory")
-be288169712f ("cgroup: reduce dependency on cgroup_mutex")
+2bc54aaa65d2 ("counter: 104-quad-8: Fix skipped IRQ lines during events configuration")
+daae1ee572d1 ("counter: 104-quad-8: Implement and utilize register structures")
+b6e9cded90d4 ("counter: 104-quad-8: Utilize iomap interface")
 
 thanks,
 
@@ -64,44 +65,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From df02452f3df069a59bc9e69c84435bf115cb6e37 Mon Sep 17 00:00:00 2001
-From: Ming Lei <ming.lei@redhat.com>
-Date: Fri, 23 Sep 2022 19:51:19 +0800
-Subject: [PATCH] cgroup: cgroup_get_from_id() must check the looked-up kn is a
- directory
+From 2bc54aaa65d2126ae629919175708a28ce7ef06e Mon Sep 17 00:00:00 2001
+From: William Breathitt Gray <william.gray@linaro.org>
+Date: Thu, 22 Sep 2022 07:20:56 -0400
+Subject: [PATCH] counter: 104-quad-8: Fix skipped IRQ lines during events
+ configuration
 
-cgroup has to be one kernfs dir, otherwise kernel panic is caused,
-especially cgroup id is provide from userspace.
+IRQ trigger configuration is skipped if it has already been set before;
+however, the IRQ line still needs to be OR'd to irq_enabled because
+irq_enabled is reset for every events_configure call. This patch moves
+the irq_enabled OR operation update to before the irq_trigger check so
+that IRQ line enablement is not skipped.
 
-Reported-by: Marco Patalano <mpatalan@redhat.com>
-Fixes: 6b658c4863c1 ("scsi: cgroup: Add cgroup_get_from_id()")
-Cc: Muneendra <muneendra.kumar@broadcom.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Acked-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Cc: stable@vger.kernel.org # v5.14+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: c95cc0d95702 ("counter: 104-quad-8: Fix persistent enabled events bug")
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220815122301.2750-1-william.gray@linaro.org/
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+Link: https://lore.kernel.org/r/179eed11eaf225dbd908993b510df0c8f67b1230.1663844776.git.william.gray@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index e4bb5d57f4d1..5f2090d051ac 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -6049,6 +6049,9 @@ struct cgroup *cgroup_get_from_id(u64 id)
- 	if (!kn)
- 		goto out;
+diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
+index 62c2b7ac4339..4407203e0c9b 100644
+--- a/drivers/counter/104-quad-8.c
++++ b/drivers/counter/104-quad-8.c
+@@ -449,6 +449,9 @@ static int quad8_events_configure(struct counter_device *counter)
+ 			return -EINVAL;
+ 		}
  
-+	if (kernfs_type(kn) != KERNFS_DIR)
-+		goto put;
++		/* Enable IRQ line */
++		irq_enabled |= BIT(event_node->channel);
 +
- 	rcu_read_lock();
- 
- 	cgrp = rcu_dereference(*(void __rcu __force **)&kn->priv);
-@@ -6056,7 +6059,7 @@ struct cgroup *cgroup_get_from_id(u64 id)
- 		cgrp = NULL;
- 
- 	rcu_read_unlock();
+ 		/* Skip configuration if it is the same as previously set */
+ 		if (priv->irq_trigger[event_node->channel] == next_irq_trigger)
+ 			continue;
+@@ -462,9 +465,6 @@ static int quad8_events_configure(struct counter_device *counter)
+ 			  priv->irq_trigger[event_node->channel] << 3;
+ 		iowrite8(QUAD8_CTR_IOR | ior_cfg,
+ 			 &priv->reg->channel[event_node->channel].control);
 -
-+put:
- 	kernfs_put(kn);
- out:
- 	return cgrp;
+-		/* Enable IRQ line */
+-		irq_enabled |= BIT(event_node->channel);
+ 	}
+ 
+ 	iowrite8(irq_enabled, &priv->reg->index_interrupt);
 
