@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0A35E9157
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888EF5E9158
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbiIYHNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Sep 2022 03:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40244 "EHLO
+        id S229743AbiIYHOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Sep 2022 03:14:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiIYHNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:13:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E48E3885
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:13:00 -0700 (PDT)
+        with ESMTP id S229567AbiIYHOd (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 25 Sep 2022 03:14:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A5B2F63
+        for <Stable@vger.kernel.org>; Sun, 25 Sep 2022 00:14:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E151C60F9C
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:12:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBEDAC433C1;
-        Sun, 25 Sep 2022 07:12:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D55C5B80E09
+        for <Stable@vger.kernel.org>; Sun, 25 Sep 2022 07:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 327A0C433C1;
+        Sun, 25 Sep 2022 07:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664089979;
-        bh=YrUwE8NzXmnBplMkMhcTNt/6B9je1K21sPrsY4eF0LI=;
+        s=korg; t=1664090068;
+        bh=q3jC8Ei9bZGdPN9MHO+hL5sjp4n+8sjyba/zXoX5Q4k=;
         h=Subject:To:From:Date:From;
-        b=08kJJNQc++eo+gxmDeyGaWL5K96579gLT7YG218jccgEHpHWMRGBLAH7gKZmP8190
-         VjEftsWO3R03MWk0ul2at0fCrM/PnICzORyr70Jz/ztWzmKwULXGNFBaFDtjp9C1o0
-         CpPUxPYBEXUpRi8oMx8BlNLU0xK3oZCyls/Skhqo=
-Subject: patch "iio: pressure: dps310: Reset chip after timeout" added to char-misc-testing
-To:     eajames@linux.ibm.com, Jonathan.Cameron@huawei.com,
-        andy.shevchenko@gmail.com, stable@vger.kernel.org
+        b=oq73eZIThEe9jd17Ba/HsqQrZgfGMahxZDCPHdMjsWamODO/zQHUFrU9Trh9D/NaD
+         niK/uacsSD/XhMBCJTOPT/Mm6Qp0FtVwokRBwii9nFLwHbTIVfLq8hexy8iPIfMITe
+         vGC4zGYnLKZC+mJmyi/3JPGKQELQ2NYl+LAp+qqo=
+Subject: patch "iio: dac: ad5593r: Fix i2c read protocol requirements" added to char-misc-next
+To:     michael.hennerich@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, nuno.sa@analog.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 25 Sep 2022 09:10:08 +0200
-Message-ID: <166408980823569@kroah.com>
+Date:   Sun, 25 Sep 2022 09:10:47 +0200
+Message-ID: <166408984710158@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,166 +49,131 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: pressure: dps310: Reset chip after timeout
+    iio: dac: ad5593r: Fix i2c read protocol requirements
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+in the char-misc-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
 If you have any questions about this process, please let me know.
 
 
-From 7b4ab4abcea4c0c10b25187bf2569e5a07e9a20c Mon Sep 17 00:00:00 2001
-From: Eddie James <eajames@linux.ibm.com>
-Date: Thu, 15 Sep 2022 14:57:19 -0500
-Subject: iio: pressure: dps310: Reset chip after timeout
+From 558a25f903b4af6361b7fbeea08a6446a0745653 Mon Sep 17 00:00:00 2001
+From: Michael Hennerich <michael.hennerich@analog.com>
+Date: Tue, 13 Sep 2022 09:34:12 +0200
+Subject: iio: dac: ad5593r: Fix i2c read protocol requirements
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-The DPS310 chip has been observed to get "stuck" such that pressure
-and temperature measurements are never indicated as "ready" in the
-MEAS_CFG register. The only solution is to reset the device and try
-again. In order to avoid continual failures, use a boolean flag to
-only try the reset after timeout once if errors persist.
+For reliable operation across the full range of supported
+interface rates, the AD5593R needs a STOP condition between
+address write, and data read (like show in the datasheet Figure 40)
+so in turn i2c_smbus_read_word_swapped cannot be used.
 
-Fixes: ba6ec48e76bc ("iio: Add driver for Infineon DPS310")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220915195719.136812-3-eajames@linux.ibm.com
+While at it, a simple helper was added to make the code simpler.
+
+Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/pressure/dps310.c | 74 ++++++++++++++++++++++++++++++-----
- 1 file changed, 64 insertions(+), 10 deletions(-)
+ drivers/iio/dac/ad5593r.c | 46 +++++++++++++++++++++++----------------
+ 1 file changed, 27 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/iio/pressure/dps310.c b/drivers/iio/pressure/dps310.c
-index c706a8b423b5..984a3f511a1a 100644
---- a/drivers/iio/pressure/dps310.c
-+++ b/drivers/iio/pressure/dps310.c
-@@ -89,6 +89,7 @@ struct dps310_data {
- 	s32 c00, c10, c20, c30, c01, c11, c21;
- 	s32 pressure_raw;
- 	s32 temp_raw;
-+	bool timeout_recovery_failed;
- };
+diff --git a/drivers/iio/dac/ad5593r.c b/drivers/iio/dac/ad5593r.c
+index 34e1319a9712..356dc0bab115 100644
+--- a/drivers/iio/dac/ad5593r.c
++++ b/drivers/iio/dac/ad5593r.c
+@@ -13,6 +13,8 @@
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
  
- static const struct iio_chan_spec dps310_channels[] = {
-@@ -393,11 +394,69 @@ static int dps310_get_temp_k(struct dps310_data *data)
- 	return scale_factors[ilog2(rc)];
- }
++#include <asm/unaligned.h>
++
+ #define AD5593R_MODE_CONF		(0 << 4)
+ #define AD5593R_MODE_DAC_WRITE		(1 << 4)
+ #define AD5593R_MODE_ADC_READBACK	(4 << 4)
+@@ -20,6 +22,24 @@
+ #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
+ #define AD5593R_MODE_REG_READBACK	(7 << 4)
  
-+static int dps310_reset_wait(struct dps310_data *data)
++static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
 +{
-+	int rc;
++	int ret;
++	u8 buf[2];
 +
-+	rc = regmap_write(data->regmap, DPS310_RESET, DPS310_RESET_MAGIC);
-+	if (rc)
-+		return rc;
++	ret = i2c_smbus_write_byte(i2c, reg);
++	if (ret < 0)
++		return ret;
 +
-+	/* Wait for device chip access: 2.5ms in specification */
-+	usleep_range(2500, 12000);
++	ret = i2c_master_recv(i2c, buf, sizeof(buf));
++	if (ret < 0)
++		return ret;
++
++	*value = get_unaligned_be16(buf);
++
 +	return 0;
 +}
 +
-+static int dps310_reset_reinit(struct dps310_data *data)
-+{
-+	int rc;
-+
-+	rc = dps310_reset_wait(data);
-+	if (rc)
-+		return rc;
-+
-+	return dps310_startup(data);
-+}
-+
-+static int dps310_ready_status(struct dps310_data *data, int ready_bit, int timeout)
-+{
-+	int sleep = DPS310_POLL_SLEEP_US(timeout);
-+	int ready;
-+
-+	return regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready, ready & ready_bit,
-+					sleep, timeout);
-+}
-+
-+static int dps310_ready(struct dps310_data *data, int ready_bit, int timeout)
-+{
-+	int rc;
-+
-+	rc = dps310_ready_status(data, ready_bit, timeout);
-+	if (rc) {
-+		if (rc == -ETIMEDOUT && !data->timeout_recovery_failed) {
-+			/* Reset and reinitialize the chip. */
-+			if (dps310_reset_reinit(data)) {
-+				data->timeout_recovery_failed = true;
-+			} else {
-+				/* Try again to get sensor ready status. */
-+				if (dps310_ready_status(data, ready_bit, timeout))
-+					data->timeout_recovery_failed = true;
-+				else
-+					return 0;
-+			}
-+		}
-+
-+		return rc;
-+	}
-+
-+	data->timeout_recovery_failed = false;
-+	return 0;
-+}
-+
- static int dps310_read_pres_raw(struct dps310_data *data)
+ static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
  {
- 	int rc;
- 	int rate;
--	int ready;
- 	int timeout;
- 	s32 raw;
- 	u8 val[3];
-@@ -409,9 +468,7 @@ static int dps310_read_pres_raw(struct dps310_data *data)
- 	timeout = DPS310_POLL_TIMEOUT_US(rate);
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+@@ -38,13 +58,7 @@ static int ad5593r_read_adc(struct ad5592r_state *st, unsigned chan, u16 *value)
+ 	if (val < 0)
+ 		return (int) val;
  
- 	/* Poll for sensor readiness; base the timeout upon the sample rate. */
--	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
--				      ready & DPS310_PRS_RDY,
--				      DPS310_POLL_SLEEP_US(timeout), timeout);
-+	rc = dps310_ready(data, DPS310_PRS_RDY, timeout);
- 	if (rc)
- 		goto done;
- 
-@@ -448,7 +505,6 @@ static int dps310_read_temp_raw(struct dps310_data *data)
- {
- 	int rc;
- 	int rate;
--	int ready;
- 	int timeout;
- 
- 	if (mutex_lock_interruptible(&data->lock))
-@@ -458,10 +514,8 @@ static int dps310_read_temp_raw(struct dps310_data *data)
- 	timeout = DPS310_POLL_TIMEOUT_US(rate);
- 
- 	/* Poll for sensor readiness; base the timeout upon the sample rate. */
--	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
--				      ready & DPS310_TMP_RDY,
--				      DPS310_POLL_SLEEP_US(timeout), timeout);
--	if (rc < 0)
-+	rc = dps310_ready(data, DPS310_TMP_RDY, timeout);
-+	if (rc)
- 		goto done;
- 
- 	rc = dps310_read_temp_ready(data);
-@@ -756,7 +810,7 @@ static void dps310_reset(void *action_data)
- {
- 	struct dps310_data *data = action_data;
- 
--	regmap_write(data->regmap, DPS310_RESET, DPS310_RESET_MAGIC);
-+	dps310_reset_wait(data);
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
+-	if (val < 0)
+-		return (int) val;
+-
+-	*value = (u16) val;
+-
+-	return 0;
++	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
  }
  
- static const struct regmap_config dps310_regmap_config = {
+ static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
+@@ -58,25 +72,19 @@ static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
+ static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+-	s32 val;
+-
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
+-	if (val < 0)
+-		return (int) val;
+ 
+-	*value = (u16) val;
+-
+-	return 0;
++	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
+ }
+ 
+ static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+-	s32 val;
++	u16 val;
++	int ret;
+ 
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
+-	if (val < 0)
+-		return (int) val;
++	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
++	if (ret)
++		return ret;
+ 
+ 	*value = (u8) val;
+ 
 -- 
 2.37.3
 
