@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2D65E9174
-	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4D95E9179
+	for <lists+stable@lfdr.de>; Sun, 25 Sep 2022 09:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbiIYHgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Sep 2022 03:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
+        id S230056AbiIYHix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Sep 2022 03:38:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbiIYHgE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:36:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11463BC4E
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:36:03 -0700 (PDT)
+        with ESMTP id S229589AbiIYHiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Sep 2022 03:38:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1ED93BC4E
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 00:38:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AD2FB80D3E
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:36:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C21EDC433D6;
-        Sun, 25 Sep 2022 07:36:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E04CB80B86
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 07:38:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A14BC433D6;
+        Sun, 25 Sep 2022 07:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664091361;
-        bh=ndmIGJgnsDTjewdTFXPwI3dBy3b8dGtKx71PKcKCc1I=;
+        s=korg; t=1664091529;
+        bh=rb1dXoVB86dxO6kV7ss0L21MErITWja8AKONfjPl+U8=;
         h=Subject:To:Cc:From:Date:From;
-        b=ufSz0lNIJX63SIvi6+g1g/dVfUVPvkhV7XmOJPCCGPAi0xLolgynmkTI4PJ1t62i9
-         C/aaMJoj/4bkpLCmG8HKkXZ7RxrPoRRhDdJoBGcMcqBZvMf7qimEU0PwQVFO9mwqCj
-         qp7Joxo28fudqTfCsorbhZc8/X/AkhJjnIbebmT4=
-Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix skipped IRQ lines during events" failed to apply to 5.19-stable tree
-To:     william.gray@linaro.org, gregkh@linuxfoundation.org,
-        stable@kernel.org
+        b=vXFnY/taMfHTyjhYcDpXueXKnETySS2h+dRKrHVkcT4EEW2ahfaefC+/u0KfYti8N
+         DXVEliCQiRV9hDKr4SfFinpBz+nC/cU7B/mMXmBOzmu3x5b3ZPRdgiYZaQEOzmtiEL
+         +oPw5VIiWGsD+23daHHaf9EKEW/1ErCdMMzwMC+g=
+Subject: FAILED: patch "[PATCH] serial: sifive: enable clocks for UART when probed" failed to apply to 5.10-stable tree
+To:     olof@lixom.net, emil.renner.berthing@canonical.com,
+        gregkh@linuxfoundation.org, palmer@dabbelt.com,
+        palmer@rivosinc.com, paul.walmsley@sifive.com, stable@kernel.org,
+        u.kleine-koenig@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 25 Sep 2022 09:35:58 +0200
-Message-ID: <16640913585139@kroah.com>
+Date:   Sun, 25 Sep 2022 09:38:46 +0200
+Message-ID: <16640915266294@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,16 +50,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-2bc54aaa65d2 ("counter: 104-quad-8: Fix skipped IRQ lines during events configuration")
-daae1ee572d1 ("counter: 104-quad-8: Implement and utilize register structures")
-b6e9cded90d4 ("counter: 104-quad-8: Utilize iomap interface")
+643792048ee8 ("serial: sifive: enable clocks for UART when probed")
 
 thanks,
 
@@ -65,47 +65,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2bc54aaa65d2126ae629919175708a28ce7ef06e Mon Sep 17 00:00:00 2001
-From: William Breathitt Gray <william.gray@linaro.org>
-Date: Thu, 22 Sep 2022 07:20:56 -0400
-Subject: [PATCH] counter: 104-quad-8: Fix skipped IRQ lines during events
- configuration
+From 643792048ee84b199052e9c8f89253649ca78922 Mon Sep 17 00:00:00 2001
+From: Olof Johansson <olof@lixom.net>
+Date: Tue, 20 Sep 2022 09:00:18 -0700
+Subject: [PATCH] serial: sifive: enable clocks for UART when probed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-IRQ trigger configuration is skipped if it has already been set before;
-however, the IRQ line still needs to be OR'd to irq_enabled because
-irq_enabled is reset for every events_configure call. This patch moves
-the irq_enabled OR operation update to before the irq_trigger check so
-that IRQ line enablement is not skipped.
+When the PWM driver was changed to disable clocks if no PWMs are enabled,
+it ended up also disabling the shared parent with the UART, since the
+UART doesn't do any clock enablement on its own.
 
-Fixes: c95cc0d95702 ("counter: 104-quad-8: Fix persistent enabled events bug")
+To avoid these surprises, switch to clk_get_enabled().
+
+Fixes: ace41d7564e655 ("pwm: sifive: Ensure the clk is enabled exactly once per running PWM")
 Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220815122301.2750-1-william.gray@linaro.org/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-Link: https://lore.kernel.org/r/179eed11eaf225dbd908993b510df0c8f67b1230.1663844776.git.william.gray@linaro.org
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Link: https://lore.kernel.org/r/20220920160017.7315-1-olof@lixom.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 62c2b7ac4339..4407203e0c9b 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -449,6 +449,9 @@ static int quad8_events_configure(struct counter_device *counter)
- 			return -EINVAL;
- 		}
- 
-+		/* Enable IRQ line */
-+		irq_enabled |= BIT(event_node->channel);
-+
- 		/* Skip configuration if it is the same as previously set */
- 		if (priv->irq_trigger[event_node->channel] == next_irq_trigger)
- 			continue;
-@@ -462,9 +465,6 @@ static int quad8_events_configure(struct counter_device *counter)
- 			  priv->irq_trigger[event_node->channel] << 3;
- 		iowrite8(QUAD8_CTR_IOR | ior_cfg,
- 			 &priv->reg->channel[event_node->channel].control);
--
--		/* Enable IRQ line */
--		irq_enabled |= BIT(event_node->channel);
+diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
+index 5c3a07546a58..4b1d4fe8458e 100644
+--- a/drivers/tty/serial/sifive.c
++++ b/drivers/tty/serial/sifive.c
+@@ -945,7 +945,7 @@ static int sifive_serial_probe(struct platform_device *pdev)
+ 		return PTR_ERR(base);
  	}
  
- 	iowrite8(irq_enabled, &priv->reg->index_interrupt);
+-	clk = devm_clk_get(&pdev->dev, NULL);
++	clk = devm_clk_get_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR(clk)) {
+ 		dev_err(&pdev->dev, "unable to find controller clock\n");
+ 		return PTR_ERR(clk);
 
