@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CECBE5EA33D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CFB45EA507
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235467AbiIZLWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45470 "EHLO
+        id S238800AbiIZL42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237739AbiIZLUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:20:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4699352FFD;
-        Mon, 26 Sep 2022 03:39:10 -0700 (PDT)
+        with ESMTP id S239230AbiIZLyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AB91580B9;
+        Mon, 26 Sep 2022 03:50:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EA8BB80883;
-        Mon, 26 Sep 2022 10:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DE3DC433D7;
-        Mon, 26 Sep 2022 10:32:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46E9360A4D;
+        Mon, 26 Sep 2022 10:50:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F1CC433C1;
+        Mon, 26 Sep 2022 10:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188376;
-        bh=0BEwOcdvfMkUKYaNeHKKXFlAaEzB4sCcBK6PLkpw9YY=;
+        s=korg; t=1664189427;
+        bh=n/jQe5Kdc5RRzX8YMydVC81lOY8DOiPwkvEUwB32+O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYTQt1ST3CQSJUo6QMUXA+P4GdGeXPL/uEPmTcTPzNsB4qFU6dk0QAXR2+PaUZU9R
-         ZMLMHlhvkITGzuxKB98OxATGyM+YvoSSldZyVCd6rMnlpcMDPbLD7bp31XTdyt8vIi
-         Ro/iCkHcEYxee8Q6udtuOHUPyonVKL1HW25Ex9CI=
+        b=Kfob+XuBY3WNO0epn8TcFkas86m3awDJYrdemIcVHgrEo0KbB6xKXkmcLnQlx+Qbl
+         EN9dlK5BYTeKeeCCBE5CFJZlKCeDYTKUuJssml4LdHRbydvAOzupVhj/wVBKNrtlJj
+         UPm8l1PSLUrHz7571YwBCfzWnyZRttDRpdeL+fMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Yao Wang1 <Yao.Wang1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/141] drm/amd/display: Limit user regamma to a valid value
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Mika Kahola <mika.kahola@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
+Subject: [PATCH 5.19 167/207] drm/i915/display: Fix handling of enable_psr parameter
 Date:   Mon, 26 Sep 2022 12:12:36 +0200
-Message-Id: <20220926100759.156412703@linuxfoundation.org>
+Message-Id: <20220926100814.131449678@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,55 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yao Wang1 <Yao.Wang1@amd.com>
+From: José Roberto de Souza <jose.souza@intel.com>
 
-[ Upstream commit 3601d620f22e37740cf73f8278eabf9f2aa19eb7 ]
+commit 5c57c099f442acab13129c9e15ad2a0c31151c98 upstream.
 
-[Why]
-For HDR mode, we get total 512 tf_point and after switching to SDR mode
-we actually get 400 tf_point and the rest of points(401~512) still use
-dirty value from HDR mode. We should limit the rest of the points to max
-value.
+Commit 3cf050762534 ("drm/i915/bios: Split VBT data into per-panel vs.
+global parts") cause PSR to be disabled when enable_psr has the
+default value and there is at least one DP port that do not supports
+PSR.
 
-[How]
-Limit the value when coordinates_x.x > 1, just like what we do in
-translate_from_linear_space for other re-gamma build paths.
+That was happening because intel_psr_init() is called for every DP
+port and then enable_psr is globaly set to 0 based on the PSR support
+of the DP port.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Signed-off-by: Yao Wang1 <Yao.Wang1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Here dropping the enable_psr overwritten and using the VBT PSR value
+when enable_psr is set as default.
+
+Fixes: 3cf050762534 ("drm/i915/bios: Split VBT data into per-panel vs. global parts")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Cc: Mika Kahola <mika.kahola@intel.com>
+Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Jouni Högander <jouni.hogander@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220608203344.513082-1-jose.souza@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/display/intel_psr.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-index 09bc2c249e1a..3c4390d71a82 100644
---- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-+++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-@@ -1524,6 +1524,7 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
- 	struct fixed31_32 lut2;
- 	struct fixed31_32 delta_lut;
- 	struct fixed31_32 delta_index;
-+	const struct fixed31_32 one = dc_fixpt_from_int(1);
+--- a/drivers/gpu/drm/i915/display/intel_psr.c
++++ b/drivers/gpu/drm/i915/display/intel_psr.c
+@@ -86,10 +86,13 @@
  
- 	i = 0;
- 	/* fixed_pt library has problems handling too small values */
-@@ -1552,6 +1553,9 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
- 			} else
- 				hw_x = coordinates_x[i].x;
+ static bool psr_global_enabled(struct intel_dp *intel_dp)
+ {
++	struct intel_connector *connector = intel_dp->attached_connector;
+ 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
  
-+			if (dc_fixpt_le(one, hw_x))
-+				hw_x = one;
-+
- 			norm_x = dc_fixpt_mul(norm_factor, hw_x);
- 			index = dc_fixpt_floor(norm_x);
- 			if (index < 0 || index > 255)
--- 
-2.35.1
-
+ 	switch (intel_dp->psr.debug & I915_PSR_DEBUG_MODE_MASK) {
+ 	case I915_PSR_DEBUG_DEFAULT:
++		if (i915->params.enable_psr == -1)
++			return connector->panel.vbt.psr.enable;
+ 		return i915->params.enable_psr;
+ 	case I915_PSR_DEBUG_DISABLE:
+ 		return false;
+@@ -2371,10 +2374,6 @@ void intel_psr_init(struct intel_dp *int
+ 
+ 	intel_dp->psr.source_support = true;
+ 
+-	if (dev_priv->params.enable_psr == -1)
+-		if (!connector->panel.vbt.psr.enable)
+-			dev_priv->params.enable_psr = 0;
+-
+ 	/* Set link_standby x link_off defaults */
+ 	if (DISPLAY_VER(dev_priv) < 12)
+ 		/* For new platforms up to TGL let's respect VBT back again */
 
 
