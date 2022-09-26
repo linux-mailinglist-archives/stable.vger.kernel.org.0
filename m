@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B8C5EA4B5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6724B5EA161
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238372AbiIZLui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:50:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56936 "EHLO
+        id S236538AbiIZKuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:50:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239089AbiIZLtT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:19 -0400
+        with ESMTP id S236718AbiIZKtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28D37539E;
-        Mon, 26 Sep 2022 03:48:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB78B578A6;
+        Mon, 26 Sep 2022 03:26:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C74DD60AD6;
-        Mon, 26 Sep 2022 10:39:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA039C433C1;
-        Mon, 26 Sep 2022 10:39:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7F7E60BB7;
+        Mon, 26 Sep 2022 10:26:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF265C433C1;
+        Mon, 26 Sep 2022 10:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188747;
-        bh=3BvDZ6ejrWOywt6uTeACcA1u6Kx705dRV1/o7/aPg+Q=;
+        s=korg; t=1664187985;
+        bh=H0SdEeYLyQXDWiSwzuzXc82ditkqGWMKaJHVWZn2SwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5M5I5WvyHLZP+gqHCS73Din/kv60ZJlhk608ZSC4fLooCcCkFJkCvI2z8L4sVqwq
-         RIRZ0VDYuXH1HXfqDbTW9Wkcz+RJeTf5kWhW8pCs7fpnkNeQnrRkuO/MPROG7qdWcY
-         pHVKyxXCOG52fqmIG5EVhS0bh2eXcj6YcMFko5co=
+        b=EJOT3COHQ7HuSCq3NdVc90ad8mYaNlD+ouBhDXKmnSSoKXphU57DKbwaxMcDEFJl1
+         zI4JRh5zZY6OfIWNfRTLz+K8dputdVog2Wp16VrHVxQcPEreHEGX0U2zEVO/p08UbB
+         4TxVwk9vk6MLJBM/GtjXkmP+I6lQgqhHvrEt4G8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Dao <dqminh@cloudflare.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/148] perf kcore_copy: Do not check /proc/modules is unchanged
+        stable@vger.kernel.org, kaixuxia <kaixuxia@tencent.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 109/120] xfs: Fix deadlock between AGI and AGF when target_ip exists in xfs_rename()
 Date:   Mon, 26 Sep 2022 12:12:22 +0200
-Message-Id: <20220926100800.166496927@linuxfoundation.org>
+Message-Id: <20220926100754.935141422@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: kaixuxia <xiakaixu1987@gmail.com>
 
-[ Upstream commit 5b427df27b94aec1312cace48a746782a0925c53 ]
+commit 93597ae8dac0149b5c00b787cba6bf7ba213e666 upstream.
 
-/proc/kallsyms and /proc/modules are compared before and after the copy
-in order to ensure no changes during the copy.
+When target_ip exists in xfs_rename(), the xfs_dir_replace() call may
+need to hold the AGF lock to allocate more blocks, and then invoking
+the xfs_droplink() call to hold AGI lock to drop target_ip onto the
+unlinked list, so we get the lock order AGF->AGI. This would break the
+ordering constraint on AGI and AGF locking - inode allocation locks
+the AGI, then can allocate a new extent for new inodes, locking the
+AGF after the AGI.
 
-However /proc/modules also might change due to reference counts changing
-even though that does not make any difference.
+In this patch we check whether the replace operation need more
+blocks firstly. If so, acquire the agi lock firstly to preserve
+locking order(AGI/AGF). Actually, the locking order problem only
+occurs when we are locking the AGI/AGF of the same AG. For multiple
+AGs the AGI lock will be released after the transaction committed.
 
-Any modules loaded or unloaded should be visible in changes to kallsyms,
-so it is not necessary to check /proc/modules also anyway.
-
-Remove the comparison checking that /proc/modules is unchanged.
-
-Fixes: fc1b691d7651d949 ("perf buildid-cache: Add ability to add kcore to the cache")
-Reported-by: Daniel Dao <dqminh@cloudflare.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Daniel Dao <dqminh@cloudflare.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20220914122429.8770-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: kaixuxia <kaixuxia@tencent.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: reword the comment]
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/symbol-elf.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ fs/xfs/libxfs/xfs_dir2.h    |    2 ++
+ fs/xfs/libxfs/xfs_dir2_sf.c |   28 +++++++++++++++++++++++-----
+ fs/xfs/xfs_inode.c          |   17 +++++++++++++++++
+ 3 files changed, 42 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index cb7b24493782..6c183df191aa 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -2091,8 +2091,8 @@ static int kcore_copy__compare_file(const char *from_dir, const char *to_dir,
-  * unusual.  One significant peculiarity is that the mapping (start -> pgoff)
-  * is not the same for the kernel map and the modules map.  That happens because
-  * the data is copied adjacently whereas the original kcore has gaps.  Finally,
-- * kallsyms and modules files are compared with their copies to check that
-- * modules have not been loaded or unloaded while the copies were taking place.
-+ * kallsyms file is compared with its copy to check that modules have not been
-+ * loaded or unloaded while the copies were taking place.
-  *
-  * Return: %0 on success, %-1 on failure.
+--- a/fs/xfs/libxfs/xfs_dir2.h
++++ b/fs/xfs/libxfs/xfs_dir2.h
+@@ -124,6 +124,8 @@ extern int xfs_dir_lookup(struct xfs_tra
+ extern int xfs_dir_removename(struct xfs_trans *tp, struct xfs_inode *dp,
+ 				struct xfs_name *name, xfs_ino_t ino,
+ 				xfs_extlen_t tot);
++extern bool xfs_dir2_sf_replace_needblock(struct xfs_inode *dp,
++				xfs_ino_t inum);
+ extern int xfs_dir_replace(struct xfs_trans *tp, struct xfs_inode *dp,
+ 				struct xfs_name *name, xfs_ino_t inum,
+ 				xfs_extlen_t tot);
+--- a/fs/xfs/libxfs/xfs_dir2_sf.c
++++ b/fs/xfs/libxfs/xfs_dir2_sf.c
+@@ -945,6 +945,27 @@ xfs_dir2_sf_removename(
+ }
+ 
+ /*
++ * Check whether the sf dir replace operation need more blocks.
++ */
++bool
++xfs_dir2_sf_replace_needblock(
++	struct xfs_inode	*dp,
++	xfs_ino_t		inum)
++{
++	int			newsize;
++	struct xfs_dir2_sf_hdr	*sfp;
++
++	if (dp->i_d.di_format != XFS_DINODE_FMT_LOCAL)
++		return false;
++
++	sfp = (struct xfs_dir2_sf_hdr *)dp->i_df.if_u1.if_data;
++	newsize = dp->i_df.if_bytes + (sfp->count + 1) * XFS_INO64_DIFF;
++
++	return inum > XFS_DIR2_MAX_SHORT_INUM &&
++	       sfp->i8count == 0 && newsize > XFS_IFORK_DSIZE(dp);
++}
++
++/*
+  * Replace the inode number of an entry in a shortform directory.
   */
-@@ -2155,9 +2155,6 @@ int kcore_copy(const char *from_dir, const char *to_dir)
- 			goto out_extract_close;
- 	}
+ int						/* error */
+@@ -980,17 +1001,14 @@ xfs_dir2_sf_replace(
+ 	 */
+ 	if (args->inumber > XFS_DIR2_MAX_SHORT_INUM && sfp->i8count == 0) {
+ 		int	error;			/* error return value */
+-		int	newsize;		/* new inode size */
  
--	if (kcore_copy__compare_file(from_dir, to_dir, "modules"))
--		goto out_extract_close;
--
- 	if (kcore_copy__compare_file(from_dir, to_dir, "kallsyms"))
- 		goto out_extract_close;
- 
--- 
-2.35.1
-
+-		newsize = dp->i_df.if_bytes + (sfp->count + 1) * XFS_INO64_DIFF;
+ 		/*
+ 		 * Won't fit as shortform, convert to block then do replace.
+ 		 */
+-		if (newsize > XFS_IFORK_DSIZE(dp)) {
++		if (xfs_dir2_sf_replace_needblock(dp, args->inumber)) {
+ 			error = xfs_dir2_sf_to_block(args);
+-			if (error) {
++			if (error)
+ 				return error;
+-			}
+ 			return xfs_dir2_block_replace(args);
+ 		}
+ 		/*
+--- a/fs/xfs/xfs_inode.c
++++ b/fs/xfs/xfs_inode.c
+@@ -3215,6 +3215,7 @@ xfs_rename(
+ 	struct xfs_trans	*tp;
+ 	struct xfs_inode	*wip = NULL;		/* whiteout inode */
+ 	struct xfs_inode	*inodes[__XFS_SORT_INODES];
++	struct xfs_buf		*agibp;
+ 	int			num_inodes = __XFS_SORT_INODES;
+ 	bool			new_parent = (src_dp != target_dp);
+ 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
+@@ -3379,6 +3380,22 @@ xfs_rename(
+ 		 * In case there is already an entry with the same
+ 		 * name at the destination directory, remove it first.
+ 		 */
++
++		/*
++		 * Check whether the replace operation will need to allocate
++		 * blocks.  This happens when the shortform directory lacks
++		 * space and we have to convert it to a block format directory.
++		 * When more blocks are necessary, we must lock the AGI first
++		 * to preserve locking order (AGI -> AGF).
++		 */
++		if (xfs_dir2_sf_replace_needblock(target_dp, src_ip->i_ino)) {
++			error = xfs_read_agi(mp, tp,
++					XFS_INO_TO_AGNO(mp, target_ip->i_ino),
++					&agibp);
++			if (error)
++				goto out_trans_cancel;
++		}
++
+ 		error = xfs_dir_replace(tp, target_dp, target_name,
+ 					src_ip->i_ino, spaceres);
+ 		if (error)
 
 
