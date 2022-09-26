@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4ABD5EA1FA
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B9D5EA006
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237025AbiIZLAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53798 "EHLO
+        id S235819AbiIZKce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:32:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237286AbiIZK7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25BE55C972;
-        Mon, 26 Sep 2022 03:30:56 -0700 (PDT)
+        with ESMTP id S235773AbiIZKag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:30:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E364ADF61;
+        Mon, 26 Sep 2022 03:19:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABEEAB80930;
-        Mon, 26 Sep 2022 10:29:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD6BC433C1;
-        Mon, 26 Sep 2022 10:29:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7C2E60C07;
+        Mon, 26 Sep 2022 10:19:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B987FC43146;
+        Mon, 26 Sep 2022 10:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188177;
-        bh=8yjxeJaLsFyddxEoLe4GbCUknf9u3Le+pjnTTNM+Hg4=;
+        s=korg; t=1664187587;
+        bh=R5Bn477bVVRPSmJmF1aosESqHyeq1GQzzLkUmsLNKRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMO1+3PF1obb5s/6k4Gq3hV2wyMCNmZw24+UjdB4RnZ7bFLtLfS7vGzl6/2pimRYz
-         twRqQAjuuB5FnBWYaSQQttLBgRhrCIiZ4NbEnd/+h+8icidPl7PwxN30dAa6BSxMpX
-         GBUcneqi3cVJRRMV7Q3ZrKE58pyt1+t73fL3AsGk=
+        b=gjYhi00TwuEObrIF2UdmoMdK2KiN2frKAw33gsBG95OH7c4LpmbWn+m8gcML7oNUO
+         HRe3g22FLrMriMVr8eY/FihJvmGUfSC1Dfhz+nzPied6KSqOgzNq1ZrZ/rHj9Ny/1H
+         aloTv9DJDbhY7N7aqAzWOO4kJweFx+aXcv0iwLp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/141] dmaengine: ti: k3-udma-private: Fix refcount leak bug in of_xudma_dev_get()
-Date:   Mon, 26 Sep 2022 12:11:32 +0200
-Message-Id: <20220926100756.821231579@linuxfoundation.org>
+        stable@vger.kernel.org, "jerry.meng" <jerry-meng@foxmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 14/58] net: usb: qmi_wwan: add Quectel RM520N
+Date:   Mon, 26 Sep 2022 12:11:33 +0200
+Message-Id: <20220926100741.941262829@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: jerry.meng <jerry-meng@foxmail.com>
 
-[ Upstream commit f9fdb0b86f087c2b7f6c6168dd0985a3c1eda87e ]
+[ Upstream commit e1091e226a2bab4ded1fe26efba2aee1aab06450 ]
 
-We should call of_node_put() for the reference returned by
-of_parse_phandle() in fail path or when it is not used anymore.
-Here we only need to move the of_node_put() before the check.
+add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
 
-Fixes: d70241913413 ("dmaengine: ti: k3-udma: Add glue layer for non DMAengine users")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220720073234.1255474-1-windhl@126.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+0x0801: DIAG + NMEA + AT + MODEM + RMNET
+
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0801 Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=RM520N-GL
+S:  SerialNumber=384af524
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: jerry.meng <jerry-meng@foxmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/tencent_E50CA8A206904897C2D20DDAE90731183C05@qq.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma-private.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index 8563a392f30b..dadab2feca08 100644
---- a/drivers/dma/ti/k3-udma-private.c
-+++ b/drivers/dma/ti/k3-udma-private.c
-@@ -31,14 +31,14 @@ struct udma_dev *of_xudma_dev_get(struct device_node *np, const char *property)
- 	}
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index fcf21a1ca776..8d10c29ba176 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1049,6 +1049,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
++	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0801)},	/* Quectel RM520N */
  
- 	pdev = of_find_device_by_node(udma_node);
-+	if (np != udma_node)
-+		of_node_put(udma_node);
-+
- 	if (!pdev) {
- 		pr_debug("UDMA device not found\n");
- 		return ERR_PTR(-EPROBE_DEFER);
- 	}
- 
--	if (np != udma_node)
--		of_node_put(udma_node);
--
- 	ud = platform_get_drvdata(pdev);
- 	if (!ud) {
- 		pr_debug("UDMA has not been probed\n");
+ 	/* 3. Combined interface devices matching on interface number */
+ 	{QMI_FIXED_INTF(0x0408, 0xea42, 4)},	/* Yota / Megafon M100-1 */
 -- 
 2.35.1
 
