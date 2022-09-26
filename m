@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A3735EA294
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F8D5EA53D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237463AbiIZLLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34904 "EHLO
+        id S239001AbiIZL7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:59:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237792AbiIZLJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:09:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3355856BBF;
-        Mon, 26 Sep 2022 03:35:21 -0700 (PDT)
+        with ESMTP id S239254AbiIZL6h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:58:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E587B7B286;
+        Mon, 26 Sep 2022 03:52:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03926B80915;
-        Mon, 26 Sep 2022 10:33:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 349B3C433D7;
-        Mon, 26 Sep 2022 10:33:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E084B80185;
+        Mon, 26 Sep 2022 10:50:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC71C433D6;
+        Mon, 26 Sep 2022 10:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188412;
-        bh=YU5ZVW+vaaa0D5a/Gtln8E0+5y95LhWnRWKcQDa7Mfw=;
+        s=korg; t=1664189410;
+        bh=OJR+Kvk3y51iZ6Yjl4qfoMm5F58M8vlAqHec4fKuqLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmsY6lA4zcgyJ0scuuiwY05KoN8+ZGz4biCqx02YeAAAz6soCdgO4gpCXD3xhQDFj
-         wZPG4IeyPc9Qn8xpLTTlGfmtGua+GQ85lVlrO/WpRdMQs4z5ZMzXKUTWk5v3nXh1bL
-         3lrD7r60CeVRWiMtmNd6UPhTHuo5ipdsvdQVK4rU=
+        b=tqFQlgzWbdv/AIYtolb0yAr8OafU+29c7LC4g0JUyYFRky1gku9GtK9mT4KaYA0nf
+         voM8Yh+V8VQ3asvp92yxIittY9Z9FDTfxUhGsRtI3wbJ94EHIGp1h6dmmdS+e6c4V/
+         3OoJQyb2xFsdFQIFgqfnFrebddWpZkNVeSpLeLwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Ojaswin Mujoo <ojaswin@linux.ibm.com>, stable@kernel.org,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 141/141] ext4: make directory inode spreading reflect flexbg size
-Date:   Mon, 26 Sep 2022 12:12:47 +0200
-Message-Id: <20220926100759.579489997@linuxfoundation.org>
+        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 179/207] drm/amdgpu: add HDP remap functionality to nbio 7.7
+Date:   Mon, 26 Sep 2022 12:12:48 +0200
+Message-Id: <20220926100814.634068640@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 613c5a85898d1cd44e68f28d65eccf64a8ace9cf upstream.
+[ Upstream commit 8c5708d3da37b8c7c3c22c7e945b9a76a7c9539b ]
 
-Currently the Orlov inode allocator searches for free inodes for a
-directory only in flex block groups with at most inodes_per_group/16
-more directory inodes than average per flex block group. However with
-growing size of flex block group this becomes unnecessarily strict.
-Scale allowed difference from average directory count per flex block
-group with flex block group size as we do with other metrics.
+Was missing before and would have resulted in a write to
+a non-existant register. Normally APUs don't use HDP, but
+other asics could use this code and APUs do use the HDP
+when used in passthrough.
 
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Tested-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/all/0d81a7c2-46b7-6010-62a4-3e6cfc1628d6@i2se.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220908092136.11770-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ialloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/nbio_v7_7.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -508,7 +508,7 @@ static int find_group_orlov(struct super
- 		goto fallback;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v7_7.c b/drivers/gpu/drm/amd/amdgpu/nbio_v7_7.c
+index cdc0c9779848..6c1fd471a4c7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_7.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_7.c
+@@ -28,6 +28,14 @@
+ #include "nbio/nbio_7_7_0_sh_mask.h"
+ #include <uapi/linux/kfd_ioctl.h>
  
--	max_dirs = ndirs / ngroups + inodes_per_group / 16;
-+	max_dirs = ndirs / ngroups + inodes_per_group*flex_size / 16;
- 	min_inodes = avefreei - inodes_per_group*flex_size / 4;
- 	if (min_inodes < 1)
- 		min_inodes = 1;
++static void nbio_v7_7_remap_hdp_registers(struct amdgpu_device *adev)
++{
++	WREG32_SOC15(NBIO, 0, regBIF_BX0_REMAP_HDP_MEM_FLUSH_CNTL,
++		     adev->rmmio_remap.reg_offset + KFD_MMIO_REMAP_HDP_MEM_FLUSH_CNTL);
++	WREG32_SOC15(NBIO, 0, regBIF_BX0_REMAP_HDP_REG_FLUSH_CNTL,
++		     adev->rmmio_remap.reg_offset + KFD_MMIO_REMAP_HDP_REG_FLUSH_CNTL);
++}
++
+ static u32 nbio_v7_7_get_rev_id(struct amdgpu_device *adev)
+ {
+ 	u32 tmp;
+@@ -237,4 +245,5 @@ const struct amdgpu_nbio_funcs nbio_v7_7_funcs = {
+ 	.ih_doorbell_range = nbio_v7_7_ih_doorbell_range,
+ 	.ih_control = nbio_v7_7_ih_control,
+ 	.init_registers = nbio_v7_7_init_registers,
++	.remap_hdp_registers = nbio_v7_7_remap_hdp_registers,
+ };
+-- 
+2.35.1
+
 
 
