@@ -2,68 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFE75EAB6C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 17:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E163D5EAB6E
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 17:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbiIZPno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 11:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
+        id S234436AbiIZPoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 11:44:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233630AbiIZPmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 11:42:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81AD7BCA0;
-        Mon, 26 Sep 2022 07:26:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F3E460DFB;
-        Mon, 26 Sep 2022 14:26:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB5DC433C1;
-        Mon, 26 Sep 2022 14:26:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664202363;
-        bh=X4xEYQiSvmysaYuXeO17P0IpMlzWHLaU1dBHoIa/E40=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=QDFTKkJPkWSfs6Ico+7BRZ2i4BAocNPT54fLpAXerOe+nODe6YDcMvKaepQtYzVSz
-         LY8AWoiHhzQ8U9cQ+g8e6mQBIA0Sq467Jl4Me4leQAsORfudW3Kj8qNUpGW7caOGMv
-         DkUEZkhcPMcktwqWVxD3p08Gsh6clBqw3OqEBbIh9eG1BVfKRn1AKDQinMjr8Xf1tM
-         m0IQcXsDCc6MpSfJcdZVHElcaYoeJVFMCPqkHTpD3v1IGLC8z/0PbFrhe6kLkVk+Pw
-         YwiO1PtcvW4fb+iQ87WsAgAe4SEqYNJ92XFVYazYQA8c3h02PmSg0J47YUUSSrNq9J
-         i2kk4rMG3zBtw==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <maz@kernel.org>)
-        id 1ocp3Z-00CiQY-AQ;
-        Mon, 26 Sep 2022 15:26:01 +0100
-Date:   Mon, 26 Sep 2022 10:25:59 -0400
-Message-ID: <8635ce8b60.wl-maz@kernel.org>
-From:   Marc Zyngier <maz@kernel.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        with ESMTP id S236681AbiIZPnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 11:43:32 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B8B5F43
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 07:26:40 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id 13so14479054ejn.3
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 07:26:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=kviW/kfGTdCum1FUfpznjlr9QAFsmNGG3WHj4fGpdC4=;
+        b=NrC/5DqsHkAZ1V5Hx+CHDeXFUw6qXFGEZ/Xl2S8xOKBTXXR6XaghMdqZeZk7eHdZVe
+         xqI+asdBqXsrQtk1goFqo1cHtneKXnRX3WsEYAyytZQxT3PO6kf9CEl2SEeA62px1b7H
+         z3vys96W2s5h6GAuI/D1+beFxgpps+277addi1Mgc0RxhjfoeTfwuvBck75uIei01wsk
+         6ICpRKXwd0psJ6GxfYJooqksmVR1ZHjJL/PPXyU1JjOZQXdYRLrgv5J1nGAqtQAnUoYl
+         Z1mdEzqzrcF+CjDLgwTM26tJ71/9SvDzIC+B5ugoY02nbtxN+WuPilYSsRIGR6+R18lv
+         GFJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=kviW/kfGTdCum1FUfpznjlr9QAFsmNGG3WHj4fGpdC4=;
+        b=R+MCWZUjurnHCbqeYKb11lVq28dua2V/15WRs7wa9YdhJg/DaBlAQkAWSHMNpXApAE
+         hMWHdrUOaxnM9vAmETGUEII8M5O4+72Ao5NTxzmXj3cPKreBMF7vfwkQ58Cwnzlm0utH
+         8pW3xi1JXUO/2lIGmebcc3XvIjC7m39jPSlhCm5mpWJqHXA7NmGVK6J+D+iaDwRSGLEW
+         j27yXSTDoco+5sHbOjDIaFdHHvCV9jYo264HE6v9a+Io/RukWtyhbe9nFIAz25gWHQvq
+         lvujQzyJ7rEQFu4UDiRJrME8qSlmcDRshsVWjilq4VcR2qHIlI3v/miLyNEYssyrUQwY
+         DK6g==
+X-Gm-Message-State: ACrzQf386lz9hGkKJRAMAqw/mdHLWJRx0cCon+2Ql34cM9cc8ZhWqsgS
+        Id+69NIjAfELcUEoMxQFMvMtZzHXttSk0PgCsKz5Mw==
+X-Google-Smtp-Source: AMsMyM5PBP2ckmAZkrP18VOs8XaCn0cRlaz3thTNfuitZxPBgSIqYNVy7fODnA8+B6mGxWgAT0NXv93bg7Jfn4W8aGE=
+X-Received: by 2002:a17:907:948e:b0:783:91cf:c35a with SMTP id
+ dm14-20020a170907948e00b0078391cfc35amr4200187ejc.366.1664202398315; Mon, 26
+ Sep 2022 07:26:38 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 26 Sep 2022 19:56:26 +0530
+Message-ID: <CA+G9fYtCSiceE2kbx2HeCqwhag5wx4PAm4WbiU0g89pr68Wsgg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/141] 5.10.146-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 5.4 000/120] 5.4.215-rc1 review
-In-Reply-To: <CA+G9fYsaviCxmAqWzOxgkU7HcmzU=e0LKci2_+5uPUOc+8xb3A@mail.gmail.com>
-References: <20220926100750.519221159@linuxfoundation.org>
-        <CA+G9fYsaviCxmAqWzOxgkU7HcmzU=e0LKci2_+5uPUOc+8xb3A@mail.gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: naresh.kamboju@linaro.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, slade@sladewatkins.com, linus.walleij@linaro.org, brgl@bgdev.pl
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        slade@sladewatkins.com, Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        "David S. Miller" <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,47 +72,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 26 Sep 2022 10:13:31 -0400,
-Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> 
-> On Mon, 26 Sept 2022 at 16:00, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.4.215 release.
-> > There are 120 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 28 Sep 2022 10:07:26 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.215-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Following build warnings / errors noticed on arm on stable-rc 5.4.
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> Regressions found on arm:
-> 
->    - build-gcc-8-ixp4xx_defconfig
->    - build-gcc-11-ixp4xx_defconfig
->    - build-gcc-12-ixp4xx_defconfig
->    - build-gcc-9-ixp4xx_defconfig
->    - build-gcc-10-ixp4xx_defconfig
+On Mon, 26 Sept 2022 at 15:57, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.146 release.
+> There are 141 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 28 Sep 2022 10:07:26 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.146-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Colour me surprised. [1] explained why this was a bad idea...
+Following build warnings / errors noticed on arm and powerpc on stable-rc 5.10
 
-	M.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-[1] https://lore.kernel.org/all/CAMRc=Md9JKdW8wmbun_0_1y2RQbck7q=vzOkdw6n+FBgpf0h8w@mail.gmail.com/
+Regressions found on arm:
 
--- 
-Without deviation from the norm, progress is not possible.
+   - build-gcc-12-ixp4xx_defconfig
+   - build-gcc-8-ixp4xx_defconfig
+   - build-gcc-11-ixp4xx_defconfig
+   - build-gcc-9-ixp4xx_defconfig
+   - build-gcc-10-ixp4xx_defconfig
+
+
+arm build errors:
+-----------------
+
+drivers/gpio/gpio-ixp4xx.c:171:18: error: 'IRQCHIP_IMMUTABLE'
+undeclared here (not in a function); did you mean 'IS_IMMUTABLE'?
+  171 |         .flags = IRQCHIP_IMMUTABLE,
+      |                  ^~~~~~~~~~~~~~~~~
+      |                  IS_IMMUTABLE
+drivers/gpio/gpio-ixp4xx.c:172:9: error:
+'GPIOCHIP_IRQ_RESOURCE_HELPERS' undeclared here (not in a function)
+  172 |         GPIOCHIP_IRQ_RESOURCE_HELPERS,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/gpio/gpio-ixp4xx.c:172:9: warning: excess elements in struct initializer
+drivers/gpio/gpio-ixp4xx.c:172:9: note: (near initialization for
+'ixp4xx_gpio_irqchip')
+drivers/gpio/gpio-ixp4xx.c: In function 'ixp4xx_gpio_probe':
+drivers/gpio/gpio-ixp4xx.c:296:9: error: implicit declaration of
+function 'gpio_irq_chip_set_chip'
+[-Werror=implicit-function-declaration]
+  296 |         gpio_irq_chip_set_chip(girq, &ixp4xx_gpio_irqchip);
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+cc1: some warnings being treated as errors
+
+Error was caused by below patch
+
+gpio: ixp4xx: Make irqchip immutable
+[ Upstream commit 94e9bc73d85aa6ecfe249e985ff57abe0ab35f34 ]
+
+This turns the IXP4xx GPIO irqchip into an immutable
+irqchip, a bit different from the standard template due
+to being hierarchical.
+
+Tested on the IXP4xx which uses drivers/ata/pata_ixp4xx_cf.c
+for a rootfs on compact flash with IRQs from this GPIO
+block to the CF ATA controller.
+
+Cc: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+net/core/dev_ioctl.c: In function 'dev_ifconf':
+net/core/dev_ioctl.c:41:13: warning: unused variable 'i' [-Wunused-variable]
+   41 |         int i;
+      |             ^
+make[2]: Target '__build' not remade because of errors.
+make[1]: *** [Makefile:1832: drivers] Error 2
+
+warning is caused by:
+net: socket: remove register_gifconf
+[ Upstream commit b0e99d03778b2418aec20db99d97d19d25d198b6 ]
+
+Since dynamic registration of the gifconf() helper is only used for
+IPv4, and this can not be in a loadable module, this can be simplified
+noticeably by turning it into a direct function call as a preparation
+for cleaning up the compat handling.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 5641c751fe2f ("net: enetc: deny offload of tc-based TSN
+features on VF interfaces")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+
+--
+Linaro LKFT
+https://lkft.linaro.org
