@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8906E5EA4A9
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FEA85E9F13
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238757AbiIZLtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:49:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39474 "EHLO
+        id S234634AbiIZKTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239020AbiIZLtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DFCA57201;
-        Mon, 26 Sep 2022 03:48:04 -0700 (PDT)
+        with ESMTP id S234070AbiIZKRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:17:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40A8248F6;
+        Mon, 26 Sep 2022 03:15:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1C07B80171;
-        Mon, 26 Sep 2022 10:46:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DC2C433C1;
-        Mon, 26 Sep 2022 10:46:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C358CB80915;
+        Mon, 26 Sep 2022 10:14:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BBE6C433C1;
+        Mon, 26 Sep 2022 10:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189209;
-        bh=FGL8GAtxfMw4n0JvjxgP9LDX324kIAJjB3fsedpwHWk=;
+        s=korg; t=1664187293;
+        bh=s9Ol33kpSrjmzFWdc4sW7eWoQqLfe0AJTiY9sp9s7jY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qS1xfuibYClXLDgk3xDCQSMh1DWwEvPW2KjG4z2X9RgSuQasFTaxBN+fefe0njhqn
-         mXrX0p1L7t6y1O9AdzF28lo/y9spGz6ff5G2U+pxAjfj0o8TvfbsKpDnbCGD1lrJ/F
-         801ehcMPKGx2Wv4ZVstyT2ffNpHimSoPylkVLQWE=
+        b=qfuqBeFVMZUATw87CLPFpdP8NWqYfmn68HD3OVurl4MIp24MQypeF+YDNmULEL3D7
+         zmecIo5Z1wp0eT9Ygep9KTH1THkjOTbUJ2NHx+lQtCHO2i/rFmB8xUVRSEzd1JV5fL
+         EkL095VdKZ7/7YeLFx05gVbQF8raptrfs0u8I9/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 110/207] MIPS: lantiq: export clk_get_io() for lantiq_wdt.ko
+Subject: [PATCH 4.9 08/30] mips: lantiq: falcon: Fix refcount leak bug in sysctrl
 Date:   Mon, 26 Sep 2022 12:11:39 +0200
-Message-Id: <20220926100811.527633314@linuxfoundation.org>
+Message-Id: <20220926100736.453859021@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 502550123bee6a2ffa438409b5b9aad4d6db3a8c ]
+[ Upstream commit 72a2af539fff975caadd9a4db3f99963569bd9c9 ]
 
-The lantiq WDT driver uses clk_get_io(), which is not exported,
-so export it to fix a build error:
+In ltq_soc_init(), of_find_compatible_node() will return a node pointer
+with refcount incremented. We should use of_node_put() when it is not
+used anymore.
 
-ERROR: modpost: "clk_get_io" [drivers/watchdog/lantiq_wdt.ko] undefined!
-
-Fixes: 287e3f3f4e68 ("MIPS: lantiq: implement support for clkdev api")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: John Crispin <john@phrozen.org>
-Cc: linux-mips@vger.kernel.org
+Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/clk.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/lantiq/falcon/sysctrl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/mips/lantiq/clk.c b/arch/mips/lantiq/clk.c
-index 7a623684d9b5..2d5a0bcb0cec 100644
---- a/arch/mips/lantiq/clk.c
-+++ b/arch/mips/lantiq/clk.c
-@@ -50,6 +50,7 @@ struct clk *clk_get_io(void)
- {
- 	return &cpu_clk_generic[2];
- }
-+EXPORT_SYMBOL_GPL(clk_get_io);
+diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
+index 714d92659489..665739bd4190 100644
+--- a/arch/mips/lantiq/falcon/sysctrl.c
++++ b/arch/mips/lantiq/falcon/sysctrl.c
+@@ -210,6 +210,12 @@ void __init ltq_soc_init(void)
+ 			of_address_to_resource(np_sysgpe, 0, &res_sys[2]))
+ 		panic("Failed to get core resources");
  
- struct clk *clk_get_ppe(void)
- {
++	of_node_put(np_status);
++	of_node_put(np_ebu);
++	of_node_put(np_sys1);
++	of_node_put(np_syseth);
++	of_node_put(np_sysgpe);
++
+ 	if ((request_mem_region(res_status.start, resource_size(&res_status),
+ 				res_status.name) < 0) ||
+ 		(request_mem_region(res_ebu.start, resource_size(&res_ebu),
 -- 
 2.35.1
 
