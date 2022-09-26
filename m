@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B095EA462
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D6C5EA1A7
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238455AbiIZLpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        id S236543AbiIZKzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:55:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238788AbiIZLom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:44:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32B773934;
-        Mon, 26 Sep 2022 03:47:03 -0700 (PDT)
+        with ESMTP id S237137AbiIZKyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:54:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2C6F4DF32;
+        Mon, 26 Sep 2022 03:28:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C44E560BA5;
-        Mon, 26 Sep 2022 10:45:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAA9BC433C1;
-        Mon, 26 Sep 2022 10:45:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B5E601D2;
+        Mon, 26 Sep 2022 10:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300D3C433C1;
+        Mon, 26 Sep 2022 10:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189144;
-        bh=wYMWX1RdKzeoF4adCEB63kIZCJOyfUXgVp3rUBJ24FE=;
+        s=korg; t=1664188134;
+        bh=ZefyUdyjrZLLfgXROT+Cq73VQjC9GSiMHSF4lSNyBcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtDxyNbdMhtQW2mz/BRAxrqr5+/jZSENsCV3E08fA1/6cC33Dzi42vOvnIMoR9UYO
-         z0fN0SuZbgPWHRoGLWm5PxmvOFtqJ4f32hxG55kNH6jA0/DEsRrToBhpu8iN9RQ3pG
-         UkWL2JyTTtZoOuE3CmaIf9nH3GuUldv9OQLhf36w=
+        b=wH/EuCgSgUtcMYAHtm7QK3aHKvQG7ohnUJDAOhIGW3qtwV/cKnGngXcBTpk5oXC+x
+         ys5fj99/UHwwVKh7SF4N82JMBlxGJzHv3sebNxj75eBlFmsICbV0kDarttgRkKTjMQ
+         FkY59LchtZ0jRx1fU+7RvVZNElVq3c6/I9jUqcs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Ryzhov <iryzhov@nfware.com>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 087/207] netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 050/141] efi: x86: Wipe setup_data on pure EFI boot
 Date:   Mon, 26 Sep 2022 12:11:16 +0200
-Message-Id: <20220926100810.485028507@linuxfoundation.org>
+Message-Id: <20220926100756.252548651@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Ryzhov <iryzhov@nfware.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 39aebedeaaa95757f5c1f2ddb5f43fdddbf478ca ]
+commit 63bf28ceb3ebbe76048c3fb2987996ca1ae64f83 upstream.
 
-ct_sip_next_header and ct_sip_get_header return an absolute
-value of matchoff, not a shift from current dataoff.
-So dataoff should be assigned matchoff, not incremented by it.
+When booting the x86 kernel via EFI using the LoadImage/StartImage boot
+services [as opposed to the deprecated EFI handover protocol], the setup
+header is taken from the image directly, and given that EFI's LoadImage
+has no Linux/x86 specific knowledge regarding struct bootparams or
+struct setup_header, any absolute addresses in the setup header must
+originate from the file and not from a prior loading stage.
 
-This issue can be seen in the scenario when there are multiple
-Contact headers and the first one is using a hostname and other headers
-use IP addresses. In this case, ct_sip_walk_headers will work as follows:
+Since we cannot generally predict where LoadImage() decides to load an
+image (*), such absolute addresses must be treated as suspect: even if a
+prior boot stage intended to make them point somewhere inside the
+[signed] image, there is no way to validate that, and if they point at
+an arbitrary location in memory, the setup_data nodes will not be
+covered by any signatures or TPM measurements either, and could be made
+to contain an arbitrary sequence of SETUP_xxx nodes, which could
+interfere quite badly with the early x86 boot sequence.
 
-The first ct_sip_get_header call to will find the first Contact header
-but will return -1 as the header uses a hostname. But matchoff will
-be changed to the offset of this header. After that, dataoff should be
-set to matchoff, so that the next ct_sip_get_header call find the next
-Contact header. But instead of assigning dataoff to matchoff, it is
-incremented by it, which is not correct, as matchoff is an absolute
-value of the offset. So on the next call to the ct_sip_get_header,
-dataoff will be incorrect, and the next Contact header may not be
-found at all.
+(*) Note that, while LoadImage() does take a buffer/size tuple in
+addition to a device path, which can be used to provide the image
+contents directly, it will re-allocate such images, as the memory
+footprint of an image is generally larger than the PE/COFF file
+representation.
 
-Fixes: 05e3ced297fe ("[NETFILTER]: nf_conntrack_sip: introduce SIP-URI parsing helper")
-Signed-off-by: Igor Ryzhov <iryzhov@nfware.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v5.10+
+Link: https://lore.kernel.org/all/20220904165321.1140894-1-Jason@zx2c4.com/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_sip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/libstub/x86-stub.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_sip.c b/net/netfilter/nf_conntrack_sip.c
-index b83dc9bf0a5d..78fd9122b70c 100644
---- a/net/netfilter/nf_conntrack_sip.c
-+++ b/net/netfilter/nf_conntrack_sip.c
-@@ -477,7 +477,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 				return ret;
- 			if (ret == 0)
- 				break;
--			dataoff += *matchoff;
-+			dataoff = *matchoff;
- 		}
- 		*in_header = 0;
- 	}
-@@ -489,7 +489,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 			break;
- 		if (ret == 0)
- 			return ret;
--		dataoff += *matchoff;
-+		dataoff = *matchoff;
- 	}
+--- a/drivers/firmware/efi/libstub/x86-stub.c
++++ b/drivers/firmware/efi/libstub/x86-stub.c
+@@ -414,6 +414,13 @@ efi_status_t __efiapi efi_pe_entry(efi_h
+ 	hdr->ramdisk_image = 0;
+ 	hdr->ramdisk_size = 0;
  
- 	if (in_header)
--- 
-2.35.1
-
++	/*
++	 * Disregard any setup data that was provided by the bootloader:
++	 * setup_data could be pointing anywhere, and we have no way of
++	 * authenticating or validating the payload.
++	 */
++	hdr->setup_data = 0;
++
+ 	efi_stub_entry(handle, sys_table_arg, boot_params);
+ 	/* not reached */
+ 
 
 
