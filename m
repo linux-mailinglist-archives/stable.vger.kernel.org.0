@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9140D5E9F23
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7107A5EA1F7
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235176AbiIZKUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:20:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45900 "EHLO
+        id S236935AbiIZLAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235268AbiIZKTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:19:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9534A100;
-        Mon, 26 Sep 2022 03:15:36 -0700 (PDT)
+        with ESMTP id S237272AbiIZK7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 498CE5C965;
+        Mon, 26 Sep 2022 03:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1A7CB80926;
-        Mon, 26 Sep 2022 10:15:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50212C433D7;
-        Mon, 26 Sep 2022 10:15:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11BBAB80921;
+        Mon, 26 Sep 2022 10:30:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4776AC433D7;
+        Mon, 26 Sep 2022 10:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187333;
-        bh=hfeg6mZ8P27OTI5Sp6kpeYMIBefb3IVBcgJnv8V1ERU=;
+        s=korg; t=1664188214;
+        bh=b5ug6492769tmpi3/aDreioFX6K/kXA2CQBR07psTOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dX9VrFeMSvGUXwbpRpmEX/0daYQBN8xigY7XkQiOFH7DPFwEGvijQ2XH2W4AzhPtq
-         WwFIKewBFRb2wvoqlJDuGJTBH4Shpx84ByzRYZIH29wW7nRqlIn6opSE6S2XtUWy5f
-         unj+Nqkm4Efnc9uBtmy1YuJZLf+F8rI4yiLpl0ic=
+        b=Mahp1dSEzjZVv+50us10Uk10fI98yjQ0vZrIdSTsB45M2UoSAffW49ylE8BoNXqLb
+         tOrGDDxClXG+ylgQs8wEItUfkIF3/DRs2SNF5fffx+JOviZs78tWlAdzd3YCggBimX
+         5tVFpfzqtg0kkaPk7P2fMbCoLhaIlyRZH3llavYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 15/40] ALSA: hda/sigmatel: Fix unused variable warning for beep power change
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 077/141] scsi: mpt3sas: Fix return value check of dma_get_required_mask()
 Date:   Mon, 26 Sep 2022 12:11:43 +0200
-Message-Id: <20220926100738.801122304@linuxfoundation.org>
+Message-Id: <20220926100757.236635449@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-commit 51bdc8bb82525cd70feb92279c8b7660ad7948dd upstream.
+[ Upstream commit e0e0747de0ea3dd87cdbb0393311e17471a9baf1 ]
 
-The newly added stac_check_power_status() caused a compile warning
-when CONFIG_SND_HDA_INPUT_BEEP is disabled.  Fix it.
+Fix the incorrect return value check of dma_get_required_mask().  Due to
+this incorrect check, the driver was always setting the DMA mask to 63 bit.
 
-Fixes: 414d38ba8710 ("ALSA: hda/sigmatel: Keep power up while beep is enabled")
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20220905130630.2845-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220913120538.18759-2-sreekanth.reddy@broadcom.com
+Fixes: ba27c5cf286d ("scsi: mpt3sas: Don't change the DMA coherent mask after allocations")
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_sigmatel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -4485,7 +4485,9 @@ static int stac_suspend(struct hda_codec
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 18f85c963944..c1b76cda60db 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -2825,7 +2825,7 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
  
- static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
- {
-+#ifdef CONFIG_SND_HDA_INPUT_BEEP
- 	struct sigmatel_spec *spec = codec->spec;
-+#endif
- 	int ret = snd_hda_gen_check_power_status(codec, nid);
- 
- #ifdef CONFIG_SND_HDA_INPUT_BEEP
+ 	if (ioc->is_mcpu_endpoint ||
+ 	    sizeof(dma_addr_t) == 4 || ioc->use_32bit_dma ||
+-	    dma_get_required_mask(&pdev->dev) <= 32)
++	    dma_get_required_mask(&pdev->dev) <= DMA_BIT_MASK(32))
+ 		ioc->dma_mask = 32;
+ 	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
+ 	else if (ioc->hba_mpi_version_belonged > MPI2_VERSION)
+-- 
+2.35.1
+
 
 
