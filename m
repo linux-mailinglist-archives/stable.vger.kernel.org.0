@@ -2,188 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 760E65EA688
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 388C55EA6D3
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235634AbiIZMxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:53:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58106 "EHLO
+        id S235321AbiIZNGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 09:06:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234339AbiIZMwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:52:46 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EEE14F837
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 04:27:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664191676; x=1695727676;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=2siE0tqTeacA2KW7pO16KDRpJK3Qpkl7/cLSQNggm/U=;
-  b=DBZOXqbp57+Blg+bV2q7I8JCJDU7zqFWeEuxl6DBQGRmRTvdTVu0ju/Z
-   4O8pHV+g83MYhMNQpjq2wWtMU2bXFo2tNyXCdyxkWtxblcgVAiRRPiNS9
-   V5Ko+C4l714XDtZUrSzlvvHleVg5eVlJN2RrIb7Zch30a88MrJnLy44ZU
-   3WCkJA6w1PpnoTxKQnG+VdxLuyNtod4AQHywj65d6bBi6/bpavSuGARSG
-   g6JH5+//nzSuoFSAXUl+m7jro6exEsdlY6TLWfjtXCC5E+6YNjmeSXjnO
-   1AqXDadWr/HJPBDpGMd6PIBLnYpgE4FLi/KkJjxafbWWm/CFX39lVZVoL
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10481"; a="302471608"
-X-IronPort-AV: E=Sophos;i="5.93,345,1654585200"; 
-   d="scan'208";a="302471608"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Sep 2022 04:26:07 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10481"; a="621019217"
-X-IronPort-AV: E=Sophos;i="5.93,345,1654585200"; 
-   d="scan'208";a="621019217"
-Received: from ashyti-mobl2.igk.intel.com (HELO intel.com) ([172.28.182.74])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Sep 2022 04:26:05 -0700
-Date:   Mon, 26 Sep 2022 13:26:02 +0200
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@linux.intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/gt: Restrict forced preemption to the active
- context
-Message-ID: <YzGMSlVn+wzLc+Jd@ashyti-mobl2.lan>
-References: <20220921135258.1714873-1-andrzej.hajda@intel.com>
+        with ESMTP id S235308AbiIZNFp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:05:45 -0400
+Received: from out199-18.us.a.mail.aliyun.com (out199-18.us.a.mail.aliyun.com [47.90.199.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F1785588;
+        Mon, 26 Sep 2022 04:37:09 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xueshuai@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0VQm8Lu9_1664192107;
+Received: from 30.240.121.51(mailfrom:xueshuai@linux.alibaba.com fp:SMTPD_---0VQm8Lu9_1664192107)
+          by smtp.aliyun-inc.com;
+          Mon, 26 Sep 2022 19:35:09 +0800
+Message-ID: <f0735218-7730-c275-8cee-38df9bec427d@linux.alibaba.com>
+Date:   Mon, 26 Sep 2022 19:35:07 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220921135258.1714873-1-andrzej.hajda@intel.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.0
+Subject: Re: [PATCH v2] ACPI: APEI: do not add task_work to kernel thread to
+ avoid memory leak
+Content-Language: en-US
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Len Brown <lenb@kernel.org>, James Morse <james.morse@arm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?= 
+        <naoya.horiguchi@nec.com>, linmiaohe@huawei.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stable <stable@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        cuibixuan@linux.alibaba.com, baolin.wang@linux.alibaba.com,
+        zhuo.song@linux.alibaba.com
+References: <20220916050535.26625-1-xueshuai@linux.alibaba.com>
+ <20220924074953.83064-1-xueshuai@linux.alibaba.com>
+ <CAJZ5v0jAZC81Peowy0iKuq+cy68tyn0OK3a--nW=wWMbRojcxg@mail.gmail.com>
+From:   Shuai Xue <xueshuai@linux.alibaba.com>
+In-Reply-To: <CAJZ5v0jAZC81Peowy0iKuq+cy68tyn0OK3a--nW=wWMbRojcxg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-12.2 required=5.0 tests=BAYES_00,
+        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrzej and Chris,
 
-pushed to drm-intel-gt-next
 
-Thanks!
-Andi
+在 2022/9/25 AM1:17, Rafael J. Wysocki 写道:
+> On Sat, Sep 24, 2022 at 9:50 AM Shuai Xue <xueshuai@linux.alibaba.com> wrote:
+>>
+>> If an error is detected as a result of user-space process accessing a
+>> corrupt memory location, the CPU may take an abort. Then the platform
+>> firmware reports kernel via NMI like notifications, e.g. NOTIFY_SEA,
+>> NOTIFY_SOFTWARE_DELEGATED, etc.
+>>
+>> For NMI like notifications, commit 7f17b4a121d0 ("ACPI: APEI: Kick the
+>> memory_failure() queue for synchronous errors") keep track of whether
+>> memory_failure() work was queued, and make task_work pending to flush out
+>> the queue so that the work is processed before return to user-space.
+>>
+>> The code use init_mm to check whether the error occurs in user space:
+>>
+>>     if (current->mm != &init_mm)
+>>
+>> The condition is always true, becase _nobody_ ever has "init_mm" as a real
+>> VM any more.
+>>
+>> In addition to abort, errors can also be signaled as asynchronous
+>> exceptions, such as interrupt and SError. In such case, the interrupted
+>> current process could be any kind of thread. When a kernel thread is
+>> interrupted, the work ghes_kick_task_work deferred to task_work will never
+>> be processed because entry_handler returns to call ret_to_kernel() instead
+>> of ret_to_user(). Consequently, the estatus_node alloced from
+>> ghes_estatus_pool in ghes_in_nmi_queue_one_entry() will not be freed.
+>> After around 200 allocations in our platform, the ghes_estatus_pool will
+>> run of memory and ghes_in_nmi_queue_one_entry() returns ENOMEM. As a
+>> result, the event failed to be processed.
+>>
+>>     sdei: event 805 on CPU 113 failed with error: -2
+>>
+>> Finally, a lot of unhandled events may cause platform firmware to exceed
+>> some threshold and reboot.
+>>
+>> The condition should generally just do
+>>
+>>     if (current->mm)
+>>
+>> as described in active_mm.rst documentation.
+>>
+>> Then if an asynchronous error is detected when a kernel thread is running,
+>> (e.g. when detected by a background scrubber), do not add task_work to it
+>> as the original patch intends to do.
+>>
+>> Fixes: 7f17b4a121d0 ("ACPI: APEI: Kick the memory_failure() queue for synchronous errors")
+>> Signed-off-by: Shuai Xue <xueshuai@linux.alibaba.com>
+> 
+> I need the APEI code reviewers to tell me that this is all OK.
 
-On Wed, Sep 21, 2022 at 03:52:58PM +0200, Andrzej Hajda wrote:
-> From: Chris Wilson <chris.p.wilson@intel.com>
+Thank you for your reply. OK, let's wait the reviewers comments.
+
+Best Regards,
+Shuai
+
+
 > 
-> When we submit a new pair of contexts to ELSP for execution, we start a
-> timer by which point we expect the HW to have switched execution to the
-> pending contexts. If the promotion to the new pair of contexts has not
-> occurred, we declare the executing context to have hung and force the
-> preemption to take place by resetting the engine and resubmitting the
-> new contexts.
-> 
-> This can lead to an unfair situation where almost all of the preemption
-> timeout is consumed by the first context which just switches into the
-> second context immediately prior to the timer firing and triggering the
-> preemption reset (assuming that the timer interrupts before we process
-> the CS events for the context switch). The second context hasn't yet had
-> a chance to yield to the incoming ELSP (and send the ACk for the
-> promotion) and so ends up being blamed for the reset.
-> 
-> If we see that a context switch has occurred since setting the
-> preemption timeout, but have not yet received the ACK for the ELSP
-> promotion, rearm the preemption timer and check again. This is
-> especially significant if the first context was not schedulable and so
-> we used the shortest timer possible, greatly increasing the chance of
-> accidentally blaming the second innocent context.
-> 
-> Fixes: 3a7a92aba8fb ("drm/i915/execlists: Force preemption")
-> Fixes: d12acee84ffb ("drm/i915/execlists: Cancel banned contexts on schedule-out")
-> Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: Andi Shyti <andi.shyti@linux.intel.com>
-> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> Tested-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-> ---
-> Hi,
-> 
-> This patch is upstreamed from internal branch. So I have removed
-> R-B by Andi. Andi let me know if your R-B still apply.
-> 
-> Regards
-> Andrzej
-> ---
->  drivers/gpu/drm/i915/gt/intel_engine_types.h  | 15 +++++++++++++
->  .../drm/i915/gt/intel_execlists_submission.c  | 21 ++++++++++++++++++-
->  2 files changed, 35 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> index 633a7e5dba3b4b..6b5d4ea22b673b 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> @@ -165,6 +165,21 @@ struct intel_engine_execlists {
->  	 */
->  	struct timer_list preempt;
->  
-> +	/**
-> +	 * @preempt_target: active request at the time of the preemption request
-> +	 *
-> +	 * We force a preemption to occur if the pending contexts have not
-> +	 * been promoted to active upon receipt of the CS ack event within
-> +	 * the timeout. This timeout maybe chosen based on the target,
-> +	 * using a very short timeout if the context is no longer schedulable.
-> +	 * That short timeout may not be applicable to other contexts, so
-> +	 * if a context switch should happen within before the preemption
-> +	 * timeout, we may shoot early at an innocent context. To prevent this,
-> +	 * we record which context was active at the time of the preemption
-> +	 * request and only reset that context upon the timeout.
-> +	 */
-> +	const struct i915_request *preempt_target;
-> +
->  	/**
->  	 * @ccid: identifier for contexts submitted to this engine
->  	 */
-> diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-> index 4b909cb88cdfb7..c718e6dc40b515 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-> @@ -1241,6 +1241,9 @@ static unsigned long active_preempt_timeout(struct intel_engine_cs *engine,
->  	if (!rq)
->  		return 0;
->  
-> +	/* Only allow ourselves to force reset the currently active context */
-> +	engine->execlists.preempt_target = rq;
-> +
->  	/* Force a fast reset for terminated contexts (ignoring sysfs!) */
->  	if (unlikely(intel_context_is_banned(rq->context) || bad_request(rq)))
->  		return INTEL_CONTEXT_BANNED_PREEMPT_TIMEOUT_MS;
-> @@ -2427,8 +2430,24 @@ static void execlists_submission_tasklet(struct tasklet_struct *t)
->  	GEM_BUG_ON(inactive - post > ARRAY_SIZE(post));
->  
->  	if (unlikely(preempt_timeout(engine))) {
-> +		const struct i915_request *rq = *engine->execlists.active;
-> +
-> +		/*
-> +		 * If after the preempt-timeout expired, we are still on the
-> +		 * same active request/context as before we initiated the
-> +		 * preemption, reset the engine.
-> +		 *
-> +		 * However, if we have processed a CS event to switch contexts,
-> +		 * but not yet processed the CS event for the pending
-> +		 * preemption, reset the timer allowing the new context to
-> +		 * gracefully exit.
-> +		 */
->  		cancel_timer(&engine->execlists.preempt);
-> -		engine->execlists.error_interrupt |= ERROR_PREEMPT;
-> +		if (rq == engine->execlists.preempt_target)
-> +			engine->execlists.error_interrupt |= ERROR_PREEMPT;
-> +		else
-> +			set_timer_ms(&engine->execlists.preempt,
-> +				     active_preempt_timeout(engine, rq));
->  	}
->  
->  	if (unlikely(READ_ONCE(engine->execlists.error_interrupt))) {
-> -- 
-> 2.34.1
+>> ---
+>> changes since v1:
+>> - add description the side effect and give more details
+>>
+>>  drivers/acpi/apei/ghes.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+>> index d91ad378c00d..80ad530583c9 100644
+>> --- a/drivers/acpi/apei/ghes.c
+>> +++ b/drivers/acpi/apei/ghes.c
+>> @@ -985,7 +985,7 @@ static void ghes_proc_in_irq(struct irq_work *irq_work)
+>>                                 ghes_estatus_cache_add(generic, estatus);
+>>                 }
+>>
+>> -               if (task_work_pending && current->mm != &init_mm) {
+>> +               if (task_work_pending && current->mm) {
+>>                         estatus_node->task_work.func = ghes_kick_task_work;
+>>                         estatus_node->task_work_cpu = smp_processor_id();
+>>                         ret = task_work_add(current, &estatus_node->task_work,
+>> --
+>> 2.20.1.12.g72788fdb
+>>
