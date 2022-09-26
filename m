@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150EA5EA3AB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611225EA35B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238005AbiIZLae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:30:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57606 "EHLO
+        id S237740AbiIZLYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:24:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233957AbiIZL3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:29:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EC2E6BCF8;
-        Mon, 26 Sep 2022 03:41:48 -0700 (PDT)
+        with ESMTP id S236094AbiIZLXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE3E1C13A;
+        Mon, 26 Sep 2022 03:39:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73296B80936;
-        Mon, 26 Sep 2022 10:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C5FC433C1;
-        Mon, 26 Sep 2022 10:32:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B272760B55;
+        Mon, 26 Sep 2022 10:39:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B1BC433D6;
+        Mon, 26 Sep 2022 10:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188332;
-        bh=4XjvDMY7+JMNNTaZ99vTKWavds7RXyMkidR26fFMFpc=;
+        s=korg; t=1664188744;
+        bh=fTOFobLztgWomUcePqED+YQQvKqRE3uuRHz5dNeFLEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGOqMRAqGWyn2J5kYzXevk4mdi7v56Ofc1gOLUrVTEBbzAGGi+xqDGJqiIJi58DPe
-         6w7DasaJg7mDFYmGH8JpsL9K3MV3jCaIogZPzhh9YPKVZhoCUN3Mh8WDOy+gu4KXiI
-         Yw9sMxHRI7TmruvhLQ1BDBacYrDHUdZTd8KoRTPg=
+        b=i/3uHmjlTvCbQQZbhqhqOH5c+CXc1PJpy1tDkDBUlLRh4l1WvlrEmH60lnqFIsXHR
+         /449tAZ9PZJjD1xfN1SErAdXoqVmQK90TFFJlm7BEYAiQ16Pv2/8YhjxP9FiCuzM/r
+         XFiLhh/AcsAh9EvuA8mQmb0voxtamqatp9ZwrnxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Lieven Hey <lieven.hey@kdab.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/141] selftests: forwarding: add shebang for sch_red.sh
+Subject: [PATCH 5.15 107/148] perf jit: Include program header in ELF files
 Date:   Mon, 26 Sep 2022 12:12:21 +0200
-Message-Id: <20220926100758.614358240@linuxfoundation.org>
+Message-Id: <20220926100800.128448782@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Lieven Hey <lieven.hey@kdab.com>
 
-[ Upstream commit 83e4b196838d90799a8879e5054a3beecf9ed256 ]
+[ Upstream commit babd04386b1df8c364cdaa39ac0e54349502e1e5 ]
 
-RHEL/Fedora RPM build checks are stricter, and complain when executable
-files don't have a shebang line, e.g.
+The missing header makes it hard for programs like elfutils to open
+these files.
 
-*** WARNING: ./kselftests/net/forwarding/sch_red.sh is executable but has no shebang, removing executable bit
-
-Fix it by adding shebang line.
-
-Fixes: 6cf0291f9517 ("selftests: forwarding: Add a RED test for SW datapath")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20220922024453.437757-1-liuhangbin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
+Reviewed-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Lieven Hey <lieven.hey@kdab.com>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Link: https://lore.kernel.org/r/20220915092910.711036-1-lieven.hey@kdab.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/sch_red.sh | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/genelf.c | 14 ++++++++++++++
+ tools/perf/util/genelf.h |  4 ++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/sch_red.sh b/tools/testing/selftests/net/forwarding/sch_red.sh
-index e714bae473fb..81f31179ac88 100755
---- a/tools/testing/selftests/net/forwarding/sch_red.sh
-+++ b/tools/testing/selftests/net/forwarding/sch_red.sh
-@@ -1,3 +1,4 @@
-+#!/bin/bash
- # SPDX-License-Identifier: GPL-2.0
+diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
+index 953338b9e887..02cd9f75e3d2 100644
+--- a/tools/perf/util/genelf.c
++++ b/tools/perf/util/genelf.c
+@@ -251,6 +251,7 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
+ 	Elf_Data *d;
+ 	Elf_Scn *scn;
+ 	Elf_Ehdr *ehdr;
++	Elf_Phdr *phdr;
+ 	Elf_Shdr *shdr;
+ 	uint64_t eh_frame_base_offset;
+ 	char *strsym = NULL;
+@@ -285,6 +286,19 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
+ 	ehdr->e_version = EV_CURRENT;
+ 	ehdr->e_shstrndx= unwinding ? 4 : 2; /* shdr index for section name */
  
- # This test sends one stream of traffic from H1 through a TBF shaper, to a RED
++	/*
++	 * setup program header
++	 */
++	phdr = elf_newphdr(e, 1);
++	phdr[0].p_type = PT_LOAD;
++	phdr[0].p_offset = 0;
++	phdr[0].p_vaddr = 0;
++	phdr[0].p_paddr = 0;
++	phdr[0].p_filesz = csize;
++	phdr[0].p_memsz = csize;
++	phdr[0].p_flags = PF_X | PF_R;
++	phdr[0].p_align = 8;
++
+ 	/*
+ 	 * setup text section
+ 	 */
+diff --git a/tools/perf/util/genelf.h b/tools/perf/util/genelf.h
+index d4137559be05..ac638945b4cb 100644
+--- a/tools/perf/util/genelf.h
++++ b/tools/perf/util/genelf.h
+@@ -50,8 +50,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
+ 
+ #if GEN_ELF_CLASS == ELFCLASS64
+ #define elf_newehdr	elf64_newehdr
++#define elf_newphdr	elf64_newphdr
+ #define elf_getshdr	elf64_getshdr
+ #define Elf_Ehdr	Elf64_Ehdr
++#define Elf_Phdr	Elf64_Phdr
+ #define Elf_Shdr	Elf64_Shdr
+ #define Elf_Sym		Elf64_Sym
+ #define ELF_ST_TYPE(a)	ELF64_ST_TYPE(a)
+@@ -59,8 +61,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
+ #define ELF_ST_VIS(a)	ELF64_ST_VISIBILITY(a)
+ #else
+ #define elf_newehdr	elf32_newehdr
++#define elf_newphdr	elf32_newphdr
+ #define elf_getshdr	elf32_getshdr
+ #define Elf_Ehdr	Elf32_Ehdr
++#define Elf_Phdr	Elf32_Phdr
+ #define Elf_Shdr	Elf32_Shdr
+ #define Elf_Sym		Elf32_Sym
+ #define ELF_ST_TYPE(a)	ELF32_ST_TYPE(a)
 -- 
 2.35.1
 
