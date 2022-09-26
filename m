@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 884545EA3A0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4FFB5EA3AD
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234474AbiIZL33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:29:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42250 "EHLO
+        id S230168AbiIZLbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:31:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238064AbiIZL2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:28:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFB44D4E3;
-        Mon, 26 Sep 2022 03:41:41 -0700 (PDT)
+        with ESMTP id S233898AbiIZLac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:30:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869C66B8CE;
+        Mon, 26 Sep 2022 03:41:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D084560C0D;
-        Mon, 26 Sep 2022 10:40:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D889CC4347C;
-        Mon, 26 Sep 2022 10:40:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4420C60769;
+        Mon, 26 Sep 2022 10:40:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FFEC433C1;
+        Mon, 26 Sep 2022 10:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188825;
-        bh=vHnUndqfAUgIC4CFjA3GVd9LuyKEXWeAedlA5iNxM6w=;
+        s=korg; t=1664188831;
+        bh=Vy9KnVHyGacXGwt7HedxWHJmgGZFE2wYut1J6ZVUkao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBywlQIOHluQ25jf3G0hNVXeIKNLxRHmFQVOj65NlYpUp0gsQCJE94xoAvf8xdy9j
-         wZh7cGy+emK5cPUVSOgsc/RXDYM396Hm1lAinBIupZc4ACLfI/jiifm+ftfLU5qD3d
-         eZ7IMdqBeHipAc03hccX765+E2kERLnCjuAFCNoQ=
+        b=2INEzreL6loplwRdn+jAGfbeNE2yJVBHypCkUY/v1SkCFaXF5s18tixZGEXcFJaVq
+         JHlHIEUySdIQL6+XSHAB9Lxv+JJU2IcLMOQezJmtJtESmddXMYPOfYg+d6nQbjNNWk
+         JetaM7iw9ogbPvjJqRiqEKtj1n0SVMrQYyG2+sag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Jinlin <lijinlin3@huawei.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 134/148] fsdax: Fix infinite loop in dax_iomap_rw()
-Date:   Mon, 26 Sep 2022 12:12:48 +0200
-Message-Id: <20220926100801.239774251@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 136/148] i2c: imx: If pm_runtime_get_sync() returned 1 device access is possible
+Date:   Mon, 26 Sep 2022 12:12:50 +0200
+Message-Id: <20220926100801.316627384@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
 References: <20220926100756.074519146@linuxfoundation.org>
@@ -54,60 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jinlin <lijinlin3@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 17d9c15c9b9e7fb285f7ac5367dfb5f00ff575e3 ]
+[ Upstream commit 085aacaa73163f4b8a89dec24ecb32cfacd34017 ]
 
-I got an infinite loop and a WARNING report when executing a tail command
-in virtiofs.
+pm_runtime_get_sync() returning 1 also means the device is powered. So
+resetting the chip registers in .remove() is possible and should be
+done.
 
-  WARNING: CPU: 10 PID: 964 at fs/iomap/iter.c:34 iomap_iter+0x3a2/0x3d0
-  Modules linked in:
-  CPU: 10 PID: 964 Comm: tail Not tainted 5.19.0-rc7
-  Call Trace:
-  <TASK>
-  dax_iomap_rw+0xea/0x620
-  ? __this_cpu_preempt_check+0x13/0x20
-  fuse_dax_read_iter+0x47/0x80
-  fuse_file_read_iter+0xae/0xd0
-  new_sync_read+0xfe/0x180
-  ? 0xffffffff81000000
-  vfs_read+0x14d/0x1a0
-  ksys_read+0x6d/0xf0
-  __x64_sys_read+0x1a/0x20
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The tail command will call read() with a count of 0. In this case,
-iomap_iter() will report this WARNING, and always return 1 which casuing
-the infinite loop in dax_iomap_rw().
-
-Fixing by checking count whether is 0 in dax_iomap_rw().
-
-Fixes: ca289e0b95af ("fsdax: switch dax_iomap_rw to use iomap_iter")
-Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Link: https://lore.kernel.org/r/20220725032050.3873372-1-lijinlin3@huawei.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: d98bdd3a5b50 ("i2c: imx: Make sure to unregister adapter on remove()")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 1d0658cf9dcf..4ab1c493c73f 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1279,6 +1279,9 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
- 	loff_t done = 0;
- 	int ret;
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 3f40995c0ca9..2e4d05040e50 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1496,7 +1496,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	if (i2c_imx->dma)
+ 		i2c_imx_dma_free(i2c_imx);
  
-+	if (!iomi.len)
-+		return 0;
-+
- 	if (iov_iter_rw(iter) == WRITE) {
- 		lockdep_assert_held_write(&iomi.inode->i_rwsem);
- 		iomi.flags |= IOMAP_WRITE;
+-	if (ret == 0) {
++	if (ret >= 0) {
+ 		/* setup chip registers to defaults */
+ 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+ 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
 -- 
 2.35.1
 
