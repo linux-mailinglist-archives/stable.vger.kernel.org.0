@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA145EA17A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 465765EA445
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236687AbiIZKvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56082 "EHLO
+        id S238457AbiIZLnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:43:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237018AbiIZKuY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:50:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9292A58B75;
-        Mon, 26 Sep 2022 03:27:19 -0700 (PDT)
+        with ESMTP id S238379AbiIZLmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:42:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8639571BCC;
+        Mon, 26 Sep 2022 03:45:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 309F5CE10E7;
-        Mon, 26 Sep 2022 10:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4363AC433C1;
-        Mon, 26 Sep 2022 10:27:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8900B80936;
+        Mon, 26 Sep 2022 10:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 459D4C433D6;
+        Mon, 26 Sep 2022 10:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188035;
-        bh=GWa16rvj/h5sa52LnyTpHLgpKiLjXnpuNgp3x4Unlck=;
+        s=korg; t=1664189091;
+        bh=Q74uf3s621jYqCQHgIEhJcf7RNGBb1f0pLKmEvNefl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8CO84TvbiFJ8cvPNK8JxRPbAlBePNgJot2B+zQwGvnUYS6WAFIFsbfL5kpMQBFz6
-         ioYWujMumsXYSZKt2XOGVXfldeMp+QRHne8lzyic2HhBIGOnjpDRilSNhr7QHgUc3x
-         lFQ20eSKY0RAwHPMlEISPgJk0TemJRpqtW2Apkwg=
+        b=KgRvGvOSVoBfjIvzQHG9CIiM/26Qr+g12BoaEG0Hu/h3mmwINxq39aBwWwIoRI39p
+         eCEt2Pw7piMPKyKhIoDJqU4iPCcMRxltGdNc83tgckeW69N4RcnovWLquF9uvCV8gX
+         +OplgaSiBBk8UnuTrfL4boqV6T/qc3N/uEOCp+RM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Ju Zhou <PengJu.Zhou@amd.com>,
-        "Emily.Deng" <Emily.Deng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 002/141] drm/amdgpu: indirect register access for nv12 sriov
+        stable@vger.kernel.org,
+        Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>,
+        Yi Liu <yi.l.liu@intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.19 039/207] iommu/vt-d: Check correct capability for sagaw determination
 Date:   Mon, 26 Sep 2022 12:10:28 +0200
-Message-Id: <20220926100754.716915662@linuxfoundation.org>
+Message-Id: <20220926100808.370493079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Ju Zhou <PengJu.Zhou@amd.com>
+From: Yi Liu <yi.l.liu@intel.com>
 
-[ Upstream commit 8b8a162da820d48bb94261ae4684f2c839ce148c ]
+commit 154897807050c1161cb2660e502fc0470d46b986 upstream.
 
-unify host driver and guest driver indirect access
-control bits names
+Check 5-level paging capability for 57 bits address width instead of
+checking 1GB large page capability.
 
-Signed-off-by: Peng Ju Zhou <PengJu.Zhou@amd.com>
-Reviewed-by: Emily.Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 53fc7ad6edf2 ("iommu/vt-d: Correctly calculate sagaw value of IOMMU")
+Cc: stable@vger.kernel.org
+Reported-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
+Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
+Link: https://lore.kernel.org/r/20220916071212.2223869-2-yi.l.liu@intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 5 +++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c   | 8 ++++++++
- 2 files changed, 13 insertions(+)
+ drivers/iommu/intel/iommu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index f262c4e7a48a..a5f9f51cf583 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2047,6 +2047,11 @@ static int amdgpu_device_ip_early_init(struct amdgpu_device *adev)
- 				amdgpu_vf_error_put(adev, AMDGIM_ERROR_VF_ATOMBIOS_INIT_FAIL, 0, 0);
- 				return r;
- 			}
-+
-+			/*get pf2vf msg info at it's earliest time*/
-+			if (amdgpu_sriov_vf(adev))
-+				amdgpu_virt_init_data_exchange(adev);
-+
- 		}
- 	}
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -419,7 +419,7 @@ static unsigned long __iommu_calculate_s
+ {
+ 	unsigned long fl_sagaw, sl_sagaw;
  
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-index e7678ba8fdcf..d17bd0140bf6 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -615,6 +615,14 @@ void amdgpu_virt_init_data_exchange(struct amdgpu_device *adev)
- 				if (adev->virt.ras_init_done)
- 					amdgpu_virt_add_bad_page(adev, bp_block_offset, bp_block_size);
- 			}
-+	} else if (adev->bios != NULL) {
-+		adev->virt.fw_reserve.p_pf2vf =
-+			(struct amd_sriov_msg_pf2vf_info_header *)
-+			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
-+
-+		amdgpu_virt_read_pf2vf_data(adev);
-+
-+		return;
- 	}
+-	fl_sagaw = BIT(2) | (cap_fl1gp_support(iommu->cap) ? BIT(3) : 0);
++	fl_sagaw = BIT(2) | (cap_5lp_support(iommu->cap) ? BIT(3) : 0);
+ 	sl_sagaw = cap_sagaw(iommu->cap);
  
- 	if (adev->virt.vf2pf_update_interval_ms != 0) {
--- 
-2.35.1
-
+ 	/* Second level only. */
 
 
