@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2E95EA5B0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:12:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E555EA6F6
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:19:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239299AbiIZMMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:12:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
+        id S235070AbiIZNTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 09:19:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239201AbiIZMMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:12:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999D183BD8;
-        Mon, 26 Sep 2022 03:58:07 -0700 (PDT)
+        with ESMTP id S235894AbiIZNSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:18:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8D3DB;
+        Mon, 26 Sep 2022 04:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B00A609FB;
-        Mon, 26 Sep 2022 10:41:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB86C433D6;
-        Mon, 26 Sep 2022 10:41:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3B8A2CE111C;
+        Mon, 26 Sep 2022 10:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1923AC433C1;
+        Mon, 26 Sep 2022 10:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188884;
-        bh=JdS6tMijjygBXTDrRYppcTc/TKlKrCr/lkNNDvezAT0=;
+        s=korg; t=1664189474;
+        bh=LgrIYa0at/wSsDhTrNC+RUwDkoQVOs7ROK/IsjTDK8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khv03nzuD5ZUzXV5xaLPCjgbjepMq7Jhq90kyuocubUCQQtjs3p17/buZDyr0Apa0
-         XJXVRQ8sZlL5xtNYvmgfbZ9lrWlAya0+sCQ7GfRIIkft6XSZ1yzmpQJ8g9lT6yeZaB
-         RIJcc3kCwd5vcNIyiOMQC9Fw+0eQZQNaEd8nQyRE=
+        b=intx3gVkN2TpnFO2WOtfqLjpfVpwQJyUDh0AhTFP+Y/F9idjS7X9FO3V9YdoFKdR9
+         xBATgYzsdZIaE0nGSvAVK3Q80MBYeeaevTGLrqtfvhabxoZ2vFOBQX2Ol/7WxFF8Dz
+         8gYhB/dL8ICfZOqDEshXvOI38v/CFORKr7v1kny0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
-        Horace Chen <horace.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 123/148] drm/amd/amdgpu: fixing read wrong pf2vf data in SRIOV
-Date:   Mon, 26 Sep 2022 12:12:37 +0200
-Message-Id: <20220926100800.761550453@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+31c9594f6e43b9289b25@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Rafael Mendonca <rafaelmendsr@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 170/207] block: Do not call blk_put_queue() if gendisk allocation fails
+Date:   Mon, 26 Sep 2022 12:12:39 +0200
+Message-Id: <20220926100814.266479156@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingwen Chen <Jingwen.Chen2@amd.com>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-commit 9a458402fb69bda886aa6cbe067311b6e3d9c52a upstream.
+commit aa0c680c3aa96a5f9f160d90dd95402ad578e2b0 upstream.
 
-[Why]
-This fixes 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange").
-we should read pf2vf data based at mman.fw_vram_usage_va after gmc
-sw_init. commit 892deb48269c breaks this logic.
+Commit 6f8191fdf41d ("block: simplify disk shutdown") removed the call
+to blk_get_queue() during gendisk allocation but missed to remove the
+corresponding cleanup code blk_put_queue() for it. Thus, if the gendisk
+allocation fails, the request_queue refcount gets decremented and
+reaches 0, causing blk_mq_release() to be called with a hctx still
+alive. That triggers a WARNING report, as found by syzkaller:
 
-[How]
-calling amdgpu_virt_exchange_data in amdgpu_virt_init_data_exchange to
-set the right base in the right sequence.
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 23016 at block/blk-mq.c:3881
+blk_mq_release+0xf8/0x3e0 block/blk-mq.c:3881
+[...] stripped
+RIP: 0010:blk_mq_release+0xf8/0x3e0 block/blk-mq.c:3881
+[...] stripped
+Call Trace:
+ <TASK>
+ blk_release_queue+0x153/0x270 block/blk-sysfs.c:780
+ kobject_cleanup lib/kobject.c:673 [inline]
+ kobject_release lib/kobject.c:704 [inline]
+ kref_put include/linux/kref.h:65 [inline]
+ kobject_put+0x1c8/0x540 lib/kobject.c:721
+ __alloc_disk_node+0x4f7/0x610 block/genhd.c:1388
+ __blk_mq_alloc_disk+0x13b/0x1f0 block/blk-mq.c:3961
+ loop_add+0x3e2/0xaf0 drivers/block/loop.c:1978
+ loop_control_ioctl+0x133/0x620 drivers/block/loop.c:2150
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:870 [inline]
+ __se_sys_ioctl fs/ioctl.c:856 [inline]
+ __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[...] stripped
 
-v2:
-call amdgpu_virt_init_data_exchange after gmc sw_init to make data
-exchange workqueue run
-
-v3:
-clean up the code logic
-
-v4:
-add some comment and make the code more readable
-
-Fixes: 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange")
-Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
-Reviewed-by: Horace Chen <horace.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 6f8191fdf41d ("block: simplify disk shutdown")
+Reported-by: syzbot+31c9594f6e43b9289b25@syzkaller.appspotmail.com
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220811232338.254673-1-rafaelmendsr@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c   |   20 +++++++-------------
- 2 files changed, 8 insertions(+), 14 deletions(-)
+ block/genhd.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2433,7 +2433,7 @@ static int amdgpu_device_ip_init(struct
- 	}
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -1359,7 +1359,7 @@ struct gendisk *__alloc_disk_node(struct
  
- 	if (amdgpu_sriov_vf(adev))
--		amdgpu_virt_exchange_data(adev);
-+		amdgpu_virt_init_data_exchange(adev);
+ 	disk = kzalloc_node(sizeof(struct gendisk), GFP_KERNEL, node_id);
+ 	if (!disk)
+-		goto out_put_queue;
++		return NULL;
  
- 	r = amdgpu_ib_pool_init(adev);
- 	if (r) {
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -618,20 +618,20 @@ void amdgpu_virt_init_data_exchange(stru
- 	adev->virt.fw_reserve.p_vf2pf = NULL;
- 	adev->virt.vf2pf_update_interval_ms = 0;
- 
--	if (adev->bios != NULL) {
--		adev->virt.vf2pf_update_interval_ms = 2000;
-+	if (adev->mman.fw_vram_usage_va != NULL) {
-+		/* go through this logic in ip_init and reset to init workqueue*/
-+		amdgpu_virt_exchange_data(adev);
- 
-+		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
-+		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
-+	} else if (adev->bios != NULL) {
-+		/* got through this logic in early init stage to get necessary flags, e.g. rlcg_acc related*/
- 		adev->virt.fw_reserve.p_pf2vf =
- 			(struct amd_sriov_msg_pf2vf_info_header *)
- 			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
- 
- 		amdgpu_virt_read_pf2vf_data(adev);
- 	}
--
--	if (adev->virt.vf2pf_update_interval_ms != 0) {
--		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
--		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
--	}
- }
- 
- 
-@@ -667,12 +667,6 @@ void amdgpu_virt_exchange_data(struct am
- 				if (adev->virt.ras_init_done)
- 					amdgpu_virt_add_bad_page(adev, bp_block_offset, bp_block_size);
- 			}
--	} else if (adev->bios != NULL) {
--		adev->virt.fw_reserve.p_pf2vf =
--			(struct amd_sriov_msg_pf2vf_info_header *)
--			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
--
--		amdgpu_virt_read_pf2vf_data(adev);
- 	}
+ 	disk->bdi = bdi_alloc(node_id);
+ 	if (!disk->bdi)
+@@ -1403,8 +1403,6 @@ out_free_bdi:
+ 	bdi_put(disk->bdi);
+ out_free_disk:
+ 	kfree(disk);
+-out_put_queue:
+-	blk_put_queue(q);
+ 	return NULL;
  }
  
 
