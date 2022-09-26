@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C4A5EA71B
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888795EA5B3
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234169AbiIZN1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 09:27:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44890 "EHLO
+        id S236927AbiIZMOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:14:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234275AbiIZN0w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:26:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43F775FD7;
-        Mon, 26 Sep 2022 04:51:39 -0700 (PDT)
+        with ESMTP id S239584AbiIZMNn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:13:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0194F196;
+        Mon, 26 Sep 2022 03:58:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4623AB80691;
-        Mon, 26 Sep 2022 10:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE715C433D6;
-        Mon, 26 Sep 2022 10:46:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76762604F5;
+        Mon, 26 Sep 2022 10:46:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 836CFC43141;
+        Mon, 26 Sep 2022 10:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189204;
-        bh=8Av7/e3VDqxsQaUnOOUZQ42WRu1s+S3WKW+HmkedUAw=;
+        s=korg; t=1664189206;
+        bh=8J29lsujgPPQZQZIeLZnW3XufyGdE1hUpb/14e0fxFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XVD2hoFZcviqgypLvLmQIycBKA9evZDEBI7SVH7381czKyb4C/5sUVKQy+PO1kA8
-         dIzg0VNWwEcJ8zkXr4wCuR4Zf2EecuebSjPxnMoO/8HHkbDsVmS2fqwB/wf+Uhb1c2
-         GxjFvGhkb1CCtUy3/EmPCmCfSmfzRvIl/BksAZhg=
+        b=Cv3YF2GY+5wbh2+IvUW8zi/lnwgFrIjqjBhQXz0QdfbWPl4axVtT8SBb8nqPtBqu1
+         FthoFNX+7R6/i8Pqk9Hn7cHYCdCRJwJq87pyZFfIYZUQB5mzIcf+PECWtPunGUviwB
+         1SuOmbdLOex6qzoKHWN7b5argC/KReeVxItSTXck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Schocher <hs@denx.de>,
-        Fabio Estevam <festevam@denx.de>, Marek Vasut <marex@denx.de>,
+        stable@vger.kernel.org, Feng Tang <feng.tang@intel.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Waiman Long <longman@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 108/207] drm/panel: simple: Fix innolux_g121i1_l01 bus_format
-Date:   Mon, 26 Sep 2022 12:11:37 +0200
-Message-Id: <20220926100811.434576489@linuxfoundation.org>
+Subject: [PATCH 5.19 109/207] mm/slab_common: fix possible double free of kmem_cache
+Date:   Mon, 26 Sep 2022 12:11:38 +0200
+Message-Id: <20220926100811.481562993@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -53,36 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Schocher <hs@denx.de>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit a7c48a0ab87ae52c087d663e83e56b8225ac4cce ]
+[ Upstream commit d71608a877362becdc94191f190902fac1e64d35 ]
 
-innolux_g121i1_l01 sets bpc to 6, so use the corresponding bus format:
-MEDIA_BUS_FMT_RGB666_1X7X3_SPWG.
+When doing slub_debug test, kfence's 'test_memcache_typesafe_by_rcu'
+kunit test case cause a use-after-free error:
 
-Fixes: 4ae13e486866 ("drm/panel: simple: Add more properties to Innolux G121I1-L01")
-Signed-off-by: Heiko Schocher <hs@denx.de>
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220826165021.1592532-1-festevam@denx.de
+  BUG: KASAN: use-after-free in kobject_del+0x14/0x30
+  Read of size 8 at addr ffff888007679090 by task kunit_try_catch/261
+
+  CPU: 1 PID: 261 Comm: kunit_try_catch Tainted: G    B            N 6.0.0-rc5-next-20220916 #17
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x48
+   print_address_description.constprop.0+0x87/0x2a5
+   print_report+0x103/0x1ed
+   kasan_report+0xb7/0x140
+   kobject_del+0x14/0x30
+   kmem_cache_destroy+0x130/0x170
+   test_exit+0x1a/0x30
+   kunit_try_run_case+0xad/0xc0
+   kunit_generic_run_threadfn_adapter+0x26/0x50
+   kthread+0x17b/0x1b0
+   </TASK>
+
+The cause is inside kmem_cache_destroy():
+
+kmem_cache_destroy
+    acquire lock/mutex
+    shutdown_cache
+        schedule_work(kmem_cache_release) (if RCU flag set)
+    release lock/mutex
+    kmem_cache_release (if RCU flag not set)
+
+In some certain timing, the scheduled work could be run before
+the next RCU flag checking, which can then get a wrong value
+and lead to double kmem_cache_release().
+
+Fix it by caching the RCU flag inside protected area, just like 'refcnt'
+
+Fixes: 0495e337b703 ("mm/slab_common: Deleting kobject in kmem_cache_destroy() without holding slab_mutex/cpu_hotplug_lock")
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Reviewed-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/slab_common.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 4a2e580a2f7b..0e001ce8a40f 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2136,7 +2136,7 @@ static const struct panel_desc innolux_g121i1_l01 = {
- 		.enable = 200,
- 		.disable = 20,
- 	},
--	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
-+	.bus_format = MEDIA_BUS_FMT_RGB666_1X7X3_SPWG,
- 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
- };
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index dbd4b6f9b0e7..29ae1358d5f0 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -503,6 +503,7 @@ void slab_kmem_cache_release(struct kmem_cache *s)
+ void kmem_cache_destroy(struct kmem_cache *s)
+ {
+ 	int refcnt;
++	bool rcu_set;
  
+ 	if (unlikely(!s) || !kasan_check_byte(s))
+ 		return;
+@@ -510,6 +511,8 @@ void kmem_cache_destroy(struct kmem_cache *s)
+ 	cpus_read_lock();
+ 	mutex_lock(&slab_mutex);
+ 
++	rcu_set = s->flags & SLAB_TYPESAFE_BY_RCU;
++
+ 	refcnt = --s->refcount;
+ 	if (refcnt)
+ 		goto out_unlock;
+@@ -520,7 +523,7 @@ void kmem_cache_destroy(struct kmem_cache *s)
+ out_unlock:
+ 	mutex_unlock(&slab_mutex);
+ 	cpus_read_unlock();
+-	if (!refcnt && !(s->flags & SLAB_TYPESAFE_BY_RCU))
++	if (!refcnt && !rcu_set)
+ 		kmem_cache_release(s);
+ }
+ EXPORT_SYMBOL(kmem_cache_destroy);
 -- 
 2.35.1
 
