@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7CCF5EA3BD
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A700F5EA40C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237827AbiIZLcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:32:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40914 "EHLO
+        id S237989AbiIZLjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:39:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233578AbiIZLb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:31:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039356CF6D;
-        Mon, 26 Sep 2022 03:42:28 -0700 (PDT)
+        with ESMTP id S238240AbiIZLik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:38:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF02260B;
+        Mon, 26 Sep 2022 03:44:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 734AFB80760;
-        Mon, 26 Sep 2022 10:42:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7418C433D6;
-        Mon, 26 Sep 2022 10:42:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D82D60A37;
+        Mon, 26 Sep 2022 10:42:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E5C5C433C1;
+        Mon, 26 Sep 2022 10:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188943;
-        bh=eaaHNBE6K/7q1W3ZF1vhSRG5mT9ySuUriyXoVAHOO0o=;
+        s=korg; t=1664188946;
+        bh=4dbwDwZ0eBnfjVz2XPlQVhmi10ewahaSZNSGTnSir1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGn26rpU6DXzd2dRoOd0f5g6XvgTT0IBBYdJPia1Upvu6tW0PIAkpJjNTKwCQYW4E
-         UfViyhtRqa1jYAU7BMXNc4og1bDr/m96swWxTJwTW+P1+A7TkA+8ASimf+a8YBGTIi
-         BoBMai+613ahYdOJ6peiezyErlEswhfpozlbSZXk=
+        b=ehpVOwxKmA4kZWiBYysLVvNo0/tbusDaK33yKa71wO7eMaFoB99R3izYgk6eldU29
+         Hy4wUnY22oIVUCtE+yj1SNsUZskVbAiyFFLNhQAw8KlcODFhasL51TzmJPSyFIpwzT
+         e/3a9n4HzoXvow3ty1pZOhQvlvjNooNc58XUflGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.19 022/207] USB: core: Fix RST error in hub.c
-Date:   Mon, 26 Sep 2022 12:10:11 +0200
-Message-Id: <20220926100807.473475716@linuxfoundation.org>
+        stable@vger.kernel.org, Carl Yin <carl.yin@quectel.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.19 023/207] USB: serial: option: add Quectel BG95 0x0203 composition
+Date:   Mon, 26 Sep 2022 12:10:12 +0200
+Message-Id: <20220926100807.512498693@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -53,34 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Carl Yin(殷张成) <carl.yin@quectel.com>
 
-commit 766a96dc558385be735a370db867e302c8f22153 upstream.
+commit f8f67eff6847f9b8d753fa029723bcc54296055a upstream.
 
-A recent commit added an invalid RST expression to a kerneldoc comment
-in hub.c.  The fix is trivial.
+Add support for the following Quectel BG95 composition:
 
-Fixes: 9c6d778800b9 ("USB: core: Prevent nested device-reset calls")
-Cc: <stable@vger.kernel.org>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Reviewed-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YxDDcsLtRZ7c20pq@rowland.harvard.edu
+0x0203: Diag + GNSS + Modem + ECM
+
+usb-devices output:
+T:  Bus=01 Lev=01 Prnt=01 Port=03 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0203 Rev= 0.00
+S:  Manufacturer=Quectel, Incorporated
+S:  Product=Quectel LPWA Module
+S:  SerialNumber=71d3a21b
+C:* #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
+A:  FirstIf#= 3 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+I:  If#= 4 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Carl Yin <carl.yin@quectel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -6049,7 +6049,7 @@ re_enumerate:
-  *
-  * Return: The same as for usb_reset_and_verify_device().
-  * However, if a reset is already in progress (for instance, if a
-- * driver doesn't have pre_ or post_reset() callbacks, and while
-+ * driver doesn't have pre_reset() or post_reset() callbacks, and while
-  * being unbound or re-bound during the ongoing reset its disconnect()
-  * or probe() routine tries to perform a second, nested reset), the
-  * routine returns -EINPROGRESS.
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1138,6 +1138,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95, 0xff, 0xff, 0xff),
+ 	  .driver_info = NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95, 0xff, 0, 0) },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, 0x0203, 0xff), /* BG95-M3 */
++	  .driver_info = ZLP },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
 
 
