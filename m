@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF14C5EA05D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 233805EA469
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236022AbiIZKge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:36:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43058 "EHLO
+        id S238504AbiIZLp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:45:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236345AbiIZKez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400CF52445;
-        Mon, 26 Sep 2022 03:21:31 -0700 (PDT)
+        with ESMTP id S238593AbiIZLoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:44:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B757B72EE5;
+        Mon, 26 Sep 2022 03:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9367B80930;
-        Mon, 26 Sep 2022 10:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171C7C433C1;
-        Mon, 26 Sep 2022 10:21:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A80C60B4A;
+        Mon, 26 Sep 2022 10:46:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89234C433D6;
+        Mon, 26 Sep 2022 10:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187686;
-        bh=Ji2r6XNoEewK9dXzBsIN8hQ9R8TMbrYeQHGZa3VUuHg=;
+        s=korg; t=1664189189;
+        bh=oHJrHC5swQbQx3rRPj9uqKWfZmoJftkitufj0CnE7hU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1m2Q9jpRk4bFJrzVybIZ9DB/jOiOjy3owfUChDA9CMt/5pS3/OHyAZQbcMWHg9Ngb
-         Fi5lMQS2/+QpvOI6z9O8kDzs70wjTAyOmSvPo6XBzlCxLU8at/pqO1WPa87nBb0n8b
-         BHbhtkSpyZ/YnoZFE+RqhJbF+Vpr2vJYgCMeIYgg=
+        b=u8NCbVYG91ui20vQr2PP5099jwegd6AvStthRmuXdsACykrqxYd04yoeNhANxiGze
+         nBZc4+c2XFZgO82fShGW1eB15Vf7dbC5z7jYgWClpsxgzeWi50BvWYitOrrbIWUN4Y
+         0PrbTO2YjsQMLKNGDg1G5P360zMFmqvc93xvGo90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 027/120] cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 071/207] firmware: arm_scmi: Harden accesses to the reset domains
 Date:   Mon, 26 Sep 2022 12:11:00 +0200
-Message-Id: <20220926100751.633857388@linuxfoundation.org>
+Message-Id: <20220926100809.774457281@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 43626dade36fa74d3329046f4ae2d7fdefe401c6 upstream.
+[ Upstream commit e9076ffbcaed5da6c182b144ef9f6e24554af268 ]
 
-syzbot is hitting percpu_rwsem_assert_held(&cpu_hotplug_lock) warning at
-cpuset_attach() [1], for commit 4f7e7236435ca0ab ("cgroup: Fix
-threadgroup_rwsem <-> cpus_read_lock() deadlock") missed that
-cpuset_attach() is also called from cgroup_attach_task_all().
-Add cpus_read_lock() like what cgroup_procs_write_start() does.
+Accessing reset domains descriptors by the index upon the SCMI drivers
+requests through the SCMI reset operations interface can potentially
+lead to out-of-bound violations if the SCMI driver misbehave.
 
-Link: https://syzkaller.appspot.com/bug?extid=29d3a3b4d86c8136ad9e [1]
-Reported-by: syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 4f7e7236435ca0ab ("cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add an internal consistency check before any such domains descriptors
+accesses.
+
+Link: https://lore.kernel.org/r/20220817172731.1185305-5-cristian.marussi@arm.com
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Stable-dep-of: b75c83d9b961 ("firmware: arm_scmi: Fix the asynchronous reset requests")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/firmware/arm_scmi/reset.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -15,6 +15,7 @@
- #include <linux/pid_namespace.h>
- #include <linux/cgroupstats.h>
- #include <linux/fs_parser.h>
-+#include <linux/cpu.h>
+diff --git a/drivers/firmware/arm_scmi/reset.c b/drivers/firmware/arm_scmi/reset.c
+index 673f3eb498f4..b0494165b1cb 100644
+--- a/drivers/firmware/arm_scmi/reset.c
++++ b/drivers/firmware/arm_scmi/reset.c
+@@ -166,8 +166,12 @@ static int scmi_domain_reset(const struct scmi_protocol_handle *ph, u32 domain,
+ 	struct scmi_xfer *t;
+ 	struct scmi_msg_reset_domain_reset *dom;
+ 	struct scmi_reset_info *pi = ph->get_priv(ph);
+-	struct reset_dom_info *rdom = pi->dom_info + domain;
++	struct reset_dom_info *rdom;
  
- #include <trace/events/cgroup.h>
++	if (domain >= pi->num_domains)
++		return -EINVAL;
++
++	rdom = pi->dom_info + domain;
+ 	if (rdom->async_reset)
+ 		flags |= ASYNCHRONOUS_RESET;
  
-@@ -62,6 +63,7 @@ int cgroup_attach_task_all(struct task_s
- 	int retval = 0;
- 
- 	mutex_lock(&cgroup_mutex);
-+	cpus_read_lock();
- 	percpu_down_write(&cgroup_threadgroup_rwsem);
- 	for_each_root(root) {
- 		struct cgroup *from_cgrp;
-@@ -78,6 +80,7 @@ int cgroup_attach_task_all(struct task_s
- 			break;
- 	}
- 	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cpus_read_unlock();
- 	mutex_unlock(&cgroup_mutex);
- 
- 	return retval;
+-- 
+2.35.1
+
 
 
