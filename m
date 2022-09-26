@@ -2,113 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67ADF5EA24C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120085E9FB8
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237297AbiIZLFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:05:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
+        id S235393AbiIZK3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237472AbiIZLER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:04:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4345F994;
-        Mon, 26 Sep 2022 03:33:10 -0700 (PDT)
+        with ESMTP id S235529AbiIZK1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:27:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E71D14DF30;
+        Mon, 26 Sep 2022 03:18:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3095DB80691;
-        Mon, 26 Sep 2022 10:30:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96534C433D7;
-        Mon, 26 Sep 2022 10:30:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AF349CE10E7;
+        Mon, 26 Sep 2022 10:18:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D9FC433C1;
+        Mon, 26 Sep 2022 10:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188242;
-        bh=GmsPVQjk22w5J/YIIk1+Ibh2hLoTPH+XqkuhKb9rjus=;
+        s=korg; t=1664187513;
+        bh=pbT2fg2QOVi6U/rK8F+6R/wuL+JzTs9OXgQB/IY9PK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiEuwTeFOUECaA1BGxSw0k2HxhuDiNlcQnx3f08XqHve4Q4N/QnDxkqm9g1NQU7jm
-         ukKGZ3LENqdKq1uHBafpQPTe4JHcj9DAH63vNj1fDdJHUlHHDQLaLIaigqyRBqHKd3
-         LWlvBABwpr8QvFE3bAd4Ig0rmETayra8kkEAyM9k=
+        b=cB0izfC79FybZE3P4Ec3pU+Cg0bCwYKdDmqZWDkWe9FGtzFGW2xpqS7sai91vgyCA
+         Rs47hYdDwi9K+sY9VkLfS39Y2ka4nj0EQuua4eKCI5byGX5Gw2uY1OrTPtw6//0bDu
+         fIXkmmxY+JBUWlmy/EMrEL/KxDMr/bZ+bxZaCZ5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 085/141] iavf: Fix set max MTU size with port VLAN and jumbo frames
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 4.19 32/58] riscv: fix a nasty sigreturn bug...
 Date:   Mon, 26 Sep 2022 12:11:51 +0200
-Message-Id: <20220926100757.522257618@linuxfoundation.org>
+Message-Id: <20220926100742.656986719@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Jaron <michalx.jaron@intel.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 399c98c4dc50b7eb7e9f24da7ffdda6f025676ef ]
+commit 762df359aa5849e010ef04c3ed79d57588ce17d9 upstream.
 
-After setting port VLAN and MTU to 9000 on VF with ice driver there
-was an iavf error
-"PF returned error -5 (IAVF_ERR_PARAM) to our request 6".
+riscv has an equivalent of arm bug fixed by 653d48b22166 ("arm: fix
+really nasty sigreturn bug"); if signal gets caught by an interrupt that
+hits when we have the right value in a0 (-513), *and* another signal
+gets delivered upon sigreturn() (e.g. included into the blocked mask for
+the first signal and posted while the handler had been running), the
+syscall restart logics will see regs->cause equal to EXC_SYSCALL (we are
+in a syscall, after all) and a0 already restored to its original value
+(-513, which happens to be -ERESTARTNOINTR) and assume that we need to
+apply the usual syscall restart logics.
 
-During queue configuration, VF's max packet size was set to
-IAVF_MAX_RXBUFFER but on ice max frame size was smaller by VLAN_HLEN
-due to making some space for port VLAN as VF is not aware whether it's
-in a port VLAN. This mismatch in sizes caused ice to reject queue
-configuration with ERR_PARAM error. Proper max_mtu is sent from ice PF
-to VF with GET_VF_RESOURCES msg but VF does not look at this.
-
-In iavf change max_frame from IAVF_MAX_RXBUFFER to max_mtu
-received from pf with GET_VF_RESOURCES msg to make vf's
-max_frame_size dependent from pf. Add check if received max_mtu is
-not in eligible range then set it to IAVF_MAX_RXBUFFER.
-
-Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YxJEiSq%2FCGaL6Gm9@ZenIV/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_virtchnl.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/signal.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-index ff479bf72144..5deee75bc436 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-@@ -241,11 +241,14 @@ int iavf_get_vf_config(struct iavf_adapter *adapter)
- void iavf_configure_queues(struct iavf_adapter *adapter)
- {
- 	struct virtchnl_vsi_queue_config_info *vqci;
--	struct virtchnl_queue_pair_info *vqpi;
-+	int i, max_frame = adapter->vf_res->max_mtu;
- 	int pairs = adapter->num_active_queues;
--	int i, max_frame = IAVF_MAX_RXBUFFER;
-+	struct virtchnl_queue_pair_info *vqpi;
- 	size_t len;
+--- a/arch/riscv/kernel/signal.c
++++ b/arch/riscv/kernel/signal.c
+@@ -105,6 +105,8 @@ SYSCALL_DEFINE0(rt_sigreturn)
+ 	if (restore_altstack(&frame->uc.uc_stack))
+ 		goto badframe;
  
-+	if (max_frame > IAVF_MAX_RXBUFFER || !max_frame)
-+		max_frame = IAVF_MAX_RXBUFFER;
++	regs->cause = -1UL;
 +
- 	if (adapter->current_op != VIRTCHNL_OP_UNKNOWN) {
- 		/* bail because we already have a command pending */
- 		dev_err(&adapter->pdev->dev, "Cannot configure queues, command %d pending\n",
--- 
-2.35.1
-
+ 	return regs->a0;
+ 
+ badframe:
 
 
