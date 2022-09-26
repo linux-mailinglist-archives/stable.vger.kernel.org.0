@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3638B5E9EE4
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5414A5EA2F7
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235046AbiIZKPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:15:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
+        id S237684AbiIZLRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:17:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235048AbiIZKPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:15:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FA7E016;
-        Mon, 26 Sep 2022 03:14:18 -0700 (PDT)
+        with ESMTP id S237613AbiIZLQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:16:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC1A6567F;
+        Mon, 26 Sep 2022 03:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E6060C0B;
-        Mon, 26 Sep 2022 10:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0490C433C1;
-        Mon, 26 Sep 2022 10:14:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0617609FE;
+        Mon, 26 Sep 2022 10:37:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC8E1C433C1;
+        Mon, 26 Sep 2022 10:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187257;
-        bh=Yq2zNuwlh4qQrtWhiCD9oJKsITCsDdmBPn/mJK9Qrqc=;
+        s=korg; t=1664188658;
+        bh=44uvuElUY/k92IiWbrWZ5e/+nDXxGHEqPNjElkQudeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjNtjvoJAxHl0oWhh3SqVNLpSi+QgQyKnHjhu/ANHpBegMMgY+kNfPwxEZaNT2+5u
-         oTme94c5VGuZhI/lDXJH6DmP6xMZVIjLdcleZWJ6bbdP53jQzti0SArHBtEJ4J4fnv
-         7lCBQp4gunbxyfGRtHlTQfnsTqpiKxA+Ew8X3Hwc=
+        b=l1bhZ+NcfwdIolDK+m7wYBEyf7/ZSTOVyXrtXjIPrDIuPhvW9dBIP/AyRQm5w3JBw
+         UfTEMY9zcmAF9PwnytHGDCt9sBgPzvhQTvtTzlfDhH7P1flEa2yNbM1ftfpcj6xywh
+         WzX4fhBqocJu4Z+1U1/wXETdGV999d1o+Y2oNMKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/30] net: team: Unsync device addresses on ndo_stop
+Subject: [PATCH 5.15 078/148] net: team: Unsync device addresses on ndo_stop
 Date:   Mon, 26 Sep 2022 12:11:52 +0200
-Message-Id: <20220926100736.912292608@linuxfoundation.org>
+Message-Id: <20220926100758.961073350@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -84,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 18 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index 001dea7aaba3..657e12e0b5e2 100644
+index dd7917cab2b1..ab8f5097d3b0 100644
 --- a/drivers/net/team/team.c
 +++ b/drivers/net/team/team.c
-@@ -1280,10 +1280,12 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
+@@ -1270,10 +1270,12 @@ static int team_port_add(struct team *team, struct net_device *port_dev,
  		}
  	}
  
@@ -104,7 +105,7 @@ index 001dea7aaba3..657e12e0b5e2 100644
  
  	port->index = -1;
  	list_add_tail_rcu(&port->list, &team->port_list);
-@@ -1354,8 +1356,10 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
+@@ -1344,8 +1346,10 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
  	netdev_rx_handler_unregister(port_dev);
  	team_port_disable_netpoll(port);
  	vlan_vids_del_by_dev(port_dev, dev);
@@ -117,7 +118,7 @@ index 001dea7aaba3..657e12e0b5e2 100644
  	dev_close(port_dev);
  	team_port_leave(team, port);
  
-@@ -1703,6 +1707,14 @@ static int team_open(struct net_device *dev)
+@@ -1695,6 +1699,14 @@ static int team_open(struct net_device *dev)
  
  static int team_close(struct net_device *dev)
  {
