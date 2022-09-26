@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBA35EA46B
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4975EA0DE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238515AbiIZLp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
+        id S236286AbiIZKmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238379AbiIZLnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:43:21 -0400
+        with ESMTP id S236290AbiIZKlJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:41:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370015508B;
-        Mon, 26 Sep 2022 03:46:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B7654660;
+        Mon, 26 Sep 2022 03:24:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDAC260B55;
-        Mon, 26 Sep 2022 10:45:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2B4C433C1;
-        Mon, 26 Sep 2022 10:45:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AD0D60B7E;
+        Mon, 26 Sep 2022 10:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DB98C433C1;
+        Mon, 26 Sep 2022 10:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189122;
-        bh=df8/eRBlP1PeK6BKFY7uxt1LSUL6QU9ec6A+wvlYhMM=;
+        s=korg; t=1664187801;
+        bh=ro6m7C/bg7snchqXrcsCCConBzeIdd6JQ1ZeDqS7cxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KbcXclnajl1aLjA/iPFYuHFqPs96nRZ0TaxXvwM4NVDTpxYxuellkUGZSb06FEDL8
-         g9VUYK7PIVFNYD3m78nHmq9lAEOcqk2g7gIaVJj/pBNZlmZXhanOua7lW/Tc5abAc5
-         7538RfoZdqR71SJ5MbYlVxFUurPvHkHuFizMsJ2g=
+        b=pj/sLBPeNUuzoNbHl5oq/W8WtRtIaHnDLuixSDMRW6bkJ4xlevHKboVu3X5It5aHU
+         0BCe0bzOuG+iC+QfzKMA52yPY6v+EKr16y7EbbE2wZesmKH+EMlm608YjOco/DgWbi
+         tZ4ikuANIlJxBC008k3tiuyP/NUG7bBs6cZEJUYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 081/207] dmaengine: ti: k3-udma-private: Fix refcount leak bug in of_xudma_dev_get()
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 037/120] usb: xhci-mtk: use @sch_tt to check whether need do TT schedule
 Date:   Mon, 26 Sep 2022 12:11:10 +0200
-Message-Id: <20220926100810.203362643@linuxfoundation.org>
+Message-Id: <20220926100752.048483753@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit f9fdb0b86f087c2b7f6c6168dd0985a3c1eda87e ]
+[ Upstream commit 4a56adf4fafbc41ceffce0c3f385f59d4fc3c16a ]
 
-We should call of_node_put() for the reference returned by
-of_parse_phandle() in fail path or when it is not used anymore.
-Here we only need to move the of_node_put() before the check.
+It's clearer to use @sch_tt to check whether need do TT schedule,
+no function is changed.
 
-Fixes: d70241913413 ("dmaengine: ti: k3-udma: Add glue layer for non DMAengine users")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220720073234.1255474-1-windhl@126.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/324a76782ccaf857a8f01f67aee435e8ec7d0e28.1615170625.git.chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 548011957d1d ("usb: xhci-mtk: relax TT periodic bandwidth allocation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma-private.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index d4f1e4e9603a..85e00701473c 100644
---- a/drivers/dma/ti/k3-udma-private.c
-+++ b/drivers/dma/ti/k3-udma-private.c
-@@ -31,14 +31,14 @@ struct udma_dev *of_xudma_dev_get(struct device_node *np, const char *property)
- 	}
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index 59ba25ca018d..b1da3cb077c9 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -548,7 +548,7 @@ static int check_sch_bw(struct usb_device *udev,
+ 	min_num_budget = sch_ep->num_budget_microframes;
+ 	esit_boundary = get_esit_boundary(sch_ep);
+ 	for (offset = 0; offset < sch_ep->esit; offset++) {
+-		if (is_fs_or_ls(udev->speed)) {
++		if (sch_ep->sch_tt) {
+ 			ret = check_sch_tt(udev, sch_ep, offset);
+ 			if (ret)
+ 				continue;
+@@ -585,7 +585,7 @@ static int check_sch_bw(struct usb_device *udev,
+ 	sch_ep->cs_count = min_cs_count;
+ 	sch_ep->num_budget_microframes = min_num_budget;
  
- 	pdev = of_find_device_by_node(udma_node);
-+	if (np != udma_node)
-+		of_node_put(udma_node);
-+
- 	if (!pdev) {
- 		pr_debug("UDMA device not found\n");
- 		return ERR_PTR(-EPROBE_DEFER);
- 	}
- 
--	if (np != udma_node)
--		of_node_put(udma_node);
--
- 	ud = platform_get_drvdata(pdev);
- 	if (!ud) {
- 		pr_debug("UDMA has not been probed\n");
+-	if (is_fs_or_ls(udev->speed)) {
++	if (sch_ep->sch_tt) {
+ 		/* all offset for tt is not ok*/
+ 		if (!tt_offset_ok)
+ 			return -ERANGE;
 -- 
 2.35.1
 
