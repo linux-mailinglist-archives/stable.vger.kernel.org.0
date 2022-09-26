@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F08AD5EA21A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F8C05EA0B7
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237044AbiIZLCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41130 "EHLO
+        id S236273AbiIZKlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237072AbiIZLAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:00:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C1F5E306;
-        Mon, 26 Sep 2022 03:31:34 -0700 (PDT)
+        with ESMTP id S236626AbiIZKjs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999A16351;
+        Mon, 26 Sep 2022 03:23:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39CB6B80920;
-        Mon, 26 Sep 2022 10:30:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A67C433D6;
-        Mon, 26 Sep 2022 10:30:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB63F60B5E;
+        Mon, 26 Sep 2022 10:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF41C433C1;
+        Mon, 26 Sep 2022 10:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188201;
-        bh=FI7rEFrMOyPLbRt3cV65JHtUQoUe/HdoklP+CaTR/68=;
+        s=korg; t=1664187814;
+        bh=IOsAm3lIFxWYA7MBy0NKgThbBpwCwNAPrcuyr9Vmt7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McBw2FW1NsH81rD8heYbykkcTGZu22HK2QmibVIsL4Kku7CzuyxQ7QDkCzFvTeUzl
-         /b/+q/sJ19tjJ7mxFIspuHJhEIvB7qwsWg2Ghrt2H7nosdMYuGF+HxLOy8bY1GkSvQ
-         b0gK7xcyYZ44higu8bRbYcSj7CZZ7PQeQIIfr+V0=
+        b=s12E//BtVe7vAjKmG3VrmCs2qtb+KQ4YPXrwcicegfqSqgIRY0JhJA+32Kk6Sssq/
+         ipxSSBoT28JFOzQnIZdWyxE7BhkYifSOMInKB1IsRPHCk+deAhp/2xko/bOiirNCll
+         bx8LnkmMxuFH/I14F5W1w+Aye5oy1qqeALP/ZdQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhang kai <zhangkaiheb@126.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        zain wang <wzz@rock-chips.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/141] net: let flow have same hash in two directions
-Date:   Mon, 26 Sep 2022 12:11:39 +0200
-Message-Id: <20220926100757.094339606@linuxfoundation.org>
+Subject: [PATCH 5.4 067/120] arm64: dts: rockchip: Set RK3399-Gru PCLK_EDP to 24 MHz
+Date:   Mon, 26 Sep 2022 12:11:40 +0200
+Message-Id: <20220926100753.431131212@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhang kai <zhangkaiheb@126.com>
+From: zain wang <wzz@rock-chips.com>
 
-[ Upstream commit 1e60cebf82948cfdc9497ea4553bab125587593c ]
+[ Upstream commit 8123437cf46ea5a0f6ca5cb3c528d8b6db97b9c2 ]
 
-using same source and destination ip/port for flow hash calculation
-within the two directions.
+We've found the AUX channel to be less reliable with PCLK_EDP at a
+higher rate (typically 25 MHz). This is especially important on systems
+with PSR-enabled panels (like Gru-Kevin), since we make heavy, constant
+use of AUX.
 
-Signed-off-by: zhang kai <zhangkaiheb@126.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 64ae13ed4784 ("net: core: fix flow symmetric hash")
+According to Rockchip, using any rate other than 24 MHz can cause
+"problems between syncing the PHY an PCLK", which leads to all sorts of
+unreliabilities around register operations.
+
+Fixes: d67a38c5a623 ("arm64: dts: rockchip: move core edp from rk3399-kevin to shared chromebook")
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: zain wang <wzz@rock-chips.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20220830131212.v2.1.I98d30623f13b785ca77094d0c0fd4339550553b6@changeid
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/flow_dissector.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index f9baa9b1c77f..aad311c73810 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -1485,7 +1485,7 @@ __be32 flow_get_u32_dst(const struct flow_keys *flow)
- }
- EXPORT_SYMBOL(flow_get_u32_dst);
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
+index 53185404d3c8..7416db3d27a7 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
+@@ -237,6 +237,14 @@ &cdn_dp {
+ &edp {
+ 	status = "okay";
  
--/* Sort the source and destination IP (and the ports if the IP are the same),
-+/* Sort the source and destination IP and the ports,
-  * to have consistent hash within the two directions
-  */
- static inline void __flow_hash_consistentify(struct flow_keys *keys)
-@@ -1496,11 +1496,11 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
- 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
- 		addr_diff = (__force u32)keys->addrs.v4addrs.dst -
- 			    (__force u32)keys->addrs.v4addrs.src;
--		if ((addr_diff < 0) ||
--		    (addr_diff == 0 &&
--		     ((__force u16)keys->ports.dst <
--		      (__force u16)keys->ports.src))) {
-+		if (addr_diff < 0)
- 			swap(keys->addrs.v4addrs.src, keys->addrs.v4addrs.dst);
++	/*
++	 * eDP PHY/clk don't sync reliably at anything other than 24 MHz. Only
++	 * set this here, because rk3399-gru.dtsi ensures we can generate this
++	 * off GPLL=600MHz, whereas some other RK3399 boards may not.
++	 */
++	assigned-clocks = <&cru PCLK_EDP>;
++	assigned-clock-rates = <24000000>;
 +
-+		if ((__force u16)keys->ports.dst <
-+		    (__force u16)keys->ports.src) {
- 			swap(keys->ports.src, keys->ports.dst);
- 		}
- 		break;
-@@ -1508,13 +1508,13 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
- 		addr_diff = memcmp(&keys->addrs.v6addrs.dst,
- 				   &keys->addrs.v6addrs.src,
- 				   sizeof(keys->addrs.v6addrs.dst));
--		if ((addr_diff < 0) ||
--		    (addr_diff == 0 &&
--		     ((__force u16)keys->ports.dst <
--		      (__force u16)keys->ports.src))) {
-+		if (addr_diff < 0) {
- 			for (i = 0; i < 4; i++)
- 				swap(keys->addrs.v6addrs.src.s6_addr32[i],
- 				     keys->addrs.v6addrs.dst.s6_addr32[i]);
-+		}
-+		if ((__force u16)keys->ports.dst <
-+		    (__force u16)keys->ports.src) {
- 			swap(keys->ports.src, keys->ports.dst);
- 		}
- 		break;
+ 	ports {
+ 		edp_out: port@1 {
+ 			reg = <1>;
 -- 
 2.35.1
 
