@@ -2,89 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142C05E9F3D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67ADF5EA24C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233807AbiIZKWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:22:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
+        id S237297AbiIZLFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:05:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235231AbiIZKVN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:21:13 -0400
+        with ESMTP id S237472AbiIZLER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:04:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE264B496;
-        Mon, 26 Sep 2022 03:16:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4345F994;
+        Mon, 26 Sep 2022 03:33:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71883B80918;
-        Mon, 26 Sep 2022 10:16:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D7DC433C1;
-        Mon, 26 Sep 2022 10:16:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3095DB80691;
+        Mon, 26 Sep 2022 10:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96534C433D7;
+        Mon, 26 Sep 2022 10:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187361;
-        bh=mh9Ts3VjliOd39lqc9cAsyEEHpbMW0v8yhe2SgmiIGU=;
+        s=korg; t=1664188242;
+        bh=GmsPVQjk22w5J/YIIk1+Ibh2hLoTPH+XqkuhKb9rjus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/+6rDOXjgTPjPAP0unqv749mo362BXV37jUmAmW2qhXYivOcbnpq48+Tkil353Mi
-         jg0JV5am7qA77nmuGWXakGUBP9j/PtmB5iPP3Bls/PjMmm4bE+tMFsW4EKFRuMP+yT
-         CiFKCJ7DNbT6gvvnXegINEQL7cc/ocQh1yJH8y4A=
+        b=ZiEuwTeFOUECaA1BGxSw0k2HxhuDiNlcQnx3f08XqHve4Q4N/QnDxkqm9g1NQU7jm
+         ukKGZ3LENqdKq1uHBafpQPTe4JHcj9DAH63vNj1fDdJHUlHHDQLaLIaigqyRBqHKd3
+         LWlvBABwpr8QvFE3bAd4Ig0rmETayra8kkEAyM9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/40] arm64: dts: rockchip: Remove enable-active-low from rk3399-puma
+Subject: [PATCH 5.10 085/141] iavf: Fix set max MTU size with port VLAN and jumbo frames
 Date:   Mon, 26 Sep 2022 12:11:51 +0200
-Message-Id: <20220926100739.159643361@linuxfoundation.org>
+Message-Id: <20220926100757.522257618@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit a994b34b9abb9c08ee09e835b4027ff2147f9d94 ]
+[ Upstream commit 399c98c4dc50b7eb7e9f24da7ffdda6f025676ef ]
 
-The 'enable-active-low' property is not a valid one.
+After setting port VLAN and MTU to 9000 on VF with ice driver there
+was an iavf error
+"PF returned error -5 (IAVF_ERR_PARAM) to our request 6".
 
-Only 'enable-active-high' is valid, and when this property is absent
-the gpio regulator will act as active low by default.
+During queue configuration, VF's max packet size was set to
+IAVF_MAX_RXBUFFER but on ice max frame size was smaller by VLAN_HLEN
+due to making some space for port VLAN as VF is not aware whether it's
+in a port VLAN. This mismatch in sizes caused ice to reject queue
+configuration with ERR_PARAM error. Proper max_mtu is sent from ice PF
+to VF with GET_VF_RESOURCES msg but VF does not look at this.
 
-Remove the invalid 'enable-active-low' property.
+In iavf change max_frame from IAVF_MAX_RXBUFFER to max_mtu
+received from pf with GET_VF_RESOURCES msg to make vf's
+max_frame_size dependent from pf. Add check if received max_mtu is
+not in eligible range then set it to IAVF_MAX_RXBUFFER.
 
-Fixes: 2c66fc34e945 ("arm64: dts: rockchip: add RK3399-Q7 (Puma) SoM")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Link: https://lore.kernel.org/r/20220827175140.1696699-1-festevam@denx.de
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_virtchnl.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-index 70fe6013d17c..c5981b99f958 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-@@ -139,7 +139,6 @@ vcc3v3_sys: vcc3v3-sys {
- 	vcc5v0_host: vcc5v0-host-regulator {
- 		compatible = "regulator-fixed";
- 		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
--		enable-active-low;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&vcc5v0_host_en>;
- 		regulator-name = "vcc5v0_host";
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
+index ff479bf72144..5deee75bc436 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
+@@ -241,11 +241,14 @@ int iavf_get_vf_config(struct iavf_adapter *adapter)
+ void iavf_configure_queues(struct iavf_adapter *adapter)
+ {
+ 	struct virtchnl_vsi_queue_config_info *vqci;
+-	struct virtchnl_queue_pair_info *vqpi;
++	int i, max_frame = adapter->vf_res->max_mtu;
+ 	int pairs = adapter->num_active_queues;
+-	int i, max_frame = IAVF_MAX_RXBUFFER;
++	struct virtchnl_queue_pair_info *vqpi;
+ 	size_t len;
+ 
++	if (max_frame > IAVF_MAX_RXBUFFER || !max_frame)
++		max_frame = IAVF_MAX_RXBUFFER;
++
+ 	if (adapter->current_op != VIRTCHNL_OP_UNKNOWN) {
+ 		/* bail because we already have a command pending */
+ 		dev_err(&adapter->pdev->dev, "Cannot configure queues, command %d pending\n",
 -- 
 2.35.1
 
