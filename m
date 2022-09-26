@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3254E5EA2C9
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DB25EA55B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235112AbiIZLOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:14:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44686 "EHLO
+        id S239215AbiIZMBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:01:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237626AbiIZLNq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6AC62A90;
-        Mon, 26 Sep 2022 03:36:18 -0700 (PDT)
+        with ESMTP id S239509AbiIZL7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:59:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E9957C301;
+        Mon, 26 Sep 2022 03:52:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B27960B6A;
-        Mon, 26 Sep 2022 10:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13AF5C433D7;
-        Mon, 26 Sep 2022 10:36:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA79CB8092F;
+        Mon, 26 Sep 2022 10:36:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0B5C433B5;
+        Mon, 26 Sep 2022 10:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188577;
-        bh=OnHJPjH4h6Nbsq01JGvqFhs1so7/TP+GxApbv3kVy+0=;
+        s=korg; t=1664188580;
+        bh=krG6r0BAd4epx5VJAgg6IscjhfzDMbCObp2RVjozjmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnU+9KX22U1LqZxz8nlQAig2F70NnpwWXiyzEpBgZMJsiewXzF4ZAZnis9Qerhe50
-         RJCh/ixd72nLbGR9+meO6FtiltShkl92J4sVDKiDDQ3rd/vJJsOLdBJbfuAFr6B3S9
-         QVPlBE2dlUiIp7xKdsUCriGU57bUrUtV8NDrulKc=
+        b=e3EY35AKqRNktN0LJJYC7oOe7OsvCQnJSKKpO0T8NURhyUelxqDQ4RKFBK6iwJ3Tj
+         ibpfgttZ++S5rCRum0tswVIHwM4Y/oqOD+S56LO6V+1klg30K8kjuwo2SnH5JmAhVa
+         Jti8vHEcKVxF0clf65/tJVF4MzOMENMg/Rt57M3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jerry meng <jerry-meng@foxmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 022/148] USB: serial: option: add Quectel RM520N
-Date:   Mon, 26 Sep 2022 12:10:56 +0200
-Message-Id: <20220926100756.880380365@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 023/148] Revert "ALSA: usb-audio: Split endpoint setups for hw_params and prepare"
+Date:   Mon, 26 Sep 2022 12:10:57 +0200
+Message-Id: <20220926100756.934158744@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
 References: <20220926100756.074519146@linuxfoundation.org>
@@ -52,68 +51,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jerry meng <jerry-meng@foxmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d640c4cb8f2f933c0ca896541f9de7fb1ae245f4 upstream.
+commit 79764ec772bc1346441ae1c4b1f3bd1991d634e8 upstream.
 
-add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
+This reverts commit ff878b408a03bef5d610b7e2302702e16a53636e.
 
-0x0801: DIAG + NMEA + AT + MODEM + RMNET
+Unfortunately the recent fix seems bringing another regressions with
+PulseAudio / pipewire, at least for Steinberg and MOTU devices.
 
-T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0801 Rev= 5.04
-S:  Manufacturer=Quectel
-S:  Product=RM520N-GL
-S:  SerialNumber=384af524
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+As a temporary solution, do a straight revert.  The issue for Android
+will be revisited again later by another different fix (if any).
 
-Signed-off-by: jerry meng <jerry-meng@foxmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: ff878b408a03 ("ALSA: usb-audio: Split endpoint setups for hw_params and prepare")
+Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216500
+Link: https://lore.kernel.org/r/20220920113929.25162-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/usb/endpoint.c |   23 ++++++++++++++---------
+ sound/usb/endpoint.h |    6 ++----
+ sound/usb/pcm.c      |   14 ++++----------
+ 3 files changed, 20 insertions(+), 23 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -256,6 +256,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EM060K			0x030b
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
-+#define QUECTEL_PRODUCT_RM520N			0x0801
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
- #define QUECTEL_PRODUCT_RM500K			0x7001
-@@ -1161,6 +1162,9 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
- 	  .driver_info = ZLP },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -731,8 +731,7 @@ bool snd_usb_endpoint_compatible(struct
+  * The endpoint needs to be closed via snd_usb_endpoint_close() later.
+  *
+  * Note that this function doesn't configure the endpoint.  The substream
+- * needs to set it up later via snd_usb_endpoint_set_params() and
+- * snd_usb_endpoint_prepare().
++ * needs to set it up later via snd_usb_endpoint_configure().
+  */
+ struct snd_usb_endpoint *
+ snd_usb_endpoint_open(struct snd_usb_audio *chip,
+@@ -1255,13 +1254,12 @@ out_of_memory:
+ /*
+  * snd_usb_endpoint_set_params: configure an snd_usb_endpoint
+  *
+- * It's called either from hw_params callback.
+  * Determine the number of URBs to be used on this endpoint.
+  * An endpoint must be configured before it can be started.
+  * An endpoint that is already running can not be reconfigured.
+  */
+-int snd_usb_endpoint_set_params(struct snd_usb_audio *chip,
+-				struct snd_usb_endpoint *ep)
++static int snd_usb_endpoint_set_params(struct snd_usb_audio *chip,
++				       struct snd_usb_endpoint *ep)
+ {
+ 	const struct audioformat *fmt = ep->cur_audiofmt;
+ 	int err;
+@@ -1317,18 +1315,18 @@ int snd_usb_endpoint_set_params(struct s
+ }
+ 
+ /*
+- * snd_usb_endpoint_prepare: Prepare the endpoint
++ * snd_usb_endpoint_configure: Configure the endpoint
+  *
+  * This function sets up the EP to be fully usable state.
+- * It's called either from prepare callback.
++ * It's called either from hw_params or prepare callback.
+  * The function checks need_setup flag, and performs nothing unless needed,
+  * so it's safe to call this multiple times.
+  *
+  * This returns zero if unchanged, 1 if the configuration has changed,
+  * or a negative error code.
+  */
+-int snd_usb_endpoint_prepare(struct snd_usb_audio *chip,
+-			     struct snd_usb_endpoint *ep)
++int snd_usb_endpoint_configure(struct snd_usb_audio *chip,
++			       struct snd_usb_endpoint *ep)
+ {
+ 	bool iface_first;
+ 	int err = 0;
+@@ -1350,6 +1348,9 @@ int snd_usb_endpoint_prepare(struct snd_
+ 			if (err < 0)
+ 				goto unlock;
+ 		}
++		err = snd_usb_endpoint_set_params(chip, ep);
++		if (err < 0)
++			goto unlock;
+ 		goto done;
+ 	}
+ 
+@@ -1377,6 +1378,10 @@ int snd_usb_endpoint_prepare(struct snd_
+ 	if (err < 0)
+ 		goto unlock;
+ 
++	err = snd_usb_endpoint_set_params(chip, ep);
++	if (err < 0)
++		goto unlock;
++
+ 	err = snd_usb_select_mode_quirk(chip, ep->cur_audiofmt);
+ 	if (err < 0)
+ 		goto unlock;
+--- a/sound/usb/endpoint.h
++++ b/sound/usb/endpoint.h
+@@ -17,10 +17,8 @@ snd_usb_endpoint_open(struct snd_usb_aud
+ 		      bool is_sync_ep);
+ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
+ 			    struct snd_usb_endpoint *ep);
+-int snd_usb_endpoint_set_params(struct snd_usb_audio *chip,
+-				struct snd_usb_endpoint *ep);
+-int snd_usb_endpoint_prepare(struct snd_usb_audio *chip,
+-			     struct snd_usb_endpoint *ep);
++int snd_usb_endpoint_configure(struct snd_usb_audio *chip,
++			       struct snd_usb_endpoint *ep);
+ int snd_usb_endpoint_get_clock_rate(struct snd_usb_audio *chip, int clock);
+ 
+ bool snd_usb_endpoint_compatible(struct snd_usb_audio *chip,
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -443,17 +443,17 @@ static int configure_endpoints(struct sn
+ 		if (stop_endpoints(subs, false))
+ 			sync_pending_stops(subs);
+ 		if (subs->sync_endpoint) {
+-			err = snd_usb_endpoint_prepare(chip, subs->sync_endpoint);
++			err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
+ 			if (err < 0)
+ 				return err;
+ 		}
+-		err = snd_usb_endpoint_prepare(chip, subs->data_endpoint);
++		err = snd_usb_endpoint_configure(chip, subs->data_endpoint);
+ 		if (err < 0)
+ 			return err;
+ 		snd_usb_set_format_quirk(subs, subs->cur_audiofmt);
+ 	} else {
+ 		if (subs->sync_endpoint) {
+-			err = snd_usb_endpoint_prepare(chip, subs->sync_endpoint);
++			err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
+ 			if (err < 0)
+ 				return err;
+ 		}
+@@ -551,13 +551,7 @@ static int snd_usb_hw_params(struct snd_
+ 	subs->cur_audiofmt = fmt;
+ 	mutex_unlock(&chip->mutex);
+ 
+-	if (subs->sync_endpoint) {
+-		ret = snd_usb_endpoint_set_params(chip, subs->sync_endpoint);
+-		if (ret < 0)
+-			goto unlock;
+-	}
+-
+-	ret = snd_usb_endpoint_set_params(chip, subs->data_endpoint);
++	ret = configure_endpoints(chip, subs);
+ 
+  unlock:
+ 	if (ret < 0)
 
 
