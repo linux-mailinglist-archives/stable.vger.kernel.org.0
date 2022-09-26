@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B825EA3D5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 679515EA18F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235176AbiIZLex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:34:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48438 "EHLO
+        id S236797AbiIZKwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238146AbiIZLeM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:12 -0400
+        with ESMTP id S234197AbiIZKuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:50:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14866E2DE;
-        Mon, 26 Sep 2022 03:43:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C28A58B66;
+        Mon, 26 Sep 2022 03:27:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 415D060A52;
-        Mon, 26 Sep 2022 10:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56196C433C1;
-        Mon, 26 Sep 2022 10:43:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 407B660B4A;
+        Mon, 26 Sep 2022 10:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8BAC433D6;
+        Mon, 26 Sep 2022 10:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188998;
-        bh=jLm3OD3DQ5HM9meF13VdBawooU2t/bfBfnoqYP3gKJA=;
+        s=korg; t=1664188041;
+        bh=owMO6i8j0s1D2nXvi4Y+MqM9J5EeXZn3P1/sPY45h6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/zDM+9hdd+EwBtJQKXIOzT2aE0lyhtbKU6gJ6yrkgsL0FeZ2GCUxOon/w/ShJxZj
-         SwJeDwwa7gr43EnKExB0fGGLYBAMtBho4ACJE2z2bDF/s+nlh+H8Ek5GYI5mveocLl
-         c4G7Lequoi6xKzEcOBBPHliRvMpDuBtYvN4kHo1c=
+        b=dkRZUuh+2XEtZknYfkkBb2HXJgFW39WO074VI46y9xjwZGfMJfT1vu1KMgUM6oPnf
+         xFdu9pEiqRzkXqUrQT7kb6Syd72ySaeWAm1zhAjlMnb94Nq8FIL/g1y9k1ftn7kxly
+         pTp8zD2MCAYqzJDD46kOtrfnWq4oE8yKWfjG0BS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 041/207] btrfs: fix hang during unmount when stopping block group reclaim worker
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 004/141] drm/amdgpu: make sure to init common IP before gmc
 Date:   Mon, 26 Sep 2022 12:10:30 +0200
-Message-Id: <20220926100808.459198084@linuxfoundation.org>
+Message-Id: <20220926100754.788519022@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 8a1f1e3d1eecf9d2359a2709e276743a67e145db upstream.
+[ Upstream commit a8671493d2074950553da3cf07d1be43185ef6c6 ]
 
-During early unmount, at close_ctree(), we try to stop the block group
-reclaim task with cancel_work_sync(), but that may hang if the block group
-reclaim task is currently at btrfs_relocate_block_group() waiting for the
-flag BTRFS_FS_UNFINISHED_DROPS to be cleared from fs_info->flags. During
-unmount we only clear that flag later, after trying to stop the block
-group reclaim task.
+Move common IP init before GMC init so that HDP gets
+remapped before GMC init which uses it.
 
-Fix that by clearing BTRFS_FS_UNFINISHED_DROPS before trying to stop the
-block group reclaim task and after setting BTRFS_FS_CLOSING_START, so that
-if the reclaim task is waiting on that bit, it will stop immediately after
-being woken, because it sees the filesystem is closing (with a call to
-btrfs_fs_closing()), and then returns immediately with -EINTR.
+This fixes the Unsupported Request error reported through
+AER during driver load. The error happens as a write happens
+to the remap offset before real remapping is done.
 
-Fixes: 31e70e527806c5 ("btrfs: fix hang during unmount when block group reclaim task is running")
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216373
+
+The error was unnoticed before and got visible because of the commit
+referenced below. This doesn't fix anything in the commit below, rather
+fixes the issue in amdgpu exposed by the commit. The reference is only
+to associate this commit with below one so that both go together.
+
+Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -4587,6 +4587,17 @@ void __cold close_ctree(struct btrfs_fs_
- 	set_bit(BTRFS_FS_CLOSING_START, &fs_info->flags);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 9ccc8c82353b..f44ab44abd64 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2179,8 +2179,16 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
+ 		}
+ 		adev->ip_blocks[i].status.sw = true;
  
- 	/*
-+	 * If we had UNFINISHED_DROPS we could still be processing them, so
-+	 * clear that bit and wake up relocation so it can stop.
-+	 * We must do this before stopping the block group reclaim task, because
-+	 * at btrfs_relocate_block_group() we wait for this bit, and after the
-+	 * wait we stop with -EINTR if btrfs_fs_closing() returns non-zero - we
-+	 * have just set BTRFS_FS_CLOSING_START, so btrfs_fs_closing() will
-+	 * return 1.
-+	 */
-+	btrfs_wake_unfinished_drop(fs_info);
-+
-+	/*
- 	 * We may have the reclaim task running and relocating a data block group,
- 	 * in which case it may create delayed iputs. So stop it before we park
- 	 * the cleaner kthread otherwise we can get new delayed iputs after
-@@ -4604,12 +4615,6 @@ void __cold close_ctree(struct btrfs_fs_
- 	 */
- 	kthread_park(fs_info->cleaner_kthread);
+-		/* need to do gmc hw init early so we can allocate gpu mem */
+-		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC) {
++		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_COMMON) {
++			/* need to do common hw init early so everything is set up for gmc */
++			r = adev->ip_blocks[i].version->funcs->hw_init((void *)adev);
++			if (r) {
++				DRM_ERROR("hw_init %d failed %d\n", i, r);
++				goto init_failed;
++			}
++			adev->ip_blocks[i].status.hw = true;
++		} else if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC) {
++			/* need to do gmc hw init early so we can allocate gpu mem */
+ 			/* Try to reserve bad pages early */
+ 			if (amdgpu_sriov_vf(adev))
+ 				amdgpu_virt_exchange_data(adev);
+@@ -2762,8 +2770,8 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
+ 	int i, r;
  
--	/*
--	 * If we had UNFINISHED_DROPS we could still be processing them, so
--	 * clear that bit and wake up relocation so it can stop.
--	 */
--	btrfs_wake_unfinished_drop(fs_info);
--
- 	/* wait for the qgroup rescan worker to stop */
- 	btrfs_qgroup_wait_for_completion(fs_info, false);
- 
+ 	static enum amd_ip_block_type ip_order[] = {
+-		AMD_IP_BLOCK_TYPE_GMC,
+ 		AMD_IP_BLOCK_TYPE_COMMON,
++		AMD_IP_BLOCK_TYPE_GMC,
+ 		AMD_IP_BLOCK_TYPE_PSP,
+ 		AMD_IP_BLOCK_TYPE_IH,
+ 	};
+-- 
+2.35.1
+
 
 
