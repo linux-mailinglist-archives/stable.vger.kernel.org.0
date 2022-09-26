@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 911BA5EA311
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9045EA1F4
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234777AbiIZLTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60306 "EHLO
+        id S237013AbiIZLAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:00:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237560AbiIZLSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:17 -0400
+        with ESMTP id S237268AbiIZK7N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 570C566A4D;
-        Mon, 26 Sep 2022 03:38:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576C95C9D3;
+        Mon, 26 Sep 2022 03:31:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01E34B80977;
-        Mon, 26 Sep 2022 10:38:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 452D0C433C1;
-        Mon, 26 Sep 2022 10:38:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95237B8093B;
+        Mon, 26 Sep 2022 10:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BE7C433D6;
+        Mon, 26 Sep 2022 10:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188688;
-        bh=+p6XPmpKOcfY08Yxyub/1jU9Xatr3GVDNkLDWbXy9ss=;
+        s=korg; t=1664188174;
+        bh=6tasvJ3bw1ZpODK/m7Ahrqs+W9D5eONd94fDDdQIjt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lyFr1gSAO9CMxP8YvXbor8ev/PgQiakQU9VKAfd9uqYI4QsZC7Ih+NPpVoS4REsJ
-         cAEe1HT4lyL+yBggbM0GEtzymv+kkzIajprl3zpQ1IPCCyM5vTmzIop7+cS+drNlm4
-         CRe4jdTk64HGkho3Q5qV5h6ZUygcq0RqsA3HJnaE=
+        b=l1Dz1jvCl7IQgIDcNzvgk0HFR/29BxNQJ8BlahoAEhP2uHSM4NxQhJzH7QmudbKUb
+         rvjU0OYQ/ja/UuJMRS78j7lKED6N4KgLj3j+OCrfbGkGt4pHvu+owP07xs1lee2mK6
+         gVfYZlGSm6fY77nxpg9pDMqwujI7UiLPNpxNkg7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Chinner <david@fromorbit.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 057/148] xfs: validate inode fork size against fork format
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        zain wang <wzz@rock-chips.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 065/141] arm64: dts: rockchip: Set RK3399-Gru PCLK_EDP to 24 MHz
 Date:   Mon, 26 Sep 2022 12:11:31 +0200
-Message-Id: <20220926100758.167761628@linuxfoundation.org>
+Message-Id: <20220926100756.789940782@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: zain wang <wzz@rock-chips.com>
 
-[ Upstream commit 1eb70f54c445fcbb25817841e774adb3d912f3e8 ]
+[ Upstream commit 8123437cf46ea5a0f6ca5cb3c528d8b6db97b9c2 ]
 
-xfs_repair catches fork size/format mismatches, but the in-kernel
-verifier doesn't, leading to null pointer failures when attempting
-to perform operations on the fork. This can occur in the
-xfs_dir_is_empty() where the in-memory fork format does not match
-the size and so the fork data pointer is accessed incorrectly.
+We've found the AUX channel to be less reliable with PCLK_EDP at a
+higher rate (typically 25 MHz). This is especially important on systems
+with PSR-enabled panels (like Gru-Kevin), since we make heavy, constant
+use of AUX.
 
-Note: this causes new failures in xfs/348 which is testing mode vs
-ftype mismatches. We now detect a regular file that has been changed
-to a directory or symlink mode as being corrupt because the data
-fork is for a symlink or directory should be in local form when
-there are only 3 bytes of data in the data fork. Hence the inode
-verify for the regular file now fires w/ -EFSCORRUPTED because
-the inode fork format does not match the format the corrupted mode
-says it should be in.
+According to Rockchip, using any rate other than 24 MHz can cause
+"problems between syncing the PHY an PCLK", which leads to all sorts of
+unreliabilities around register operations.
 
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d67a38c5a623 ("arm64: dts: rockchip: move core edp from rk3399-kevin to shared chromebook")
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: zain wang <wzz@rock-chips.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20220830131212.v2.1.I98d30623f13b785ca77094d0c0fd4339550553b6@changeid
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_inode_buf.c |   35 ++++++++++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/xfs/libxfs/xfs_inode_buf.c
-+++ b/fs/xfs/libxfs/xfs_inode_buf.c
-@@ -337,19 +337,36 @@ xfs_dinode_verify_fork(
- 	int			whichfork)
- {
- 	uint32_t		di_nextents = XFS_DFORK_NEXTENTS(dip, whichfork);
-+	mode_t			mode = be16_to_cpu(dip->di_mode);
-+	uint32_t		fork_size = XFS_DFORK_SIZE(dip, mp, whichfork);
-+	uint32_t		fork_format = XFS_DFORK_FORMAT(dip, whichfork);
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
+index 0d8458d55626..739937f70f8d 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
+@@ -237,6 +237,14 @@ &cdn_dp {
+ &edp {
+ 	status = "okay";
  
--	switch (XFS_DFORK_FORMAT(dip, whichfork)) {
 +	/*
-+	 * For fork types that can contain local data, check that the fork
-+	 * format matches the size of local data contained within the fork.
-+	 *
-+	 * For all types, check that when the size says the should be in extent
-+	 * or btree format, the inode isn't claiming it is in local format.
++	 * eDP PHY/clk don't sync reliably at anything other than 24 MHz. Only
++	 * set this here, because rk3399-gru.dtsi ensures we can generate this
++	 * off GPLL=600MHz, whereas some other RK3399 boards may not.
 +	 */
-+	if (whichfork == XFS_DATA_FORK) {
-+		if (S_ISDIR(mode) || S_ISLNK(mode)) {
-+			if (be64_to_cpu(dip->di_size) <= fork_size &&
-+			    fork_format != XFS_DINODE_FMT_LOCAL)
-+				return __this_address;
-+		}
++	assigned-clocks = <&cru PCLK_EDP>;
++	assigned-clock-rates = <24000000>;
 +
-+		if (be64_to_cpu(dip->di_size) > fork_size &&
-+		    fork_format == XFS_DINODE_FMT_LOCAL)
-+			return __this_address;
-+	}
-+
-+	switch (fork_format) {
- 	case XFS_DINODE_FMT_LOCAL:
- 		/*
--		 * no local regular files yet
-+		 * No local regular files yet.
- 		 */
--		if (whichfork == XFS_DATA_FORK) {
--			if (S_ISREG(be16_to_cpu(dip->di_mode)))
--				return __this_address;
--			if (be64_to_cpu(dip->di_size) >
--					XFS_DFORK_SIZE(dip, mp, whichfork))
--				return __this_address;
--		}
-+		if (S_ISREG(mode) && whichfork == XFS_DATA_FORK)
-+			return __this_address;
- 		if (di_nextents)
- 			return __this_address;
- 		break;
+ 	ports {
+ 		edp_out: port@1 {
+ 			reg = <1>;
+-- 
+2.35.1
+
 
 
