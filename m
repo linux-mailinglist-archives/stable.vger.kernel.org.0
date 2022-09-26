@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 537885EA10B
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B97D75EA275
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234956AbiIZKpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:45:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60736 "EHLO
+        id S234400AbiIZLIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:08:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233804AbiIZKna (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:43:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744E61CB;
-        Mon, 26 Sep 2022 03:24:33 -0700 (PDT)
+        with ESMTP id S234370AbiIZLHP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:07:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 987CF23BE1;
+        Mon, 26 Sep 2022 03:34:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57B72CE10E7;
-        Mon, 26 Sep 2022 10:24:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4545EC433D6;
-        Mon, 26 Sep 2022 10:24:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21493609FE;
+        Mon, 26 Sep 2022 10:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156FBC433D6;
+        Mon, 26 Sep 2022 10:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187869;
-        bh=zadlpnKD6sjdhTaeTlpUHuA+J3MSs8/PSaLg59JCzQo=;
+        s=korg; t=1664188364;
+        bh=t/CdJeowKoIkUUXV3GUs+L273If4I8CeICo71n3PeEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XUkbKAWWp7L8GzZZV08rr5xAiJaRc7vlfXqnlmDxx53edJD9rksSsTKgA8iQNSEYJ
-         hta/I7yljzIvHb21hVXzfc5eZHVymJqUknJ+DWJT4VdGo9YHcC371+UCzPAaJBNlom
-         4ALfEznMyClDfsXwn7ieXtjgndWGPKHjcff1ESBs=
+        b=B0NapMWC1A1ZM5c3JGqJKQojYC95ak/bsBnZoLbEpsrPFFLeqk+MWNHhsB1izWzM2
+         Rf3wvTBjzHR3BkgMXi5C4qXWLE2mQuI5z44kjfHNGZRda3BaVTFb8TEozwRhqwtFlm
+         bPRV9dWAnmBYzDGe/mi/HFDHHYpT5lBdHfxSPAaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Dao <dqminh@cloudflare.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/120] perf kcore_copy: Do not check /proc/modules is unchanged
+Subject: [PATCH 5.10 094/141] net: ipa: fix table alignment requirement
 Date:   Mon, 26 Sep 2022 12:12:00 +0200
-Message-Id: <20220926100754.217398729@linuxfoundation.org>
+Message-Id: <20220926100757.837361076@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 5b427df27b94aec1312cace48a746782a0925c53 ]
+[ Upstream commit e5d4e96b44cf20330c970c3e30ea0a8c3a23feca ]
 
-/proc/kallsyms and /proc/modules are compared before and after the copy
-in order to ensure no changes during the copy.
+We currently have a build-time check to ensure that the minimum DMA
+allocation alignment satisfies the constraint that IPA filter and
+route tables must point to rules that are 128-byte aligned.
 
-However /proc/modules also might change due to reference counts changing
-even though that does not make any difference.
+But what's really important is that the actual allocated DMA memory
+has that alignment, even if the minimum is smaller than that.
 
-Any modules loaded or unloaded should be visible in changes to kallsyms,
-so it is not necessary to check /proc/modules also anyway.
+Remove the BUILD_BUG_ON() call checking against minimim DMA alignment
+and instead verify at rutime that the allocated memory is properly
+aligned.
 
-Remove the comparison checking that /proc/modules is unchanged.
-
-Fixes: fc1b691d7651d949 ("perf buildid-cache: Add ability to add kcore to the cache")
-Reported-by: Daniel Dao <dqminh@cloudflare.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Daniel Dao <dqminh@cloudflare.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20220914122429.8770-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: cf412ec33325 ("net: ipa: properly limit modem routing table use")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/ipa/ipa_table.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index a04a7dfb8ec0..f15258fbe9db 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1912,8 +1912,8 @@ static int kcore_copy__compare_file(const char *from_dir, const char *to_dir,
-  * unusual.  One significant peculiarity is that the mapping (start -> pgoff)
-  * is not the same for the kernel map and the modules map.  That happens because
-  * the data is copied adjacently whereas the original kcore has gaps.  Finally,
-- * kallsyms and modules files are compared with their copies to check that
-- * modules have not been loaded or unloaded while the copies were taking place.
-+ * kallsyms file is compared with its copy to check that modules have not been
-+ * loaded or unloaded while the copies were taking place.
-  *
-  * Return: %0 on success, %-1 on failure.
-  */
-@@ -1976,9 +1976,6 @@ int kcore_copy(const char *from_dir, const char *to_dir)
- 			goto out_extract_close;
- 	}
- 
--	if (kcore_copy__compare_file(from_dir, to_dir, "modules"))
--		goto out_extract_close;
+diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
+index f26cb9d706da..45e1d68b4694 100644
+--- a/drivers/net/ipa/ipa_table.c
++++ b/drivers/net/ipa/ipa_table.c
+@@ -118,14 +118,6 @@
+ /* Check things that can be validated at build time. */
+ static void ipa_table_validate_build(void)
+ {
+-	/* IPA hardware accesses memory 128 bytes at a time.  Addresses
+-	 * referred to by entries in filter and route tables must be
+-	 * aligned on 128-byte byte boundaries.  The only rule address
+-	 * ever use is the "zero rule", and it's aligned at the base
+-	 * of a coherent DMA allocation.
+-	 */
+-	BUILD_BUG_ON(ARCH_DMA_MINALIGN % IPA_TABLE_ALIGN);
 -
- 	if (kcore_copy__compare_file(from_dir, to_dir, "kallsyms"))
- 		goto out_extract_close;
+ 	/* Filter and route tables contain DMA addresses that refer
+ 	 * to filter or route rules.  But the size of a table entry
+ 	 * is 64 bits regardless of what the size of an AP DMA address
+@@ -669,6 +661,18 @@ int ipa_table_init(struct ipa *ipa)
+ 	if (!virt)
+ 		return -ENOMEM;
+ 
++	/* We put the "zero rule" at the base of our table area.  The IPA
++	 * hardware requires rules to be aligned on a 128-byte boundary.
++	 * Make sure the allocation satisfies this constraint.
++	 */
++	if (addr % IPA_TABLE_ALIGN) {
++		dev_err(dev, "table address %pad not %u-byte aligned\n",
++			&addr, IPA_TABLE_ALIGN);
++		dma_free_coherent(dev, size, virt, addr);
++
++		return -ERANGE;
++	}
++
+ 	ipa->table_virt = virt;
+ 	ipa->table_addr = addr;
  
 -- 
 2.35.1
