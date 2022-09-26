@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4695EA043
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B325EA2C8
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235906AbiIZKfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:35:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34646 "EHLO
+        id S235174AbiIZLOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236269AbiIZKec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:32 -0400
+        with ESMTP id S237465AbiIZLNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818644AD5F;
-        Mon, 26 Sep 2022 03:21:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A2E520A9;
+        Mon, 26 Sep 2022 03:36:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91EEF60AD6;
-        Mon, 26 Sep 2022 10:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84272C4314C;
-        Mon, 26 Sep 2022 10:21:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D74B60AF5;
+        Mon, 26 Sep 2022 10:35:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A50FC433D6;
+        Mon, 26 Sep 2022 10:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187693;
-        bh=hySRG2UVRTaeI4Q4gk6xmE/6JOw27WgqZsbbmA+cNNM=;
+        s=korg; t=1664188499;
+        bh=QElWJCPBjqmG+HmAGMdcJgT1qwRW7xV3vMaLjAmZ34Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0iTH3HpZBLkFVLzKE9UFVrQHWc5WyvfajLWkMFqtDgUVAiG/yLwOMpd/btQ0xaEc
-         9h+ujXZBIfhhULU+uuU+05rm28Yhsqz8+Mkj67ikx+xMDq4qFnoQ9xmBAv/7Dpb3YV
-         dxN21RfQEo9GqVPNfmAwT2BvynUDtQezwbmkHaao=
+        b=KqfFckyAG+j5fFTeXdXZl8Twu9JU45+t8mh2AKML7b6e0Ze0nPvKQ3kIHtt8ZfHQc
+         7CJn4KLS54T696o3PWaVDQqwfXP+ChrAAuQFsylWlyz5oAH5cy9wPeJ4an9QfBEtZd
+         ca7hXbLSi27GItWIstMJdSETfX5JZ7moXd53adDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/120] usb: dwc3: gadget: Avoid starting DWC3 gadget during UDC unbind
+        stable@vger.kernel.org,
+        Callum Osmotherly <callum.osmotherly@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 028/148] ALSA: hda/realtek: Enable 4-speaker output Dell Precision 5570 laptop
 Date:   Mon, 26 Sep 2022 12:11:02 +0200
-Message-Id: <20220926100751.719085566@linuxfoundation.org>
+Message-Id: <20220926100757.129031893@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Callum Osmotherly <callum.osmotherly@gmail.com>
 
-[ Upstream commit 8217f07a50236779880f13e87f99224cd9117f83 ]
+commit bdc9b7396f7d4d6533e70fd8d5472f505b5ef58f upstream.
 
-There is a race present where the DWC3 runtime resume runs in parallel
-to the UDC unbind sequence.  This will eventually lead to a possible
-scenario where we are enabling the run/stop bit, without a valid
-composition defined.
+The Dell Precision 5570 uses the same 4-speakers-on-ALC289 just like the
+previous Precision 5560. I replicated that patch onto this one, and can
+confirm that the audio is much better (the woofers are now working);
+I've tested it on my Dell Precision 5570.
 
-Thread#1 (handling UDC unbind):
-usb_gadget_remove_driver()
--->usb_gadget_disconnect()
-  -->dwc3_gadget_pullup(0)
---> continue UDC unbind sequence
--->Thread#2 is running in parallel here
-
-Thread#2 (handing next cable connect)
-__dwc3_set_mode()
-  -->pm_runtime_get_sync()
-    -->dwc3_gadget_resume()
-      -->dwc->gadget_driver is NOT NULL yet
-      -->dwc3_gadget_run_stop(1)
-      --> _dwc3gadget_start()
-...
-
-Fix this by tracking the pullup disable routine, and avoiding resuming
-of the DWC3 gadget.  Once the UDC is re-binded, that will trigger the
-pullup enable routine, which would handle enabling the DWC3 gadget.
-
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/20210917021852.2037-1-wcheng@codeaurora.org
+Signed-off-by: Callum Osmotherly <callum.osmotherly@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YyGbWM5wEoFMbW2v@piranha
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 040f2dbd2010 ("usb: dwc3: gadget: Avoid duplicate requests to enable Run/Stop")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.h   | 2 ++
- drivers/usb/dwc3/gadget.c | 4 ++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index da296f888f45..a93c61bc5a7d 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -994,6 +994,7 @@ struct dwc3_scratchpad_array {
-  * @tx_max_burst_prd: max periodic ESS transmit burst size
-  * @hsphy_interface: "utmi" or "ulpi"
-  * @connected: true when we're connected to a host, false otherwise
-+ * @softconnect: true when gadget connect is called, false when disconnect runs
-  * @delayed_status: true when gadget driver asks for delayed status
-  * @ep0_bounced: true when we used bounce buffer
-  * @ep0_expect_in: true when we expect a DATA IN transfer
-@@ -1196,6 +1197,7 @@ struct dwc3 {
- 	const char		*hsphy_interface;
- 
- 	unsigned		connected:1;
-+	unsigned		softconnect:1;
- 	unsigned		delayed_status:1;
- 	unsigned		ep0_bounced:1;
- 	unsigned		ep0_expect_in:1;
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 80fee7ea83ca..079919b85d87 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2015,7 +2015,7 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
- 	int			ret;
- 
- 	is_on = !!is_on;
--
-+	dwc->softconnect = is_on;
- 	/*
- 	 * Per databook, when we want to stop the gadget, if a control transfer
- 	 * is still in process, complete it and get the core into setup phase.
-@@ -3791,7 +3791,7 @@ int dwc3_gadget_resume(struct dwc3 *dwc)
- {
- 	int			ret;
- 
--	if (!dwc->gadget_driver)
-+	if (!dwc->gadget_driver || !dwc->softconnect)
- 		return 0;
- 
- 	ret = __dwc3_gadget_start(dwc);
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8831,6 +8831,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1028, 0x0a9d, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0a9e, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0b19, "Dell XPS 15 9520", ALC289_FIXUP_DUAL_SPK),
++	SND_PCI_QUIRK(0x1028, 0x0b1a, "Dell Precision 5570", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 
 
