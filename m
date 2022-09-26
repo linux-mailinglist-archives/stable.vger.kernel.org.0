@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE545EA312
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C105EA092
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235524AbiIZLTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46416 "EHLO
+        id S236153AbiIZKkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237721AbiIZLSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA996581A;
-        Mon, 26 Sep 2022 03:38:17 -0700 (PDT)
+        with ESMTP id S236501AbiIZKj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F6B4D15C;
+        Mon, 26 Sep 2022 03:23:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5C8A60C79;
-        Mon, 26 Sep 2022 10:36:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB93DC433C1;
-        Mon, 26 Sep 2022 10:36:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CDA460B2F;
+        Mon, 26 Sep 2022 10:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5048BC433D6;
+        Mon, 26 Sep 2022 10:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188608;
-        bh=GRudqhS62ebZu1HuVQTI6YftybSnSIosMWL3xC4dD+M=;
+        s=korg; t=1664187808;
+        bh=pZBlqy+MLlyTpWtUdAz5D06w7QXEQEmHyBZwybIOafc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twfDRzv2rIDOrG0+AiewYR+Nu/iDtezLh28vCQ92HQ9mm6XQe/SVatUealpiQKVa6
-         rXBTQ4wENwAL0k4UzphpQFOzWgOTJlsLzBO+dcdbPqBFiSogYOUeCke1QHk4mlyoC8
-         5EnuUqQdjFMcbRpX2pK6viNR02S+NahYp+vN3Uy0=
+        b=qZ8tDRJz4S7aS/4rHF0oU36emiXiNbTkTs0RKFotmbl7AU3YoicAXdbZJcKJkqkqQ
+         YQ2tcfHvLyxHjrYWj0vWLwdaBPOc8meR65njxbMb//89gCpNkQk5NX2MXl4F7MI2uO
+         VqIPdIP9LJOJubYWds4Im47tzkc4g6ErwRm0ut/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/148] dmaengine: ti: k3-udma-private: Fix refcount leak bug in of_xudma_dev_get()
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com,
+        Muchun Song <songmuchun@bytedance.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Chao Yu <chao.yu@oppo.com>,
+        David Rientjes <rientjes@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 5.4 065/120] mm/slub: fix to return errno if kmalloc() fails
 Date:   Mon, 26 Sep 2022 12:11:38 +0200
-Message-Id: <20220926100758.446341127@linuxfoundation.org>
+Message-Id: <20220926100753.362508743@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Chao Yu <chao.yu@oppo.com>
 
-[ Upstream commit f9fdb0b86f087c2b7f6c6168dd0985a3c1eda87e ]
+commit 7e9c323c52b379d261a72dc7bd38120a761a93cd upstream.
 
-We should call of_node_put() for the reference returned by
-of_parse_phandle() in fail path or when it is not used anymore.
-Here we only need to move the of_node_put() before the check.
+In create_unique_id(), kmalloc(, GFP_KERNEL) can fail due to
+out-of-memory, if it fails, return errno correctly rather than
+triggering panic via BUG_ON();
 
-Fixes: d70241913413 ("dmaengine: ti: k3-udma: Add glue layer for non DMAengine users")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220720073234.1255474-1-windhl@126.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+kernel BUG at mm/slub.c:5893!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+
+Call trace:
+ sysfs_slab_add+0x258/0x260 mm/slub.c:5973
+ __kmem_cache_create+0x60/0x118 mm/slub.c:4899
+ create_cache mm/slab_common.c:229 [inline]
+ kmem_cache_create_usercopy+0x19c/0x31c mm/slab_common.c:335
+ kmem_cache_create+0x1c/0x28 mm/slab_common.c:390
+ f2fs_kmem_cache_create fs/f2fs/f2fs.h:2766 [inline]
+ f2fs_init_xattr_caches+0x78/0xb4 fs/f2fs/xattr.c:808
+ f2fs_fill_super+0x1050/0x1e0c fs/f2fs/super.c:4149
+ mount_bdev+0x1b8/0x210 fs/super.c:1400
+ f2fs_mount+0x44/0x58 fs/f2fs/super.c:4512
+ legacy_get_tree+0x30/0x74 fs/fs_context.c:610
+ vfs_get_tree+0x40/0x140 fs/super.c:1530
+ do_new_mount+0x1dc/0x4e4 fs/namespace.c:3040
+ path_mount+0x358/0x914 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __arm64_sys_mount+0x2f8/0x408 fs/namespace.c:3568
+
+Cc: <stable@kernel.org>
+Fixes: 81819f0fc8285 ("SLUB core")
+Reported-by: syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/ti/k3-udma-private.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/slub.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index aada84f40723..3257b2f5157c 100644
---- a/drivers/dma/ti/k3-udma-private.c
-+++ b/drivers/dma/ti/k3-udma-private.c
-@@ -31,14 +31,14 @@ struct udma_dev *of_xudma_dev_get(struct device_node *np, const char *property)
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5743,7 +5743,8 @@ static char *create_unique_id(struct kme
+ 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
+ 	char *p = name;
+ 
+-	BUG_ON(!name);
++	if (!name)
++		return ERR_PTR(-ENOMEM);
+ 
+ 	*p++ = ':';
+ 	/*
+@@ -5825,6 +5826,8 @@ static int sysfs_slab_add(struct kmem_ca
+ 		 * for the symlinks.
+ 		 */
+ 		name = create_unique_id(s);
++		if (IS_ERR(name))
++			return PTR_ERR(name);
  	}
  
- 	pdev = of_find_device_by_node(udma_node);
-+	if (np != udma_node)
-+		of_node_put(udma_node);
-+
- 	if (!pdev) {
- 		pr_debug("UDMA device not found\n");
- 		return ERR_PTR(-EPROBE_DEFER);
- 	}
- 
--	if (np != udma_node)
--		of_node_put(udma_node);
--
- 	ud = platform_get_drvdata(pdev);
- 	if (!ud) {
- 		pr_debug("UDMA has not been probed\n");
--- 
-2.35.1
-
+ 	s->kobj.kset = kset;
 
 
