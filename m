@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B6385EA321
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0623B5E9EEB
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237677AbiIZLTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
+        id S234916AbiIZKQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:16:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237842AbiIZLTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:19:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05D252E45;
-        Mon, 26 Sep 2022 03:38:44 -0700 (PDT)
+        with ESMTP id S235100AbiIZKPe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:15:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06CF748E9F;
+        Mon, 26 Sep 2022 03:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 878D2B802C7;
-        Mon, 26 Sep 2022 10:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FDFC433D6;
-        Mon, 26 Sep 2022 10:36:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A780960B60;
+        Mon, 26 Sep 2022 10:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2904C433C1;
+        Mon, 26 Sep 2022 10:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188605;
-        bh=6tasvJ3bw1ZpODK/m7Ahrqs+W9D5eONd94fDDdQIjt4=;
+        s=korg; t=1664187266;
+        bh=VttBdWDUBl9A3RqWXWoax22uYxYPC+6gtQNYnwCFaz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N31Bkqb8nQkyylve3xCz+Ghzuk+Jpj/1dhT9qn4Gma8kqqXCDG+B4Mw0t6soQfI1R
-         n+TDd0iCYHki59eG8z9NJOggkfi27uaAkv45CGr6qWtS2i6rD5xvJGA8VETwCJRoKq
-         itAACaqadtdU4OF96sMO7qcR7+Vu8zHnqC3GEOoA=
+        b=CiqA2Q5YJMuRcdHpfcKp3urIfflm4l0eNAg7TTFCGvIJijQlzAXQl+fIly3uQddno
+         9lrF+haniKQ9Tn6mpi7g8V1q6Cm0hkIN9mx0z3BKeYkzqAYMIZAGFzWHv5TYyQsPSX
+         Wp1+wd9qXCm9ZUmbCjmf42d78sz2pDzqUWhJOrCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        zain wang <wzz@rock-chips.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/148] arm64: dts: rockchip: Set RK3399-Gru PCLK_EDP to 24 MHz
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 06/30] video: fbdev: pxa3xx-gcu: Fix integer overflow in pxa3xx_gcu_write
 Date:   Mon, 26 Sep 2022 12:11:37 +0200
-Message-Id: <20220926100758.399210028@linuxfoundation.org>
+Message-Id: <20220926100736.370084852@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zain wang <wzz@rock-chips.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit 8123437cf46ea5a0f6ca5cb3c528d8b6db97b9c2 ]
+[ Upstream commit a09d2d00af53b43c6f11e6ab3cb58443c2cac8a7 ]
 
-We've found the AUX channel to be less reliable with PCLK_EDP at a
-higher rate (typically 25 MHz). This is especially important on systems
-with PSR-enabled panels (like Gru-Kevin), since we make heavy, constant
-use of AUX.
+In pxa3xx_gcu_write, a count parameter of type size_t is passed to words of
+type int.  Then, copy_from_user() may cause a heap overflow because it is used
+as the third argument of copy_from_user().
 
-According to Rockchip, using any rate other than 24 MHz can cause
-"problems between syncing the PHY an PCLK", which leads to all sorts of
-unreliabilities around register operations.
-
-Fixes: d67a38c5a623 ("arm64: dts: rockchip: move core edp from rk3399-kevin to shared chromebook")
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: zain wang <wzz@rock-chips.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20220830131212.v2.1.I98d30623f13b785ca77094d0c0fd4339550553b6@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/video/fbdev/pxa3xx-gcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-index 0d8458d55626..739937f70f8d 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-@@ -237,6 +237,14 @@ &cdn_dp {
- &edp {
- 	status = "okay";
+diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
+index 184773b6b9e4..2cca4b763d8d 100644
+--- a/drivers/video/fbdev/pxa3xx-gcu.c
++++ b/drivers/video/fbdev/pxa3xx-gcu.c
+@@ -391,7 +391,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
+ 	struct pxa3xx_gcu_batch	*buffer;
+ 	struct pxa3xx_gcu_priv *priv = to_pxa3xx_gcu_priv(file);
  
-+	/*
-+	 * eDP PHY/clk don't sync reliably at anything other than 24 MHz. Only
-+	 * set this here, because rk3399-gru.dtsi ensures we can generate this
-+	 * off GPLL=600MHz, whereas some other RK3399 boards may not.
-+	 */
-+	assigned-clocks = <&cru PCLK_EDP>;
-+	assigned-clock-rates = <24000000>;
-+
- 	ports {
- 		edp_out: port@1 {
- 			reg = <1>;
+-	int words = count / 4;
++	size_t words = count / 4;
+ 
+ 	/* Does not need to be atomic. There's a lock in user space,
+ 	 * but anyhow, this is just for statistics. */
 -- 
 2.35.1
 
