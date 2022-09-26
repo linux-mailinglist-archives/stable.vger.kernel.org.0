@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E41A5EA333
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDC45E9FB3
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235533AbiIZLV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44914 "EHLO
+        id S235576AbiIZK2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:28:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235319AbiIZLTg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:19:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E23E5300D;
-        Mon, 26 Sep 2022 03:39:04 -0700 (PDT)
+        with ESMTP id S235412AbiIZK0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:26:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F8B1EC4E;
+        Mon, 26 Sep 2022 03:18:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDAE7B80942;
-        Mon, 26 Sep 2022 10:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39252C433C1;
-        Mon, 26 Sep 2022 10:37:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03227B80942;
+        Mon, 26 Sep 2022 10:18:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F87C433C1;
+        Mon, 26 Sep 2022 10:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188639;
-        bh=eugTPWA4tapPEbaTlrgjMVBwSsaEBg3CTel76hGAlhM=;
+        s=korg; t=1664187500;
+        bh=rroXjO0hPS+la9RzEK8lIbpNpqMPNTiAv9RECnaoBgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YN9RYezYVrwQSHHkitTOCGrm4JWA8pKQYxgOOCLQezCh4g5lcXmFoglWAXandmzTa
-         kHErSsIGrpwdammrPBafWP8x7YtrlSzBY4pssRiADa55KhcxwlVEGzccf8hSkFMSAw
-         MjNuN7D1De3LzXLapFfXX9mkBPGgVknA2+h65ymo=
+        b=r3FTvtzPxBC93tc4WKE89rrG222PRN2JnalcDz1yUZhR79nCbTpWCdf+42IQls5VK
+         RYCAbWpI19k8cGe/vl6dzV/g+UascX4AQ35PNQ9YM2/cJmqCmYbA2aPzMw8x2DgrYY
+         mt34O0D8GB1FyKUbLOPB32xjrSy/tJiypAgVmiIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/148] net: phy: aquantia: wait for the suspend/resume operations to finish
+        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 28/58] ALSA: hda/tegra: set depop delay for tegra
 Date:   Mon, 26 Sep 2022 12:11:47 +0200
-Message-Id: <20220926100758.771162872@linuxfoundation.org>
+Message-Id: <20220926100742.490384416@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,122 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit ca2dccdeeb49a7e408112d681bf447984c845292 ]
+commit 3c4d8c24fb6c44f426e447b04800b0ed61a7b5ae upstream.
 
-The Aquantia datasheet notes that after issuing a Processor-Intensive
-MDIO operation, like changing the low-power state of the device, the
-driver should wait for the operation to finish before issuing a new MDIO
-command.
+Reduce the suspend time by setting depop delay to 10ms for
+tegra.
 
-The new aqr107_wait_processor_intensive_op() function is added which can
-be used after these kind of MDIO operations. At the moment, we are only
-adding it at the end of the suspend/resume calls.
-
-The issue was identified on a board featuring the AQR113C PHY, on
-which commands like 'ip link (..) up / down' issued without any delays
-between them would render the link on the PHY to remain down.
-The issue was easy to reproduce with a one-liner:
- $ ip link set dev ethX down; ip link set dev ethX up; \
- ip link set dev ethX down; ip link set dev ethX up;
-
-Fixes: ac9e81c230eb ("net: phy: aquantia: add suspend / resume callbacks for AQR107 family")
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220906130451.1483448-1-ioana.ciornei@nxp.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913053641.23299-1-mkumard@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/aquantia_main.c | 53 ++++++++++++++++++++++++++++++---
- 1 file changed, 49 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/aquantia_main.c b/drivers/net/phy/aquantia_main.c
-index 3221224525ac..2f2765d7f84c 100644
---- a/drivers/net/phy/aquantia_main.c
-+++ b/drivers/net/phy/aquantia_main.c
-@@ -90,6 +90,9 @@
- #define VEND1_GLOBAL_FW_ID_MAJOR		GENMASK(15, 8)
- #define VEND1_GLOBAL_FW_ID_MINOR		GENMASK(7, 0)
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3455,6 +3455,7 @@ static int patch_tegra_hdmi(struct hda_c
+ 	if (err)
+ 		return err;
  
-+#define VEND1_GLOBAL_GEN_STAT2			0xc831
-+#define VEND1_GLOBAL_GEN_STAT2_OP_IN_PROG	BIT(15)
-+
- #define VEND1_GLOBAL_RSVD_STAT1			0xc885
- #define VEND1_GLOBAL_RSVD_STAT1_FW_BUILD_ID	GENMASK(7, 4)
- #define VEND1_GLOBAL_RSVD_STAT1_PROV_ID		GENMASK(3, 0)
-@@ -124,6 +127,12 @@
- #define VEND1_GLOBAL_INT_VEND_MASK_GLOBAL2	BIT(1)
- #define VEND1_GLOBAL_INT_VEND_MASK_GLOBAL3	BIT(0)
- 
-+/* Sleep and timeout for checking if the Processor-Intensive
-+ * MDIO operation is finished
-+ */
-+#define AQR107_OP_IN_PROG_SLEEP		1000
-+#define AQR107_OP_IN_PROG_TIMEOUT	100000
-+
- struct aqr107_hw_stat {
- 	const char *name;
- 	int reg;
-@@ -598,16 +607,52 @@ static void aqr107_link_change_notify(struct phy_device *phydev)
- 		phydev_info(phydev, "Aquantia 1000Base-T2 mode active\n");
- }
- 
-+static int aqr107_wait_processor_intensive_op(struct phy_device *phydev)
-+{
-+	int val, err;
-+
-+	/* The datasheet notes to wait at least 1ms after issuing a
-+	 * processor intensive operation before checking.
-+	 * We cannot use the 'sleep_before_read' parameter of read_poll_timeout
-+	 * because that just determines the maximum time slept, not the minimum.
-+	 */
-+	usleep_range(1000, 5000);
-+
-+	err = phy_read_mmd_poll_timeout(phydev, MDIO_MMD_VEND1,
-+					VEND1_GLOBAL_GEN_STAT2, val,
-+					!(val & VEND1_GLOBAL_GEN_STAT2_OP_IN_PROG),
-+					AQR107_OP_IN_PROG_SLEEP,
-+					AQR107_OP_IN_PROG_TIMEOUT, false);
-+	if (err) {
-+		phydev_err(phydev, "timeout: processor-intensive MDIO operation\n");
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
- static int aqr107_suspend(struct phy_device *phydev)
- {
--	return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
--				MDIO_CTRL1_LPOWER);
-+	int err;
-+
-+	err = phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
-+			       MDIO_CTRL1_LPOWER);
-+	if (err)
-+		return err;
-+
-+	return aqr107_wait_processor_intensive_op(phydev);
- }
- 
- static int aqr107_resume(struct phy_device *phydev)
- {
--	return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
--				  MDIO_CTRL1_LPOWER);
-+	int err;
-+
-+	err = phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
-+				 MDIO_CTRL1_LPOWER);
-+	if (err)
-+		return err;
-+
-+	return aqr107_wait_processor_intensive_op(phydev);
- }
- 
- static int aqr107_probe(struct phy_device *phydev)
--- 
-2.35.1
-
++	codec->depop_delay = 10;
+ 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
+ 	spec = codec->spec;
+ 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
 
 
