@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEFE5EA15F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E5B5EA4DA
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236528AbiIZKum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37170 "EHLO
+        id S238500AbiIZL4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236680AbiIZKtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0084DB73;
-        Mon, 26 Sep 2022 03:26:25 -0700 (PDT)
+        with ESMTP id S238981AbiIZLyN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E564DB00;
+        Mon, 26 Sep 2022 03:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B27EAB8055F;
-        Mon, 26 Sep 2022 10:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1CA9C433D6;
-        Mon, 26 Sep 2022 10:26:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC92B60B2F;
+        Mon, 26 Sep 2022 10:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11C5C433C1;
+        Mon, 26 Sep 2022 10:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187982;
-        bh=psv3uKrLsqAIWdTo1TVmFaLRqzOckcFVq3aCsW3RV7U=;
+        s=korg; t=1664189338;
+        bh=rSpcze+w5f8A6yGVWV9axhSYli8sV5dEXvHyPyy8LP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NyctNZsR8OL0/0xwAwdEutzxnvJkJu+n8HHkjQAo/JNVTRGI85oGNf6Zde7kTW+5T
-         3niggA3dJQhDqRR9AMbTzyOHucyxCqSw4razLQizpZNiHQ7cXXNlFs8NdPiHy0sabH
-         Lf6Umvaf/Gd6Auoj3GRqVkN3xVEufSxlhw+AqIKI=
+        b=rMI1eKMW/+uz6oNgT84xg24fbpM9RFPw60WU1chWol4E9j6HlfejmJmtP9bAT8Wkn
+         HyoA8okA15hS1iiSJ/RnfLSx9Izs7x97hNHxy5f5Ob6tXLDciN+l2Gau29aCW/T5Oj
+         Whc/cFFM5CLp8xjsdf5RWHVz2fryEHjHxrCabges=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 108/120] xfs: attach dquots and reserve quota blocks during unwritten conversion
-Date:   Mon, 26 Sep 2022 12:12:21 +0200
-Message-Id: <20220926100754.905815982@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Divya Koppera <Divya.Koppera@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 153/207] net: phy: micrel: fix shared interrupt on LAN8814
+Date:   Mon, 26 Sep 2022 12:12:22 +0200
+Message-Id: <20220926100813.496924103@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Michael Walle <michael@walle.cc>
 
-commit 2815a16d7ff6230a8e37928829d221bb075aa160 upstream.
+[ Upstream commit 2002fbac743b6e2391b4ed50ad9eb626768dd78a ]
 
-In xfs_iomap_write_unwritten, we need to ensure that dquots are attached
-to the inode and quota blocks reserved so that we capture in the quota
-counters any blocks allocated to handle a bmbt split.  This can happen
-on the first unwritten extent conversion to a preallocated sparse file
-on a fresh mount.
+Since commit ece19502834d ("net: phy: micrel: 1588 support for LAN8814
+phy") the handler always returns IRQ_HANDLED, except in an error case.
+Before that commit, the interrupt status register was checked and if
+it was empty, IRQ_NONE was returned. Restore that behavior to play nice
+with the interrupt line being shared with others.
 
-This was found by running generic/311 with quotas enabled.  The bug
-seems to have been introduced in "[XFS] rework iocore infrastructure,
-remove some code and make it more" from ~2002?
-
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ece19502834d ("net: phy: micrel: 1588 support for LAN8814 phy")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Reviewed-by: Divya Koppera <Divya.Koppera@microchip.com>
+Link: https://lore.kernel.org/r/20220920141619.808117-1-michael@walle.cc
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_iomap.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/phy/micrel.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/fs/xfs/xfs_iomap.c
-+++ b/fs/xfs/xfs_iomap.c
-@@ -765,6 +765,11 @@ xfs_iomap_write_unwritten(
- 	 */
- 	resblks = XFS_DIOSTRAT_SPACE_RES(mp, 0) << 1;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 34483a4bd688..e8e1101911b2 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -2662,16 +2662,19 @@ static int lan8804_config_init(struct phy_device *phydev)
+ static irqreturn_t lan8814_handle_interrupt(struct phy_device *phydev)
+ {
+ 	int irq_status, tsu_irq_status;
++	int ret = IRQ_NONE;
  
-+	/* Attach dquots so that bmbt splits are accounted correctly. */
-+	error = xfs_qm_dqattach(ip);
-+	if (error)
-+		return error;
-+
- 	do {
- 		/*
- 		 * Set up a transaction to convert the range of extents
-@@ -783,6 +788,11 @@ xfs_iomap_write_unwritten(
- 		xfs_ilock(ip, XFS_ILOCK_EXCL);
- 		xfs_trans_ijoin(tp, ip, 0);
+ 	irq_status = phy_read(phydev, LAN8814_INTS);
+-	if (irq_status > 0 && (irq_status & LAN8814_INT_LINK))
+-		phy_trigger_machine(phydev);
+-
+ 	if (irq_status < 0) {
+ 		phy_error(phydev);
+ 		return IRQ_NONE;
+ 	}
  
-+		error = xfs_trans_reserve_quota_nblks(tp, ip, resblks, 0,
-+				XFS_QMOPT_RES_REGBLKS);
-+		if (error)
-+			goto error_on_bmapi_transaction;
++	if (irq_status & LAN8814_INT_LINK) {
++		phy_trigger_machine(phydev);
++		ret = IRQ_HANDLED;
++	}
 +
- 		/*
- 		 * Modify the unwritten extent state of the buffer.
- 		 */
+ 	while (1) {
+ 		tsu_irq_status = lanphy_read_page_reg(phydev, 4,
+ 						      LAN8814_INTR_STS_REG);
+@@ -2680,12 +2683,15 @@ static irqreturn_t lan8814_handle_interrupt(struct phy_device *phydev)
+ 		    (tsu_irq_status & (LAN8814_INTR_STS_REG_1588_TSU0_ |
+ 				       LAN8814_INTR_STS_REG_1588_TSU1_ |
+ 				       LAN8814_INTR_STS_REG_1588_TSU2_ |
+-				       LAN8814_INTR_STS_REG_1588_TSU3_)))
++				       LAN8814_INTR_STS_REG_1588_TSU3_))) {
+ 			lan8814_handle_ptp_interrupt(phydev);
+-		else
++			ret = IRQ_HANDLED;
++		} else {
+ 			break;
++		}
+ 	}
+-	return IRQ_HANDLED;
++
++	return ret;
+ }
+ 
+ static int lan8814_ack_interrupt(struct phy_device *phydev)
+-- 
+2.35.1
+
 
 
