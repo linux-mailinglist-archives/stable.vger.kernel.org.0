@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 319745EA339
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1034E5E9F5E
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237823AbiIZLVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:21:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51860 "EHLO
+        id S235249AbiIZKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237664AbiIZLTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:19:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E29852454;
-        Mon, 26 Sep 2022 03:39:07 -0700 (PDT)
+        with ESMTP id S235409AbiIZKXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:23:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E11AB62;
+        Mon, 26 Sep 2022 03:17:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD1FBB8095C;
-        Mon, 26 Sep 2022 10:37:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F182C433C1;
-        Mon, 26 Sep 2022 10:37:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E070E60BB7;
+        Mon, 26 Sep 2022 10:17:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9B59C433C1;
+        Mon, 26 Sep 2022 10:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188670;
-        bh=6Z96eXjVRRr1HvpDRdgPDwRE1VX2O2GqrBUwuYg3+Dk=;
+        s=korg; t=1664187420;
+        bh=KW2K4VaKOzZGdmKrmjH+On3E+k4h3U0d0SFwVf5kT+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQQrc1z3kuxF9+05VSiaSRCe+bdiCC251tBASoOQbA0AmaupGzHhEm+2nP9dAXFDq
-         qfwp/0vF4uz1BWjUi9+/yUir3tFsVwR9KVGHhEzdVDfrRZnGaXOwNROmkWQHqmdnuT
-         JGEcTRq+uK7peegjLa1AFk+XHCFNTKdPFpM8j9GQ=
+        b=jJ54ea1WLKl+c39IVhSAhzDZXQK2rvcCyo0HPAU9Tc4iBr8wG2rTfbN0thczjFXU6
+         5LK/4wEvIfby0b3cEk+BvbtIt78yJe2PzyvbNoKDuMP3V+uMdK8oWhSA461cwSK/kt
+         FH8v8cNUyG0LWL59chBFX7yKtkNK69t4fCB6AGyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Meyer <thomas@m3y3r.de>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/148] um: fix default console kernel parameter
+Subject: [PATCH 4.14 28/40] net: team: Unsync device addresses on ndo_stop
 Date:   Mon, 26 Sep 2022 12:11:56 +0200
-Message-Id: <20220926100759.119720109@linuxfoundation.org>
+Message-Id: <20220926100739.370200746@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Benjamin Poirier <bpoirier@nvidia.com>
 
-[ Upstream commit 782b1f70f8a8b28571949d2ba43fe88b96d75ec3 ]
+[ Upstream commit bd60234222b2fd5573526da7bcd422801f271f5f ]
 
-OpenWrt's UML with 5.15 was producing odd errors/warnings during preinit
-part of the early userspace portion:
+Netdev drivers are expected to call dev_{uc,mc}_sync() in their
+ndo_set_rx_mode method and dev_{uc,mc}_unsync() in their ndo_stop method.
+This is mentioned in the kerneldoc for those dev_* functions.
 
-|[    0.000000] Kernel command line: ubd0=root.img root=98:0 console=tty
-|[...]
-|[    0.440000] random: jshn: uninitialized urandom read (4 bytes read)
-|[    0.460000] random: jshn: uninitialized urandom read (4 bytes read)
-|/etc/preinit: line 47: can't create /dev/tty: No such device or address
-|/etc/preinit: line 48: can't create /dev/tty: No such device or address
-|/etc/preinit: line 58: can't open /dev/tty: No such device or address
-|[...] repeated many times
+The team driver calls dev_{uc,mc}_unsync() during ndo_uninit instead of
+ndo_stop. This is ineffective because address lists (dev->{uc,mc}) have
+already been emptied in unregister_netdevice_many() before ndo_uninit is
+called. This mistake can result in addresses being leftover on former team
+ports after a team device has been deleted; see test_LAG_cleanup() in the
+last patch in this series.
 
-That "/dev/tty" came from the command line (which is automatically
-added if no console= parameter was specified for the uml binary).
+Add unsync calls at their expected location, team_close().
 
-The TLDP project tells the following about the /dev/tty:
-<https://tldp.org/HOWTO/Text-Terminal-HOWTO-7.html#ss7.3>
-| /dev/tty stands for the controlling terminal (if any) for the current
-| process.[...]
-| /dev/tty is something like a link to the actually terminal device[..]
+v3:
+* When adding or deleting a port, only sync/unsync addresses if the team
+  device is up. In other cases, it is taken care of at the right time by
+  ndo_open/ndo_set_rx_mode/ndo_stop.
 
-The "(if any)" is important here, since it's possible for processes to
-not have a controlling terminal.
-
-I think this was a simple typo and the author wanted tty0 there.
-
-CC: Thomas Meyer <thomas@m3y3r.de>
-Fixes: d7ffac33631b ("um: stdio_console: Make preferred console")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/um_arch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/team/team.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-index 960f5c35ad1b..8dc7ab1f3cd4 100644
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -31,7 +31,7 @@
- #include <os.h>
+diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
+index eb2360b64aad..c7c1ff419d75 100644
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -1274,10 +1274,12 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
+ 		}
+ 	}
  
- #define DEFAULT_COMMAND_LINE_ROOT "root=98:0"
--#define DEFAULT_COMMAND_LINE_CONSOLE "console=tty"
-+#define DEFAULT_COMMAND_LINE_CONSOLE "console=tty0"
+-	netif_addr_lock_bh(dev);
+-	dev_uc_sync_multiple(port_dev, dev);
+-	dev_mc_sync_multiple(port_dev, dev);
+-	netif_addr_unlock_bh(dev);
++	if (dev->flags & IFF_UP) {
++		netif_addr_lock_bh(dev);
++		dev_uc_sync_multiple(port_dev, dev);
++		dev_mc_sync_multiple(port_dev, dev);
++		netif_addr_unlock_bh(dev);
++	}
  
- /* Changed in add_arg and setup_arch, which run before SMP is started */
- static char __initdata command_line[COMMAND_LINE_SIZE] = { 0 };
+ 	port->index = -1;
+ 	list_add_tail_rcu(&port->list, &team->port_list);
+@@ -1348,8 +1350,10 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
+ 	netdev_rx_handler_unregister(port_dev);
+ 	team_port_disable_netpoll(port);
+ 	vlan_vids_del_by_dev(port_dev, dev);
+-	dev_uc_unsync(port_dev, dev);
+-	dev_mc_unsync(port_dev, dev);
++	if (dev->flags & IFF_UP) {
++		dev_uc_unsync(port_dev, dev);
++		dev_mc_unsync(port_dev, dev);
++	}
+ 	dev_close(port_dev);
+ 	team_port_leave(team, port);
+ 
+@@ -1697,6 +1701,14 @@ static int team_open(struct net_device *dev)
+ 
+ static int team_close(struct net_device *dev)
+ {
++	struct team *team = netdev_priv(dev);
++	struct team_port *port;
++
++	list_for_each_entry(port, &team->port_list, list) {
++		dev_uc_unsync(port->dev, dev);
++		dev_mc_unsync(port->dev, dev);
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
