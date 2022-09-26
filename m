@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4FFB5EA3AD
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A615EA51C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230168AbiIZLbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:31:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52076 "EHLO
+        id S238505AbiIZL6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233898AbiIZLac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:30:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869C66B8CE;
-        Mon, 26 Sep 2022 03:41:54 -0700 (PDT)
+        with ESMTP id S238528AbiIZL4O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:56:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD967960B;
+        Mon, 26 Sep 2022 03:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4420C60769;
-        Mon, 26 Sep 2022 10:40:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FFEC433C1;
-        Mon, 26 Sep 2022 10:40:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ADB360C17;
+        Mon, 26 Sep 2022 10:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 139AFC433C1;
+        Mon, 26 Sep 2022 10:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188831;
-        bh=Vy9KnVHyGacXGwt7HedxWHJmgGZFE2wYut1J6ZVUkao=;
+        s=korg; t=1664189416;
+        bh=Tb00sjBAY3nprOehK04zLLPf89XDrBubey8KUxfTO+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2INEzreL6loplwRdn+jAGfbeNE2yJVBHypCkUY/v1SkCFaXF5s18tixZGEXcFJaVq
-         JHlHIEUySdIQL6+XSHAB9Lxv+JJU2IcLMOQezJmtJtESmddXMYPOfYg+d6nQbjNNWk
-         JetaM7iw9ogbPvjJqRiqEKtj1n0SVMrQYyG2+sag=
+        b=LCE3cZ949iWzr+X6asa9CJUJWT7H7PE5rFKD7VPfdK2mPWLQC+8LmAoEB9KmGekew
+         TVlNVnWrqjZszdFDPQeDbVHqfr/6m5LI5OdqkpmsHMnwBbWy7ajuqhQUgTnpKvWJL6
+         8mrMxQ7yOhTSUYa+RjhGBaA1vqYezOghQf29RjfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 136/148] i2c: imx: If pm_runtime_get_sync() returned 1 device access is possible
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Yao Wang1 <Yao.Wang1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 181/207] drm/amd/display: Limit user regamma to a valid value
 Date:   Mon, 26 Sep 2022 12:12:50 +0200
-Message-Id: <20220926100801.316627384@linuxfoundation.org>
+Message-Id: <20220926100814.709822293@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Yao Wang1 <Yao.Wang1@amd.com>
 
-[ Upstream commit 085aacaa73163f4b8a89dec24ecb32cfacd34017 ]
+[ Upstream commit 3601d620f22e37740cf73f8278eabf9f2aa19eb7 ]
 
-pm_runtime_get_sync() returning 1 also means the device is powered. So
-resetting the chip registers in .remove() is possible and should be
-done.
+[Why]
+For HDR mode, we get total 512 tf_point and after switching to SDR mode
+we actually get 400 tf_point and the rest of points(401~512) still use
+dirty value from HDR mode. We should limit the rest of the points to max
+value.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: d98bdd3a5b50 ("i2c: imx: Make sure to unregister adapter on remove()")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+[How]
+Limit the value when coordinates_x.x > 1, just like what we do in
+translate_from_linear_space for other re-gamma build paths.
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Yao Wang1 <Yao.Wang1@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 3f40995c0ca9..2e4d05040e50 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1496,7 +1496,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
- 	if (i2c_imx->dma)
- 		i2c_imx_dma_free(i2c_imx);
+diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+index 64a38f08f497..5a51be753e87 100644
+--- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
++++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+@@ -1603,6 +1603,7 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 	struct fixed31_32 lut2;
+ 	struct fixed31_32 delta_lut;
+ 	struct fixed31_32 delta_index;
++	const struct fixed31_32 one = dc_fixpt_from_int(1);
  
--	if (ret == 0) {
-+	if (ret >= 0) {
- 		/* setup chip registers to defaults */
- 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
- 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
+ 	i = 0;
+ 	/* fixed_pt library has problems handling too small values */
+@@ -1631,6 +1632,9 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 			} else
+ 				hw_x = coordinates_x[i].x;
+ 
++			if (dc_fixpt_le(one, hw_x))
++				hw_x = one;
++
+ 			norm_x = dc_fixpt_mul(norm_factor, hw_x);
+ 			index = dc_fixpt_floor(norm_x);
+ 			if (index < 0 || index > 255)
 -- 
 2.35.1
 
