@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E405EA2B2
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFABA5EA0FA
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237551AbiIZLNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52740 "EHLO
+        id S233792AbiIZKoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:44:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237442AbiIZLLx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:11:53 -0400
+        with ESMTP id S236201AbiIZKm5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:42:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6425051A;
-        Mon, 26 Sep 2022 03:35:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491FB18E24;
+        Mon, 26 Sep 2022 03:24:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90A5EB802C7;
-        Mon, 26 Sep 2022 10:35:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4623C433D6;
-        Mon, 26 Sep 2022 10:35:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C2F8B80915;
+        Mon, 26 Sep 2022 10:23:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FBC7C433C1;
+        Mon, 26 Sep 2022 10:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188540;
-        bh=Qts+mTwxPMEZO9kijhoy/64pFEzmYfB6q0q5Kwgo2VU=;
+        s=korg; t=1664187833;
+        bh=vSdOEAMstmSmfi3lFpIiRMp77RLfuMXmUwhvpHUwSLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lq4aNg5pOTY4/gOKg5VsiCvgzXo21toqPOLeWH8741kY11JHnQGE+uzn/Iep1rTYE
-         Z2UVXgxcxv7n/68XeALxIIOy1rRSN87QJcWH2heC4HILn1I+qtAoAHWz0G0EcgtcbR
-         kYmuKc6y1VxQstXS+YpSazqO+A5E/iQ5XLrJDZDs=
+        b=G1FJf31N8W013+wnJtBFSTrwuML3r9kwchZefiWuredUO2uFA7MVdeeUab10oBD2C
+         lnoXwbrxrbi+6zBQY+9j5zQ4UCFIWRMBELXqMCHhPeXoVsHkVgRcjCChtZABYluKlF
+         stp9XIKVouK+gebxC7n6b7xmiLGj6Lj2Uuf6bs74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Peter Jones <pjones@redhat.com>
-Subject: [PATCH 5.15 041/148] efi: libstub: check Shim mode using MokSBStateRT
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Kent Gustavsson <kent@minoris.se>,
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 042/120] iio:adc:mcp3911: Switch to generic firmware properties.
 Date:   Mon, 26 Sep 2022 12:11:15 +0200
-Message-Id: <20220926100757.566743144@linuxfoundation.org>
+Message-Id: <20220926100752.250813953@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 5f56a74cc0a6d9b9f8ba89cea29cd7c4774cb2b1 upstream.
+[ Upstream commit 4efc1c614d334883cce09c38aa3fe74d3fb0bbf0 ]
 
-We currently check the MokSBState variable to decide whether we should
-treat UEFI secure boot as being disabled, even if the firmware thinks
-otherwise. This is used by shim to indicate that it is not checking
-signatures on boot images. In the kernel, we use this to relax lockdown
-policies.
+This allows use of the driver with other types of firmware such as ACPI
+PRP0001 based probing.
 
-However, in cases where shim is not even being used, we don't want this
-variable to interfere with lockdown, given that the variable may be
-non-volatile and therefore persist across a reboot. This means setting
-it once will persistently disable lockdown checks on a given system.
+Also part of a general attempt to remove direct use of of_ specific
+accessors from IIO.
 
-So switch to the mirrored version of this variable, called MokSBStateRT,
-which is supposed to be volatile, and this is something we can check.
+Added an include for mod_devicetable.h whilst here to cover the
+struct of_device_id definition.
 
-Cc: <stable@vger.kernel.org> # v4.19+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Reviewed-by: Peter Jones <pjones@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Kent Gustavsson <kent@minoris.se>
+Reviewed-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Stable-dep-of: cfbd76d5c9c4 ("iio: adc: mcp3911: correct "microchip,device-addr" property")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/secureboot.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/adc/mcp3911.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/firmware/efi/libstub/secureboot.c
-+++ b/drivers/firmware/efi/libstub/secureboot.c
-@@ -14,7 +14,7 @@
+diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
+index 4e2e8e819b1e..cd8b1bab9cf0 100644
+--- a/drivers/iio/adc/mcp3911.c
++++ b/drivers/iio/adc/mcp3911.c
+@@ -10,6 +10,8 @@
+ #include <linux/err.h>
+ #include <linux/iio/iio.h>
+ #include <linux/module.h>
++#include <linux/mod_devicetable.h>
++#include <linux/property.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/spi/spi.h>
  
- /* SHIM variables */
- static const efi_guid_t shim_guid = EFI_SHIM_LOCK_GUID;
--static const efi_char16_t shim_MokSBState_name[] = L"MokSBState";
-+static const efi_char16_t shim_MokSBState_name[] = L"MokSBStateRT";
+@@ -209,12 +211,13 @@ static const struct iio_info mcp3911_info = {
+ 	.write_raw = mcp3911_write_raw,
+ };
  
- static efi_status_t get_var(efi_char16_t *name, efi_guid_t *vendor, u32 *attr,
- 			    unsigned long *data_size, void *data)
-@@ -43,8 +43,8 @@ enum efi_secureboot_mode efi_get_secureb
+-static int mcp3911_config(struct mcp3911 *adc, struct device_node *of_node)
++static int mcp3911_config(struct mcp3911 *adc)
+ {
++	struct device *dev = &adc->spi->dev;
+ 	u32 configreg;
+ 	int ret;
  
- 	/*
- 	 * See if a user has put the shim into insecure mode. If so, and if the
--	 * variable doesn't have the runtime attribute set, we might as well
--	 * honor that.
-+	 * variable doesn't have the non-volatile attribute set, we might as
-+	 * well honor that.
- 	 */
- 	size = sizeof(moksbstate);
- 	status = get_efi_var(shim_MokSBState_name, &shim_guid,
-@@ -53,7 +53,7 @@ enum efi_secureboot_mode efi_get_secureb
- 	/* If it fails, we don't care why. Default to secure */
- 	if (status != EFI_SUCCESS)
- 		goto secure_boot_enabled;
--	if (!(attr & EFI_VARIABLE_RUNTIME_ACCESS) && moksbstate == 1)
-+	if (!(attr & EFI_VARIABLE_NON_VOLATILE) && moksbstate == 1)
- 		return efi_secureboot_mode_disabled;
+-	of_property_read_u32(of_node, "device-addr", &adc->dev_addr);
++	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
+ 	if (adc->dev_addr > 3) {
+ 		dev_err(&adc->spi->dev,
+ 			"invalid device address (%i). Must be in range 0-3.\n",
+@@ -298,7 +301,7 @@ static int mcp3911_probe(struct spi_device *spi)
+ 		}
+ 	}
  
- secure_boot_enabled:
+-	ret = mcp3911_config(adc, spi->dev.of_node);
++	ret = mcp3911_config(adc);
+ 	if (ret)
+ 		goto clk_disable;
+ 
+-- 
+2.35.1
+
 
 
