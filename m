@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63AA45EA2FF
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FF95EA09E
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237631AbiIZLR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55026 "EHLO
+        id S236165AbiIZKkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:40:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233413AbiIZLQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:16:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDCBE63F35;
-        Mon, 26 Sep 2022 03:37:37 -0700 (PDT)
+        with ESMTP id S236568AbiIZKjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE46C4D16B;
+        Mon, 26 Sep 2022 03:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85B2860C8E;
-        Mon, 26 Sep 2022 10:37:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77AB9C433D6;
-        Mon, 26 Sep 2022 10:37:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17E76609D1;
+        Mon, 26 Sep 2022 10:22:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B11BC433D7;
+        Mon, 26 Sep 2022 10:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188655;
-        bh=BZfPRIWoeGzi/oHpfpQnFPSeDCql6EZMgdNhQrWC0hU=;
+        s=korg; t=1664187761;
+        bh=L65YeskGNdwEqYVmw4fkH0H3PybxiCxT/X1mglc6hCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFTy57uL/Dmfjq2EkGDZVSKUy/Qatwz4KgfmiKNN/uG+DZqqrpM4It3Cd6ip7ZZCJ
-         aOQg0l/92Wi6kJCYLKXADEwmyM6f1U5pBUc2b/nhgKPbpExf7d1ULs4YgaJzz0VaJa
-         GCY/EtnhzrX7vvcu+Ur7pstgluLCEUpMS+NWEn5M=
+        b=bLZBRoQV0lX3jtxlyY2HMCDWrNRDC3D4/ozNsntsjD3PhkckZ93N44NwZe5UW9pWS
+         6gLIsekYEo38vscuC48Tdrp8Ila+f6f8giydS4EGHNRMuDHD2SPprWzfXiTlgq9YBP
+         B9xly0hc9V3C9LxKls7QT1W7N8YFUtKcOJFMI2qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 5.15 051/148] mm: slub: fix flush_cpu_slab()/__free_slab() invocations in task context.
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Piyush Mehta <piyush.mehta@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 052/120] Revert "usb: gadget: udc-xilinx: replace memcpy with memcpy_toio"
 Date:   Mon, 26 Sep 2022 12:11:25 +0200
-Message-Id: <20220926100757.943420252@linuxfoundation.org>
+Message-Id: <20220926100752.690240253@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit e45cc288724f0cfd497bb5920bcfa60caa335729 upstream.
+[ Upstream commit fe0a2ac7c627b064c479ad0c3b25e531d342e048 ]
 
-Commit 5a836bf6b09f ("mm: slub: move flush_cpu_slab() invocations
-__free_slab() invocations out of IRQ context") moved all flush_cpu_slab()
-invocations to the global workqueue to avoid a problem related
-with deactivate_slab()/__free_slab() being called from an IRQ context
-on PREEMPT_RT kernels.
+This reverts commit 8cb339f1c1f04baede9d54c1e40ac96247a6393b as it
+throws up a bunch of sparse warnings as reported by the kernel test
+robot.
 
-When the flush_all_cpu_locked() function is called from a task context
-it may happen that a workqueue with WQ_MEM_RECLAIM bit set ends up
-flushing the global workqueue, this will cause a dependency issue.
-
- workqueue: WQ_MEM_RECLAIM nvme-delete-wq:nvme_delete_ctrl_work [nvme_core]
-   is flushing !WQ_MEM_RECLAIM events:flush_cpu_slab
- WARNING: CPU: 37 PID: 410 at kernel/workqueue.c:2637
-   check_flush_dependency+0x10a/0x120
- Workqueue: nvme-delete-wq nvme_delete_ctrl_work [nvme_core]
- RIP: 0010:check_flush_dependency+0x10a/0x120[  453.262125] Call Trace:
- __flush_work.isra.0+0xbf/0x220
- ? __queue_work+0x1dc/0x420
- flush_all_cpus_locked+0xfb/0x120
- __kmem_cache_shutdown+0x2b/0x320
- kmem_cache_destroy+0x49/0x100
- bioset_exit+0x143/0x190
- blk_release_queue+0xb9/0x100
- kobject_cleanup+0x37/0x130
- nvme_fc_ctrl_free+0xc6/0x150 [nvme_fc]
- nvme_free_ctrl+0x1ac/0x2b0 [nvme_core]
-
-Fix this bug by creating a workqueue for the flush operation with
-the WQ_MEM_RECLAIM bit set.
-
-Fixes: 5a836bf6b09f ("mm: slub: move flush_cpu_slab() invocations __free_slab() invocations out of IRQ context")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/202209020044.CX2PfZzM-lkp@intel.com
+Fixes: 8cb339f1c1f0 ("usb: gadget: udc-xilinx: replace memcpy with memcpy_toio")
+Cc: stable@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Piyush Mehta <piyush.mehta@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/udc-xilinx.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -308,6 +308,11 @@ static inline void stat(const struct kme
-  */
- static nodemask_t slab_nodes;
+diff --git a/drivers/usb/gadget/udc/udc-xilinx.c b/drivers/usb/gadget/udc/udc-xilinx.c
+index 111d1e6d952f..de22dd543653 100644
+--- a/drivers/usb/gadget/udc/udc-xilinx.c
++++ b/drivers/usb/gadget/udc/udc-xilinx.c
+@@ -496,11 +496,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
+ 		/* Get the Buffer address and copy the transmit data.*/
+ 		eprambase = (u32 __force *)(udc->addr + ep->rambase);
+ 		if (ep->is_in) {
+-			memcpy_toio(eprambase, bufferptr, bytestosend);
++			memcpy(eprambase, bufferptr, bytestosend);
+ 			udc->write_fn(udc->addr, ep->offset +
+ 				      XUSB_EP_BUF0COUNT_OFFSET, bufferlen);
+ 		} else {
+-			memcpy_toio(bufferptr, eprambase, bytestosend);
++			memcpy(bufferptr, eprambase, bytestosend);
+ 		}
+ 		/*
+ 		 * Enable the buffer for transmission.
+@@ -514,11 +514,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
+ 		eprambase = (u32 __force *)(udc->addr + ep->rambase +
+ 			     ep->ep_usb.maxpacket);
+ 		if (ep->is_in) {
+-			memcpy_toio(eprambase, bufferptr, bytestosend);
++			memcpy(eprambase, bufferptr, bytestosend);
+ 			udc->write_fn(udc->addr, ep->offset +
+ 				      XUSB_EP_BUF1COUNT_OFFSET, bufferlen);
+ 		} else {
+-			memcpy_toio(bufferptr, eprambase, bytestosend);
++			memcpy(bufferptr, eprambase, bytestosend);
+ 		}
+ 		/*
+ 		 * Enable the buffer for transmission.
+@@ -1020,7 +1020,7 @@ static int __xudc_ep0_queue(struct xusb_ep *ep0, struct xusb_req *req)
+ 			   udc->addr);
+ 		length = req->usb_req.actual = min_t(u32, length,
+ 						     EP0_MAX_PACKET);
+-		memcpy_toio(corebuf, req->usb_req.buf, length);
++		memcpy(corebuf, req->usb_req.buf, length);
+ 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, length);
+ 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
+ 	} else {
+@@ -1746,7 +1746,7 @@ static void xudc_handle_setup(struct xusb_udc *udc)
  
-+/*
-+ * Workqueue used for flush_cpu_slab().
-+ */
-+static struct workqueue_struct *flushwq;
-+
- /********************************************************************
-  * 			Core slab cache functions
-  *******************************************************************/
-@@ -2688,7 +2693,7 @@ static void flush_all_cpus_locked(struct
- 		INIT_WORK(&sfw->work, flush_cpu_slab);
- 		sfw->skip = false;
- 		sfw->s = s;
--		schedule_work_on(cpu, &sfw->work);
-+		queue_work_on(cpu, flushwq, &sfw->work);
- 	}
+ 	/* Load up the chapter 9 command buffer.*/
+ 	ep0rambase = (u32 __force *) (udc->addr + XUSB_SETUP_PKT_ADDR_OFFSET);
+-	memcpy_toio(&setup, ep0rambase, 8);
++	memcpy(&setup, ep0rambase, 8);
  
- 	for_each_online_cpu(cpu) {
-@@ -4850,6 +4855,8 @@ void __init kmem_cache_init(void)
+ 	udc->setup = setup;
+ 	udc->setup.wValue = cpu_to_le16(setup.wValue);
+@@ -1833,7 +1833,7 @@ static void xudc_ep0_out(struct xusb_udc *udc)
+ 			     (ep0->rambase << 2));
+ 		buffer = req->usb_req.buf + req->usb_req.actual;
+ 		req->usb_req.actual = req->usb_req.actual + bytes_to_rx;
+-		memcpy_toio(buffer, ep0rambase, bytes_to_rx);
++		memcpy(buffer, ep0rambase, bytes_to_rx);
  
- void __init kmem_cache_init_late(void)
- {
-+	flushwq = alloc_workqueue("slub_flushwq", WQ_MEM_RECLAIM, 0);
-+	WARN_ON(!flushwq);
- }
- 
- struct kmem_cache *
+ 		if (req->usb_req.length == req->usb_req.actual) {
+ 			/* Data transfer completed get ready for Status stage */
+@@ -1909,7 +1909,7 @@ static void xudc_ep0_in(struct xusb_udc *udc)
+ 				     (ep0->rambase << 2));
+ 			buffer = req->usb_req.buf + req->usb_req.actual;
+ 			req->usb_req.actual = req->usb_req.actual + length;
+-			memcpy_toio(ep0rambase, buffer, length);
++			memcpy(ep0rambase, buffer, length);
+ 		}
+ 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, count);
+ 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
+-- 
+2.35.1
+
 
 
