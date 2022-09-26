@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FBEE5EA31E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A438D5EA119
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbiIZLTk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52090 "EHLO
+        id S236397AbiIZKpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:45:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237790AbiIZLTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:19:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC82B65817;
-        Mon, 26 Sep 2022 03:38:35 -0700 (PDT)
+        with ESMTP id S236643AbiIZKoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:44:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8BF4D4EC;
+        Mon, 26 Sep 2022 03:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB4E860C56;
-        Mon, 26 Sep 2022 10:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83D6C433D6;
-        Mon, 26 Sep 2022 10:31:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 015BCB8091F;
+        Mon, 26 Sep 2022 10:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38501C433D6;
+        Mon, 26 Sep 2022 10:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188310;
-        bh=fKLj/yYQPy4JuQoRuR1qe70N1vKp4oaS8Kg1EBX3joM=;
+        s=korg; t=1664187918;
+        bh=wz9FGAFTMsjW7TZL1vBSY65m+pX1Yx7gQHp9WzMqvlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JijsDT9cqcDK88b8vReMsO7+TJK5x4fyN1HJWAB63TlwOLeh6qa1CH6+BrHqs5+IU
-         QbQnotbgHzmANWyfF0/wVZXQoIa/BgOJG6aghXqUWJ2PYECEFYBrEbsvEA8I0zQIJm
-         zoN0Bx+tuzwbdd8lcKY5zQvJIAFlYDM/zKoBEPrg=
+        b=irsvDzxsNYlo2nAP7jnDWBREszSzccDFOUOAq1BTI+KsLgAsZAb+nSgJJX4/Wm+xD
+         V8Fo2iDyoi8VBFn1sczwGkhd1HnbuJZziGRhfKMupGL1vQ95vEI0THeB+xgJTicJNf
+         fJyu0+wIqVsVUTIjnEm8JVZjwJDEyBwtFowwy9VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 108/141] can: gs_usb: gs_can_open(): fix race dev->can.state condition
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 101/120] workqueue: dont skip lockdep work dependency in cancel_work_sync()
 Date:   Mon, 26 Sep 2022 12:12:14 +0200
-Message-Id: <20220926100758.352309468@linuxfoundation.org>
+Message-Id: <20220926100754.692014905@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 5440428b3da65408dba0241985acb7a05258b85e ]
+[ Upstream commit c0feea594e058223973db94c1c32a830c9807c86 ]
 
-The dev->can.state is set to CAN_STATE_ERROR_ACTIVE, after the device
-has been started. On busy networks the CAN controller might receive
-CAN frame between and go into an error state before the dev->can.state
-is assigned.
+Like Hillf Danton mentioned
 
-Assign dev->can.state before starting the controller to close the race
-window.
+  syzbot should have been able to catch cancel_work_sync() in work context
+  by checking lockdep_map in __flush_work() for both flush and cancel.
 
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220920195216.232481-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+in [1], being unable to report an obvious deadlock scenario shown below is
+broken. From locking dependency perspective, sync version of cancel request
+should behave as if flush request, for it waits for completion of work if
+that work has already started execution.
+
+  ----------
+  #include <linux/module.h>
+  #include <linux/sched.h>
+  static DEFINE_MUTEX(mutex);
+  static void work_fn(struct work_struct *work)
+  {
+    schedule_timeout_uninterruptible(HZ / 5);
+    mutex_lock(&mutex);
+    mutex_unlock(&mutex);
+  }
+  static DECLARE_WORK(work, work_fn);
+  static int __init test_init(void)
+  {
+    schedule_work(&work);
+    schedule_timeout_uninterruptible(HZ / 10);
+    mutex_lock(&mutex);
+    cancel_work_sync(&work);
+    mutex_unlock(&mutex);
+    return -EINVAL;
+  }
+  module_init(test_init);
+  MODULE_LICENSE("GPL");
+  ----------
+
+The check this patch restores was added by commit 0976dfc1d0cd80a4
+("workqueue: Catch more locking problems with flush_work()").
+
+Then, lockdep's crossrelease feature was added by commit b09be676e0ff25bd
+("locking/lockdep: Implement the 'crossrelease' feature"). As a result,
+this check was once removed by commit fd1a5b04dfb899f8 ("workqueue: Remove
+now redundant lock acquisitions wrt. workqueue flushes").
+
+But lockdep's crossrelease feature was removed by commit e966eaeeb623f099
+("locking/lockdep: Remove the cross-release locking checks"). At this
+point, this check should have been restored.
+
+Then, commit d6e89786bed977f3 ("workqueue: skip lockdep wq dependency in
+cancel_work_sync()") introduced a boolean flag in order to distinguish
+flush_work() and cancel_work_sync(), for checking "struct workqueue_struct"
+dependency when called from cancel_work_sync() was causing false positives.
+
+Then, commit 87915adc3f0acdf0 ("workqueue: re-add lockdep dependencies for
+flushing") tried to restore "struct work_struct" dependency check, but by
+error checked this boolean flag. Like an example shown above indicates,
+"struct work_struct" dependency needs to be checked for both flush_work()
+and cancel_work_sync().
+
+Link: https://lkml.kernel.org/r/20220504044800.4966-1-hdanton@sina.com [1]
+Reported-by: Hillf Danton <hdanton@sina.com>
+Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Fixes: 87915adc3f0acdf0 ("workqueue: re-add lockdep dependencies for flushing")
+Cc: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/workqueue.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
-index 1bfc497da9ac..a879200eaab0 100644
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -678,6 +678,7 @@ static int gs_can_open(struct net_device *netdev)
- 		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index e90f37e22202..dd96391b44de 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -3049,10 +3049,8 @@ static bool __flush_work(struct work_struct *work, bool from_cancel)
+ 	if (WARN_ON(!work->func))
+ 		return false;
  
- 	/* finally start device */
-+	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
- 	dm->flags = cpu_to_le32(flags);
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
-@@ -694,13 +695,12 @@ static int gs_can_open(struct net_device *netdev)
- 	if (rc < 0) {
- 		netdev_err(netdev, "Couldn't start device (err=%d)\n", rc);
- 		kfree(dm);
-+		dev->can.state = CAN_STATE_STOPPED;
- 		return rc;
- 	}
+-	if (!from_cancel) {
+-		lock_map_acquire(&work->lockdep_map);
+-		lock_map_release(&work->lockdep_map);
+-	}
++	lock_map_acquire(&work->lockdep_map);
++	lock_map_release(&work->lockdep_map);
  
- 	kfree(dm);
- 
--	dev->can.state = CAN_STATE_ERROR_ACTIVE;
--
- 	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
+ 	if (start_flush_work(work, &barr, from_cancel)) {
+ 		wait_for_completion(&barr.done);
 -- 
 2.35.1
 
