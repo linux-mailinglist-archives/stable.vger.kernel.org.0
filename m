@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D9685E9F58
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D706A5EA23B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234293AbiIZKZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32868 "EHLO
+        id S237101AbiIZLEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235312AbiIZKWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:22:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6BB4CA3D;
-        Mon, 26 Sep 2022 03:16:45 -0700 (PDT)
+        with ESMTP id S237344AbiIZLDu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F125F204;
+        Mon, 26 Sep 2022 03:32:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4520960AF0;
-        Mon, 26 Sep 2022 10:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3D8C433D6;
-        Mon, 26 Sep 2022 10:16:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7096660C2C;
+        Mon, 26 Sep 2022 10:31:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63942C433C1;
+        Mon, 26 Sep 2022 10:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187398;
-        bh=P/jPu5lRTU5KAlw0BfvfSuAKw0KPbUzxhtuOZH99Lpk=;
+        s=korg; t=1664188275;
+        bh=uiNVxANrD1px9uRLMITN04/L5b26Kq2FCL0lkdjhElg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WkvD+C/mwnq5A44ArgsXA7NACGCNP+sVqlGi0CyCeGPKmuPJpE8KlxJrp4O0/9Zkd
-         TsZ2V9nbIna8zlPPwebrRZ76LBKrBlgIMDrkPDPGNQrkbU7O6oUfHOo5Hjo/jflppM
-         1jmBcrGr5BcUjAiJNN2Zz80QyNiGCGwfxYBmtYgw=
+        b=Ba1Hu415Z1r3w0ajhLCH2jMwWBF77UX6nuiIABMYAi1/G5DcRHob9KK0kMYDtVGfn
+         T+anzx5K0377svYg/iEn5O5ncMv0Kcs3BbeUgQMu7XH0HyJZ6hUilIykpV5vjCygQ7
+         3Yawy9FCBc/lNOWbl321PAnaRu6x9juG6Nr6xWF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.14 36/40] serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 098/141] net: ipa: properly limit modem routing table use
 Date:   Mon, 26 Sep 2022 12:12:04 +0200
-Message-Id: <20220926100739.710614021@linuxfoundation.org>
+Message-Id: <20220926100757.988872121@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,234 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 754f68044c7dd6c52534ba3e0f664830285c4b15 upstream.
+[ Upstream commit cf412ec333250cb82bafe57169204e14a9f1c2ac ]
 
-DMA complete & stop paths did not correctly account Tx'ed characters
-into icount.tx. Using uart_xmit_advance() fixes the problem.
+IPA can route packets between IPA-connected entities.  The AP and
+modem are currently the only such entities supported, and no routing
+is required to transfer packets between them.
 
-Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
-Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220901143934.8850-3-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The number of entries in each routing table is fixed, and defined at
+initialization time.  Some of these entries are designated for use
+by the modem, and the rest are available for the AP to use.  The AP
+sends a QMI message to the modem which describes (among other
+things) information about routing table memory available for the
+modem to use.
+
+Currently the QMI initialization packet gives wrong information in
+its description of routing tables.  What *should* be supplied is the
+maximum index that the modem can use for the routing table memory
+located at a given location.  The current code instead supplies the
+total *number* of routing table entries.  Furthermore, the modem is
+granted the entire table, not just the subset it's supposed to use.
+
+This patch fixes this.  First, the ipa_mem_bounds structure is
+generalized so its "end" field can be interpreted either as a final
+byte offset, or a final array index.  Second, the IPv4 and IPv6
+(non-hashed and hashed) table information fields in the QMI
+ipa_init_modem_driver_req structure are changed to be ipa_mem_bounds
+rather than ipa_mem_array structures.  Third, we set the "end" value
+for each routing table to be the last index, rather than setting the
+"count" to be the number of indices.  Finally, instead of allowing
+the modem to use all of a routing table's memory, it is limited to
+just the portion meant to be used by the modem.  In all versions of
+IPA currently supported, that is IPA_ROUTE_MODEM_COUNT (8) entries.
+
+Update a few comments for clarity.
+
+Fixes: 530f9216a9537 ("soc: qcom: ipa: AP/modem communications")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Link: https://lore.kernel.org/r/20220913204602.1803004-1-elder@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ipa/ipa_qmi.c     |  8 ++++----
+ drivers/net/ipa/ipa_qmi_msg.c |  8 ++++----
+ drivers/net/ipa/ipa_qmi_msg.h | 37 ++++++++++++++++++++---------------
+ drivers/net/ipa/ipa_table.c   |  2 --
+ drivers/net/ipa/ipa_table.h   |  3 +++
+ 5 files changed, 32 insertions(+), 26 deletions(-)
 
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -409,7 +409,7 @@ static void tegra_uart_tx_dma_complete(v
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	spin_lock_irqsave(&tup->uport.lock, flags);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(&tup->uport);
-@@ -493,7 +493,6 @@ static unsigned int tegra_uart_tx_empty(
- static void tegra_uart_stop_tx(struct uart_port *u)
- {
- 	struct tegra_uart_port *tup = to_tegra_uport(u);
--	struct circ_buf *xmit = &tup->uport.state->xmit;
- 	struct dma_tx_state state;
- 	unsigned int count;
+diff --git a/drivers/net/ipa/ipa_qmi.c b/drivers/net/ipa/ipa_qmi.c
+index fea61657867e..880ec353f958 100644
+--- a/drivers/net/ipa/ipa_qmi.c
++++ b/drivers/net/ipa/ipa_qmi.c
+@@ -308,12 +308,12 @@ init_modem_driver_req(struct ipa_qmi *ipa_qmi)
+ 	mem = &ipa->mem[IPA_MEM_V4_ROUTE];
+ 	req.v4_route_tbl_info_valid = 1;
+ 	req.v4_route_tbl_info.start = ipa->mem_offset + mem->offset;
+-	req.v4_route_tbl_info.count = mem->size / sizeof(__le64);
++	req.v4_route_tbl_info.end = IPA_ROUTE_MODEM_COUNT - 1;
  
-@@ -504,7 +503,7 @@ static void tegra_uart_stop_tx(struct ua
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- }
+ 	mem = &ipa->mem[IPA_MEM_V6_ROUTE];
+ 	req.v6_route_tbl_info_valid = 1;
+ 	req.v6_route_tbl_info.start = ipa->mem_offset + mem->offset;
+-	req.v6_route_tbl_info.count = mem->size / sizeof(__le64);
++	req.v6_route_tbl_info.end = IPA_ROUTE_MODEM_COUNT - 1;
  
+ 	mem = &ipa->mem[IPA_MEM_V4_FILTER];
+ 	req.v4_filter_tbl_start_valid = 1;
+@@ -352,7 +352,7 @@ init_modem_driver_req(struct ipa_qmi *ipa_qmi)
+ 		req.v4_hash_route_tbl_info_valid = 1;
+ 		req.v4_hash_route_tbl_info.start =
+ 				ipa->mem_offset + mem->offset;
+-		req.v4_hash_route_tbl_info.count = mem->size / sizeof(__le64);
++		req.v4_hash_route_tbl_info.end = IPA_ROUTE_MODEM_COUNT - 1;
+ 	}
+ 
+ 	mem = &ipa->mem[IPA_MEM_V6_ROUTE_HASHED];
+@@ -360,7 +360,7 @@ init_modem_driver_req(struct ipa_qmi *ipa_qmi)
+ 		req.v6_hash_route_tbl_info_valid = 1;
+ 		req.v6_hash_route_tbl_info.start =
+ 			ipa->mem_offset + mem->offset;
+-		req.v6_hash_route_tbl_info.count = mem->size / sizeof(__le64);
++		req.v6_hash_route_tbl_info.end = IPA_ROUTE_MODEM_COUNT - 1;
+ 	}
+ 
+ 	mem = &ipa->mem[IPA_MEM_V4_FILTER_HASHED];
+diff --git a/drivers/net/ipa/ipa_qmi_msg.c b/drivers/net/ipa/ipa_qmi_msg.c
+index 73413371e3d3..ecf9f863c842 100644
+--- a/drivers/net/ipa/ipa_qmi_msg.c
++++ b/drivers/net/ipa/ipa_qmi_msg.c
+@@ -271,7 +271,7 @@ struct qmi_elem_info ipa_init_modem_driver_req_ei[] = {
+ 		.tlv_type	= 0x12,
+ 		.offset		= offsetof(struct ipa_init_modem_driver_req,
+ 					   v4_route_tbl_info),
+-		.ei_array	= ipa_mem_array_ei,
++		.ei_array	= ipa_mem_bounds_ei,
+ 	},
+ 	{
+ 		.data_type	= QMI_OPT_FLAG,
+@@ -292,7 +292,7 @@ struct qmi_elem_info ipa_init_modem_driver_req_ei[] = {
+ 		.tlv_type	= 0x13,
+ 		.offset		= offsetof(struct ipa_init_modem_driver_req,
+ 					   v6_route_tbl_info),
+-		.ei_array	= ipa_mem_array_ei,
++		.ei_array	= ipa_mem_bounds_ei,
+ 	},
+ 	{
+ 		.data_type	= QMI_OPT_FLAG,
+@@ -456,7 +456,7 @@ struct qmi_elem_info ipa_init_modem_driver_req_ei[] = {
+ 		.tlv_type	= 0x1b,
+ 		.offset		= offsetof(struct ipa_init_modem_driver_req,
+ 					   v4_hash_route_tbl_info),
+-		.ei_array	= ipa_mem_array_ei,
++		.ei_array	= ipa_mem_bounds_ei,
+ 	},
+ 	{
+ 		.data_type	= QMI_OPT_FLAG,
+@@ -477,7 +477,7 @@ struct qmi_elem_info ipa_init_modem_driver_req_ei[] = {
+ 		.tlv_type	= 0x1c,
+ 		.offset		= offsetof(struct ipa_init_modem_driver_req,
+ 					   v6_hash_route_tbl_info),
+-		.ei_array	= ipa_mem_array_ei,
++		.ei_array	= ipa_mem_bounds_ei,
+ 	},
+ 	{
+ 		.data_type	= QMI_OPT_FLAG,
+diff --git a/drivers/net/ipa/ipa_qmi_msg.h b/drivers/net/ipa/ipa_qmi_msg.h
+index cfac456cea0c..58de425bb8e6 100644
+--- a/drivers/net/ipa/ipa_qmi_msg.h
++++ b/drivers/net/ipa/ipa_qmi_msg.h
+@@ -82,9 +82,11 @@ enum ipa_platform_type {
+ 	IPA_QMI_PLATFORM_TYPE_MSM_QNX_V01	= 5,	/* QNX MSM */
+ };
+ 
+-/* This defines the start and end offset of a range of memory.  Both
+- * fields are offsets relative to the start of IPA shared memory.
+- * The end value is the last addressable byte *within* the range.
++/* This defines the start and end offset of a range of memory.  The start
++ * value is a byte offset relative to the start of IPA shared memory.  The
++ * end value is the last addressable unit *within* the range.  Typically
++ * the end value is in units of bytes, however it can also be a maximum
++ * array index value.
+  */
+ struct ipa_mem_bounds {
+ 	u32 start;
+@@ -125,18 +127,19 @@ struct ipa_init_modem_driver_req {
+ 	u8			hdr_tbl_info_valid;
+ 	struct ipa_mem_bounds	hdr_tbl_info;
+ 
+-	/* Routing table information.  These define the location and size of
+-	 * non-hashable IPv4 and IPv6 filter tables.  The start values are
+-	 * offsets relative to the start of IPA shared memory.
++	/* Routing table information.  These define the location and maximum
++	 * *index* (not byte) for the modem portion of non-hashable IPv4 and
++	 * IPv6 routing tables.  The start values are byte offsets relative
++	 * to the start of IPA shared memory.
+ 	 */
+ 	u8			v4_route_tbl_info_valid;
+-	struct ipa_mem_array	v4_route_tbl_info;
++	struct ipa_mem_bounds	v4_route_tbl_info;
+ 	u8			v6_route_tbl_info_valid;
+-	struct ipa_mem_array	v6_route_tbl_info;
++	struct ipa_mem_bounds	v6_route_tbl_info;
+ 
+ 	/* Filter table information.  These define the location of the
+ 	 * non-hashable IPv4 and IPv6 filter tables.  The start values are
+-	 * offsets relative to the start of IPA shared memory.
++	 * byte offsets relative to the start of IPA shared memory.
+ 	 */
+ 	u8			v4_filter_tbl_start_valid;
+ 	u32			v4_filter_tbl_start;
+@@ -177,18 +180,20 @@ struct ipa_init_modem_driver_req {
+ 	u8			zip_tbl_info_valid;
+ 	struct ipa_mem_bounds	zip_tbl_info;
+ 
+-	/* Routing table information.  These define the location and size
+-	 * of hashable IPv4 and IPv6 filter tables.  The start values are
+-	 * offsets relative to the start of IPA shared memory.
++	/* Routing table information.  These define the location and maximum
++	 * *index* (not byte) for the modem portion of hashable IPv4 and IPv6
++	 * routing tables (if supported by hardware).  The start values are
++	 * byte offsets relative to the start of IPA shared memory.
+ 	 */
+ 	u8			v4_hash_route_tbl_info_valid;
+-	struct ipa_mem_array	v4_hash_route_tbl_info;
++	struct ipa_mem_bounds	v4_hash_route_tbl_info;
+ 	u8			v6_hash_route_tbl_info_valid;
+-	struct ipa_mem_array	v6_hash_route_tbl_info;
++	struct ipa_mem_bounds	v6_hash_route_tbl_info;
+ 
+ 	/* Filter table information.  These define the location and size
+-	 * of hashable IPv4 and IPv6 filter tables.  The start values are
+-	 * offsets relative to the start of IPA shared memory.
++	 * of hashable IPv4 and IPv6 filter tables (if supported by hardware).
++	 * The start values are byte offsets relative to the start of IPA
++	 * shared memory.
+ 	 */
+ 	u8			v4_hash_filter_tbl_start_valid;
+ 	u32			v4_hash_filter_tbl_start;
+diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
+index bada98d7360c..02c192837414 100644
+--- a/drivers/net/ipa/ipa_table.c
++++ b/drivers/net/ipa/ipa_table.c
+@@ -108,8 +108,6 @@
+ 
+ /* Assignment of route table entries to the modem and AP */
+ #define IPA_ROUTE_MODEM_MIN		0
+-#define IPA_ROUTE_MODEM_COUNT		8
+-
+ #define IPA_ROUTE_AP_MIN		IPA_ROUTE_MODEM_COUNT
+ #define IPA_ROUTE_AP_COUNT \
+ 		(IPA_ROUTE_COUNT_MAX - IPA_ROUTE_MODEM_COUNT)
+diff --git a/drivers/net/ipa/ipa_table.h b/drivers/net/ipa/ipa_table.h
+index dc9ff21dbdfb..35e519cef25d 100644
+--- a/drivers/net/ipa/ipa_table.h
++++ b/drivers/net/ipa/ipa_table.h
+@@ -13,6 +13,9 @@ struct ipa;
+ /* The maximum number of filter table entries (IPv4, IPv6; hashed or not) */
+ #define IPA_FILTER_COUNT_MAX	14
+ 
++/* The number of route table entries allotted to the modem */
++#define IPA_ROUTE_MODEM_COUNT	8
++
+ /* The maximum number of route table entries (IPv4, IPv6; hashed or not) */
+ #define IPA_ROUTE_COUNT_MAX	15
+ 
+-- 
+2.35.1
+
 
 
