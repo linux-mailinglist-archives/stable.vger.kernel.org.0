@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB265E9EE0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 931755EA237
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbiIZKPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:15:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
+        id S237185AbiIZLEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:04:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235004AbiIZKPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:15:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8508B47B9B;
-        Mon, 26 Sep 2022 03:14:17 -0700 (PDT)
+        with ESMTP id S237436AbiIZLEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:04:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3EE5F7D5;
+        Mon, 26 Sep 2022 03:32:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57607B80918;
-        Mon, 26 Sep 2022 10:14:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F6CC433D6;
-        Mon, 26 Sep 2022 10:14:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 421CE60112;
+        Mon, 26 Sep 2022 10:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DD4C433D6;
+        Mon, 26 Sep 2022 10:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187254;
-        bh=ifI8ILlDcfdr/lMcjAqelB1TbPdmRi3UrdXfsGepMJ8=;
+        s=korg; t=1664188370;
+        bh=4B9il/fXoMWQi2JJmgF+beslyBwjJ3e3EEHwnB0e46w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUYfH0Rxiv9J2fnkTc8B1SJGX8zGgIcUxrxjC/kdB21Eyt1k0N4ZmI5S+kEY3xp22
-         C2v5a6JCK5aPywT+/FzaI7uMJmihl0IeDwGwbTMEzm6OWcv2XsAHf3XL9dWviX+aTH
-         E5VlmIm8YfyHIyuQki3MWp+3S2N+qQY4iwX0JJMo=
+        b=xtl/kAs+aG1cfTUpcSMWbuJJem/7y+jl2i6nJcYkAl/lnVK5/PmDjzsHtmSuGbKLF
+         MeFu2PWSDKvQl2U/Hdb93+Ey36+huqTe8ylDTK+U6xqv46IUGLNVdfmn5WpK0FgRpv
+         eUs1qsOHhKJBa4jdmGLvWn3AZg4wEvdTr1CHmhuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Wei <luwei32@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 20/30] ipvlan: Fix out-of-bound bugs caused by unset skb->mac_header
-Date:   Mon, 26 Sep 2022 12:11:51 +0200
-Message-Id: <20220926100736.883102343@linuxfoundation.org>
+Subject: [PATCH 5.10 086/141] i40e: Fix VF set max MTU size
+Date:   Mon, 26 Sep 2022 12:11:52 +0200
+Message-Id: <20220926100757.557286602@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Wei <luwei32@huawei.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit 81225b2ea161af48e093f58e8dfee6d705b16af4 ]
+[ Upstream commit 372539def2824c43b6afe2403045b140f65c5acc ]
 
-If an AF_PACKET socket is used to send packets through ipvlan and the
-default xmit function of the AF_PACKET socket is changed from
-dev_queue_xmit() to packet_direct_xmit() via setsockopt() with the option
-name of PACKET_QDISC_BYPASS, the skb->mac_header may not be reset and
-remains as the initial value of 65535, this may trigger slab-out-of-bounds
-bugs as following:
+Max MTU sent to VF is set to 0 during memory allocation. It cause
+that max MTU on VF is changed to IAVF_MAX_RXBUFFER and does not
+depend on data from HW.
 
-=================================================================
-UG: KASAN: slab-out-of-bounds in ipvlan_xmit_mode_l2+0xdb/0x330 [ipvlan]
-PU: 2 PID: 1768 Comm: raw_send Kdump: loaded Not tainted 6.0.0-rc4+ #6
-ardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33
-all Trace:
-print_address_description.constprop.0+0x1d/0x160
-print_report.cold+0x4f/0x112
-kasan_report+0xa3/0x130
-ipvlan_xmit_mode_l2+0xdb/0x330 [ipvlan]
-ipvlan_start_xmit+0x29/0xa0 [ipvlan]
-__dev_direct_xmit+0x2e2/0x380
-packet_direct_xmit+0x22/0x60
-packet_snd+0x7c9/0xc40
-sock_sendmsg+0x9a/0xa0
-__sys_sendto+0x18a/0x230
-__x64_sys_sendto+0x74/0x90
-do_syscall_64+0x3b/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Set max_mtu field in virtchnl_vf_resource struct to inform
+VF in GET_VF_RESOURCES msg what size should be max frame.
 
-The root cause is:
-  1. packet_snd() only reset skb->mac_header when sock->type is SOCK_RAW
-     and skb->protocol is not specified as in packet_parse_headers()
-
-  2. packet_direct_xmit() doesn't reset skb->mac_header as dev_queue_xmit()
-
-In this case, skb->mac_header is 65535 when ipvlan_xmit_mode_l2() is
-called. So when ipvlan_xmit_mode_l2() gets mac header with eth_hdr() which
-use "skb->head + skb->mac_header", out-of-bound access occurs.
-
-This patch replaces eth_hdr() with skb_eth_hdr() in ipvlan_xmit_mode_l2()
-and reset mac header in multicast to solve this out-of-bound bug.
-
-Fixes: 2ad7bf363841 ("ipvlan: Initial check-in of the IPVLAN driver.")
-Signed-off-by: Lu Wei <luwei32@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipvlan/ipvlan_core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/net/ipvlan/ipvlan_core.c b/drivers/net/ipvlan/ipvlan_core.c
-index 6c0982a39486..7668584c3843 100644
---- a/drivers/net/ipvlan/ipvlan_core.c
-+++ b/drivers/net/ipvlan/ipvlan_core.c
-@@ -441,7 +441,6 @@ static int ipvlan_process_v6_outbound(struct sk_buff *skb)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 1947c5a77550..ffff7de801af 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1985,6 +1985,25 @@ static void i40e_del_qch(struct i40e_vf *vf)
+ 	}
+ }
  
- static int ipvlan_process_outbound(struct sk_buff *skb)
- {
--	struct ethhdr *ethh = eth_hdr(skb);
- 	int ret = NET_XMIT_DROP;
- 
- 	/* The ipvlan is a pseudo-L2 device, so the packets that we receive
-@@ -451,6 +450,8 @@ static int ipvlan_process_outbound(struct sk_buff *skb)
- 	if (skb_mac_header_was_set(skb)) {
- 		/* In this mode we dont care about
- 		 * multicast and broadcast traffic */
-+		struct ethhdr *ethh = eth_hdr(skb);
++/**
++ * i40e_vc_get_max_frame_size
++ * @vf: pointer to the VF
++ *
++ * Max frame size is determined based on the current port's max frame size and
++ * whether a port VLAN is configured on this VF. The VF is not aware whether
++ * it's in a port VLAN so the PF needs to account for this in max frame size
++ * checks and sending the max frame size to the VF.
++ **/
++static u16 i40e_vc_get_max_frame_size(struct i40e_vf *vf)
++{
++	u16 max_frame_size = vf->pf->hw.phy.link_info.max_frame_size;
 +
- 		if (is_multicast_ether_addr(ethh->h_dest)) {
- 			pr_debug_ratelimited(
- 				"Dropped {multi|broad}cast of type=[%x]\n",
-@@ -520,7 +521,7 @@ static int ipvlan_xmit_mode_l3(struct sk_buff *skb, struct net_device *dev)
- static int ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
- {
- 	const struct ipvl_dev *ipvlan = netdev_priv(dev);
--	struct ethhdr *eth = eth_hdr(skb);
-+	struct ethhdr *eth = skb_eth_hdr(skb);
- 	struct ipvl_addr *addr;
- 	void *lyr3h;
- 	int addr_type;
-@@ -544,6 +545,7 @@ static int ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
- 		return dev_forward_skb(ipvlan->phy_dev, skb);
++	if (vf->port_vlan_id)
++		max_frame_size -= VLAN_HLEN;
++
++	return max_frame_size;
++}
++
+ /**
+  * i40e_vc_get_vf_resources_msg
+  * @vf: pointer to the VF info
+@@ -2085,6 +2104,7 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
+ 	vfres->max_vectors = pf->hw.func_caps.num_msix_vectors_vf;
+ 	vfres->rss_key_size = I40E_HKEY_ARRAY_SIZE;
+ 	vfres->rss_lut_size = I40E_VF_HLUT_ARRAY_SIZE;
++	vfres->max_mtu = i40e_vc_get_max_frame_size(vf);
  
- 	} else if (is_multicast_ether_addr(eth->h_dest)) {
-+		skb_reset_mac_header(skb);
- 		ipvlan_skb_crossing_ns(skb, NULL);
- 		ipvlan_multicast_enqueue(ipvlan->port, skb);
- 		return NET_XMIT_SUCCESS;
+ 	if (vf->lan_vsi_idx) {
+ 		vfres->vsi_res[0].vsi_id = vf->lan_vsi_id;
 -- 
 2.35.1
 
