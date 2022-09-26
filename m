@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 111615EA3AE
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070B95EA4EF
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234433AbiIZLbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57682 "EHLO
+        id S238722AbiIZL4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238010AbiIZLaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:30:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17FCA6BD44;
-        Mon, 26 Sep 2022 03:42:03 -0700 (PDT)
+        with ESMTP id S239180AbiIZLyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9012E78219;
+        Mon, 26 Sep 2022 03:50:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED13560C0B;
-        Mon, 26 Sep 2022 10:40:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0484AC433C1;
-        Mon, 26 Sep 2022 10:40:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79DC160C41;
+        Mon, 26 Sep 2022 10:50:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF72C433D6;
+        Mon, 26 Sep 2022 10:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188822;
-        bh=ayO3WIFiJihs2MM+opQbImdBIj0AnX09GvLi7XT6pkk=;
+        s=korg; t=1664189407;
+        bh=jR+9wdzZXg1ytd9GBg3XFo+5bh/ND8xS//zX2kiAkgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scEmFJqAcLIYWsS2SCHfhUVuH8Z+ct9Ip+VRYhr2XB4aaLWrXIk7CQrAhFlGJkVtj
-         os6EQtah027ZAvpyTer3EKwdv18kxViPJCbS4pJytcc0Argr/sL8+C4EuYBqpQbQSk
-         VV+/vwYfMzw7lo90RhFLghJokJBb6Ouxj79EkunA=
+        b=vialv12cO+qJjwDfCwEyqga7S/boVA0IRIlLYFaifSUblu/4IpXSn0ZQGpQdSw9t1
+         LC9/TDhVNejqPJ2WMVu5RRWwKlOJFDOiSobLiAbCEU39YWB0sEwV4sobyOhLxIkCIO
+         E0Uv0ykDOH70nyg/hKqEqluqnTpU8Kr7SPqtT9ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <error27@gmail.com>,
-        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Yang Wang <KevinYang.Wang@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 133/148] drm/rockchip: Fix return type of cdn_dp_connector_mode_valid
+Subject: [PATCH 5.19 178/207] drm/amdgpu: change the alignment size of TMR BO to 1M
 Date:   Mon, 26 Sep 2022 12:12:47 +0200
-Message-Id: <20220926100801.201481338@linuxfoundation.org>
+Message-Id: <20220926100814.598225135@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Yang Wang <KevinYang.Wang@amd.com>
 
-[ Upstream commit b0b9408f132623dc88e78adb5282f74e4b64bb57 ]
+[ Upstream commit 36de13fdb04abef3ee03ade5129ab146de63983b ]
 
-The mode_valid field in drm_connector_helper_funcs is expected to be of
-type:
-enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
-				     struct drm_display_mode *mode);
+align TMR BO size TO tmr size is not necessary,
+modify the size to 1M to avoid re-create BO fail
+when serious VRAM fragmentation.
 
-The mismatched return type breaks forward edge kCFI since the underlying
-function definition does not match the function hook definition.
+v2:
+add new macro PSP_TMR_ALIGNMENT for TMR BO alignment size
 
-The return type of cdn_dp_connector_mode_valid should be changed from
-int to enum drm_mode_status.
-
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1703
-Cc: llvm@lists.linux.dev
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220913205555.155149-1-nhuck@google.com
+Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/cdn-dp-core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-index 13c6b857158f..6b5d0722afa6 100644
---- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
-+++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-@@ -277,8 +277,9 @@ static int cdn_dp_connector_get_modes(struct drm_connector *connector)
- 	return ret;
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index b19bf0c3f373..79ce654bd3da 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -748,7 +748,7 @@ static int psp_tmr_init(struct psp_context *psp)
+ 	}
  
--static int cdn_dp_connector_mode_valid(struct drm_connector *connector,
--				       struct drm_display_mode *mode)
-+static enum drm_mode_status
-+cdn_dp_connector_mode_valid(struct drm_connector *connector,
-+			    struct drm_display_mode *mode)
- {
- 	struct cdn_dp_device *dp = connector_to_dp(connector);
- 	struct drm_display_info *display_info = &dp->connector.display_info;
+ 	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
+-	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_SIZE(psp->adev),
++	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_ALIGNMENT,
+ 				      AMDGPU_GEM_DOMAIN_VRAM,
+ 				      &psp->tmr_bo, &psp->tmr_mc_addr, pptr);
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
+index e431f4994931..cd366c7f311f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
+@@ -36,6 +36,7 @@
+ #define PSP_CMD_BUFFER_SIZE	0x1000
+ #define PSP_1_MEG		0x100000
+ #define PSP_TMR_SIZE(adev)	((adev)->asic_type == CHIP_ALDEBARAN ? 0x800000 : 0x400000)
++#define PSP_TMR_ALIGNMENT	0x100000
+ #define PSP_FW_NAME_LEN		0x24
+ 
+ enum psp_shared_mem_size {
 -- 
 2.35.1
 
