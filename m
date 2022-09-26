@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D975EA154
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456815EA255
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237074AbiIZKug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52256 "EHLO
+        id S237227AbiIZLGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:06:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236570AbiIZKqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:46:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B38B957232;
-        Mon, 26 Sep 2022 03:25:58 -0700 (PDT)
+        with ESMTP id S237232AbiIZLEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:04:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0214F39C;
+        Mon, 26 Sep 2022 03:33:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB772B80915;
-        Mon, 26 Sep 2022 10:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2714FC433D7;
-        Mon, 26 Sep 2022 10:25:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 500E860CEF;
+        Mon, 26 Sep 2022 10:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4277EC433D7;
+        Mon, 26 Sep 2022 10:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187955;
-        bh=e/6xeRdBd9WX29GIdGG1MC2Ct7nHdPDSrGxL1c8Rg5M=;
+        s=korg; t=1664188406;
+        bh=HwZx95QBBLtExNnRGltg/Imjeh2uE5xtRtIqxW2Z1ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UnxVW89f4ggI4TP7VkB7ZnlMO+946TTChNENx7MbzA+vSPVTW2aX9o24JrD/Cd7Ij
-         ae7sLmrOx4/3Wx5DsmZAcXLfu87P8ZhjgC7lFGIqKEBgaF+1NX8nFBX5L8xlYsopkv
-         XSljZ5fPMAbDGie5BOmj30L0t89Hy74GNxkbCrdM=
+        b=HUc7+78gLJOCKUhDYGnfQ7TFdVnp/jBW5U7Ym1phvIewXCJqYf/8UaBk6huk/L8fw
+         +R28yezTMvXdxciwI0Th4pRGimj5uslmpLGYI8fals+mcFr9Kd/i3ZDZB/1/cDrQG7
+         rwIQhDDUPxB62iO4lo00dQI7Z9aXgiL0bG+uGnS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 115/120] xfs: use bitops interface for buf log item AIL flag check
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.10 122/141] vfio/type1: fix vaddr_get_pfns() return in vfio_pin_page_external()
 Date:   Mon, 26 Sep 2022 12:12:28 +0200
-Message-Id: <20220926100755.121201939@linuxfoundation.org>
+Message-Id: <20220926100758.876908959@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 826f7e34130a4ce756138540170cbe935c537a47 upstream.
+commit 4ab4fcfce5b540227d80eb32f1db45ab615f7c92 upstream.
 
-The xfs_log_item flags were converted to atomic bitops as of commit
-22525c17ed ("xfs: log item flags are racy"). The assert check for
-AIL presence in xfs_buf_item_relse() still uses the old value based
-check. This likely went unnoticed as XFS_LI_IN_AIL evaluates to 0
-and causes the assert to unconditionally pass. Fix up the check.
+vaddr_get_pfns() now returns the positive number of pfns successfully
+gotten instead of zero.  vfio_pin_page_external() might return 1 to
+vfio_iommu_type1_pin_pages(), which will treat it as an error, if
+vaddr_get_pfns() is successful but vfio_pin_page_external() doesn't
+reach vfio_lock_acct().
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Fixes: 22525c17ed ("xfs: log item flags are racy")
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Fix it up in vfio_pin_page_external().  Found by inspection.
+
+Fixes: be16c1fd99f4 ("vfio/type1: Change success value of vaddr_get_pfn()")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Message-Id: <20210308172452.38864-1-daniel.m.jordan@oracle.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_buf_item.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/vfio_iommu_type1.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_buf_item.c
-+++ b/fs/xfs/xfs_buf_item.c
-@@ -956,7 +956,7 @@ xfs_buf_item_relse(
- 	struct xfs_buf_log_item	*bip = bp->b_log_item;
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -671,7 +671,12 @@ static int vfio_pin_page_external(struct
+ 		return -ENODEV;
  
- 	trace_xfs_buf_item_relse(bp, _RET_IP_);
--	ASSERT(!(bip->bli_item.li_flags & XFS_LI_IN_AIL));
-+	ASSERT(!test_bit(XFS_LI_IN_AIL, &bip->bli_item.li_flags));
+ 	ret = vaddr_get_pfns(mm, vaddr, 1, dma->prot, pfn_base, pages);
+-	if (ret == 1 && do_accounting && !is_invalid_reserved_pfn(*pfn_base)) {
++	if (ret != 1)
++		goto out;
++
++	ret = 0;
++
++	if (do_accounting && !is_invalid_reserved_pfn(*pfn_base)) {
+ 		ret = vfio_lock_acct(dma, 1, true);
+ 		if (ret) {
+ 			put_pfn(*pfn_base, dma->prot);
+@@ -683,6 +688,7 @@ static int vfio_pin_page_external(struct
+ 		}
+ 	}
  
- 	bp->b_log_item = NULL;
- 	if (list_empty(&bp->b_li_list))
++out:
+ 	mmput(mm);
+ 	return ret;
+ }
 
 
