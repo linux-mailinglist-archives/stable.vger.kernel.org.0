@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 673275EA35C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D31165EA157
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237789AbiIZLYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:24:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51888 "EHLO
+        id S234215AbiIZKui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:50:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237958AbiIZLXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B825726AE7;
-        Mon, 26 Sep 2022 03:40:02 -0700 (PDT)
+        with ESMTP id S234288AbiIZKrM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:47:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EAD856B8E;
+        Mon, 26 Sep 2022 03:26:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCECDB801BF;
-        Mon, 26 Sep 2022 10:40:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D684C433C1;
-        Mon, 26 Sep 2022 10:40:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3632E60B5E;
+        Mon, 26 Sep 2022 10:26:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44BB3C43143;
+        Mon, 26 Sep 2022 10:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188800;
-        bh=DoyjJPRgE81u2h5r3ajYpubUne6Xk3znZRS03RjWaLA=;
+        s=korg; t=1664187967;
+        bh=6/Y2u1ZYrdILy+QEFLEQf4SbkrYgHQ3YFEoUOqGIzOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+69XJeX0ziMd4tPUlRUPzDashhb9aKYO7twXu55r665FbCiAtkgXIs9BRGWXMUHa
-         LEJRZzxHQ/kAqqObc6jfHYbaPp4+M07CWzCcw8PupfqvnfcYWflj1qOzBAiDeAh7n0
-         VppWxB0q+aAk18YuDE7i7S5viI7j15BLe/mTKESs=
+        b=Tgqyu0CH0dIVlDi+re2+7dREnZVjORLlVntU34V/2MHb6r5CWgbxW4sOY3RKmFnwe
+         NsjFD0dhlYuga+qDeLqg7+w3nbos9vhTvYmBaMg84QLqCJwtWywdzQnaighWcqAtO8
+         YXi2T4HEQZRuC5FC+YQ7ogj6DG1PvJsLGtHErKTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        Sherry Sun <sherry.sun@nxp.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.15 118/148] serial: fsl_lpuart: Reset prior to registration
+        stable@vger.kernel.org, wenli xie <wlxie7296@gmail.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 119/120] xfs: fix an ABBA deadlock in xfs_rename
 Date:   Mon, 26 Sep 2022 12:12:32 +0200
-Message-Id: <20220926100800.561048554@linuxfoundation.org>
+Message-Id: <20220926100755.268275705@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit 60f361722ad2ae5ee667d0b0545d40c42f754daf upstream.
+commit 6da1b4b1ab36d80a3994fd4811c8381de10af604 upstream.
 
-Since commit bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset
-for imx7ulp and imx8qxp"), certain i.MX UARTs are reset after they've
-already been registered.  Register state may thus be clobbered after
-user space has begun to open and access the UART.
+When overlayfs is running on top of xfs and the user unlinks a file in
+the overlay, overlayfs will create a whiteout inode and ask xfs to
+"rename" the whiteout file atop the one being unlinked.  If the file
+being unlinked loses its one nlink, we then have to put the inode on the
+unlinked list.
 
-Avoid by performing the reset prior to registration.
+This requires us to grab the AGI buffer of the whiteout inode to take it
+off the unlinked list (which is where whiteouts are created) and to grab
+the AGI buffer of the file being deleted.  If the whiteout was created
+in a higher numbered AG than the file being deleted, we'll lock the AGIs
+in the wrong order and deadlock.
 
-Fixes: bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset for imx7ulp and imx8qxp")
-Cc: stable@vger.kernel.org # v5.15+
-Cc: Fugang Duan <fugang.duan@nxp.com>
-Cc: Sherry Sun <sherry.sun@nxp.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/72fb646c1b0b11c989850c55f52f9ff343d1b2fa.1662884345.git.lukas@wunner.de
+Therefore, grab all the AGI locks we think we'll need ahead of time, and
+in order of increasing AG number per the locking rules.
+
+Reported-by: wenli xie <wlxie7296@gmail.com>
+Fixes: 93597ae8dac0 ("xfs: Fix deadlock between AGI and AGF when target_ip exists in xfs_rename()")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/xfs/libxfs/xfs_dir2.h    |    2 --
+ fs/xfs/libxfs/xfs_dir2_sf.c |    2 +-
+ fs/xfs/xfs_inode.c          |   42 +++++++++++++++++++++++++-----------------
+ 3 files changed, 26 insertions(+), 20 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2726,14 +2726,15 @@ static int lpuart_probe(struct platform_
- 		lpuart_reg.cons = LPUART_CONSOLE;
- 		handler = lpuart_int;
+--- a/fs/xfs/libxfs/xfs_dir2.h
++++ b/fs/xfs/libxfs/xfs_dir2.h
+@@ -124,8 +124,6 @@ extern int xfs_dir_lookup(struct xfs_tra
+ extern int xfs_dir_removename(struct xfs_trans *tp, struct xfs_inode *dp,
+ 				struct xfs_name *name, xfs_ino_t ino,
+ 				xfs_extlen_t tot);
+-extern bool xfs_dir2_sf_replace_needblock(struct xfs_inode *dp,
+-				xfs_ino_t inum);
+ extern int xfs_dir_replace(struct xfs_trans *tp, struct xfs_inode *dp,
+ 				struct xfs_name *name, xfs_ino_t inum,
+ 				xfs_extlen_t tot);
+--- a/fs/xfs/libxfs/xfs_dir2_sf.c
++++ b/fs/xfs/libxfs/xfs_dir2_sf.c
+@@ -947,7 +947,7 @@ xfs_dir2_sf_removename(
+ /*
+  * Check whether the sf dir replace operation need more blocks.
+  */
+-bool
++static bool
+ xfs_dir2_sf_replace_needblock(
+ 	struct xfs_inode	*dp,
+ 	xfs_ino_t		inum)
+--- a/fs/xfs/xfs_inode.c
++++ b/fs/xfs/xfs_inode.c
+@@ -3224,7 +3224,7 @@ xfs_rename(
+ 	struct xfs_trans	*tp;
+ 	struct xfs_inode	*wip = NULL;		/* whiteout inode */
+ 	struct xfs_inode	*inodes[__XFS_SORT_INODES];
+-	struct xfs_buf		*agibp;
++	int			i;
+ 	int			num_inodes = __XFS_SORT_INODES;
+ 	bool			new_parent = (src_dp != target_dp);
+ 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
+@@ -3337,6 +3337,30 @@ xfs_rename(
  	}
--	ret = uart_add_one_port(&lpuart_reg, &sport->port);
--	if (ret)
--		goto failed_attach_port;
  
- 	ret = lpuart_global_reset(sport);
- 	if (ret)
- 		goto failed_reset;
- 
-+	ret = uart_add_one_port(&lpuart_reg, &sport->port);
-+	if (ret)
-+		goto failed_attach_port;
+ 	/*
++	 * Lock the AGI buffers we need to handle bumping the nlink of the
++	 * whiteout inode off the unlinked list and to handle dropping the
++	 * nlink of the target inode.  Per locking order rules, do this in
++	 * increasing AG order and before directory block allocation tries to
++	 * grab AGFs because we grab AGIs before AGFs.
++	 *
++	 * The (vfs) caller must ensure that if src is a directory then
++	 * target_ip is either null or an empty directory.
++	 */
++	for (i = 0; i < num_inodes && inodes[i] != NULL; i++) {
++		if (inodes[i] == wip ||
++		    (inodes[i] == target_ip &&
++		     (VFS_I(target_ip)->i_nlink == 1 || src_is_directory))) {
++			struct xfs_buf	*bp;
++			xfs_agnumber_t	agno;
 +
- 	ret = uart_get_rs485_mode(&sport->port);
- 	if (ret)
- 		goto failed_get_rs485;
-@@ -2756,9 +2757,9 @@ static int lpuart_probe(struct platform_
- 
- failed_irq_request:
- failed_get_rs485:
--failed_reset:
- 	uart_remove_one_port(&lpuart_reg, &sport->port);
- failed_attach_port:
-+failed_reset:
- 	lpuart_disable_clks(sport);
- 	return ret;
- }
++			agno = XFS_INO_TO_AGNO(mp, inodes[i]->i_ino);
++			error = xfs_read_agi(mp, tp, agno, &bp);
++			if (error)
++				goto out_trans_cancel;
++		}
++	}
++
++	/*
+ 	 * Directory entry creation below may acquire the AGF. Remove
+ 	 * the whiteout from the unlinked list first to preserve correct
+ 	 * AGI/AGF locking order. This dirties the transaction so failures
+@@ -3389,22 +3413,6 @@ xfs_rename(
+ 		 * In case there is already an entry with the same
+ 		 * name at the destination directory, remove it first.
+ 		 */
+-
+-		/*
+-		 * Check whether the replace operation will need to allocate
+-		 * blocks.  This happens when the shortform directory lacks
+-		 * space and we have to convert it to a block format directory.
+-		 * When more blocks are necessary, we must lock the AGI first
+-		 * to preserve locking order (AGI -> AGF).
+-		 */
+-		if (xfs_dir2_sf_replace_needblock(target_dp, src_ip->i_ino)) {
+-			error = xfs_read_agi(mp, tp,
+-					XFS_INO_TO_AGNO(mp, target_ip->i_ino),
+-					&agibp);
+-			if (error)
+-				goto out_trans_cancel;
+-		}
+-
+ 		error = xfs_dir_replace(tp, target_dp, target_name,
+ 					src_ip->i_ino, spaceres);
+ 		if (error)
 
 
