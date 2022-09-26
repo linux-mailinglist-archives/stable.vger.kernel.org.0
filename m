@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE7A5EA40B
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B925EA521
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbiIZLjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:39:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34564 "EHLO
+        id S236636AbiIZL6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:58:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238126AbiIZLi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:38:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDF064E3;
-        Mon, 26 Sep 2022 03:44:34 -0700 (PDT)
+        with ESMTP id S238808AbiIZL42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:56:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C117A51F;
+        Mon, 26 Sep 2022 03:51:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E736A609FE;
-        Mon, 26 Sep 2022 10:44:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC57C433D6;
-        Mon, 26 Sep 2022 10:44:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83581B8091D;
+        Mon, 26 Sep 2022 10:36:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A66C433D7;
+        Mon, 26 Sep 2022 10:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189073;
-        bh=p3yoFLi99e3+F/7o9uOqp564XMz3GKSsA4oWUGGl+S4=;
+        s=korg; t=1664188568;
+        bh=XoeU9sjbh21HwN/kzh1u++rF++h0tKsiYvBibbOtvas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PcixREsgg9YD4y/h2rerDR95JFTY1W02V36bgEsf7ZEZDZ8I/WMqvpJnDHwAMyWav
-         RZ/p2UONvyMIcfNhmdy0nTRHwcnIB3Rx/Uwj6IqA9V0AMxMw+GG1Ecn7QNveA4bMdm
-         3hMWuj5JCMVbfcTbPyqHCiXKqdx8hxNo1CJVxZ18=
+        b=hjclM3Yk2TSGLm7f9Mewwx45DeSp2YD/CDTrPnCIBcjSJCuFh9U/wUqsRpfstGqUW
+         lza3iA2b9IU5UVhFSSvY83inq3zhniePCVBTW85LsCCrHASL+SoNPKoRp3EGqJJff5
+         5ATM3MupGu2DQXMPA3DrpDOQZk5ymbpPnn/2qXUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 5.19 063/207] mm: slub: fix flush_cpu_slab()/__free_slab() invocations in task context.
-Date:   Mon, 26 Sep 2022 12:10:52 +0200
-Message-Id: <20220926100809.425679005@linuxfoundation.org>
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        feng xiangjun <fengxj325@gmail.com>,
+        Phil Auld <pauld@redhat.com>
+Subject: [PATCH 5.15 019/148] drivers/base: Fix unsigned comparison to -1 in CPUMAP_FILE_MAX_BYTES
+Date:   Mon, 26 Sep 2022 12:10:53 +0200
+Message-Id: <20220926100756.793751668@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Phil Auld <pauld@redhat.com>
 
-commit e45cc288724f0cfd497bb5920bcfa60caa335729 upstream.
+commit d7f06bdd6ee87fbefa05af5f57361d85e7715b11 upstream.
 
-Commit 5a836bf6b09f ("mm: slub: move flush_cpu_slab() invocations
-__free_slab() invocations out of IRQ context") moved all flush_cpu_slab()
-invocations to the global workqueue to avoid a problem related
-with deactivate_slab()/__free_slab() being called from an IRQ context
-on PREEMPT_RT kernels.
+As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
+This leads to very large file sizes:
 
-When the flush_all_cpu_locked() function is called from a task context
-it may happen that a workqueue with WQ_MEM_RECLAIM bit set ends up
-flushing the global workqueue, this will cause a dependency issue.
+topology$ ls -l
+total 0
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
+-r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
+-r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
 
- workqueue: WQ_MEM_RECLAIM nvme-delete-wq:nvme_delete_ctrl_work [nvme_core]
-   is flushing !WQ_MEM_RECLAIM events:flush_cpu_slab
- WARNING: CPU: 37 PID: 410 at kernel/workqueue.c:2637
-   check_flush_dependency+0x10a/0x120
- Workqueue: nvme-delete-wq nvme_delete_ctrl_work [nvme_core]
- RIP: 0010:check_flush_dependency+0x10a/0x120[  453.262125] Call Trace:
- __flush_work.isra.0+0xbf/0x220
- ? __queue_work+0x1dc/0x420
- flush_all_cpus_locked+0xfb/0x120
- __kmem_cache_shutdown+0x2b/0x320
- kmem_cache_destroy+0x49/0x100
- bioset_exit+0x143/0x190
- blk_release_queue+0xb9/0x100
- kobject_cleanup+0x37/0x130
- nvme_fc_ctrl_free+0xc6/0x150 [nvme_fc]
- nvme_free_ctrl+0x1ac/0x2b0 [nvme_core]
+Adjust the inequality to catch the case when NR_CPUS is configured
+to a small value.
 
-Fix this bug by creating a workqueue for the flush operation with
-the WQ_MEM_RECLAIM bit set.
-
-Fixes: 5a836bf6b09f ("mm: slub: move flush_cpu_slab() invocations __free_slab() invocations out of IRQ context")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: stable@vger.kernel.org
+Cc: feng xiangjun <fengxj325@gmail.com>
+Reported-by: feng xiangjun <fengxj325@gmail.com>
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Link: https://lore.kernel.org/r/20220906203542.1796629-1-pauld@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/linux/cpumask.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -310,6 +310,11 @@ static inline void stat(const struct kme
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -1057,9 +1057,10 @@ cpumap_print_list_to_buf(char *buf, cons
+  * cover a worst-case of every other cpu being on one of two nodes for a
+  * very large NR_CPUS.
+  *
+- *  Use PAGE_SIZE as a minimum for smaller configurations.
++ *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
++ *  unsigned comparison to -1.
   */
- static nodemask_t slab_nodes;
+-#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
++#define CPUMAP_FILE_MAX_BYTES  (((NR_CPUS * 9)/32 > PAGE_SIZE) \
+ 					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
+ #define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
  
-+/*
-+ * Workqueue used for flush_cpu_slab().
-+ */
-+static struct workqueue_struct *flushwq;
-+
- /********************************************************************
-  * 			Core slab cache functions
-  *******************************************************************/
-@@ -2730,7 +2735,7 @@ static void flush_all_cpus_locked(struct
- 		INIT_WORK(&sfw->work, flush_cpu_slab);
- 		sfw->skip = false;
- 		sfw->s = s;
--		schedule_work_on(cpu, &sfw->work);
-+		queue_work_on(cpu, flushwq, &sfw->work);
- 	}
- 
- 	for_each_online_cpu(cpu) {
-@@ -4880,6 +4885,8 @@ void __init kmem_cache_init(void)
- 
- void __init kmem_cache_init_late(void)
- {
-+	flushwq = alloc_workqueue("slub_flushwq", WQ_MEM_RECLAIM, 0);
-+	WARN_ON(!flushwq);
- }
- 
- struct kmem_cache *
 
 
