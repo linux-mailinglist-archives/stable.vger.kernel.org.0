@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 458815EA096
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE235EA16F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236157AbiIZKkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:40:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
+        id S236629AbiIZKu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:50:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236123AbiIZKhe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:37:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C1A52E42;
-        Mon, 26 Sep 2022 03:22:06 -0700 (PDT)
+        with ESMTP id S236912AbiIZKts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68AFD5850A;
+        Mon, 26 Sep 2022 03:27:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D660DB80924;
-        Mon, 26 Sep 2022 10:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C942C433C1;
-        Mon, 26 Sep 2022 10:22:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A12FA60B7E;
+        Mon, 26 Sep 2022 10:27:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE0CDC433D6;
+        Mon, 26 Sep 2022 10:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187724;
-        bh=GBX0JFX1Jnc9kGAMgl+8H64Kis2TflBUuMzRAFsOVlY=;
+        s=korg; t=1664188020;
+        bh=ro6m7C/bg7snchqXrcsCCConBzeIdd6JQ1ZeDqS7cxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5Fi+c3kxdO6hZCzz0IWxn3EXi0+U7ISpZNGucYFq7kPhy2CEcEX+Apw3/yXg8aAz
-         to65S7I3i+A9tvWtn3N/gv0yxIq/iSDQxIYgb9hoig+M66NORmcJnA0k2W5RTuK6Y8
-         6VSDCAQDvb/Di/X6vxdMVcIlRbKJ5mQV3d/KSFeM=
+        b=fg6B2fHZ+gLOiNotQ8Scn89K6KcuQcQYjgK+TVNGpIedVbVDA7icZSLQ8cA1TeLgL
+         L8jcycZuhUJgLmWS9+smrXeEJrw5VX/ezeNmrOXRtzVBlKENc39R5EOElFs9vRt3Ed
+         27/p7FrOAcWd8TCbtUeJ0Dy6pS8+Mulca69QOdMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Marth <daniel.marth@inso.tuwien.ac.at>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 008/120] efi: libstub: Disable struct randomization
+Subject: [PATCH 5.10 015/141] usb: xhci-mtk: use @sch_tt to check whether need do TT schedule
 Date:   Mon, 26 Sep 2022 12:10:41 +0200
-Message-Id: <20220926100750.874865087@linuxfoundation.org>
+Message-Id: <20220926100755.128563143@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 1a3887924a7e6edd331be76da7bf4c1e8eab4b1e ]
+[ Upstream commit 4a56adf4fafbc41ceffce0c3f385f59d4fc3c16a ]
 
-The EFI stub is a wrapper around the core kernel that makes it look like
-a EFI compatible PE/COFF application to the EFI firmware. EFI
-applications run on top of the EFI runtime, which is heavily based on
-so-called protocols, which are struct types consisting [mostly] of
-function pointer members that are instantiated and recorded in a
-protocol database.
+It's clearer to use @sch_tt to check whether need do TT schedule,
+no function is changed.
 
-These structs look like the ideal randomization candidates to the
-randstruct plugin (as they only carry function pointers), but of course,
-these protocols are contracts between the firmware that exposes them,
-and the EFI applications (including our stubbed kernel) that invoke
-them. This means that struct randomization for EFI protocols is not a
-great idea, and given that the stub shares very little data with the
-core kernel that is represented as a randomizable struct, we're better
-off just disabling it completely here.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Reported-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
-Tested-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/324a76782ccaf857a8f01f67aee435e8ec7d0e28.1615170625.git.chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 548011957d1d ("usb: xhci-mtk: relax TT periodic bandwidth allocation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/Makefile | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/host/xhci-mtk-sch.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
-index f3540d5dd276..34e4b31010bd 100644
---- a/drivers/firmware/efi/libstub/Makefile
-+++ b/drivers/firmware/efi/libstub/Makefile
-@@ -31,6 +31,13 @@ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
- 				   $(call cc-option,-fno-addrsig) \
- 				   -D__DISABLE_EXPORTS
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index 59ba25ca018d..b1da3cb077c9 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -548,7 +548,7 @@ static int check_sch_bw(struct usb_device *udev,
+ 	min_num_budget = sch_ep->num_budget_microframes;
+ 	esit_boundary = get_esit_boundary(sch_ep);
+ 	for (offset = 0; offset < sch_ep->esit; offset++) {
+-		if (is_fs_or_ls(udev->speed)) {
++		if (sch_ep->sch_tt) {
+ 			ret = check_sch_tt(udev, sch_ep, offset);
+ 			if (ret)
+ 				continue;
+@@ -585,7 +585,7 @@ static int check_sch_bw(struct usb_device *udev,
+ 	sch_ep->cs_count = min_cs_count;
+ 	sch_ep->num_budget_microframes = min_num_budget;
  
-+#
-+# struct randomization only makes sense for Linux internal types, which the EFI
-+# stub code never touches, so let's turn off struct randomization for the stub
-+# altogether
-+#
-+KBUILD_CFLAGS := $(filter-out $(RANDSTRUCT_CFLAGS), $(KBUILD_CFLAGS))
-+
- # remove SCS flags from all objects in this directory
- KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
- 
+-	if (is_fs_or_ls(udev->speed)) {
++	if (sch_ep->sch_tt) {
+ 		/* all offset for tt is not ok*/
+ 		if (!tt_offset_ok)
+ 			return -ERANGE;
 -- 
 2.35.1
 
