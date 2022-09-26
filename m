@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DE75EA3B9
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27545EA3CA
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238029AbiIZLbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57762 "EHLO
+        id S238041AbiIZLdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:33:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238002AbiIZLbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:31:02 -0400
+        with ESMTP id S237978AbiIZLcQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:32:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D016CD30;
-        Mon, 26 Sep 2022 03:42:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F13D4D4E5;
+        Mon, 26 Sep 2022 03:42:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 190ECB8095D;
-        Mon, 26 Sep 2022 10:42:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E84FC433D6;
-        Mon, 26 Sep 2022 10:42:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0C0AB80760;
+        Mon, 26 Sep 2022 10:42:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DBDDC433D6;
+        Mon, 26 Sep 2022 10:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188933;
-        bh=fl7+NFd7t7XQt+yzXGhU2ixASRe6bBzttRLfoiafxw8=;
+        s=korg; t=1664188967;
+        bh=pjyeZDQTVBOZdHRAGowF2lpTQHt4ee9V19vOWpiWexI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XL6R6J0lhKxzUQOgE575/9W7H3lq1Ovz/0MJo0smAP4PUX+IyPj77tKY5jX7iQ1UC
-         76naupCr2wsOKoKB5B4l7qwlzrWHcNI5wp7AbOngGqjaiih7kNrLdUEuwqSs9i0nfP
-         Bv+pwDIUI9iDsG1HDTKhIC1a8l0oql3hxlPgRkfY=
+        b=pfyx43LvSGfiBWaymTSKatxCvNdekurRBpV0CiKByHc3+gJrjn5JghVVoMurtNTqf
+         ck9UQyCExg/WXL5DVx9raC9s0DKJGENH/UYMi9iRu1H9Mo0CYqCVKi6HlgmNCgqQG9
+         xFGd29rnQkbGF5d14YF33DrJBtTwoV2/3qZ7Xb8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 002/207] drm/i915/pps: Split pps_init_delays() into distinct parts
-Date:   Mon, 26 Sep 2022 12:09:51 +0200
-Message-Id: <20220926100806.626926942@linuxfoundation.org>
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 003/207] drm/i915/bios: Split parse_driver_features() into two parts
+Date:   Mon, 26 Sep 2022 12:09:52 +0200
+Message-Id: <20220926100806.663960091@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -57,126 +55,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 75bd0d5e4eadb9ce3e9b6fb71971b6e87c38799e ]
+[ Upstream commit c3fbcf60bc74b630967f291f47f0d9d0de6fcea7 ]
 
-Split each of the hw/vbt/spec PPS delay initialization into
-separate functions to make the whole thing less cluttered.
+We use the "driver features" block for two different kinds
+of data: global data, and per panel data. Split the function
+into two parts along that line so that we can start doing the
+parsing in two different locations.
 
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220510104242.6099-4-ville.syrjala@linux.intel.com
 Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220510104242.6099-11-ville.syrjala@linux.intel.com
 Stable-dep-of: 607f41768a1e ("drm/i915/dsi: filter invalid backlight and CABC ports")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_pps.c | 66 +++++++++++++++++-------
- 1 file changed, 48 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bios.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_pps.c b/drivers/gpu/drm/i915/display/intel_pps.c
-index 5a598dd06039..5b72c892a6f2 100644
---- a/drivers/gpu/drm/i915/display/intel_pps.c
-+++ b/drivers/gpu/drm/i915/display/intel_pps.c
-@@ -1159,53 +1159,83 @@ intel_pps_verify_state(struct intel_dp *intel_dp)
+diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
+index 91caf4523b34..5ceabc380808 100644
+--- a/drivers/gpu/drm/i915/display/intel_bios.c
++++ b/drivers/gpu/drm/i915/display/intel_bios.c
+@@ -1188,6 +1188,16 @@ parse_driver_features(struct drm_i915_private *i915)
+ 		    driver->lvds_config != BDB_DRIVER_FEATURE_INT_SDVO_LVDS)
+ 			i915->vbt.int_lvds_support = 0;
  	}
- }
- 
--static void pps_init_delays(struct intel_dp *intel_dp)
-+static void pps_init_delays_cur(struct intel_dp *intel_dp,
-+				struct edp_power_seq *cur)
- {
- 	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
--	struct edp_power_seq cur, vbt, spec,
--		*final = &intel_dp->pps.pps_delays;
- 
- 	lockdep_assert_held(&dev_priv->pps_mutex);
- 
--	/* already initialized? */
--	if (final->t11_t12 != 0)
--		return;
-+	intel_pps_readout_hw_state(intel_dp, cur);
-+
-+	intel_pps_dump_state(intel_dp, "cur", cur);
-+}
- 
--	intel_pps_readout_hw_state(intel_dp, &cur);
-+static void pps_init_delays_vbt(struct intel_dp *intel_dp,
-+				struct edp_power_seq *vbt)
-+{
-+	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
- 
--	intel_pps_dump_state(intel_dp, "cur", &cur);
-+	*vbt = dev_priv->vbt.edp.pps;
- 
--	vbt = dev_priv->vbt.edp.pps;
- 	/* On Toshiba Satellite P50-C-18C system the VBT T12 delay
- 	 * of 500ms appears to be too short. Ocassionally the panel
- 	 * just fails to power back on. Increasing the delay to 800ms
- 	 * seems sufficient to avoid this problem.
- 	 */
- 	if (dev_priv->quirks & QUIRK_INCREASE_T12_DELAY) {
--		vbt.t11_t12 = max_t(u16, vbt.t11_t12, 1300 * 10);
-+		vbt->t11_t12 = max_t(u16, vbt->t11_t12, 1300 * 10);
- 		drm_dbg_kms(&dev_priv->drm,
- 			    "Increasing T12 panel delay as per the quirk to %d\n",
--			    vbt.t11_t12);
-+			    vbt->t11_t12);
- 	}
-+
- 	/* T11_T12 delay is special and actually in units of 100ms, but zero
- 	 * based in the hw (so we need to add 100 ms). But the sw vbt
- 	 * table multiplies it with 1000 to make it in units of 100usec,
- 	 * too. */
--	vbt.t11_t12 += 100 * 10;
-+	vbt->t11_t12 += 100 * 10;
-+
-+	intel_pps_dump_state(intel_dp, "vbt", vbt);
 +}
 +
-+static void pps_init_delays_spec(struct intel_dp *intel_dp,
-+				 struct edp_power_seq *spec)
++static void
++parse_panel_driver_features(struct drm_i915_private *i915)
 +{
-+	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
++	const struct bdb_driver_features *driver;
 +
-+	lockdep_assert_held(&dev_priv->pps_mutex);
- 
- 	/* Upper limits from eDP 1.3 spec. Note that we use the clunky units of
- 	 * our hw here, which are all in 100usec. */
--	spec.t1_t3 = 210 * 10;
--	spec.t8 = 50 * 10; /* no limit for t8, use t7 instead */
--	spec.t9 = 50 * 10; /* no limit for t9, make it symmetric with t8 */
--	spec.t10 = 500 * 10;
-+	spec->t1_t3 = 210 * 10;
-+	spec->t8 = 50 * 10; /* no limit for t8, use t7 instead */
-+	spec->t9 = 50 * 10; /* no limit for t9, make it symmetric with t8 */
-+	spec->t10 = 500 * 10;
- 	/* This one is special and actually in units of 100ms, but zero
- 	 * based in the hw (so we need to add 100 ms). But the sw vbt
- 	 * table multiplies it with 1000 to make it in units of 100usec,
- 	 * too. */
--	spec.t11_t12 = (510 + 100) * 10;
-+	spec->t11_t12 = (510 + 100) * 10;
-+
-+	intel_pps_dump_state(intel_dp, "spec", spec);
-+}
-+
-+static void pps_init_delays(struct intel_dp *intel_dp)
-+{
-+	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
-+	struct edp_power_seq cur, vbt, spec,
-+		*final = &intel_dp->pps.pps_delays;
-+
-+	lockdep_assert_held(&dev_priv->pps_mutex);
-+
-+	/* already initialized? */
-+	if (final->t11_t12 != 0)
++	driver = find_section(i915, BDB_DRIVER_FEATURES);
++	if (!driver)
 +		return;
  
--	intel_pps_dump_state(intel_dp, "vbt", &vbt);
-+	pps_init_delays_cur(intel_dp, &cur);
-+	pps_init_delays_vbt(intel_dp, &vbt);
-+	pps_init_delays_spec(intel_dp, &spec);
- 
- 	/* Use the max of the register settings and vbt. If both are
- 	 * unset, fall back to the spec limits. */
+ 	if (i915->vbt.version < 228) {
+ 		drm_dbg_kms(&i915->drm, "DRRS State Enabled:%d\n",
+@@ -2965,6 +2975,7 @@ void intel_bios_init(struct drm_i915_private *i915)
+ 	parse_lfp_backlight(i915);
+ 	parse_sdvo_panel_data(i915);
+ 	parse_driver_features(i915);
++	parse_panel_driver_features(i915);
+ 	parse_power_conservation_features(i915);
+ 	parse_edp(i915);
+ 	parse_psr(i915);
 -- 
 2.35.1
 
