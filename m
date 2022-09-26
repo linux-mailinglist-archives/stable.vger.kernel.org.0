@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E0395E9F07
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:18:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4691C5EA4B4
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234264AbiIZKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:18:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
+        id S238354AbiIZLuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:50:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234891AbiIZKRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:17:24 -0400
+        with ESMTP id S239084AbiIZLtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B7836DF8;
-        Mon, 26 Sep 2022 03:15:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0212B75CE8;
+        Mon, 26 Sep 2022 03:48:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 101D5B80925;
-        Mon, 26 Sep 2022 10:15:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6797FC433C1;
-        Mon, 26 Sep 2022 10:14:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FE47B80835;
+        Mon, 26 Sep 2022 10:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66600C433C1;
+        Mon, 26 Sep 2022 10:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187299;
-        bh=qKqAQRD6cxz9W/PwVbpSTLflZheubG7vtgJbTS+PnZM=;
+        s=korg; t=1664189215;
+        bh=qYDUVPcIKSYGJQ6zNzCwrkC/y4sC7sO2DLHi4sBmVCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjOCGC/lTtLhVZJDmT6mN1hB4fEIFt+qPy/lkXkaRYtBP9kJXI2yisDR6BqkvxIj0
-         07V8opfoY3NEfltmWK9eM4H4F+J1G93M7uvmhZ/54JBkRy+uprv0d99UzlAlQvWf9R
-         4s56HroC5aGTCNTTfm2zOb7zqLnWFwRHzmnO/540=
+        b=rr5qnVl64QG/VF27vdF/pKdvHpQveei0z6843s9JjE17m6yCM/eXm2IuhTAxNAYM5
+         PwbQqf1OMLcAQwRRaVvUxBC9F+BwIRA/LCANEVJgDDAI3VGfVJnUBIlvlpY0CV7wZ5
+         h/BkK1vFFy3UIOWAYWA1fU3JLbOLgz9nh9Pg7Tg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Thomas Meyer <thomas@m3y3r.de>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/30] mips/pic32/pic32mzda: Fix refcount leak bugs
+Subject: [PATCH 5.19 112/207] um: fix default console kernel parameter
 Date:   Mon, 26 Sep 2022 12:11:41 +0200
-Message-Id: <20220926100736.537955607@linuxfoundation.org>
+Message-Id: <20220926100811.621399975@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit eb9e9bc4fa5fb489c92ec588b3fb35f042ba6d86 ]
+[ Upstream commit 782b1f70f8a8b28571949d2ba43fe88b96d75ec3 ]
 
-of_find_matching_node(), of_find_compatible_node() and
-of_find_node_by_path() will return node pointers with refcout
-incremented. We should call of_node_put() when they are not
-used anymore.
+OpenWrt's UML with 5.15 was producing odd errors/warnings during preinit
+part of the early userspace portion:
 
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+|[    0.000000] Kernel command line: ubd0=root.img root=98:0 console=tty
+|[...]
+|[    0.440000] random: jshn: uninitialized urandom read (4 bytes read)
+|[    0.460000] random: jshn: uninitialized urandom read (4 bytes read)
+|/etc/preinit: line 47: can't create /dev/tty: No such device or address
+|/etc/preinit: line 48: can't create /dev/tty: No such device or address
+|/etc/preinit: line 58: can't open /dev/tty: No such device or address
+|[...] repeated many times
+
+That "/dev/tty" came from the command line (which is automatically
+added if no console= parameter was specified for the uml binary).
+
+The TLDP project tells the following about the /dev/tty:
+<https://tldp.org/HOWTO/Text-Terminal-HOWTO-7.html#ss7.3>
+| /dev/tty stands for the controlling terminal (if any) for the current
+| process.[...]
+| /dev/tty is something like a link to the actually terminal device[..]
+
+The "(if any)" is important here, since it's possible for processes to
+not have a controlling terminal.
+
+I think this was a simple typo and the author wanted tty0 there.
+
+CC: Thomas Meyer <thomas@m3y3r.de>
+Fixes: d7ffac33631b ("um: stdio_console: Make preferred console")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/pic32/pic32mzda/init.c | 7 ++++++-
- arch/mips/pic32/pic32mzda/time.c | 3 +++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ arch/um/kernel/um_arch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 406c6c5cec29..f8985d4573e6 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -131,13 +131,18 @@ static int __init pic32_of_prepare_platform_data(struct of_dev_auxdata *lookup)
- 		np = of_find_compatible_node(NULL, NULL, lookup->compatible);
- 		if (np) {
- 			lookup->name = (char *)np->name;
--			if (lookup->phys_addr)
-+			if (lookup->phys_addr) {
-+				of_node_put(np);
- 				continue;
-+			}
- 			if (!of_address_to_resource(np, 0, &res))
- 				lookup->phys_addr = res.start;
-+			of_node_put(np);
- 		}
- 	}
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index e0de60e503b9..d9e023c78f56 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -33,7 +33,7 @@
+ #include "um_arch.h"
  
-+	of_node_put(root);
-+
- 	return 0;
- }
+ #define DEFAULT_COMMAND_LINE_ROOT "root=98:0"
+-#define DEFAULT_COMMAND_LINE_CONSOLE "console=tty"
++#define DEFAULT_COMMAND_LINE_CONSOLE "console=tty0"
  
-diff --git a/arch/mips/pic32/pic32mzda/time.c b/arch/mips/pic32/pic32mzda/time.c
-index 62a0a78b6c64..bfafe241c1b5 100644
---- a/arch/mips/pic32/pic32mzda/time.c
-+++ b/arch/mips/pic32/pic32mzda/time.c
-@@ -40,6 +40,9 @@ static unsigned int pic32_xlate_core_timer_irq(void)
- 		goto default_map;
- 
- 	irq = irq_of_parse_and_map(node, 0);
-+
-+	of_node_put(node);
-+
- 	if (!irq)
- 		goto default_map;
- 
+ /* Changed in add_arg and setup_arch, which run before SMP is started */
+ static char __initdata command_line[COMMAND_LINE_SIZE] = { 0 };
 -- 
 2.35.1
 
