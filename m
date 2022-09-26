@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B9D5EA006
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 118465E9F45
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235819AbiIZKce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35914 "EHLO
+        id S235264AbiIZKWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:22:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235773AbiIZKag (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:30:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E364ADF61;
-        Mon, 26 Sep 2022 03:19:48 -0700 (PDT)
+        with ESMTP id S235133AbiIZKVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:21:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C1A4BA68;
+        Mon, 26 Sep 2022 03:16:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7C2E60C07;
-        Mon, 26 Sep 2022 10:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B987FC43146;
-        Mon, 26 Sep 2022 10:19:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F37EE60B7E;
+        Mon, 26 Sep 2022 10:16:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF965C433C1;
+        Mon, 26 Sep 2022 10:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187587;
-        bh=R5Bn477bVVRPSmJmF1aosESqHyeq1GQzzLkUmsLNKRQ=;
+        s=korg; t=1664187370;
+        bh=y7+eLYjbcVCNH/jVgiBmW+NgV5JOjwNfZtMYz35Va1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjYhi00TwuEObrIF2UdmoMdK2KiN2frKAw33gsBG95OH7c4LpmbWn+m8gcML7oNUO
-         HRe3g22FLrMriMVr8eY/FihJvmGUfSC1Dfhz+nzPied6KSqOgzNq1ZrZ/rHj9Ny/1H
-         aloTv9DJDbhY7N7aqAzWOO4kJweFx+aXcv0iwLp0=
+        b=Rwt5x/nZTzaMcy1Sa50UAUnFUcDz8k5JKd1rUKli+J/xsZur1wPS0ZNjdF803RaBO
+         TrwSr7lTntMH05aVOEwuh2kmawRBtV4MgXfFbdFdmJDucYJNIOPx2eey+Fp2VhE/lb
+         Dk7MjAXN2/1yH2sjY4azrwRVjLYcnMTbV5Bby4t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "jerry.meng" <jerry-meng@foxmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/58] net: usb: qmi_wwan: add Quectel RM520N
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/40] efi/libstub: Disable Shadow Call Stack
 Date:   Mon, 26 Sep 2022 12:11:33 +0200
-Message-Id: <20220926100741.941262829@linuxfoundation.org>
+Message-Id: <20220926100738.422260948@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jerry.meng <jerry-meng@foxmail.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit e1091e226a2bab4ded1fe26efba2aee1aab06450 ]
+[ Upstream commit cc49c71d2abe99c1c2c9bedf0693ad2d3ee4a067 ]
 
-add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
+Shadow stacks are not available in the EFI stub, filter out SCS flags.
 
-0x0801: DIAG + NMEA + AT + MODEM + RMNET
-
-T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0801 Rev= 5.04
-S:  Manufacturer=Quectel
-S:  Product=RM520N-GL
-S:  SerialNumber=384af524
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: jerry.meng <jerry-meng@foxmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/tencent_E50CA8A206904897C2D20DDAE90731183C05@qq.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Suggested-by: James Morse <james.morse@arm.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Stable-dep-of: 1a3887924a7e ("efi: libstub: Disable struct randomization")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/efi/libstub/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index fcf21a1ca776..8d10c29ba176 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1049,6 +1049,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
-+	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0801)},	/* Quectel RM520N */
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index 678bc910e080..54dbcec7e06f 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -23,6 +23,9 @@ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
+ 				   $(call cc-option,-ffreestanding) \
+ 				   $(call cc-option,-fno-stack-protector)
  
- 	/* 3. Combined interface devices matching on interface number */
- 	{QMI_FIXED_INTF(0x0408, 0xea42, 4)},	/* Yota / Megafon M100-1 */
++# remove SCS flags from all objects in this directory
++KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
++
+ GCOV_PROFILE			:= n
+ KASAN_SANITIZE			:= n
+ UBSAN_SANITIZE			:= n
 -- 
 2.35.1
 
