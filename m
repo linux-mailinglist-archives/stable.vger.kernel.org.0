@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C2E5E9F66
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A26EC5E9FC5
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235278AbiIZKZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34584 "EHLO
+        id S235524AbiIZK3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235498AbiIZKYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA87D4D27B;
-        Mon, 26 Sep 2022 03:17:36 -0700 (PDT)
+        with ESMTP id S235715AbiIZK24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA243F1D1;
+        Mon, 26 Sep 2022 03:19:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8335860B4A;
-        Mon, 26 Sep 2022 10:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76375C433C1;
-        Mon, 26 Sep 2022 10:17:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CDEA60BAF;
+        Mon, 26 Sep 2022 10:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F23C433D6;
+        Mon, 26 Sep 2022 10:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187438;
-        bh=zLZzOUYjdWwXPgGurcuLAzv3SJsOlHaIku/dsI7zJYU=;
+        s=korg; t=1664187516;
+        bh=Xxye98JGPI4GyYixY64MCmnFMNGAoGdty1aT4L4zjRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7y90PXiFXIYFbjPJvlnIEuE69Xnt3a+FK4AqrDg9UIeWBWJ/J+xgNxFOkA7oG8Jy
-         iDzS/o8wIJsDZ1LjtxAvqcpscpuB70bF9vGi4uRccwFPX03bDgQY4gYvtLcj/fIqnE
-         YgZtEIuFjBPkdNrT9lk3/9mKGoZDyABGZz+mQvs4=
+        b=JWmx3OcPQQX/t7WnY17lJkLtOzOwMdCSt+oi/gIYI8lswOoYg2xVe4ieJvO3OBST5
+         8PJzc8vqefAKAdAYz4+Gnv3nfyee0bNRCauypEAwxzOqPS2hH87VvXGrKvYxSUAvWl
+         hS9jyqIgbZnxQll9qmUe0su76t0bggxLKvo7wZhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Ryzhov <iryzhov@nfware.com>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/40] netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com,
+        Muchun Song <songmuchun@bytedance.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Chao Yu <chao.yu@oppo.com>,
+        David Rientjes <rientjes@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 4.19 33/58] mm/slub: fix to return errno if kmalloc() fails
 Date:   Mon, 26 Sep 2022 12:11:52 +0200
-Message-Id: <20220926100739.192087067@linuxfoundation.org>
+Message-Id: <20220926100742.686423372@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Ryzhov <iryzhov@nfware.com>
+From: Chao Yu <chao.yu@oppo.com>
 
-[ Upstream commit 39aebedeaaa95757f5c1f2ddb5f43fdddbf478ca ]
+commit 7e9c323c52b379d261a72dc7bd38120a761a93cd upstream.
 
-ct_sip_next_header and ct_sip_get_header return an absolute
-value of matchoff, not a shift from current dataoff.
-So dataoff should be assigned matchoff, not incremented by it.
+In create_unique_id(), kmalloc(, GFP_KERNEL) can fail due to
+out-of-memory, if it fails, return errno correctly rather than
+triggering panic via BUG_ON();
 
-This issue can be seen in the scenario when there are multiple
-Contact headers and the first one is using a hostname and other headers
-use IP addresses. In this case, ct_sip_walk_headers will work as follows:
+kernel BUG at mm/slub.c:5893!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
 
-The first ct_sip_get_header call to will find the first Contact header
-but will return -1 as the header uses a hostname. But matchoff will
-be changed to the offset of this header. After that, dataoff should be
-set to matchoff, so that the next ct_sip_get_header call find the next
-Contact header. But instead of assigning dataoff to matchoff, it is
-incremented by it, which is not correct, as matchoff is an absolute
-value of the offset. So on the next call to the ct_sip_get_header,
-dataoff will be incorrect, and the next Contact header may not be
-found at all.
+Call trace:
+ sysfs_slab_add+0x258/0x260 mm/slub.c:5973
+ __kmem_cache_create+0x60/0x118 mm/slub.c:4899
+ create_cache mm/slab_common.c:229 [inline]
+ kmem_cache_create_usercopy+0x19c/0x31c mm/slab_common.c:335
+ kmem_cache_create+0x1c/0x28 mm/slab_common.c:390
+ f2fs_kmem_cache_create fs/f2fs/f2fs.h:2766 [inline]
+ f2fs_init_xattr_caches+0x78/0xb4 fs/f2fs/xattr.c:808
+ f2fs_fill_super+0x1050/0x1e0c fs/f2fs/super.c:4149
+ mount_bdev+0x1b8/0x210 fs/super.c:1400
+ f2fs_mount+0x44/0x58 fs/f2fs/super.c:4512
+ legacy_get_tree+0x30/0x74 fs/fs_context.c:610
+ vfs_get_tree+0x40/0x140 fs/super.c:1530
+ do_new_mount+0x1dc/0x4e4 fs/namespace.c:3040
+ path_mount+0x358/0x914 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __arm64_sys_mount+0x2f8/0x408 fs/namespace.c:3568
 
-Fixes: 05e3ced297fe ("[NETFILTER]: nf_conntrack_sip: introduce SIP-URI parsing helper")
-Signed-off-by: Igor Ryzhov <iryzhov@nfware.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@kernel.org>
+Fixes: 81819f0fc8285 ("SLUB core")
+Reported-by: syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_sip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/slub.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_sip.c b/net/netfilter/nf_conntrack_sip.c
-index 4dbb5bad4363..3b4c9407d6f2 100644
---- a/net/netfilter/nf_conntrack_sip.c
-+++ b/net/netfilter/nf_conntrack_sip.c
-@@ -471,7 +471,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 				return ret;
- 			if (ret == 0)
- 				break;
--			dataoff += *matchoff;
-+			dataoff = *matchoff;
- 		}
- 		*in_header = 0;
- 	}
-@@ -483,7 +483,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 			break;
- 		if (ret == 0)
- 			return ret;
--		dataoff += *matchoff;
-+		dataoff = *matchoff;
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5688,7 +5688,8 @@ static char *create_unique_id(struct kme
+ 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
+ 	char *p = name;
+ 
+-	BUG_ON(!name);
++	if (!name)
++		return ERR_PTR(-ENOMEM);
+ 
+ 	*p++ = ':';
+ 	/*
+@@ -5770,6 +5771,8 @@ static int sysfs_slab_add(struct kmem_ca
+ 		 * for the symlinks.
+ 		 */
+ 		name = create_unique_id(s);
++		if (IS_ERR(name))
++			return PTR_ERR(name);
  	}
  
- 	if (in_header)
--- 
-2.35.1
-
+ 	s->kobj.kset = kset;
 
 
