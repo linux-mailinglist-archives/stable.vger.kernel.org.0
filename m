@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD295EA0FE
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0AA15EA354
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234116AbiIZKo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
+        id S235077AbiIZLYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:24:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236318AbiIZKm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:42:59 -0400
+        with ESMTP id S235756AbiIZLXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A459013DEA;
-        Mon, 26 Sep 2022 03:24:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B075FFE;
+        Mon, 26 Sep 2022 03:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D88FFB80682;
-        Mon, 26 Sep 2022 10:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D61EC433D6;
-        Mon, 26 Sep 2022 10:24:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6829B8094E;
+        Mon, 26 Sep 2022 10:38:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3622DC433C1;
+        Mon, 26 Sep 2022 10:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187866;
-        bh=0lhGkSCOA6U77y1Wa49mYe2WnX42qJWBP6yLtkatyMs=;
+        s=korg; t=1664188728;
+        bh=PEX3wSNKs2vxJwN/EXKPcundSTbs6aVtPTh3ugkuGFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DMm8wEF7kHdKtfd7RrQ4NgpT5LIHlEcOToNgjzkYQzZ/ym/aezCyELxSjcZ0XU4d/
-         P4NzbOf0lHsjZ45bvIhZ5/i7f2JRYq06ynrs/eRFt4gB1WefpFf9cax40NDl/azEkT
-         ozHB+R6KjLiqFkKYnmzBu0cmimN/6EP1WQMToWsE=
+        b=Zy0fsGsF/UGuJWLHOt28P4K/yrYI1j4fveuktO5JgbcLlHrEq+y3+nucKQsBwgt7i
+         yedoVsMt43/6oFX+AkRtbX7V7S3md5+q4HrX3tTtf+pC6zDLDHfuz2BeBDJyWNz24H
+         zQFesvkN7XAQlMD+VvVkreb1IyXSdMCO0okUbMfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Lieven Hey <lieven.hey@kdab.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/120] perf jit: Include program header in ELF files
+Subject: [PATCH 5.15 085/148] iavf: Fix set max MTU size with port VLAN and jumbo frames
 Date:   Mon, 26 Sep 2022 12:11:59 +0200
-Message-Id: <20220926100754.188681896@linuxfoundation.org>
+Message-Id: <20220926100759.240324244@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lieven Hey <lieven.hey@kdab.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit babd04386b1df8c364cdaa39ac0e54349502e1e5 ]
+[ Upstream commit 399c98c4dc50b7eb7e9f24da7ffdda6f025676ef ]
 
-The missing header makes it hard for programs like elfutils to open
-these files.
+After setting port VLAN and MTU to 9000 on VF with ice driver there
+was an iavf error
+"PF returned error -5 (IAVF_ERR_PARAM) to our request 6".
 
-Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Lieven Hey <lieven.hey@kdab.com>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Link: https://lore.kernel.org/r/20220915092910.711036-1-lieven.hey@kdab.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+During queue configuration, VF's max packet size was set to
+IAVF_MAX_RXBUFFER but on ice max frame size was smaller by VLAN_HLEN
+due to making some space for port VLAN as VF is not aware whether it's
+in a port VLAN. This mismatch in sizes caused ice to reject queue
+configuration with ERR_PARAM error. Proper max_mtu is sent from ice PF
+to VF with GET_VF_RESOURCES msg but VF does not look at this.
+
+In iavf change max_frame from IAVF_MAX_RXBUFFER to max_mtu
+received from pf with GET_VF_RESOURCES msg to make vf's
+max_frame_size dependent from pf. Add check if received max_mtu is
+not in eligible range then set it to IAVF_MAX_RXBUFFER.
+
+Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/genelf.c | 14 ++++++++++++++
- tools/perf/util/genelf.h |  4 ++++
- 2 files changed, 18 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf_virtchnl.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index 17b74aba8b9a..69744fd5db39 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -256,6 +256,7 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
- 	Elf_Data *d;
- 	Elf_Scn *scn;
- 	Elf_Ehdr *ehdr;
-+	Elf_Phdr *phdr;
- 	Elf_Shdr *shdr;
- 	uint64_t eh_frame_base_offset;
- 	char *strsym = NULL;
-@@ -290,6 +291,19 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
- 	ehdr->e_version = EV_CURRENT;
- 	ehdr->e_shstrndx= unwinding ? 4 : 2; /* shdr index for section name */
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
+index 7013769fc038..c6eb0d0748ea 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
+@@ -244,11 +244,14 @@ int iavf_get_vf_config(struct iavf_adapter *adapter)
+ void iavf_configure_queues(struct iavf_adapter *adapter)
+ {
+ 	struct virtchnl_vsi_queue_config_info *vqci;
+-	struct virtchnl_queue_pair_info *vqpi;
++	int i, max_frame = adapter->vf_res->max_mtu;
+ 	int pairs = adapter->num_active_queues;
+-	int i, max_frame = IAVF_MAX_RXBUFFER;
++	struct virtchnl_queue_pair_info *vqpi;
+ 	size_t len;
  
-+	/*
-+	 * setup program header
-+	 */
-+	phdr = elf_newphdr(e, 1);
-+	phdr[0].p_type = PT_LOAD;
-+	phdr[0].p_offset = 0;
-+	phdr[0].p_vaddr = 0;
-+	phdr[0].p_paddr = 0;
-+	phdr[0].p_filesz = csize;
-+	phdr[0].p_memsz = csize;
-+	phdr[0].p_flags = PF_X | PF_R;
-+	phdr[0].p_align = 8;
++	if (max_frame > IAVF_MAX_RXBUFFER || !max_frame)
++		max_frame = IAVF_MAX_RXBUFFER;
 +
- 	/*
- 	 * setup text section
- 	 */
-diff --git a/tools/perf/util/genelf.h b/tools/perf/util/genelf.h
-index d4137559be05..ac638945b4cb 100644
---- a/tools/perf/util/genelf.h
-+++ b/tools/perf/util/genelf.h
-@@ -50,8 +50,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
- 
- #if GEN_ELF_CLASS == ELFCLASS64
- #define elf_newehdr	elf64_newehdr
-+#define elf_newphdr	elf64_newphdr
- #define elf_getshdr	elf64_getshdr
- #define Elf_Ehdr	Elf64_Ehdr
-+#define Elf_Phdr	Elf64_Phdr
- #define Elf_Shdr	Elf64_Shdr
- #define Elf_Sym		Elf64_Sym
- #define ELF_ST_TYPE(a)	ELF64_ST_TYPE(a)
-@@ -59,8 +61,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
- #define ELF_ST_VIS(a)	ELF64_ST_VISIBILITY(a)
- #else
- #define elf_newehdr	elf32_newehdr
-+#define elf_newphdr	elf32_newphdr
- #define elf_getshdr	elf32_getshdr
- #define Elf_Ehdr	Elf32_Ehdr
-+#define Elf_Phdr	Elf32_Phdr
- #define Elf_Shdr	Elf32_Shdr
- #define Elf_Sym		Elf32_Sym
- #define ELF_ST_TYPE(a)	ELF32_ST_TYPE(a)
+ 	if (adapter->current_op != VIRTCHNL_OP_UNKNOWN) {
+ 		/* bail because we already have a command pending */
+ 		dev_err(&adapter->pdev->dev, "Cannot configure queues, command %d pending\n",
 -- 
 2.35.1
 
