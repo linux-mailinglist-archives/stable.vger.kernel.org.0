@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 228145EA2E7
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181845E9F11
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237653AbiIZLQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:16:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54130 "EHLO
+        id S234302AbiIZKTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237633AbiIZLPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:15:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD3165270;
-        Mon, 26 Sep 2022 03:37:20 -0700 (PDT)
+        with ESMTP id S235131AbiIZKRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:17:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AFA3F32F;
+        Mon, 26 Sep 2022 03:15:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C09F60769;
-        Mon, 26 Sep 2022 10:37:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BC1AC433C1;
-        Mon, 26 Sep 2022 10:37:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BB3060BBF;
+        Mon, 26 Sep 2022 10:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92DFEC433D6;
+        Mon, 26 Sep 2022 10:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188623;
-        bh=Rlz1uuBrqfQ6EF641OQ2/zzhC5dy/G4tP1g7Ph7c544=;
+        s=korg; t=1664187303;
+        bh=rrDhxUZ7JRFCLEk5L6AChGIzQ8M4z5nHZqc1JCT5t+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ra2XtkiF0oA00jt0i/M7TJxEOqXPpdCd9H4fDSpElKGXf6xDMSZN8OtKjO5/kqLNl
-         FeD7nYPfUIGtpM46zRSa+GRtD9adhoLLUyZl/OK2ulS1tqnqMNWTedgjKaOcjg7ltX
-         Y1MVukx1blsMAJ5uLMttM0ma2YYcfSxNazDNkbXI=
+        b=jY+Apsp7oerkpNar9f91JsugwzLwGz9u5c/tWZBWv3/OCCNg5snwsIHiHcJtwwKE0
+         2CGCluPoXJSL6pqqoqEKMDpdGifj/LR2ubkNIqOr5vVpsg9dEraAA00eHzdWzMmjmE
+         be1hkTTM4cbg+CrQ/QbXpqS0MpbPjKZhlDFBlRtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/148] netfilter: nfnetlink_osf: fix possible bogus match in nf_osf_find()
+Subject: [PATCH 4.9 11/30] mips: lantiq: Add missing of_node_put() in irq.c
 Date:   Mon, 26 Sep 2022 12:11:42 +0200
-Message-Id: <20220926100758.594885630@linuxfoundation.org>
+Message-Id: <20220926100736.579467679@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 559c36c5a8d730c49ef805a72b213d3bba155cc8 ]
+[ Upstream commit 3748d2185ac4c2c6f80989672253aad909ecaf95 ]
 
-nf_osf_find() incorrectly returns true on mismatch, this leads to
-copying uninitialized memory area in nft_osf which can be used to leak
-stale kernel stack data to userspace.
+In icu_of_init(), of_find_compatible_node() will return a node
+pointer with refcount incremented. We should use of_node_put()
+when it is not used anymore.
 
-Fixes: 22c7652cdaa8 ("netfilter: nft_osf: Add version option support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_osf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/mips/lantiq/irq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nfnetlink_osf.c b/net/netfilter/nfnetlink_osf.c
-index 0fa2e2030427..ee6840bd5933 100644
---- a/net/netfilter/nfnetlink_osf.c
-+++ b/net/netfilter/nfnetlink_osf.c
-@@ -269,6 +269,7 @@ bool nf_osf_find(const struct sk_buff *skb,
- 	struct nf_osf_hdr_ctx ctx;
- 	const struct tcphdr *tcp;
- 	struct tcphdr _tcph;
-+	bool found = false;
- 
- 	memset(&ctx, 0, sizeof(ctx));
- 
-@@ -283,10 +284,11 @@ bool nf_osf_find(const struct sk_buff *skb,
- 
- 		data->genre = f->genre;
- 		data->version = f->version;
-+		found = true;
- 		break;
+diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
+index e64f678ca12c..e29dc58271b2 100644
+--- a/arch/mips/lantiq/irq.c
++++ b/arch/mips/lantiq/irq.c
+@@ -460,6 +460,7 @@ int __init icu_of_init(struct device_node *node, struct device_node *parent)
+ 		if (!ltq_eiu_membase)
+ 			panic("Failed to remap eiu memory");
  	}
++	of_node_put(eiu_node);
  
--	return true;
-+	return found;
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(nf_osf_find);
- 
 -- 
 2.35.1
 
