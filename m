@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94EEB5EA4B6
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5725EA539
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238625AbiIZLul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
+        id S238936AbiIZL7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239107AbiIZLtW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:22 -0400
+        with ESMTP id S238929AbiIZL6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:58:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B85C75CC5;
-        Mon, 26 Sep 2022 03:48:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C380D7B2A3;
+        Mon, 26 Sep 2022 03:52:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FD6960AF5;
-        Mon, 26 Sep 2022 10:40:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E282C433D6;
-        Mon, 26 Sep 2022 10:40:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AC4D60AF3;
+        Mon, 26 Sep 2022 10:50:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C4F1C433D7;
+        Mon, 26 Sep 2022 10:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188853;
-        bh=sgHXT3LlirVMkqBoHOPqiiag2KMBYEjerSrFk8IJX/A=;
+        s=korg; t=1664189439;
+        bh=Ut33842hwx4a/yaziEGJ5m5FGmvxrtCCOxpdvH3Jrog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bL5tqcw/prjVFrkBGRqaKgwLWgvyYbhCImDazM+TziHe05IRSMbfPTXD9lftCC/Sh
-         TbYpjK7x0QGllP2dByG/46fVLZvnWlWaatYsJEZc2RWRGx/iQbOFx/DwwXrbjVLVdH
-         sI/F2INtbei8wxXA1zIDUUVVlnY6mRLe4dcmJguk=
+        b=DIBZC7YSGQRxeUG4D2QGCezfb8uXQH62YZsLoPyKEaUfI7dE2ffXYl45LYJxHOmFi
+         h4pMwqzq3htNaHbmoApoZtYzCb8o00erHvv6qSWaHO8H88uSclrGCiIp/PSz+iP2wG
+         Oi6CNJsyoIsWLqgok59Crcl0BAa3mzsf8YvUmkVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ricardo Sandoval Torres <ricardo.sandoval.torres@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Omar Avelar <omar.avelar@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mark Gross <markgross@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.15 142/148] devdax: Fix soft-reservation memory description
-Date:   Mon, 26 Sep 2022 12:12:56 +0200
-Message-Id: <20220926100801.537407906@linuxfoundation.org>
+        stable@vger.kernel.org, Li Jinlin <lijinlin3@huawei.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 188/207] fsdax: Fix infinite loop in dax_iomap_rw()
+Date:   Mon, 26 Sep 2022 12:12:57 +0200
+Message-Id: <20220926100815.032294339@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Li Jinlin <lijinlin3@huawei.com>
 
-commit 67feaba413ec68daf4124e9870878899b4ed9a0e upstream.
+[ Upstream commit 17d9c15c9b9e7fb285f7ac5367dfb5f00ff575e3 ]
 
-The "hmem" platform-devices that are created to represent the
-platform-advertised "Soft Reserved" memory ranges end up inserting a
-resource that causes the iomem_resource tree to look like this:
+I got an infinite loop and a WARNING report when executing a tail command
+in virtiofs.
 
-340000000-43fffffff : hmem.0
-  340000000-43fffffff : Soft Reserved
-    340000000-43fffffff : dax0.0
+  WARNING: CPU: 10 PID: 964 at fs/iomap/iter.c:34 iomap_iter+0x3a2/0x3d0
+  Modules linked in:
+  CPU: 10 PID: 964 Comm: tail Not tainted 5.19.0-rc7
+  Call Trace:
+  <TASK>
+  dax_iomap_rw+0xea/0x620
+  ? __this_cpu_preempt_check+0x13/0x20
+  fuse_dax_read_iter+0x47/0x80
+  fuse_file_read_iter+0xae/0xd0
+  new_sync_read+0xfe/0x180
+  ? 0xffffffff81000000
+  vfs_read+0x14d/0x1a0
+  ksys_read+0x6d/0xf0
+  __x64_sys_read+0x1a/0x20
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-This is because insert_resource() reparents ranges when they completely
-intersect an existing range.
+The tail command will call read() with a count of 0. In this case,
+iomap_iter() will report this WARNING, and always return 1 which casuing
+the infinite loop in dax_iomap_rw().
 
-This matters because code that uses region_intersects() to scan for a
-given IORES_DESC will only check that top-level 'hmem.0' resource and
-not the 'Soft Reserved' descendant.
+Fixing by checking count whether is 0 in dax_iomap_rw().
 
-So, to support EINJ (via einj_error_inject()) to inject errors into
-memory hosted by a dax-device, be sure to describe the memory as
-IORES_DESC_SOFT_RESERVED. This is a follow-on to:
-
-commit b13a3e5fd40b ("ACPI: APEI: Fix _EINJ vs EFI_MEMORY_SP")
-
-...that fixed EINJ support for "Soft Reserved" ranges in the first
-instance.
-
-Fixes: 262b45ae3ab4 ("x86/efi: EFI soft reservation to E820 enumeration")
-Reported-by: Ricardo Sandoval Torres <ricardo.sandoval.torres@intel.com>
-Tested-by: Ricardo Sandoval Torres <ricardo.sandoval.torres@intel.com>
-Cc: <stable@vger.kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Omar Avelar <omar.avelar@intel.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Mark Gross <markgross@kernel.org>
-Link: https://lore.kernel.org/r/166397075670.389916.7435722208896316387.stgit@dwillia2-xfh.jf.intel.com
+Fixes: ca289e0b95af ("fsdax: switch dax_iomap_rw to use iomap_iter")
+Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Link: https://lore.kernel.org/r/20220725032050.3873372-1-lijinlin3@huawei.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/hmem/device.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/dax.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/dax/hmem/device.c
-+++ b/drivers/dax/hmem/device.c
-@@ -15,6 +15,7 @@ void hmem_register_device(int target_nid
- 		.start = r->start,
- 		.end = r->end,
- 		.flags = IORESOURCE_MEM,
-+		.desc = IORES_DESC_SOFT_RESERVED,
- 	};
- 	struct platform_device *pdev;
- 	struct memregion_info info;
+diff --git a/fs/dax.c b/fs/dax.c
+index 4155a6107fa1..7ab248ed21aa 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -1241,6 +1241,9 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
+ 	loff_t done = 0;
+ 	int ret;
+ 
++	if (!iomi.len)
++		return 0;
++
+ 	if (iov_iter_rw(iter) == WRITE) {
+ 		lockdep_assert_held_write(&iomi.inode->i_rwsem);
+ 		iomi.flags |= IOMAP_WRITE;
+-- 
+2.35.1
+
 
 
