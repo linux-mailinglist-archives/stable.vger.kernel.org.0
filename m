@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A727B5EA168
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3975EA031
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236554AbiIZKuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        id S235831AbiIZKfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236774AbiIZKtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98FC57E2B;
-        Mon, 26 Sep 2022 03:26:40 -0700 (PDT)
+        with ESMTP id S235840AbiIZKdM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E57A449B51;
+        Mon, 26 Sep 2022 03:20:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A40DB8055F;
-        Mon, 26 Sep 2022 10:26:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA3E5C433C1;
-        Mon, 26 Sep 2022 10:26:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE92A60B60;
+        Mon, 26 Sep 2022 10:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C434CC433C1;
+        Mon, 26 Sep 2022 10:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187998;
-        bh=PO5Rmq/GPp6MyTXqGurVuNZqX+1cSG0VYjpuri+lVPc=;
+        s=korg; t=1664187618;
+        bh=olcYasHuW7BIezTv9Mi3hwjM/yjhD8t6eRgTA7tM4sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLoNKR9tRt02gb2rsu7FWOUQoNS3bElpWP35c6NTIbRV8AM7yF+FlEaDOvKpgyWIm
-         DvrQZsOqkc/S8eqFq1YLl94r/oj0nB22Fu+5HTNxa7KkR/3cxjWA/I77Xd8d6dA6Hp
-         whAG6Kv0VHAaUXMktsKPEbn3O0La8hmvkUKjTgCw=
+        b=HGhFBKmepNeOn6Pfss/nHnlVZ09w2W8+3LVRP498kKB0LJXHmMfQXt3NdCKJilzR6
+         rY1GkzYggcf9H7STJyRe2f/M8SEb85sMkcF2Exbu4maoqvZDx8fU1DYzr5d/RixDqJ
+         IuJu8K/f087LhnENsReCGk4ZRAMwNNFOzrtSKAsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
         Ojaswin Mujoo <ojaswin@linux.ibm.com>, stable@kernel.org,
         Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 103/120] ext4: make directory inode spreading reflect flexbg size
+Subject: [PATCH 4.19 57/58] ext4: make directory inode spreading reflect flexbg size
 Date:   Mon, 26 Sep 2022 12:12:16 +0200
-Message-Id: <20220926100754.757833170@linuxfoundation.org>
+Message-Id: <20220926100743.569623445@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -79,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/ext4/ialloc.c
 +++ b/fs/ext4/ialloc.c
-@@ -500,7 +500,7 @@ static int find_group_orlov(struct super
+@@ -505,7 +505,7 @@ static int find_group_orlov(struct super
  		goto fallback;
  	}
  
