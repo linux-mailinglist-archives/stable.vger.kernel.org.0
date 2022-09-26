@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C4A5EA3CE
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CECBE5EA33D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233222AbiIZLen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42328 "EHLO
+        id S235467AbiIZLWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:22:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238063AbiIZLdl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:33:41 -0400
+        with ESMTP id S237739AbiIZLUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:20:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0136DF96;
-        Mon, 26 Sep 2022 03:43:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4699352FFD;
+        Mon, 26 Sep 2022 03:39:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A915B80906;
-        Mon, 26 Sep 2022 10:41:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90456C433D6;
-        Mon, 26 Sep 2022 10:41:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EA8BB80883;
+        Mon, 26 Sep 2022 10:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DE3DC433D7;
+        Mon, 26 Sep 2022 10:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188881;
-        bh=75DfJ5Yqg1z2SFT3L+O7MKMIFpGoOqNpgcehWq6lixc=;
+        s=korg; t=1664188376;
+        bh=0BEwOcdvfMkUKYaNeHKKXFlAaEzB4sCcBK6PLkpw9YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEzwfTN8if5H/RR9ijx1pZnG2KXeFU3DmrAU4LsL29DpU/AI8YoMH+5Djh08IsSA4
-         7G6H0UnllkyYqaOvMDAqXe36LHrUgig144qetNVppgvLjLO/hzvUyQO3bB9d1FcF2n
-         oX+z0SLmWiv6PSSVxvKX/iEyXwFypNuUe16VqSvI=
+        b=QYTQt1ST3CQSJUo6QMUXA+P4GdGeXPL/uEPmTcTPzNsB4qFU6dk0QAXR2+PaUZU9R
+         ZMLMHlhvkITGzuxKB98OxATGyM+YvoSSldZyVCd6rMnlpcMDPbLD7bp31XTdyt8vIi
+         Ro/iCkHcEYxee8Q6udtuOHUPyonVKL1HW25Ex9CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 122/148] s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Yao Wang1 <Yao.Wang1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 130/141] drm/amd/display: Limit user regamma to a valid value
 Date:   Mon, 26 Sep 2022 12:12:36 +0200
-Message-Id: <20220926100800.723425780@linuxfoundation.org>
+Message-Id: <20220926100759.156412703@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Yao Wang1 <Yao.Wang1@amd.com>
 
-commit db7ba07108a48c0f95b74fabbfd5d63e924f992d upstream.
+[ Upstream commit 3601d620f22e37740cf73f8278eabf9f2aa19eb7 ]
 
-Fix Oops in dasd_alias_get_start_dev() function caused by the pavgroup
-pointer being NULL.
+[Why]
+For HDR mode, we get total 512 tf_point and after switching to SDR mode
+we actually get 400 tf_point and the rest of points(401~512) still use
+dirty value from HDR mode. We should limit the rest of the points to max
+value.
 
-The pavgroup pointer is checked on the entrance of the function but
-without the lcu->lock being held. Therefore there is a race window
-between dasd_alias_get_start_dev() and _lcu_update() which sets
-pavgroup to NULL with the lcu->lock held.
+[How]
+Limit the value when coordinates_x.x > 1, just like what we do in
+translate_from_linear_space for other re-gamma build paths.
 
-Fix by checking the pavgroup pointer with lcu->lock held.
-
-Cc: <stable@vger.kernel.org> # 2.6.25+
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220919154931.4123002-2-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Yao Wang1 <Yao.Wang1@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_alias.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -675,12 +675,12 @@ int dasd_alias_remove_device(struct dasd
- struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- {
- 	struct dasd_eckd_private *alias_priv, *private = base_device->private;
--	struct alias_pav_group *group = private->pavgroup;
- 	struct alias_lcu *lcu = private->lcu;
- 	struct dasd_device *alias_device;
-+	struct alias_pav_group *group;
- 	unsigned long flags;
+diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+index 09bc2c249e1a..3c4390d71a82 100644
+--- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
++++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+@@ -1524,6 +1524,7 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 	struct fixed31_32 lut2;
+ 	struct fixed31_32 delta_lut;
+ 	struct fixed31_32 delta_index;
++	const struct fixed31_32 one = dc_fixpt_from_int(1);
  
--	if (!group || !lcu)
-+	if (!lcu)
- 		return NULL;
- 	if (lcu->pav == NO_PAV ||
- 	    lcu->flags & (NEED_UAC_UPDATE | UPDATE_PENDING))
-@@ -697,6 +697,11 @@ struct dasd_device *dasd_alias_get_start
- 	}
+ 	i = 0;
+ 	/* fixed_pt library has problems handling too small values */
+@@ -1552,6 +1553,9 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 			} else
+ 				hw_x = coordinates_x[i].x;
  
- 	spin_lock_irqsave(&lcu->lock, flags);
-+	group = private->pavgroup;
-+	if (!group) {
-+		spin_unlock_irqrestore(&lcu->lock, flags);
-+		return NULL;
-+	}
- 	alias_device = group->next;
- 	if (!alias_device) {
- 		if (list_empty(&group->aliaslist)) {
++			if (dc_fixpt_le(one, hw_x))
++				hw_x = one;
++
+ 			norm_x = dc_fixpt_mul(norm_factor, hw_x);
+ 			index = dc_fixpt_floor(norm_x);
+ 			if (index < 0 || index > 255)
+-- 
+2.35.1
+
 
 
