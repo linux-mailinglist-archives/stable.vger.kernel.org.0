@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F01945EA407
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7CCF5EA3BD
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234418AbiIZLjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:39:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
+        id S237827AbiIZLcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:32:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238166AbiIZLhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:37:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096476EF1E;
-        Mon, 26 Sep 2022 03:44:15 -0700 (PDT)
+        with ESMTP id S233578AbiIZLb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:31:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039356CF6D;
+        Mon, 26 Sep 2022 03:42:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A46DB60A36;
-        Mon, 26 Sep 2022 10:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D444C433D6;
-        Mon, 26 Sep 2022 10:42:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 734AFB80760;
+        Mon, 26 Sep 2022 10:42:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7418C433D6;
+        Mon, 26 Sep 2022 10:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188940;
-        bh=mXgQHzzbXk8scCA00EwPq4JkzV+JHFrkwHS/AwZf3bA=;
+        s=korg; t=1664188943;
+        bh=eaaHNBE6K/7q1W3ZF1vhSRG5mT9ySuUriyXoVAHOO0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voVb0GUgrFWRAaAZYimRjYLNyaLa4x3nJarP/VFWOG5wD1g0mnPNzL8QICKFWKclS
-         c26zGfPk3xTkAgkc5gUrAUjc1so/fxW2TeK77pkd2RmrIC5ZV8W7VSPFsw3u5f18Ul
-         8x25iLXGpI/8FORe1fZb4/LuhGmgp+mfNAnrtSkw=
+        b=uGn26rpU6DXzd2dRoOd0f5g6XvgTT0IBBYdJPia1Upvu6tW0PIAkpJjNTKwCQYW4E
+         UfViyhtRqa1jYAU7BMXNc4og1bDr/m96swWxTJwTW+P1+A7TkA+8ASimf+a8YBGTIi
+         BoBMai+613ahYdOJ6peiezyErlEswhfpozlbSZXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        feng xiangjun <fengxj325@gmail.com>,
-        Phil Auld <pauld@redhat.com>
-Subject: [PATCH 5.19 021/207] drivers/base: Fix unsigned comparison to -1 in CPUMAP_FILE_MAX_BYTES
-Date:   Mon, 26 Sep 2022 12:10:10 +0200
-Message-Id: <20220926100807.421848068@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 5.19 022/207] USB: core: Fix RST error in hub.c
+Date:   Mon, 26 Sep 2022 12:10:11 +0200
+Message-Id: <20220926100807.473475716@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -54,61 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit d7f06bdd6ee87fbefa05af5f57361d85e7715b11 upstream.
+commit 766a96dc558385be735a370db867e302c8f22153 upstream.
 
-As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
-This leads to very large file sizes:
+A recent commit added an invalid RST expression to a kerneldoc comment
+in hub.c.  The fix is trivial.
 
-topology$ ls -l
-total 0
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
--r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
--r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
-
-Adjust the inequality to catch the case when NR_CPUS is configured
-to a small value.
-
-Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: stable@vger.kernel.org
-Cc: feng xiangjun <fengxj325@gmail.com>
-Reported-by: feng xiangjun <fengxj325@gmail.com>
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Link: https://lore.kernel.org/r/20220906203542.1796629-1-pauld@redhat.com
+Fixes: 9c6d778800b9 ("USB: core: Prevent nested device-reset calls")
+Cc: <stable@vger.kernel.org>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Reviewed-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YxDDcsLtRZ7c20pq@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/cpumask.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/core/hub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/cpumask.h
-+++ b/include/linux/cpumask.h
-@@ -1083,9 +1083,10 @@ cpumap_print_list_to_buf(char *buf, cons
-  * cover a worst-case of every other cpu being on one of two nodes for a
-  * very large NR_CPUS.
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -6049,7 +6049,7 @@ re_enumerate:
   *
-- *  Use PAGE_SIZE as a minimum for smaller configurations.
-+ *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
-+ *  unsigned comparison to -1.
-  */
--#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
-+#define CPUMAP_FILE_MAX_BYTES  (((NR_CPUS * 9)/32 > PAGE_SIZE) \
- 					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
- #define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
- 
+  * Return: The same as for usb_reset_and_verify_device().
+  * However, if a reset is already in progress (for instance, if a
+- * driver doesn't have pre_ or post_reset() callbacks, and while
++ * driver doesn't have pre_reset() or post_reset() callbacks, and while
+  * being unbound or re-bound during the ongoing reset its disconnect()
+  * or probe() routine tries to perform a second, nested reset), the
+  * routine returns -EINPROGRESS.
 
 
