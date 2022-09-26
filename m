@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE0C5EA4BC
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911BA5EA311
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238539AbiIZLvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:51:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
+        id S234777AbiIZLTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238663AbiIZLt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DFC74DD9;
-        Mon, 26 Sep 2022 03:48:02 -0700 (PDT)
+        with ESMTP id S237560AbiIZLSR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 570C566A4D;
+        Mon, 26 Sep 2022 03:38:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 089C1B802C7;
-        Mon, 26 Sep 2022 10:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55CB8C433B5;
-        Mon, 26 Sep 2022 10:48:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01E34B80977;
+        Mon, 26 Sep 2022 10:38:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 452D0C433C1;
+        Mon, 26 Sep 2022 10:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189280;
-        bh=Ct3miofx3F/zPwYmpdA0sas9EW659SuBF+YogFlBK7A=;
+        s=korg; t=1664188688;
+        bh=+p6XPmpKOcfY08Yxyub/1jU9Xatr3GVDNkLDWbXy9ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlch9tFw2PBu0K9YKwXPTvoP/x8L1xQZTk613enFthi6aSNr6XDYQgCmLJnhIiOJt
-         hsVoz63gHHU/DhWIpVdk1tCYk7GSxAJK+3SuzyKG6ov712KItH9XkplbLRokLwh8DW
-         3pz94xwjSEdastSUsYmz7d7Y4Ihabgby1DI41+OQ=
+        b=2lyFr1gSAO9CMxP8YvXbor8ev/PgQiakQU9VKAfd9uqYI4QsZC7Ih+NPpVoS4REsJ
+         cAEe1HT4lyL+yBggbM0GEtzymv+kkzIajprl3zpQ1IPCCyM5vTmzIop7+cS+drNlm4
+         CRe4jdTk64HGkho3Q5qV5h6ZUygcq0RqsA3HJnaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 102/207] arm64: dts: imx8mp-venice-gw74xx: fix port/phy validation
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <david@fromorbit.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 057/148] xfs: validate inode fork size against fork format
 Date:   Mon, 26 Sep 2022 12:11:31 +0200
-Message-Id: <20220926100811.157024871@linuxfoundation.org>
+Message-Id: <20220926100758.167761628@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit f7fc391a5e28216150ab5390df35032309ead7e5 ]
+[ Upstream commit 1eb70f54c445fcbb25817841e774adb3d912f3e8 ]
 
-Since commit 65ac79e18120 ("net: dsa: microchip: add the phylink
-get_caps") the phy-mode must be set otherwise the switch driver will
-assume "NA" mode and invalidate the port.
+xfs_repair catches fork size/format mismatches, but the in-kernel
+verifier doesn't, leading to null pointer failures when attempting
+to perform operations on the fork. This can occur in the
+xfs_dir_is_empty() where the in-memory fork format does not match
+the size and so the fork data pointer is accessed incorrectly.
 
-Fixes: 7899eb6cb15d ("arm64: dts: imx: Add i.MX8M Plus Gateworks gw7400 dts support")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note: this causes new failures in xfs/348 which is testing mode vs
+ftype mismatches. We now detect a regular file that has been changed
+to a directory or symlink mode as being corrupt because the data
+fork is for a symlink or directory should be in local form when
+there are only 3 bytes of data in the data fork. Hence the inode
+verify for the regular file now fires w/ -EFSCORRUPTED because
+the inode fork format does not match the format the corrupted mode
+says it should be in.
+
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/xfs/libxfs/xfs_inode_buf.c |   35 ++++++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts b/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts
-index 3df7ee9a2fe1..211e6a1b296e 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts
-@@ -483,30 +483,35 @@ ports {
- 			lan1: port@0 {
- 				reg = <0>;
- 				label = "lan1";
-+				phy-mode = "internal";
- 				local-mac-address = [00 00 00 00 00 00];
- 			};
+--- a/fs/xfs/libxfs/xfs_inode_buf.c
++++ b/fs/xfs/libxfs/xfs_inode_buf.c
+@@ -337,19 +337,36 @@ xfs_dinode_verify_fork(
+ 	int			whichfork)
+ {
+ 	uint32_t		di_nextents = XFS_DFORK_NEXTENTS(dip, whichfork);
++	mode_t			mode = be16_to_cpu(dip->di_mode);
++	uint32_t		fork_size = XFS_DFORK_SIZE(dip, mp, whichfork);
++	uint32_t		fork_format = XFS_DFORK_FORMAT(dip, whichfork);
  
- 			lan2: port@1 {
- 				reg = <1>;
- 				label = "lan2";
-+				phy-mode = "internal";
- 				local-mac-address = [00 00 00 00 00 00];
- 			};
- 
- 			lan3: port@2 {
- 				reg = <2>;
- 				label = "lan3";
-+				phy-mode = "internal";
- 				local-mac-address = [00 00 00 00 00 00];
- 			};
- 
- 			lan4: port@3 {
- 				reg = <3>;
- 				label = "lan4";
-+				phy-mode = "internal";
- 				local-mac-address = [00 00 00 00 00 00];
- 			};
- 
- 			lan5: port@4 {
- 				reg = <4>;
- 				label = "lan5";
-+				phy-mode = "internal";
- 				local-mac-address = [00 00 00 00 00 00];
- 			};
- 
--- 
-2.35.1
-
+-	switch (XFS_DFORK_FORMAT(dip, whichfork)) {
++	/*
++	 * For fork types that can contain local data, check that the fork
++	 * format matches the size of local data contained within the fork.
++	 *
++	 * For all types, check that when the size says the should be in extent
++	 * or btree format, the inode isn't claiming it is in local format.
++	 */
++	if (whichfork == XFS_DATA_FORK) {
++		if (S_ISDIR(mode) || S_ISLNK(mode)) {
++			if (be64_to_cpu(dip->di_size) <= fork_size &&
++			    fork_format != XFS_DINODE_FMT_LOCAL)
++				return __this_address;
++		}
++
++		if (be64_to_cpu(dip->di_size) > fork_size &&
++		    fork_format == XFS_DINODE_FMT_LOCAL)
++			return __this_address;
++	}
++
++	switch (fork_format) {
+ 	case XFS_DINODE_FMT_LOCAL:
+ 		/*
+-		 * no local regular files yet
++		 * No local regular files yet.
+ 		 */
+-		if (whichfork == XFS_DATA_FORK) {
+-			if (S_ISREG(be16_to_cpu(dip->di_mode)))
+-				return __this_address;
+-			if (be64_to_cpu(dip->di_size) >
+-					XFS_DFORK_SIZE(dip, mp, whichfork))
+-				return __this_address;
+-		}
++		if (S_ISREG(mode) && whichfork == XFS_DATA_FORK)
++			return __this_address;
+ 		if (di_nextents)
+ 			return __this_address;
+ 		break;
 
 
