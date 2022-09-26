@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8935E9ED8
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553385EA483
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233279AbiIZKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:15:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42918 "EHLO
+        id S236023AbiIZLrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234495AbiIZKOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:14:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420DD474D7;
-        Mon, 26 Sep 2022 03:14:08 -0700 (PDT)
+        with ESMTP id S239011AbiIZLp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:45:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0819774CE4;
+        Mon, 26 Sep 2022 03:47:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 501EBB80925;
-        Mon, 26 Sep 2022 10:14:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C66AC433D6;
-        Mon, 26 Sep 2022 10:14:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01AB060BB7;
+        Mon, 26 Sep 2022 10:47:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CECCAC433D6;
+        Mon, 26 Sep 2022 10:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187245;
-        bh=LxUOv1BX67hgdtLI6gm3VnbJnfvixz22w9sx+VWQYrY=;
+        s=korg; t=1664189239;
+        bh=hQcWRXxZ4BZEXkkxaFOZs/IaqlSrhGIRXSNxcRDbbQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hG3UYtLOrQvT2/l/rBGGgJ/XZpgsbSa6l2elg6zqlljFTBrFcLKIXxbEx/GdjInZE
-         exevv45UyvOSkVCn8BSg7ykuNZiUQFtqFgkb6fpbsLcytfxiJ1bcHMaqTWQuBJ3WeS
-         aKhVkKHFit9Y+HkA8kigK2z0TjvW4pi1w3EUHJCI=
+        b=UYgSCgVXWSZ4xCO8ABbn1I65uxXSdWxACKirBbENqHzyS27jwGYxh3YB53y4/GgD+
+         QR4RO1NZx3WdJSo8jcrsqbNGikWtH26NwY03IwaN/G7qHQY8QCoczBH9Zx3VdDVDlz
+         rsMkX9IcXx9sh8KG1fCV2Mt97TfLV8l/Q4OzqdYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Chao Yu <chao.yu@oppo.com>,
-        David Rientjes <rientjes@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 4.9 17/30] mm/slub: fix to return errno if kmalloc() fails
+        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 119/207] sfc: fix TX channel offset when using legacy interrupts
 Date:   Mon, 26 Sep 2022 12:11:48 +0200
-Message-Id: <20220926100736.769408253@linuxfoundation.org>
+Message-Id: <20220926100811.892001916@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,70 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao.yu@oppo.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-commit 7e9c323c52b379d261a72dc7bd38120a761a93cd upstream.
+[ Upstream commit f232af4295653afa4ade3230462b3be15ad16419 ]
 
-In create_unique_id(), kmalloc(, GFP_KERNEL) can fail due to
-out-of-memory, if it fails, return errno correctly rather than
-triggering panic via BUG_ON();
+In legacy interrupt mode the tx_channel_offset was hardcoded to 1, but
+that's not correct if efx_sepparate_tx_channels is false. In that case,
+the offset is 0 because the tx queues are in the single existing channel
+at index 0, together with the rx queue.
 
-kernel BUG at mm/slub.c:5893!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+Without this fix, as soon as you try to send any traffic, it tries to
+get the tx queues from an uninitialized channel getting these errors:
+  WARNING: CPU: 1 PID: 0 at drivers/net/ethernet/sfc/tx.c:540 efx_hard_start_xmit+0x12e/0x170 [sfc]
+  [...]
+  RIP: 0010:efx_hard_start_xmit+0x12e/0x170 [sfc]
+  [...]
+  Call Trace:
+   <IRQ>
+   dev_hard_start_xmit+0xd7/0x230
+   sch_direct_xmit+0x9f/0x360
+   __dev_queue_xmit+0x890/0xa40
+  [...]
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000020
+  [...]
+  RIP: 0010:efx_hard_start_xmit+0x153/0x170 [sfc]
+  [...]
+  Call Trace:
+   <IRQ>
+   dev_hard_start_xmit+0xd7/0x230
+   sch_direct_xmit+0x9f/0x360
+   __dev_queue_xmit+0x890/0xa40
+  [...]
 
-Call trace:
- sysfs_slab_add+0x258/0x260 mm/slub.c:5973
- __kmem_cache_create+0x60/0x118 mm/slub.c:4899
- create_cache mm/slab_common.c:229 [inline]
- kmem_cache_create_usercopy+0x19c/0x31c mm/slab_common.c:335
- kmem_cache_create+0x1c/0x28 mm/slab_common.c:390
- f2fs_kmem_cache_create fs/f2fs/f2fs.h:2766 [inline]
- f2fs_init_xattr_caches+0x78/0xb4 fs/f2fs/xattr.c:808
- f2fs_fill_super+0x1050/0x1e0c fs/f2fs/super.c:4149
- mount_bdev+0x1b8/0x210 fs/super.c:1400
- f2fs_mount+0x44/0x58 fs/f2fs/super.c:4512
- legacy_get_tree+0x30/0x74 fs/fs_context.c:610
- vfs_get_tree+0x40/0x140 fs/super.c:1530
- do_new_mount+0x1dc/0x4e4 fs/namespace.c:3040
- path_mount+0x358/0x914 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __arm64_sys_mount+0x2f8/0x408 fs/namespace.c:3568
-
-Cc: <stable@kernel.org>
-Fixes: 81819f0fc8285 ("SLUB core")
-Reported-by: syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c308dfd1b43e ("sfc: fix wrong tx channel offset with efx_separate_tx_channels")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20220914103648.16902-1-ihuguet@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/sfc/efx_channels.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -5601,7 +5601,8 @@ static char *create_unique_id(struct kme
- 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
- 	char *p = name;
- 
--	BUG_ON(!name);
-+	if (!name)
-+		return ERR_PTR(-ENOMEM);
- 
- 	*p++ = ':';
- 	/*
-@@ -5649,6 +5650,8 @@ static int sysfs_slab_add(struct kmem_ca
- 		 * for the symlinks.
- 		 */
- 		name = create_unique_id(s);
-+		if (IS_ERR(name))
-+			return PTR_ERR(name);
- 	}
- 
- 	s->kobj.kset = cache_kset(s);
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 032b8c0bd788..5b4d661ab986 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -319,7 +319,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
+ 		efx->n_channels = 1 + (efx_separate_tx_channels ? 1 : 0);
+ 		efx->n_rx_channels = 1;
+ 		efx->n_tx_channels = 1;
+-		efx->tx_channel_offset = 1;
++		efx->tx_channel_offset = efx_separate_tx_channels ? 1 : 0;
+ 		efx->n_xdp_channels = 0;
+ 		efx->xdp_channel_offset = efx->n_channels;
+ 		efx->legacy_irq = efx->pci_dev->irq;
+-- 
+2.35.1
+
 
 
