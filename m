@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E9B5E9FD2
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAA125E9EEE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:16:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235458AbiIZK3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52470 "EHLO
+        id S235094AbiIZKQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235621AbiIZK2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556BA4E606;
-        Mon, 26 Sep 2022 03:18:56 -0700 (PDT)
+        with ESMTP id S235093AbiIZKQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:16:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE085D60;
+        Mon, 26 Sep 2022 03:14:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA98AB80942;
-        Mon, 26 Sep 2022 10:18:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14526C433D7;
-        Mon, 26 Sep 2022 10:18:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC3E360BFE;
+        Mon, 26 Sep 2022 10:14:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEE96C433C1;
+        Mon, 26 Sep 2022 10:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187534;
-        bh=d2uCZmzDO+E2wDJVSs97t4uBGEI64Dq855m06/aUQsE=;
+        s=korg; t=1664187275;
+        bh=xBg2Hq0C3rG0zEu7USGpFCsDrTdc0HhUCOa8/YfH7fE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsW4rux2NILvKiQWO/LjB/FPKe2zoEVIapTHAls/qpZcVvbY3hNxrHOButujLrc/g
-         7768+Y7XgviIoPQ27wsc9Qnq8KjRAYX+KnsvBmKWofbqSJgF+k9yJeaoGTGIjN/v3e
-         jhgzvkw+yFdnd08Rlg5IaP9dw72CgaGB/jWXTB24=
+        b=DI2uMK7FPUv/TpNc5b/qk3KzQIyPH2C7sdGURC12s+RzGldYwaH41hZarKUGRRSsr
+         7k8KxUnasKMVxwFvY3m3VD2qUB1ffm/pY4GSPws7m/s4AsCPZiFY/Z5c+2oN7lTa5T
+         vDXTN5P3Uu8TLbg3xHFUi1icp+rQKUc1nlgYszkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Norbert Zulinski <norbertx.zulinski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/58] iavf: Fix cached head and tail value for iavf_get_tx_pending
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 4.9 26/30] serial: Create uart_xmit_advance()
 Date:   Mon, 26 Sep 2022 12:11:57 +0200
-Message-Id: <20220926100742.858004096@linuxfoundation.org>
+Message-Id: <20220926100737.078991410@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 809f23c0423a43266e47a7dc67e95b5cb4d1cbfc ]
+commit e77cab77f2cb3a1ca2ba8df4af45bb35617ac16d upstream.
 
-The underlying hardware may or may not allow reading of the head or tail
-registers and it really makes no difference if we use the software
-cached values. So, always used the software cached values.
+A very common pattern in the drivers is to advance xmit tail
+index and do bookkeeping of Tx'ed characters. Create
+uart_xmit_advance() to handle it.
 
-Fixes: 9c6c12595b73 ("i40e: Detection and recovery of TX queue hung logic moved to service_task from tx_timeout")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Co-developed-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220901143934.8850-2-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40evf/i40e_txrx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/serial_core.h |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40evf/i40e_txrx.c b/drivers/net/ethernet/intel/i40evf/i40e_txrx.c
-index b56d22b530a7..1bf9734ae9cf 100644
---- a/drivers/net/ethernet/intel/i40evf/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/i40evf/i40e_txrx.c
-@@ -115,8 +115,11 @@ u32 i40evf_get_tx_pending(struct i40e_ring *ring, bool in_sw)
- {
- 	u32 head, tail;
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -294,6 +294,23 @@ struct uart_state {
+ /* number of characters left in xmit buffer before we ask for more */
+ #define WAKEUP_CHARS		256
  
-+	/* underlying hardware might not allow access and/or always return
-+	 * 0 for the head/tail registers so just use the cached values
-+	 */
- 	head = ring->next_to_clean;
--	tail = readl(ring->tail);
-+	tail = ring->next_to_use;
++/**
++ * uart_xmit_advance - Advance xmit buffer and account Tx'ed chars
++ * @up: uart_port structure describing the port
++ * @chars: number of characters sent
++ *
++ * This function advances the tail of circular xmit buffer by the number of
++ * @chars transmitted and handles accounting of transmitted bytes (into
++ * @up's icount.tx).
++ */
++static inline void uart_xmit_advance(struct uart_port *up, unsigned int chars)
++{
++	struct circ_buf *xmit = &up->state->xmit;
++
++	xmit->tail = (xmit->tail + chars) & (UART_XMIT_SIZE - 1);
++	up->icount.tx += chars;
++}
++
+ struct module;
+ struct tty_driver;
  
- 	if (head != tail)
- 		return (head < tail) ?
--- 
-2.35.1
-
 
 
