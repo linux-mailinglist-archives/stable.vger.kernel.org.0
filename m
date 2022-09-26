@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44135EA460
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D2D5EA03A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238436AbiIZLpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53378 "EHLO
+        id S235874AbiIZKfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238570AbiIZLoC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:44:02 -0400
+        with ESMTP id S236094AbiIZKeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8075172EDB;
-        Mon, 26 Sep 2022 03:46:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C36D51419;
+        Mon, 26 Sep 2022 03:21:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05A466091B;
-        Mon, 26 Sep 2022 10:45:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB16BC433D6;
-        Mon, 26 Sep 2022 10:45:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D61CD60BB1;
+        Mon, 26 Sep 2022 10:21:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC5C3C433C1;
+        Mon, 26 Sep 2022 10:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189131;
-        bh=eT+R/HudLNEnpxDzp2iipG53Tg48r2UE4mc4cNcY5wM=;
+        s=korg; t=1664187671;
+        bh=uUWHcUWBvnDVDeZ7BBNV3PTpQGI1NAAxX849kJe44sQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mi3lY6wLJ4hiyt1sVKSLF8RjoHRpwwd+xjWaCWIvzEPBoh3iI90qe3B5jMWDyG6Vz
-         MnSlpfoxh9ALgvXzFBxD9+xhGwot5LRqzUx5vuiEaxYfvQJxsjfSqF1PTxuoKYmDkg
-         w6oYCa7oaDNolRSGwK0QzAhWVnS+VHBbCz6RJ0JU=
+        b=1Ipl19/u2Z54ezcRpIcgtloV5B0TA9zHLMLJ0GYGusi/UP+kpMitv6iHSdTIosDG8
+         lbQ2yrd7OxKJXJ4Fv0lD7AL3H2O3/wdTb757zki2qY18HkqfpjpmboXjCrU7fUI9K9
+         Nz8HYKPgSYDcVdHbO0hExtNqMFPWmcMKDgmf3HQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.19 066/207] KVM: x86: Inject #UD on emulated XSETBV if XSAVES isnt enabled
+        stable@vger.kernel.org, "jerry.meng" <jerry-meng@foxmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 022/120] net: usb: qmi_wwan: add Quectel RM520N
 Date:   Mon, 26 Sep 2022 12:10:55 +0200
-Message-Id: <20220926100809.547576832@linuxfoundation.org>
+Message-Id: <20220926100751.426999152@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: jerry.meng <jerry-meng@foxmail.com>
 
-commit 50b2d49bafa16e6311ab2da82f5aafc5f9ada99b upstream.
+[ Upstream commit e1091e226a2bab4ded1fe26efba2aee1aab06450 ]
 
-Inject #UD when emulating XSETBV if CR4.OSXSAVE is not set.  This also
-covers the "XSAVE not supported" check, as setting CR4.OSXSAVE=1 #GPs if
-XSAVE is not supported (and userspace gets to keep the pieces if it
-forces incoherent vCPU state).
+add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
 
-Add a comment to kvm_emulate_xsetbv() to call out that the CPU checks
-CR4.OSXSAVE before checking for intercepts.  AMD'S APM implies that #UD
-has priority (says that intercepts are checked before #GP exceptions),
-while Intel's SDM says nothing about interception priority.  However,
-testing on hardware shows that both AMD and Intel CPUs prioritize the #UD
-over interception.
+0x0801: DIAG + NMEA + AT + MODEM + RMNET
 
-Fixes: 02d4160fbd76 ("x86: KVM: add xsetbv to the emulator")
-Cc: stable@vger.kernel.org
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220824033057.3576315-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0801 Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=RM520N-GL
+S:  SerialNumber=384af524
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: jerry.meng <jerry-meng@foxmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/tencent_E50CA8A206904897C2D20DDAE90731183C05@qq.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c |    3 +++
- arch/x86/kvm/x86.c     |    1 +
- 2 files changed, 4 insertions(+)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -4134,6 +4134,9 @@ static int em_xsetbv(struct x86_emulate_
- {
- 	u32 eax, ecx, edx;
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 8ef0a013874c..cee90e505d17 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1046,6 +1046,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
++	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0801)},	/* Quectel RM520N */
  
-+	if (!(ctxt->ops->get_cr(ctxt, 4) & X86_CR4_OSXSAVE))
-+		return emulate_ud(ctxt);
-+
- 	eax = reg_read(ctxt, VCPU_REGS_RAX);
- 	edx = reg_read(ctxt, VCPU_REGS_RDX);
- 	ecx = reg_read(ctxt, VCPU_REGS_RCX);
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1079,6 +1079,7 @@ static int __kvm_set_xcr(struct kvm_vcpu
- 
- int kvm_emulate_xsetbv(struct kvm_vcpu *vcpu)
- {
-+	/* Note, #UD due to CR4.OSXSAVE=0 has priority over the intercept. */
- 	if (static_call(kvm_x86_get_cpl)(vcpu) != 0 ||
- 	    __kvm_set_xcr(vcpu, kvm_rcx_read(vcpu), kvm_read_edx_eax(vcpu))) {
- 		kvm_inject_gp(vcpu, 0);
+ 	/* 3. Combined interface devices matching on interface number */
+ 	{QMI_FIXED_INTF(0x0408, 0xea42, 4)},	/* Yota / Megafon M100-1 */
+-- 
+2.35.1
+
 
 
