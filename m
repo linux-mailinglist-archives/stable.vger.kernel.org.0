@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA175EA345
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D122E5EA09A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237749AbiIZLW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52212 "EHLO
+        id S236131AbiIZKkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:40:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237789AbiIZLVD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:21:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E87F53031;
-        Mon, 26 Sep 2022 03:39:13 -0700 (PDT)
+        with ESMTP id S236389AbiIZKjK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD5753D15;
+        Mon, 26 Sep 2022 03:23:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3654660AF5;
-        Mon, 26 Sep 2022 10:38:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A397C433D6;
-        Mon, 26 Sep 2022 10:37:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17CA4B8091F;
+        Mon, 26 Sep 2022 10:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5373FC433C1;
+        Mon, 26 Sep 2022 10:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188679;
-        bh=R4uEFQXXft9s+qEOUmUElH92LOwYOg5bBGOVc1VHW+E=;
+        s=korg; t=1664187773;
+        bh=OnHJPjH4h6Nbsq01JGvqFhs1so7/TP+GxApbv3kVy+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqKBYzTxDKolVLxS3FKMp+jAOXBTkFP247tWeFuGnZw2TN2f5Cbowtw38u9NyCINi
-         +L9oYFVAHcitZ7lTPbcqOvtpV/Am7vKiWp4BWB6zZhX/VuoXZzSbnu5c2yUte2Q3AJ
-         bpBYelCtuvNj5qOvUgd5F5XGUhNjHkLYJpim3k2g=
+        b=T+vLoVTcXna9hhbiw1F+i7xr5c3BRfeqhD6WzuPB6070Ade9BhGUfTEc4olWvQDDG
+         Tx/7ApJggyaG8dviG6ZqQQx13l+vvNMDNLx/cjSkQeM4q+OFb7vTlvgDtFV+4frv6D
+         dNXZKdCrop9vkd2zPZ+4aX02heC069diedpFr7OU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Mohan Rao .vanimina" <mailtoc.mohanrao@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.15 054/148] vmlinux.lds.h: CFI: Reduce alignment of jump-table to function alignment
+        stable@vger.kernel.org, jerry meng <jerry-meng@foxmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 055/120] USB: serial: option: add Quectel RM520N
 Date:   Mon, 26 Sep 2022 12:11:28 +0200
-Message-Id: <20220926100758.045992970@linuxfoundation.org>
+Message-Id: <20220926100752.811157042@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: jerry meng <jerry-meng@foxmail.com>
 
-commit 13b0566962914e167cb3238fbe29ced618f07a27 upstream.
+commit d640c4cb8f2f933c0ca896541f9de7fb1ae245f4 upstream.
 
-Due to undocumented, hysterical raisins on x86, the CFI jump-table
-sections in .text are needlessly aligned to PMD_SIZE in the vmlinux
-linker script. When compiling a CFI-enabled arm64 kernel with a 64KiB
-page-size, a PMD maps 512MiB of virtual memory and so the .text section
-increases to a whopping 940MiB and blows the final Image up to 960MiB.
-Others report a link failure.
+add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
 
-Since the CFI jump-table requires only instruction alignment, reduce the
-alignment directives to function alignment for parity with other parts
-of the .text section. This reduces the size of the .text section for the
-aforementioned 64KiB page size arm64 kernel to 19MiB for a much more
-reasonable total Image size of 39MiB.
+0x0801: DIAG + NMEA + AT + MODEM + RMNET
 
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: "Mohan Rao .vanimina" <mailtoc.mohanrao@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/all/CAL_GTzigiNOMYkOPX1KDnagPhJtFNqSK=1USNbS0wUL4PW6-Uw@mail.gmail.com/
-Fixes: cf68fffb66d6 ("add support for Clang CFI")
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220922215715.13345-1-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0801 Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=RM520N-GL
+S:  SerialNumber=384af524
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: jerry meng <jerry-meng@foxmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -549,10 +549,9 @@
-  */
- #ifdef CONFIG_CFI_CLANG
- #define TEXT_CFI_JT							\
--		. = ALIGN(PMD_SIZE);					\
-+		ALIGN_FUNCTION();					\
- 		__cfi_jt_start = .;					\
- 		*(.text..L.cfi.jumptable .text..L.cfi.jumptable.*)	\
--		. = ALIGN(PMD_SIZE);					\
- 		__cfi_jt_end = .;
- #else
- #define TEXT_CFI_JT
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -256,6 +256,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
++#define QUECTEL_PRODUCT_RM520N			0x0801
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+ #define QUECTEL_PRODUCT_EC200T			0x6026
+ #define QUECTEL_PRODUCT_RM500K			0x7001
+@@ -1161,6 +1162,9 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
+ 	  .driver_info = ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
 
 
