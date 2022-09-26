@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 507545EA3D1
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456CA5EA423
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234294AbiIZLep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:34:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40278 "EHLO
+        id S238271AbiIZLkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233324AbiIZLda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:33:30 -0400
+        with ESMTP id S238272AbiIZLkT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:40:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA060109B;
-        Mon, 26 Sep 2022 03:43:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4791D1C10E;
+        Mon, 26 Sep 2022 03:45:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E22760AD7;
-        Mon, 26 Sep 2022 10:43:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE19C433C1;
-        Mon, 26 Sep 2022 10:43:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DC7260B55;
+        Mon, 26 Sep 2022 10:44:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5D6C433D6;
+        Mon, 26 Sep 2022 10:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188992;
-        bh=tEo2qrFxEKofABW8SWACi0vMOKtR4BuQ12ivhj0+N7c=;
+        s=korg; t=1664189060;
+        bh=Sg2d2XMWSRbBwH/dQ+GguvOhN7JVCewsCNPGwmsfshs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFiOoFad2pkqsL7SojuD2gwCL7pEZiErUlV5wPLDjCTn7lnMhPE+72PSREVYnI/MK
-         3pvUz901Uu8X9iRtxMJ6kAfIam2j8qIWgq3Hxt5m1FgVzh8hiNMVqL53ImIjoGGBuo
-         gM+tkVMyjtFkhr811J2sbLMLSsq+ZvIpW1O7nJlg=
+        b=ThYU328DEVTkuCYWQl8P9lpZD6fUn3IBcTC4lBJrdsut7esn+vxPzazgI62UBnlR5
+         Pr4AdqIccCrLzA1IByjpk0S7m1sUdvwUuKG6KwTUCZG5lS7QFZZz9PvSzJtx/yvRZv
+         13nmO68diKv7NiYki+LyJgV2toIH/qiMpEtL+xRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangwenhui <huangwenhuia@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 031/207] ALSA: hda/realtek: Add quirk for Huawei WRT-WX9
-Date:   Mon, 26 Sep 2022 12:10:20 +0200
-Message-Id: <20220926100807.854624525@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.19 033/207] ALSA: hda/realtek: Re-arrange quirk table entries
+Date:   Mon, 26 Sep 2022 12:10:22 +0200
+Message-Id: <20220926100807.941331414@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -52,30 +51,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huangwenhui <huangwenhuia@uniontech.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit cbcdf8c4d35cd74aee8581eb2f0453e0ecab7b05 upstream.
+commit b16c8f229a58eaddfc58aab447253464abd3c85e upstream.
 
-Fixes headphone and headset microphone detection on Huawei WRT-WX9.
+A few entries have been mistakenly inserted in wrong positions without
+considering the SSID ordering.  Place them at right positions.
 
-Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
+Fixes: b7557267c233 ("ALSA: hda/realtek: Add quirk for ASUS GA402")
+Fixes: 94db9cc8f8fa ("ALSA: hda/realtek: Add quirk for ASUS GU603")
+Fixes: 739d0959fbed ("ALSA: hda: Add quirk for ASUS Flow x13")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220913054622.15979-1-huangwenhuia@uniontech.com
+Link: https://lore.kernel.org/r/20220915154724.31634-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -9532,6 +9532,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
- 	SND_PCI_QUIRK(0x1849, 0x1233, "ASRock NUC Box 1100", ALC233_FIXUP_NO_AUDIO_JACK),
- 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
-+	SND_PCI_QUIRK(0x19e5, 0x320f, "Huawei WRT-WX9 ", ALC256_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1b35, 0x1235, "CZC B20", ALC269_FIXUP_CZC_B20),
- 	SND_PCI_QUIRK(0x1b35, 0x1236, "CZC TMI", ALC269_FIXUP_CZC_TMI),
- 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
+@@ -9305,10 +9305,11 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x13b0, "ASUS Z550SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
+ 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
++	SND_PCI_QUIRK(0x1043, 0x1662, "ASUS GV301QH", ALC294_FIXUP_ASUS_DUAL_SPK),
++	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1740, "ASUS UX430UA", ALC295_FIXUP_ASUS_DACS),
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
+-	SND_PCI_QUIRK(0x1043, 0x1662, "ASUS GV301QH", ALC294_FIXUP_ASUS_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x18f1, "Asus FX505DT", ALC256_FIXUP_ASUS_HEADSET_MIC),
+@@ -9325,13 +9326,12 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1bbd, "ASUS Z550MA", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x1c23, "Asus X55U", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
++	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+-	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
+-	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x834a, "ASUS S101", ALC269_FIXUP_STEREO_DMIC),
 
 
