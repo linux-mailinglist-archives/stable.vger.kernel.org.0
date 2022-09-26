@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C49B15E9F15
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8123F5EA341
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234889AbiIZKTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
+        id S237733AbiIZLWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234779AbiIZKSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:18:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3503FA39;
-        Mon, 26 Sep 2022 03:15:15 -0700 (PDT)
+        with ESMTP id S237746AbiIZLUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:20:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D161153008;
+        Mon, 26 Sep 2022 03:39:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7589BCE10E9;
-        Mon, 26 Sep 2022 10:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C465C433C1;
-        Mon, 26 Sep 2022 10:15:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B6B860C84;
+        Mon, 26 Sep 2022 10:30:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDEEC433D6;
+        Mon, 26 Sep 2022 10:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187308;
-        bh=wpR2uPM5j62f5gxaMpy1qf7y9e1hJhxI6jbW71SU2yo=;
+        s=korg; t=1664188217;
+        bh=kHrrLxHBxr1MY4q4fGaTvPa0Ti0kLXNmr0FvWvEvqnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuHhZHA5syHALewkg+YzIlh/s2sb/wdRFga2rP/TS9En/ZYn2E3Kt+74DJkYTAnw6
-         B6sZvhAeYGAuaAPZ+rmEmd2dvW+uQ5ODGMI6RYwH5Kz8N4t8lIm2ZqciHpAYUelihZ
-         Jcc+0muTEIt3N/emGwn5BcRQZSmdqd67tHMZqJCA=
+        b=mSzwgFu2sMLsx1xE639V4RhV2LheKB5c0UCZXi6KBgTPG+wwWSDgFMi7hnb0tnqjC
+         FRlnzpE89A4hJVwu57R/X88jAEQo9W3X7bF0oGOVSS7EB+1h9hKiZqqkzjA/QbDKLr
+         UKM61jFfYvuRsEZg05vgwtNZSdO363E7Ln6SaaYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Siddh Raman Pant <code@siddh.me>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/30] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
+Subject: [PATCH 5.10 078/141] net: bonding: Share lacpdu_mcast_addr definition
 Date:   Mon, 26 Sep 2022 12:11:44 +0200
-Message-Id: <20220926100736.646872576@linuxfoundation.org>
+Message-Id: <20220926100757.270979177@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Benjamin Poirier <bpoirier@nvidia.com>
 
-[ Upstream commit 60deb9f10eec5c6a20252ed36238b55d8b614a2c ]
+[ Upstream commit 1d9a143ee3408349700f44a9197b7ae0e4faae5d ]
 
-ieee80211_scan_rx() tries to access scan_req->flags after a
-null check, but a UAF is observed when the scan is completed
-and __ieee80211_scan_completed() executes, which then calls
-cfg80211_scan_done() leading to the freeing of scan_req.
+There are already a few definitions of arrays containing
+MULTICAST_LACPDU_ADDR and the next patch will add one more use. These all
+contain the same constant data so define one common instance for all
+bonding code.
 
-Since scan_req is rcu_dereference()'d, prevent the racing in
-__ieee80211_scan_completed() by ensuring that from mac80211's
-POV it is no longer accessed from an RCU read critical section
-before we call cfg80211_scan_done().
-
-Cc: stable@vger.kernel.org
-Link: https://syzkaller.appspot.com/bug?extid=f9acff9bf08a845f225d
-Reported-by: syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com
-Suggested-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Link: https://lore.kernel.org/r/20220819200340.34826-1-code@siddh.me
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 86247aba599e ("net: bonding: Unsync device addresses on ndo_stop")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/scan.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/bonding/bond_3ad.c  |  5 +++--
+ drivers/net/bonding/bond_main.c | 16 ++++------------
+ include/net/bond_3ad.h          |  2 --
+ include/net/bonding.h           |  3 +++
+ 4 files changed, 10 insertions(+), 16 deletions(-)
 
-diff --git a/net/mac80211/scan.c b/net/mac80211/scan.c
-index 701adcb9262e..a73c362a0182 100644
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -385,10 +385,6 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
- 	scan_req = rcu_dereference_protected(local->scan_req,
- 					     lockdep_is_held(&local->mtx));
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index b0f8d551b61d..acb6ff0be5ff 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -85,8 +85,9 @@ static const u8 null_mac_addr[ETH_ALEN + 2] __long_aligned = {
+ static u16 ad_ticks_per_sec;
+ static const int ad_delta_in_ticks = (AD_TIMER_INTERVAL * HZ) / 1000;
  
--	if (scan_req != local->int_scan_req) {
--		local->scan_info.aborted = aborted;
--		cfg80211_scan_done(scan_req, &local->scan_info);
+-static const u8 lacpdu_mcast_addr[ETH_ALEN + 2] __long_aligned =
+-	MULTICAST_LACPDU_ADDR;
++const u8 lacpdu_mcast_addr[ETH_ALEN + 2] __long_aligned = {
++	0x01, 0x80, 0xC2, 0x00, 0x00, 0x02
++};
+ 
+ /* ================= main 802.3ad protocol functions ================== */
+ static int ad_lacpdu_send(struct port *port);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 9c4b45341fd2..be1fd4ef4531 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -827,12 +827,8 @@ static void bond_hw_addr_flush(struct net_device *bond_dev,
+ 	dev_uc_unsync(slave_dev, bond_dev);
+ 	dev_mc_unsync(slave_dev, bond_dev);
+ 
+-	if (BOND_MODE(bond) == BOND_MODE_8023AD) {
+-		/* del lacpdu mc addr from mc list */
+-		u8 lacpdu_multicast[ETH_ALEN] = MULTICAST_LACPDU_ADDR;
+-
+-		dev_mc_del(slave_dev, lacpdu_multicast);
 -	}
- 	RCU_INIT_POINTER(local->scan_req, NULL);
++	if (BOND_MODE(bond) == BOND_MODE_8023AD)
++		dev_mc_del(slave_dev, lacpdu_mcast_addr);
+ }
  
- 	scan_sdata = rcu_dereference_protected(local->scan_sdata,
-@@ -398,6 +394,13 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
- 	local->scanning = 0;
- 	local->scan_chandef.chan = NULL;
+ /*--------------------------- Active slave change ---------------------------*/
+@@ -2078,12 +2074,8 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 		dev_uc_sync_multiple(slave_dev, bond_dev);
+ 		netif_addr_unlock_bh(bond_dev);
  
-+	synchronize_rcu();
+-		if (BOND_MODE(bond) == BOND_MODE_8023AD) {
+-			/* add lacpdu mc addr to mc list */
+-			u8 lacpdu_multicast[ETH_ALEN] = MULTICAST_LACPDU_ADDR;
+-
+-			dev_mc_add(slave_dev, lacpdu_multicast);
+-		}
++		if (BOND_MODE(bond) == BOND_MODE_8023AD)
++			dev_mc_add(slave_dev, lacpdu_mcast_addr);
+ 	}
+ 
+ 	bond->slave_cnt++;
+diff --git a/include/net/bond_3ad.h b/include/net/bond_3ad.h
+index 1a28f299a4c6..895eae18271f 100644
+--- a/include/net/bond_3ad.h
++++ b/include/net/bond_3ad.h
+@@ -15,8 +15,6 @@
+ #define PKT_TYPE_LACPDU         cpu_to_be16(ETH_P_SLOW)
+ #define AD_TIMER_INTERVAL       100 /*msec*/
+ 
+-#define MULTICAST_LACPDU_ADDR    {0x01, 0x80, 0xC2, 0x00, 0x00, 0x02}
+-
+ #define AD_LACP_SLOW 0
+ #define AD_LACP_FAST 1
+ 
+diff --git a/include/net/bonding.h b/include/net/bonding.h
+index 67d676059aa0..d9cc3f5602fb 100644
+--- a/include/net/bonding.h
++++ b/include/net/bonding.h
+@@ -763,6 +763,9 @@ extern struct rtnl_link_ops bond_link_ops;
+ /* exported from bond_sysfs_slave.c */
+ extern const struct sysfs_ops slave_sysfs_ops;
+ 
++/* exported from bond_3ad.c */
++extern const u8 lacpdu_mcast_addr[];
 +
-+	if (scan_req != local->int_scan_req) {
-+		local->scan_info.aborted = aborted;
-+		cfg80211_scan_done(scan_req, &local->scan_info);
-+	}
-+
- 	/* Set power back to normal operating levels. */
- 	ieee80211_hw_config(local, 0);
- 
+ static inline netdev_tx_t bond_tx_drop(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	atomic_long_inc(&dev->tx_dropped);
 -- 
 2.35.1
 
