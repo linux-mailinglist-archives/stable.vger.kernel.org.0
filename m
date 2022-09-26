@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64AD95E9F6D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5CC25E9F02
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235299AbiIZKZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37784 "EHLO
+        id S235123AbiIZKRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235548AbiIZKYI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D553A4D4DF;
-        Mon, 26 Sep 2022 03:17:37 -0700 (PDT)
+        with ESMTP id S234509AbiIZKQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:16:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B2315A24;
+        Mon, 26 Sep 2022 03:14:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0F02DCE10F0;
-        Mon, 26 Sep 2022 10:17:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF3BCC433C1;
-        Mon, 26 Sep 2022 10:17:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9A28B80921;
+        Mon, 26 Sep 2022 10:14:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05C11C433D6;
+        Mon, 26 Sep 2022 10:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187426;
-        bh=Nsu7gSYPgePX728IKEM8gd/5QaXx6yEuMyZ/Sh9ZEuc=;
+        s=korg; t=1664187278;
+        bh=P/jPu5lRTU5KAlw0BfvfSuAKw0KPbUzxhtuOZH99Lpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8n+n8jK8d4XtSfqFrNy0LqaFb/aJrnO/0kT8Fpml6+2O1y/Pe7pwDzQ6GNlB8GyW
-         FSDaXuUW7we0a6T3o1svz2qKrMmu0iYL15PpWA1iluQQjinAh8RmYFRSmI55ROZSGS
-         NOqWxggTybjQcfx1zOZPHIw0WO/yTo5RZ1oA1FTE=
+        b=f+VwhgMxkv/pozO2r5WADI3x959mQBVwkaWKqK/WEDOrIz+FqYREu0jxJya9Cp/mx
+         5ujp8HcgdYvMHQbBgrfu0IAhYP33rNVqh9uiWt83YIhRu5xg1m2qcicbDSd4uYA07g
+         gGWCcb7x5UHZuRIVa6O6Cy8pNfXhltaGfyBiw9WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Liang He <windhl@126.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/40] of: mdio: Add of_node_put() when breaking out of for_each_xx
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 4.9 27/30] serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
 Date:   Mon, 26 Sep 2022 12:11:58 +0200
-Message-Id: <20220926100739.447763281@linuxfoundation.org>
+Message-Id: <20220926100737.111078157@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 1c48709e6d9d353acaaac1d8e33474756b121d78 ]
+commit 754f68044c7dd6c52534ba3e0f664830285c4b15 upstream.
 
-In of_mdiobus_register(), we should call of_node_put() for 'child'
-escaped out of for_each_available_child_of_node().
+DMA complete & stop paths did not correctly account Tx'ed characters
+into icount.tx. Using uart_xmit_advance() fixes the problem.
 
-Fixes: 66bdede495c7 ("of_mdio: Fix broken PHY IRQ in case of probe deferral")
-Co-developed-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220913125659.3331969-1-windhl@126.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
+Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220901143934.8850-3-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/of_mdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/serial-tegra.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
-index 8b7d3e64b8ca..41a23db21392 100644
---- a/drivers/of/of_mdio.c
-+++ b/drivers/of/of_mdio.c
-@@ -272,6 +272,7 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
- 	return 0;
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -409,7 +409,7 @@ static void tegra_uart_tx_dma_complete(v
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+ 	spin_lock_irqsave(&tup->uport.lock, flags);
+-	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++	uart_xmit_advance(&tup->uport, count);
+ 	tup->tx_in_progress = 0;
+ 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(&tup->uport);
+@@ -493,7 +493,6 @@ static unsigned int tegra_uart_tx_empty(
+ static void tegra_uart_stop_tx(struct uart_port *u)
+ {
+ 	struct tegra_uart_port *tup = to_tegra_uport(u);
+-	struct circ_buf *xmit = &tup->uport.state->xmit;
+ 	struct dma_tx_state state;
+ 	unsigned int count;
  
- unregister:
-+	of_node_put(child);
- 	mdiobus_unregister(mdio);
- 	return rc;
+@@ -504,7 +503,7 @@ static void tegra_uart_stop_tx(struct ua
+ 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+-	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++	uart_xmit_advance(&tup->uport, count);
+ 	tup->tx_in_progress = 0;
  }
--- 
-2.35.1
-
+ 
 
 
