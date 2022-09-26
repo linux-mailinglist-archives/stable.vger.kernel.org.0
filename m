@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 023495E9F71
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA175EA345
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbiIZKZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
+        id S237749AbiIZLW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:22:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235675AbiIZKYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C294D27E;
-        Mon, 26 Sep 2022 03:18:01 -0700 (PDT)
+        with ESMTP id S237789AbiIZLVD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:21:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E87F53031;
+        Mon, 26 Sep 2022 03:39:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8496EB80930;
-        Mon, 26 Sep 2022 10:18:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA212C433D7;
-        Mon, 26 Sep 2022 10:17:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3654660AF5;
+        Mon, 26 Sep 2022 10:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A397C433D6;
+        Mon, 26 Sep 2022 10:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187479;
-        bh=0D4Q9fdkdNqRsgQXEkbD9sdW2pAZmHjPrqk4lVtgJjA=;
+        s=korg; t=1664188679;
+        bh=R4uEFQXXft9s+qEOUmUElH92LOwYOg5bBGOVc1VHW+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1EK9UxRtX6jc8z3AGHBSe6U3/xnlnaQzFvUmbapWo8eWQ60DY7RF6xZr4HfSvCmf
-         zqlCdQpcSi1h3oq8LAfKrGvcrbXssH1ZnzKHetWZtYYK4KrbSov2wI7HwKq6Zw0W1S
-         QXjAeDvTwP74zfId+AX9nKvsce5LZc7YzzGPouyo=
+        b=xqKBYzTxDKolVLxS3FKMp+jAOXBTkFP247tWeFuGnZw2TN2f5Cbowtw38u9NyCINi
+         +L9oYFVAHcitZ7lTPbcqOvtpV/Am7vKiWp4BWB6zZhX/VuoXZzSbnu5c2yUte2Q3AJ
+         bpBYelCtuvNj5qOvUgd5F5XGUhNjHkLYJpim3k2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 09/58] cifs: dont send down the destination address to sendmsg for a SOCK_STREAM
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Mohan Rao .vanimina" <mailtoc.mohanrao@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.15 054/148] vmlinux.lds.h: CFI: Reduce alignment of jump-table to function alignment
 Date:   Mon, 26 Sep 2022 12:11:28 +0200
-Message-Id: <20220926100741.748856850@linuxfoundation.org>
+Message-Id: <20220926100758.045992970@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Will Deacon <will@kernel.org>
 
-commit 17d3df38dc5f4cec9b0ac6eb79c1859b6e2693a4 upstream.
+commit 13b0566962914e167cb3238fbe29ced618f07a27 upstream.
 
-This is ignored anyway by the tcp layer.
+Due to undocumented, hysterical raisins on x86, the CFI jump-table
+sections in .text are needlessly aligned to PMD_SIZE in the vmlinux
+linker script. When compiling a CFI-enabled arm64 kernel with a 64KiB
+page-size, a PMD maps 512MiB of virtual memory and so the .text section
+increases to a whopping 940MiB and blows the final Image up to 960MiB.
+Others report a link failure.
 
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Cc: stable@vger.kernel.org
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Since the CFI jump-table requires only instruction alignment, reduce the
+alignment directives to function alignment for parity with other parts
+of the .text section. This reduces the size of the .text section for the
+aforementioned 64KiB page size arm64 kernel to 19MiB for a much more
+reasonable total Image size of 39MiB.
+
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: "Mohan Rao .vanimina" <mailtoc.mohanrao@gmail.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/all/CAL_GTzigiNOMYkOPX1KDnagPhJtFNqSK=1USNbS0wUL4PW6-Uw@mail.gmail.com/
+Fixes: cf68fffb66d6 ("add support for Clang CFI")
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220922215715.13345-1-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/transport.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/asm-generic/vmlinux.lds.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -168,8 +168,8 @@ smb_send_kvec(struct TCP_Server_Info *se
- 
- 	*sent = 0;
- 
--	smb_msg->msg_name = (struct sockaddr *) &server->dstaddr;
--	smb_msg->msg_namelen = sizeof(struct sockaddr);
-+	smb_msg->msg_name = NULL;
-+	smb_msg->msg_namelen = 0;
- 	smb_msg->msg_control = NULL;
- 	smb_msg->msg_controllen = 0;
- 	if (server->noblocksnd)
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -549,10 +549,9 @@
+  */
+ #ifdef CONFIG_CFI_CLANG
+ #define TEXT_CFI_JT							\
+-		. = ALIGN(PMD_SIZE);					\
++		ALIGN_FUNCTION();					\
+ 		__cfi_jt_start = .;					\
+ 		*(.text..L.cfi.jumptable .text..L.cfi.jumptable.*)	\
+-		. = ALIGN(PMD_SIZE);					\
+ 		__cfi_jt_end = .;
+ #else
+ #define TEXT_CFI_JT
 
 
