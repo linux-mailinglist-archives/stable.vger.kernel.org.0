@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7160D5EA195
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77765EA3F3
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236806AbiIZKwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:52:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35640 "EHLO
+        id S238047AbiIZLhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234290AbiIZKuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:50:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB98D59247;
-        Mon, 26 Sep 2022 03:27:31 -0700 (PDT)
+        with ESMTP id S238077AbiIZLft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:35:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D44C4D25C;
+        Mon, 26 Sep 2022 03:43:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A535B80925;
-        Mon, 26 Sep 2022 10:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E64C43140;
-        Mon, 26 Sep 2022 10:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E17260B7E;
+        Mon, 26 Sep 2022 10:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C6EC433D7;
+        Mon, 26 Sep 2022 10:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188047;
-        bh=jgs2rmYeQfS+qB9Xe0Qgv74qghQsrxHN7MKy+rPReOo=;
+        s=korg; t=1664189007;
+        bh=B6U0drhn08g0LmIo7aANssbc+0zXfg4+1s/TNYvoYp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxYVYi9Uvrv6YbpGOYZDnfWx0TP/nzRBmlGSS+xTiDO+Re3BPdXs+7wyQVOZss3Ag
-         adYV80LYkkxVZJK6HhC64gsn2WRPo7GlRRse3BotJV0jz3ucJDgYp0/AeZWtf/3Evb
-         jEKBSbCuXIqsjdscMTwoxT8iHZxPiJS4GpiU4u6g=
+        b=y/mWgycI3E8anMR7prUm0yYbqJfO5weC1LC69CsbFxvYEfE3jK6CNTd7O4d+UEzam
+         SpEf4KxQ0HMQI36DKBdyQaXKbxF6zPpQ4UD3cwmcvWCJN8LjM3bX8JIqiaEPuaRFPP
+         xBpl+Waw/iQ6TQ8clEs5c2nwupr2WeFA8toXg5Vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/141] usb: typec: intel_pmc_mux: Add new ACPI ID for Meteor Lake IOM device
-Date:   Mon, 26 Sep 2022 12:10:32 +0200
-Message-Id: <20220926100754.854707566@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.19 044/207] libperf evlist: Fix polling of system-wide events
+Date:   Mon, 26 Sep 2022 12:10:33 +0200
+Message-Id: <20220926100808.590969680@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 1b1b672cc1d4fb3065dac79efb8901bd6244ef69 ]
+commit 6cc447964555df209c590756bd804d3bb9ce1fe0 upstream.
 
-This adds the necessary ACPI ID for Intel Meteor Lake
-IOM devices.
+Originally, (refer commit f90d194a867a5a1d ("perf evlist: Do not poll
+events that use the system_wide flag") there wasn't much reason to poll
+system-wide events because:
 
-The callback function is_memory() is modified so that it
-also checks if the resource descriptor passed to it is a
-memory type "Address Space Resource Descriptor".
+ 1. The mmaps get "merged" via set-output anyway (the per-cpu case)
+ 2. perf reads all mmaps when any event is woken
+ 3. system-wide mmaps do not fill up as fast as the mmaps for user
+    selected events
 
-On Intel Meteor Lake the ACPI memory resource is not
-described using the "32-bit Memory Range Descriptor" because
-the memory is outside of the 32-bit address space. The
-memory resource is described using the "Address Space
-Resource Descriptor" instead.
+But there was 1 reason not to poll which was that it prevented correct
+termination due to POLLHUP on all user selected events.  That issue is
+now easily resolved by using fdarray_flag__nonfilterable.
 
-Intel Meteor Lake is the first platform to describe the
-memory resource for this device with Address Space Resource
-Descriptor, but it most likely will not be the last.
-Therefore the change to the is_memory() callback function
-is made generic.
+With the advent of commit ae4f8ae16a078964 ("libperf evlist: Allow
+mixing per-thread and per-cpu mmaps"), system-wide mmaps can be used
+also in the per-thread case where reason 1 does not apply.
 
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
+Fix the omission of system-wide events from polling by using the
+fdarray_flag__nonfilterable flag.
+
+Example:
+
+ Before:
+
+    $ perf record --no-bpf-event -vvv -e intel_pt// --per-thread uname 2>err.txt
+    Linux
+    $ grep 'sys_perf_event_open.*=\|pollfd' err.txt
+    sys_perf_event_open: pid 155076  cpu -1  group_fd -1  flags 0x8 = 5
+    sys_perf_event_open: pid 155076  cpu -1  group_fd -1  flags 0x8 = 6
+    sys_perf_event_open: pid -1  cpu 0  group_fd -1  flags 0x8 = 7
+    sys_perf_event_open: pid -1  cpu 1  group_fd -1  flags 0x8 = 9
+    sys_perf_event_open: pid -1  cpu 2  group_fd -1  flags 0x8 = 10
+    sys_perf_event_open: pid -1  cpu 3  group_fd -1  flags 0x8 = 11
+    sys_perf_event_open: pid -1  cpu 4  group_fd -1  flags 0x8 = 12
+    sys_perf_event_open: pid -1  cpu 5  group_fd -1  flags 0x8 = 13
+    sys_perf_event_open: pid -1  cpu 6  group_fd -1  flags 0x8 = 14
+    sys_perf_event_open: pid -1  cpu 7  group_fd -1  flags 0x8 = 15
+    thread_data[0x55fb43c29e80]: pollfd[0] <- event_fd=5
+    thread_data[0x55fb43c29e80]: pollfd[1] <- event_fd=6
+    thread_data[0x55fb43c29e80]: pollfd[2] <- non_perf_event fd=4
+
+ After:
+
+    $ perf record --no-bpf-event -vvv -e intel_pt// --per-thread uname 2>err.txt
+    Linux
+    $ grep 'sys_perf_event_open.*=\|pollfd' err.txt
+    sys_perf_event_open: pid 156316  cpu -1  group_fd -1  flags 0x8 = 5
+    sys_perf_event_open: pid 156316  cpu -1  group_fd -1  flags 0x8 = 6
+    sys_perf_event_open: pid -1  cpu 0  group_fd -1  flags 0x8 = 7
+    sys_perf_event_open: pid -1  cpu 1  group_fd -1  flags 0x8 = 9
+    sys_perf_event_open: pid -1  cpu 2  group_fd -1  flags 0x8 = 10
+    sys_perf_event_open: pid -1  cpu 3  group_fd -1  flags 0x8 = 11
+    sys_perf_event_open: pid -1  cpu 4  group_fd -1  flags 0x8 = 12
+    sys_perf_event_open: pid -1  cpu 5  group_fd -1  flags 0x8 = 13
+    sys_perf_event_open: pid -1  cpu 6  group_fd -1  flags 0x8 = 14
+    sys_perf_event_open: pid -1  cpu 7  group_fd -1  flags 0x8 = 15
+    thread_data[0x55cc19e58e80]: pollfd[0] <- event_fd=5
+    thread_data[0x55cc19e58e80]: pollfd[1] <- event_fd=6
+    thread_data[0x55cc19e58e80]: pollfd[2] <- event_fd=7
+    thread_data[0x55cc19e58e80]: pollfd[3] <- event_fd=9
+    thread_data[0x55cc19e58e80]: pollfd[4] <- event_fd=10
+    thread_data[0x55cc19e58e80]: pollfd[5] <- event_fd=11
+    thread_data[0x55cc19e58e80]: pollfd[6] <- event_fd=12
+    thread_data[0x55cc19e58e80]: pollfd[7] <- event_fd=13
+    thread_data[0x55cc19e58e80]: pollfd[8] <- event_fd=14
+    thread_data[0x55cc19e58e80]: pollfd[9] <- event_fd=15
+    thread_data[0x55cc19e58e80]: pollfd[10] <- non_perf_event fd=4
+
+Fixes: ae4f8ae16a078964 ("libperf evlist: Allow mixing per-thread and per-cpu mmaps")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
 Cc: stable@vger.kernel.org
-[ heikki: Rewrote the commit message. ]
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220816101629.69054-2-heikki.krogerus@linux.intel.com
+Link: https://lore.kernel.org/r/20220915122612.81738-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ tools/lib/perf/evlist.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
-index ea1333ad4b2b..80daa70e288b 100644
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -541,9 +541,11 @@ static int pmc_usb_register_port(struct pmc_usb *pmc, int index,
+diff --git a/tools/lib/perf/evlist.c b/tools/lib/perf/evlist.c
+index 6b1bafe267a4..8ec5b9f344e0 100644
+--- a/tools/lib/perf/evlist.c
++++ b/tools/lib/perf/evlist.c
+@@ -441,6 +441,7 @@ mmap_per_evsel(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
  
- static int is_memory(struct acpi_resource *res, void *data)
- {
--	struct resource r;
-+	struct resource_win win = {};
-+	struct resource *r = &win.res;
+ 	perf_evlist__for_each_entry(evlist, evsel) {
+ 		bool overwrite = evsel->attr.write_backward;
++		enum fdarray_flags flgs;
+ 		struct perf_mmap *map;
+ 		int *output, fd, cpu;
  
--	return !acpi_dev_resource_memory(res, &r);
-+	return !(acpi_dev_resource_memory(res, r) ||
-+		 acpi_dev_resource_address_space(res, &win));
- }
+@@ -504,8 +505,8 @@ mmap_per_evsel(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
  
- /* IOM ACPI IDs and IOM_PORT_STATUS_OFFSET */
-@@ -553,6 +555,9 @@ static const struct acpi_device_id iom_acpi_ids[] = {
+ 		revent = !overwrite ? POLLIN : 0;
  
- 	/* AlderLake */
- 	{ "INTC1079", 0x160, },
-+
-+	/* Meteor Lake */
-+	{ "INTC107A", 0x160, },
- 	{}
- };
- 
+-		if (!evsel->system_wide &&
+-		    perf_evlist__add_pollfd(evlist, fd, map, revent, fdarray_flag__default) < 0) {
++		flgs = evsel->system_wide ? fdarray_flag__nonfilterable : fdarray_flag__default;
++		if (perf_evlist__add_pollfd(evlist, fd, map, revent, flgs) < 0) {
+ 			perf_mmap__put(map);
+ 			return -1;
+ 		}
 -- 
-2.35.1
+2.37.3
 
 
 
