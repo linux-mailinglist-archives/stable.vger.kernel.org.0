@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C64FD5EA41D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF61A5EA411
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238296AbiIZLk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:40:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48786 "EHLO
+        id S238108AbiIZLjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:39:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238389AbiIZLjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:39:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E5162AC5;
-        Mon, 26 Sep 2022 03:44:50 -0700 (PDT)
+        with ESMTP id S238254AbiIZLin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:38:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CF9DF53;
+        Mon, 26 Sep 2022 03:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DE6C6CE1102;
-        Mon, 26 Sep 2022 10:43:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF99BC433D6;
-        Mon, 26 Sep 2022 10:42:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D28DF604F5;
+        Mon, 26 Sep 2022 10:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C24A7C433C1;
+        Mon, 26 Sep 2022 10:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188980;
-        bh=Aom8kWSJgu4UOgAA9Ykj7bRPrOyf+X8yQTwtsQacFMc=;
+        s=korg; t=1664188983;
+        bh=RPY5zWmkon6xdL9dtCBQBZz/2MPROkphoiQZMo9BrOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEZsPFgJ4rVj6LNOU6Zqw0j5Rq3MAP0Cs+MOkn5h8TagLLEd0NnFlae9x15PMEEc/
-         JbE18ogcXWPgUxBIukwuCKh8hkEl2qOZ0AYAs4RO90TtrGDIEzXWh044BSlsQfUoj6
-         /cQjebeVkRq+zAbPALWFoZGwv00pSoVuXxCchsoU=
+        b=UeYcUcJhh43DS02EyOmrDdV2ltIIaF9HpMKr+CatEu+JVD5PEZceNoNC19jn7NRSF
+         LrbCAu6xjB1//jwf1Fk5YSWTQyYBQj22U/0rr+B/9oLKoEbu9tVO7uHIYWaRMOKpuP
+         UtFp0dyEGay1N81e78+TIN18F73VkV9Ocsx4HsOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 007/207] drm/i915/dsi: fix dual-link DSI backlight and CABC ports for display 11+
-Date:   Mon, 26 Sep 2022 12:09:56 +0200
-Message-Id: <20220926100806.807881703@linuxfoundation.org>
+Subject: [PATCH 5.19 008/207] smb3: Move the flush out of smb2_copychunk_range() into its callers
+Date:   Mon, 26 Sep 2022 12:09:57 +0200
+Message-Id: <20220926100806.856190602@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -54,69 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 13393f65b77445d8b0f99c7b605cc9ccc936586f ]
+[ Upstream commit c3a72bb213209adfe981a4a92ea5746a778323e4 ]
 
-The VBT dual-link DSI backlight and CABC still use ports A and C, both
-in Bspec and code, while display 11+ DSI only supports ports A and
-B. Assume port C actually means port B for display 11+ when parsing VBT.
+Move the flush out of smb2_copychunk_range() into its callers.  This will
+allow the pagecache to be invalidated between the flush and the operation
+in smb3_collapse_range() and smb3_insert_range().
 
-Bspec: 20154
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6476
-Cc: stable@vger.kernel.org
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/8c462718bcc7b36a83e09d0a5eef058b6bc8b1a2.1660664162.git.jani.nikula@intel.com
-(cherry picked from commit ab55165d73a444606af1530cd0d6448b04370f68)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Stable-dep-of: fa30a81f255a ("smb3: fix temporary data corruption in collapse range")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_bios.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/cifs/cifsfs.c  |  2 ++
+ fs/cifs/smb2ops.c | 20 ++++++++------------
+ 2 files changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-index d5d20a44f373..b5de61fe9cc6 100644
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -1473,6 +1473,8 @@ static void parse_dsi_backlight_ports(struct drm_i915_private *i915,
- 				      struct intel_panel *panel,
- 				      enum port port)
- {
-+	enum port port_bc = DISPLAY_VER(i915) >= 11 ? PORT_B : PORT_C;
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 8f2e003e0590..2b51f0cbf4d2 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -1203,6 +1203,8 @@ ssize_t cifs_file_copychunk_range(unsigned int xid,
+ 
+ 	cifs_dbg(FYI, "copychunk range\n");
+ 
++	filemap_write_and_wait(src_inode->i_mapping);
 +
- 	if (!panel->vbt.dsi.config->dual_link || i915->vbt.version < 197) {
- 		panel->vbt.dsi.bl_ports = BIT(port);
- 		if (panel->vbt.dsi.config->cabc_supported)
-@@ -1486,11 +1488,11 @@ static void parse_dsi_backlight_ports(struct drm_i915_private *i915,
- 		panel->vbt.dsi.bl_ports = BIT(PORT_A);
- 		break;
- 	case DL_DCS_PORT_C:
--		panel->vbt.dsi.bl_ports = BIT(PORT_C);
-+		panel->vbt.dsi.bl_ports = BIT(port_bc);
- 		break;
- 	default:
- 	case DL_DCS_PORT_A_AND_C:
--		panel->vbt.dsi.bl_ports = BIT(PORT_A) | BIT(PORT_C);
-+		panel->vbt.dsi.bl_ports = BIT(PORT_A) | BIT(port_bc);
- 		break;
+ 	if (!src_file->private_data || !dst_file->private_data) {
+ 		rc = -EBADF;
+ 		cifs_dbg(VFS, "missing cifsFileInfo on copy range src file\n");
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index e8a8daa82ed7..ef8cb7fbabeb 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1886,17 +1886,8 @@ smb2_copychunk_range(const unsigned int xid,
+ 	int chunks_copied = 0;
+ 	bool chunk_sizes_updated = false;
+ 	ssize_t bytes_written, total_bytes_written = 0;
+-	struct inode *inode;
+ 
+ 	pcchunk = kmalloc(sizeof(struct copychunk_ioctl), GFP_KERNEL);
+-
+-	/*
+-	 * We need to flush all unwritten data before we can send the
+-	 * copychunk ioctl to the server.
+-	 */
+-	inode = d_inode(trgtfile->dentry);
+-	filemap_write_and_wait(inode->i_mapping);
+-
+ 	if (pcchunk == NULL)
+ 		return -ENOMEM;
+ 
+@@ -3977,6 +3968,8 @@ static long smb3_collapse_range(struct file *file, struct cifs_tcon *tcon,
+ 		goto out;
  	}
  
-@@ -1502,12 +1504,12 @@ static void parse_dsi_backlight_ports(struct drm_i915_private *i915,
- 		panel->vbt.dsi.cabc_ports = BIT(PORT_A);
- 		break;
- 	case DL_DCS_PORT_C:
--		panel->vbt.dsi.cabc_ports = BIT(PORT_C);
-+		panel->vbt.dsi.cabc_ports = BIT(port_bc);
- 		break;
- 	default:
- 	case DL_DCS_PORT_A_AND_C:
- 		panel->vbt.dsi.cabc_ports =
--					BIT(PORT_A) | BIT(PORT_C);
-+					BIT(PORT_A) | BIT(port_bc);
- 		break;
++	filemap_write_and_wait(inode->i_mapping);
++
+ 	rc = smb2_copychunk_range(xid, cfile, cfile, off + len,
+ 				  i_size_read(inode) - off - len, off);
+ 	if (rc < 0)
+@@ -4004,18 +3997,21 @@ static long smb3_insert_range(struct file *file, struct cifs_tcon *tcon,
+ 	int rc;
+ 	unsigned int xid;
+ 	struct cifsFileInfo *cfile = file->private_data;
++	struct inode *inode = file_inode(file);
+ 	__le64 eof;
+ 	__u64  count;
+ 
+ 	xid = get_xid();
+ 
+-	if (off >= i_size_read(file->f_inode)) {
++	if (off >= i_size_read(inode)) {
+ 		rc = -EINVAL;
+ 		goto out;
  	}
- }
+ 
+-	count = i_size_read(file->f_inode) - off;
+-	eof = cpu_to_le64(i_size_read(file->f_inode) + len);
++	count = i_size_read(inode) - off;
++	eof = cpu_to_le64(i_size_read(inode) + len);
++
++	filemap_write_and_wait(inode->i_mapping);
+ 
+ 	rc = SMB2_set_eof(xid, tcon, cfile->fid.persistent_fid,
+ 			  cfile->fid.volatile_fid, cfile->pid, &eof);
 -- 
 2.35.1
 
