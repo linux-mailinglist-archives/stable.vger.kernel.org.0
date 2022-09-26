@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B8825EA4F5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D545EA06D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:37:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238868AbiIZL4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:56:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
+        id S236110AbiIZKh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:37:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239518AbiIZLzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:55:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE6779A4D;
-        Mon, 26 Sep 2022 03:51:10 -0700 (PDT)
+        with ESMTP id S235908AbiIZKfZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:35:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A6D252810;
+        Mon, 26 Sep 2022 03:21:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCDD0B80930;
-        Mon, 26 Sep 2022 10:45:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1441EC433D6;
-        Mon, 26 Sep 2022 10:44:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90954B80915;
+        Mon, 26 Sep 2022 10:21:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E23C433C1;
+        Mon, 26 Sep 2022 10:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189100;
-        bh=dnupetVY1wWSgHC7l/1fb7zy0/8H3mjSL6UcT+AlakA=;
+        s=korg; t=1664187699;
+        bh=vurixT+IAkm87enXMQlTqreARwuSLXbBG6K3jdg9MvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZB91vBkEu5zekFXYT2cDZXYUwO0k2Zg4J+EtvOgzmtBeDcqGvQYhd6jtfllGW6dm
-         DWk1sU3co7XTzNBBeyCIGOGboSs6Fv+PWLKvF9tEiL7dVPAwaIQ4X67gtve2b1vJs4
-         bBR/PNj6ilz2yF9ZsfLC9R/8hAUxJbbTwjb3mxoI=
+        b=uhY1KGbUHujO75XmDf4TFZlO959xaFXPj3HWSUWHjeg/4RYrByMnak5BUrfF43N3o
+         1XMwuTEWniPDxLk++v1d6WJWtT4UUmOMfsFK4Xpjb4q4Ra3EPzYaPT7o1BUhLiGI6D
+         x0agu5cduZgvkuu/6ORA9X4/oH8UGFvuTN6ocv5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Wesley Cheng <quic_wcheng@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 074/207] arm64: dts: rockchip: Pull up wlan wake# on Gru-Bob
+Subject: [PATCH 5.4 030/120] usb: dwc3: Issue core soft reset before enabling run/stop
 Date:   Mon, 26 Sep 2022 12:11:03 +0200
-Message-Id: <20220926100809.894142591@linuxfoundation.org>
+Message-Id: <20220926100751.752939929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Wesley Cheng <quic_wcheng@quicinc.com>
 
-[ Upstream commit e5467359a725de90b6b8d0dd865500f6373828ca ]
+[ Upstream commit 0066472de157439d58454f4a55786f1045ea5681 ]
 
-The Gru-Bob board does not have a pull-up resistor on its
-WLAN_HOST_WAKE# pin, but Kevin does. The production/vendor kernel
-specified the pin configuration correctly as a pull-up, but this didn't
-get ported correctly to upstream.
+It is recommended by the Synopsis databook to issue a DCTL.CSftReset
+when reconnecting from a device-initiated disconnect routine.  This
+resolves issues with enumeration during fast composition switching
+cases, which result in an unknown device on the host.
 
-This means Bob's WLAN_HOST_WAKE# pin is floating, causing inconsistent
-wakeup behavior.
-
-Note that bt_host_wake_l has a similar dynamic, but apparently the
-upstream choice was to redundantly configure both internal and external
-pull-up on Kevin (see the "Kevin has an external pull up" comment in
-rk3399-gru.dtsi). This doesn't cause any functional problem, although
-it's perhaps wasteful.
-
-Fixes: 8559bbeeb849 ("arm64: dts: rockchip: add Google Bob")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20220822164453.1.I75c57b48b0873766ec993bdfb7bc1e63da5a1637@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+Link: https://lore.kernel.org/r/20220316011358.3057-1-quic_wcheng@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 040f2dbd2010 ("usb: dwc3: gadget: Avoid duplicate requests to enable Run/Stop")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts         | 5 +++++
- arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/usb/dwc3/core.c   |  2 +-
+ drivers/usb/dwc3/core.h   |  2 ++
+ drivers/usb/dwc3/gadget.c | 11 +++++++++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts
-index 31ebb4e5fd33..0f9cc042d9bf 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts
-@@ -88,3 +88,8 @@ h1_int_od_l: h1-int-od-l {
- 		};
- 	};
- };
-+
-+&wlan_host_wake_l {
-+	/* Kevin has an external pull up, but Bob does not. */
-+	rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
-+};
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-index 50d459ee4831..eed15fd61d62 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-@@ -578,6 +578,7 @@ wifi_perst_l: wifi-perst-l {
- 	};
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index f4655665a1b5..a9c49b2ce511 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -227,7 +227,7 @@ u32 dwc3_core_fifo_space(struct dwc3_ep *dep, u8 type)
+  * dwc3_core_soft_reset - Issues core soft reset and PHY reset
+  * @dwc: pointer to our context structure
+  */
+-static int dwc3_core_soft_reset(struct dwc3 *dwc)
++int dwc3_core_soft_reset(struct dwc3 *dwc)
+ {
+ 	u32		reg;
+ 	int		retries = 1000;
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index a93c61bc5a7d..f320b989abd2 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -1422,6 +1422,8 @@ bool dwc3_has_imod(struct dwc3 *dwc);
+ int dwc3_event_buffers_setup(struct dwc3 *dwc);
+ void dwc3_event_buffers_cleanup(struct dwc3 *dwc);
  
- 	wlan_host_wake_l: wlan-host-wake-l {
-+		/* Kevin has an external pull up, but Bob does not */
- 		rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
- 	};
- };
++int dwc3_core_soft_reset(struct dwc3 *dwc);
++
+ #if IS_ENABLED(CONFIG_USB_DWC3_HOST) || IS_ENABLED(CONFIG_USB_DWC3_DUAL_ROLE)
+ int dwc3_host_init(struct dwc3 *dwc);
+ void dwc3_host_exit(struct dwc3 *dwc);
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 079919b85d87..b95fc2ae8074 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2088,6 +2088,17 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 						dwc->ev_buf->length;
+ 		}
+ 	} else {
++		/*
++		 * In the Synopsys DWC_usb31 1.90a programming guide section
++		 * 4.1.9, it specifies that for a reconnect after a
++		 * device-initiated disconnect requires a core soft reset
++		 * (DCTL.CSftRst) before enabling the run/stop bit.
++		 */
++		spin_unlock_irqrestore(&dwc->lock, flags);
++		dwc3_core_soft_reset(dwc);
++		spin_lock_irqsave(&dwc->lock, flags);
++
++		dwc3_event_buffers_setup(dwc);
+ 		__dwc3_gadget_start(dwc);
+ 	}
+ 
 -- 
 2.35.1
 
