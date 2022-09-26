@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D985EA1AB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E455EA287
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236583AbiIZKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53156 "EHLO
+        id S237232AbiIZLJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237123AbiIZKyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:54:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F128A5A3E4;
-        Mon, 26 Sep 2022 03:28:58 -0700 (PDT)
+        with ESMTP id S237691AbiIZLJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:09:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C5613E83;
+        Mon, 26 Sep 2022 03:35:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CC5C60AD6;
-        Mon, 26 Sep 2022 10:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E84BC433C1;
-        Mon, 26 Sep 2022 10:27:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F299B80957;
+        Mon, 26 Sep 2022 10:34:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A46C433C1;
+        Mon, 26 Sep 2022 10:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188075;
-        bh=bz37jx5hMCM7WZNlmsLBhSfIG80Ah4F95y+eDgIpqtg=;
+        s=korg; t=1664188493;
+        bh=oJcafgBQMzecYzChnClopOigfqz6r+eNTeZ7rf2LWHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8pRdC8IkH5gewiKY95ZpFcBFukgSj20kyCWYLy3Qqac7Z1A/OxzgwK/ByvMAzffQ
-         6dFG1UZGQAr2WtCId35XIeVINB0CSUaMOpalP4vsZlfRMuCVncUJqRhciuWfwoO5qS
-         T2MAxe7P7qxwgHQb/tsD4PeHhq8oPLWnS9f9x5CI=
+        b=RyiCcAGxQTcjSuEd/tld64BGfpCuYY8pbp74b1rK6IwXgnj9wIYCLItwQ0nPBNuoq
+         HkxGtWFcc6b0UkzfZdEP89LeodfrI4UAO14FAKlFXx7bKyes4lCIm090x95lf1Yxy1
+         2hrJExyF7GwFo54GHW7Gdwr62H85hIXPvNno7tSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Piyush Mehta <piyush.mehta@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/141] Revert "usb: gadget: udc-xilinx: replace memcpy with memcpy_toio"
-Date:   Mon, 26 Sep 2022 12:10:59 +0200
-Message-Id: <20220926100755.697769434@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 026/148] ALSA: hda: add Intel 5 Series / 3400 PCI DID
+Date:   Mon, 26 Sep 2022 12:11:00 +0200
+Message-Id: <20220926100757.062853151@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit fe0a2ac7c627b064c479ad0c3b25e531d342e048 ]
+commit 4d40ceef4745536289012670103c59264e0fb3ec upstream.
 
-This reverts commit 8cb339f1c1f04baede9d54c1e40ac96247a6393b as it
-throws up a bunch of sparse warnings as reported by the kernel test
-robot.
+Handle 0x3b57 variant with same AZX_DCAPS_INTEL_PCH_NOPM
+capabilities as 0x3b56. In practise this allow use of HDMI/DP
+display audio via i915.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/202209020044.CX2PfZzM-lkp@intel.com
-Fixes: 8cb339f1c1f0 ("usb: gadget: udc-xilinx: replace memcpy with memcpy_toio")
-Cc: stable@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Piyush Mehta <piyush.mehta@amd.com>
+BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/2751
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220912183716.2126312-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/udc-xilinx.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/pci/hda/hda_intel.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/udc-xilinx.c b/drivers/usb/gadget/udc/udc-xilinx.c
-index 01133dc42340..096f56a09e6a 100644
---- a/drivers/usb/gadget/udc/udc-xilinx.c
-+++ b/drivers/usb/gadget/udc/udc-xilinx.c
-@@ -496,11 +496,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
- 		/* Get the Buffer address and copy the transmit data.*/
- 		eprambase = (u32 __force *)(udc->addr + ep->rambase);
- 		if (ep->is_in) {
--			memcpy_toio(eprambase, bufferptr, bytestosend);
-+			memcpy(eprambase, bufferptr, bytestosend);
- 			udc->write_fn(udc->addr, ep->offset +
- 				      XUSB_EP_BUF0COUNT_OFFSET, bufferlen);
- 		} else {
--			memcpy_toio(bufferptr, eprambase, bytestosend);
-+			memcpy(bufferptr, eprambase, bytestosend);
- 		}
- 		/*
- 		 * Enable the buffer for transmission.
-@@ -514,11 +514,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
- 		eprambase = (u32 __force *)(udc->addr + ep->rambase +
- 			     ep->ep_usb.maxpacket);
- 		if (ep->is_in) {
--			memcpy_toio(eprambase, bufferptr, bytestosend);
-+			memcpy(eprambase, bufferptr, bytestosend);
- 			udc->write_fn(udc->addr, ep->offset +
- 				      XUSB_EP_BUF1COUNT_OFFSET, bufferlen);
- 		} else {
--			memcpy_toio(bufferptr, eprambase, bytestosend);
-+			memcpy(bufferptr, eprambase, bytestosend);
- 		}
- 		/*
- 		 * Enable the buffer for transmission.
-@@ -1020,7 +1020,7 @@ static int __xudc_ep0_queue(struct xusb_ep *ep0, struct xusb_req *req)
- 			   udc->addr);
- 		length = req->usb_req.actual = min_t(u32, length,
- 						     EP0_MAX_PACKET);
--		memcpy_toio(corebuf, req->usb_req.buf, length);
-+		memcpy(corebuf, req->usb_req.buf, length);
- 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, length);
- 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
- 	} else {
-@@ -1746,7 +1746,7 @@ static void xudc_handle_setup(struct xusb_udc *udc)
- 
- 	/* Load up the chapter 9 command buffer.*/
- 	ep0rambase = (u32 __force *) (udc->addr + XUSB_SETUP_PKT_ADDR_OFFSET);
--	memcpy_toio(&setup, ep0rambase, 8);
-+	memcpy(&setup, ep0rambase, 8);
- 
- 	udc->setup = setup;
- 	udc->setup.wValue = cpu_to_le16(setup.wValue);
-@@ -1833,7 +1833,7 @@ static void xudc_ep0_out(struct xusb_udc *udc)
- 			     (ep0->rambase << 2));
- 		buffer = req->usb_req.buf + req->usb_req.actual;
- 		req->usb_req.actual = req->usb_req.actual + bytes_to_rx;
--		memcpy_toio(buffer, ep0rambase, bytes_to_rx);
-+		memcpy(buffer, ep0rambase, bytes_to_rx);
- 
- 		if (req->usb_req.length == req->usb_req.actual) {
- 			/* Data transfer completed get ready for Status stage */
-@@ -1909,7 +1909,7 @@ static void xudc_ep0_in(struct xusb_udc *udc)
- 				     (ep0->rambase << 2));
- 			buffer = req->usb_req.buf + req->usb_req.actual;
- 			req->usb_req.actual = req->usb_req.actual + length;
--			memcpy_toio(ep0rambase, buffer, length);
-+			memcpy(ep0rambase, buffer, length);
- 		}
- 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, count);
- 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
--- 
-2.35.1
-
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2519,6 +2519,8 @@ static const struct pci_device_id azx_id
+ 	/* 5 Series/3400 */
+ 	{ PCI_DEVICE(0x8086, 0x3b56),
+ 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
++	{ PCI_DEVICE(0x8086, 0x3b57),
++	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
+ 	/* Poulsbo */
+ 	{ PCI_DEVICE(0x8086, 0x811b),
+ 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
 
 
