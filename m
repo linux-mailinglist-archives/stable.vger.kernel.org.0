@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2C85EA2C4
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7B65EA461
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235577AbiIZLOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:14:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S238447AbiIZLpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:45:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237427AbiIZLNT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:19 -0400
+        with ESMTP id S238568AbiIZLoC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:44:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271BB61B2C;
-        Mon, 26 Sep 2022 03:35:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E03B72844;
+        Mon, 26 Sep 2022 03:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24724B8074E;
-        Mon, 26 Sep 2022 10:34:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D22FC433D6;
-        Mon, 26 Sep 2022 10:34:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D2B0B8085B;
+        Mon, 26 Sep 2022 10:46:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97706C433C1;
+        Mon, 26 Sep 2022 10:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188487;
-        bh=ekEYV8am7I3UA39OEA5d3IcLfPZlN6rAm5VHcwf7ZNQ=;
+        s=korg; t=1664189186;
+        bh=UwzIwLl/LbNa756QIwWB/0/t/ekD+jEtKmOLe+CjEkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvJ/90kILR1bw2V2pYQ5/9PoIBUpLc7fs1rfzjfY9yYpWuFsKR6PZhhE+c+YZsW3Q
-         lcU/+nfcLBI9LkOJAOYmCqbA+gEe9SBfAGfwy8SiR8Nm9I54y7U+Geyv2DK+5WX6zL
-         FnKt35kt1yp+hf9vgu6v5tXFL3dQHKcEY+mZyw+Q=
+        b=v25K6Bi+26tWMVllpmVpUcyYE3PymCUnTlPwjGSnwMfHiGcAYh/qwEI/bE+37K+Iv
+         4rQgEW5yTON5JoBQ6zchQInie4RkTtLa3wnLoPYzZisjapD3sQjc8Mk5BPVHzS5Hq3
+         1LELy/XbJUiqclHqGvX5IszLhA0/WIhU+kr4+F5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rondreis <linhaoguo86@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 024/148] ALSA: core: Fix double-free at snd_card_new()
-Date:   Mon, 26 Sep 2022 12:10:58 +0200
-Message-Id: <20220926100756.979684103@linuxfoundation.org>
+        stable@vger.kernel.org, Shigeru Yoshida <syoshida@redhat.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 070/207] batman-adv: Fix hang up with small MTU hard-interface
+Date:   Mon, 26 Sep 2022 12:10:59 +0200
+Message-Id: <20220926100809.727360886@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,65 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-commit c3afa2a402d1ecefa59f88d55d9e765f52f75bd9 upstream.
+[ Upstream commit b1cb8a71f1eaec4eb77051590f7f561f25b15e32 ]
 
-During the code change to add the support for devres-managed card
-instance, we put an explicit kfree(card) call at the error path in
-snd_card_new().  This is needed for the early error path before the
-card is initialized with the device, but is rather superfluous and
-causes a double-free at the error path after the card instance is
-initialized, as the destructor of the card object already contains a
-kfree() call.
+The system hangs up when batman-adv soft-interface is created on
+hard-interface with small MTU.  For example, the following commands
+create batman-adv soft-interface on dummy interface with zero MTU:
 
-This patch fixes the double-free situation by removing the superfluous
-kfree().  Meanwhile we need to call kfree() explicitly for the early
-error path, so it's added there instead.
+  # ip link add name dummy0 type dummy
+  # ip link set mtu 0 dev dummy0
+  # ip link set up dev dummy0
+  # ip link add name bat0 type batadv
+  # ip link set dev dummy0 master bat0
 
-Fixes: e8ad415b7a55 ("ALSA: core: Add managed card creation")
-Reported-by: Rondreis <linhaoguo86@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAB7eexL1zBnB636hwS27d-LdPYZ_R1-5fJS_h=ZbCWYU=UPWJg@mail.gmail.com
-Link: https://lore.kernel.org/r/20220919123516.28222-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+These commands cause the system hang up with the following messages:
+
+  [   90.578925][ T6689] batman_adv: bat0: Adding interface: dummy0
+  [   90.580884][ T6689] batman_adv: bat0: The MTU of interface dummy0 is too small (0) to handle the transport of batman-adv packets. Packets going over this interface will be fragmented on layer2 which could impact the performance. Setting the MTU to 1560 would solve the problem.
+  [   90.586264][ T6689] batman_adv: bat0: Interface activated: dummy0
+  [   90.590061][ T6689] batman_adv: bat0: Forced to purge local tt entries to fit new maximum fragment MTU (-320)
+  [   90.595517][ T6689] batman_adv: bat0: Forced to purge local tt entries to fit new maximum fragment MTU (-320)
+  [   90.598499][ T6689] batman_adv: bat0: Forced to purge local tt entries to fit new maximum fragment MTU (-320)
+
+This patch fixes this issue by returning error when enabling
+hard-interface with small MTU size.
+
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/init.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/batman-adv/hard-interface.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/core/init.c
-+++ b/sound/core/init.c
-@@ -178,10 +178,8 @@ int snd_card_new(struct device *parent,
- 		return -ENOMEM;
+diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
+index b8f8da7ee3de..41c1ad33d009 100644
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -10,6 +10,7 @@
+ #include <linux/atomic.h>
+ #include <linux/byteorder/generic.h>
+ #include <linux/container_of.h>
++#include <linux/errno.h>
+ #include <linux/gfp.h>
+ #include <linux/if.h>
+ #include <linux/if_arp.h>
+@@ -700,6 +701,9 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
+ 	int max_header_len = batadv_max_header_len();
+ 	int ret;
  
- 	err = snd_card_init(card, parent, idx, xid, module, extra_size);
--	if (err < 0) {
--		kfree(card);
--		return err;
--	}
-+	if (err < 0)
-+		return err; /* card is freed by error handler */
++	if (hard_iface->net_dev->mtu < ETH_MIN_MTU + max_header_len)
++		return -EINVAL;
++
+ 	if (hard_iface->if_status != BATADV_IF_NOT_IN_USE)
+ 		goto out;
  
- 	*card_ret = card;
- 	return 0;
-@@ -231,7 +229,7 @@ int snd_devm_card_new(struct device *par
- 	card->managed = true;
- 	err = snd_card_init(card, parent, idx, xid, module, extra_size);
- 	if (err < 0) {
--		devres_free(card);
-+		devres_free(card); /* in managed mode, we need to free manually */
- 		return err;
- 	}
- 
-@@ -293,6 +291,8 @@ static int snd_card_init(struct snd_card
- 		mutex_unlock(&snd_card_mutex);
- 		dev_err(parent, "cannot find the slot for index %d (range 0-%i), error: %d\n",
- 			 idx, snd_ecards_limit - 1, err);
-+		if (!card->managed)
-+			kfree(card); /* manually free here, as no destructor called */
- 		return err;
- 	}
- 	set_bit(idx, snd_cards_lock);		/* lock it */
+-- 
+2.35.1
+
 
 
