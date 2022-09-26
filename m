@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A6E5EA421
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C257D5EA1A6
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238235AbiIZLks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56270 "EHLO
+        id S234911AbiIZKzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238241AbiIZLkP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:40:15 -0400
+        with ESMTP id S236905AbiIZKxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:53:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A2B43622;
-        Mon, 26 Sep 2022 03:45:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6867C5A2D3;
+        Mon, 26 Sep 2022 03:28:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECECCB80977;
-        Mon, 26 Sep 2022 10:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27C07C433D6;
-        Mon, 26 Sep 2022 10:44:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90233B8091E;
+        Mon, 26 Sep 2022 10:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2C10C433C1;
+        Mon, 26 Sep 2022 10:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189054;
-        bh=3cnKQViAsr59QOz45cel/NeBAZU0KF9t1dv9+BKZaow=;
+        s=korg; t=1664188063;
+        bh=r+0DVuaIGotR9kbJXXW7hRwVS86iHwtwFFKFcHbvqG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cSw+2tGhR23fKIH5Y6Qz7sltUe2K7mwFPHV98fye5IS7N6h2YVRFql4BQeWuksSoE
-         4ZdLC76X0DZiOTBNQUzwXdv8ENWmmfjjJNHvic3Dg7QcqGH2ZFsGJmIahXhR0RvQC/
-         2pvzRjv7uU4LepUkyADbXvdrURWH1+okLknL9tGI=
+        b=qXMif7YU0mj8ZCVpa5bCqqoodhNF77P+cx0P5D/FtR69Mzrwht94DhqRPPW1s2J6r
+         0xMQPIlONks33pgyAJlwzOqGmMoudhYZZpqlE7c23FkWRbbkJwiAOrNKmsH+pamEgU
+         Td/U0VM9X9k+/ATCxbDcJ5KcmakV9GLbFAplLt0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sander Eikelenboom <linux@eikelenboom.it>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Subject: [PATCH 5.19 058/207] xen/xenbus: fix xenbus_setup_ring()
+        stable@vger.kernel.org,
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 021/141] iio: adc: mcp3911: correct "microchip,device-addr" property
 Date:   Mon, 26 Sep 2022 12:10:47 +0200
-Message-Id: <20220926100809.208451245@linuxfoundation.org>
+Message-Id: <20220926100755.336585714@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-commit ce6b8ccdef959ba86b2711e090e84a987a000bf7 upstream.
+[ Upstream commit cfbd76d5c9c449739bb74288d982bccf9ff822f4 ]
 
-Commit 4573240f0764 ("xen/xenbus: eliminate xenbus_grant_ring()")
-introduced an error for initialization of multi-page rings.
+Go for the right property name that is documented in the bindings.
 
-Cc: stable@vger.kernel.org
-Fixes: 4573240f0764 ("xen/xenbus: eliminate xenbus_grant_ring()")
-Reported-by: Sander Eikelenboom <linux@eikelenboom.it>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220722130726.7627-3-marcus.folkesson@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus_client.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/adc/mcp3911.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
-index d5f3f763717e..d4b251925796 100644
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -382,9 +382,10 @@ int xenbus_setup_ring(struct xenbus_device *dev, gfp_t gfp, void **vaddr,
- 	unsigned long ring_size = nr_pages * XEN_PAGE_SIZE;
- 	grant_ref_t gref_head;
- 	unsigned int i;
-+	void *addr;
+diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
+index 608842632925..7eecbfd491a4 100644
+--- a/drivers/iio/adc/mcp3911.c
++++ b/drivers/iio/adc/mcp3911.c
+@@ -217,7 +217,14 @@ static int mcp3911_config(struct mcp3911 *adc)
+ 	u32 configreg;
  	int ret;
  
--	*vaddr = alloc_pages_exact(ring_size, gfp | __GFP_ZERO);
-+	addr = *vaddr = alloc_pages_exact(ring_size, gfp | __GFP_ZERO);
- 	if (!*vaddr) {
- 		ret = -ENOMEM;
- 		goto err;
-@@ -401,13 +402,15 @@ int xenbus_setup_ring(struct xenbus_device *dev, gfp_t gfp, void **vaddr,
- 		unsigned long gfn;
- 
- 		if (is_vmalloc_addr(*vaddr))
--			gfn = pfn_to_gfn(vmalloc_to_pfn(vaddr[i]));
-+			gfn = pfn_to_gfn(vmalloc_to_pfn(addr));
- 		else
--			gfn = virt_to_gfn(vaddr[i]);
-+			gfn = virt_to_gfn(addr);
- 
- 		grefs[i] = gnttab_claim_grant_reference(&gref_head);
- 		gnttab_grant_foreign_access_ref(grefs[i], dev->otherend_id,
- 						gfn, 0);
+-	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
++	ret = device_property_read_u32(dev, "microchip,device-addr", &adc->dev_addr);
 +
-+		addr += XEN_PAGE_SIZE;
- 	}
- 
- 	return 0;
++	/*
++	 * Fallback to "device-addr" due to historical mismatch between
++	 * dt-bindings and implementation
++	 */
++	if (ret)
++		device_property_read_u32(dev, "device-addr", &adc->dev_addr);
+ 	if (adc->dev_addr > 3) {
+ 		dev_err(&adc->spi->dev,
+ 			"invalid device address (%i). Must be in range 0-3.\n",
 -- 
-2.37.3
+2.35.1
 
 
 
