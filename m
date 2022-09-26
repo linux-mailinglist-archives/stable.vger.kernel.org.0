@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CDC95E9FD1
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 319745EA339
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235473AbiIZK3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52468 "EHLO
+        id S237823AbiIZLVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:21:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235620AbiIZK2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:40 -0400
+        with ESMTP id S237664AbiIZLTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:19:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465864E600;
-        Mon, 26 Sep 2022 03:18:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E29852454;
+        Mon, 26 Sep 2022 03:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97148B8092F;
-        Mon, 26 Sep 2022 10:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8912C433B5;
-        Mon, 26 Sep 2022 10:18:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD1FBB8095C;
+        Mon, 26 Sep 2022 10:37:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F182C433C1;
+        Mon, 26 Sep 2022 10:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187531;
-        bh=3CAaS5EwBCW3W9RTHzr/UqlF5QrWtFo6WelZq7ipWko=;
+        s=korg; t=1664188670;
+        bh=6Z96eXjVRRr1HvpDRdgPDwRE1VX2O2GqrBUwuYg3+Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKYnIOS1K6wg3TReNm9GFP1ILzy0o340Txtfk2welSKi8Vv7wYYIEZwsWH/Wwy33K
-         Y1dAhKY3txYtQ8Q2Joi+/wbvDPdv5d+tku4f18+Lp/VBhHKrnoapPDoxe3yV3I3aMo
-         QP6Zb5kE/LLNWJupww45SgnXhp1S5OVgHxPC9Tvc=
+        b=oQQrc1z3kuxF9+05VSiaSRCe+bdiCC251tBASoOQbA0AmaupGzHhEm+2nP9dAXFDq
+         qfwp/0vF4uz1BWjUi9+/yUir3tFsVwR9KVGHhEzdVDfrRZnGaXOwNROmkWQHqmdnuT
+         JGEcTRq+uK7peegjLa1AFk+XHCFNTKdPFpM8j9GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Thomas Meyer <thomas@m3y3r.de>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/58] netfilter: nf_conntrack_irc: Tighten matching on DCC message
+Subject: [PATCH 5.15 082/148] um: fix default console kernel parameter
 Date:   Mon, 26 Sep 2022 12:11:56 +0200
-Message-Id: <20220926100742.830158315@linuxfoundation.org>
+Message-Id: <20220926100759.119720109@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,82 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit e8d5dfd1d8747b56077d02664a8838c71ced948e ]
+[ Upstream commit 782b1f70f8a8b28571949d2ba43fe88b96d75ec3 ]
 
-CTCP messages should only be at the start of an IRC message, not
-anywhere within it.
+OpenWrt's UML with 5.15 was producing odd errors/warnings during preinit
+part of the early userspace portion:
 
-While the helper only decodes packes in the ORIGINAL direction, its
-possible to make a client send a CTCP message back by empedding one into
-a PING request.  As-is, thats enough to make the helper believe that it
-saw a CTCP message.
+|[    0.000000] Kernel command line: ubd0=root.img root=98:0 console=tty
+|[...]
+|[    0.440000] random: jshn: uninitialized urandom read (4 bytes read)
+|[    0.460000] random: jshn: uninitialized urandom read (4 bytes read)
+|/etc/preinit: line 47: can't create /dev/tty: No such device or address
+|/etc/preinit: line 48: can't create /dev/tty: No such device or address
+|/etc/preinit: line 58: can't open /dev/tty: No such device or address
+|[...] repeated many times
 
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+That "/dev/tty" came from the command line (which is automatically
+added if no console= parameter was specified for the uml binary).
+
+The TLDP project tells the following about the /dev/tty:
+<https://tldp.org/HOWTO/Text-Terminal-HOWTO-7.html#ss7.3>
+| /dev/tty stands for the controlling terminal (if any) for the current
+| process.[...]
+| /dev/tty is something like a link to the actually terminal device[..]
+
+The "(if any)" is important here, since it's possible for processes to
+not have a controlling terminal.
+
+I think this was a simple typo and the author wanted tty0 there.
+
+CC: Thomas Meyer <thomas@m3y3r.de>
+Fixes: d7ffac33631b ("um: stdio_console: Make preferred console")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 34 ++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ arch/um/kernel/um_arch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index b7436935b57d..23ead02c6aa5 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -150,15 +150,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 	data = ib_ptr;
- 	data_limit = ib_ptr + skb->len - dataoff;
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index 960f5c35ad1b..8dc7ab1f3cd4 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -31,7 +31,7 @@
+ #include <os.h>
  
--	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
--	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
--	while (data < data_limit - (19 + MINMATCHLEN)) {
--		if (memcmp(data, "\1DCC ", 5)) {
-+	/* Skip any whitespace */
-+	while (data < data_limit - 10) {
-+		if (*data == ' ' || *data == '\r' || *data == '\n')
-+			data++;
-+		else
-+			break;
-+	}
-+
-+	/* strlen("PRIVMSG x ")=10 */
-+	if (data < data_limit - 10) {
-+		if (strncasecmp("PRIVMSG ", data, 8))
-+			goto out;
-+		data += 8;
-+	}
-+
-+	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
-+	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
-+	 */
-+	while (data < data_limit - (21 + MINMATCHLEN)) {
-+		/* Find first " :", the start of message */
-+		if (memcmp(data, " :", 2)) {
- 			data++;
- 			continue;
- 		}
-+		data += 2;
-+
-+		/* then check that place only for the DCC command */
-+		if (memcmp(data, "\1DCC ", 5))
-+			goto out;
- 		data += 5;
--		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
-+		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
+ #define DEFAULT_COMMAND_LINE_ROOT "root=98:0"
+-#define DEFAULT_COMMAND_LINE_CONSOLE "console=tty"
++#define DEFAULT_COMMAND_LINE_CONSOLE "console=tty0"
  
- 		iph = ip_hdr(skb);
- 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
-@@ -174,7 +196,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 			pr_debug("DCC %s detected\n", dccprotos[i]);
- 
- 			/* we have at least
--			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
-+			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
- 			 * data left (== 14/13 bytes) */
- 			if (parse_dcc(data, data_limit, &dcc_ip,
- 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
+ /* Changed in add_arg and setup_arch, which run before SMP is started */
+ static char __initdata command_line[COMMAND_LINE_SIZE] = { 0 };
 -- 
 2.35.1
 
