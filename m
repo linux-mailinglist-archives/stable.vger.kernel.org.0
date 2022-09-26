@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 203D25EA227
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 128905EA2AB
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:12:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbiIZLDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:03:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39924 "EHLO
+        id S234048AbiIZLMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:12:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237208AbiIZLBP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:01:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F605E335;
-        Mon, 26 Sep 2022 03:31:41 -0700 (PDT)
+        with ESMTP id S237507AbiIZLLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:11:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D6D6050B;
+        Mon, 26 Sep 2022 03:35:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53F8FB8092F;
-        Mon, 26 Sep 2022 10:28:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FC89C433D6;
-        Mon, 26 Sep 2022 10:28:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E86760C8E;
+        Mon, 26 Sep 2022 10:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C977C433C1;
+        Mon, 26 Sep 2022 10:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188119;
-        bh=Ppa7dKBwF4f7/JWcYS6Z6x5HuHd5YIVXYSmUqoYmqLk=;
+        s=korg; t=1664188531;
+        bh=fVJx9bWZtuSE8qwIeRCZ+tV0nvTbXT/NX1tHwng38a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbpWMtYZ/g56TRgpcIwLekIQuUMUD/N/4VEoCgTnK2cA1MR9ss4To9frxR0HRyF3g
-         10kBTBJwuBnFW97rBQpMw/230IWYb65fWGBJ6PWoQineUEvvRITjPtKpm+ViWBr1Gy
-         3UWIN0nlSpYHNz4qDd9JXlEtmsbqthHSnl5OxUVM=
+        b=WL5sVgmTNIwglDM/efXbtYCekbbYhe1S0IIofFFOvW3XoCqNuBV5NqJrLGfOpgivV
+         diICEHtbXnLw/j5QT/3kkzKJurRyB49xuCLkMcnlW6OXhRudybN0z/Eo3P6Wuegk0i
+         VxkKfvTChSwVOiuChYBxFM37oz+tAqYY1t3A3fXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 046/141] ALSA: hda/realtek: Add quirk for ASUS GA503R laptop
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Sven Peter <sven@svenpeter.dev>,
+        William Wu <william.wu@rock-chips.com>
+Subject: [PATCH 5.15 038/148] usb: dwc3: core: leave default DMA if the controller does not support 64-bit DMA
 Date:   Mon, 26 Sep 2022 12:11:12 +0200
-Message-Id: <20220926100756.110896572@linuxfoundation.org>
+Message-Id: <20220926100757.451004057@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: William Wu <william.wu@rock-chips.com>
 
-commit ba1f818053b0668a1ce2fe86b840e81b592cc560 upstream.
+commit 91062e663b261815573ce00967b1895a99e668df upstream.
 
-The ASUS G15 2022 (GA503R) series laptop has the same node-to-DAC pairs
-as early models and the G14, this includes bass speakers which are by
-default mapped incorrectly to the 0x06 node.
+On some DWC3 controllers (e.g. Rockchip SoCs), the DWC3 core
+doesn't support 64-bit DMA address width. In this case, this
+driver should use the default 32-bit mask. Otherwise, the DWC3
+controller will break if it runs on above 4GB physical memory
+environment.
 
-Add a quirk to use the same DAC pairs as the G14.
+This patch reads the DWC_USB3_AWIDTH bits of GHWPARAMS0 which
+used for the DMA address width, and only configure 64-bit DMA
+mask if the DWC_USB3_AWIDTH is 64.
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220915080921.35563-4-luke@ljones.dev
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 45d39448b4d0 ("usb: dwc3: support 64 bit DMA in platform driver")
+Cc: stable <stable@kernel.org>
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: William Wu <william.wu@rock-chips.com>
+Link: https://lore.kernel.org/r/20220901083446.3799754-1-william.wu@rock-chips.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc3/core.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8960,6 +8960,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e5e, "ASUS ROG Strix G513", ALC294_FIXUP_ASUS_G513_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
-+	SND_PCI_QUIRK(0x1043, 0x1c52, "ASUS Zephyrus G15 2022", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
- 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1570,12 +1570,6 @@ static int dwc3_probe(struct platform_de
+ 
+ 	dwc3_get_properties(dwc);
+ 
+-	if (!dwc->sysdev_is_parent) {
+-		ret = dma_set_mask_and_coherent(dwc->sysdev, DMA_BIT_MASK(64));
+-		if (ret)
+-			return ret;
+-	}
+-
+ 	dwc->reset = devm_reset_control_array_get_optional_shared(dev);
+ 	if (IS_ERR(dwc->reset))
+ 		return PTR_ERR(dwc->reset);
+@@ -1612,6 +1606,13 @@ static int dwc3_probe(struct platform_de
+ 	platform_set_drvdata(pdev, dwc);
+ 	dwc3_cache_hwparams(dwc);
+ 
++	if (!dwc->sysdev_is_parent &&
++	    DWC3_GHWPARAMS0_AWIDTH(dwc->hwparams.hwparams0) == 64) {
++		ret = dma_set_mask_and_coherent(dwc->sysdev, DMA_BIT_MASK(64));
++		if (ret)
++			goto disable_clks;
++	}
++
+ 	spin_lock_init(&dwc->lock);
+ 	mutex_init(&dwc->mutex);
+ 
 
 
