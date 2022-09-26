@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DE05EA434
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A275EA2BF
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236400AbiIZLlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S233807AbiIZLOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:14:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237925AbiIZLlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:41:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E076F562;
-        Mon, 26 Sep 2022 03:45:31 -0700 (PDT)
+        with ESMTP id S237673AbiIZLNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DE6642CB;
+        Mon, 26 Sep 2022 03:36:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B258860B60;
-        Mon, 26 Sep 2022 10:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0873C433D6;
-        Mon, 26 Sep 2022 10:44:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67455B80954;
+        Mon, 26 Sep 2022 10:34:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFCE7C433C1;
+        Mon, 26 Sep 2022 10:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189064;
-        bh=si0seKvv98k5bMX+1E90yQcsN2cXUqLrbUsACStHoD8=;
+        s=korg; t=1664188485;
+        bh=qqskinfIqSFhiOcRad+02oGNyNZWFUzlMULSkLljyMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfpevmzsNbHb+BZoe9YFElxipzfJ6Nee4aUtSmonCq93eawYF7ymoPeeZ6nc7vKU2
-         pedxQkfxfM0WjcTMassqHBcfeHyzwzbtuTXtdNGI4dxH3mZCMc0g5szi8VWmsmpepD
-         KxAtT244dSgVyRzdXh6gcqGOhK7kBdCQuhwb0LAc=
+        b=Rk5paSmuOEfbm99z2VmTFz6CTEjDASZTwLYlshYzBOU9uf74xQmS1BrWlotqSOu+x
+         3hF3AcvSewCVY1oJ6zdcClniG9ojLwT5UF0vk8tlWyhKLOQr/KfeQj/JYc2+fZvWM8
+         WTO2K12DHQQvcfMtuApz8RZNa9lw176YhfiBGF0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thorsten Scherer <t.scherer@eckelmann.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.19 060/207] can: flexcan: flexcan_mailbox_read() fix return value for drop = true
+        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
+        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 015/148] usb: add quirks for Lenovo OneLink+ Dock
 Date:   Mon, 26 Sep 2022 12:10:49 +0200
-Message-Id: <20220926100809.290756560@linuxfoundation.org>
+Message-Id: <20220926100756.624313412@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
 
-commit a09721dd47c8468b3f2fdd73f40422699ffe26dd upstream.
+[ Upstream commit 3d5f70949f1b1168fbb17d06eb5c57e984c56c58 ]
 
-The following happened on an i.MX25 using flexcan with many packets on
-the bus:
+The Lenovo OneLink+ Dock contains two VL812 USB3.0 controllers:
+17ef:1018 upstream
+17ef:1019 downstream
 
-The rx-offload queue reached a length more than skb_queue_len_max. In
-can_rx_offload_offload_one() the drop variable was set to true which
-made the call to .mailbox_read() (here: flexcan_mailbox_read()) to
-_always_ return ERR_PTR(-ENOBUFS) and drop the rx'ed CAN frame. So
-can_rx_offload_offload_one() returned ERR_PTR(-ENOBUFS), too.
+Those two controllers both have problems with some USB3.0 devices,
+particularly self-powered ones. Typical error messages include:
 
-can_rx_offload_irq_offload_fifo() looks as follows:
+  Timeout while waiting for setup device command
+  device not accepting address X, error -62
+  unable to enumerate USB device
 
-| 	while (1) {
-| 		skb = can_rx_offload_offload_one(offload, 0);
-| 		if (IS_ERR(skb))
-| 			continue;
-| 		if (!skb)
-| 			break;
-| 		...
-| 	}
+By process of elimination the controllers themselves were identified as
+the cause of the problem. Through trial and error the issue was solved
+by using USB_QUIRK_RESET_RESUME for both chips.
 
-The flexcan driver wrongly always returns ERR_PTR(-ENOBUFS) if drop is
-requested, even if there is no CAN frame pending. As the i.MX25 is a
-single core CPU, while the rx-offload processing is active, there is
-no thread to process packets from the offload queue. So the queue
-doesn't get any shorter and this results is a tight loop.
-
-Instead of always returning ERR_PTR(-ENOBUFS) if drop is requested,
-return NULL if no CAN frame is pending.
-
-Changes since v1: https://lore.kernel.org/all/20220810144536.389237-1-u.kleine-koenig@pengutronix.de
-- don't break in can_rx_offload_irq_offload_fifo() in case of an error,
-  return NULL in flexcan_mailbox_read() in case of no pending CAN frame
-  instead
-
-Fixes: 4e9c9484b085 ("can: rx-offload: Prepare for CAN FD support")
-Link: https://lore.kernel.org/all/20220811094254.1864367-1-mkl@pengutronix.de
-Cc: stable@vger.kernel.org # v5.5
-Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Tested-by: Thorsten Scherer <t.scherer@eckelmann.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220824191320.17883-1-jflf_kernel@gmx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan/flexcan-core.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/core/quirks.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/can/flexcan/flexcan-core.c
-+++ b/drivers/net/can/flexcan/flexcan-core.c
-@@ -941,11 +941,6 @@ static struct sk_buff *flexcan_mailbox_r
- 	u32 reg_ctrl, reg_id, reg_iflag1;
- 	int i;
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index f99a65a64588..999b7c9697fc 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -437,6 +437,10 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
+ 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
  
--	if (unlikely(drop)) {
--		skb = ERR_PTR(-ENOBUFS);
--		goto mark_as_read;
--	}
--
- 	mb = flexcan_get_mb(priv, n);
- 
- 	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX) {
-@@ -974,6 +969,11 @@ static struct sk_buff *flexcan_mailbox_r
- 		reg_ctrl = priv->read(&mb->can_ctrl);
- 	}
- 
-+	if (unlikely(drop)) {
-+		skb = ERR_PTR(-ENOBUFS);
-+		goto mark_as_read;
-+	}
++	/* Lenovo ThinkPad OneLink+ Dock twin hub controllers (VIA Labs VL812) */
++	{ USB_DEVICE(0x17ef, 0x1018), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x17ef, 0x1019), .driver_info = USB_QUIRK_RESET_RESUME },
 +
- 	if (reg_ctrl & FLEXCAN_MB_CNT_EDL)
- 		skb = alloc_canfd_skb(offload->dev, &cfd);
- 	else
+ 	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
+ 	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
+ 
+-- 
+2.35.1
+
 
 
