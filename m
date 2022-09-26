@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E39115EA022
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FE75EA172
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235690AbiIZKfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42874 "EHLO
+        id S236639AbiIZKvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:51:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235872AbiIZKdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE56B4F65C;
-        Mon, 26 Sep 2022 03:20:38 -0700 (PDT)
+        with ESMTP id S236963AbiIZKt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEB658534;
+        Mon, 26 Sep 2022 03:27:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03A8B60BB7;
-        Mon, 26 Sep 2022 10:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13308C433D6;
-        Mon, 26 Sep 2022 10:20:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21F1C609FB;
+        Mon, 26 Sep 2022 10:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21316C433C1;
+        Mon, 26 Sep 2022 10:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187630;
-        bh=gQ1s/FiAXl9iYKZ/lkQN032VXwbMRyy9gtt37y6HU2o=;
+        s=korg; t=1664188029;
+        bh=of9VwGUQy7seUFPvbgc+yE2g04nZYjEtNLp4P4EMGvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1Wqblb9M/ciyV63zNORM0YpJmkyBaSRx8Wrqi23qwCpID2bZg5awIzFw8MsLeyN8
-         NXPaHEyEHCyMvOzhRCvwMDtdeBKiDADTjODl4nLwa8Yb8LjPc5+xfDkl7PabP0fCIt
-         6vRjubJjOn5boSaKInHCthb15D+l7j4ZwJlG7CAc=
+        b=dTBl+ed9GI42cQSwqsxbs5+PoTy5LaZG/myErfp6tSuyrFvW2lFQpXeOPRTO1O09D
+         ovZAip7aPJHSCXa3WuHMbLdNhFzaEbhxPzmxHJD6uOkKLX4/ieto4+XjjbeRerPKU/
+         TpLmgVUkJH63bl6jYQTSklBdFdhg2FRmqgmbRJQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yipeng Zou <zouyipeng@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/120] tracing: hold caller_addr to hardirq_{enable,disable}_ip
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Ikjoon Jang <ikjn@chromium.org>
+Subject: [PATCH 5.10 018/141] usb: xhci-mtk: allow multiple Start-Split in a microframe
 Date:   Mon, 26 Sep 2022 12:10:44 +0200
-Message-Id: <20220926100750.981656855@linuxfoundation.org>
+Message-Id: <20220926100755.227918903@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 54c3931957f6a6194d5972eccc36d052964b2abe ]
+[ Upstream commit d3997fce189fc4423169c51a81ba5ca01144d886 ]
 
-Currently, The arguments passing to lockdep_hardirqs_{on,off} was fixed
-in CALLER_ADDR0.
-The function trace_hardirqs_on_caller should have been intended to use
-caller_addr to represent the address that caller wants to be traced.
+This patch is used to relax bandwidth schedule by allowing multiple
+Start-Split in the same microframe.
 
-For example, lockdep log in riscv showing the last {enabled,disabled} at
-__trace_hardirqs_{on,off} all the time(if called by):
-[   57.853175] hardirqs last  enabled at (2519): __trace_hardirqs_on+0xc/0x14
-[   57.853848] hardirqs last disabled at (2520): __trace_hardirqs_off+0xc/0x14
-
-After use trace_hardirqs_xx_caller, we can get more effective information:
-[   53.781428] hardirqs last  enabled at (2595): restore_all+0xe/0x66
-[   53.782185] hardirqs last disabled at (2596): ret_from_exception+0xa/0x10
-
-Link: https://lkml.kernel.org/r/20220901104515.135162-2-zouyipeng@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: c3bc8fd637a96 ("tracing: Centralize preemptirq tracepoints and unify their usage")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-and-Tested-by: Ikjoon Jang <ikjn@chromium.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1623995165-25759-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 548011957d1d ("usb: xhci-mtk: relax TT periodic bandwidth allocation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_preemptirq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c | 18 ------------------
+ drivers/usb/host/xhci-mtk.h     |  2 --
+ 2 files changed, 20 deletions(-)
 
-diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
-index 26b06b09c9f6..e9645f829b94 100644
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -56,14 +56,14 @@ __visible void trace_hardirqs_on_caller(unsigned long caller_addr)
- 		this_cpu_write(tracing_irq_cpu, 0);
- 	}
- 
--	lockdep_hardirqs_on(CALLER_ADDR0);
-+	lockdep_hardirqs_on(caller_addr);
- }
- EXPORT_SYMBOL(trace_hardirqs_on_caller);
- NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
- 
- __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index a6ec75bf2def..f048af9c5335 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -430,11 +430,9 @@ static int check_fs_bus_bw(struct mu3h_sch_ep_info *sch_ep, int offset)
+ static int check_sch_tt(struct usb_device *udev,
+ 	struct mu3h_sch_ep_info *sch_ep, u32 offset)
  {
--	lockdep_hardirqs_off(CALLER_ADDR0);
-+	lockdep_hardirqs_off(caller_addr);
+-	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
+ 	u32 extra_cs_count;
+ 	u32 start_ss, last_ss;
+ 	u32 start_cs, last_cs;
+-	int i;
  
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
+ 	start_ss = offset % 8;
+ 
+@@ -448,10 +446,6 @@ static int check_sch_tt(struct usb_device *udev,
+ 		if (!(start_ss == 7 || last_ss < 6))
+ 			return -ESCH_SS_Y6;
+ 
+-		for (i = 0; i < sch_ep->cs_count; i++)
+-			if (test_bit(offset + i, tt->ss_bit_map))
+-				return -ESCH_SS_OVERLAP;
+-
+ 	} else {
+ 		u32 cs_count = DIV_ROUND_UP(sch_ep->maxpkt, FS_PAYLOAD_MAX);
+ 
+@@ -478,9 +472,6 @@ static int check_sch_tt(struct usb_device *udev,
+ 		if (cs_count > 7)
+ 			cs_count = 7; /* HW limit */
+ 
+-		if (test_bit(offset, tt->ss_bit_map))
+-			return -ESCH_SS_OVERLAP;
+-
+ 		sch_ep->cs_count = cs_count;
+ 		/* one for ss, the other for idle */
+ 		sch_ep->num_budget_microframes = cs_count + 2;
+@@ -502,11 +493,9 @@ static void update_sch_tt(struct usb_device *udev,
+ 	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
+ 	u32 base, num_esit;
+ 	int bw_updated;
+-	int bits;
+ 	int i, j;
+ 
+ 	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
+-	bits = (sch_ep->ep_type == ISOC_OUT_EP) ? sch_ep->cs_count : 1;
+ 
+ 	if (used)
+ 		bw_updated = sch_ep->bw_cost_per_microframe;
+@@ -516,13 +505,6 @@ static void update_sch_tt(struct usb_device *udev,
+ 	for (i = 0; i < num_esit; i++) {
+ 		base = sch_ep->offset + i * sch_ep->esit;
+ 
+-		for (j = 0; j < bits; j++) {
+-			if (used)
+-				set_bit(base + j, tt->ss_bit_map);
+-			else
+-				clear_bit(base + j, tt->ss_bit_map);
+-		}
+-
+ 		for (j = 0; j < sch_ep->cs_count; j++)
+ 			tt->fs_bus_bw[base + j] += bw_updated;
+ 	}
+diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
+index 2fc0568ba054..3e2c607b5d64 100644
+--- a/drivers/usb/host/xhci-mtk.h
++++ b/drivers/usb/host/xhci-mtk.h
+@@ -20,14 +20,12 @@
+ #define XHCI_MTK_MAX_ESIT	64
+ 
+ /**
+- * @ss_bit_map: used to avoid start split microframes overlay
+  * @fs_bus_bw: array to keep track of bandwidth already used for FS
+  * @ep_list: Endpoints using this TT
+  * @usb_tt: usb TT related
+  * @tt_port: TT port number
+  */
+ struct mu3h_sch_tt {
+-	DECLARE_BITMAP(ss_bit_map, XHCI_MTK_MAX_ESIT);
+ 	u32 fs_bus_bw[XHCI_MTK_MAX_ESIT];
+ 	struct list_head ep_list;
+ 	struct usb_tt *usb_tt;
 -- 
 2.35.1
 
