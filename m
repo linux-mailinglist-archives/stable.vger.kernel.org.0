@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC755EA314
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 569C75EA026
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235880AbiIZLTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46316 "EHLO
+        id S235788AbiIZKfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237720AbiIZLSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F54659D6;
-        Mon, 26 Sep 2022 03:38:09 -0700 (PDT)
+        with ESMTP id S235978AbiIZKdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A664F6BC;
+        Mon, 26 Sep 2022 03:20:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8EE1ACE10F6;
-        Mon, 26 Sep 2022 10:36:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DBE9C433C1;
-        Mon, 26 Sep 2022 10:36:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 947CAB80835;
+        Mon, 26 Sep 2022 10:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 066B5C433C1;
+        Mon, 26 Sep 2022 10:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188583;
-        bh=I8k8+CTSWRvEg1zNHgM0TRsB64lBSXwEJrXQxlaIcz8=;
+        s=korg; t=1664187643;
+        bh=/qy+wl376VZ2Qn1ipDOjXipIVOsRHSCbVcNW+nRvVyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STQQfqoAkymzav5EJiOqNh7PBtsx8H4E/YbsfUG7nKCC1fv7mRnbnrSeDzEgTekbu
-         CrBBDiUodY63U7oI10AcTJgjgv7HCbOKUMGa0yxH/u6J2oAQ4sE2no2uIHdFTQc2w+
-         48dvHpEqC7YoAKfHWVRTheXxb5dXdbGWfzigU3Mc=
+        b=KUWNpBeXVweOCgruM9wZuLLJXtZcErx7fl91quTFbHo+8RB6+qVlM0EQR6QL8Ycwz
+         n/jXZTrVnPGBFfGbhYgiCGgz2YbNOvQcHlu9ixuP7b108a0jqAVPtp3hEQsfT2Zk2t
+         KwOVUSdOwS67XLderFVYJcXiRbSxmhcwcDmllpLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Jordan Niethe <jniethe5@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 014/148] powerpc/rtas: Fix RTAS MSR[HV] handling for Cell
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 015/120] iomap: iomap that extends beyond EOF should be marked dirty
 Date:   Mon, 26 Sep 2022 12:10:48 +0200
-Message-Id: <20220926100756.584970374@linuxfoundation.org>
+Message-Id: <20220926100751.145723992@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Chandan Babu R <chandan.babu@oracle.com>
 
-[ Upstream commit 91926d8b7e71aaf5f84f0cf208fc5a8b7a761050 ]
+From: Dave Chinner <dchinner@redhat.com>
 
-The semi-recent changes to MSR handling when entering RTAS (firmware)
-cause crashes on IBM Cell machines. An example trace:
+commit 7684e2c4384d5d1f884b01ab8bff2369e4db0bff upstream.
 
-  kernel tried to execute user page (2fff01a8) - exploit attempt? (uid: 0)
-  BUG: Unable to handle kernel instruction fetch
-  Faulting instruction address: 0x2fff01a8
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  BE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=4 NUMA Cell
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W          6.0.0-rc2-00433-gede0a8d3307a #207
-  NIP:  000000002fff01a8 LR: 0000000000032608 CTR: 0000000000000000
-  REGS: c0000000015236b0 TRAP: 0400   Tainted: G        W           (6.0.0-rc2-00433-gede0a8d3307a)
-  MSR:  0000000008001002 <ME,RI>  CR: 00000000  XER: 20000000
-  ...
-  NIP 0x2fff01a8
-  LR  0x32608
-  Call Trace:
-    0xc00000000143c5f8 (unreliable)
-    .rtas_call+0x224/0x320
-    .rtas_get_boot_time+0x70/0x150
-    .read_persistent_clock64+0x114/0x140
-    .read_persistent_wall_and_boot_offset+0x24/0x80
-    .timekeeping_init+0x40/0x29c
-    .start_kernel+0x674/0x8f0
-    start_here_common+0x1c/0x50
+When doing a direct IO that spans the current EOF, and there are
+written blocks beyond EOF that extend beyond the current write, the
+only metadata update that needs to be done is a file size extension.
 
-Unlike PAPR platforms where RTAS is only used in guests, on the IBM Cell
-machines Linux runs with MSR[HV] set but also uses RTAS, provided by
-SLOF.
+However, we don't mark such iomaps as IOMAP_F_DIRTY to indicate that
+there is IO completion metadata updates required, and hence we may
+fail to correctly sync file size extensions made in IO completion
+when O_DSYNC writes are being used and the hardware supports FUA.
 
-Fix it by copying the MSR[HV] bit from the MSR value we've just read
-using mfmsr into the value used for RTAS.
+Hence when setting IOMAP_F_DIRTY, we need to also take into account
+whether the iomap spans the current EOF. If it does, then we need to
+mark it dirty so that IO completion will call generic_write_sync()
+to flush the inode size update to stable storage correctly.
 
-It seems like we could also fix it using an #ifdef CELL to set MSR[HV],
-but that doesn't work because it's possible to build a single kernel
-image that runs on both Cell native and pseries.
-
-Fixes: b6b1c3ce06ca ("powerpc/rtas: Keep MSR[RI] set when calling RTAS")
-Cc: stable@vger.kernel.org # v5.19+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Jordan Niethe <jniethe5@gmail.com>
-Link: https://lore.kernel.org/r/20220823115952.1203106-2-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3460cac1ca76 ("iomap: Use FUA for pure data O_DSYNC DIO writes")
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: removed the ext4 part; they'll handle it separately]
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/rtas_entry.S | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/xfs/xfs_iomap.c    |    7 +++++++
+ include/linux/iomap.h |    2 ++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/arch/powerpc/kernel/rtas_entry.S b/arch/powerpc/kernel/rtas_entry.S
-index 9ae1ca3c6fca..69dd8dd36689 100644
---- a/arch/powerpc/kernel/rtas_entry.S
-+++ b/arch/powerpc/kernel/rtas_entry.S
-@@ -125,8 +125,12 @@ __enter_rtas:
- 	 * its critical regions (as specified in PAPR+ section 7.2.1). MSR[S]
- 	 * is not impacted by RFI_TO_KERNEL (only urfid can unset it). So if
- 	 * MSR[S] is set, it will remain when entering RTAS.
-+	 * If we're in HV mode, RTAS must also run in HV mode, so extract MSR_HV
-+	 * from the saved MSR value and insert into the value RTAS will use.
- 	 */
-+	extrdi	r0, r6, 1, 63 - MSR_HV_LG
- 	LOAD_REG_IMMEDIATE(r6, MSR_ME | MSR_RI)
-+	insrdi	r6, r0, 1, 63 - MSR_HV_LG
+--- a/fs/xfs/xfs_iomap.c
++++ b/fs/xfs/xfs_iomap.c
+@@ -1055,6 +1055,13 @@ xfs_file_iomap_begin(
+ 	trace_xfs_iomap_alloc(ip, offset, length, XFS_DATA_FORK, &imap);
  
- 	li      r0,0
- 	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
--- 
-2.35.1
-
+ out_finish:
++	/*
++	 * Writes that span EOF might trigger an IO size update on completion,
++	 * so consider them to be dirty for the purposes of O_DSYNC even if
++	 * there is no other metadata changes pending or have been made here.
++	 */
++	if ((flags & IOMAP_WRITE) && offset + length > i_size_read(inode))
++		iomap->flags |= IOMAP_F_DIRTY;
+ 	return xfs_bmbt_to_iomap(ip, iomap, &imap, shared);
+ 
+ out_found:
+--- a/include/linux/iomap.h
++++ b/include/linux/iomap.h
+@@ -32,6 +32,8 @@ struct vm_fault;
+  *
+  * IOMAP_F_DIRTY indicates the inode has uncommitted metadata needed to access
+  * written data and requires fdatasync to commit them to persistent storage.
++ * This needs to take into account metadata changes that *may* be made at IO
++ * completion, such as file size updates from direct IO.
+  */
+ #define IOMAP_F_NEW		0x01	/* blocks have been newly allocated */
+ #define IOMAP_F_DIRTY		0x02	/* uncommitted metadata */
 
 
