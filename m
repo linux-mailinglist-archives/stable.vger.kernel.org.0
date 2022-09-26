@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E455EA287
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF14C5EA05D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237232AbiIZLJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
+        id S236022AbiIZKge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:36:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237691AbiIZLJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:09:18 -0400
+        with ESMTP id S236345AbiIZKez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C5613E83;
-        Mon, 26 Sep 2022 03:35:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400CF52445;
+        Mon, 26 Sep 2022 03:21:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F299B80957;
-        Mon, 26 Sep 2022 10:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A46C433C1;
-        Mon, 26 Sep 2022 10:34:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9367B80930;
+        Mon, 26 Sep 2022 10:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171C7C433C1;
+        Mon, 26 Sep 2022 10:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188493;
-        bh=oJcafgBQMzecYzChnClopOigfqz6r+eNTeZ7rf2LWHQ=;
+        s=korg; t=1664187686;
+        bh=Ji2r6XNoEewK9dXzBsIN8hQ9R8TMbrYeQHGZa3VUuHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyiCcAGxQTcjSuEd/tld64BGfpCuYY8pbp74b1rK6IwXgnj9wIYCLItwQ0nPBNuoq
-         HkxGtWFcc6b0UkzfZdEP89LeodfrI4UAO14FAKlFXx7bKyes4lCIm090x95lf1Yxy1
-         2hrJExyF7GwFo54GHW7Gdwr62H85hIXPvNno7tSM=
+        b=1m2Q9jpRk4bFJrzVybIZ9DB/jOiOjy3owfUChDA9CMt/5pS3/OHyAZQbcMWHg9Ngb
+         Fi5lMQS2/+QpvOI6z9O8kDzs70wjTAyOmSvPo6XBzlCxLU8at/pqO1WPa87nBb0n8b
+         BHbhtkSpyZ/YnoZFE+RqhJbF+Vpr2vJYgCMeIYgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 026/148] ALSA: hda: add Intel 5 Series / 3400 PCI DID
+        syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 027/120] cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
 Date:   Mon, 26 Sep 2022 12:11:00 +0200
-Message-Id: <20220926100757.062853151@linuxfoundation.org>
+Message-Id: <20220926100751.633857388@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 4d40ceef4745536289012670103c59264e0fb3ec upstream.
+commit 43626dade36fa74d3329046f4ae2d7fdefe401c6 upstream.
 
-Handle 0x3b57 variant with same AZX_DCAPS_INTEL_PCH_NOPM
-capabilities as 0x3b56. In practise this allow use of HDMI/DP
-display audio via i915.
+syzbot is hitting percpu_rwsem_assert_held(&cpu_hotplug_lock) warning at
+cpuset_attach() [1], for commit 4f7e7236435ca0ab ("cgroup: Fix
+threadgroup_rwsem <-> cpus_read_lock() deadlock") missed that
+cpuset_attach() is also called from cgroup_attach_task_all().
+Add cpus_read_lock() like what cgroup_procs_write_start() does.
 
-BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/2751
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220912183716.2126312-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://syzkaller.appspot.com/bug?extid=29d3a3b4d86c8136ad9e [1]
+Reported-by: syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 4f7e7236435ca0ab ("cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock")
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/cgroup/cgroup-v1.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2519,6 +2519,8 @@ static const struct pci_device_id azx_id
- 	/* 5 Series/3400 */
- 	{ PCI_DEVICE(0x8086, 0x3b56),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
-+	{ PCI_DEVICE(0x8086, 0x3b57),
-+	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
- 	/* Poulsbo */
- 	{ PCI_DEVICE(0x8086, 0x811b),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -15,6 +15,7 @@
+ #include <linux/pid_namespace.h>
+ #include <linux/cgroupstats.h>
+ #include <linux/fs_parser.h>
++#include <linux/cpu.h>
+ 
+ #include <trace/events/cgroup.h>
+ 
+@@ -62,6 +63,7 @@ int cgroup_attach_task_all(struct task_s
+ 	int retval = 0;
+ 
+ 	mutex_lock(&cgroup_mutex);
++	cpus_read_lock();
+ 	percpu_down_write(&cgroup_threadgroup_rwsem);
+ 	for_each_root(root) {
+ 		struct cgroup *from_cgrp;
+@@ -78,6 +80,7 @@ int cgroup_attach_task_all(struct task_s
+ 			break;
+ 	}
+ 	percpu_up_write(&cgroup_threadgroup_rwsem);
++	cpus_read_unlock();
+ 	mutex_unlock(&cgroup_mutex);
+ 
+ 	return retval;
 
 
