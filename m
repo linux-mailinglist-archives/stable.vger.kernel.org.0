@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3F35EA385
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C84165EA100
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237941AbiIZL0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33452 "EHLO
+        id S234315AbiIZKo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:44:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235083AbiIZL0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:26:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F98696EE;
-        Mon, 26 Sep 2022 03:40:42 -0700 (PDT)
+        with ESMTP id S234269AbiIZKnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:43:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 439C554CA5;
+        Mon, 26 Sep 2022 03:24:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5103B80957;
-        Mon, 26 Sep 2022 10:39:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0F7C433D6;
-        Mon, 26 Sep 2022 10:39:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7AA2B80924;
+        Mon, 26 Sep 2022 10:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 127FBC433D6;
+        Mon, 26 Sep 2022 10:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188797;
-        bh=A4gIVXUxYJ5zkKGUSkpCXLj+wLMcU3okfja/CbaRkmM=;
+        s=korg; t=1664187860;
+        bh=bXef8Yi4ySuplraDxkHpjW2Xg2NLEtw3Qen7N27uESY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3SR1NI0GIWrdjRcBdn/6fAYg9WKese0JvJGILWDyoYkZpDRfkHnIB1XKvR+NQ9Vv
-         Eie+cVKuJgo0JfBuh3Q6rINz0h9iP9W/kjcVoHZM1TJLuNi4qkO7D+g9UOmXQWGxCo
-         LTtdtVAWJiDsmhLaI9gRdA96QU5yeOUHmTv3vN+4=
+        b=yxrrS0c1ghxK1ZSktM5sj4DBmD1NYu0KCk9PcYyTHGb7l8sfafUgnsocA90FG3+eV
+         UvNvzmsR363WEBKM+5BwXUxw9B12NuQOOYXXTxqK9GSHUT3gKwPV+lqF/7jgscKFmg
+         5cplkYqfY/pZp5TNDY236XFQjjg+ylQWwj21WjKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Norbert Zulinski <norbertx.zulinski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/148] iavf: Fix bad page state
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+a24c5252f3e3ab733464@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 084/120] netfilter: ebtables: fix memory leak when blob is malformed
 Date:   Mon, 26 Sep 2022 12:11:57 +0200
-Message-Id: <20220926100759.149669924@linuxfoundation.org>
+Message-Id: <20220926100754.128211337@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Zulinski <norbertx.zulinski@intel.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 66039eb9015eee4f7ff0c99b83c65c7ecb3c8190 ]
+[ Upstream commit 62ce44c4fff947eebdf10bb582267e686e6835c9 ]
 
-Fix bad page state, free inappropriate page in handling dummy
-descriptor. iavf_build_skb now has to check not only if rx_buffer is
-NULL but also if size is zero, same thing in iavf_clean_rx_irq.
-Without this patch driver would free page that will be used
-by napi_build_skb.
+The bug fix was incomplete, it "replaced" crash with a memory leak.
+The old code had an assignment to "ret" embedded into the conditional,
+restore this.
 
-Fixes: a9f49e006030 ("iavf: Fix handling of dummy receive descriptors")
-Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 7997eff82828 ("netfilter: ebtables: reject blobs that don't provide all entry points")
+Reported-and-tested-by: syzbot+a24c5252f3e3ab733464@syzkaller.appspotmail.com
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_txrx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-index a99d5db15406..e76e3df3e2d9 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-@@ -1358,7 +1358,7 @@ static struct sk_buff *iavf_build_skb(struct iavf_ring *rx_ring,
- #endif
- 	struct sk_buff *skb;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index ddb988c339c1..f6853fc0fcc0 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -999,8 +999,10 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 		goto free_iterate;
+ 	}
  
--	if (!rx_buffer)
-+	if (!rx_buffer || !size)
- 		return NULL;
- 	/* prefetch first cache line of first page */
- 	va = page_address(rx_buffer->page) + rx_buffer->page_offset;
-@@ -1516,7 +1516,7 @@ static int iavf_clean_rx_irq(struct iavf_ring *rx_ring, int budget)
- 		/* exit if we failed to retrieve a buffer */
- 		if (!skb) {
- 			rx_ring->rx_stats.alloc_buff_failed++;
--			if (rx_buffer)
-+			if (rx_buffer && size)
- 				rx_buffer->pagecnt_bias++;
- 			break;
- 		}
+-	if (repl->valid_hooks != t->valid_hooks)
++	if (repl->valid_hooks != t->valid_hooks) {
++		ret = -EINVAL;
+ 		goto free_unlock;
++	}
+ 
+ 	if (repl->num_counters && repl->num_counters != t->private->nentries) {
+ 		ret = -EINVAL;
 -- 
 2.35.1
 
