@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A26EC5E9FC5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3638B5E9EE4
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235524AbiIZK3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52396 "EHLO
+        id S235046AbiIZKPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:15:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235715AbiIZK24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:56 -0400
+        with ESMTP id S235048AbiIZKPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:15:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA243F1D1;
-        Mon, 26 Sep 2022 03:19:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FA7E016;
+        Mon, 26 Sep 2022 03:14:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CDEA60BAF;
-        Mon, 26 Sep 2022 10:18:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F23C433D6;
-        Mon, 26 Sep 2022 10:18:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E6060C0B;
+        Mon, 26 Sep 2022 10:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0490C433C1;
+        Mon, 26 Sep 2022 10:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187516;
-        bh=Xxye98JGPI4GyYixY64MCmnFMNGAoGdty1aT4L4zjRU=;
+        s=korg; t=1664187257;
+        bh=Yq2zNuwlh4qQrtWhiCD9oJKsITCsDdmBPn/mJK9Qrqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWmx3OcPQQX/t7WnY17lJkLtOzOwMdCSt+oi/gIYI8lswOoYg2xVe4ieJvO3OBST5
-         8PJzc8vqefAKAdAYz4+Gnv3nfyee0bNRCauypEAwxzOqPS2hH87VvXGrKvYxSUAvWl
-         hS9jyqIgbZnxQll9qmUe0su76t0bggxLKvo7wZhM=
+        b=VjNtjvoJAxHl0oWhh3SqVNLpSi+QgQyKnHjhu/ANHpBegMMgY+kNfPwxEZaNT2+5u
+         oTme94c5VGuZhI/lDXJH6DmP6xMZVIjLdcleZWJ6bbdP53jQzti0SArHBtEJ4J4fnv
+         7lCBQp4gunbxyfGRtHlTQfnsTqpiKxA+Ew8X3Hwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Chao Yu <chao.yu@oppo.com>,
-        David Rientjes <rientjes@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 4.19 33/58] mm/slub: fix to return errno if kmalloc() fails
+        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 21/30] net: team: Unsync device addresses on ndo_stop
 Date:   Mon, 26 Sep 2022 12:11:52 +0200
-Message-Id: <20220926100742.686423372@linuxfoundation.org>
+Message-Id: <20220926100736.912292608@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,70 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao.yu@oppo.com>
+From: Benjamin Poirier <bpoirier@nvidia.com>
 
-commit 7e9c323c52b379d261a72dc7bd38120a761a93cd upstream.
+[ Upstream commit bd60234222b2fd5573526da7bcd422801f271f5f ]
 
-In create_unique_id(), kmalloc(, GFP_KERNEL) can fail due to
-out-of-memory, if it fails, return errno correctly rather than
-triggering panic via BUG_ON();
+Netdev drivers are expected to call dev_{uc,mc}_sync() in their
+ndo_set_rx_mode method and dev_{uc,mc}_unsync() in their ndo_stop method.
+This is mentioned in the kerneldoc for those dev_* functions.
 
-kernel BUG at mm/slub.c:5893!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+The team driver calls dev_{uc,mc}_unsync() during ndo_uninit instead of
+ndo_stop. This is ineffective because address lists (dev->{uc,mc}) have
+already been emptied in unregister_netdevice_many() before ndo_uninit is
+called. This mistake can result in addresses being leftover on former team
+ports after a team device has been deleted; see test_LAG_cleanup() in the
+last patch in this series.
 
-Call trace:
- sysfs_slab_add+0x258/0x260 mm/slub.c:5973
- __kmem_cache_create+0x60/0x118 mm/slub.c:4899
- create_cache mm/slab_common.c:229 [inline]
- kmem_cache_create_usercopy+0x19c/0x31c mm/slab_common.c:335
- kmem_cache_create+0x1c/0x28 mm/slab_common.c:390
- f2fs_kmem_cache_create fs/f2fs/f2fs.h:2766 [inline]
- f2fs_init_xattr_caches+0x78/0xb4 fs/f2fs/xattr.c:808
- f2fs_fill_super+0x1050/0x1e0c fs/f2fs/super.c:4149
- mount_bdev+0x1b8/0x210 fs/super.c:1400
- f2fs_mount+0x44/0x58 fs/f2fs/super.c:4512
- legacy_get_tree+0x30/0x74 fs/fs_context.c:610
- vfs_get_tree+0x40/0x140 fs/super.c:1530
- do_new_mount+0x1dc/0x4e4 fs/namespace.c:3040
- path_mount+0x358/0x914 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __arm64_sys_mount+0x2f8/0x408 fs/namespace.c:3568
+Add unsync calls at their expected location, team_close().
 
-Cc: <stable@kernel.org>
-Fixes: 81819f0fc8285 ("SLUB core")
-Reported-by: syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+v3:
+* When adding or deleting a port, only sync/unsync addresses if the team
+  device is up. In other cases, it is taken care of at the right time by
+  ndo_open/ndo_set_rx_mode/ndo_stop.
+
+Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/team/team.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -5688,7 +5688,8 @@ static char *create_unique_id(struct kme
- 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
- 	char *p = name;
- 
--	BUG_ON(!name);
-+	if (!name)
-+		return ERR_PTR(-ENOMEM);
- 
- 	*p++ = ':';
- 	/*
-@@ -5770,6 +5771,8 @@ static int sysfs_slab_add(struct kmem_ca
- 		 * for the symlinks.
- 		 */
- 		name = create_unique_id(s);
-+		if (IS_ERR(name))
-+			return PTR_ERR(name);
+diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
+index 001dea7aaba3..657e12e0b5e2 100644
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -1280,10 +1280,12 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
+ 		}
  	}
  
- 	s->kobj.kset = kset;
+-	netif_addr_lock_bh(dev);
+-	dev_uc_sync_multiple(port_dev, dev);
+-	dev_mc_sync_multiple(port_dev, dev);
+-	netif_addr_unlock_bh(dev);
++	if (dev->flags & IFF_UP) {
++		netif_addr_lock_bh(dev);
++		dev_uc_sync_multiple(port_dev, dev);
++		dev_mc_sync_multiple(port_dev, dev);
++		netif_addr_unlock_bh(dev);
++	}
+ 
+ 	port->index = -1;
+ 	list_add_tail_rcu(&port->list, &team->port_list);
+@@ -1354,8 +1356,10 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
+ 	netdev_rx_handler_unregister(port_dev);
+ 	team_port_disable_netpoll(port);
+ 	vlan_vids_del_by_dev(port_dev, dev);
+-	dev_uc_unsync(port_dev, dev);
+-	dev_mc_unsync(port_dev, dev);
++	if (dev->flags & IFF_UP) {
++		dev_uc_unsync(port_dev, dev);
++		dev_mc_unsync(port_dev, dev);
++	}
+ 	dev_close(port_dev);
+ 	team_port_leave(team, port);
+ 
+@@ -1703,6 +1707,14 @@ static int team_open(struct net_device *dev)
+ 
+ static int team_close(struct net_device *dev)
+ {
++	struct team *team = netdev_priv(dev);
++	struct team_port *port;
++
++	list_for_each_entry(port, &team->port_list, list) {
++		dev_uc_unsync(port->dev, dev);
++		dev_mc_unsync(port->dev, dev);
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
