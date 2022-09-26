@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D905EA189
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:52:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 155CE5EA3D7
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236744AbiIZKwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:52:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
+        id S234998AbiIZLew (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:34:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237042AbiIZKub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:50:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BAB258B5C;
-        Mon, 26 Sep 2022 03:27:26 -0700 (PDT)
+        with ESMTP id S238140AbiIZLeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A676DFB4;
+        Mon, 26 Sep 2022 03:43:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59385601D2;
-        Mon, 26 Sep 2022 10:27:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 475CCC433B5;
-        Mon, 26 Sep 2022 10:27:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35BBF60C41;
+        Mon, 26 Sep 2022 10:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47845C433B5;
+        Mon, 26 Sep 2022 10:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188044;
-        bh=zXKLPQxflgXEDWXJGg2+JBGZsUTGlj6t+iWUZEX6spc=;
+        s=korg; t=1664189004;
+        bh=5rApP3s+hqY64Ey6r7vcgj8Y9gYyzKQTvi/sbRmv/PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XwtMMncsyzjVT/vfVmGi6EKgATvEzxlMPR9ZinxTJhZRzA4FpzdCPHH9ChkyMzo6s
-         jB3bn0UsdgsMNXntWHPkQkRqVASuuA0+w4ut8SBj0fJ6H9xscqixVLE09QR7eWL5G1
-         AU0E/FfMucddyvYkzqSXLN7EmRrRl49rtwiF+MGU=
+        b=Z6cnxKXK6LROac4+U5BJl+65j4dDKmHQZF80iJ/aLLFM58j9/DufcVaVOGZWY3ylV
+         t6vEVAG6aRtQHZeKk0wJjDXn1xs0FUFHCi9sAXME6JaPK8CWA5wpZyEVmERHL9YPA8
+         IIMYx77FJWBImA0j5wK8pxamY1/cWoVX9ETEPD6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Azhar Shaikh <azhar.shaikh@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 005/141] usb: typec: intel_pmc_mux: Update IOM port status offset for AlderLake
-Date:   Mon, 26 Sep 2022 12:10:31 +0200
-Message-Id: <20220926100754.821644020@linuxfoundation.org>
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 043/207] btrfs: zoned: wait for extent buffer IOs before finishing a zone
+Date:   Mon, 26 Sep 2022 12:10:32 +0200
+Message-Id: <20220926100808.543420988@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +52,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Azhar Shaikh <azhar.shaikh@intel.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit ca5ce82529104e96ccc5e1888979258e233e1644 ]
+commit 2dd7e7bc02829eded71be2342a93dc035f5223f9 upstream.
 
-Intel AlderLake(ADL) IOM has a different IOM port status offset than
-Intel TigerLake.
-Add a new ACPI ID for ADL and use the IOM port status offset as per
-the platform.
+Before sending REQ_OP_ZONE_FINISH to a zone, we need to ensure that
+ongoing IOs already finished. Or, we will see a "Zone Is Full" error for
+the IOs, as the ZONE_FINISH command makes the zone full.
 
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Azhar Shaikh <azhar.shaikh@intel.com>
-Link: https://lore.kernel.org/r/20210601035843.71150-1-azhar.shaikh@intel.com
+We ensure that with btrfs_wait_block_group_reservations() and
+btrfs_wait_ordered_roots() for a data block group. And, for a metadata
+block group, the comparison of alloc_offset vs meta_write_pointer mostly
+ensures IOs for the allocated region already sent. However, there still
+can be a little time frame where the IOs are sent but not yet completed.
+
+Introduce wait_eb_writebacks() to ensure such IOs are completed for a
+metadata block group. It walks the buffer_radix to find extent buffers in
+the block group and calls wait_on_extent_buffer_writeback() on them.
+
+Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
+CC: stable@vger.kernel.org # 5.19+
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 1b1b672cc1d4 ("usb: typec: intel_pmc_mux: Add new ACPI ID for Meteor Lake IOM device")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c | 28 ++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ fs/btrfs/zoned.c | 40 ++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 38 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
-index acdef6fbb85e..ea1333ad4b2b 100644
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -83,8 +83,6 @@ enum {
- /*
-  * Input Output Manager (IOM) PORT STATUS
-  */
--#define IOM_PORT_STATUS_OFFSET				0x560
--
- #define IOM_PORT_STATUS_ACTIVITY_TYPE_MASK		GENMASK(9, 6)
- #define IOM_PORT_STATUS_ACTIVITY_TYPE_SHIFT		6
- #define IOM_PORT_STATUS_ACTIVITY_TYPE_USB		0x03
-@@ -144,6 +142,7 @@ struct pmc_usb {
- 	struct pmc_usb_port *port;
- 	struct acpi_device *iom_adev;
- 	void __iomem *iom_base;
-+	u32 iom_port_status_offset;
- };
- 
- static void update_port_status(struct pmc_usb_port *port)
-@@ -153,7 +152,8 @@ static void update_port_status(struct pmc_usb_port *port)
- 	/* SoC expects the USB Type-C port numbers to start with 0 */
- 	port_num = port->usb3_port - 1;
- 
--	port->iom_status = readl(port->pmc->iom_base + IOM_PORT_STATUS_OFFSET +
-+	port->iom_status = readl(port->pmc->iom_base +
-+				 port->pmc->iom_port_status_offset +
- 				 port_num * sizeof(u32));
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 62e7007a7e46..73c6929f7be6 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1918,10 +1918,44 @@ out_unlock:
+ 	return ret;
  }
  
-@@ -546,14 +546,32 @@ static int is_memory(struct acpi_resource *res, void *data)
- 	return !acpi_dev_resource_memory(res, &r);
- }
- 
-+/* IOM ACPI IDs and IOM_PORT_STATUS_OFFSET */
-+static const struct acpi_device_id iom_acpi_ids[] = {
-+	/* TigerLake */
-+	{ "INTC1072", 0x560, },
++static void wait_eb_writebacks(struct btrfs_block_group *block_group)
++{
++	struct btrfs_fs_info *fs_info = block_group->fs_info;
++	const u64 end = block_group->start + block_group->length;
++	struct radix_tree_iter iter;
++	struct extent_buffer *eb;
++	void __rcu **slot;
 +
-+	/* AlderLake */
-+	{ "INTC1079", 0x160, },
-+	{}
-+};
-+
- static int pmc_usb_probe_iom(struct pmc_usb *pmc)
- {
- 	struct list_head resource_list;
- 	struct resource_entry *rentry;
--	struct acpi_device *adev;
-+	static const struct acpi_device_id *dev_id;
-+	struct acpi_device *adev = NULL;
- 	int ret;
- 
--	adev = acpi_dev_get_first_match_dev("INTC1072", NULL, -1);
-+	for (dev_id = &iom_acpi_ids[0]; dev_id->id[0]; dev_id++) {
-+		if (acpi_dev_present(dev_id->id, NULL, -1)) {
-+			pmc->iom_port_status_offset = (u32)dev_id->driver_data;
-+			adev = acpi_dev_get_first_match_dev(dev_id->id, NULL, -1);
-+			break;
++	rcu_read_lock();
++	radix_tree_for_each_slot(slot, &fs_info->buffer_radix, &iter,
++				 block_group->start >> fs_info->sectorsize_bits) {
++		eb = radix_tree_deref_slot(slot);
++		if (!eb)
++			continue;
++		if (radix_tree_deref_retry(eb)) {
++			slot = radix_tree_iter_retry(&iter);
++			continue;
 +		}
-+	}
 +
- 	if (!adev)
- 		return -ENODEV;
++		if (eb->start < block_group->start)
++			continue;
++		if (eb->start >= end)
++			break;
++
++		slot = radix_tree_iter_resume(slot, &iter);
++		rcu_read_unlock();
++		wait_on_extent_buffer_writeback(eb);
++		rcu_read_lock();
++	}
++	rcu_read_unlock();
++}
++
+ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_written)
+ {
+ 	struct btrfs_fs_info *fs_info = block_group->fs_info;
+ 	struct map_lookup *map;
++	const bool is_metadata = (block_group->flags &
++			(BTRFS_BLOCK_GROUP_METADATA | BTRFS_BLOCK_GROUP_SYSTEM));
+ 	int ret = 0;
+ 	int i;
+ 
+@@ -1932,8 +1966,7 @@ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_writ
+ 	}
+ 
+ 	/* Check if we have unwritten allocated space */
+-	if ((block_group->flags &
+-	     (BTRFS_BLOCK_GROUP_METADATA | BTRFS_BLOCK_GROUP_SYSTEM)) &&
++	if (is_metadata &&
+ 	    block_group->start + block_group->alloc_offset > block_group->meta_write_pointer) {
+ 		spin_unlock(&block_group->lock);
+ 		return -EAGAIN;
+@@ -1958,6 +1991,9 @@ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_writ
+ 		/* No need to wait for NOCOW writers. Zoned mode does not allow that */
+ 		btrfs_wait_ordered_roots(fs_info, U64_MAX, block_group->start,
+ 					 block_group->length);
++		/* Wait for extent buffers to be written. */
++		if (is_metadata)
++			wait_eb_writebacks(block_group);
+ 
+ 		spin_lock(&block_group->lock);
  
 -- 
-2.35.1
+2.37.3
 
 
 
