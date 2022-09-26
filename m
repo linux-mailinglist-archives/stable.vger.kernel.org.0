@@ -2,117 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B1A5EB11D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 21:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A3B5EB140
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 21:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229632AbiIZTP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 15:15:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57182 "EHLO
+        id S229803AbiIZT0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 15:26:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229958AbiIZTPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 15:15:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3034B0C8;
-        Mon, 26 Sep 2022 12:15:45 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF3656125A;
-        Mon, 26 Sep 2022 19:15:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4375EC433C1;
-        Mon, 26 Sep 2022 19:15:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1664219744;
-        bh=rZVJT+JttxSzyyhB0MeLHuEC2E83EzkQrTrLuZ4KN/A=;
-        h=Date:To:From:Subject:From;
-        b=q2HKYhwSpUQBDayg2qNXCScBQo1OHUmfmOg1ilsiTmidjnfYfMErbaghWaMgC4Qyu
-         YDysnWITrd+0M/gEmEFiUKg3Oi/PlBjgO8fT8/JP0hfIYPmb5vPfCgXZxugCto7i0c
-         KRJlzCOe+8midXiuwF4JmYrITd5xwhW4cLvSDocg=
-Date:   Mon, 26 Sep 2022 12:15:43 -0700
-To:     mm-commits@vger.kernel.org, yuzhao@google.com, willy@infradead.org,
-        stable@vger.kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
-        dev@der-flo.net, dave.hansen@linux.intel.com,
-        akpm@linux-foundation.org, keescook@chromium.org,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] x86-uaccess-avoid-check_object_size-in-copy_from_user_nmi.patch removed from -mm tree
-Message-Id: <20220926191544.4375EC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229597AbiIZT0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 15:26:08 -0400
+Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92425A146;
+        Mon, 26 Sep 2022 12:26:04 -0700 (PDT)
+Received: by mail-qt1-x829.google.com with SMTP id a20so4745263qtw.10;
+        Mon, 26 Sep 2022 12:26:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=l+Ylk9b//7nM5mTF/JCsuVNj5uiO0MLoAvHLsDMzYN4=;
+        b=cI2ST1Qax8qktOIHjeYgTuoX4TzEN/mewsTIMufWIXGP+FntEEYpIOkgYvn8bQmuQj
+         4B2qdr7KHg3LPJH/g93/9G46uch8bXMKMoj/X/gwKlnH5+lHhkblOHeyEU6OKm0T9DSQ
+         Jq+1APPi0Vyp1ElmK7nKzW4eHOXrwaxnwvadiw6wxstOO+nhTIiuvqZsw9YwejckGBfb
+         AAH7aXyatPmXAzwC49CJ6J20zPndpRvV3DEBdlrZWTx5c9Wo7jwXgpGPlxYt7aDme5mz
+         Ynyg9eyA+RGaah++8Xha8Yjnk8Bar2nlysLYWYXTi1mnv1U5XYC6PbcaPaHjP6yfqg8L
+         4tbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=l+Ylk9b//7nM5mTF/JCsuVNj5uiO0MLoAvHLsDMzYN4=;
+        b=Xugal5Oj0AnR2/tcZ5ZjyVRYsWkZCY5fV6HesSkjnZyg9QFb54Ec/XCSYXSWX0KJiZ
+         h+Hn4b5evssHUjbjCqfGKw0DelfAgPbr31/y6LxRPe+gw6QnOjkR49GFXbXtnB63HjFj
+         v6JB1c43V4O5Q3ecnMRNo8pNSc1VbN7ReFZajYz3BxrBmk577WGQnYAvfpoOmLxVIexn
+         PAMopQxjl+Ji0FVzvUXhYjYj8/FrgqEOUSY2mPlpxx2HQOrlspQYP1U+dtDuc+fkJiaD
+         C65+79PFUx7DYX4Vm+AukvzSJQ415vK+3BRq+dIPQRmKVNNuV+oNLWPbQvXuv8hOZSxb
+         ZVuA==
+X-Gm-Message-State: ACrzQf3YoPNo8992ekMZqx2EFIgpR6zEszcbni1Be0Au/GK5uttqA7PS
+        TgsW9TWALl84CpbyYi9KGVTfisjvK+Q=
+X-Google-Smtp-Source: AMsMyM4ednUq3Wrdb4DnYp8vSxPsaz8T4EIMmDveQ/qAZnfYxXb2BI3+bXTgiQiJU7CNJAortNdQ1Q==
+X-Received: by 2002:ac8:754c:0:b0:35c:caea:3e73 with SMTP id b12-20020ac8754c000000b0035ccaea3e73mr19696321qtr.504.1664220363879;
+        Mon, 26 Sep 2022 12:26:03 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id s9-20020a05622a018900b0035d43c82da8sm1613547qtw.80.2022.09.26.12.26.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Sep 2022 12:26:03 -0700 (PDT)
+Message-ID: <36397608-ae17-5359-d3e2-4676aa9ecf97@gmail.com>
+Date:   Mon, 26 Sep 2022 12:25:58 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 4.9 00/21] 4.9.330-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220926163533.310693334@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220926163533.310693334@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 9/26/22 09:36, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.330 release.
+> There are 21 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 28 Sep 2022 16:35:25 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.330-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The quilt patch titled
-     Subject: x86/uaccess: avoid check_object_size() in copy_from_user_nmi()
-has been removed from the -mm tree.  Its filename was
-     x86-uaccess-avoid-check_object_size-in-copy_from_user_nmi.patch
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-------------------------------------------------------
-From: Kees Cook <keescook@chromium.org>
-Subject: x86/uaccess: avoid check_object_size() in copy_from_user_nmi()
-Date: Mon, 19 Sep 2022 13:16:48 -0700
-
-The check_object_size() helper under CONFIG_HARDENED_USERCOPY is designed
-to skip any checks where the length is known at compile time as a
-reasonable heuristic to avoid "likely known-good" cases.  However, it can
-only do this when the copy_*_user() helpers are, themselves, inline too.
-
-Using find_vmap_area() requires taking a spinlock.  The
-check_object_size() helper can call find_vmap_area() when the destination
-is in vmap memory.  If show_regs() is called in interrupt context, it will
-attempt a call to copy_from_user_nmi(), which may call check_object_size()
-and then find_vmap_area().  If something in normal context happens to be
-in the middle of calling find_vmap_area() (with the spinlock held), the
-interrupt handler will hang forever.
-
-The copy_from_user_nmi() call is actually being called with a fixed-size
-length, so check_object_size() should never have been called in the first
-place.  Given the narrow constraints, just replace the
-__copy_from_user_inatomic() call with an open-coded version that calls
-only into the sanitizers and not check_object_size(), followed by a call
-to raw_copy_from_user().
-
-[akpm@linux-foundation.org: no instrument_copy_from_user() in my tree...]
-Link: https://lkml.kernel.org/r/20220919201648.2250764-1-keescook@chromium.org
-Link: https://lore.kernel.org/all/CAOUHufaPshtKrTWOz7T7QFYUNVGFm0JBjvM700Nhf9qEL9b3EQ@mail.gmail.com
-Fixes: 0aef499f3172 ("mm/usercopy: Detect vmalloc overruns")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reported-by: Yu Zhao <yuzhao@google.com>
-Reported-by: Florian Lehner <dev@der-flo.net>
-Suggested-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Florian Lehner <dev@der-flo.net>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- arch/x86/lib/usercopy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/x86/lib/usercopy.c~x86-uaccess-avoid-check_object_size-in-copy_from_user_nmi
-+++ a/arch/x86/lib/usercopy.c
-@@ -44,7 +44,7 @@ copy_from_user_nmi(void *to, const void
- 	 * called from other contexts.
- 	 */
- 	pagefault_disable();
--	ret = __copy_from_user_inatomic(to, from, n);
-+	ret = raw_copy_from_user(to, from, n);
- 	pagefault_enable();
- 
- 	return ret;
-_
-
-Patches currently in -mm which might be from keescook@chromium.org are
-
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
