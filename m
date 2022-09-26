@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4B35EAD0F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 18:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048DB5EAD1C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 18:49:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229680AbiIZQsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 12:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60780 "EHLO
+        id S230044AbiIZQs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 12:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbiIZQrx (ORCPT
+        with ESMTP id S229904AbiIZQrx (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 12:47:53 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287C780E99
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 08:41:01 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id d11so6584268pll.8
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 08:41:01 -0700 (PDT)
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35AAC80BC9
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 08:41:00 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id 129so5473642pgc.5
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 08:41:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date;
-        bh=DG9FLCqKpPIUKVJEE+ybYwXQKtYR57FctxLE7bb35uQ=;
-        b=CWt5C9PCM2HJSap2fXeFOKSha094d+gkg0KifACb2NSbyfuLyG6KJNYxcGAhPb5rOG
-         nw20E3XdiGyCwjJtX0YIs7AKjjvYUZgru/+6WTLKxRGb+q5nrhAOkDxDl02+DZ8dAH76
-         aQ7ZSZAT37yTXdvaSUtx7gSukUXpxzp6YsuMVVj8L6OkBtHR2nUtuvAZSJD5zUrH8YEH
-         SNw1UOYNqb1gGJhB4IgQFuVr4GhMiWwst2vqi/w65rgGX1U3YrfEdmCT8d5GBvs7GkT5
-         eOhue3tDu7EPljyg1LlFo8jtKazgENQFIYZ6Zf5POzEmrNRroVHOSgm2AA9SVtfTJMhC
-         nE/Q==
+        bh=1kvJgdT54GY2HcGbrtiViGErbs3ssMsxGEHkAI1hvrs=;
+        b=AsLt1ty7k7sUK89DosXt9mG6aReHldcCpu9+TMLAE9vi6Z4ptOI722siy1tfShFYrf
+         0iclDlSgj7BHzyEqNkBSijVh/jKieX9HmT2zKE3P+1OqhE+1WZhWFpBxwKBClPQy0pO7
+         LmTdF+Lc8mEGxsP1/0FjkoGvSMXILekD4jH8ZXrfT4SZc53GXInFGh/DcITUlw0rOIN8
+         5rACM83eDBVIFqqskI8dtyTEnMy4Y1MZDQs/EVW8cZ11Y0d0OScjfiXeAW5FnZV5pe+s
+         QF9JBm4SEQth7VRsxjgvAoGBAD0l7mDXCEYZKKpciWKDXQgvfQeUG7bVRxZgYYT7EPlj
+         bDAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=DG9FLCqKpPIUKVJEE+ybYwXQKtYR57FctxLE7bb35uQ=;
-        b=mwlP2AktMvh0g4rmWfWm+zSQwzOfyhGDLoPl0rh5Tp9NYLXR222B1BHlk4O8GgOB1O
-         +KC3Cx5x5xuHJMKxtmVBVgsiCAuyCAg0T9TNfiKUwXgst7WOI/PXQARerJUW0S7fw5XA
-         73YhMnznJX5yOvcanJCs8HCB/THAIzlLyAnvkgugffL/vjw/LDk/Gbe8Rxtmu3fp3AZY
-         AkYLuURviOv742WMUyH8z8Q4BPHh2I1Js3/QGcVN3iFiDS/+5M28MHJPdYaagA6Qjgz5
-         SZeazWPqyrv/nwbQ/gjkWZzy+SYXsA3lbAtno5gkHWaKD8WW+CMdiYT3kOGwfp4JxoHX
-         ISJg==
-X-Gm-Message-State: ACrzQf2cWHHPKLK4rzgTlaWDf8ALa78yr64rGJNof2Qu275xMzML1w2s
-        VsO73ANhHx/cytlYW0jwPsgOMGUchk8o6zTY
-X-Google-Smtp-Source: AMsMyM5HxK6hARZl6Na2lty90BNcLtaZYlDZx8B4bCPGbcq8oKU9rX8dAW2uRQtd5V1e1bDHrDcbeQ==
-X-Received: by 2002:a17:902:e782:b0:179:da9d:6b8 with SMTP id cp2-20020a170902e78200b00179da9d06b8mr6008812plb.50.1664206860526;
-        Mon, 26 Sep 2022 08:41:00 -0700 (PDT)
+        bh=1kvJgdT54GY2HcGbrtiViGErbs3ssMsxGEHkAI1hvrs=;
+        b=cz0aIC/7tWOTUaGDOUf8rnh0DtO7uvSnMgn4ipqQS8t6AcLCF8VW/ni9nA54Vq6xis
+         P4epGlBnpWYFJvtO5OQKxkfpD9QuFHgcTu0r0DnyTWoWOESWLvQIkeNYcdY+AGsuh5FG
+         zS/np55I32f77C3j/Iq1wkvBs6U0lcDq2mIikOBetWWf8GuzVGdp6ozyGoDtV3kQwj+m
+         qUPkLFWgqcDnT59nrYwoe0l+RMvt5NMnm10Tn+l0b8H2yicimbi/6KmwZZSqSbOc7AuL
+         /VVF1at9Jbnq2G85RsNk70Xh3KFFCYeW4IA0yFW/TGmXO/pr1VhG6c9C0PTnkOYVYAp1
+         YeSQ==
+X-Gm-Message-State: ACrzQf3zRrnCg8lH7qVhBI0gxH3fwqz9JvH9Ez+fEyhi0fLVagC5tjTs
+        7od1F7JzkkT3fUucCC8hgo5wJ9AjU8AC8rHi
+X-Google-Smtp-Source: AMsMyM7fquUhf2CTW6jb3jIMUfzmxOgFkGUBr8Cq8qGVFojm0g/ku/Bqxe7KtDjMWh5oWL065iClZw==
+X-Received: by 2002:a63:982:0:b0:43b:e67b:988c with SMTP id 124-20020a630982000000b0043be67b988cmr20722558pgj.35.1664206859548;
+        Mon, 26 Sep 2022 08:40:59 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u6-20020a17090adb4600b002029e3d5cb8sm6707098pjx.34.2022.09.26.08.40.59
+        by smtp.gmail.com with ESMTPSA id y7-20020a17090322c700b00178b070416asm11378174plg.36.2022.09.26.08.40.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 26 Sep 2022 08:40:59 -0700 (PDT)
-Message-ID: <6331c80b.170a0220.f2b59.b400@mx.google.com>
+Message-ID: <6331c80b.170a0220.a95f0.562f@mx.google.com>
 Date:   Mon, 26 Sep 2022 08:40:59 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.19.y
-X-Kernelci-Kernel: v5.19.11-208-gf962b265cecbb
-Subject: stable-rc/linux-5.19.y build: 151 builds: 2 failed,
- 149 passed (v5.19.11-208-gf962b265cecbb)
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.259-59-g380dcd7a66234
+Subject: stable-rc/linux-4.19.y build: 181 builds: 6 failed,
+ 175 passed (v4.19.259-59-g380dcd7a66234)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.19.y build: 151 builds: 2 failed, 149 passed (v5.19.11-20=
-8-gf962b265cecbb)
+stable-rc/linux-4.19.y build: 181 builds: 6 failed, 175 passed (v4.19.259-5=
+9-g380dcd7a66234)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.19.=
-y/kernel/v5.19.11-208-gf962b265cecbb/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.259-59-g380dcd7a66234/
 
 Tree: stable-rc
-Branch: linux-5.19.y
-Git Describe: v5.19.11-208-gf962b265cecbb
-Git Commit: f962b265cecbbf1ee2711de3379cbbe66eb921a9
+Branch: linux-4.19.y
+Git Describe: v4.19.259-59-g380dcd7a66234
+Git Commit: 380dcd7a66234bfd8277cdd8a5d1396113ab12f1
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -90,7 +90,13 @@ arm:
     rpc_defconfig: (gcc-10) FAIL
 
 mips:
-    decstation_64_defconfig: (gcc-10) FAIL
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+riscv:
+    allnoconfig: (gcc-10) FAIL
+    defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
 
 ---
 For more info write to <info@kernelci.org>
