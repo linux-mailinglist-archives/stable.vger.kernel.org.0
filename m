@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A36C5EA310
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1615EA116
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233701AbiIZLTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45472 "EHLO
+        id S236390AbiIZKpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:45:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234376AbiIZLSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C766610D;
-        Mon, 26 Sep 2022 03:38:11 -0700 (PDT)
+        with ESMTP id S236563AbiIZKoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:44:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F83C4198F;
+        Mon, 26 Sep 2022 03:25:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F325A60BB7;
-        Mon, 26 Sep 2022 10:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B105C433C1;
-        Mon, 26 Sep 2022 10:31:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 517E8609D1;
+        Mon, 26 Sep 2022 10:25:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4732AC433C1;
+        Mon, 26 Sep 2022 10:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188304;
-        bh=gvkZWypXOh4rePqQv6nflT5PDiq3Lx826yWj1qul/5w=;
+        s=korg; t=1664187912;
+        bh=7QRXjBtBQvWq/NN8AqiQeXCPBs/BFJQC/y6ZQ+q0Yeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnWgKIXD8NkX5xq6s4w4asWUT9JVDMC9zWUG08elYL/xKd5+U/T7ixAZh0kkA2LzK
-         RJu6d/T5985tKarYTlRY+tl1UO+YdJnHPhf1VCxe7bhEUJXQ6ddzm4LxqPWNwHDN1K
-         P46Bm7GDZMp+B4U1OCBR6Suzaw7841qK97kLd4OI=
+        b=UElAPAt5iMKk+yuIMA03KVDmvYgvqmADpXyrSqxzRHS/MbREiXPe7bQ7Qor5I7C4H
+         QNBozPFgUbtMc1H+cmyHVX9j+LZEFf3Q/uihM0zGwO8s86GnDViLOyBIcNaamf8mbf
+         UeXyE5+yE5jfGpMVW0+vcQEL2z6Hl2UxFS4u0ACM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Yao Wang1 <Yao.Wang1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 106/141] netfilter: nf_tables: fix percpu memory leak at nf_tables_addchain()
+Subject: [PATCH 5.4 099/120] drm/amd/display: Limit user regamma to a valid value
 Date:   Mon, 26 Sep 2022 12:12:12 +0200
-Message-Id: <20220926100758.282294291@linuxfoundation.org>
+Message-Id: <20220926100754.634104960@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Yao Wang1 <Yao.Wang1@amd.com>
 
-[ Upstream commit 9a4d6dd554b86e65581ef6b6638a39ae079b17ac ]
+[ Upstream commit 3601d620f22e37740cf73f8278eabf9f2aa19eb7 ]
 
-It seems to me that percpu memory for chain stats started leaking since
-commit 3bc158f8d0330f0a ("netfilter: nf_tables: map basechain priority to
-hardware priority") when nft_chain_offload_priority() returned an error.
+[Why]
+For HDR mode, we get total 512 tf_point and after switching to SDR mode
+we actually get 400 tf_point and the rest of points(401~512) still use
+dirty value from HDR mode. We should limit the rest of the points to max
+value.
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 3bc158f8d0330f0a ("netfilter: nf_tables: map basechain priority to hardware priority")
-Signed-off-by: Florian Westphal <fw@strlen.de>
+[How]
+Limit the value when coordinates_x.x > 1, just like what we do in
+translate_from_linear_space for other re-gamma build paths.
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Yao Wang1 <Yao.Wang1@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index d65c47bcbfc9..810995d712ac 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2045,6 +2045,7 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
- 		if (err < 0) {
- 			nft_chain_release_hook(&hook);
- 			kfree(basechain);
-+			free_percpu(stats);
- 			return err;
- 		}
- 		if (stats)
+diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+index e042d8ce05b4..22d105635e33 100644
+--- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
++++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+@@ -1486,6 +1486,7 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 	struct fixed31_32 lut2;
+ 	struct fixed31_32 delta_lut;
+ 	struct fixed31_32 delta_index;
++	const struct fixed31_32 one = dc_fixpt_from_int(1);
+ 
+ 	i = 0;
+ 	/* fixed_pt library has problems handling too small values */
+@@ -1514,6 +1515,9 @@ static void interpolate_user_regamma(uint32_t hw_points_num,
+ 			} else
+ 				hw_x = coordinates_x[i].x;
+ 
++			if (dc_fixpt_le(one, hw_x))
++				hw_x = one;
++
+ 			norm_x = dc_fixpt_mul(norm_factor, hw_x);
+ 			index = dc_fixpt_floor(norm_x);
+ 			if (index < 0 || index > 255)
 -- 
 2.35.1
 
