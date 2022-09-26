@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9F905EA298
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF5135EA4EE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237514AbiIZLL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33248 "EHLO
+        id S238704AbiIZL4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234739AbiIZLJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:09:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9989C520AD;
-        Mon, 26 Sep 2022 03:35:20 -0700 (PDT)
+        with ESMTP id S239140AbiIZLyl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C836E77E8C;
+        Mon, 26 Sep 2022 03:50:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8A2DB80691;
-        Mon, 26 Sep 2022 10:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31F6BC433D6;
-        Mon, 26 Sep 2022 10:33:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EB1F60C13;
+        Mon, 26 Sep 2022 10:50:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC87C433D6;
+        Mon, 26 Sep 2022 10:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188409;
-        bh=un+fMfDkfKr7GlPinYtqsWpS83xYwTGg7yXUxWNg6xE=;
+        s=korg; t=1664189405;
+        bh=1/1trZGEtev77HfDDQBWBt2AT66uUUujyyAtJ++NY0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxvWdiC40Z5rSLmGriPpCIjSV0mY/6eYXODSfn3cc3Qp07fRngm14dj/VRlOgVhsA
-         AHRqBcxt6n0GkPQ/JkUTkylzAz8vFMIlgD0cVI5ixCK+3dJsNWhjinIEvsJkC3JLXJ
-         a63C+tlCjBA21DeES49gETWt+dffQmT7CZDzWKls=
+        b=dUG+vKPIH54PrfP89EYUK4CBOAaVLzn2/kGX+rRv8ypgmHKnP8AxhVwGfJLsllHp7
+         j7o76EZcs9nmJq/Mxm6A4lJLKvazHjp379iowftFak2hoMZsnIyMhl5zqCBDx7sRBU
+         WyW/vjOCeAnaD7/7CY9uJfOFaWWgS8DEMFY30T/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 140/141] ext4: limit the number of retries after discarding preallocations blocks
+        stable@vger.kernel.org, Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 177/207] drm/amdgpu: use dirty framebuffer helper
 Date:   Mon, 26 Sep 2022 12:12:46 +0200
-Message-Id: <20220926100759.536419723@linuxfoundation.org>
+Message-Id: <20220926100814.566867154@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,74 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Hamza Mahfooz <hamza.mahfooz@amd.com>
 
-commit 80fa46d6b9e7b1527bfd2197d75431fd9c382161 upstream.
+[ Upstream commit 66f99628eb24409cb8feb5061f78283c8b65f820 ]
 
-This patch avoids threads live-locking for hours when a large number
-threads are competing over the last few free extents as they blocks
-getting added and removed from preallocation pools.  From our bug
-reporter:
+Currently, we aren't handling DRM_IOCTL_MODE_DIRTYFB. So, use
+drm_atomic_helper_dirtyfb() as the dirty callback in the amdgpu_fb_funcs
+struct.
 
-   A reliable way for triggering this has multiple writers
-   continuously write() to files when the filesystem is full, while
-   small amounts of space are freed (e.g. by truncating a large file
-   -1MiB at a time). In the local filesystem, this can be done by
-   simply not checking the return code of write (0) and/or the error
-   (ENOSPACE) that is set. Over NFS with an async mount, even clients
-   with proper error checking will behave this way since the linux NFS
-   client implementation will not propagate the server errors [the
-   write syscalls immediately return success] until the file handle is
-   closed. This leads to a situation where NFS clients send a
-   continuous stream of WRITE rpcs which result in ERRNOSPACE -- but
-   since the client isn't seeing this, the stream of writes continues
-   at maximum network speed.
-
-   When some space does appear, multiple writers will all attempt to
-   claim it for their current write. For NFS, we may see dozens to
-   hundreds of threads that do this.
-
-   The real-world scenario of this is database backup tooling (in
-   particular, github.com/mdkent/percona-xtrabackup) which may write
-   large files (>1TiB) to NFS for safe keeping. Some temporary files
-   are written, rewound, and read back -- all before closing the file
-   handle (the temp file is actually unlinked, to trigger automatic
-   deletion on close/crash.) An application like this operating on an
-   async NFS mount will not see an error code until TiB have been
-   written/read.
-
-   The lockup was observed when running this database backup on large
-   filesystems (64 TiB in this case) with a high number of block
-   groups and no free space. Fragmentation is generally not a factor
-   in this filesystem (~thousands of large files, mostly contiguous
-   except for the parts written while the filesystem is at capacity.)
-
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mballoc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -4959,6 +4959,7 @@ ext4_fsblk_t ext4_mb_new_blocks(handle_t
- 	ext4_fsblk_t block = 0;
- 	unsigned int inquota = 0;
- 	unsigned int reserv_clstrs = 0;
-+	int retries = 0;
- 	u64 seq;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+index 4dfd6724b3ca..3451147beda3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+@@ -35,6 +35,7 @@
+ #include <linux/pci.h>
+ #include <linux/pm_runtime.h>
+ #include <drm/drm_crtc_helper.h>
++#include <drm/drm_damage_helper.h>
+ #include <drm/drm_edid.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_fb_helper.h>
+@@ -493,6 +494,7 @@ bool amdgpu_display_ddc_probe(struct amdgpu_connector *amdgpu_connector,
+ static const struct drm_framebuffer_funcs amdgpu_fb_funcs = {
+ 	.destroy = drm_gem_fb_destroy,
+ 	.create_handle = drm_gem_fb_create_handle,
++	.dirty = drm_atomic_helper_dirtyfb,
+ };
  
- 	might_sleep();
-@@ -5061,7 +5062,8 @@ repeat:
- 			ar->len = ac->ac_b_ex.fe_len;
- 		}
- 	} else {
--		if (ext4_mb_discard_preallocations_should_retry(sb, ac, &seq))
-+		if (++retries < 3 &&
-+		    ext4_mb_discard_preallocations_should_retry(sb, ac, &seq))
- 			goto repeat;
- 		/*
- 		 * If block allocation fails then the pa allocated above
+ uint32_t amdgpu_display_supported_domains(struct amdgpu_device *adev,
+-- 
+2.35.1
+
 
 
