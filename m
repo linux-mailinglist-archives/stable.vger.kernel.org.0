@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9B45EA65B
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E8A5EA57B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiIZMmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37794 "EHLO
+        id S239073AbiIZMGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235174AbiIZMmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:42:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 214DA4B483;
-        Mon, 26 Sep 2022 04:19:04 -0700 (PDT)
+        with ESMTP id S239078AbiIZMB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:01:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AA17CAA5;
+        Mon, 26 Sep 2022 03:53:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFC4860C09;
-        Mon, 26 Sep 2022 10:51:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BAFDC433C1;
-        Mon, 26 Sep 2022 10:51:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B57460A4D;
+        Mon, 26 Sep 2022 10:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F0EC433D6;
+        Mon, 26 Sep 2022 10:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189518;
-        bh=2cGH1mAPRTMCE+KtpGsX54UrcUXI3dW1W9qeiEFt52w=;
+        s=korg; t=1664189500;
+        bh=I2iJTGmrjfeXtL80IU2V9HUQGt2jL1+AcdRt0kpwcE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O94om6s9V3iDBxUPj8ScmqGIvZNKj29VWhOq4OseqvcrS4yLQJ4vY7VxRrVbpQzmh
-         G2bV9cf2ahksJcEsTJ1AC+3VIROg0gQeyb+l5CNc/0GldmysPyOcoj3eTyVOufBZRJ
-         KfA/Nr6zZoX6aDXl5uhpxYg7b+ZYSQNZHxMX3uVk=
+        b=IeAzB5mspSrFPJZepyv3tLtswtxBGkzF0ohmOSdFtnXsQCs0+KGwYDWuXfbb478t6
+         Wb4p8Iv1W6nNxTd1xE82o4Hkuk/QWmcHbiIoDXNA35K3de/w/2tiRAgx3XAtUnMlMU
+         +MsNItF0Fsjaxolrq1GJT34WNYNovLtjvy8Xp5jM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Alexandrov <aalexand@google.com>,
-        Bill Wendling <morbo@google.com>,
-        Greg Thelen <gthelen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 198/207] Makefile.debug: re-enable debug info for .S files
-Date:   Mon, 26 Sep 2022 12:13:07 +0200
-Message-Id: <20220926100815.462063478@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ojaswin Mujoo <ojaswin@linux.ibm.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Stefan Wahren <stefan.wahren@i2se.com>
+Subject: [PATCH 5.19 202/207] ext4: make mballoc try target group first even with mb_optimize_scan
+Date:   Mon, 26 Sep 2022 12:13:11 +0200
+Message-Id: <20220926100815.642837527@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -57,94 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 32ef9e5054ec0321b9336058c58ec749e9c6b0fe ]
+commit 4fca50d440cc5d4dc570ad5484cc0b70b381bc2a upstream.
 
-Alexey reported that the fraction of unknown filename instances in
-kallsyms grew from ~0.3% to ~10% recently; Bill and Greg tracked it down
-to assembler defined symbols, which regressed as a result of:
+One of the side-effects of mb_optimize_scan was that the optimized
+functions to select next group to try were called even before we tried
+the goal group. As a result we no longer allocate files close to
+corresponding inodes as well as we don't try to expand currently
+allocated extent in the same group. This results in reaim regression
+with workfile.disk workload of upto 8% with many clients on my test
+machine:
 
-commit b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
+                     baseline               mb_optimize_scan
+Hmean     disk-1       2114.16 (   0.00%)     2099.37 (  -0.70%)
+Hmean     disk-41     87794.43 (   0.00%)    83787.47 *  -4.56%*
+Hmean     disk-81    148170.73 (   0.00%)   135527.05 *  -8.53%*
+Hmean     disk-121   177506.11 (   0.00%)   166284.93 *  -6.32%*
+Hmean     disk-161   220951.51 (   0.00%)   207563.39 *  -6.06%*
+Hmean     disk-201   208722.74 (   0.00%)   203235.59 (  -2.63%)
+Hmean     disk-241   222051.60 (   0.00%)   217705.51 (  -1.96%)
+Hmean     disk-281   252244.17 (   0.00%)   241132.72 *  -4.41%*
+Hmean     disk-321   255844.84 (   0.00%)   245412.84 *  -4.08%*
 
-In that commit, I allude to restoring debug info for assembler defined
-symbols in a follow up patch, but it seems I forgot to do so in
+Also this is causing huge regression (time increased by a factor of 5 or
+so) when untarring archive with lots of small files on some eMMC storage
+cards.
 
-commit a66049e2cf0e ("Kbuild: make DWARF version a choice")
+Fix the problem by making sure we try goal group first.
 
-Link: https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=31bf18645d98b4d3d7357353be840e320649a67d
-Fixes: b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
-Reported-by: Alexey Alexandrov <aalexand@google.com>
-Reported-by: Bill Wendling <morbo@google.com>
-Reported-by: Greg Thelen <gthelen@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 196e402adf2e ("ext4: improve cr 0 / cr 1 group scanning")
+CC: stable@kernel.org
+Reported-and-tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Tested-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/all/20220727105123.ckwrhbilzrxqpt24@quack3/
+Link: https://lore.kernel.org/all/0d81a7c2-46b7-6010-62a4-3e6cfc1628d6@i2se.com/
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220908092136.11770-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.debug      |  4 +++-
- scripts/Makefile.debug | 21 +++++++++++----------
- 2 files changed, 14 insertions(+), 11 deletions(-)
+ fs/ext4/mballoc.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 2e24db4bff19..c399ab486557 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -264,8 +264,10 @@ config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT
- config DEBUG_INFO_DWARF4
- 	bool "Generate DWARF Version 4 debuginfo"
- 	select DEBUG_INFO
-+	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
- 	help
--	  Generate DWARF v4 debug info. This requires gcc 4.5+ and gdb 7.0+.
-+	  Generate DWARF v4 debug info. This requires gcc 4.5+, binutils 2.35.2
-+	  if using clang without clang's integrated assembler, and gdb 7.0+.
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1049,8 +1049,10 @@ static void ext4_mb_choose_next_group(st
+ {
+ 	*new_cr = ac->ac_criteria;
  
- 	  If you have consumers of DWARF debug info that are not ready for
- 	  newer revisions of DWARF, you may wish to choose this or have your
-diff --git a/scripts/Makefile.debug b/scripts/Makefile.debug
-index 26d6a9d97a20..8cf1cb22dd93 100644
---- a/scripts/Makefile.debug
-+++ b/scripts/Makefile.debug
-@@ -1,18 +1,19 @@
--DEBUG_CFLAGS	:= -g
-+DEBUG_CFLAGS	:=
-+debug-flags-y	:= -g
+-	if (!should_optimize_scan(ac) || ac->ac_groups_linear_remaining)
++	if (!should_optimize_scan(ac) || ac->ac_groups_linear_remaining) {
++		*group = next_linear_group(ac, *group, ngroups);
+ 		return;
++	}
  
- ifdef CONFIG_DEBUG_INFO_SPLIT
- DEBUG_CFLAGS	+= -gsplit-dwarf
- endif
+ 	if (*new_cr == 0) {
+ 		ext4_mb_choose_next_group_cr0(ac, new_cr, group, ngroups);
+@@ -2630,7 +2632,7 @@ static noinline_for_stack int
+ ext4_mb_regular_allocator(struct ext4_allocation_context *ac)
+ {
+ 	ext4_group_t prefetch_grp = 0, ngroups, group, i;
+-	int cr = -1;
++	int cr = -1, new_cr;
+ 	int err = 0, first_err = 0;
+ 	unsigned int nr = 0, prefetch_ios = 0;
+ 	struct ext4_sb_info *sbi;
+@@ -2705,13 +2707,11 @@ repeat:
+ 		ac->ac_groups_linear_remaining = sbi->s_mb_max_linear_groups;
+ 		prefetch_grp = group;
  
--ifndef CONFIG_AS_IS_LLVM
--KBUILD_AFLAGS	+= -Wa,-gdwarf-2
--endif
+-		for (i = 0; i < ngroups; group = next_linear_group(ac, group, ngroups),
+-			     i++) {
+-			int ret = 0, new_cr;
++		for (i = 0, new_cr = cr; i < ngroups; i++,
++		     ext4_mb_choose_next_group(ac, &new_cr, &group, ngroups)) {
++			int ret = 0;
+ 
+ 			cond_resched();
 -
--ifndef CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT
--dwarf-version-$(CONFIG_DEBUG_INFO_DWARF4) := 4
--dwarf-version-$(CONFIG_DEBUG_INFO_DWARF5) := 5
--DEBUG_CFLAGS	+= -gdwarf-$(dwarf-version-y)
-+debug-flags-$(CONFIG_DEBUG_INFO_DWARF4)	+= -gdwarf-4
-+debug-flags-$(CONFIG_DEBUG_INFO_DWARF5)	+= -gdwarf-5
-+ifeq ($(CONFIG_CC_IS_CLANG)$(CONFIG_AS_IS_GNU),yy)
-+# Clang does not pass -g or -gdwarf-* option down to GAS.
-+# Add -Wa, prefix to explicitly specify the flags.
-+KBUILD_AFLAGS	+= $(addprefix -Wa$(comma), $(debug-flags-y))
- endif
-+DEBUG_CFLAGS	+= $(debug-flags-y)
-+KBUILD_AFLAGS	+= $(debug-flags-y)
- 
- ifdef CONFIG_DEBUG_INFO_REDUCED
- DEBUG_CFLAGS	+= -fno-var-tracking
-@@ -27,5 +28,5 @@ KBUILD_AFLAGS	+= -gz=zlib
- KBUILD_LDFLAGS	+= --compress-debug-sections=zlib
- endif
- 
--KBUILD_CFLAGS += $(DEBUG_CFLAGS)
-+KBUILD_CFLAGS	+= $(DEBUG_CFLAGS)
- export DEBUG_CFLAGS
--- 
-2.35.1
-
+-			ext4_mb_choose_next_group(ac, &new_cr, &group, ngroups);
+ 			if (new_cr != cr) {
+ 				cr = new_cr;
+ 				goto repeat;
 
 
