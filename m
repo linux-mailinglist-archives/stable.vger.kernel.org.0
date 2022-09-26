@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A8F5EA270
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E9B5E9FD2
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237229AbiIZLHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59942 "EHLO
+        id S235458AbiIZK3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237360AbiIZLGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:06:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9D950047;
-        Mon, 26 Sep 2022 03:34:15 -0700 (PDT)
+        with ESMTP id S235621AbiIZK2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556BA4E606;
+        Mon, 26 Sep 2022 03:18:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83708609FB;
-        Mon, 26 Sep 2022 10:32:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84748C433D7;
-        Mon, 26 Sep 2022 10:32:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA98AB80942;
+        Mon, 26 Sep 2022 10:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14526C433D7;
+        Mon, 26 Sep 2022 10:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188350;
-        bh=AVRsrIsgiC9iOeuJ9kYUi3jx3bvONckuSF+If+EI2rM=;
+        s=korg; t=1664187534;
+        bh=d2uCZmzDO+E2wDJVSs97t4uBGEI64Dq855m06/aUQsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+aOkYGe3WKaM1a3S+3lGwDobCsX9mGLWElfOAjKFqVZMbECTCzvNbP18oqZkHNe6
-         c292DMFTHYdPnqg7xBE6fj+Vt6KEnjSdDJXQEPFkn/paLRF5hX9YX7S+hrWEZFqSJi
-         yEBvrsJLYX44Nzvp3LN/5t/H9ok3DtMRujB2lvrw=
+        b=XsW4rux2NILvKiQWO/LjB/FPKe2zoEVIapTHAls/qpZcVvbY3hNxrHOButujLrc/g
+         7768+Y7XgviIoPQ27wsc9Qnq8KjRAYX+KnsvBmKWofbqSJgF+k9yJeaoGTGIjN/v3e
+         jhgzvkw+yFdnd08Rlg5IaP9dw72CgaGB/jWXTB24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Norbert Zulinski <norbertx.zulinski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/141] drm/hisilicon/hibmc: Allow to be built if COMPILE_TEST is enabled
-Date:   Mon, 26 Sep 2022 12:11:56 +0200
-Message-Id: <20220926100757.691723943@linuxfoundation.org>
+Subject: [PATCH 4.19 38/58] iavf: Fix cached head and tail value for iavf_get_tx_pending
+Date:   Mon, 26 Sep 2022 12:11:57 +0200
+Message-Id: <20220926100742.858004096@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit a0f25a6bb319aa05e04dcf51707c97c2881b4f47 ]
+[ Upstream commit 809f23c0423a43266e47a7dc67e95b5cb4d1cbfc ]
 
-The commit feeb07d0ca5a ("drm/hisilicon/hibmc: Make CONFIG_DRM_HISI_HIBMC
-depend on ARM64") made the driver Kconfig symbol to depend on ARM64 since
-it only supports that architecture and loading the module on others would
-lead to incorrect video modes being used.
+The underlying hardware may or may not allow reading of the head or tail
+registers and it really makes no difference if we use the software
+cached values. So, always used the software cached values.
 
-But it also prevented the driver to be built on other architectures which
-is useful to have compile test coverage when doing subsystem wide changes.
-
-Make the dependency instead to be (ARM64 || COMPILE_TEST), so the driver
-is buildable when the CONFIG_COMPILE_TEST option is enabled.
-
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211216210936.3329977-1-javierm@redhat.com
-Stable-dep-of: d8a79c030549 ("drm/hisilicon: Add depends on MMU")
+Fixes: 9c6c12595b73 ("i40e: Detection and recovery of TX queue hung logic moved to service_task from tx_timeout")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Co-developed-by: Norbert Zulinski <norbertx.zulinski@intel.com>
+Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/hisilicon/hibmc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40evf/i40e_txrx.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/Kconfig b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
-index 43943e980203..073adfe438dd 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/Kconfig
-+++ b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config DRM_HISI_HIBMC
- 	tristate "DRM Support for Hisilicon Hibmc"
--	depends on DRM && PCI && ARM64
-+	depends on DRM && PCI && (ARM64 || COMPILE_TEST)
- 	select DRM_KMS_HELPER
- 	select DRM_VRAM_HELPER
- 	select DRM_TTM
+diff --git a/drivers/net/ethernet/intel/i40evf/i40e_txrx.c b/drivers/net/ethernet/intel/i40evf/i40e_txrx.c
+index b56d22b530a7..1bf9734ae9cf 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40evf/i40e_txrx.c
+@@ -115,8 +115,11 @@ u32 i40evf_get_tx_pending(struct i40e_ring *ring, bool in_sw)
+ {
+ 	u32 head, tail;
+ 
++	/* underlying hardware might not allow access and/or always return
++	 * 0 for the head/tail registers so just use the cached values
++	 */
+ 	head = ring->next_to_clean;
+-	tail = readl(ring->tail);
++	tail = ring->next_to_use;
+ 
+ 	if (head != tail)
+ 		return (head < tail) ?
 -- 
 2.35.1
 
