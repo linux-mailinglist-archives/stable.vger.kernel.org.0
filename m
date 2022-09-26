@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E5B5EA4DA
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9845EA25F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238500AbiIZL4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:56:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50240 "EHLO
+        id S237343AbiIZLGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238981AbiIZLyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:13 -0400
+        with ESMTP id S234052AbiIZLFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E564DB00;
-        Mon, 26 Sep 2022 03:50:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1994F650;
+        Mon, 26 Sep 2022 03:33:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC92B60B2F;
-        Mon, 26 Sep 2022 10:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11C5C433C1;
-        Mon, 26 Sep 2022 10:48:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02A6960B60;
+        Mon, 26 Sep 2022 10:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED5D7C433C1;
+        Mon, 26 Sep 2022 10:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189338;
-        bh=rSpcze+w5f8A6yGVWV9axhSYli8sV5dEXvHyPyy8LP0=;
+        s=korg; t=1664188338;
+        bh=3/2K3H93sz3A/W5h2g23S4x5Atb3f1yd+wC6xCWNrFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMI1eKMW/+uz6oNgT84xg24fbpM9RFPw60WU1chWol4E9j6HlfejmJmtP9bAT8Wkn
-         HyoA8okA15hS1iiSJ/RnfLSx9Izs7x97hNHxy5f5Ob6tXLDciN+l2Gau29aCW/T5Oj
-         Whc/cFFM5CLp8xjsdf5RWHVz2fryEHjHxrCabges=
+        b=HFpb12IAa2oDFXwsWSmJ3x3WAJZX7NsbooLFj2mslPINX4gN7lLPNjwHa7zSGzNf/
+         BudkslG/Tn1zS3/YIltHruNviHLtwE5fseY5RxipOYK8xi+QJElte3iNjtWAlDRSLK
+         S1bOwt+mNPspp3Xk1K0JMs74fMrrrJqqtnSq3YSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Divya Koppera <Divya.Koppera@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 153/207] net: phy: micrel: fix shared interrupt on LAN8814
+        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
+        Horace Chen <horace.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 116/141] drm/amd/amdgpu: fixing read wrong pf2vf data in SRIOV
 Date:   Mon, 26 Sep 2022 12:12:22 +0200
-Message-Id: <20220926100813.496924103@linuxfoundation.org>
+Message-Id: <20220926100758.659227043@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,76 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-[ Upstream commit 2002fbac743b6e2391b4ed50ad9eb626768dd78a ]
+commit 9a458402fb69bda886aa6cbe067311b6e3d9c52a upstream.
 
-Since commit ece19502834d ("net: phy: micrel: 1588 support for LAN8814
-phy") the handler always returns IRQ_HANDLED, except in an error case.
-Before that commit, the interrupt status register was checked and if
-it was empty, IRQ_NONE was returned. Restore that behavior to play nice
-with the interrupt line being shared with others.
+[Why]
+This fixes 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange").
+we should read pf2vf data based at mman.fw_vram_usage_va after gmc
+sw_init. commit 892deb48269c breaks this logic.
 
-Fixes: ece19502834d ("net: phy: micrel: 1588 support for LAN8814 phy")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Divya Koppera <Divya.Koppera@microchip.com>
-Link: https://lore.kernel.org/r/20220920141619.808117-1-michael@walle.cc
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[How]
+calling amdgpu_virt_exchange_data in amdgpu_virt_init_data_exchange to
+set the right base in the right sequence.
+
+v2:
+call amdgpu_virt_init_data_exchange after gmc sw_init to make data
+exchange workqueue run
+
+v3:
+clean up the code logic
+
+v4:
+add some comment and make the code more readable
+
+Fixes: 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange")
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Reviewed-by: Horace Chen <horace.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/micrel.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c   |   20 +++++++-------------
+ 2 files changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index 34483a4bd688..e8e1101911b2 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -2662,16 +2662,19 @@ static int lan8804_config_init(struct phy_device *phydev)
- static irqreturn_t lan8814_handle_interrupt(struct phy_device *phydev)
- {
- 	int irq_status, tsu_irq_status;
-+	int ret = IRQ_NONE;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2224,7 +2224,7 @@ static int amdgpu_device_ip_init(struct
+ 	}
  
- 	irq_status = phy_read(phydev, LAN8814_INTS);
--	if (irq_status > 0 && (irq_status & LAN8814_INT_LINK))
--		phy_trigger_machine(phydev);
+ 	if (amdgpu_sriov_vf(adev))
+-		amdgpu_virt_exchange_data(adev);
++		amdgpu_virt_init_data_exchange(adev);
+ 
+ 	r = amdgpu_ib_pool_init(adev);
+ 	if (r) {
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
+@@ -584,20 +584,20 @@ void amdgpu_virt_init_data_exchange(stru
+ 	adev->virt.fw_reserve.p_vf2pf = NULL;
+ 	adev->virt.vf2pf_update_interval_ms = 0;
+ 
+-	if (adev->bios != NULL) {
+-		adev->virt.vf2pf_update_interval_ms = 2000;
++	if (adev->mman.fw_vram_usage_va != NULL) {
++		/* go through this logic in ip_init and reset to init workqueue*/
++		amdgpu_virt_exchange_data(adev);
+ 
++		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
++		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
++	} else if (adev->bios != NULL) {
++		/* got through this logic in early init stage to get necessary flags, e.g. rlcg_acc related*/
+ 		adev->virt.fw_reserve.p_pf2vf =
+ 			(struct amd_sriov_msg_pf2vf_info_header *)
+ 			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
+ 
+ 		amdgpu_virt_read_pf2vf_data(adev);
+ 	}
 -
- 	if (irq_status < 0) {
- 		phy_error(phydev);
- 		return IRQ_NONE;
- 	}
- 
-+	if (irq_status & LAN8814_INT_LINK) {
-+		phy_trigger_machine(phydev);
-+		ret = IRQ_HANDLED;
-+	}
-+
- 	while (1) {
- 		tsu_irq_status = lanphy_read_page_reg(phydev, 4,
- 						      LAN8814_INTR_STS_REG);
-@@ -2680,12 +2683,15 @@ static irqreturn_t lan8814_handle_interrupt(struct phy_device *phydev)
- 		    (tsu_irq_status & (LAN8814_INTR_STS_REG_1588_TSU0_ |
- 				       LAN8814_INTR_STS_REG_1588_TSU1_ |
- 				       LAN8814_INTR_STS_REG_1588_TSU2_ |
--				       LAN8814_INTR_STS_REG_1588_TSU3_)))
-+				       LAN8814_INTR_STS_REG_1588_TSU3_))) {
- 			lan8814_handle_ptp_interrupt(phydev);
--		else
-+			ret = IRQ_HANDLED;
-+		} else {
- 			break;
-+		}
- 	}
--	return IRQ_HANDLED;
-+
-+	return ret;
+-	if (adev->virt.vf2pf_update_interval_ms != 0) {
+-		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
+-		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
+-	}
  }
  
- static int lan8814_ack_interrupt(struct phy_device *phydev)
--- 
-2.35.1
-
+ 
+@@ -633,12 +633,6 @@ void amdgpu_virt_exchange_data(struct am
+ 				if (adev->virt.ras_init_done)
+ 					amdgpu_virt_add_bad_page(adev, bp_block_offset, bp_block_size);
+ 			}
+-	} else if (adev->bios != NULL) {
+-		adev->virt.fw_reserve.p_pf2vf =
+-			(struct amd_sriov_msg_pf2vf_info_header *)
+-			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
+-
+-		amdgpu_virt_read_pf2vf_data(adev);
+ 	}
+ }
+ 
 
 
