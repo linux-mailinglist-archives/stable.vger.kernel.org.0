@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3595EA232
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A48F5EA361
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237021AbiIZLEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:04:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40076 "EHLO
+        id S237760AbiIZLYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:24:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237292AbiIZLDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566575F111;
-        Mon, 26 Sep 2022 03:32:26 -0700 (PDT)
+        with ESMTP id S237916AbiIZLXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A00DBD1;
+        Mon, 26 Sep 2022 03:39:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB09FB80915;
-        Mon, 26 Sep 2022 10:32:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E303C433D7;
-        Mon, 26 Sep 2022 10:32:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 694EC609FB;
+        Mon, 26 Sep 2022 10:39:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DEFC433D6;
+        Mon, 26 Sep 2022 10:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188344;
-        bh=0oLtfrxWI8AK12/AD7xCcKE7x9T0Mm4uJPShP39Qb+c=;
+        s=korg; t=1664188756;
+        bh=BS1XGg5eMSFHVP5RgKDbzwAQjNDtngFPTpm/L+RCOTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMfznpbMs/29TqRu3fZsUlVcHex0v4yBr556CcFyXVLImduajSlBxNYG5wE9PjUC0
-         tKTz23f2m1YdKnTW/V0pQDcWZw+jlDhJwKTy0VfYG0uqTGuuDSS9VI0FFujkcyFcfC
-         TwQwBCu8aloTudB/Owru1cL1dQWH8V/kLV5bY1GM=
+        b=SSENpP22clXf9vbGGf0jT7O2Z0WOlHzWYEzq111Yn5CEE1kEJn/mvSYWdUUetzH0D
+         PjQty0qseDveFH2Xaiea0NsE8oeCKfT5UPKt2w9W5egxPzxdK72+/UxCbChAn3PoKj
+         Vkhh5E25WuAsB9KqjGe8OA7FmqjH7+m5Zg2mjj28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.10 118/141] serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
-Date:   Mon, 26 Sep 2022 12:12:24 +0200
-Message-Id: <20220926100758.726872625@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 111/148] net/smc: Stop the CLC flow if no link to map buffers on
+Date:   Mon, 26 Sep 2022 12:12:25 +0200
+Message-Id: <20220926100800.284942764@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Wen Gu <guwen@linux.alibaba.com>
 
-commit 754f68044c7dd6c52534ba3e0f664830285c4b15 upstream.
+[ Upstream commit e738455b2c6dcdab03e45d97de36476f93f557d2 ]
 
-DMA complete & stop paths did not correctly account Tx'ed characters
-into icount.tx. Using uart_xmit_advance() fixes the problem.
+There might be a potential race between SMC-R buffer map and
+link group termination.
 
-Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
-Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220901143934.8850-3-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+smc_smcr_terminate_all()     | smc_connect_rdma()
+--------------------------------------------------------------
+                             | smc_conn_create()
+for links in smcibdev        |
+        schedule links down  |
+                             | smc_buf_create()
+                             |  \- smcr_buf_map_usable_links()
+                             |      \- no usable links found,
+                             |         (rmb->mr = NULL)
+                             |
+                             | smc_clc_send_confirm()
+                             |  \- access conn->rmb_desc->mr[]->rkey
+                             |     (panic)
+
+During reboot and IB device module remove, all links will be set
+down and no usable links remain in link groups. In such situation
+smcr_buf_map_usable_links() should return an error and stop the
+CLC flow accessing to uninitialized mr.
+
+Fixes: b9247544c1bc ("net/smc: convert static link ID instances to support multiple links")
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1663656189-32090-1-git-send-email-guwen@linux.alibaba.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -520,7 +520,7 @@ static void tegra_uart_tx_dma_complete(v
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	spin_lock_irqsave(&tup->uport.lock, flags);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(&tup->uport);
-@@ -608,7 +608,6 @@ static unsigned int tegra_uart_tx_empty(
- static void tegra_uart_stop_tx(struct uart_port *u)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 7401ec67ebcf..2eafefa15a1a 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1980,7 +1980,7 @@ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+ static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+ 				     struct smc_buf_desc *buf_desc, bool is_rmb)
  {
- 	struct tegra_uart_port *tup = to_tegra_uport(u);
--	struct circ_buf *xmit = &tup->uport.state->xmit;
- 	struct dma_tx_state state;
- 	unsigned int count;
+-	int i, rc = 0;
++	int i, rc = 0, cnt = 0;
  
-@@ -619,7 +618,7 @@ static void tegra_uart_stop_tx(struct ua
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
+ 	/* protect against parallel link reconfiguration */
+ 	mutex_lock(&lgr->llc_conf_mutex);
+@@ -1993,9 +1993,12 @@ static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+ 			rc = -ENOMEM;
+ 			goto out;
+ 		}
++		cnt++;
+ 	}
+ out:
+ 	mutex_unlock(&lgr->llc_conf_mutex);
++	if (!rc && !cnt)
++		rc = -EINVAL;
+ 	return rc;
  }
  
+-- 
+2.35.1
+
 
 
