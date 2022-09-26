@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5560A5E9FBF
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCA045E9F4A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235545AbiIZK3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54564 "EHLO
+        id S235314AbiIZKWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235352AbiIZK1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:27:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529A24DF1F;
-        Mon, 26 Sep 2022 03:18:48 -0700 (PDT)
+        with ESMTP id S235278AbiIZKWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:22:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B81AE4BD33;
+        Mon, 26 Sep 2022 03:16:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52823B8093B;
-        Mon, 26 Sep 2022 10:18:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88813C433D6;
-        Mon, 26 Sep 2022 10:18:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0132D60BB7;
+        Mon, 26 Sep 2022 10:16:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12036C433C1;
+        Mon, 26 Sep 2022 10:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187519;
-        bh=4rwkvD/DNcjNXfcsWGkTsOeqnSDE+8I7hUNF1BK6CT8=;
+        s=korg; t=1664187376;
+        bh=cD0sbFTQDeo1jT6GI36tjR3KsKTPaLQCsg0MQ2t0iyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=utQ1AlSFcPw0HyY7HPmnQYcV1Q4ZHQRlGk5ZoQFFt8KK/Vj9zrMRij4ltMtpJ1jlm
-         sLei4jx2w16w7WHg5GHD3sjfmZBGDrfR81X+diIzk4JwJTbDh8TbCaidKPrJmLQKR9
-         w17hYyQCX+ezWohxCBL7cmebZCdIExU3DZV6Tf+U=
+        b=t0n8Im9GbeYbTSvwfbM4/LSU5+SypF/QHVkrJ4GzMQaCLNQxrZtNFWePMSWjALJzO
+         azzzlWunfMMPZhNJAc5ZwzhcwMWQceg8TDOOR3EQHyy516A/G9IcLAyfmgkJL3EOs/
+         z/xTa8yMojODvPUIAo4yH+05afhZzClCfqcZu04I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youling Tang <tangyouling@loongson.cn>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/58] mksysmap: Fix the mismatch of L0 symbols in System.map
+        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 07/40] cifs: dont send down the destination address to sendmsg for a SOCK_STREAM
 Date:   Mon, 26 Sep 2022 12:11:35 +0200
-Message-Id: <20220926100742.028511893@linuxfoundation.org>
+Message-Id: <20220926100738.494165197@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youling Tang <tangyouling@loongson.cn>
+From: Stefan Metzmacher <metze@samba.org>
 
-[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
+commit 17d3df38dc5f4cec9b0ac6eb79c1859b6e2693a4 upstream.
 
-When System.map was generated, the kernel used mksysmap to filter the
-kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
+This is ignored anyway by the tcp layer.
 
-$ cat System.map | grep L0
-9000000000221540 t L0
-
-The L0 symbol exists in System.map, but not in .tmp_System.map. When
-"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
-data" error message in link-vmlinux.sh script.
-
-Signed-off-by: Youling Tang <tangyouling@loongson.cn>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/mksysmap | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/transport.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/mksysmap b/scripts/mksysmap
-index 9aa23d15862a..ad8bbc52267d 100755
---- a/scripts/mksysmap
-+++ b/scripts/mksysmap
-@@ -41,4 +41,4 @@
- # so we just ignore them to let readprofile continue to work.
- # (At least sparc64 has __crc_ in the middle).
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -153,8 +153,8 @@ smb_send_kvec(struct TCP_Server_Info *se
  
--$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
-+$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
--- 
-2.35.1
-
+ 	*sent = 0;
+ 
+-	smb_msg->msg_name = (struct sockaddr *) &server->dstaddr;
+-	smb_msg->msg_namelen = sizeof(struct sockaddr);
++	smb_msg->msg_name = NULL;
++	smb_msg->msg_namelen = 0;
+ 	smb_msg->msg_control = NULL;
+ 	smb_msg->msg_controllen = 0;
+ 	if (server->noblocksnd)
 
 
