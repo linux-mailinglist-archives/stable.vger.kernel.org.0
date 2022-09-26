@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6927F5EA138
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503105EA00B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234626AbiIZKqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45478 "EHLO
+        id S235613AbiIZKc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236838AbiIZKos (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:44:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EECC1564ED;
-        Mon, 26 Sep 2022 03:25:47 -0700 (PDT)
+        with ESMTP id S235712AbiIZKb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:31:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D280311834;
+        Mon, 26 Sep 2022 03:20:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E13D160AD6;
-        Mon, 26 Sep 2022 10:25:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A14C433D6;
-        Mon, 26 Sep 2022 10:25:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFCF3B80918;
+        Mon, 26 Sep 2022 10:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E2AC433D6;
+        Mon, 26 Sep 2022 10:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187946;
-        bh=Yx5KjNu28FOaAb4M8e0v2V3JY3kgb65cFo5nXDHD86E=;
+        s=korg; t=1664187593;
+        bh=tlvUgMkU11HBDwNbeCOwRwnKt9TSsz61+tOrT9iIo/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTNOENAUse78j9B6zgiGGtyaY1A4Z/fQQSdouLwAHvw144HUy8TB0+KrzjlRApfDE
-         GSNPQYIDpqYlJE0Ib4V7vUestmD1qfc7AUDYDRmmuoj2nmxzAECcsRiMSmvgIF0zQP
-         E70iaaoV2YgdZzsjjQKvLIgvsFGrg6JkNEmNCanE=
+        b=XFcl2wG3oak5DYqEM0eHSaSt03/QuvgonV5AMapjnRalRDsY0KMkETXidvoG7C8Ye
+         p2y6acdxzVfi7IjUVlqgSQlDcRhRPLXgCew/bmI+Rfvtim44PqnXJrCsLUSMdofFXi
+         T8nBXd51tXShDCmoqJhtIBLFfsl6ldtSr7ndzpdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 104/120] xfs: replace -EIO with -EFSCORRUPTED for corrupt metadata
+        stable@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.19 58/58] usb: dwc3: pci: Allow Elkhart Lake to utilize DSM method for PM functionality
 Date:   Mon, 26 Sep 2022 12:12:17 +0200
-Message-Id: <20220926100754.785888139@linuxfoundation.org>
+Message-Id: <20220926100743.599371856@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,93 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Raymond Tan <raymond.tan@intel.com>
 
-commit c2414ad6e66ab96b867309454498f7fb29b7e855 upstream.
+commit a609ce2a13360d639b384b6ca783b38c1247f2db upstream.
 
-There are a few places where we return -EIO instead of -EFSCORRUPTED
-when we find corrupt metadata.  Fix those places.
+Similar to some other IA platforms, Elkhart Lake too depends on the
+PMU register write to request transition of Dx power state.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Thus, we add the PCI_DEVICE_ID_INTEL_EHLLP to the list of devices that
+shall execute the ACPI _DSM method during D0/D3 sequence.
+
+[heikki.krogerus@linux.intel.com: included Fixes tag]
+
+Fixes: dbb0569de852 ("usb: dwc3: pci: Add Support for Intel Elkhart Lake Devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Raymond Tan <raymond.tan@intel.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c   |    6 +++---
- fs/xfs/xfs_attr_inactive.c |    6 +++---
- fs/xfs/xfs_dquot.c         |    2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -1374,7 +1374,7 @@ xfs_bmap_last_before(
- 	case XFS_DINODE_FMT_EXTENTS:
- 		break;
- 	default:
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -149,7 +149,8 @@ static int dwc3_pci_quirks(struct dwc3_p
  
- 	if (!(ifp->if_flags & XFS_IFEXTENTS)) {
-@@ -1475,7 +1475,7 @@ xfs_bmap_last_offset(
- 
- 	if (XFS_IFORK_FORMAT(ip, whichfork) != XFS_DINODE_FMT_BTREE &&
- 	    XFS_IFORK_FORMAT(ip, whichfork) != XFS_DINODE_FMT_EXTENTS)
--	       return -EIO;
-+		return -EFSCORRUPTED;
- 
- 	error = xfs_bmap_last_extent(NULL, ip, whichfork, &rec, &is_empty);
- 	if (error || is_empty)
-@@ -5872,7 +5872,7 @@ xfs_bmap_insert_extents(
- 				del_cursor);
- 
- 	if (stop_fsb >= got.br_startoff + got.br_blockcount) {
--		error = -EIO;
-+		error = -EFSCORRUPTED;
- 		goto del_cursor;
- 	}
- 
---- a/fs/xfs/xfs_attr_inactive.c
-+++ b/fs/xfs/xfs_attr_inactive.c
-@@ -209,7 +209,7 @@ xfs_attr3_node_inactive(
- 	 */
- 	if (level > XFS_DA_NODE_MAXDEPTH) {
- 		xfs_trans_brelse(*trans, bp);	/* no locks for later trans */
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 
- 	node = bp->b_addr;
-@@ -258,7 +258,7 @@ xfs_attr3_node_inactive(
- 			error = xfs_attr3_leaf_inactive(trans, dp, child_bp);
- 			break;
- 		default:
--			error = -EIO;
-+			error = -EFSCORRUPTED;
- 			xfs_trans_brelse(*trans, child_bp);
- 			break;
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
+ 		if (pdev->device == PCI_DEVICE_ID_INTEL_BXT ||
+-				pdev->device == PCI_DEVICE_ID_INTEL_BXT_M) {
++		    pdev->device == PCI_DEVICE_ID_INTEL_BXT_M ||
++		    pdev->device == PCI_DEVICE_ID_INTEL_EHLLP) {
+ 			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
+ 			dwc->has_dsm_for_pm = true;
  		}
-@@ -341,7 +341,7 @@ xfs_attr3_root_inactive(
- 		error = xfs_attr3_leaf_inactive(trans, dp, bp);
- 		break;
- 	default:
--		error = -EIO;
-+		error = -EFSCORRUPTED;
- 		xfs_trans_brelse(*trans, bp);
- 		break;
- 	}
---- a/fs/xfs/xfs_dquot.c
-+++ b/fs/xfs/xfs_dquot.c
-@@ -1125,7 +1125,7 @@ xfs_qm_dqflush(
- 		xfs_buf_relse(bp);
- 		xfs_dqfunlock(dqp);
- 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 
- 	/* This is the only portion of data that needs to persist */
 
 
