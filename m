@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 047025EA317
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4193E5EA454
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237563AbiIZLTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
+        id S238046AbiIZLpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234385AbiIZLSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196E366A4A;
-        Mon, 26 Sep 2022 03:38:23 -0700 (PDT)
+        with ESMTP id S238536AbiIZLno (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:43:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B38C872ED4;
+        Mon, 26 Sep 2022 03:46:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86C3860A36;
-        Mon, 26 Sep 2022 10:37:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83229C4314A;
-        Mon, 26 Sep 2022 10:37:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F06DB80881;
+        Mon, 26 Sep 2022 10:46:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01322C433C1;
+        Mon, 26 Sep 2022 10:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188621;
-        bh=beHBY4LRMYNNGAmnEekI6wOs+5NAaSmqwaj9H3JR0mg=;
+        s=korg; t=1664189171;
+        bh=Sm780qRk8F+ZTcd1ZBEChuYNOc8jrNgphySWx4jsQeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VAL+wgnKQVQUvHQgqdpjXCUrsxArN6KnAjwOQIhF2QhSRlKlkYLP3e9Zx2ybjETwg
-         0BJ4jGXKA1XhWGGqzi7/J4zezLZu9MBZcwlqeSXxfLy8e8QcIivvPzWA/B7T9vHJ97
-         Xh06XXcRQeMfiC1S//1/GuTzwAvRwWK0XyD/NX+M=
+        b=YAMBuTX5GovGadW9Pd5JaW0zdki8nFbG/kOile2PGNfKTFAhtz0UvKs23Mx9p7gml
+         QhmTHlEOHQBJA2VGyoA23O+JVH4CxL9oYl7hBPHa4R+CB/nxW+ZHHTGpVDxcG346Nb
+         dXP5gh/2gm5jDksvMrtFRnfzWMA1qF7dnvFfAdh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Chao Yu <chao.yu@oppo.com>,
-        David Rientjes <rientjes@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 5.15 050/148] mm/slub: fix to return errno if kmalloc() fails
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 095/207] wifi: iwlwifi: Mark IWLMEI as broken
 Date:   Mon, 26 Sep 2022 12:11:24 +0200
-Message-Id: <20220926100757.904517452@linuxfoundation.org>
+Message-Id: <20220926100810.858005608@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,70 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao.yu@oppo.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 7e9c323c52b379d261a72dc7bd38120a761a93cd upstream.
+[ Upstream commit 8997f5c8a62760db69fd5c56116705796322c8ed ]
 
-In create_unique_id(), kmalloc(, GFP_KERNEL) can fail due to
-out-of-memory, if it fails, return errno correctly rather than
-triggering panic via BUG_ON();
+The iwlmei driver breaks iwlwifi when returning from suspend. The interface
+ends up in the 'down' state after coming back from suspend. And iwd doesn't
+touch the interface state, but wpa_supplicant does, so the bug only happens on
+iwd.
 
-kernel BUG at mm/slub.c:5893!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+The bug report[0] has been open for four months now, and no fix seems to be
+forthcoming. Since just disabling the iwlmei driver works as a workaround,
+let's mark the config option as broken until it can be fixed properly.
 
-Call trace:
- sysfs_slab_add+0x258/0x260 mm/slub.c:5973
- __kmem_cache_create+0x60/0x118 mm/slub.c:4899
- create_cache mm/slab_common.c:229 [inline]
- kmem_cache_create_usercopy+0x19c/0x31c mm/slab_common.c:335
- kmem_cache_create+0x1c/0x28 mm/slab_common.c:390
- f2fs_kmem_cache_create fs/f2fs/f2fs.h:2766 [inline]
- f2fs_init_xattr_caches+0x78/0xb4 fs/f2fs/xattr.c:808
- f2fs_fill_super+0x1050/0x1e0c fs/f2fs/super.c:4149
- mount_bdev+0x1b8/0x210 fs/super.c:1400
- f2fs_mount+0x44/0x58 fs/f2fs/super.c:4512
- legacy_get_tree+0x30/0x74 fs/fs_context.c:610
- vfs_get_tree+0x40/0x140 fs/super.c:1530
- do_new_mount+0x1dc/0x4e4 fs/namespace.c:3040
- path_mount+0x358/0x914 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __arm64_sys_mount+0x2f8/0x408 fs/namespace.c:3568
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=215937
 
-Cc: <stable@kernel.org>
-Fixes: 81819f0fc8285 ("SLUB core")
-Reported-by: syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2da4366f9e2c ("iwlwifi: mei: add the driver to allow cooperation with CSME")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Acked-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220907134450.1183045-1-toke@toke.dk
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -5869,7 +5869,8 @@ static char *create_unique_id(struct kme
- 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
- 	char *p = name;
+diff --git a/drivers/net/wireless/intel/iwlwifi/Kconfig b/drivers/net/wireless/intel/iwlwifi/Kconfig
+index a647a406b87b..b20409f8c13a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/Kconfig
++++ b/drivers/net/wireless/intel/iwlwifi/Kconfig
+@@ -140,6 +140,7 @@ config IWLMEI
+ 	depends on INTEL_MEI
+ 	depends on PM
+ 	depends on CFG80211
++	depends on BROKEN
+ 	help
+ 	  Enables the iwlmei kernel module.
  
--	BUG_ON(!name);
-+	if (!name)
-+		return ERR_PTR(-ENOMEM);
- 
- 	*p++ = ':';
- 	/*
-@@ -5927,6 +5928,8 @@ static int sysfs_slab_add(struct kmem_ca
- 		 * for the symlinks.
- 		 */
- 		name = create_unique_id(s);
-+		if (IS_ERR(name))
-+			return PTR_ERR(name);
- 	}
- 
- 	s->kobj.kset = kset;
+-- 
+2.35.1
+
 
 
