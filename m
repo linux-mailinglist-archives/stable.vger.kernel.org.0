@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE26E5E9EF1
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:17:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677305EA26F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234101AbiIZKRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:17:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
+        id S237057AbiIZLHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234779AbiIZKQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:16:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD9B10043;
-        Mon, 26 Sep 2022 03:14:42 -0700 (PDT)
+        with ESMTP id S237084AbiIZLGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:06:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7CB53DF3D;
+        Mon, 26 Sep 2022 03:34:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3919F60B4A;
-        Mon, 26 Sep 2022 10:14:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30150C43470;
-        Mon, 26 Sep 2022 10:14:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E81CB60C8E;
+        Mon, 26 Sep 2022 10:32:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C45D4C433D6;
+        Mon, 26 Sep 2022 10:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187281;
-        bh=dgTzuXvWpBNqEIEFup/8PQSrW0v3ksBIqp3m5roA2og=;
+        s=korg; t=1664188361;
+        bh=GJr2FcRWAMmIT+2OsSwsvU31ZvlaFNQNJB2v1KZj1EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5Usqd5MU31VYDwWVLCggktKSBb5GlkxcvYJLToSq3EXynsv/2trBFBygA9FZP3SV
-         E5wmXB2ajlJ2YCfn0D1Ja/czFFg0UyMPZRcxqWtRKWfmMiWQLI9DbrVRm3hpxi7ss1
-         IuRdeuYc4Fs0bgWvydS83XH4GJpZAtTiwqlwqsWA=
+        b=R6mWPYg1Yzcq66i53r4lluogX2TDrtaJdabaijG4+Ccdb2T34HNEghE+tCHg0NZ+o
+         ILXz06asnQXMp3b8HRiTZYUoEp98+8ZlbFkMhZfrTONkP1PB37EljEXRyAXTFoTl/9
+         OIRgnLgX0tv1VwnPaZVefMBV0DnmAP7XvE6um2Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 28/30] s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 093/141] net: ipa: fix assumptions about DMA address size
 Date:   Mon, 26 Sep 2022 12:11:59 +0200
-Message-Id: <20220926100737.151359246@linuxfoundation.org>
+Message-Id: <20220926100757.799468089@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Alex Elder <elder@linaro.org>
 
-commit db7ba07108a48c0f95b74fabbfd5d63e924f992d upstream.
+[ Upstream commit d2fd2311de909a7f4e99b4bd11a19e6b671d6a6b ]
 
-Fix Oops in dasd_alias_get_start_dev() function caused by the pavgroup
-pointer being NULL.
+Some build time checks in ipa_table_validate_build() assume that a
+DMA address is 64 bits wide.  That is more restrictive than it has
+to be.  A route or filter table is 64 bits wide no matter what the
+size of a DMA address is on the AP.  The code actually uses a
+pointer to __le64 to access table entries, and a fixed constant
+IPA_TABLE_ENTRY_SIZE to describe the size of those entries.
 
-The pavgroup pointer is checked on the entrance of the function but
-without the lcu->lock being held. Therefore there is a race window
-between dasd_alias_get_start_dev() and _lcu_update() which sets
-pavgroup to NULL with the lcu->lock held.
+Loosen up two checks so they still verify some requirements, but
+such that they do not assume the size of a DMA address is 64 bits.
 
-Fix by checking the pavgroup pointer with lcu->lock held.
-
-Cc: <stable@vger.kernel.org> # 2.6.25+
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220919154931.4123002-2-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: cf412ec33325 ("net: ipa: properly limit modem routing table use")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_alias.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ipa/ipa_table.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -674,12 +674,12 @@ int dasd_alias_remove_device(struct dasd
- struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- {
- 	struct dasd_eckd_private *alias_priv, *private = base_device->private;
--	struct alias_pav_group *group = private->pavgroup;
- 	struct alias_lcu *lcu = private->lcu;
- 	struct dasd_device *alias_device;
-+	struct alias_pav_group *group;
- 	unsigned long flags;
+diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
+index 0747866d60ab..f26cb9d706da 100644
+--- a/drivers/net/ipa/ipa_table.c
++++ b/drivers/net/ipa/ipa_table.c
+@@ -126,13 +126,15 @@ static void ipa_table_validate_build(void)
+ 	 */
+ 	BUILD_BUG_ON(ARCH_DMA_MINALIGN % IPA_TABLE_ALIGN);
  
--	if (!group || !lcu)
-+	if (!lcu)
- 		return NULL;
- 	if (lcu->pav == NO_PAV ||
- 	    lcu->flags & (NEED_UAC_UPDATE | UPDATE_PENDING))
-@@ -696,6 +696,11 @@ struct dasd_device *dasd_alias_get_start
- 	}
+-	/* Filter and route tables contain DMA addresses that refer to
+-	 * filter or route rules.  We use a fixed constant to represent
+-	 * the size of either type of table entry.  Code in ipa_table_init()
+-	 * uses a pointer to __le64 to initialize table entriews.
++	/* Filter and route tables contain DMA addresses that refer
++	 * to filter or route rules.  But the size of a table entry
++	 * is 64 bits regardless of what the size of an AP DMA address
++	 * is.  A fixed constant defines the size of an entry, and
++	 * code in ipa_table_init() uses a pointer to __le64 to
++	 * initialize tables.
+ 	 */
+-	BUILD_BUG_ON(IPA_TABLE_ENTRY_SIZE != sizeof(dma_addr_t));
+-	BUILD_BUG_ON(sizeof(dma_addr_t) != sizeof(__le64));
++	BUILD_BUG_ON(sizeof(dma_addr_t) > IPA_TABLE_ENTRY_SIZE);
++	BUILD_BUG_ON(sizeof(__le64) != IPA_TABLE_ENTRY_SIZE);
  
- 	spin_lock_irqsave(&lcu->lock, flags);
-+	group = private->pavgroup;
-+	if (!group) {
-+		spin_unlock_irqrestore(&lcu->lock, flags);
-+		return NULL;
-+	}
- 	alias_device = group->next;
- 	if (!alias_device) {
- 		if (list_empty(&group->aliaslist)) {
+ 	/* A "zero rule" is used to represent no filtering or no routing.
+ 	 * It is a 64-bit block of zeroed memory.  Code in ipa_table_init()
+-- 
+2.35.1
+
 
 
