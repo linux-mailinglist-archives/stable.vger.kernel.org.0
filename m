@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 677305EA26F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD295EA0FE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237057AbiIZLHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49942 "EHLO
+        id S234116AbiIZKo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:44:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237084AbiIZLGm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:06:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7CB53DF3D;
-        Mon, 26 Sep 2022 03:34:12 -0700 (PDT)
+        with ESMTP id S236318AbiIZKm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:42:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A459013DEA;
+        Mon, 26 Sep 2022 03:24:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E81CB60C8E;
-        Mon, 26 Sep 2022 10:32:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C45D4C433D6;
-        Mon, 26 Sep 2022 10:32:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D88FFB80682;
+        Mon, 26 Sep 2022 10:24:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D61EC433D6;
+        Mon, 26 Sep 2022 10:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188361;
-        bh=GJr2FcRWAMmIT+2OsSwsvU31ZvlaFNQNJB2v1KZj1EU=;
+        s=korg; t=1664187866;
+        bh=0lhGkSCOA6U77y1Wa49mYe2WnX42qJWBP6yLtkatyMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6mWPYg1Yzcq66i53r4lluogX2TDrtaJdabaijG4+Ccdb2T34HNEghE+tCHg0NZ+o
-         ILXz06asnQXMp3b8HRiTZYUoEp98+8ZlbFkMhZfrTONkP1PB37EljEXRyAXTFoTl/9
-         OIRgnLgX0tv1VwnPaZVefMBV0DnmAP7XvE6um2Mc=
+        b=DMm8wEF7kHdKtfd7RrQ4NgpT5LIHlEcOToNgjzkYQzZ/ym/aezCyELxSjcZ0XU4d/
+         P4NzbOf0lHsjZ45bvIhZ5/i7f2JRYq06ynrs/eRFt4gB1WefpFf9cax40NDl/azEkT
+         ozHB+R6KjLiqFkKYnmzBu0cmimN/6EP1WQMToWsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Lieven Hey <lieven.hey@kdab.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 093/141] net: ipa: fix assumptions about DMA address size
+Subject: [PATCH 5.4 086/120] perf jit: Include program header in ELF files
 Date:   Mon, 26 Sep 2022 12:11:59 +0200
-Message-Id: <20220926100757.799468089@linuxfoundation.org>
+Message-Id: <20220926100754.188681896@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Lieven Hey <lieven.hey@kdab.com>
 
-[ Upstream commit d2fd2311de909a7f4e99b4bd11a19e6b671d6a6b ]
+[ Upstream commit babd04386b1df8c364cdaa39ac0e54349502e1e5 ]
 
-Some build time checks in ipa_table_validate_build() assume that a
-DMA address is 64 bits wide.  That is more restrictive than it has
-to be.  A route or filter table is 64 bits wide no matter what the
-size of a DMA address is on the AP.  The code actually uses a
-pointer to __le64 to access table entries, and a fixed constant
-IPA_TABLE_ENTRY_SIZE to describe the size of those entries.
+The missing header makes it hard for programs like elfutils to open
+these files.
 
-Loosen up two checks so they still verify some requirements, but
-such that they do not assume the size of a DMA address is 64 bits.
-
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: cf412ec33325 ("net: ipa: properly limit modem routing table use")
+Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
+Reviewed-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Lieven Hey <lieven.hey@kdab.com>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Link: https://lore.kernel.org/r/20220915092910.711036-1-lieven.hey@kdab.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_table.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ tools/perf/util/genelf.c | 14 ++++++++++++++
+ tools/perf/util/genelf.h |  4 ++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
-index 0747866d60ab..f26cb9d706da 100644
---- a/drivers/net/ipa/ipa_table.c
-+++ b/drivers/net/ipa/ipa_table.c
-@@ -126,13 +126,15 @@ static void ipa_table_validate_build(void)
- 	 */
- 	BUILD_BUG_ON(ARCH_DMA_MINALIGN % IPA_TABLE_ALIGN);
+diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
+index 17b74aba8b9a..69744fd5db39 100644
+--- a/tools/perf/util/genelf.c
++++ b/tools/perf/util/genelf.c
+@@ -256,6 +256,7 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
+ 	Elf_Data *d;
+ 	Elf_Scn *scn;
+ 	Elf_Ehdr *ehdr;
++	Elf_Phdr *phdr;
+ 	Elf_Shdr *shdr;
+ 	uint64_t eh_frame_base_offset;
+ 	char *strsym = NULL;
+@@ -290,6 +291,19 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
+ 	ehdr->e_version = EV_CURRENT;
+ 	ehdr->e_shstrndx= unwinding ? 4 : 2; /* shdr index for section name */
  
--	/* Filter and route tables contain DMA addresses that refer to
--	 * filter or route rules.  We use a fixed constant to represent
--	 * the size of either type of table entry.  Code in ipa_table_init()
--	 * uses a pointer to __le64 to initialize table entriews.
-+	/* Filter and route tables contain DMA addresses that refer
-+	 * to filter or route rules.  But the size of a table entry
-+	 * is 64 bits regardless of what the size of an AP DMA address
-+	 * is.  A fixed constant defines the size of an entry, and
-+	 * code in ipa_table_init() uses a pointer to __le64 to
-+	 * initialize tables.
++	/*
++	 * setup program header
++	 */
++	phdr = elf_newphdr(e, 1);
++	phdr[0].p_type = PT_LOAD;
++	phdr[0].p_offset = 0;
++	phdr[0].p_vaddr = 0;
++	phdr[0].p_paddr = 0;
++	phdr[0].p_filesz = csize;
++	phdr[0].p_memsz = csize;
++	phdr[0].p_flags = PF_X | PF_R;
++	phdr[0].p_align = 8;
++
+ 	/*
+ 	 * setup text section
  	 */
--	BUILD_BUG_ON(IPA_TABLE_ENTRY_SIZE != sizeof(dma_addr_t));
--	BUILD_BUG_ON(sizeof(dma_addr_t) != sizeof(__le64));
-+	BUILD_BUG_ON(sizeof(dma_addr_t) > IPA_TABLE_ENTRY_SIZE);
-+	BUILD_BUG_ON(sizeof(__le64) != IPA_TABLE_ENTRY_SIZE);
+diff --git a/tools/perf/util/genelf.h b/tools/perf/util/genelf.h
+index d4137559be05..ac638945b4cb 100644
+--- a/tools/perf/util/genelf.h
++++ b/tools/perf/util/genelf.h
+@@ -50,8 +50,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
  
- 	/* A "zero rule" is used to represent no filtering or no routing.
- 	 * It is a 64-bit block of zeroed memory.  Code in ipa_table_init()
+ #if GEN_ELF_CLASS == ELFCLASS64
+ #define elf_newehdr	elf64_newehdr
++#define elf_newphdr	elf64_newphdr
+ #define elf_getshdr	elf64_getshdr
+ #define Elf_Ehdr	Elf64_Ehdr
++#define Elf_Phdr	Elf64_Phdr
+ #define Elf_Shdr	Elf64_Shdr
+ #define Elf_Sym		Elf64_Sym
+ #define ELF_ST_TYPE(a)	ELF64_ST_TYPE(a)
+@@ -59,8 +61,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
+ #define ELF_ST_VIS(a)	ELF64_ST_VISIBILITY(a)
+ #else
+ #define elf_newehdr	elf32_newehdr
++#define elf_newphdr	elf32_newphdr
+ #define elf_getshdr	elf32_getshdr
+ #define Elf_Ehdr	Elf32_Ehdr
++#define Elf_Phdr	Elf32_Phdr
+ #define Elf_Shdr	Elf32_Shdr
+ #define Elf_Sym		Elf32_Sym
+ #define ELF_ST_TYPE(a)	ELF32_ST_TYPE(a)
 -- 
 2.35.1
 
