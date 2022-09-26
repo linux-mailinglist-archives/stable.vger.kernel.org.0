@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2625EA201
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE545EA312
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237109AbiIZLAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:00:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
+        id S235524AbiIZLTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237389AbiIZK7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:40 -0400
+        with ESMTP id S237721AbiIZLSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05C15C9CA;
-        Mon, 26 Sep 2022 03:31:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA996581A;
+        Mon, 26 Sep 2022 03:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9152060C79;
-        Mon, 26 Sep 2022 10:29:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98FD3C433C1;
-        Mon, 26 Sep 2022 10:29:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5C8A60C79;
+        Mon, 26 Sep 2022 10:36:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB93DC433C1;
+        Mon, 26 Sep 2022 10:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188193;
-        bh=tQDvKdHglV3lGcAyaCA5FPn9n7w9PdqvimZODFmQzuI=;
+        s=korg; t=1664188608;
+        bh=GRudqhS62ebZu1HuVQTI6YftybSnSIosMWL3xC4dD+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJYad4NS9+2FukKKKH3dnS2KYqG0EghbGuKaN8/cLdMrwz0rs8iG7fPRmjTHnJJ3W
-         zwCuWvnYKdv5ZfnWxx7O/K2YL375FdGXthfSIGQc094xiPl9+KxGKdLRgzQeHsHnXU
-         SujQbLF8563AP5sAu+BQgCY13rlU8IDjJ0AKx2lw=
+        b=twfDRzv2rIDOrG0+AiewYR+Nu/iDtezLh28vCQ92HQ9mm6XQe/SVatUealpiQKVa6
+         rXBTQ4wENwAL0k4UzphpQFOzWgOTJlsLzBO+dcdbPqBFiSogYOUeCke1QHk4mlyoC8
+         5EnuUqQdjFMcbRpX2pK6viNR02S+NahYp+vN3Uy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Norbert Zulinski <norbertx.zulinski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/141] iavf: Fix cached head and tail value for iavf_get_tx_pending
-Date:   Mon, 26 Sep 2022 12:11:37 +0200
-Message-Id: <20220926100757.018223006@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 064/148] dmaengine: ti: k3-udma-private: Fix refcount leak bug in of_xudma_dev_get()
+Date:   Mon, 26 Sep 2022 12:11:38 +0200
+Message-Id: <20220926100758.446341127@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 809f23c0423a43266e47a7dc67e95b5cb4d1cbfc ]
+[ Upstream commit f9fdb0b86f087c2b7f6c6168dd0985a3c1eda87e ]
 
-The underlying hardware may or may not allow reading of the head or tail
-registers and it really makes no difference if we use the software
-cached values. So, always used the software cached values.
+We should call of_node_put() for the reference returned by
+of_parse_phandle() in fail path or when it is not used anymore.
+Here we only need to move the of_node_put() before the check.
 
-Fixes: 9c6c12595b73 ("i40e: Detection and recovery of TX queue hung logic moved to service_task from tx_timeout")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Co-developed-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: d70241913413 ("dmaengine: ti: k3-udma: Add glue layer for non DMAengine users")
+Signed-off-by: Liang He <windhl@126.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20220720073234.1255474-1-windhl@126.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_txrx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/dma/ti/k3-udma-private.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-index 99983f7a0ce0..8f6269e9f6a7 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-@@ -114,8 +114,11 @@ u32 iavf_get_tx_pending(struct iavf_ring *ring, bool in_sw)
- {
- 	u32 head, tail;
+diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
+index aada84f40723..3257b2f5157c 100644
+--- a/drivers/dma/ti/k3-udma-private.c
++++ b/drivers/dma/ti/k3-udma-private.c
+@@ -31,14 +31,14 @@ struct udma_dev *of_xudma_dev_get(struct device_node *np, const char *property)
+ 	}
  
-+	/* underlying hardware might not allow access and/or always return
-+	 * 0 for the head/tail registers so just use the cached values
-+	 */
- 	head = ring->next_to_clean;
--	tail = readl(ring->tail);
-+	tail = ring->next_to_use;
+ 	pdev = of_find_device_by_node(udma_node);
++	if (np != udma_node)
++		of_node_put(udma_node);
++
+ 	if (!pdev) {
+ 		pr_debug("UDMA device not found\n");
+ 		return ERR_PTR(-EPROBE_DEFER);
+ 	}
  
- 	if (head != tail)
- 		return (head < tail) ?
+-	if (np != udma_node)
+-		of_node_put(udma_node);
+-
+ 	ud = platform_get_drvdata(pdev);
+ 	if (!ud) {
+ 		pr_debug("UDMA has not been probed\n");
 -- 
 2.35.1
 
