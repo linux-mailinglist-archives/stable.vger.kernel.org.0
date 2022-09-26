@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92AE45EA3E0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADB15EA3FD
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235263AbiIZLfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:35:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47820 "EHLO
+        id S238089AbiIZLhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238223AbiIZLe1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FAD6E8A7;
-        Mon, 26 Sep 2022 03:43:41 -0700 (PDT)
+        with ESMTP id S238164AbiIZLhN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:37:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B42D76E8B2;
+        Mon, 26 Sep 2022 03:44:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5429C60B60;
-        Mon, 26 Sep 2022 10:41:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B1B4C433D6;
-        Mon, 26 Sep 2022 10:41:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29AE8B8068A;
+        Mon, 26 Sep 2022 10:41:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D6CBC433C1;
+        Mon, 26 Sep 2022 10:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188902;
-        bh=9WSwyR/5B55U+zFq6JuO1ZPxrcKHAm4xYzfZ9iqMYRg=;
+        s=korg; t=1664188905;
+        bh=qqskinfIqSFhiOcRad+02oGNyNZWFUzlMULSkLljyMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQPx4fpGwlYS6JI8mx2iewcgXE0m4llIgMTosAzjqSJURBNdSyVwTQDMFWjB5eeIo
-         1XRNoYplnXppt50oOAt3T6bXdNpzdHC5eNQug0BR+LucExW4ohdCIxcprkzHrHbWVx
-         qXBP7Eh2VqHWJx/GJYpLGqWs7lLSSzxvd3Cg6TfY=
+        b=luenHxc8NwJiuHN6SsDBij0KIPMvyALY2/V/PeQdMMMiRa2OA+DoyBjBq7Woap6IQ
+         2gUFJ1NJbdBBCXKdDth82CxaN9STC4wfNjgsUCVQn828sF53taK65s3V9NEspj9gxe
+         XHd3dXa9DrmLa7ws3GUtLM2Mb1dC1AntmY4ekX9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 010/207] smb3: fix temporary data corruption in insert range
-Date:   Mon, 26 Sep 2022 12:09:59 +0200
-Message-Id: <20220926100806.953961741@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
+        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 011/207] usb: add quirks for Lenovo OneLink+ Dock
+Date:   Mon, 26 Sep 2022 12:10:00 +0200
+Message-Id: <20220926100806.994986015@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -54,82 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
 
-[ Upstream commit 9c8b7a293f50253e694f19161c045817a938e551 ]
+[ Upstream commit 3d5f70949f1b1168fbb17d06eb5c57e984c56c58 ]
 
-insert range doesn't discard the affected cached region
-so can risk temporarily corrupting file data.
+The Lenovo OneLink+ Dock contains two VL812 USB3.0 controllers:
+17ef:1018 upstream
+17ef:1019 downstream
 
-Also includes some minor cleanup (avoiding rereading
-inode size repeatedly unnecessarily) to make it clearer.
+Those two controllers both have problems with some USB3.0 devices,
+particularly self-powered ones. Typical error messages include:
 
-Cc: stable@vger.kernel.org
-Fixes: 7fe6fe95b936 ("cifs: add FALLOC_FL_INSERT_RANGE support")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+  Timeout while waiting for setup device command
+  device not accepting address X, error -62
+  unable to enumerate USB device
+
+By process of elimination the controllers themselves were identified as
+the cause of the problem. Through trial and error the issue was solved
+by using USB_QUIRK_RESET_RESUME for both chips.
+
+Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220824191320.17883-1-jflf_kernel@gmx.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/usb/core/quirks.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 8e55495c4f7e..774c6e5f6584 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -4005,35 +4005,43 @@ static long smb3_insert_range(struct file *file, struct cifs_tcon *tcon,
- 	struct cifsFileInfo *cfile = file->private_data;
- 	struct inode *inode = file_inode(file);
- 	__le64 eof;
--	__u64  count;
-+	__u64  count, old_eof;
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index f99a65a64588..999b7c9697fc 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -437,6 +437,10 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
+ 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
  
- 	xid = get_xid();
- 
--	if (off >= i_size_read(inode)) {
-+	inode_lock(inode);
++	/* Lenovo ThinkPad OneLink+ Dock twin hub controllers (VIA Labs VL812) */
++	{ USB_DEVICE(0x17ef, 0x1018), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x17ef, 0x1019), .driver_info = USB_QUIRK_RESET_RESUME },
 +
-+	old_eof = i_size_read(inode);
-+	if (off >= old_eof) {
- 		rc = -EINVAL;
- 		goto out;
- 	}
+ 	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
+ 	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
  
--	count = i_size_read(inode) - off;
--	eof = cpu_to_le64(i_size_read(inode) + len);
-+	count = old_eof - off;
-+	eof = cpu_to_le64(old_eof + len);
- 
-+	filemap_invalidate_lock(inode->i_mapping);
- 	filemap_write_and_wait(inode->i_mapping);
-+	truncate_pagecache_range(inode, off, old_eof);
- 
- 	rc = SMB2_set_eof(xid, tcon, cfile->fid.persistent_fid,
- 			  cfile->fid.volatile_fid, cfile->pid, &eof);
- 	if (rc < 0)
--		goto out;
-+		goto out_2;
- 
- 	rc = smb2_copychunk_range(xid, cfile, cfile, off, count, off + len);
- 	if (rc < 0)
--		goto out;
-+		goto out_2;
- 
--	rc = smb3_zero_range(file, tcon, off, len, 1);
-+	rc = smb3_zero_data(file, tcon, off, len, xid);
- 	if (rc < 0)
--		goto out;
-+		goto out_2;
- 
- 	rc = 0;
-+out_2:
-+	filemap_invalidate_unlock(inode->i_mapping);
-  out:
-+	inode_unlock(inode);
- 	free_xid(xid);
- 	return rc;
- }
 -- 
 2.35.1
 
