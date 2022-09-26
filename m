@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6724B5EA161
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA335EA27D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236538AbiIZKuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35564 "EHLO
+        id S234489AbiIZLJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:09:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236718AbiIZKtH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB78B578A6;
-        Mon, 26 Sep 2022 03:26:26 -0700 (PDT)
+        with ESMTP id S237031AbiIZLHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:07:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B8475FAFB;
+        Mon, 26 Sep 2022 03:34:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7F7E60BB7;
-        Mon, 26 Sep 2022 10:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF265C433C1;
-        Mon, 26 Sep 2022 10:26:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF49560B4A;
+        Mon, 26 Sep 2022 10:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00607C433C1;
+        Mon, 26 Sep 2022 10:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187985;
-        bh=H0SdEeYLyQXDWiSwzuzXc82ditkqGWMKaJHVWZn2SwI=;
+        s=korg; t=1664188341;
+        bh=yPR+aSuoNrFsZhZZCkn3ZC1acLKJnWnud/6ONVX08PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJOT3COHQ7HuSCq3NdVc90ad8mYaNlD+ouBhDXKmnSSoKXphU57DKbwaxMcDEFJl1
-         zI4JRh5zZY6OfIWNfRTLz+K8dputdVog2Wp16VrHVxQcPEreHEGX0U2zEVO/p08UbB
-         4TxVwk9vk6MLJBM/GtjXkmP+I6lQgqhHvrEt4G8k=
+        b=ndoXNgMJlnOP8+DWx29JWnoowME3ermyJPn4LZfY5dkT1+nmh3ZQaXpO51bkdvP0w
+         0NDfXA/uV9wHrl0oflxjCPOU8MBPJg+m0sFrawpA6IC2kSdSmrfdqNgWHyJ/2OXvoJ
+         m5ZY9Bk5WOoSeWTQLC55vcZJj0N2R6qHMfKHTULY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kaixuxia <kaixuxia@tencent.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 109/120] xfs: Fix deadlock between AGI and AGF when target_ip exists in xfs_rename()
-Date:   Mon, 26 Sep 2022 12:12:22 +0200
-Message-Id: <20220926100754.935141422@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 5.10 117/141] serial: Create uart_xmit_advance()
+Date:   Mon, 26 Sep 2022 12:12:23 +0200
+Message-Id: <20220926100758.688236534@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: kaixuxia <xiakaixu1987@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 93597ae8dac0149b5c00b787cba6bf7ba213e666 upstream.
+commit e77cab77f2cb3a1ca2ba8df4af45bb35617ac16d upstream.
 
-When target_ip exists in xfs_rename(), the xfs_dir_replace() call may
-need to hold the AGF lock to allocate more blocks, and then invoking
-the xfs_droplink() call to hold AGI lock to drop target_ip onto the
-unlinked list, so we get the lock order AGF->AGI. This would break the
-ordering constraint on AGI and AGF locking - inode allocation locks
-the AGI, then can allocate a new extent for new inodes, locking the
-AGF after the AGI.
+A very common pattern in the drivers is to advance xmit tail
+index and do bookkeeping of Tx'ed characters. Create
+uart_xmit_advance() to handle it.
 
-In this patch we check whether the replace operation need more
-blocks firstly. If so, acquire the agi lock firstly to preserve
-locking order(AGI/AGF). Actually, the locking order problem only
-occurs when we are locking the AGI/AGF of the same AG. For multiple
-AGs the AGI lock will be released after the transaction committed.
-
-Signed-off-by: kaixuxia <kaixuxia@tencent.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-[darrick: reword the comment]
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220901143934.8850-2-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_dir2.h    |    2 ++
- fs/xfs/libxfs/xfs_dir2_sf.c |   28 +++++++++++++++++++++++-----
- fs/xfs/xfs_inode.c          |   17 +++++++++++++++++
- 3 files changed, 42 insertions(+), 5 deletions(-)
+ include/linux/serial_core.h |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/fs/xfs/libxfs/xfs_dir2.h
-+++ b/fs/xfs/libxfs/xfs_dir2.h
-@@ -124,6 +124,8 @@ extern int xfs_dir_lookup(struct xfs_tra
- extern int xfs_dir_removename(struct xfs_trans *tp, struct xfs_inode *dp,
- 				struct xfs_name *name, xfs_ino_t ino,
- 				xfs_extlen_t tot);
-+extern bool xfs_dir2_sf_replace_needblock(struct xfs_inode *dp,
-+				xfs_ino_t inum);
- extern int xfs_dir_replace(struct xfs_trans *tp, struct xfs_inode *dp,
- 				struct xfs_name *name, xfs_ino_t inum,
- 				xfs_extlen_t tot);
---- a/fs/xfs/libxfs/xfs_dir2_sf.c
-+++ b/fs/xfs/libxfs/xfs_dir2_sf.c
-@@ -945,6 +945,27 @@ xfs_dir2_sf_removename(
- }
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -300,6 +300,23 @@ struct uart_state {
+ /* number of characters left in xmit buffer before we ask for more */
+ #define WAKEUP_CHARS		256
  
- /*
-+ * Check whether the sf dir replace operation need more blocks.
++/**
++ * uart_xmit_advance - Advance xmit buffer and account Tx'ed chars
++ * @up: uart_port structure describing the port
++ * @chars: number of characters sent
++ *
++ * This function advances the tail of circular xmit buffer by the number of
++ * @chars transmitted and handles accounting of transmitted bytes (into
++ * @up's icount.tx).
 + */
-+bool
-+xfs_dir2_sf_replace_needblock(
-+	struct xfs_inode	*dp,
-+	xfs_ino_t		inum)
++static inline void uart_xmit_advance(struct uart_port *up, unsigned int chars)
 +{
-+	int			newsize;
-+	struct xfs_dir2_sf_hdr	*sfp;
++	struct circ_buf *xmit = &up->state->xmit;
 +
-+	if (dp->i_d.di_format != XFS_DINODE_FMT_LOCAL)
-+		return false;
-+
-+	sfp = (struct xfs_dir2_sf_hdr *)dp->i_df.if_u1.if_data;
-+	newsize = dp->i_df.if_bytes + (sfp->count + 1) * XFS_INO64_DIFF;
-+
-+	return inum > XFS_DIR2_MAX_SHORT_INUM &&
-+	       sfp->i8count == 0 && newsize > XFS_IFORK_DSIZE(dp);
++	xmit->tail = (xmit->tail + chars) & (UART_XMIT_SIZE - 1);
++	up->icount.tx += chars;
 +}
 +
-+/*
-  * Replace the inode number of an entry in a shortform directory.
-  */
- int						/* error */
-@@ -980,17 +1001,14 @@ xfs_dir2_sf_replace(
- 	 */
- 	if (args->inumber > XFS_DIR2_MAX_SHORT_INUM && sfp->i8count == 0) {
- 		int	error;			/* error return value */
--		int	newsize;		/* new inode size */
+ struct module;
+ struct tty_driver;
  
--		newsize = dp->i_df.if_bytes + (sfp->count + 1) * XFS_INO64_DIFF;
- 		/*
- 		 * Won't fit as shortform, convert to block then do replace.
- 		 */
--		if (newsize > XFS_IFORK_DSIZE(dp)) {
-+		if (xfs_dir2_sf_replace_needblock(dp, args->inumber)) {
- 			error = xfs_dir2_sf_to_block(args);
--			if (error) {
-+			if (error)
- 				return error;
--			}
- 			return xfs_dir2_block_replace(args);
- 		}
- 		/*
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -3215,6 +3215,7 @@ xfs_rename(
- 	struct xfs_trans	*tp;
- 	struct xfs_inode	*wip = NULL;		/* whiteout inode */
- 	struct xfs_inode	*inodes[__XFS_SORT_INODES];
-+	struct xfs_buf		*agibp;
- 	int			num_inodes = __XFS_SORT_INODES;
- 	bool			new_parent = (src_dp != target_dp);
- 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
-@@ -3379,6 +3380,22 @@ xfs_rename(
- 		 * In case there is already an entry with the same
- 		 * name at the destination directory, remove it first.
- 		 */
-+
-+		/*
-+		 * Check whether the replace operation will need to allocate
-+		 * blocks.  This happens when the shortform directory lacks
-+		 * space and we have to convert it to a block format directory.
-+		 * When more blocks are necessary, we must lock the AGI first
-+		 * to preserve locking order (AGI -> AGF).
-+		 */
-+		if (xfs_dir2_sf_replace_needblock(target_dp, src_ip->i_ino)) {
-+			error = xfs_read_agi(mp, tp,
-+					XFS_INO_TO_AGNO(mp, target_ip->i_ino),
-+					&agibp);
-+			if (error)
-+				goto out_trans_cancel;
-+		}
-+
- 		error = xfs_dir_replace(tp, target_dp, target_name,
- 					src_ip->i_ino, spaceres);
- 		if (error)
 
 
