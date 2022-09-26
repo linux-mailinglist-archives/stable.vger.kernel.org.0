@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 017905EA364
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EACB5EA4DE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234486AbiIZLYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:24:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36614 "EHLO
+        id S230154AbiIZL4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238007AbiIZLXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 197A043E6D;
-        Mon, 26 Sep 2022 03:40:08 -0700 (PDT)
+        with ESMTP id S238364AbiIZLx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:53:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8EE1F636;
+        Mon, 26 Sep 2022 03:49:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E202F60C0D;
-        Mon, 26 Sep 2022 10:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A43C433C1;
-        Mon, 26 Sep 2022 10:39:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD395B80976;
+        Mon, 26 Sep 2022 10:49:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D3CFC433C1;
+        Mon, 26 Sep 2022 10:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188766;
-        bh=JXZj6lNusKKzwTQlu5y1VwDInsIzQ4IgA76LmAqU26Q=;
+        s=korg; t=1664189355;
+        bh=e0dN7MrU8TIdgGaJFqTE0O157ZpkWC3tkGGG1Eoh4NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzF2hSU5VAlSY/idUqbCZ+Ce6WZed11/w41o+EOz9O6+tTH2cNZ9QYzy+jcdaE5Km
-         Pr6/37dP0pExQbQzmLZWV8/l7nEW+KxARpMJLowcyxrINt/3Nk9HftyjuiGTswHiqH
-         BaCnWqleAXA3wFCDCftSQTFNQuiqsIpV13WBrB+A=
+        b=V/zoiy62DIHaoDdTcyjEDngzyNrYa+d6D3dn8UmzEcJ1VPyEBYqPLH2ChXmjvpkKp
+         zAYARpqcfBcZgNG9VrHbGw/+S03X4ogJSgj0iabJDylsKlze/9blm/vT0Bof/7nN9v
+         7vFXIM8yFkZwkqE4WIv+lGqddCIK3GaxcCFNdjwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Anderson <seanga2@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 113/148] net: sunhme: Fix packet reception for len < RX_COPY_THRESHOLD
-Date:   Mon, 26 Sep 2022 12:12:27 +0200
-Message-Id: <20220926100800.367951360@linuxfoundation.org>
+        stable@vger.kernel.org, Homin Rhee <hominlab@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 159/207] io_uring: ensure that cached task references are always put on exit
+Date:   Mon, 26 Sep 2022 12:12:28 +0200
+Message-Id: <20220926100813.774193328@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <seanga2@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 878e2405710aacfeeb19364c300f38b7a9abfe8f ]
+commit e775f93f2ab976a2cdb4a7b53063cbe890904f73 upstream.
 
-There is a separate receive path for small packets (under 256 bytes).
-Instead of allocating a new dma-capable skb to be used for the next packet,
-this path allocates a skb and copies the data into it (reusing the existing
-sbk for the next packet). There are two bytes of junk data at the beginning
-of every packet. I believe these are inserted in order to allow aligned DMA
-and IP headers. We skip over them using skb_reserve. Before copying over
-the data, we must use a barrier to ensure we see the whole packet. The
-current code only synchronizes len bytes, starting from the beginning of
-the packet, including the junk bytes. However, this leaves off the final
-two bytes in the packet. Synchronize the whole packet.
+io_uring caches task references to avoid doing atomics for each of them
+per request. If a request is put from the same task that allocated it,
+then we can maintain a per-ctx cache of them. This obviously relies
+on io_uring always pruning caches in a reliable way, and there's
+currently a case off io_uring fd release where we can miss that.
 
-To reproduce this problem, ping a HME with a payload size between 17 and
-214
+One example is a ring setup with IOPOLL, which relies on the task
+polling for completions, which will free them. However, if such a task
+submits a request and then exits or closes the ring without reaping
+the completion, then ring release will reap and put. If release happens
+from that very same task, the completed request task refs will get
+put back into the cache pool. This is problematic, as we're now beyond
+the point of pruning caches.
 
-	$ ping -s 17 <hme_address>
+Manually drop these caches after doing an IOPOLL reap. This releases
+references from the current task, which is enough. If another task
+happens to be doing the release, then the caching will not be
+triggered and there's no issue.
 
-which will complain rather loudly about the data mismatch. Small packets
-(below 60 bytes on the wire) do not have this issue. I suspect this is
-related to the padding added to increase the minimum packet size.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Sean Anderson <seanga2@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220920235018.1675956-1-seanga2@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: e98e49b2bbf7 ("io_uring: extend task put optimisations")
+Reported-by: Homin Rhee <hominlab@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/sunhme.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ io_uring/io_uring.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/sun/sunhme.c b/drivers/net/ethernet/sun/sunhme.c
-index b05ee2e0e305..735f24a70626 100644
---- a/drivers/net/ethernet/sun/sunhme.c
-+++ b/drivers/net/ethernet/sun/sunhme.c
-@@ -2039,9 +2039,9 @@ static void happy_meal_rx(struct happy_meal *hp, struct net_device *dev)
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -10951,6 +10951,9 @@ static __cold void io_ring_ctx_wait_and_
+ 		io_poll_remove_all(ctx, NULL, true);
+ 		/* if we failed setting up the ctx, we might not have any rings */
+ 		io_iopoll_try_reap_events(ctx);
++		/* drop cached put refs after potentially doing completions */
++		if (current->io_uring)
++			io_uring_drop_tctx_refs(current);
+ 	}
  
- 			skb_reserve(copy_skb, 2);
- 			skb_put(copy_skb, len);
--			dma_sync_single_for_cpu(hp->dma_dev, dma_addr, len, DMA_FROM_DEVICE);
-+			dma_sync_single_for_cpu(hp->dma_dev, dma_addr, len + 2, DMA_FROM_DEVICE);
- 			skb_copy_from_linear_data(skb, copy_skb->data, len);
--			dma_sync_single_for_device(hp->dma_dev, dma_addr, len, DMA_FROM_DEVICE);
-+			dma_sync_single_for_device(hp->dma_dev, dma_addr, len + 2, DMA_FROM_DEVICE);
- 			/* Reuse original ring buffer. */
- 			hme_write_rxd(hp, this,
- 				      (RXFLAG_OWN|((RX_BUF_ALLOC_SIZE-RX_OFFSET)<<16)),
--- 
-2.35.1
-
+ 	INIT_WORK(&ctx->exit_work, io_ring_exit_work);
 
 
