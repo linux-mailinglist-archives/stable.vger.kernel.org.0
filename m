@@ -2,46 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D3B5EB1B6
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 21:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6603E5EB2A0
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 22:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbiIZT4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 15:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42700 "EHLO
+        id S230518AbiIZUs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 16:48:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbiIZTz6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 15:55:58 -0400
-Received: from rhlx01.hs-esslingen.de (rhlx01.hs-esslingen.de [129.143.116.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A75B20F43;
-        Mon, 26 Sep 2022 12:55:55 -0700 (PDT)
-Received: by rhlx01.hs-esslingen.de (Postfix, from userid 102)
-        id 5F0A6223A1A3; Mon, 26 Sep 2022 21:55:52 +0200 (CEST)
-Date:   Mon, 26 Sep 2022 21:55:52 +0200
-From:   Andreas Mohr <andi@lisas.de>
-To:     K Prateek Nayak <kprateek.nayak@amd.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        linux-kernel@vger.kernel.org, rafael@kernel.org, lenb@kernel.org,
-        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
-        dave.hansen@linux.intel.com, bp@alien8.de, tglx@linutronix.de,
-        andi@lisas.de, puwen@hygon.cn, mario.limonciello@amd.com,
-        rui.zhang@intel.com, gpiccoli@igalia.com,
-        daniel.lezcano@linaro.org, ananth.narayan@amd.com,
-        gautham.shenoy@amd.com, Calvin Ong <calvin.ong@amd.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] x86,acpi: Limit "Dummy wait" workaround to older AMD
- and Intel processors
-Message-ID: <YzIDyLbGgzEv0wzP@rhlx01.hs-esslingen.de>
-References: <20220923153801.9167-1-kprateek.nayak@amd.com>
- <YzGWHMIsD7RBhEP+@hirez.programming.kicks-ass.net>
- <9875e20e-8363-74ef-349d-d339eddb3cc2@amd.com>
+        with ESMTP id S229711AbiIZUs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 16:48:26 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4892EAB05B
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 13:48:24 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-11e9a7135easo10850004fac.6
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 13:48:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date;
+        bh=K6v0/vgziQ+cKq87uw/0VRby7rDeuYWz4GmqNxiYxpI=;
+        b=KDA5cNFkdA2pr9ofCfl5A14qZZJwN5L6pIuuciMjV5gIAjz4IlapIemDY2doQQzJMy
+         6ioFDr1LIkei69OyYKq45IpjUHUr4AV/ray0s+scVirTXMkaONtWOt/Q9UCOq9+Ddq+a
+         zWmf/YRzG4N8Cie5eL1/1M+Drgzc8Tqj2zJgU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=K6v0/vgziQ+cKq87uw/0VRby7rDeuYWz4GmqNxiYxpI=;
+        b=zuhLVatY67h+Dg79oxm/hoGOS9+MPq2d9Aj26WD46Y+kMTGR/aifcqmb6fWbaOeAjY
+         8kPGOzKF3jOQueuBnZ4rB7auiN6k/aJvvohCD1I4r5D/UQvGOAoOwlnEwLc0S2JzCF6d
+         Sh/uvgzzhbVUDGWA9NpH+X+1tczsVBHWjTIPEmXV4uIYIqYztKiGrSAtwMcUMzWx1f1P
+         rkhH+2xszCxnObjUf5kOKAOMKeDaryInORkAjbeg4oBbsOs4FYD4LYPgMRGonAYVT5HV
+         TQTdIfKyILVWWL0sMmp7C9BDYreOe927TwzvlYkHhCtqYVi78Cwz+E96y64Xdk1u5PF0
+         ymJA==
+X-Gm-Message-State: ACrzQf1FBxiwa30mfOzBzlg1TRw0N6gvB2EkyW76GGLqP/wciEA4ZCID
+        FW7kQwdA+l2o33EFiN5K3lAwVZu3fD5aIDKZrbU=
+X-Google-Smtp-Source: AMsMyM7o1uilDp0u8x3/YIdfeSBJoMgihD/ajz9kIzH3ahz8qz13LW4dtpSmDCELokDIQkZ9QEG70g==
+X-Received: by 2002:a05:6870:899d:b0:12c:5f78:328b with SMTP id f29-20020a056870899d00b0012c5f78328bmr340448oaq.94.1664225302649;
+        Mon, 26 Sep 2022 13:48:22 -0700 (PDT)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id x9-20020a9d5889000000b0063b2875246dsm8447856otg.49.2022.09.26.13.48.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Sep 2022 13:48:22 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Mon, 26 Sep 2022 15:48:20 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.19 000/207] 5.19.12-rc1 review
+Message-ID: <YzIQFLKl7HT+m+wV@fedora64.linuxtx.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9875e20e-8363-74ef-349d-d339eddb3cc2@amd.com>
-X-Priority: none
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_NONE,SPF_NONE autolearn=no
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,47 +72,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-Am Mon, Sep 26, 2022 at 10:02:44PM +0530 schrieb K Prateek Nayak:
-> Hello Peter,
+On Mon, Sep 26, 2022 at 12:09:49PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.12 release.
+> There are 207 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On 9/26/2022 5:37 PM, Peter Zijlstra wrote:
-> > For how many of the above have you changed behaviour?
+> Responses should be made by Wed, 28 Sep 2022 10:07:26 +0000.
+> Anything received after that time might be too late.
 > 
-> The proposed logic does alter the behavior for x86 chipsets that depend
-> on acpi_idle driver and have IOPORT based C-state. Based on what
-> Rafael and Dave suggested, I have marked all Intel processors to be
-> affected by this bug. In light of Andreas' report, I've also marked
-> all the pre-family 17h AMD processors to be affected by this bug to avoid
-> causing any regression.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.12-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
 > 
-> It is hard to tell if any other vendor had this bug in their chipsets.
-> Dave's patch does not make this consideration either and limits the
-> dummy operation to only Intel chipsets using acpi_idle driver.
-> (https://lore.kernel.org/all/78d13a19-2806-c8af-573e-7f2625edfab8@intel.com/)
-> If folks reported a regression, I would have been happy to fix it for
-> them.
+> thanks,
+> 
+> greg k-h
 
-Despite certain, umm, controversies, the discussion/patch activities
-appear to be heading into a good direction ;)
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-
-
-This text somehow prompted me to think of
-whether STPCLK# [quirk] behaviour is
-a property of the CPU family, or the chipset, or actually a combination of it.
-
-Given that [from recollection] VIA 8233/8235 spec PDFs do mention STPCLK#,
-possibly a chipset does have a say in it? (which
-obviously would then mean that
-the kernel's quirk state decision-making would have to be refined)
-
-Minor reference (note 8237, not 8233):
-http://www.chipset-ic.com/datasheet/VT8237.pdf
-  "STPCLK# is asserted by the VT8237R to the CPU to throttle the processor."
-  (and many other STPCLK# mentions there)
-
-Greetings
-
-Andreas Mohr
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
