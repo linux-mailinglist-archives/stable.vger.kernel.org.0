@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACB85EA387
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D565EA25B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234026AbiIZL1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37750 "EHLO
+        id S237311AbiIZLGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbiIZL0X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:26:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE6D46211;
-        Mon, 26 Sep 2022 03:40:46 -0700 (PDT)
+        with ESMTP id S237318AbiIZLFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF7415FC7;
+        Mon, 26 Sep 2022 03:33:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6BDAB80883;
-        Mon, 26 Sep 2022 10:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26018C433D7;
-        Mon, 26 Sep 2022 10:39:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CFC160A36;
+        Mon, 26 Sep 2022 10:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E93EC433D6;
+        Mon, 26 Sep 2022 10:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188772;
-        bh=5pLLS9Urf5bHg4CbM0144OhQE+ORH192FwdqClHUpsY=;
+        s=korg; t=1664188415;
+        bh=oQPuOasZYVInoLrB9tEt2GLwL4GVW1WaHUuHC5vH7Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REkQDGtEeInPdYZ1DF4NDRBYWqZY4XYTOOC3R3IUl9EYGoVp3S3clVCrrjXruth+V
-         FUUKWM29ef634gaBFohvdDqiRapdGJJ/KxDuhU4ztsAiDDRkcz3PXbkDlegkE9cAnv
-         SFgoMDHjkq09SOpV8S6Q3Om5O/YqyPZfj+JewM10=
+        b=JI7J9XdznA8m9RQnlDZWmhW42Y4HAfzybCS5bijc28fH/PGyVCOThUNbmcz0E5zY+
+         7Kckf5r5Mrs4jwzzuxLz5sWIok00EChKCI2XOxknW6gRNcdsixh6fI2d8PxYqyTYhp
+         Q6SK2ngAAVTUPbKv6q+qR+V5nM/EFY4v0dzeN/gU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Stanley Yang <Stanley.Yang@amd.com>,
+        Alexander Deucher <Alexander.Deucher@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/148] bnxt: prevent skb UAF after handing over to PTP worker
+Subject: [PATCH 5.10 123/141] drm/amdgpu: Fix check for RAS support
 Date:   Mon, 26 Sep 2022 12:12:29 +0200
-Message-Id: <20220926100800.446331604@linuxfoundation.org>
+Message-Id: <20220926100758.905442053@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Luben Tuikov <luben.tuikov@amd.com>
 
-[ Upstream commit c31f26c8f69f776759cbbdfb38e40ea91aa0dd65 ]
+[ Upstream commit 084e2640e51626f413f85663e3ba7e32d4272477 ]
 
-When reading the timestamp is required bnxt_tx_int() hands
-over the ownership of the completed skb to the PTP worker.
-The skb should not be used afterwards, as the worker may
-run before the rest of our code and free the skb, leading
-to a use-after-free.
+Use positive logic to check for RAS
+support. Rename the function to actually indicate
+what it is testing for. Essentially, make the
+function a predicate with the correct name.
 
-Since dev_kfree_skb_any() accepts NULL make the loss of
-ownership more obvious and set skb to NULL.
-
-Fixes: 83bb623c968e ("bnxt_en: Transmit and retrieve packet timestamps")
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/20220921201005.335390-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Stanley Yang <Stanley.Yang@amd.com>
+Cc: Alexander Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: 6c2049066355 ("drm/amdgpu: Don't enable LTR if not supported")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 6962abe2358b..a6ca7ba5276c 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -709,7 +709,6 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+index eb22a190c242..3638f0e12a2b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+@@ -1979,15 +1979,12 @@ int amdgpu_ras_request_reset_on_boot(struct amdgpu_device *adev,
+ 	return 0;
+ }
  
- 	for (i = 0; i < nr_pkts; i++) {
- 		struct bnxt_sw_tx_bd *tx_buf;
--		bool compl_deferred = false;
- 		struct sk_buff *skb;
- 		int j, last;
+-static int amdgpu_ras_check_asic_type(struct amdgpu_device *adev)
++static bool amdgpu_ras_asic_supported(struct amdgpu_device *adev)
+ {
+-	if (adev->asic_type != CHIP_VEGA10 &&
+-		adev->asic_type != CHIP_VEGA20 &&
+-		adev->asic_type != CHIP_ARCTURUS &&
+-		adev->asic_type != CHIP_SIENNA_CICHLID)
+-		return 1;
+-	else
+-		return 0;
++	return adev->asic_type == CHIP_VEGA10 ||
++		adev->asic_type == CHIP_VEGA20 ||
++		adev->asic_type == CHIP_ARCTURUS ||
++		adev->asic_type == CHIP_SIENNA_CICHLID;
+ }
  
-@@ -718,6 +717,8 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- 		skb = tx_buf->skb;
- 		tx_buf->skb = NULL;
+ /*
+@@ -2006,7 +2003,7 @@ static void amdgpu_ras_check_supported(struct amdgpu_device *adev,
+ 	*supported = 0;
  
-+		tx_bytes += skb->len;
-+
- 		if (tx_buf->is_push) {
- 			tx_buf->is_push = 0;
- 			goto next_tx_int;
-@@ -738,8 +739,9 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- 		}
- 		if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_IN_PROGRESS)) {
- 			if (bp->flags & BNXT_FLAG_CHIP_P5) {
-+				/* PTP worker takes ownership of the skb */
- 				if (!bnxt_get_tx_ts_p5(bp, skb))
--					compl_deferred = true;
-+					skb = NULL;
- 				else
- 					atomic_inc(&bp->ptp_cfg->tx_avail);
- 			}
-@@ -748,9 +750,7 @@ static void bnxt_tx_int(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts)
- next_tx_int:
- 		cons = NEXT_TX(cons);
+ 	if (amdgpu_sriov_vf(adev) || !adev->is_atom_fw ||
+-		amdgpu_ras_check_asic_type(adev))
++	    !amdgpu_ras_asic_supported(adev))
+ 		return;
  
--		tx_bytes += skb->len;
--		if (!compl_deferred)
--			dev_kfree_skb_any(skb);
-+		dev_kfree_skb_any(skb);
- 	}
- 
- 	netdev_tx_completed_queue(txq, nr_pkts, tx_bytes);
+ 	if (amdgpu_atomfirmware_mem_ecc_supported(adev)) {
 -- 
 2.35.1
 
