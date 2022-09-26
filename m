@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2595EA33F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1A05E9F60
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237780AbiIZLWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:22:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40568 "EHLO
+        id S235199AbiIZKZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237758AbiIZLUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:20:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D784BD32;
-        Mon, 26 Sep 2022 03:39:15 -0700 (PDT)
+        with ESMTP id S235369AbiIZKXf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:23:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E47DE0;
+        Mon, 26 Sep 2022 03:17:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D3A360AF0;
-        Mon, 26 Sep 2022 10:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0858C433D6;
-        Mon, 26 Sep 2022 10:37:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF62760B4A;
+        Mon, 26 Sep 2022 10:16:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D75B6C433C1;
+        Mon, 26 Sep 2022 10:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188667;
-        bh=kEcA/9wTN6peHSuhYVAET0L6NbfiIGmPkAVhetaQM1U=;
+        s=korg; t=1664187417;
+        bh=+kacTAPyAuoJ1m3Aw+Yz05GgnNpHRo1QtKQBjhD/dak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqCCLgL8uRfswm6CFn7E4mhvKbAhxor2EOER1/xRUElc8N0Q5SSsAn0xyZWehOOCS
-         XcmmfRlfEpdpC0GtdtKSbVegCxysmhxjffWdRA7x8iQlAoWdmI6Qyy7K25Dw7d6YhQ
-         WSt/erq8fxLZBrSkhBl1C7KxCxgRqQ7oXUonSfBE=
+        b=OMDv00mOEWIJGxzndujCVvwy9S+9miENCBwp9ZzMD+Val9BeQsfHsN6WqV3eypaOd
+         izOh2lJ0KxhHKMzj0Lpx4w1707SHMff06GaUQYG/l5LqF96EKH05JVczoR7FQ7XDi8
+         CAnynY1CCoJYMSh8fuxnCacTp/3q6rYxyCDLUk1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Lu Wei <luwei32@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/148] MIPS: Loongson32: Fix PHY-mode being left unspecified
+Subject: [PATCH 4.14 27/40] ipvlan: Fix out-of-bound bugs caused by unset skb->mac_header
 Date:   Mon, 26 Sep 2022 12:11:55 +0200
-Message-Id: <20220926100759.072005124@linuxfoundation.org>
+Message-Id: <20220926100739.320576624@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Lu Wei <luwei32@huawei.com>
 
-[ Upstream commit e9f3f8f488005f6da3cfb66070706770ecaef747 ]
+[ Upstream commit 81225b2ea161af48e093f58e8dfee6d705b16af4 ]
 
-commit 0060c8783330 ("net: stmmac: implement support for passive mode
-converters via dt") has changed the plat->interface field semantics from
-containing the PHY-mode to specifying the MAC-PCS interface mode. Due to
-that the loongson32 platform code will leave the phylink interface
-uninitialized with the PHY-mode intended by the means of the actual
-platform setup. The commit-author most likely has just missed the
-arch-specific code to fix. Let's mend the Loongson32 platform code then by
-assigning the PHY-mode to the phy_interface field of the STMMAC platform
-data.
+If an AF_PACKET socket is used to send packets through ipvlan and the
+default xmit function of the AF_PACKET socket is changed from
+dev_queue_xmit() to packet_direct_xmit() via setsockopt() with the option
+name of PACKET_QDISC_BYPASS, the skb->mac_header may not be reset and
+remains as the initial value of 65535, this may trigger slab-out-of-bounds
+bugs as following:
 
-Fixes: 0060c8783330 ("net: stmmac: implement support for passive mode converters via dt")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Keguang Zhang <keguang.zhang@gmail.com>
-Tested-by: Keguang Zhang <keguang.zhang@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+=================================================================
+UG: KASAN: slab-out-of-bounds in ipvlan_xmit_mode_l2+0xdb/0x330 [ipvlan]
+PU: 2 PID: 1768 Comm: raw_send Kdump: loaded Not tainted 6.0.0-rc4+ #6
+ardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33
+all Trace:
+print_address_description.constprop.0+0x1d/0x160
+print_report.cold+0x4f/0x112
+kasan_report+0xa3/0x130
+ipvlan_xmit_mode_l2+0xdb/0x330 [ipvlan]
+ipvlan_start_xmit+0x29/0xa0 [ipvlan]
+__dev_direct_xmit+0x2e2/0x380
+packet_direct_xmit+0x22/0x60
+packet_snd+0x7c9/0xc40
+sock_sendmsg+0x9a/0xa0
+__sys_sendto+0x18a/0x230
+__x64_sys_sendto+0x74/0x90
+do_syscall_64+0x3b/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The root cause is:
+  1. packet_snd() only reset skb->mac_header when sock->type is SOCK_RAW
+     and skb->protocol is not specified as in packet_parse_headers()
+
+  2. packet_direct_xmit() doesn't reset skb->mac_header as dev_queue_xmit()
+
+In this case, skb->mac_header is 65535 when ipvlan_xmit_mode_l2() is
+called. So when ipvlan_xmit_mode_l2() gets mac header with eth_hdr() which
+use "skb->head + skb->mac_header", out-of-bound access occurs.
+
+This patch replaces eth_hdr() with skb_eth_hdr() in ipvlan_xmit_mode_l2()
+and reset mac header in multicast to solve this out-of-bound bug.
+
+Fixes: 2ad7bf363841 ("ipvlan: Initial check-in of the IPVLAN driver.")
+Signed-off-by: Lu Wei <luwei32@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson32/common/platform.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ipvlan/ipvlan_core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/loongson32/common/platform.c b/arch/mips/loongson32/common/platform.c
-index 794c96c2a4cd..311dc1580bbd 100644
---- a/arch/mips/loongson32/common/platform.c
-+++ b/arch/mips/loongson32/common/platform.c
-@@ -98,7 +98,7 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
- 	if (plat_dat->bus_id) {
- 		__raw_writel(__raw_readl(LS1X_MUX_CTRL0) | GMAC1_USE_UART1 |
- 			     GMAC1_USE_UART0, LS1X_MUX_CTRL0);
--		switch (plat_dat->interface) {
-+		switch (plat_dat->phy_interface) {
- 		case PHY_INTERFACE_MODE_RGMII:
- 			val &= ~(GMAC1_USE_TXCLK | GMAC1_USE_PWM23);
- 			break;
-@@ -107,12 +107,12 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
- 			break;
- 		default:
- 			pr_err("unsupported mii mode %d\n",
--			       plat_dat->interface);
-+			       plat_dat->phy_interface);
- 			return -ENOTSUPP;
- 		}
- 		val &= ~GMAC1_SHUT;
- 	} else {
--		switch (plat_dat->interface) {
-+		switch (plat_dat->phy_interface) {
- 		case PHY_INTERFACE_MODE_RGMII:
- 			val &= ~(GMAC0_USE_TXCLK | GMAC0_USE_PWM01);
- 			break;
-@@ -121,7 +121,7 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
- 			break;
- 		default:
- 			pr_err("unsupported mii mode %d\n",
--			       plat_dat->interface);
-+			       plat_dat->phy_interface);
- 			return -ENOTSUPP;
- 		}
- 		val &= ~GMAC0_SHUT;
-@@ -131,7 +131,7 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
- 	plat_dat = dev_get_platdata(&pdev->dev);
+diff --git a/drivers/net/ipvlan/ipvlan_core.c b/drivers/net/ipvlan/ipvlan_core.c
+index baf8aab59f82..71fd45137ee4 100644
+--- a/drivers/net/ipvlan/ipvlan_core.c
++++ b/drivers/net/ipvlan/ipvlan_core.c
+@@ -446,7 +446,6 @@ static int ipvlan_process_v6_outbound(struct sk_buff *skb)
  
- 	val &= ~PHY_INTF_SELI;
--	if (plat_dat->interface == PHY_INTERFACE_MODE_RMII)
-+	if (plat_dat->phy_interface == PHY_INTERFACE_MODE_RMII)
- 		val |= 0x4 << PHY_INTF_SELI_SHIFT;
- 	__raw_writel(val, LS1X_MUX_CTRL1);
+ static int ipvlan_process_outbound(struct sk_buff *skb)
+ {
+-	struct ethhdr *ethh = eth_hdr(skb);
+ 	int ret = NET_XMIT_DROP;
  
-@@ -146,9 +146,9 @@ static struct plat_stmmacenet_data ls1x_eth0_pdata = {
- 	.bus_id			= 0,
- 	.phy_addr		= -1,
- #if defined(CONFIG_LOONGSON1_LS1B)
--	.interface		= PHY_INTERFACE_MODE_MII,
-+	.phy_interface		= PHY_INTERFACE_MODE_MII,
- #elif defined(CONFIG_LOONGSON1_LS1C)
--	.interface		= PHY_INTERFACE_MODE_RMII,
-+	.phy_interface		= PHY_INTERFACE_MODE_RMII,
- #endif
- 	.mdio_bus_data		= &ls1x_mdio_bus_data,
- 	.dma_cfg		= &ls1x_eth_dma_cfg,
-@@ -186,7 +186,7 @@ struct platform_device ls1x_eth0_pdev = {
- static struct plat_stmmacenet_data ls1x_eth1_pdata = {
- 	.bus_id			= 1,
- 	.phy_addr		= -1,
--	.interface		= PHY_INTERFACE_MODE_MII,
-+	.phy_interface		= PHY_INTERFACE_MODE_MII,
- 	.mdio_bus_data		= &ls1x_mdio_bus_data,
- 	.dma_cfg		= &ls1x_eth_dma_cfg,
- 	.has_gmac		= 1,
+ 	/* The ipvlan is a pseudo-L2 device, so the packets that we receive
+@@ -456,6 +455,8 @@ static int ipvlan_process_outbound(struct sk_buff *skb)
+ 	if (skb_mac_header_was_set(skb)) {
+ 		/* In this mode we dont care about
+ 		 * multicast and broadcast traffic */
++		struct ethhdr *ethh = eth_hdr(skb);
++
+ 		if (is_multicast_ether_addr(ethh->h_dest)) {
+ 			pr_debug_ratelimited(
+ 				"Dropped {multi|broad}cast of type=[%x]\n",
+@@ -534,7 +535,7 @@ static int ipvlan_xmit_mode_l3(struct sk_buff *skb, struct net_device *dev)
+ static int ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	const struct ipvl_dev *ipvlan = netdev_priv(dev);
+-	struct ethhdr *eth = eth_hdr(skb);
++	struct ethhdr *eth = skb_eth_hdr(skb);
+ 	struct ipvl_addr *addr;
+ 	void *lyr3h;
+ 	int addr_type;
+@@ -558,6 +559,7 @@ static int ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
+ 		return dev_forward_skb(ipvlan->phy_dev, skb);
+ 
+ 	} else if (is_multicast_ether_addr(eth->h_dest)) {
++		skb_reset_mac_header(skb);
+ 		ipvlan_skb_crossing_ns(skb, NULL);
+ 		ipvlan_multicast_enqueue(ipvlan->port, skb, true);
+ 		return NET_XMIT_SUCCESS;
 -- 
 2.35.1
 
