@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C455EA1DF
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E405EA2B2
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236906AbiIZK7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S237551AbiIZLNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236936AbiIZK63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:58:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96FE4F195;
-        Mon, 26 Sep 2022 03:30:13 -0700 (PDT)
+        with ESMTP id S237442AbiIZLLx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:11:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6425051A;
+        Mon, 26 Sep 2022 03:35:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E73DC609FB;
-        Mon, 26 Sep 2022 10:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF013C433C1;
-        Mon, 26 Sep 2022 10:28:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90A5EB802C7;
+        Mon, 26 Sep 2022 10:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4623C433D6;
+        Mon, 26 Sep 2022 10:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188125;
-        bh=HleWthHZ63vSu9N7ZdV3d/LwdA/rLSMfpYydZ5gH5u8=;
+        s=korg; t=1664188540;
+        bh=Qts+mTwxPMEZO9kijhoy/64pFEzmYfB6q0q5Kwgo2VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENuj4Ulp1mwYXmSXXkCcZdxXbM6KmKOrb+uLHpxhcX/i1xxbwG1XP3MU2kawpPuTU
-         xIq4sBPKE6noXBDn2FzhrSfrizt/w/wL3jWPOBVlH7oCc6iOfLoXZVFuyqzkskKN25
-         z/mBhx9d+TWJk/ZK7JQTXIYNSPkJIY6A5S+PdZgg=
+        b=Lq4aNg5pOTY4/gOKg5VsiCvgzXo21toqPOLeWH8741kY11JHnQGE+uzn/Iep1rTYE
+         Z2UVXgxcxv7n/68XeALxIIOy1rRSN87QJcWH2heC4HILn1I+qtAoAHWz0G0EcgtcbR
+         kYmuKc6y1VxQstXS+YpSazqO+A5E/iQ5XLrJDZDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>,
-        Yi Liu <yi.l.liu@intel.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.10 048/141] iommu/vt-d: Check correct capability for sagaw determination
-Date:   Mon, 26 Sep 2022 12:11:14 +0200
-Message-Id: <20220926100756.191250278@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Peter Jones <pjones@redhat.com>
+Subject: [PATCH 5.15 041/148] efi: libstub: check Shim mode using MokSBStateRT
+Date:   Mon, 26 Sep 2022 12:11:15 +0200
+Message-Id: <20220926100757.566743144@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Liu <yi.l.liu@intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 154897807050c1161cb2660e502fc0470d46b986 upstream.
+commit 5f56a74cc0a6d9b9f8ba89cea29cd7c4774cb2b1 upstream.
 
-Check 5-level paging capability for 57 bits address width instead of
-checking 1GB large page capability.
+We currently check the MokSBState variable to decide whether we should
+treat UEFI secure boot as being disabled, even if the firmware thinks
+otherwise. This is used by shim to indicate that it is not checking
+signatures on boot images. In the kernel, we use this to relax lockdown
+policies.
 
-Fixes: 53fc7ad6edf2 ("iommu/vt-d: Correctly calculate sagaw value of IOMMU")
-Cc: stable@vger.kernel.org
-Reported-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
-Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
-Link: https://lore.kernel.org/r/20220916071212.2223869-2-yi.l.liu@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+However, in cases where shim is not even being used, we don't want this
+variable to interfere with lockdown, given that the variable may be
+non-volatile and therefore persist across a reboot. This means setting
+it once will persistently disable lockdown checks on a given system.
+
+So switch to the mirrored version of this variable, called MokSBStateRT,
+which is supposed to be volatile, and this is something we can check.
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Peter Jones <pjones@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/iommu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/libstub/secureboot.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -569,7 +569,7 @@ static unsigned long __iommu_calculate_s
- {
- 	unsigned long fl_sagaw, sl_sagaw;
+--- a/drivers/firmware/efi/libstub/secureboot.c
++++ b/drivers/firmware/efi/libstub/secureboot.c
+@@ -14,7 +14,7 @@
  
--	fl_sagaw = BIT(2) | (cap_fl1gp_support(iommu->cap) ? BIT(3) : 0);
-+	fl_sagaw = BIT(2) | (cap_5lp_support(iommu->cap) ? BIT(3) : 0);
- 	sl_sagaw = cap_sagaw(iommu->cap);
+ /* SHIM variables */
+ static const efi_guid_t shim_guid = EFI_SHIM_LOCK_GUID;
+-static const efi_char16_t shim_MokSBState_name[] = L"MokSBState";
++static const efi_char16_t shim_MokSBState_name[] = L"MokSBStateRT";
  
- 	/* Second level only. */
+ static efi_status_t get_var(efi_char16_t *name, efi_guid_t *vendor, u32 *attr,
+ 			    unsigned long *data_size, void *data)
+@@ -43,8 +43,8 @@ enum efi_secureboot_mode efi_get_secureb
+ 
+ 	/*
+ 	 * See if a user has put the shim into insecure mode. If so, and if the
+-	 * variable doesn't have the runtime attribute set, we might as well
+-	 * honor that.
++	 * variable doesn't have the non-volatile attribute set, we might as
++	 * well honor that.
+ 	 */
+ 	size = sizeof(moksbstate);
+ 	status = get_efi_var(shim_MokSBState_name, &shim_guid,
+@@ -53,7 +53,7 @@ enum efi_secureboot_mode efi_get_secureb
+ 	/* If it fails, we don't care why. Default to secure */
+ 	if (status != EFI_SUCCESS)
+ 		goto secure_boot_enabled;
+-	if (!(attr & EFI_VARIABLE_RUNTIME_ACCESS) && moksbstate == 1)
++	if (!(attr & EFI_VARIABLE_NON_VOLATILE) && moksbstate == 1)
+ 		return efi_secureboot_mode_disabled;
+ 
+ secure_boot_enabled:
 
 
