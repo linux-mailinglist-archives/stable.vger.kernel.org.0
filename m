@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 148585EA30F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66D0D5E9F46
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234602AbiIZLTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35318 "EHLO
+        id S235309AbiIZKWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:22:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237703AbiIZLRX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:17:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD596525E;
-        Mon, 26 Sep 2022 03:38:03 -0700 (PDT)
+        with ESMTP id S235267AbiIZKVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:21:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729444BA77;
+        Mon, 26 Sep 2022 03:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 978B9B80915;
-        Mon, 26 Sep 2022 10:36:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA2BC433C1;
-        Mon, 26 Sep 2022 10:36:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1A6EB8091F;
+        Mon, 26 Sep 2022 10:16:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01DECC433B5;
+        Mon, 26 Sep 2022 10:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188596;
-        bh=tMM/orUGFSjjL4eQY+VZYZBWlo9qcSJzCaONo3wf00w=;
+        s=korg; t=1664187373;
+        bh=DK0NbqhTLaRyNgwtyno+uqowQ7PXnYBl5cPbBiu6Q+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rItiTHn8oR31MDs+Av8CV6J5ctDlVCSDYjNhTTCOm/gPgT2EqXy6sbVdbeH1UG57n
-         Xu72hV3ZPXltMYxx8w0osqjKo3sN50B6cpNBEUkkcxtnknGcmWIBZ22AtT/lnpwiRN
-         emEzBcA3oA3o9X7w1r8I9UNbRg26XhKceW7B5ejA=
+        b=T++VU+94/NENPhnsENQAI9mJLPF+EIV9sCrKLGP/cVpbLhzJZL4olWHT7LvJMbsPz
+         Rg/rEUrTB8ENBPsF8XfZ05EOklGQTqNWxRX6EMOXRjgU07V58FqYr9c2YNS1/r8HY9
+         kzGEsCtWQjfqVf4Ae7h8vbS2U5rLqNRbx+ZsU6GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Daniel Marth <daniel.marth@inso.tuwien.ac.at>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/148] arm64: dts: rockchip: Pull up wlan wake# on Gru-Bob
+Subject: [PATCH 4.14 06/40] efi: libstub: Disable struct randomization
 Date:   Mon, 26 Sep 2022 12:11:34 +0200
-Message-Id: <20220926100758.284961364@linuxfoundation.org>
+Message-Id: <20220926100738.463310701@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit e5467359a725de90b6b8d0dd865500f6373828ca ]
+[ Upstream commit 1a3887924a7e6edd331be76da7bf4c1e8eab4b1e ]
 
-The Gru-Bob board does not have a pull-up resistor on its
-WLAN_HOST_WAKE# pin, but Kevin does. The production/vendor kernel
-specified the pin configuration correctly as a pull-up, but this didn't
-get ported correctly to upstream.
+The EFI stub is a wrapper around the core kernel that makes it look like
+a EFI compatible PE/COFF application to the EFI firmware. EFI
+applications run on top of the EFI runtime, which is heavily based on
+so-called protocols, which are struct types consisting [mostly] of
+function pointer members that are instantiated and recorded in a
+protocol database.
 
-This means Bob's WLAN_HOST_WAKE# pin is floating, causing inconsistent
-wakeup behavior.
+These structs look like the ideal randomization candidates to the
+randstruct plugin (as they only carry function pointers), but of course,
+these protocols are contracts between the firmware that exposes them,
+and the EFI applications (including our stubbed kernel) that invoke
+them. This means that struct randomization for EFI protocols is not a
+great idea, and given that the stub shares very little data with the
+core kernel that is represented as a randomizable struct, we're better
+off just disabling it completely here.
 
-Note that bt_host_wake_l has a similar dynamic, but apparently the
-upstream choice was to redundantly configure both internal and external
-pull-up on Kevin (see the "Kevin has an external pull up" comment in
-rk3399-gru.dtsi). This doesn't cause any functional problem, although
-it's perhaps wasteful.
-
-Fixes: 8559bbeeb849 ("arm64: dts: rockchip: add Google Bob")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20220822164453.1.I75c57b48b0873766ec993bdfb7bc1e63da5a1637@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Cc: <stable@vger.kernel.org> # v4.14+
+Reported-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
+Tested-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts         | 5 +++++
- arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/firmware/efi/libstub/Makefile | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts
-index e6c1c94c8d69..07737b65d7a3 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dts
-@@ -87,3 +87,8 @@ h1_int_od_l: h1-int-od-l {
- 		};
- 	};
- };
-+
-+&wlan_host_wake_l {
-+	/* Kevin has an external pull up, but Bob does not. */
-+	rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
-+};
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-index 1384dabbdf40..0d8458d55626 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-chromebook.dtsi
-@@ -395,6 +395,7 @@ wifi_perst_l: wifi-perst-l {
- 	};
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index 54dbcec7e06f..7dc2d093962e 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -23,6 +23,13 @@ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
+ 				   $(call cc-option,-ffreestanding) \
+ 				   $(call cc-option,-fno-stack-protector)
  
- 	wlan_host_wake_l: wlan-host-wake-l {
-+		/* Kevin has an external pull up, but Bob does not */
- 		rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
- 	};
- };
++#
++# struct randomization only makes sense for Linux internal types, which the EFI
++# stub code never touches, so let's turn off struct randomization for the stub
++# altogether
++#
++KBUILD_CFLAGS := $(filter-out $(RANDSTRUCT_CFLAGS), $(KBUILD_CFLAGS))
++
+ # remove SCS flags from all objects in this directory
+ KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
+ 
 -- 
 2.35.1
 
