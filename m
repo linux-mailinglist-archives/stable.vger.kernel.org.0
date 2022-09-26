@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E47635EA034
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505215E9F63
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235837AbiIZKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
+        id S235259AbiIZKZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:25:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235943AbiIZKdk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691614F187;
-        Mon, 26 Sep 2022 03:20:32 -0700 (PDT)
+        with ESMTP id S235418AbiIZKXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:23:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A325C4D4C7;
+        Mon, 26 Sep 2022 03:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E018060C2C;
-        Mon, 26 Sep 2022 10:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F9DC433D6;
-        Mon, 26 Sep 2022 10:20:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D9E0B80835;
+        Mon, 26 Sep 2022 10:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712CCC433C1;
+        Mon, 26 Sep 2022 10:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187621;
-        bh=zoFwJNAV8OYE3aCPPkf1bJp38WO9tMqisyaY5w41r3w=;
+        s=korg; t=1664187408;
+        bh=OJaso5WUrpY5yRSJRHCzWwn7BNDShmVWByzhG+1cJ0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lE94j3upy1GPbuTlt6sg4NzntwWfYHHXfmho3Jz6cDLdraBXtJFi/lnHmdpltpJfl
-         TpRrdwWwgVk8+MFTTVKF2a86csGZdTspha8eEH3pd+40GGea+CnTiBOSEiM+GuOItk
-         qhZbdrNuOxu//XB0qQJ0DeEG6lOiT42tB/IOSLww=
+        b=BQkGLP7pfy8hSGeWipOM9XyOsO/yKqFZ9bWPMzR++HX7AJh9vUE5Ngqlkehzyx78B
+         cAZlUYOIb2jbNPzMhAAwzyvjcbaQiMPSjJaXKK6nhzl0gv2ySfkcEk0Zf+SZm1pnzq
+         KwZrIDKg78Ma5/wpLJXaTcQE4rydLI4j5ym7s+fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Dao <dqminh@cloudflare.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/58] perf kcore_copy: Do not check /proc/modules is unchanged
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Ojaswin Mujoo <ojaswin@linux.ibm.com>, stable@kernel.org,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 39/40] ext4: make directory inode spreading reflect flexbg size
 Date:   Mon, 26 Sep 2022 12:12:07 +0200
-Message-Id: <20220926100743.209738261@linuxfoundation.org>
+Message-Id: <20220926100739.828719470@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 5b427df27b94aec1312cace48a746782a0925c53 ]
+commit 613c5a85898d1cd44e68f28d65eccf64a8ace9cf upstream.
 
-/proc/kallsyms and /proc/modules are compared before and after the copy
-in order to ensure no changes during the copy.
+Currently the Orlov inode allocator searches for free inodes for a
+directory only in flex block groups with at most inodes_per_group/16
+more directory inodes than average per flex block group. However with
+growing size of flex block group this becomes unnecessarily strict.
+Scale allowed difference from average directory count per flex block
+group with flex block group size as we do with other metrics.
 
-However /proc/modules also might change due to reference counts changing
-even though that does not make any difference.
-
-Any modules loaded or unloaded should be visible in changes to kallsyms,
-so it is not necessary to check /proc/modules also anyway.
-
-Remove the comparison checking that /proc/modules is unchanged.
-
-Fixes: fc1b691d7651d949 ("perf buildid-cache: Add ability to add kcore to the cache")
-Reported-by: Daniel Dao <dqminh@cloudflare.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Daniel Dao <dqminh@cloudflare.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20220914122429.8770-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Tested-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/all/0d81a7c2-46b7-6010-62a4-3e6cfc1628d6@i2se.com/
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220908092136.11770-3-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/symbol-elf.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ fs/ext4/ialloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index bd33d6613929..5fba57c10edd 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1871,8 +1871,8 @@ static int kcore_copy__compare_file(const char *from_dir, const char *to_dir,
-  * unusual.  One significant peculiarity is that the mapping (start -> pgoff)
-  * is not the same for the kernel map and the modules map.  That happens because
-  * the data is copied adjacently whereas the original kcore has gaps.  Finally,
-- * kallsyms and modules files are compared with their copies to check that
-- * modules have not been loaded or unloaded while the copies were taking place.
-+ * kallsyms file is compared with its copy to check that modules have not been
-+ * loaded or unloaded while the copies were taking place.
-  *
-  * Return: %0 on success, %-1 on failure.
-  */
-@@ -1935,9 +1935,6 @@ int kcore_copy(const char *from_dir, const char *to_dir)
- 			goto out_extract_close;
+--- a/fs/ext4/ialloc.c
++++ b/fs/ext4/ialloc.c
+@@ -513,7 +513,7 @@ static int find_group_orlov(struct super
+ 		goto fallback;
  	}
  
--	if (kcore_copy__compare_file(from_dir, to_dir, "modules"))
--		goto out_extract_close;
--
- 	if (kcore_copy__compare_file(from_dir, to_dir, "kallsyms"))
- 		goto out_extract_close;
- 
--- 
-2.35.1
-
+-	max_dirs = ndirs / ngroups + inodes_per_group / 16;
++	max_dirs = ndirs / ngroups + inodes_per_group*flex_size / 16;
+ 	min_inodes = avefreei - inodes_per_group*flex_size / 4;
+ 	if (min_inodes < 1)
+ 		min_inodes = 1;
 
 
