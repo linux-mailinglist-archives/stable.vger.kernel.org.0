@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5725EA539
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4F15EA3FA
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238936AbiIZL7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:59:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33954 "EHLO
+        id S238037AbiIZLht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:37:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238929AbiIZL6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:58:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C380D7B2A3;
-        Mon, 26 Sep 2022 03:52:11 -0700 (PDT)
+        with ESMTP id S238046AbiIZLhK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:37:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ECEF1C103;
+        Mon, 26 Sep 2022 03:44:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AC4D60AF3;
-        Mon, 26 Sep 2022 10:50:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C4F1C433D7;
-        Mon, 26 Sep 2022 10:50:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 745166091B;
+        Mon, 26 Sep 2022 10:41:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6105AC433D6;
+        Mon, 26 Sep 2022 10:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189439;
-        bh=Ut33842hwx4a/yaziEGJ5m5FGmvxrtCCOxpdvH3Jrog=;
+        s=korg; t=1664188859;
+        bh=e5xL77n75MzC+7zDlCWqNHCCknAu25jstEltBBgDNU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIBZC7YSGQRxeUG4D2QGCezfb8uXQH62YZsLoPyKEaUfI7dE2ffXYl45LYJxHOmFi
-         h4pMwqzq3htNaHbmoApoZtYzCb8o00erHvv6qSWaHO8H88uSclrGCiIp/PSz+iP2wG
-         Oi6CNJsyoIsWLqgok59Crcl0BAa3mzsf8YvUmkVQ=
+        b=o6a9xCa9SKTNx63x9mUJ1Sg0njx6MDAAWvu5gWRSE7W8EJwOIZ93X1bWzO+Oxr30x
+         h6ztcRQQuxM6gPUfRLUoM7/J8Bxeh+oSNy5F1/NZWuKO6OJBEnHLeF17xhlYDn3JoB
+         I9LSKBvq9fPht3OmN2deYV62xWjMpf6bqN1/f4jA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Jinlin <lijinlin3@huawei.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 188/207] fsdax: Fix infinite loop in dax_iomap_rw()
-Date:   Mon, 26 Sep 2022 12:12:57 +0200
-Message-Id: <20220926100815.032294339@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.15 144/148] ext4: limit the number of retries after discarding preallocations blocks
+Date:   Mon, 26 Sep 2022 12:12:58 +0200
+Message-Id: <20220926100801.615046585@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +52,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jinlin <lijinlin3@huawei.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 17d9c15c9b9e7fb285f7ac5367dfb5f00ff575e3 ]
+commit 80fa46d6b9e7b1527bfd2197d75431fd9c382161 upstream.
 
-I got an infinite loop and a WARNING report when executing a tail command
-in virtiofs.
+This patch avoids threads live-locking for hours when a large number
+threads are competing over the last few free extents as they blocks
+getting added and removed from preallocation pools.  From our bug
+reporter:
 
-  WARNING: CPU: 10 PID: 964 at fs/iomap/iter.c:34 iomap_iter+0x3a2/0x3d0
-  Modules linked in:
-  CPU: 10 PID: 964 Comm: tail Not tainted 5.19.0-rc7
-  Call Trace:
-  <TASK>
-  dax_iomap_rw+0xea/0x620
-  ? __this_cpu_preempt_check+0x13/0x20
-  fuse_dax_read_iter+0x47/0x80
-  fuse_file_read_iter+0xae/0xd0
-  new_sync_read+0xfe/0x180
-  ? 0xffffffff81000000
-  vfs_read+0x14d/0x1a0
-  ksys_read+0x6d/0xf0
-  __x64_sys_read+0x1a/0x20
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+   A reliable way for triggering this has multiple writers
+   continuously write() to files when the filesystem is full, while
+   small amounts of space are freed (e.g. by truncating a large file
+   -1MiB at a time). In the local filesystem, this can be done by
+   simply not checking the return code of write (0) and/or the error
+   (ENOSPACE) that is set. Over NFS with an async mount, even clients
+   with proper error checking will behave this way since the linux NFS
+   client implementation will not propagate the server errors [the
+   write syscalls immediately return success] until the file handle is
+   closed. This leads to a situation where NFS clients send a
+   continuous stream of WRITE rpcs which result in ERRNOSPACE -- but
+   since the client isn't seeing this, the stream of writes continues
+   at maximum network speed.
 
-The tail command will call read() with a count of 0. In this case,
-iomap_iter() will report this WARNING, and always return 1 which casuing
-the infinite loop in dax_iomap_rw().
+   When some space does appear, multiple writers will all attempt to
+   claim it for their current write. For NFS, we may see dozens to
+   hundreds of threads that do this.
 
-Fixing by checking count whether is 0 in dax_iomap_rw().
+   The real-world scenario of this is database backup tooling (in
+   particular, github.com/mdkent/percona-xtrabackup) which may write
+   large files (>1TiB) to NFS for safe keeping. Some temporary files
+   are written, rewound, and read back -- all before closing the file
+   handle (the temp file is actually unlinked, to trigger automatic
+   deletion on close/crash.) An application like this operating on an
+   async NFS mount will not see an error code until TiB have been
+   written/read.
 
-Fixes: ca289e0b95af ("fsdax: switch dax_iomap_rw to use iomap_iter")
-Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Link: https://lore.kernel.org/r/20220725032050.3873372-1-lijinlin3@huawei.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+   The lockup was observed when running this database backup on large
+   filesystems (64 TiB in this case) with a high number of block
+   groups and no free space. Fragmentation is generally not a factor
+   in this filesystem (~thousands of large files, mostly contiguous
+   except for the parts written while the filesystem is at capacity.)
+
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dax.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/mballoc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 4155a6107fa1..7ab248ed21aa 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1241,6 +1241,9 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
- 	loff_t done = 0;
- 	int ret;
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -5539,6 +5539,7 @@ ext4_fsblk_t ext4_mb_new_blocks(handle_t
+ 	ext4_fsblk_t block = 0;
+ 	unsigned int inquota = 0;
+ 	unsigned int reserv_clstrs = 0;
++	int retries = 0;
+ 	u64 seq;
  
-+	if (!iomi.len)
-+		return 0;
-+
- 	if (iov_iter_rw(iter) == WRITE) {
- 		lockdep_assert_held_write(&iomi.inode->i_rwsem);
- 		iomi.flags |= IOMAP_WRITE;
--- 
-2.35.1
-
+ 	might_sleep();
+@@ -5641,7 +5642,8 @@ repeat:
+ 			ar->len = ac->ac_b_ex.fe_len;
+ 		}
+ 	} else {
+-		if (ext4_mb_discard_preallocations_should_retry(sb, ac, &seq))
++		if (++retries < 3 &&
++		    ext4_mb_discard_preallocations_should_retry(sb, ac, &seq))
+ 			goto repeat;
+ 		/*
+ 		 * If block allocation fails then the pa allocated above
 
 
