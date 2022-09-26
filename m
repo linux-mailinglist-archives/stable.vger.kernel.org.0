@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1C35EA234
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 546E75EA112
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234809AbiIZLEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:04:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
+        id S236253AbiIZKpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:45:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237356AbiIZLDy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA416958E;
-        Mon, 26 Sep 2022 03:32:55 -0700 (PDT)
+        with ESMTP id S236422AbiIZKni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:43:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA340311;
+        Mon, 26 Sep 2022 03:24:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9793860CA3;
-        Mon, 26 Sep 2022 10:31:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D933C433C1;
-        Mon, 26 Sep 2022 10:31:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F192B80920;
+        Mon, 26 Sep 2022 10:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C838AC433C1;
+        Mon, 26 Sep 2022 10:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188279;
-        bh=eJ+fDbbzA19SGMmU8INWJvoyHaXEcrggf1UMvpYzvDQ=;
+        s=korg; t=1664187888;
+        bh=xLv6Yp4tyzE+V2Ro4LgR0kyqrrBkxn5bGkLAx5w9QAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QXafxHQspj1iy4sCDw6Kl3mxt7XeIPlIyewHKwf+32MJccZEkdsOVL5sLUg7BF5Bc
-         Hc5LBwLj/TMavknqCGm2UTieYVztIVrzS61tCqgMYwITCHMMld/xU+ZIzBq9lTdj7I
-         8zBeRrPpUoIQNmGa2nUm4riyfemSzUgpJYncLYVk=
+        b=B0ne3X05JKpddJX5dI/9puus8VdSkopFYD2ypNzmoc1BOBdSo6Tv9IUA6dfbTDK7m
+         ZKZfpUhPZmbErkKO6UXhSrQDfusT6vaZb3+nRcKsq4+sbpql1IWcAE5iSiN5MpPJFZ
+         jYx3b9JE9WzG/PbsB7p56QArd4Ud6EP8gxFLiKHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 099/141] wireguard: ratelimiter: disable timings test by default
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 5.4 092/120] serial: tegra-tcu: Use uart_xmit_advance(), fixes icount.tx accounting
 Date:   Mon, 26 Sep 2022 12:12:05 +0200
-Message-Id: <20220926100758.018280750@linuxfoundation.org>
+Message-Id: <20220926100754.380471788@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,104 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 684dec3cf45da2b0848298efae4adf3b2aeafeda ]
+commit 1d10cd4da593bc0196a239dcc54dac24b6b0a74e upstream.
 
-A previous commit tried to make the ratelimiter timings test more
-reliable but in the process made it less reliable on other
-configurations. This is an impossible problem to solve without
-increasingly ridiculous heuristics. And it's not even a problem that
-actually needs to be solved in any comprehensive way, since this is only
-ever used during development. So just cordon this off with a DEBUG_
-ifdef, just like we do for the trie's randomized tests, so it can be
-enabled while hacking on the code, and otherwise disabled in CI. In the
-process we also revert 151c8e499f47.
+Tx'ing does not correctly account Tx'ed characters into icount.tx.
+Using uart_xmit_advance() fixes the problem.
 
-Fixes: 151c8e499f47 ("wireguard: ratelimiter: use hrtimer in selftest")
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2d908b38d409 ("serial: Add Tegra Combined UART driver")
+Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220901143934.8850-4-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/selftest/ratelimiter.c | 25 ++++++++------------
- 1 file changed, 10 insertions(+), 15 deletions(-)
+ drivers/tty/serial/tegra-tcu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireguard/selftest/ratelimiter.c b/drivers/net/wireguard/selftest/ratelimiter.c
-index ba87d294604f..d4bb40a695ab 100644
---- a/drivers/net/wireguard/selftest/ratelimiter.c
-+++ b/drivers/net/wireguard/selftest/ratelimiter.c
-@@ -6,29 +6,28 @@
- #ifdef DEBUG
+--- a/drivers/tty/serial/tegra-tcu.c
++++ b/drivers/tty/serial/tegra-tcu.c
+@@ -101,7 +101,7 @@ static void tegra_tcu_uart_start_tx(stru
+ 			break;
  
- #include <linux/jiffies.h>
--#include <linux/hrtimer.h>
+ 		tegra_tcu_write(tcu, &xmit->buf[xmit->tail], count);
+-		xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++		uart_xmit_advance(port, count);
+ 	}
  
- static const struct {
- 	bool result;
--	u64 nsec_to_sleep_before;
-+	unsigned int msec_to_sleep_before;
- } expected_results[] __initconst = {
- 	[0 ... PACKETS_BURSTABLE - 1] = { true, 0 },
- 	[PACKETS_BURSTABLE] = { false, 0 },
--	[PACKETS_BURSTABLE + 1] = { true, NSEC_PER_SEC / PACKETS_PER_SECOND },
-+	[PACKETS_BURSTABLE + 1] = { true, MSEC_PER_SEC / PACKETS_PER_SECOND },
- 	[PACKETS_BURSTABLE + 2] = { false, 0 },
--	[PACKETS_BURSTABLE + 3] = { true, (NSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
-+	[PACKETS_BURSTABLE + 3] = { true, (MSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
- 	[PACKETS_BURSTABLE + 4] = { true, 0 },
- 	[PACKETS_BURSTABLE + 5] = { false, 0 }
- };
- 
- static __init unsigned int maximum_jiffies_at_index(int index)
- {
--	u64 total_nsecs = 2 * NSEC_PER_SEC / PACKETS_PER_SECOND / 3;
-+	unsigned int total_msecs = 2 * MSEC_PER_SEC / PACKETS_PER_SECOND / 3;
- 	int i;
- 
- 	for (i = 0; i <= index; ++i)
--		total_nsecs += expected_results[i].nsec_to_sleep_before;
--	return nsecs_to_jiffies(total_nsecs);
-+		total_msecs += expected_results[i].msec_to_sleep_before;
-+	return msecs_to_jiffies(total_msecs);
- }
- 
- static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
-@@ -43,12 +42,8 @@ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
- 	loop_start_time = jiffies;
- 
- 	for (i = 0; i < ARRAY_SIZE(expected_results); ++i) {
--		if (expected_results[i].nsec_to_sleep_before) {
--			ktime_t timeout = ktime_add(ktime_add_ns(ktime_get_coarse_boottime(), TICK_NSEC * 4 / 3),
--						    ns_to_ktime(expected_results[i].nsec_to_sleep_before));
--			set_current_state(TASK_UNINTERRUPTIBLE);
--			schedule_hrtimeout_range_clock(&timeout, 0, HRTIMER_MODE_ABS, CLOCK_BOOTTIME);
--		}
-+		if (expected_results[i].msec_to_sleep_before)
-+			msleep(expected_results[i].msec_to_sleep_before);
- 
- 		if (time_is_before_jiffies(loop_start_time +
- 					   maximum_jiffies_at_index(i)))
-@@ -132,7 +127,7 @@ bool __init wg_ratelimiter_selftest(void)
- 	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
- 		return true;
- 
--	BUILD_BUG_ON(NSEC_PER_SEC % PACKETS_PER_SECOND != 0);
-+	BUILD_BUG_ON(MSEC_PER_SEC % PACKETS_PER_SECOND != 0);
- 
- 	if (wg_ratelimiter_init())
- 		goto out;
-@@ -172,7 +167,7 @@ bool __init wg_ratelimiter_selftest(void)
- 	++test;
- #endif
- 
--	for (trials = TRIALS_BEFORE_GIVING_UP;;) {
-+	for (trials = TRIALS_BEFORE_GIVING_UP; IS_ENABLED(DEBUG_RATELIMITER_TIMINGS);) {
- 		int test_count = 0, ret;
- 
- 		ret = timings_test(skb4, hdr4, skb6, hdr6, &test_count);
--- 
-2.35.1
-
+ 	uart_write_wakeup(port);
 
 
