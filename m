@@ -2,67 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6B25E999A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 08:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2131B5E99A2
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 08:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233766AbiIZGfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 02:35:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
+        id S229526AbiIZGhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 02:37:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233633AbiIZGfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 02:35:01 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF6FCEB
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 23:34:32 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id d10so4584662pfh.6
-        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 23:34:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=fNZ3KbeVQEZ/lUVToulmimPFpBKXAptvbwftyhfMZbU=;
-        b=tIRbEndteV03sz3G52GjBP8PzfoJfkXEYqGwCZyG8WfTQVJaLlMH4rJJx7Me4jT8D7
-         K3kfjwW1Ayh4Eh/a6qlD1mHlkYA9ZY0uvQiDaVhZEHouCAXGW9Ka/ir52NLf0BoGxh1K
-         Urr9sUL98N+1rW54x+/i3CULzsQrkO1xlK5Nj51NcS+o+go3Owk3VTGbTOFzxuh7EDVY
-         zB+NUCvp++s9NBwwy47RazztYD/ghxOSRJ0k0feb8oXr4a2qp9u1McokflblJ6LNdciD
-         ps4y3n1u3hnPxk5ChvNb0QD5DUnqIIo9rCX57tbkSd+0mTwYTqKEsur9B9dT4EwXQz+/
-         b7Vw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=fNZ3KbeVQEZ/lUVToulmimPFpBKXAptvbwftyhfMZbU=;
-        b=W0Z9oR4z7AuN0QOHl9qjKu++pZRWeoLJ5Pu9svuU6aCNnygUc+thykAYtX7Edv58nP
-         2GCZKIkpKjSDgfGyeHqEb8PWJ9JTaESfCA0j3GCW/KYjZPUAvpXq1pQUy2X3vQPpdqYh
-         a7lb9lyi+grwyGtYPP7b62dtr9g99o+udnaucCkW3XRUCkXuwCiL9RKu3Wv1VnQ4GKkM
-         ORCX64REG1zJVf3CVK5ILLUnKOLHpIoQrVmvjG2Z863Ol5RlOeI5dl22inzbJLVu/2Ok
-         urA/N3SWI2PCXSaoxgYOoZad8XVXKKz4Cxq8ewIS+7TqEy9OIsA49vM5ixZP+eqepz2l
-         tkUA==
-X-Gm-Message-State: ACrzQf1YWywe5++6TmtoAAnX/Gn25dIsXwI2AGoL1Do/MXQITpkUBJpm
-        HZjMIpRcekTDoIFk49p5f3IEOp5S/v74BxMC
-X-Google-Smtp-Source: AMsMyM6FjEBOydjd0Mdrbbje9vBKI5UJO3bGqdiP856jn8Kc++cQ06maCPnzMjTKaPsuIdjHuTPWIw==
-X-Received: by 2002:a05:6a00:b4d:b0:540:cee1:657e with SMTP id p13-20020a056a000b4d00b00540cee1657emr22047539pfo.22.1664174071412;
-        Sun, 25 Sep 2022 23:34:31 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c37-20020a631c65000000b0043949b480a8sm9824099pgm.29.2022.09.25.23.34.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Sep 2022 23:34:31 -0700 (PDT)
-Message-ID: <633147f7.630a0220.9aea.2283@mx.google.com>
-Date:   Sun, 25 Sep 2022 23:34:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233570AbiIZGhX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 02:37:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D753CE0C7
+        for <stable@vger.kernel.org>; Sun, 25 Sep 2022 23:37:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5800DB80A29
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 06:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B4E9C433C1;
+        Mon, 26 Sep 2022 06:37:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664174239;
+        bh=c3neowSTH5u9c9wbKaUbgdJl9F2y5haDm06RIECrPDI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=welNMhHIMmCwr/Nh2+BxAWiEIKvF+WHs1JKtiYcBemaLnuTvTOPpiwK7E/gTVtF9A
+         RSKLsBeTbDwzencQ7sE/MLepQSPfCsaFZG62lommjaV+WHylGNyCxtWgYzcJmoM3Nd
+         GLNjFRuZ4ZUA8kPH1zmd1/rYb4RFGdCxPolJoMWk=
+Subject: FAILED: patch "[PATCH] ext4: use buckets for cr 1 block scan instead of rbtree" failed to apply to 5.15-stable tree
+To:     jack@suse.cz, ojaswin@linux.ibm.com, ritesh.list@gmail.com,
+        stefan.wahren@i2se.com, tytso@mit.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 26 Sep 2022 08:37:16 +0200
+Message-ID: <16641742365190@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.15.70-140-gbbefd963c9b9
-Subject: stable-rc/queue/5.15 build: 154 builds: 4 failed, 150 passed,
- 13 errors, 7 warnings (v5.15.70-140-gbbefd963c9b9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,949 +48,548 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 build: 154 builds: 4 failed, 150 passed, 13 errors, 7 =
-warnings (v5.15.70-140-gbbefd963c9b9)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-5/kernel/v5.15.70-140-gbbefd963c9b9/
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+83e80a6e3543 ("ext4: use buckets for cr 1 block scan instead of rbtree")
+359745d78351 ("proc: remove PDE_DATA() completely")
+6dfbbae14a7b ("fs: proc: store PDE()->data into inode->i_private")
+87b93329fdd6 ("hwmon: (dell-smm) Unify i8k_ioctl() and i8k_ioctl_unlocked()")
+024053877469 ("hwmon: (dell-smm) Simplify ioctl handler")
+59a2ceeef6d6 ("Merge branch 'akpm' (patches from Andrew)")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 83e80a6e3543f37f74c8e48a5f305b054b65ce2a Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Thu, 8 Sep 2022 11:21:28 +0200
+Subject: [PATCH] ext4: use buckets for cr 1 block scan instead of rbtree
+
+Using rbtree for sorting groups by average fragment size is relatively
+expensive (needs rbtree update on every block freeing or allocation) and
+leads to wide spreading of allocations because selection of block group
+is very sentitive both to changes in free space and amount of blocks
+allocated. Furthermore selecting group with the best matching average
+fragment size is not necessary anyway, even more so because the
+variability of fragment sizes within a group is likely large so average
+is not telling much. We just need a group with large enough average
+fragment size so that we have high probability of finding large enough
+free extent and we don't want average fragment size to be too big so
+that we are likely to find free extent only somewhat larger than what we
+need.
+
+So instead of maintaing rbtree of groups sorted by fragment size keep
+bins (lists) or groups where average fragment size is in the interval
+[2^i, 2^(i+1)). This structure requires less updates on block allocation
+/ freeing, generally avoids chaotic spreading of allocations into block
+groups, and still is able to quickly (even faster that the rbtree)
+provide a block group which is likely to have a suitably sized free
+space extent.
+
+This patch reduces number of block groups used when untarring archive
+with medium sized files (size somewhat above 64k which is default
+mballoc limit for avoiding locality group preallocation) to about half
+and thus improves write speeds for eMMC flash significantly.
+
+Fixes: 196e402adf2e ("ext4: improve cr 0 / cr 1 group scanning")
+CC: stable@kernel.org
+Reported-and-tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Tested-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/all/0d81a7c2-46b7-6010-62a4-3e6cfc1628d6@i2se.com/
+Link: https://lore.kernel.org/r/20220908092136.11770-5-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index 9bca5565547b..3bf9a6926798 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -167,8 +167,6 @@ enum SHIFT_DIRECTION {
+ #define EXT4_MB_CR0_OPTIMIZED		0x8000
+ /* Avg fragment size rb tree lookup succeeded at least once for cr = 1 */
+ #define EXT4_MB_CR1_OPTIMIZED		0x00010000
+-/* Perform linear traversal for one group */
+-#define EXT4_MB_SEARCH_NEXT_LINEAR	0x00020000
+ struct ext4_allocation_request {
+ 	/* target inode for block we're allocating */
+ 	struct inode *inode;
+@@ -1600,8 +1598,8 @@ struct ext4_sb_info {
+ 	struct list_head s_discard_list;
+ 	struct work_struct s_discard_work;
+ 	atomic_t s_retry_alloc_pending;
+-	struct rb_root s_mb_avg_fragment_size_root;
+-	rwlock_t s_mb_rb_lock;
++	struct list_head *s_mb_avg_fragment_size;
++	rwlock_t *s_mb_avg_fragment_size_locks;
+ 	struct list_head *s_mb_largest_free_orders;
+ 	rwlock_t *s_mb_largest_free_orders_locks;
+ 
+@@ -3413,6 +3411,8 @@ struct ext4_group_info {
+ 	ext4_grpblk_t	bb_first_free;	/* first free block */
+ 	ext4_grpblk_t	bb_free;	/* total free blocks */
+ 	ext4_grpblk_t	bb_fragments;	/* nr of freespace fragments */
++	int		bb_avg_fragment_size_order;	/* order of average
++							   fragment in BG */
+ 	ext4_grpblk_t	bb_largest_free_order;/* order of largest frag in BG */
+ 	ext4_group_t	bb_group;	/* Group number */
+ 	struct          list_head bb_prealloc_list;
+@@ -3420,7 +3420,7 @@ struct ext4_group_info {
+ 	void            *bb_bitmap;
+ #endif
+ 	struct rw_semaphore alloc_sem;
+-	struct rb_node	bb_avg_fragment_size_rb;
++	struct list_head bb_avg_fragment_size_node;
+ 	struct list_head bb_largest_free_order_node;
+ 	ext4_grpblk_t	bb_counters[];	/* Nr of free power-of-two-block
+ 					 * regions, index is order.
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index af1e49c3603f..31873af0421b 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -140,13 +140,15 @@
+  *    number of buddy bitmap orders possible) number of lists. Group-infos are
+  *    placed in appropriate lists.
+  *
+- * 2) Average fragment size rb tree (sbi->s_mb_avg_fragment_size_root)
++ * 2) Average fragment size lists (sbi->s_mb_avg_fragment_size)
+  *
+- *    Locking: sbi->s_mb_rb_lock (rwlock)
++ *    Locking: sbi->s_mb_avg_fragment_size_locks(array of rw locks)
+  *
+- *    This is a red black tree consisting of group infos and the tree is sorted
+- *    by average fragment sizes (which is calculated as ext4_group_info->bb_free
+- *    / ext4_group_info->bb_fragments).
++ *    This is an array of lists where in the i-th list there are groups with
++ *    average fragment size >= 2^i and < 2^(i+1). The average fragment size
++ *    is computed as ext4_group_info->bb_free / ext4_group_info->bb_fragments.
++ *    Note that we don't bother with a special list for completely empty groups
++ *    so we only have MB_NUM_ORDERS(sb) lists.
+  *
+  * When "mb_optimize_scan" mount option is set, mballoc consults the above data
+  * structures to decide the order in which groups are to be traversed for
+@@ -160,7 +162,8 @@
+  *
+  * At CR = 1, we only consider groups where average fragment size > request
+  * size. So, we lookup a group which has average fragment size just above or
+- * equal to request size using our rb tree (data structure 2) in O(log N) time.
++ * equal to request size using our average fragment size group lists (data
++ * structure 2) in O(1) time.
+  *
+  * If "mb_optimize_scan" mount option is not set, mballoc traverses groups in
+  * linear order which requires O(N) search time for each CR 0 and CR 1 phase.
+@@ -802,65 +805,51 @@ static void ext4_mb_mark_free_simple(struct super_block *sb,
+ 	}
+ }
+ 
+-static void ext4_mb_rb_insert(struct rb_root *root, struct rb_node *new,
+-			int (*cmp)(struct rb_node *, struct rb_node *))
++static int mb_avg_fragment_size_order(struct super_block *sb, ext4_grpblk_t len)
+ {
+-	struct rb_node **iter = &root->rb_node, *parent = NULL;
++	int order;
+ 
+-	while (*iter) {
+-		parent = *iter;
+-		if (cmp(new, *iter) > 0)
+-			iter = &((*iter)->rb_left);
+-		else
+-			iter = &((*iter)->rb_right);
+-	}
+-
+-	rb_link_node(new, parent, iter);
+-	rb_insert_color(new, root);
+-}
+-
+-static int
+-ext4_mb_avg_fragment_size_cmp(struct rb_node *rb1, struct rb_node *rb2)
+-{
+-	struct ext4_group_info *grp1 = rb_entry(rb1,
+-						struct ext4_group_info,
+-						bb_avg_fragment_size_rb);
+-	struct ext4_group_info *grp2 = rb_entry(rb2,
+-						struct ext4_group_info,
+-						bb_avg_fragment_size_rb);
+-	int num_frags_1, num_frags_2;
+-
+-	num_frags_1 = grp1->bb_fragments ?
+-		grp1->bb_free / grp1->bb_fragments : 0;
+-	num_frags_2 = grp2->bb_fragments ?
+-		grp2->bb_free / grp2->bb_fragments : 0;
+-
+-	return (num_frags_2 - num_frags_1);
++	/*
++	 * We don't bother with a special lists groups with only 1 block free
++	 * extents and for completely empty groups.
++	 */
++	order = fls(len) - 2;
++	if (order < 0)
++		return 0;
++	if (order == MB_NUM_ORDERS(sb))
++		order--;
++	return order;
+ }
+ 
+-/*
+- * Reinsert grpinfo into the avg_fragment_size tree with new average
+- * fragment size.
+- */
++/* Move group to appropriate avg_fragment_size list */
+ static void
+ mb_update_avg_fragment_size(struct super_block *sb, struct ext4_group_info *grp)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
++	int new_order;
+ 
+ 	if (!test_opt2(sb, MB_OPTIMIZE_SCAN) || grp->bb_free == 0)
+ 		return;
+ 
+-	write_lock(&sbi->s_mb_rb_lock);
+-	if (!RB_EMPTY_NODE(&grp->bb_avg_fragment_size_rb)) {
+-		rb_erase(&grp->bb_avg_fragment_size_rb,
+-				&sbi->s_mb_avg_fragment_size_root);
+-		RB_CLEAR_NODE(&grp->bb_avg_fragment_size_rb);
+-	}
++	new_order = mb_avg_fragment_size_order(sb,
++					grp->bb_free / grp->bb_fragments);
++	if (new_order == grp->bb_avg_fragment_size_order)
++		return;
+ 
+-	ext4_mb_rb_insert(&sbi->s_mb_avg_fragment_size_root,
+-		&grp->bb_avg_fragment_size_rb,
+-		ext4_mb_avg_fragment_size_cmp);
+-	write_unlock(&sbi->s_mb_rb_lock);
++	if (grp->bb_avg_fragment_size_order != -1) {
++		write_lock(&sbi->s_mb_avg_fragment_size_locks[
++					grp->bb_avg_fragment_size_order]);
++		list_del(&grp->bb_avg_fragment_size_node);
++		write_unlock(&sbi->s_mb_avg_fragment_size_locks[
++					grp->bb_avg_fragment_size_order]);
++	}
++	grp->bb_avg_fragment_size_order = new_order;
++	write_lock(&sbi->s_mb_avg_fragment_size_locks[
++					grp->bb_avg_fragment_size_order]);
++	list_add_tail(&grp->bb_avg_fragment_size_node,
++		&sbi->s_mb_avg_fragment_size[grp->bb_avg_fragment_size_order]);
++	write_unlock(&sbi->s_mb_avg_fragment_size_locks[
++					grp->bb_avg_fragment_size_order]);
+ }
+ 
+ /*
+@@ -909,86 +898,56 @@ static void ext4_mb_choose_next_group_cr0(struct ext4_allocation_context *ac,
+ 		*new_cr = 1;
+ 	} else {
+ 		*group = grp->bb_group;
+-		ac->ac_last_optimal_group = *group;
+ 		ac->ac_flags |= EXT4_MB_CR0_OPTIMIZED;
+ 	}
+ }
+ 
+ /*
+- * Choose next group by traversing average fragment size tree. Updates *new_cr
+- * if cr lvel needs an update. Sets EXT4_MB_SEARCH_NEXT_LINEAR to indicate that
+- * the linear search should continue for one iteration since there's lock
+- * contention on the rb tree lock.
++ * Choose next group by traversing average fragment size list of suitable
++ * order. Updates *new_cr if cr level needs an update.
+  */
+ static void ext4_mb_choose_next_group_cr1(struct ext4_allocation_context *ac,
+ 		int *new_cr, ext4_group_t *group, ext4_group_t ngroups)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(ac->ac_sb);
+-	int avg_fragment_size, best_so_far;
+-	struct rb_node *node, *found;
+-	struct ext4_group_info *grp;
+-
+-	/*
+-	 * If there is contention on the lock, instead of waiting for the lock
+-	 * to become available, just continue searching lineraly. We'll resume
+-	 * our rb tree search later starting at ac->ac_last_optimal_group.
+-	 */
+-	if (!read_trylock(&sbi->s_mb_rb_lock)) {
+-		ac->ac_flags |= EXT4_MB_SEARCH_NEXT_LINEAR;
+-		return;
+-	}
++	struct ext4_group_info *grp, *iter;
++	int i;
+ 
+ 	if (unlikely(ac->ac_flags & EXT4_MB_CR1_OPTIMIZED)) {
+ 		if (sbi->s_mb_stats)
+ 			atomic_inc(&sbi->s_bal_cr1_bad_suggestions);
+-		/* We have found something at CR 1 in the past */
+-		grp = ext4_get_group_info(ac->ac_sb, ac->ac_last_optimal_group);
+-		for (found = rb_next(&grp->bb_avg_fragment_size_rb); found != NULL;
+-		     found = rb_next(found)) {
+-			grp = rb_entry(found, struct ext4_group_info,
+-				       bb_avg_fragment_size_rb);
++	}
++
++	for (i = mb_avg_fragment_size_order(ac->ac_sb, ac->ac_g_ex.fe_len);
++	     i < MB_NUM_ORDERS(ac->ac_sb); i++) {
++		if (list_empty(&sbi->s_mb_avg_fragment_size[i]))
++			continue;
++		read_lock(&sbi->s_mb_avg_fragment_size_locks[i]);
++		if (list_empty(&sbi->s_mb_avg_fragment_size[i])) {
++			read_unlock(&sbi->s_mb_avg_fragment_size_locks[i]);
++			continue;
++		}
++		grp = NULL;
++		list_for_each_entry(iter, &sbi->s_mb_avg_fragment_size[i],
++				    bb_avg_fragment_size_node) {
+ 			if (sbi->s_mb_stats)
+ 				atomic64_inc(&sbi->s_bal_cX_groups_considered[1]);
+-			if (likely(ext4_mb_good_group(ac, grp->bb_group, 1)))
++			if (likely(ext4_mb_good_group(ac, iter->bb_group, 1))) {
++				grp = iter;
+ 				break;
+-		}
+-		goto done;
+-	}
+-
+-	node = sbi->s_mb_avg_fragment_size_root.rb_node;
+-	best_so_far = 0;
+-	found = NULL;
+-
+-	while (node) {
+-		grp = rb_entry(node, struct ext4_group_info,
+-			       bb_avg_fragment_size_rb);
+-		avg_fragment_size = 0;
+-		if (ext4_mb_good_group(ac, grp->bb_group, 1)) {
+-			avg_fragment_size = grp->bb_fragments ?
+-				grp->bb_free / grp->bb_fragments : 0;
+-			if (!best_so_far || avg_fragment_size < best_so_far) {
+-				best_so_far = avg_fragment_size;
+-				found = node;
+ 			}
+ 		}
+-		if (avg_fragment_size > ac->ac_g_ex.fe_len)
+-			node = node->rb_right;
+-		else
+-			node = node->rb_left;
++		read_unlock(&sbi->s_mb_avg_fragment_size_locks[i]);
++		if (grp)
++			break;
+ 	}
+ 
+-done:
+-	if (found) {
+-		grp = rb_entry(found, struct ext4_group_info,
+-			       bb_avg_fragment_size_rb);
++	if (grp) {
+ 		*group = grp->bb_group;
+ 		ac->ac_flags |= EXT4_MB_CR1_OPTIMIZED;
+ 	} else {
+ 		*new_cr = 2;
+ 	}
+-
+-	read_unlock(&sbi->s_mb_rb_lock);
+-	ac->ac_last_optimal_group = *group;
+ }
+ 
+ static inline int should_optimize_scan(struct ext4_allocation_context *ac)
+@@ -1017,11 +976,6 @@ next_linear_group(struct ext4_allocation_context *ac, int group, int ngroups)
+ 		goto inc_and_return;
+ 	}
+ 
+-	if (ac->ac_flags & EXT4_MB_SEARCH_NEXT_LINEAR) {
+-		ac->ac_flags &= ~EXT4_MB_SEARCH_NEXT_LINEAR;
+-		goto inc_and_return;
+-	}
+-
+ 	return group;
+ inc_and_return:
+ 	/*
+@@ -1152,13 +1106,13 @@ void ext4_mb_generate_buddy(struct super_block *sb,
+ 					EXT4_GROUP_INFO_BBITMAP_CORRUPT);
+ 	}
+ 	mb_set_largest_free_order(sb, grp);
++	mb_update_avg_fragment_size(sb, grp);
+ 
+ 	clear_bit(EXT4_GROUP_INFO_NEED_INIT_BIT, &(grp->bb_state));
+ 
+ 	period = get_cycles() - period;
+ 	atomic_inc(&sbi->s_mb_buddies_generated);
+ 	atomic64_add(period, &sbi->s_mb_generation_time);
+-	mb_update_avg_fragment_size(sb, grp);
+ }
+ 
+ /* The buddy information is attached the buddy cache inode
+@@ -2711,7 +2665,6 @@ ext4_mb_regular_allocator(struct ext4_allocation_context *ac)
+ 		 * from the goal value specified
+ 		 */
+ 		group = ac->ac_g_ex.fe_group;
+-		ac->ac_last_optimal_group = group;
+ 		ac->ac_groups_linear_remaining = sbi->s_mb_max_linear_groups;
+ 		prefetch_grp = group;
+ 
+@@ -2993,9 +2946,7 @@ __acquires(&EXT4_SB(sb)->s_mb_rb_lock)
+ 	struct super_block *sb = pde_data(file_inode(seq->file));
+ 	unsigned long position;
+ 
+-	read_lock(&EXT4_SB(sb)->s_mb_rb_lock);
+-
+-	if (*pos < 0 || *pos >= MB_NUM_ORDERS(sb) + 1)
++	if (*pos < 0 || *pos >= 2*MB_NUM_ORDERS(sb))
+ 		return NULL;
+ 	position = *pos + 1;
+ 	return (void *) ((unsigned long) position);
+@@ -3007,7 +2958,7 @@ static void *ext4_mb_seq_structs_summary_next(struct seq_file *seq, void *v, lof
+ 	unsigned long position;
+ 
+ 	++*pos;
+-	if (*pos < 0 || *pos >= MB_NUM_ORDERS(sb) + 1)
++	if (*pos < 0 || *pos >= 2*MB_NUM_ORDERS(sb))
+ 		return NULL;
+ 	position = *pos + 1;
+ 	return (void *) ((unsigned long) position);
+@@ -3019,29 +2970,22 @@ static int ext4_mb_seq_structs_summary_show(struct seq_file *seq, void *v)
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	unsigned long position = ((unsigned long) v);
+ 	struct ext4_group_info *grp;
+-	struct rb_node *n;
+-	unsigned int count, min, max;
++	unsigned int count;
+ 
+ 	position--;
+ 	if (position >= MB_NUM_ORDERS(sb)) {
+-		seq_puts(seq, "fragment_size_tree:\n");
+-		n = rb_first(&sbi->s_mb_avg_fragment_size_root);
+-		if (!n) {
+-			seq_puts(seq, "\ttree_min: 0\n\ttree_max: 0\n\ttree_nodes: 0\n");
+-			return 0;
+-		}
+-		grp = rb_entry(n, struct ext4_group_info, bb_avg_fragment_size_rb);
+-		min = grp->bb_fragments ? grp->bb_free / grp->bb_fragments : 0;
+-		count = 1;
+-		while (rb_next(n)) {
+-			count++;
+-			n = rb_next(n);
+-		}
+-		grp = rb_entry(n, struct ext4_group_info, bb_avg_fragment_size_rb);
+-		max = grp->bb_fragments ? grp->bb_free / grp->bb_fragments : 0;
++		position -= MB_NUM_ORDERS(sb);
++		if (position == 0)
++			seq_puts(seq, "avg_fragment_size_lists:\n");
+ 
+-		seq_printf(seq, "\ttree_min: %u\n\ttree_max: %u\n\ttree_nodes: %u\n",
+-			   min, max, count);
++		count = 0;
++		read_lock(&sbi->s_mb_avg_fragment_size_locks[position]);
++		list_for_each_entry(grp, &sbi->s_mb_avg_fragment_size[position],
++				    bb_avg_fragment_size_node)
++			count++;
++		read_unlock(&sbi->s_mb_avg_fragment_size_locks[position]);
++		seq_printf(seq, "\tlist_order_%u_groups: %u\n",
++					(unsigned int)position, count);
+ 		return 0;
+ 	}
+ 
+@@ -3051,9 +2995,11 @@ static int ext4_mb_seq_structs_summary_show(struct seq_file *seq, void *v)
+ 		seq_puts(seq, "max_free_order_lists:\n");
+ 	}
+ 	count = 0;
++	read_lock(&sbi->s_mb_largest_free_orders_locks[position]);
+ 	list_for_each_entry(grp, &sbi->s_mb_largest_free_orders[position],
+ 			    bb_largest_free_order_node)
+ 		count++;
++	read_unlock(&sbi->s_mb_largest_free_orders_locks[position]);
+ 	seq_printf(seq, "\tlist_order_%u_groups: %u\n",
+ 		   (unsigned int)position, count);
+ 
+@@ -3061,11 +3007,7 @@ static int ext4_mb_seq_structs_summary_show(struct seq_file *seq, void *v)
+ }
+ 
+ static void ext4_mb_seq_structs_summary_stop(struct seq_file *seq, void *v)
+-__releases(&EXT4_SB(sb)->s_mb_rb_lock)
+ {
+-	struct super_block *sb = pde_data(file_inode(seq->file));
+-
+-	read_unlock(&EXT4_SB(sb)->s_mb_rb_lock);
+ }
+ 
+ const struct seq_operations ext4_mb_seq_structs_summary_ops = {
+@@ -3178,8 +3120,9 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ 	init_rwsem(&meta_group_info[i]->alloc_sem);
+ 	meta_group_info[i]->bb_free_root = RB_ROOT;
+ 	INIT_LIST_HEAD(&meta_group_info[i]->bb_largest_free_order_node);
+-	RB_CLEAR_NODE(&meta_group_info[i]->bb_avg_fragment_size_rb);
++	INIT_LIST_HEAD(&meta_group_info[i]->bb_avg_fragment_size_node);
+ 	meta_group_info[i]->bb_largest_free_order = -1;  /* uninit */
++	meta_group_info[i]->bb_avg_fragment_size_order = -1;  /* uninit */
+ 	meta_group_info[i]->bb_group = group;
+ 
+ 	mb_group_bb_bitmap_alloc(sb, meta_group_info[i], group);
+@@ -3428,7 +3371,24 @@ int ext4_mb_init(struct super_block *sb)
+ 		i++;
+ 	} while (i < MB_NUM_ORDERS(sb));
+ 
+-	sbi->s_mb_avg_fragment_size_root = RB_ROOT;
++	sbi->s_mb_avg_fragment_size =
++		kmalloc_array(MB_NUM_ORDERS(sb), sizeof(struct list_head),
++			GFP_KERNEL);
++	if (!sbi->s_mb_avg_fragment_size) {
++		ret = -ENOMEM;
++		goto out;
++	}
++	sbi->s_mb_avg_fragment_size_locks =
++		kmalloc_array(MB_NUM_ORDERS(sb), sizeof(rwlock_t),
++			GFP_KERNEL);
++	if (!sbi->s_mb_avg_fragment_size_locks) {
++		ret = -ENOMEM;
++		goto out;
++	}
++	for (i = 0; i < MB_NUM_ORDERS(sb); i++) {
++		INIT_LIST_HEAD(&sbi->s_mb_avg_fragment_size[i]);
++		rwlock_init(&sbi->s_mb_avg_fragment_size_locks[i]);
++	}
+ 	sbi->s_mb_largest_free_orders =
+ 		kmalloc_array(MB_NUM_ORDERS(sb), sizeof(struct list_head),
+ 			GFP_KERNEL);
+@@ -3447,7 +3407,6 @@ int ext4_mb_init(struct super_block *sb)
+ 		INIT_LIST_HEAD(&sbi->s_mb_largest_free_orders[i]);
+ 		rwlock_init(&sbi->s_mb_largest_free_orders_locks[i]);
+ 	}
+-	rwlock_init(&sbi->s_mb_rb_lock);
+ 
+ 	spin_lock_init(&sbi->s_md_lock);
+ 	sbi->s_mb_free_pending = 0;
+@@ -3518,6 +3477,8 @@ int ext4_mb_init(struct super_block *sb)
+ 	free_percpu(sbi->s_locality_groups);
+ 	sbi->s_locality_groups = NULL;
+ out:
++	kfree(sbi->s_mb_avg_fragment_size);
++	kfree(sbi->s_mb_avg_fragment_size_locks);
+ 	kfree(sbi->s_mb_largest_free_orders);
+ 	kfree(sbi->s_mb_largest_free_orders_locks);
+ 	kfree(sbi->s_mb_offsets);
+@@ -3584,6 +3545,8 @@ int ext4_mb_release(struct super_block *sb)
+ 		kvfree(group_info);
+ 		rcu_read_unlock();
+ 	}
++	kfree(sbi->s_mb_avg_fragment_size);
++	kfree(sbi->s_mb_avg_fragment_size_locks);
+ 	kfree(sbi->s_mb_largest_free_orders);
+ 	kfree(sbi->s_mb_largest_free_orders_locks);
+ 	kfree(sbi->s_mb_offsets);
+diff --git a/fs/ext4/mballoc.h b/fs/ext4/mballoc.h
+index 39da92ceabf8..dcda2a943cee 100644
+--- a/fs/ext4/mballoc.h
++++ b/fs/ext4/mballoc.h
+@@ -178,7 +178,6 @@ struct ext4_allocation_context {
+ 	/* copy of the best found extent taken before preallocation efforts */
+ 	struct ext4_free_extent ac_f_ex;
+ 
+-	ext4_group_t ac_last_optimal_group;
+ 	__u32 ac_groups_considered;
+ 	__u32 ac_flags;		/* allocation hints */
+ 	__u16 ac_groups_scanned;
 
-Tree: stable-rc
-Branch: queue/5.15
-Git Describe: v5.15.70-140-gbbefd963c9b9
-Git Commit: bbefd963c9b92fc31ed5c1fd719e0ce7d152deb7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-arm:
-    ixp4xx_defconfig: (gcc-10) FAIL
-
-mips:
-    decstation_64_defconfig: (gcc-10) FAIL
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    tinyconfig (gcc-10): 1 warning
-
-arm64:
-
-arm:
-    ixp4xx_defconfig (gcc-10): 3 errors, 2 warnings
-
-i386:
-
-mips:
-    32r2el_defconfig (gcc-10): 1 warning
-    bigsur_defconfig (gcc-10): 1 error
-    cavium_octeon_defconfig (gcc-10): 1 error
-    decstation_64_defconfig (gcc-10): 1 error
-    fuloong2e_defconfig (gcc-10): 1 error
-    ip32_defconfig (gcc-10): 1 error
-    lemote2f_defconfig (gcc-10): 1 error, 1 warning
-    loongson2k_defconfig (gcc-10): 1 error, 1 warning
-    loongson3_defconfig (gcc-10): 1 error
-    nlm_xlp_defconfig (gcc-10): 1 error
-    rm200_defconfig (gcc-10): 1 warning
-    sb1250_swarm_defconfig (gcc-10): 1 error
-
-riscv:
-
-x86_64:
-
-Errors summary:
-
-    10   expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
-0=E2=80=99
-    1    drivers/gpio/gpio-ixp4xx.c:296:2: error: implicit declaration of f=
-unction =E2=80=98gpio_irq_chip_set_chip=E2=80=99 [-Werror=3Dimplicit-functi=
-on-declaration]
-    1    drivers/gpio/gpio-ixp4xx.c:172:2: error: =E2=80=98GPIOCHIP_IRQ_RES=
-OURCE_HELPERS=E2=80=99 undeclared here (not in a function)
-    1    drivers/gpio/gpio-ixp4xx.c:171:11: error: =E2=80=98IRQCHIP_IMMUTAB=
-LE=E2=80=99 undeclared here (not in a function); did you mean =E2=80=98IS_I=
-MMUTABLE=E2=80=99?
-
-Warnings summary:
-
-    2    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes =
-is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/gpio/gpio-ixp4xx.c:172:2: warning: excess elements in stru=
-ct initializer
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-    1    cc1: some warnings being treated as errors
-    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
-e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
-ted "0,0"
-    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
-s unknown, fallback to ''
-
-Section mismatches summary:
-
-    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
- Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
-emory to the function .init.text:prom_init_numa_memory()
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
-): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
-0,0"
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 2 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/gpio/gpio-ixp4xx.c:171:11: error: =E2=80=98IRQCHIP_IMMUTABLE=E2=
-=80=99 undeclared here (not in a function); did you mean =E2=80=98IS_IMMUTA=
-BLE=E2=80=99?
-    drivers/gpio/gpio-ixp4xx.c:172:2: error: =E2=80=98GPIOCHIP_IRQ_RESOURCE=
-_HELPERS=E2=80=99 undeclared here (not in a function)
-    drivers/gpio/gpio-ixp4xx.c:296:2: error: implicit declaration of functi=
-on =E2=80=98gpio_irq_chip_set_chip=E2=80=99 [-Werror=3Dimplicit-function-de=
-claration]
-
-Warnings:
-    drivers/gpio/gpio-ixp4xx.c:172:2: warning: excess elements in struct in=
-itializer
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
-Warnings:
-    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
-Warnings:
-    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
-Section mismatches:
-    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
-ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
- to the function .init.text:prom_init_numa_memory()
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
-nings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-
----------------------------------------------------------------------------=
------
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
-0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
-nown, fallback to ''
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-0 warnings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----
-For more info write to <info@kernelci.org>
