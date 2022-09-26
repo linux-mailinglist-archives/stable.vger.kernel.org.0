@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FFB5E9FE5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58EC75EA318
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235778AbiIZKai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:30:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
+        id S237639AbiIZLTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:19:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235877AbiIZK33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:29:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86B0D118;
-        Mon, 26 Sep 2022 03:19:36 -0700 (PDT)
+        with ESMTP id S237780AbiIZLS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A9952DE9;
+        Mon, 26 Sep 2022 03:38:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5163760687;
-        Mon, 26 Sep 2022 10:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41E79C433C1;
-        Mon, 26 Sep 2022 10:19:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AEA06B801BF;
+        Mon, 26 Sep 2022 10:36:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136D3C43147;
+        Mon, 26 Sep 2022 10:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187574;
-        bh=0mJTwtfsM3JU847gcuOVwTHGzf5FOEHdXTIF2GM5PXc=;
+        s=korg; t=1664188611;
+        bh=8oRT6RvoMg7THuVshV6qhn0V2DoX726qshBoMBIeeRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1ziJMiKDwBGwP9S7/sZVkr3lepEY6xcNgS+hoT29a8HP2F0IUynFuH6xkCsKUb7R
-         PlWirCe7EU5LUDnPhO2vsYQq1fkl+QlbvlJ1Aq5YMvkYlqJiPIGdtOtzVPEiyPwdTv
-         p4NZgCWyPhTo2mh0STQj4UCRnAXayOezAKe9zTX4=
+        b=MSWUNwJNOb6az+MVXToO7AuOTSLypr5vmGlW5sBBXAmm9iLFiENRFq5a8k1Nni4D4
+         Ftj4lgBuIxZ+28EzBs7X7l++H660O+XarsVY4H39ElXvmx8cp5rx/sQtdxBjk6t3Xg
+         Fe7OVunIAgvolpmhAUIGuEZAYlc7+330yixMPxUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/58] usb: dwc3: pci: add support for TigerLake Devices
+Subject: [PATCH 5.15 065/148] arm64: dts: rockchip: Remove enable-active-low from rk3399-puma
 Date:   Mon, 26 Sep 2022 12:11:39 +0200
-Message-Id: <20220926100742.179235864@linuxfoundation.org>
+Message-Id: <20220926100758.485374586@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felipe Balbi <felipe.balbi@linux.intel.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit b3649dee5fbb0f6585010e6e9313dfcbb075b22b ]
+[ Upstream commit a994b34b9abb9c08ee09e835b4027ff2147f9d94 ]
 
-This patch adds the necessary PCI ID for TGP-LP devices.
+The 'enable-active-low' property is not a valid one.
 
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-Stable-dep-of: bad0d1d726ac ("usb: dwc3: pci: Add support for Intel Raptor Lake")
+Only 'enable-active-high' is valid, and when this property is absent
+the gpio regulator will act as active low by default.
+
+Remove the invalid 'enable-active-low' property.
+
+Fixes: 2c66fc34e945 ("arm64: dts: rockchip: add RK3399-Q7 (Puma) SoM")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Link: https://lore.kernel.org/r/20220827175140.1696699-1-festevam@denx.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 5d5166373aa1..3ca582127f94 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -37,6 +37,7 @@
- #define PCI_DEVICE_ID_INTEL_CNPV		0xa3b0
- #define PCI_DEVICE_ID_INTEL_ICLLP		0x34ee
- #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
-+#define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
- 
- #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
- #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
-@@ -355,6 +356,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_EHLLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPLP),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
-+
- 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
- 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
- 	{  }	/* Terminating Entry */
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index 08fa00364b42..7b27079fd611 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -62,7 +62,6 @@ vcc3v3_sys: vcc3v3-sys {
+ 	vcc5v0_host: vcc5v0-host-regulator {
+ 		compatible = "regulator-fixed";
+ 		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
+-		enable-active-low;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&vcc5v0_host_en>;
+ 		regulator-name = "vcc5v0_host";
 -- 
 2.35.1
 
