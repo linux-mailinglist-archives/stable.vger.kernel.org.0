@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D030A5EA4EB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF59B5EA11A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238655AbiIZL4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50368 "EHLO
+        id S236404AbiIZKpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:45:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239129AbiIZLyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:39 -0400
+        with ESMTP id S236666AbiIZKoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:44:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5CD4D835;
-        Mon, 26 Sep 2022 03:50:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863684D80A;
+        Mon, 26 Sep 2022 03:25:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 451D9B802C7;
-        Mon, 26 Sep 2022 10:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77956C433D6;
-        Mon, 26 Sep 2022 10:48:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F04FB80915;
+        Mon, 26 Sep 2022 10:25:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6336FC433C1;
+        Mon, 26 Sep 2022 10:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189315;
-        bh=iaB1KodNW2681CtVUDHZXZv/QS5f3KAqBTUzxLWxXwM=;
+        s=korg; t=1664187921;
+        bh=O9sB5tz9UT6qWzcTVpnyeL3ASp4RGWCnaJKLnO0qlpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/aKFhIurr/fX+Wx7+hNjUI9E/YHDx9qyCXkO2KdSdVYJgCQrrybWkOidPNZzZpbU
-         eiwuHYgJTnsSp4xgQXmcxNLVNBik+mk6/2xudsV+oe9YOqE5AJKCxOqECuki7aHovl
-         cAqqhOmhLJ+5aUbjD+n88NxiX7f+GTzI6UdD9UHA=
+        b=MB+qA6T/Sk6nfk9kl1qMG1RPE/vYUMvtVWCYoq38o41sGi+BIXbjwJDEow0Tx+ycj
+         TmzQ4Vv+Q4HgzFja6BtScbbF2UhxmEkfP9an5Kf9tshZ3GTs++ob7uUS/6TYHHEdlf
+         eWknGBuZsmKA3QKh2nAasC2hbpNkw3+LqMFGtOys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>, bpf@vger.kernel.org,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 146/207] perf stat: Fix cpu map index in bperf cgroup code
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        stable@kernel.org,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 102/120] ext4: fix bug in extents parsing when eh_entries == 0 and eh_depth > 0
 Date:   Mon, 26 Sep 2022 12:12:15 +0200
-Message-Id: <20220926100813.049490680@linuxfoundation.org>
+Message-Id: <20220926100754.724346376@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,61 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Luís Henriques <lhenriques@suse.de>
 
-[ Upstream commit 3da35231d9e4949c4ae40e3ce653e7c468455d55 ]
+commit 29a5b8a137ac8eb410cc823653a29ac0e7b7e1b0 upstream.
 
-The previous cpu map introduced a bug in the bperf cgroup counter.  This
-results in a failure when user gives a partial cpu map starting from
-non-zero.
+When walking through an inode extents, the ext4_ext_binsearch_idx() function
+assumes that the extent header has been previously validated.  However, there
+are no checks that verify that the number of entries (eh->eh_entries) is
+non-zero when depth is > 0.  And this will lead to problems because the
+EXT_FIRST_INDEX() and EXT_LAST_INDEX() will return garbage and result in this:
 
-  $ sudo ./perf stat -C 1-2 --bpf-counters --for-each-cgroup ^. sleep 1
-  libbpf: prog 'on_cgrp_switch': failed to create BPF link for perf_event FD 0:
-                                 -9 (Bad file descriptor)
-  Failed to attach cgroup program
+[  135.245946] ------------[ cut here ]------------
+[  135.247579] kernel BUG at fs/ext4/extents.c:2258!
+[  135.249045] invalid opcode: 0000 [#1] PREEMPT SMP
+[  135.250320] CPU: 2 PID: 238 Comm: tmp118 Not tainted 5.19.0-rc8+ #4
+[  135.252067] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
+[  135.255065] RIP: 0010:ext4_ext_map_blocks+0xc20/0xcb0
+[  135.256475] Code:
+[  135.261433] RSP: 0018:ffffc900005939f8 EFLAGS: 00010246
+[  135.262847] RAX: 0000000000000024 RBX: ffffc90000593b70 RCX: 0000000000000023
+[  135.264765] RDX: ffff8880038e5f10 RSI: 0000000000000003 RDI: ffff8880046e922c
+[  135.266670] RBP: ffff8880046e9348 R08: 0000000000000001 R09: ffff888002ca580c
+[  135.268576] R10: 0000000000002602 R11: 0000000000000000 R12: 0000000000000024
+[  135.270477] R13: 0000000000000000 R14: 0000000000000024 R15: 0000000000000000
+[  135.272394] FS:  00007fdabdc56740(0000) GS:ffff88807dd00000(0000) knlGS:0000000000000000
+[  135.274510] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  135.276075] CR2: 00007ffc26bd4f00 CR3: 0000000006261004 CR4: 0000000000170ea0
+[  135.277952] Call Trace:
+[  135.278635]  <TASK>
+[  135.279247]  ? preempt_count_add+0x6d/0xa0
+[  135.280358]  ? percpu_counter_add_batch+0x55/0xb0
+[  135.281612]  ? _raw_read_unlock+0x18/0x30
+[  135.282704]  ext4_map_blocks+0x294/0x5a0
+[  135.283745]  ? xa_load+0x6f/0xa0
+[  135.284562]  ext4_mpage_readpages+0x3d6/0x770
+[  135.285646]  read_pages+0x67/0x1d0
+[  135.286492]  ? folio_add_lru+0x51/0x80
+[  135.287441]  page_cache_ra_unbounded+0x124/0x170
+[  135.288510]  filemap_get_pages+0x23d/0x5a0
+[  135.289457]  ? path_openat+0xa72/0xdd0
+[  135.290332]  filemap_read+0xbf/0x300
+[  135.291158]  ? _raw_spin_lock_irqsave+0x17/0x40
+[  135.292192]  new_sync_read+0x103/0x170
+[  135.293014]  vfs_read+0x15d/0x180
+[  135.293745]  ksys_read+0xa1/0xe0
+[  135.294461]  do_syscall_64+0x3c/0x80
+[  135.295284]  entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-To get the FD of an evsel, it should use a map index not the CPU number.
+This patch simply adds an extra check in __ext4_ext_check(), verifying that
+eh_entries is not 0 when eh_depth is > 0.
 
-Fixes: 0255571a16059c8e ("perf cpumap: Switch to using perf_cpu_map API")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: bpf@vger.kernel.org
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/r/20220916184132.1161506-3-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215941
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216283
+Cc: Baokun Li <libaokun1@huawei.com>
+Cc: stable@kernel.org
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Baokun Li <libaokun1@huawei.com>
+Link: https://lore.kernel.org/r/20220822094235.2690-1-lhenriques@suse.de
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/bpf_counter_cgroup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/extents.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/perf/util/bpf_counter_cgroup.c b/tools/perf/util/bpf_counter_cgroup.c
-index 63b9db657442..97c69a249c6e 100644
---- a/tools/perf/util/bpf_counter_cgroup.c
-+++ b/tools/perf/util/bpf_counter_cgroup.c
-@@ -95,7 +95,7 @@ static int bperf_load_program(struct evlist *evlist)
- 
- 	perf_cpu_map__for_each_cpu(cpu, i, evlist->core.all_cpus) {
- 		link = bpf_program__attach_perf_event(skel->progs.on_cgrp_switch,
--						      FD(cgrp_switch, cpu.cpu));
-+						      FD(cgrp_switch, i));
- 		if (IS_ERR(link)) {
- 			pr_err("Failed to attach cgroup program\n");
- 			err = PTR_ERR(link);
-@@ -123,7 +123,7 @@ static int bperf_load_program(struct evlist *evlist)
- 
- 			map_fd = bpf_map__fd(skel->maps.events);
- 			perf_cpu_map__for_each_cpu(cpu, j, evlist->core.all_cpus) {
--				int fd = FD(evsel, cpu.cpu);
-+				int fd = FD(evsel, j);
- 				__u32 idx = evsel->core.idx * total_cpus + cpu.cpu;
- 
- 				err = bpf_map_update_elem(map_fd, &idx, &fd,
--- 
-2.35.1
-
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -500,6 +500,10 @@ static int __ext4_ext_check(const char *
+ 		error_msg = "invalid eh_entries";
+ 		goto corrupted;
+ 	}
++	if (unlikely((eh->eh_entries == 0) && (depth > 0))) {
++		error_msg = "eh_entries is 0 but eh_depth is > 0";
++		goto corrupted;
++	}
+ 	if (!ext4_valid_extent_entries(inode, eh, lblk, &pblk, depth)) {
+ 		error_msg = "invalid extent entries";
+ 		goto corrupted;
 
 
