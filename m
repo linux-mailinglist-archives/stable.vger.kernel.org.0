@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0732B5E9EE9
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2595EA33F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235095AbiIZKQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:16:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43992 "EHLO
+        id S237780AbiIZLWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234662AbiIZKPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:15:20 -0400
+        with ESMTP id S237758AbiIZLUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:20:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85DD48CA7;
-        Mon, 26 Sep 2022 03:14:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D784BD32;
+        Mon, 26 Sep 2022 03:39:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E4660B5E;
-        Mon, 26 Sep 2022 10:14:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8686C433C1;
-        Mon, 26 Sep 2022 10:14:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D3A360AF0;
+        Mon, 26 Sep 2022 10:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0858C433D6;
+        Mon, 26 Sep 2022 10:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187263;
-        bh=1VZDLEmKxZHmIaDJ8zA5q7zW2XYZQ6x8zemO9HJ0yNo=;
+        s=korg; t=1664188667;
+        bh=kEcA/9wTN6peHSuhYVAET0L6NbfiIGmPkAVhetaQM1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lP8s6AEnYof2oWzr6FQJUwvqLNYWmqHtSpGu86Fw8sNPDZ9elBrDyCwuVv/7jy/6n
-         0fN7OR6hXjfj26VLi7LXjEY7CmYhI+a5alnT/CV2xAE1n3IQFewf5UL7nDgXW+R9tQ
-         EH9Q9GS5ROLjCxVBKnj7KDIBwjTwXReMH6wEQzy0=
+        b=iqCCLgL8uRfswm6CFn7E4mhvKbAhxor2EOER1/xRUElc8N0Q5SSsAn0xyZWehOOCS
+         XcmmfRlfEpdpC0GtdtKSbVegCxysmhxjffWdRA7x8iQlAoWdmI6Qyy7K25Dw7d6YhQ
+         WSt/erq8fxLZBrSkhBl1C7KxCxgRqQ7oXUonSfBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/30] can: gs_usb: gs_can_open(): fix race dev->can.state condition
-Date:   Mon, 26 Sep 2022 12:11:54 +0200
-Message-Id: <20220926100736.971657503@linuxfoundation.org>
+Subject: [PATCH 5.15 081/148] MIPS: Loongson32: Fix PHY-mode being left unspecified
+Date:   Mon, 26 Sep 2022 12:11:55 +0200
+Message-Id: <20220926100759.072005124@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 5440428b3da65408dba0241985acb7a05258b85e ]
+[ Upstream commit e9f3f8f488005f6da3cfb66070706770ecaef747 ]
 
-The dev->can.state is set to CAN_STATE_ERROR_ACTIVE, after the device
-has been started. On busy networks the CAN controller might receive
-CAN frame between and go into an error state before the dev->can.state
-is assigned.
+commit 0060c8783330 ("net: stmmac: implement support for passive mode
+converters via dt") has changed the plat->interface field semantics from
+containing the PHY-mode to specifying the MAC-PCS interface mode. Due to
+that the loongson32 platform code will leave the phylink interface
+uninitialized with the PHY-mode intended by the means of the actual
+platform setup. The commit-author most likely has just missed the
+arch-specific code to fix. Let's mend the Loongson32 platform code then by
+assigning the PHY-mode to the phy_interface field of the STMMAC platform
+data.
 
-Assign dev->can.state before starting the controller to close the race
-window.
-
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220920195216.232481-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 0060c8783330 ("net: stmmac: implement support for passive mode converters via dt")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Keguang Zhang <keguang.zhang@gmail.com>
+Tested-by: Keguang Zhang <keguang.zhang@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/loongson32/common/platform.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
-index e3dc59fffdb7..8472667ffe71 100644
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -687,6 +687,7 @@ static int gs_can_open(struct net_device *netdev)
- 		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
+diff --git a/arch/mips/loongson32/common/platform.c b/arch/mips/loongson32/common/platform.c
+index 794c96c2a4cd..311dc1580bbd 100644
+--- a/arch/mips/loongson32/common/platform.c
++++ b/arch/mips/loongson32/common/platform.c
+@@ -98,7 +98,7 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
+ 	if (plat_dat->bus_id) {
+ 		__raw_writel(__raw_readl(LS1X_MUX_CTRL0) | GMAC1_USE_UART1 |
+ 			     GMAC1_USE_UART0, LS1X_MUX_CTRL0);
+-		switch (plat_dat->interface) {
++		switch (plat_dat->phy_interface) {
+ 		case PHY_INTERFACE_MODE_RGMII:
+ 			val &= ~(GMAC1_USE_TXCLK | GMAC1_USE_PWM23);
+ 			break;
+@@ -107,12 +107,12 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
+ 			break;
+ 		default:
+ 			pr_err("unsupported mii mode %d\n",
+-			       plat_dat->interface);
++			       plat_dat->phy_interface);
+ 			return -ENOTSUPP;
+ 		}
+ 		val &= ~GMAC1_SHUT;
+ 	} else {
+-		switch (plat_dat->interface) {
++		switch (plat_dat->phy_interface) {
+ 		case PHY_INTERFACE_MODE_RGMII:
+ 			val &= ~(GMAC0_USE_TXCLK | GMAC0_USE_PWM01);
+ 			break;
+@@ -121,7 +121,7 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
+ 			break;
+ 		default:
+ 			pr_err("unsupported mii mode %d\n",
+-			       plat_dat->interface);
++			       plat_dat->phy_interface);
+ 			return -ENOTSUPP;
+ 		}
+ 		val &= ~GMAC0_SHUT;
+@@ -131,7 +131,7 @@ int ls1x_eth_mux_init(struct platform_device *pdev, void *priv)
+ 	plat_dat = dev_get_platdata(&pdev->dev);
  
- 	/* finally start device */
-+	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
- 	dm->flags = cpu_to_le32(flags);
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
-@@ -703,13 +704,12 @@ static int gs_can_open(struct net_device *netdev)
- 	if (rc < 0) {
- 		netdev_err(netdev, "Couldn't start device (err=%d)\n", rc);
- 		kfree(dm);
-+		dev->can.state = CAN_STATE_STOPPED;
- 		return rc;
- 	}
+ 	val &= ~PHY_INTF_SELI;
+-	if (plat_dat->interface == PHY_INTERFACE_MODE_RMII)
++	if (plat_dat->phy_interface == PHY_INTERFACE_MODE_RMII)
+ 		val |= 0x4 << PHY_INTF_SELI_SHIFT;
+ 	__raw_writel(val, LS1X_MUX_CTRL1);
  
- 	kfree(dm);
- 
--	dev->can.state = CAN_STATE_ERROR_ACTIVE;
--
- 	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
+@@ -146,9 +146,9 @@ static struct plat_stmmacenet_data ls1x_eth0_pdata = {
+ 	.bus_id			= 0,
+ 	.phy_addr		= -1,
+ #if defined(CONFIG_LOONGSON1_LS1B)
+-	.interface		= PHY_INTERFACE_MODE_MII,
++	.phy_interface		= PHY_INTERFACE_MODE_MII,
+ #elif defined(CONFIG_LOONGSON1_LS1C)
+-	.interface		= PHY_INTERFACE_MODE_RMII,
++	.phy_interface		= PHY_INTERFACE_MODE_RMII,
+ #endif
+ 	.mdio_bus_data		= &ls1x_mdio_bus_data,
+ 	.dma_cfg		= &ls1x_eth_dma_cfg,
+@@ -186,7 +186,7 @@ struct platform_device ls1x_eth0_pdev = {
+ static struct plat_stmmacenet_data ls1x_eth1_pdata = {
+ 	.bus_id			= 1,
+ 	.phy_addr		= -1,
+-	.interface		= PHY_INTERFACE_MODE_MII,
++	.phy_interface		= PHY_INTERFACE_MODE_MII,
+ 	.mdio_bus_data		= &ls1x_mdio_bus_data,
+ 	.dma_cfg		= &ls1x_eth_dma_cfg,
+ 	.has_gmac		= 1,
 -- 
 2.35.1
 
