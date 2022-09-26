@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 351745EA5B5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2E95EA5B0
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235411AbiIZMOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:14:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
+        id S239299AbiIZMMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:12:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239512AbiIZMNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:13:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F2249B77;
-        Mon, 26 Sep 2022 03:58:49 -0700 (PDT)
+        with ESMTP id S239201AbiIZMMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:12:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999D183BD8;
+        Mon, 26 Sep 2022 03:58:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1BBD60B60;
-        Mon, 26 Sep 2022 10:49:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C11C433D6;
-        Mon, 26 Sep 2022 10:49:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B00A609FB;
+        Mon, 26 Sep 2022 10:41:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB86C433D6;
+        Mon, 26 Sep 2022 10:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189361;
-        bh=xMarRssPDX5kzxQMfKSIOrhgYAogBN3kRzzwyrV9xu4=;
+        s=korg; t=1664188884;
+        bh=JdS6tMijjygBXTDrRYppcTc/TKlKrCr/lkNNDvezAT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gv0RibuL7E2FlMPxr16C+iLs/UlKBgJ1aO3ncccRQw//ZSHs3huC/ykRmQuws8j/Q
-         Hg5DikwJx+/mMmCT4Gf26f3ynEfLhJcTVB96AoKp++yanW0/Q63W4AtP9EWUKW0PTm
-         x0W9HruUZXI/LGBomc3pZKwK5b8iPj6Wkh8MGUpo=
+        b=khv03nzuD5ZUzXV5xaLPCjgbjepMq7Jhq90kyuocubUCQQtjs3p17/buZDyr0Apa0
+         XJXVRQ8sZlL5xtNYvmgfbZ9lrWlAya0+sCQ7GfRIIkft6XSZ1yzmpQJ8g9lT6yeZaB
+         RIJcc3kCwd5vcNIyiOMQC9Fw+0eQZQNaEd8nQyRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        stable <stable@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.19 161/207] serial: Create uart_xmit_advance()
-Date:   Mon, 26 Sep 2022 12:12:30 +0200
-Message-Id: <20220926100813.873806970@linuxfoundation.org>
+        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
+        Horace Chen <horace.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 123/148] drm/amd/amdgpu: fixing read wrong pf2vf data in SRIOV
+Date:   Mon, 26 Sep 2022 12:12:37 +0200
+Message-Id: <20220926100800.761550453@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-commit e77cab77f2cb3a1ca2ba8df4af45bb35617ac16d upstream.
+commit 9a458402fb69bda886aa6cbe067311b6e3d9c52a upstream.
 
-A very common pattern in the drivers is to advance xmit tail
-index and do bookkeeping of Tx'ed characters. Create
-uart_xmit_advance() to handle it.
+[Why]
+This fixes 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange").
+we should read pf2vf data based at mman.fw_vram_usage_va after gmc
+sw_init. commit 892deb48269c breaks this logic.
 
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220901143934.8850-2-ilpo.jarvinen@linux.intel.com
+[How]
+calling amdgpu_virt_exchange_data in amdgpu_virt_init_data_exchange to
+set the right base in the right sequence.
+
+v2:
+call amdgpu_virt_init_data_exchange after gmc sw_init to make data
+exchange workqueue run
+
+v3:
+clean up the code logic
+
+v4:
+add some comment and make the code more readable
+
+Fixes: 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange")
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Reviewed-by: Horace Chen <horace.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/serial_core.h |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c   |   20 +++++++-------------
+ 2 files changed, 8 insertions(+), 14 deletions(-)
 
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -302,6 +302,23 @@ struct uart_state {
- /* number of characters left in xmit buffer before we ask for more */
- #define WAKEUP_CHARS		256
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2433,7 +2433,7 @@ static int amdgpu_device_ip_init(struct
+ 	}
  
-+/**
-+ * uart_xmit_advance - Advance xmit buffer and account Tx'ed chars
-+ * @up: uart_port structure describing the port
-+ * @chars: number of characters sent
-+ *
-+ * This function advances the tail of circular xmit buffer by the number of
-+ * @chars transmitted and handles accounting of transmitted bytes (into
-+ * @up's icount.tx).
-+ */
-+static inline void uart_xmit_advance(struct uart_port *up, unsigned int chars)
-+{
-+	struct circ_buf *xmit = &up->state->xmit;
-+
-+	xmit->tail = (xmit->tail + chars) & (UART_XMIT_SIZE - 1);
-+	up->icount.tx += chars;
-+}
-+
- struct module;
- struct tty_driver;
+ 	if (amdgpu_sriov_vf(adev))
+-		amdgpu_virt_exchange_data(adev);
++		amdgpu_virt_init_data_exchange(adev);
+ 
+ 	r = amdgpu_ib_pool_init(adev);
+ 	if (r) {
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
+@@ -618,20 +618,20 @@ void amdgpu_virt_init_data_exchange(stru
+ 	adev->virt.fw_reserve.p_vf2pf = NULL;
+ 	adev->virt.vf2pf_update_interval_ms = 0;
+ 
+-	if (adev->bios != NULL) {
+-		adev->virt.vf2pf_update_interval_ms = 2000;
++	if (adev->mman.fw_vram_usage_va != NULL) {
++		/* go through this logic in ip_init and reset to init workqueue*/
++		amdgpu_virt_exchange_data(adev);
+ 
++		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
++		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
++	} else if (adev->bios != NULL) {
++		/* got through this logic in early init stage to get necessary flags, e.g. rlcg_acc related*/
+ 		adev->virt.fw_reserve.p_pf2vf =
+ 			(struct amd_sriov_msg_pf2vf_info_header *)
+ 			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
+ 
+ 		amdgpu_virt_read_pf2vf_data(adev);
+ 	}
+-
+-	if (adev->virt.vf2pf_update_interval_ms != 0) {
+-		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
+-		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
+-	}
+ }
+ 
+ 
+@@ -667,12 +667,6 @@ void amdgpu_virt_exchange_data(struct am
+ 				if (adev->virt.ras_init_done)
+ 					amdgpu_virt_add_bad_page(adev, bp_block_offset, bp_block_size);
+ 			}
+-	} else if (adev->bios != NULL) {
+-		adev->virt.fw_reserve.p_pf2vf =
+-			(struct amd_sriov_msg_pf2vf_info_header *)
+-			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
+-
+-		amdgpu_virt_read_pf2vf_data(adev);
+ 	}
+ }
  
 
 
