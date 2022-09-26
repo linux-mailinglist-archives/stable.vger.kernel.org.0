@@ -2,129 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6D95EB095
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 20:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D0E5EB0AC
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 21:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbiIZS4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 14:56:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
+        id S230298AbiIZTAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 15:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230321AbiIZS4b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 14:56:31 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2079.outbound.protection.outlook.com [40.107.94.79])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6041659E1;
-        Mon, 26 Sep 2022 11:56:29 -0700 (PDT)
+        with ESMTP id S230016AbiIZTAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 15:00:34 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704262A725;
+        Mon, 26 Sep 2022 12:00:32 -0700 (PDT)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QHYQR6012821;
+        Mon, 26 Sep 2022 19:00:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=ycT4s05UUQ6nJ8ele8aTLWQjmi80ojrt6fvqww6WR78=;
+ b=BDOfsfus18bQC/KOXahtq8N/4WQZdSI9uuCG3wIHJt7Z/y4tPMtzLO7WDk5KGVwl2Qqo
+ gl1+QNOCW8pE0BAypGGo3IFBbcg8aDT7btrt6is4MdSY2MeduIf4YIlmkkj2botoalVi
+ 4L7NNsLiu2fzJcXiR/i+zYn0rtFe7inRHoVccWBdyCeCDYR0GcluQe/sD5K8hekpeHoQ
+ rl40PCLWX4m1ohk3Bfk/1isjE095BXop56gYn6EbOOly8N1PsLyA8fYKO3xbLqmATtt9
+ 6vMcKdXMlrmAqF4cOx4EBLyUVwIIGglrs+rFri9i2khbXzyW3qh2+Bj3uBqmH0UO+TjH fQ== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3jssubckh0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Sep 2022 19:00:29 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 28QHi2Mb027947;
+        Mon, 26 Sep 2022 19:00:27 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2105.outbound.protection.outlook.com [104.47.70.105])
+        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3jtps4hej4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Sep 2022 19:00:27 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CnRg06zHwq4LaZjpFGPuZlwE3vrj6hAm/pCQwdrAL+3iRaZIkYasE5lia8TAAJAK3LyaZlgBPMqw18d1oiLdkB7V3wcYNFZOJndXIi/WBYVfQ08rwj6UEg5bKQHRgTlIz8POVvGxGV/HWPqypGhpZJTMMqo0DRf5rVU40O6Gn8S+enHC6MAYE8o4gpIncdDnRGhb/zoSVdv4lKxz5ttm0tV/VUfnIK+lTcqYFdAkpM3f0Z+7tvWxyCZaaGbJ+walohqQ8Gm5hBLxTk0HmoHI/4rFrKGyFwrvtETJXY3lRkr4byNdBWQWc3GGz8ATyjrYmSF70Slk32TRumGqcoKyJg==
+ b=K5XX0aBQD+TEV9Hh327uXvmU989rgTLa8bX4mQUjUPWgm2qzSMijHyic30P7QHe5ISLw5bFn16cJu/510PhuttirUg0281Fdnpu013nrSq+x7m8EDVEX7kjwBTIG6rrjd0XfJSRnRTbWYM8Ot7Jz8O6o8dBfNNHITBAc0yYOV9KcSqboavBaecDCDg5WKfBB1Y75u/S2zSK/kq3yrStdsifHqD8QcoSqdPAWucU1eNCz74cP9dF6/Cuj8wTsYntSprx+IdxnpZxLdIO4XhtzHEe29U2f7L+pJZtPdMOgepblSS6y/pwQw0AfIG2ZQMD4ATJT5UqEaZG17AQXLtoIPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Lc05/qMeY3a/IRGHNCPTDSza+m+H9ny3+Z0pNqJfnxg=;
- b=bNzsHnnfI4Z/j2OIVSEJW78p9WyZWS18vErCpvXNYoOtN8CcxsZ9tFCOa6YSMNHo5UrFK160UN5+Mulh+cGq292HAlJrcmC9TCfKpw2U6Ka1zNCKEkbd0kz6EXEh688weSKDnE9x4rsOGYcPVLoL++vQWdr7KLrmmnW2hOFtWvK4oW3AevtxaOow11jxwXfeSf8WE1u5WX+N50/n6w9BFD4vM3RcUhLsNxpbsw/ozvs7tIS87NqkUFHnsA0oWCiY+q8+s8VcfW+WWflgdzJpLimqQo9s30+PyO96/VBx92cYww1daT173u5uWRFMLk0a/mDrWcUIqgN5+VUALqrqaw==
+ bh=ycT4s05UUQ6nJ8ele8aTLWQjmi80ojrt6fvqww6WR78=;
+ b=EAEHfTXT+FbPlpY9Jh19qA/WX3lHYmviZlagQevN5jkJgSNuPAJ3X1Z4rjqBAwkRsbjukMIpDZiwtb142NKIcp7FW+d7RRe2aI3mdKeZrnXryE6W7RVJ5SATckB3JXTuRY5lVQGCpg4/Lx+/NeHexcctKKAGsQuFdV/5J88KEV0WhOG811hEtvaRGsbb+rcvX0dkdsv90GlfiXYkdu0DxAGpywsk/s7fiUwCavwBm7FMBzVDD6mJ4guw+aw2omVVGbzkXaZkdyfqtDqReZIJfPWS9GmbE2BbIaZ4rnBRhLFnVoW3KyVnZXG9N1lhx12C1cS8afp2Jvq3KehEH6sbsA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Lc05/qMeY3a/IRGHNCPTDSza+m+H9ny3+Z0pNqJfnxg=;
- b=P7lv5f2FKVx69jvihK4cFpL7UAheN1TpDlZv+MJKsBP/otAeeamSQEproT+knJDKYibWmmmHJvzlX3CAzFVP1xboTob+n4CO0liHB1Hj7EN2FBqdYHWkD1atTxA9RRoEgRHXM9Bic2NgKzAwSH+8Xw7KSeo4hzruiCxEwLVzFLQ=
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
- by DS7PR12MB6006.namprd12.prod.outlook.com (2603:10b6:8:7d::19) with
+ bh=ycT4s05UUQ6nJ8ele8aTLWQjmi80ojrt6fvqww6WR78=;
+ b=T6aq0HV1Qez8SSp4GC2O7/ICFPx+MKo9BhIUUnR/TUMSoP8xp/4TPCAn8t7iVvcUTrI4DRF+Glt8MFIFCNHoR5Zx15YO1cQPEzVrw8JD1edJL+3BB4nu2r9URuHbbRySHt/BLv7FtBAoPyVV4iV+wlqnZhS3B9oBCwNFLWm8r30=
+Received: from BN0PR10MB5030.namprd10.prod.outlook.com (2603:10b6:408:12a::18)
+ by PH7PR10MB6674.namprd10.prod.outlook.com (2603:10b6:510:20c::21) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.24; Mon, 26 Sep
- 2022 18:56:28 +0000
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::76ec:6acf:dd4d:76a3]) by MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::76ec:6acf:dd4d:76a3%8]) with mapi id 15.20.5654.024; Mon, 26 Sep 2022
- 18:56:27 +0000
-From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
-To:     Niklas Cassel <Niklas.Cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jaap Berkhout <j.j.berkhout@staalenberk.nl>,
-        "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: RE: [PATCH] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and
- BDR-205
-Thread-Topic: [PATCH] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and
- BDR-205
-Thread-Index: AQHY0dcgm/L2xMbUg0yw4FSft6eyK63yDz1A
-Date:   Mon, 26 Sep 2022 18:56:27 +0000
-Message-ID: <MN0PR12MB61013BB7AAD6ED1FBA63C269E2529@MN0PR12MB6101.namprd12.prod.outlook.com>
-References: <20220926183718.480950-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20220926183718.480950-1-Niklas.Cassel@wdc.com>
-Accept-Language: en-US
+ 2022 19:00:25 +0000
+Received: from BN0PR10MB5030.namprd10.prod.outlook.com
+ ([fe80::9034:820:1811:4ca0]) by BN0PR10MB5030.namprd10.prod.outlook.com
+ ([fe80::9034:820:1811:4ca0%5]) with mapi id 15.20.5654.026; Mon, 26 Sep 2022
+ 19:00:24 +0000
+Message-ID: <b0ff4fa1-db7e-2e74-ff73-4d6917b5bbfe@oracle.com>
+Date:   Mon, 26 Sep 2022 20:00:16 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.3.0
+Subject: Re: [PATCH 5.4 1/1] KVM: SEV: add cache flush to solve SEV cache
+ incoherency issues
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Enabled=true;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SetDate=2022-09-26T18:54:54Z;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Method=Privileged;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Name=Public-AIP 2.0;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ActionId=5202eeca-bdc7-4a56-9b6d-b69c2604a2e2;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ContentBits=1
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_enabled: true
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_setdate: 2022-09-26T18:56:26Z
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_method: Privileged
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_name: Public-AIP 2.0
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_actionid: 771a66db-73bd-47f7-add2-a1c3087a6d87
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_contentbits: 0
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MN0PR12MB6101:EE_|DS7PR12MB6006:EE_
-x-ms-office365-filtering-correlation-id: f448d21d-b0e1-4f18-5efc-08da9ff0d14c
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: BgQVQotWLf/+zn5z0ukQ52o/uo5tsaxcDx+71vangIq6Y6o76YHztQtDcNFatgdJiBBLhJvNQ2nXALy++S+/CHLsx/SDP9058y8DSR5YreJz4uIh0fyECFaxq6Kg/EDU4BgTaiRW6UM4+Q9zKsrH5IvxNRpg4QftrhsnNDk4KGTi3qu6MP1+nCvcKE7DlebwmzFG6L7A92WKAB5crSQeUSIGiFUzwh97Y+/Qqu8ztHmqqZYr4b3ZlDcG/S8IeT+Gujlj+i9Ior6d3bhQKHIXYVmxSHWEx3l62Xsrr3rurKNEzcq4fBQJYLmcgy7i2EBRjzzwm92TVLr6dn+4zatFXSj9E5DljsCOebPUdVKoFnCrKVS70uKHek0NnjcjA8R5qK3PovDxc3+0rho9FHIHnKqmrI7S3LUV+45IqP6gP4G/XvOQFo/2wF3Jt043OkJlx9zvKj0fXfEZ11Iv117s7uUHPCjcx/Lt2Nenw9xf3jTrT5DmR3AkFvMWwshr7t/JtGcqlq3oG2+jtqvYTHb/uklShYd5I7XwGuxvdn6COJDs+MZea21nUVD21ZU62SkiR5UneIFpwyWS3SvSDBqgRkfelBZ3qjS1odMxey5nmn6ldhjP9Z13PUq92B9nrd95qLTzJC4ptU71quDZQTkxDG0NQ5EGXlwrfywgdcrJAPoGYNTni1dVph8qtobpR87ud19roe7paQxw+I0+64o4t6rFFmJgVrGqtOjrm+AIqkl63JFpKVIiv1SZ4I5xE90i3ZZT7fmIyJGvHgPxgaH1Ag==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(366004)(346002)(376002)(39860400002)(396003)(451199015)(55016003)(8676002)(8936002)(53546011)(7696005)(6506007)(2906002)(86362001)(186003)(5660300002)(9686003)(26005)(52536014)(76116006)(66446008)(64756008)(66476007)(66556008)(4326008)(66946007)(41300700001)(33656002)(83380400001)(38100700002)(122000001)(71200400001)(38070700005)(478600001)(110136005)(316002)(54906003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?IfZUJjNSFwp18um1Dkwl6ea2rtnNJ2DluIjoZG4XsbSfVMrYYt/KRdySdJfu?=
- =?us-ascii?Q?P5+A0+VWo+onZO2LmNSwCNCa6QwwCmzZR3yydjuzNgfO5Mzt01b6xkAmdGlu?=
- =?us-ascii?Q?5Va91/RKWKrAhscjn2HoMbKZxuz5663p//pcLLbNqNu5U6mBZDbuPXJGy9It?=
- =?us-ascii?Q?g/S9wNoNLwXzk63sguqYQGdPFtU+wpQxYB4POgJ7svrRnS7KmO2NauZQ17PZ?=
- =?us-ascii?Q?uxEC0GwjND32j50oisuvdrIUOEdaJz4SiZV8WWBRnQRir6ppzmIgj33NckG8?=
- =?us-ascii?Q?gejaskNjNKIP6ZR4qzKm0293Q7foHlrPfkV+nDDwN2Ll99CjY86X1nfY/hTR?=
- =?us-ascii?Q?naFdT/NpSG92wpo0Yu5xDJNkaxyQDf8lwqSOvaos5K7zptHfDYZRpisQDny0?=
- =?us-ascii?Q?R1W8zaBNkXbHpomQ0U1DA6g8oNhXbWS/XhHslUgVszFdq/L8SvUKDR40ijRb?=
- =?us-ascii?Q?jyquvZaCnT+u/wddarqmcCgp3dic5WmOShyC/3kaTW8Qq6yE6PDPIV8IP7ZQ?=
- =?us-ascii?Q?n14rmANO4Hw94WtwjArXRMS/XDLWNd+TXTv+OaEqdRrJ8rgXVCylqX/6t9ud?=
- =?us-ascii?Q?fq2L7zpWQ8OyEFtGOChxu/XFNMzyoql4NgPdpuftLTKYaw0A/91f+qv6t9g3?=
- =?us-ascii?Q?icVh1RLls5fKX1Sdz1Ih1bqJLsscSUU2tS5GH78ilKixc3RWaaVufoJ0/xgL?=
- =?us-ascii?Q?gUgXI1e4sjeGLeR/lwUoBm4hnW5uTGNseHq/KYv8x3tKHkErQpj9+NZ3JY2e?=
- =?us-ascii?Q?VV+jQoHhdVeGKhQwu9jTuF54d7ZEczJ4kWsdB2KoGmuMXjsMXkD7281nSsZg?=
- =?us-ascii?Q?Mj5IsFdMKMVctjGY6FMpZK30BXfPuYHxTEKKOmJ7La9I0+ZCsYMJVLcejqLQ?=
- =?us-ascii?Q?5IbjPEHkEaeO8XG4LCzqbAYH6UEgLh6obhgiOoGdpMO7L3xtn3T4SIS7htqf?=
- =?us-ascii?Q?NmjR/WebNTJSxDw/lKwUXgwXkbfZ7OD8qmYInEal00SBfPMCzQs1jSfLRiha?=
- =?us-ascii?Q?dgckfsT8FUyi8DyfWGKH/iMS6xflNcsJNIBg8VuyHqAM9S9HJEu+mWGRJIDp?=
- =?us-ascii?Q?kivEkwnyFHiCpOH5oF4aIGCo5vktoF3Ng+gOY8WeEj1tduv3bWt+rMbodITv?=
- =?us-ascii?Q?UNsto02ggUVG/emRfg/D+37quMv7o+UoDyGLfcomhnKfWF+JJ/OA/lMHwrav?=
- =?us-ascii?Q?jG9lLopKltlp+qtWLc5BkB5MRWEonmJ9UQQcli4WjgrOzFtl3nEnIZmgPeHD?=
- =?us-ascii?Q?n2JKkEOdd9kj++/ApocgeWIVZhhZM+DUQkljm3FGfVE9o3Y2blftIbbvSqKg?=
- =?us-ascii?Q?KP2ANyxKoPgn1+eG3HAf1tJrd1V49bSw3IwXFB7SGY2VZvQjMpNK+/dMSF3S?=
- =?us-ascii?Q?W7tqTpQMn56Vt+FfXRCa3TUeX8oeClwkhQKbvusORyKw6u8QfovzWdTHRjlS?=
- =?us-ascii?Q?iUzL7dLkIzuq7oo8HIVXBJy1YV+R7F77yeRFnbupMb8EzyQFV/zFVx36wEGY?=
- =?us-ascii?Q?WdFveFE8W1gPyVmaFd3PvXQCviZqVN1QU96h8mvcxk5Md0q6bAD+nZlap9Pc?=
- =?us-ascii?Q?CRrv43WWZov1bXL+NmQ=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>, stable@vger.kernel.org
+Cc:     kvm@vger.kernel.org, Mingwei Zhang <mizhang@google.com>,
+        Sean Christpherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Liam Merwick <liam.merwick@oracle.com>
+References: <20220926145247.3688090-1-ovidiu.panait@windriver.com>
+From:   Liam Merwick <liam.merwick@oracle.com>
+In-Reply-To: <20220926145247.3688090-1-ovidiu.panait@windriver.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: AM3PR05CA0112.eurprd05.prod.outlook.com
+ (2603:10a6:207:2::14) To BN0PR10MB5030.namprd10.prod.outlook.com
+ (2603:10b6:408:12a::18)
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN0PR10MB5030:EE_|PH7PR10MB6674:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5d00ee14-3788-49f3-3346-08da9ff15e4c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 69laHSJc0RgCyUcGCPu8O5H4QwlTdTiJvhPmvPNjD0GqZlq/BZmLqcyfjN5iUk4Ck6iKyqHJKI3CKTzNfqmod86OnKS9gTIYsm/Ll6VJl+1UTQ+KXK+e9XsD5On4XKSXHy0CqOzB0INrON/toK98ourt7wSluOZppOlAxW04HW+FjKimZTFbRumbhTqemq0r+NRNXmrJI+yFJLDM8Xiz6vX44fDYw9+5OmF0nrlv4BgP7DWW7JvaBMIwCl/q8aPwRdTiX2L/YMUkRkDnzCgvBv6XhzvBoz2A6EDfmrKQKMtYPXhdvXXsGpmbWVrgpiZDD3jk9XQO+rYTV7UC+ladUBja+WKqr6BfSYOKjvwdPKuT37oLv8jfDhlTUsI3UmrCLlymV9auCHRurKAJi7j4SOPXjap6JN2tETA4hqn+puAco5nKloNT7zzLXXU2YR4mTyrob2KRyGzCgGfeNr3RxyJ5fUcXG80E1EsJ1PhYP1Y0E76NUM1gfzZf1IxM8fRnsGwojdb36/EGzcZuogOLO79lhZm2Eg4RIPEJ/HNoObtkIPAGRdjlQ98JBQmVcRJhDun+8KvOYeW/hP5rnsKDrAP2VSDHow0lUtteB6ZPsZd3oYFbYEn41a0ePnKrTLsQ5olKA7vFh1FLvDvK/rGbZ+lIE/QbGqJ3fyr+C6PbKAckxu9WXYmqfKbj5XnHekLMQV7BYL/Zsu5v5V8pnO4BdReE9VYPMfHxiT4OQsxoHIoCzGnvcx2cwZZFphDVNmcJ/Rh3HtTQCtcqKw1HefuX4U3qYymzT5zAAJshTbF0D5Y=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN0PR10MB5030.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(39860400002)(346002)(136003)(376002)(396003)(366004)(451199015)(86362001)(6506007)(8676002)(478600001)(31696002)(44832011)(186003)(41300700001)(316002)(8936002)(5660300002)(2616005)(53546011)(36756003)(6666004)(38100700002)(54906003)(83380400001)(107886003)(6486002)(6512007)(66476007)(26005)(4326008)(2906002)(31686004)(66556008)(66946007)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Y0hKMnR6M0dzb3ZjTGdlYlpyQnpCL2ZRTjRyTEszTVNGOXhwSG9EeHM4dHlx?=
+ =?utf-8?B?MHRJenZFR0hybzIwZkpnVVNmVkJ6cnpvSXZtZURFekM5RVRKeUsyS3N6Vm1s?=
+ =?utf-8?B?MzdaR0xJeXhSMTZTbGkxRURLLzQ2dVZmUWRkUk1RS1kzRkVKSkNWQmhSNU4y?=
+ =?utf-8?B?ZWxBTXk2SFFvRVNMRkdnN1VpcmpLYUcxTVBDWDU3RmxxWjdub29kM0Y0UXQ0?=
+ =?utf-8?B?UHJzdUpxNXdPWGJTL2dGMEVmQTVUaGplUnIxTFhxaVlUbm43S09seEtLSWMy?=
+ =?utf-8?B?ZUZZN1A3OWJkaVdNZjNHUVM5ak9HaURBYmpMUytMSkpTUjBOM2ROeEJCd1FT?=
+ =?utf-8?B?ajc2RjVrSGl4SHk3QlJxL1laMHdOSGxoVVpZWUxxVVpDeFY1a1h6czRPb2x1?=
+ =?utf-8?B?VW9QVW9QRWtRN25pTGYxWSszU2NHV3FId09BVVlmV0hPRmhLZW9TdEdheU4x?=
+ =?utf-8?B?cUJ3VzJNTkFQc1JvSFJ3TW5uMUNQOGJsQW1oYkgycGpCRjZ1T0dZaFV6bTUz?=
+ =?utf-8?B?MTNVNzNrUllINW53bGgyRkNWa09kL2dqN2FvYmt3QlBOcVV6WlpyT1F3MmlS?=
+ =?utf-8?B?R1pNSGxyTjNpVk1GbmlwZjNmRXg1MGtrWU5GenhxTEtkVFUySUxSL2dIUGwv?=
+ =?utf-8?B?ZFN6QWtZQ3BlTnZPZHpCdXgwYUs5bXNiVEYyWjZoc1E2dHFTNVN1ODJwcHp4?=
+ =?utf-8?B?cDZBZEl3d0R4OEppbVlFeEtGcDJWRVRUaFF2b24ya1V3dGNCNThCU1Z6dXhu?=
+ =?utf-8?B?Q3lmQisxVHVlVjJLSEJibm5WWXJCUDZEbmt2UEpFd3J3TnRJS05ZTlFjM0dP?=
+ =?utf-8?B?Sm8vSWF0bnluZWFQNkMwRWpHcm0zcUw5bXJhTlBzcXF2Y2RPa0oyaDIzRG0x?=
+ =?utf-8?B?MGFYbUNmRUhmb2E1TEtKclYrQkVxRFZyazJhQmtFWktINkIyTnZITC9Xekhw?=
+ =?utf-8?B?QUQ2eU1SeXRLUmpLSWNQRyswandocks0ZXlyaTZtRVVnaDNPUG1GRHY0c3FQ?=
+ =?utf-8?B?WGNrYkhxc3lHZlA5eVFZZ05NVm0zYzNrYnpUeHdRV0lQV1FGSExldUpBdG96?=
+ =?utf-8?B?UjFaaGRCSHRUWDZpeWF0cHgvMXpjYXVibHVGYjVzVytSYU40K2Y1cnczVkdC?=
+ =?utf-8?B?MmdSUkVRKy9MbWliWjFiUi8rRGdEVDVQanNPNms2WWpRYjIrSFV2b09uTnI5?=
+ =?utf-8?B?MnVQY2tDeDNRaXBaUWh2THhncng4c21SWXgrbCtQbHE3WmFuUmh5eHBXVU1m?=
+ =?utf-8?B?VHZnbXBLcS8xdVg5UTlTSzRhNHpsc1dtRDB4SEhhTWpRNkxEZGhCWFhDc0RV?=
+ =?utf-8?B?NWUxWmVFSXBPb3NmYzM4VEZDcmx2Y3owT1A3c0ZGQU0rcXYwRXpLNzFPM0ts?=
+ =?utf-8?B?emRsZmcwTWtxemtjTnBZSGNHTmVoRU85c3Y3UzZxNEZXTG9DMVQyR3ZvMlRX?=
+ =?utf-8?B?bnJraEFvOENOWTcwV1d4NWo1Mm55Mk5JVmgxK0c5djg3bTZ3WGhuWmgrWHcv?=
+ =?utf-8?B?eUVhYWFvZ2dqdm9EWk5Pb0dZV2l6WnpUWVNueHZtOG1YRlgwQ3JrMkdONU5V?=
+ =?utf-8?B?a3RlaHVCNU91L3kyWGFnT1E2R3cwMm1vaG1aTHVpdEdxWEVnRm9uSU5PSHlz?=
+ =?utf-8?B?WEgxWGoyNnhsWlZUNXJyZy9aaHJ4aXJiODQrb2oxMW5wOWhZRWFLdEdIdE9u?=
+ =?utf-8?B?VGl1ZEhTM1ViZ3JMYytoSTFJeGU5YVV5c3dOZVNYMWN1Mk9WNjhsVHFvWWln?=
+ =?utf-8?B?OGg3MUJmczJib1RXUU9SS3JzTGtqODl1WWdacGZzdDRaclJiTERnTkE5UEhD?=
+ =?utf-8?B?RmlGbTRmY0R1Z1U3V0lvTk9oZ0dWNEh5VzA5bCtNYjJqU2Nua0NkZHVybkxn?=
+ =?utf-8?B?ZFpPMUZaekpIMEpHeEptVGdCNWFGSmZQZmVoQkdhVVQ3VVRjZGR6WEovSXgz?=
+ =?utf-8?B?OStKcW4xQmhqMWhBcTB1TEU1Nm0xSnRWVUZWQjBkQ1dFSTVLMVZaUUwxdy9o?=
+ =?utf-8?B?TTVVaFVoWVRFZXJ5dnhtSU43SkduL1Q0N1Jza05nbDBnenByZUt6R1hxbmhB?=
+ =?utf-8?B?ZDdpZ3hka2xreUx5ejMxb2krZy9yWGhxVHhiLzN4UVdOZWxBTGFIYW9MMjRt?=
+ =?utf-8?B?MXVKbExvUWRRRDJDTTFuN3BUZk95RVVkUkRxZ3ZDOTVQd0VBSUJNVlpWTUZF?=
+ =?utf-8?B?RkE9PQ==?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5d00ee14-3788-49f3-3346-08da9ff15e4c
+X-MS-Exchange-CrossTenant-AuthSource: BN0PR10MB5030.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f448d21d-b0e1-4f18-5efc-08da9ff0d14c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Sep 2022 18:56:27.8445
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2022 19:00:24.7002
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: snLdFlTvwfx1ikK83Ri/0xlIiZxKJSWUOseJeymEsP2k6PPSrT4Ys1+uIen9cfca+HmLWQfG/tKdf8ReQ/+yWg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6006
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: L/eIisfhthM91H1yEFIlXGgLsX+JgpjK/60B9JgPJ5/SQWbTjgF1BS3k4lfNIitMjOeObsMdVqInT531t7ELaQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR10MB6674
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-26_09,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 phishscore=0
+ suspectscore=0 adultscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2209260118
+X-Proofpoint-GUID: LqI0rePWrx8v8lez0wO7geOSOp_ee0gK
+X-Proofpoint-ORIG-GUID: LqI0rePWrx8v8lez0wO7geOSOp_ee0gK
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -132,83 +158,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Public]
-
-
-
-> -----Original Message-----
-> From: Niklas Cassel <Niklas.Cassel@wdc.com>
-> Sent: Monday, September 26, 2022 13:38
-> To: Damien Le Moal <damien.lemoal@opensource.wdc.com>; Limonciello,
-> Mario <Mario.Limonciello@amd.com>
-> Cc: Niklas Cassel <Niklas.Cassel@wdc.com>; stable@vger.kernel.org; Jaap
-> Berkhout <j.j.berkhout@staalenberk.nl>; linux-ide@vger.kernel.org
-> Subject: [PATCH] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M
-> and BDR-205
->=20
-> From: Niklas Cassel <niklas.cassel@wdc.com>
->=20
-> Commit 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as
-> board_ahci_mobile") added an explicit entry for AMD Green Sardine
-> AHCI controller using the board_ahci_mobile configuration (this
-> configuration has later been renamed to board_ahci_low_power).
->=20
-> The board_ahci_low_power configuration enables support for low power
-> modes.
->=20
-> This explicit entry takes precedence over the generic AHCI controller
-> entry, which does not enable support for low power modes.
->=20
-> Therefore, when commit 1527f69204fe ("ata: ahci: Add Green Sardine
-> vendor ID as board_ahci_mobile") was backported to stable kernels,
-> it make some Pioneer optical drives, which was working perfectly fine
-> before the commit was backported, stop working.
->=20
-> The real problem is that the Pioneer optical drives do not handle low
-> power modes correctly. If these optical drives would have been tested
-> on another AHCI controller using the board_ahci_low_power configuration,
-> this issue would have been detected earlier.
->=20
-> Unfortunately, the board_ahci_low_power configuration is only used in
-> less than 15% of the total AHCI controller entries, so many devices
-> have never been tested with an AHCI controller with low power modes.
->=20
-> Fixes: 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as
-> board_ahci_mobile")
+On 26/09/2022 15:52, Ovidiu Panait wrote:
+> From: Mingwei Zhang <mizhang@google.com>
+> 
+> commit 683412ccf61294d727ead4a73d97397396e69a6b upstream.
+> 
+> Flush the CPU caches when memory is reclaimed from an SEV guest (where
+> reclaim also includes it being unmapped from KVM's memslots).  Due to lack
+> of coherency for SEV encrypted memory, failure to flush results in silent
+> data corruption if userspace is malicious/broken and doesn't ensure SEV
+> guest memory is properly pinned and unpinned.
+> 
+> Cache coherency is not enforced across the VM boundary in SEV (AMD APM
+> vol.2 Section 15.34.7). Confidential cachelines, generated by confidential
+> VM guests have to be explicitly flushed on the host side. If a memory page
+> containing dirty confidential cachelines was released by VM and reallocated
+> to another user, the cachelines may corrupt the new user at a later time.
+> 
+> KVM takes a shortcut by assuming all confidential memory remain pinned
+> until the end of VM lifetime. Therefore, KVM does not flush cache at
+> mmu_notifier invalidation events. Because of this incorrect assumption and
+> the lack of cache flushing, malicous userspace can crash the host kernel:
+> creating a malicious VM and continuously allocates/releases unpinned
+> confidential memory pages when the VM is running.
+> 
+> Add cache flush operations to mmu_notifier operations to ensure that any
+> physical memory leaving the guest VM get flushed. In particular, hook
+> mmu_notifier_invalidate_range_start and mmu_notifier_release events and
+> flush cache accordingly. The hook after releasing the mmu lock to avoid
+> contention with other vCPUs.
+> 
 > Cc: stable@vger.kernel.org
-> Reported-by: Jaap Berkhout <j.j.berkhout@staalenberk.nl>
-> Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+> Suggested-by: Sean Christpherson <seanjc@google.com>
+> Reported-by: Mingwei Zhang <mizhang@google.com>
+> Signed-off-by: Mingwei Zhang <mizhang@google.com>
+> Message-Id: <20220421031407.2516575-4-mizhang@google.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> [OP: applied kvm_arch_guest_memory_reclaimed() calls in
+> __kvm_set_memory_region() and kvm_mmu_notifier_invalidate_range_start();
+> OP: adjusted kvm_arch_guest_memory_reclaimed() to not use static_call_cond()]
+> Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 
-Thanks!
-
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-
-Since Damien was still intending to modify the default policy so that LPM
-applies everywhere I feel like more of this is going to show up.  Should we
-consider to maybe keep all CD/DVD/BD devices excluded from LPM?
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
 
 > ---
->  drivers/ata/libata-core.c | 4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-> index 826d41f341e4..c9a9aa607b62 100644
-> --- a/drivers/ata/libata-core.c
-> +++ b/drivers/ata/libata-core.c
-> @@ -3988,6 +3988,10 @@ static const struct ata_blacklist_entry
-> ata_device_blacklist [] =3D {
->  	{ "PIONEER DVD-RW  DVR-212D",	NULL,
-> 	ATA_HORKAGE_NOSETXFER },
->  	{ "PIONEER DVD-RW  DVR-216D",	NULL,
-> 	ATA_HORKAGE_NOSETXFER },
->=20
-> +	/* These specific Pioneer models have LPM issues */
-> +	{ "PIONEER BD-RW   BDR-207M",	NULL,
-> 	ATA_HORKAGE_NOLPM },
-> +	{ "PIONEER BD-RW   BDR-205",	NULL,	ATA_HORKAGE_NOLPM },
-> +
->  	/* Crucial BX100 SSD 500GB has broken LPM support */
->  	{ "CT500BX100SSD1",		NULL,	ATA_HORKAGE_NOLPM },
->=20
-> --
-> 2.37.3
+>   arch/x86/include/asm/kvm_host.h |  1 +
+>   arch/x86/kvm/svm.c              |  9 +++++++++
+>   arch/x86/kvm/x86.c              |  6 ++++++
+>   include/linux/kvm_host.h        |  2 ++
+>   virt/kvm/kvm_main.c             | 16 ++++++++++++++--
+>   5 files changed, 32 insertions(+), 2 deletions(-)
+> 
+
