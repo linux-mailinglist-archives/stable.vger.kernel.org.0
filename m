@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A89ED5EA1CC
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736295EA2B0
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236927AbiIZK5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:57:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53280 "EHLO
+        id S235874AbiIZLM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:12:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236926AbiIZK4p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:56:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 993EF64C4;
-        Mon, 26 Sep 2022 03:29:32 -0700 (PDT)
+        with ESMTP id S237425AbiIZLLr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:11:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8575A2D5;
+        Mon, 26 Sep 2022 03:35:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F769B80921;
-        Mon, 26 Sep 2022 10:28:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C004BC433D7;
-        Mon, 26 Sep 2022 10:28:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30155B8055F;
+        Mon, 26 Sep 2022 10:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F5AC433C1;
+        Mon, 26 Sep 2022 10:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188100;
-        bh=cjXNMehGULzTrpJ+DCJO+Dx4lAyu4B39HPvf10wl28M=;
+        s=korg; t=1664188510;
+        bh=NAo+HFj2M0eWeBWupsx9SruWvNwPDuTJWVzq4GwrN0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQ9wc42E+tPEAU5Y9IqRNANdyL3tMRvac/cPBdD7aRU9iJAUKPvlYPWDmMK9hDbYC
-         VPeyBHxoVBHsO40q2lBiyuDs+lLMCgcqPfYjjAupz40Pr/eyZBc5liVtd0sReUi7qt
-         YwDowtvnxfl7sl82gaLgvdlPSU+2gVwSMIPnw2PQ=
+        b=KLvR2Tg5lUIppSU7iPuor0yMbTa+JF7crGQkdgmE2gMgRSDRFJcwHR4GQUMLcglUo
+         XuHySXfJt7ZX4K5ds04wVUY2jXCyB4iedqUC7AqPQjdY07IuyRFBL1+OdMS5ktl73X
+         jvu1HnWZOKvZYrpVt9axv5U8xh6Dh1O9UO/5666U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 040/141] ALSA: hda: add Intel 5 Series / 3400 PCI DID
+Subject: [PATCH 5.15 032/148] ALSA: hda/realtek: Add quirk for ASUS GA503R laptop
 Date:   Mon, 26 Sep 2022 12:11:06 +0200
-Message-Id: <20220926100755.918703265@linuxfoundation.org>
+Message-Id: <20220926100757.254287000@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Luke D. Jones <luke@ljones.dev>
 
-commit 4d40ceef4745536289012670103c59264e0fb3ec upstream.
+commit ba1f818053b0668a1ce2fe86b840e81b592cc560 upstream.
 
-Handle 0x3b57 variant with same AZX_DCAPS_INTEL_PCH_NOPM
-capabilities as 0x3b56. In practise this allow use of HDMI/DP
-display audio via i915.
+The ASUS G15 2022 (GA503R) series laptop has the same node-to-DAC pairs
+as early models and the G14, this includes bass speakers which are by
+default mapped incorrectly to the 0x06 node.
 
-BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/2751
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Add a quirk to use the same DAC pairs as the G14.
+
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220912183716.2126312-1-kai.vehmanen@linux.intel.com
+Link: https://lore.kernel.org/r/20220915080921.35563-4-luke@ljones.dev
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2584,6 +2584,8 @@ static const struct pci_device_id azx_id
- 	/* 5 Series/3400 */
- 	{ PCI_DEVICE(0x8086, 0x3b56),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
-+	{ PCI_DEVICE(0x8086, 0x3b57),
-+	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
- 	/* Poulsbo */
- 	{ PCI_DEVICE(0x8086, 0x811b),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9031,6 +9031,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e5e, "ASUS ROG Strix G513", ALC294_FIXUP_ASUS_G513_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
++	SND_PCI_QUIRK(0x1043, 0x1c52, "ASUS Zephyrus G15 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
 
 
