@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A1B35E9F09
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555B85EA362
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233866AbiIZKSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:18:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46568 "EHLO
+        id S237796AbiIZLYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:24:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235031AbiIZKR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:17:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E73637189;
-        Mon, 26 Sep 2022 03:15:02 -0700 (PDT)
+        with ESMTP id S237997AbiIZLXv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB5A33A26;
+        Mon, 26 Sep 2022 03:40:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDAACB80835;
-        Mon, 26 Sep 2022 10:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285FDC433C1;
-        Mon, 26 Sep 2022 10:14:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F20F860769;
+        Mon, 26 Sep 2022 10:39:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E49B3C433C1;
+        Mon, 26 Sep 2022 10:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187284;
-        bh=mZEjU9sKh4ZHqsW67cldg1I7i6KLgb+SX4bzxU6CYwQ=;
+        s=korg; t=1664188763;
+        bh=+WB6Gfrw4ofFl7keBuMJYWkIaY3LMVfFmiVWGO4Gix0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYU8nIZkR2qbaHTuGsq1AqNmvlQ8ONmxYZ7Vs8cTwsKhqg+2Z76X8H99C1m+Q01UA
-         cmT2nnNR0n1dTrBsDk8GZxznTh36H3ZFgL/kaFNPtpoBYn/rbif15sccGqX7xMqQSf
-         Af5n5dqE8YrCk9dtmscuREG6tHriS0ZgSpMC0328=
+        b=FWbZXpg3/pUIMFZR9SvY0V2y5KhvVvy3qrIQJrhZeDOGLUqPCfJRINtNv2R2384+u
+         OAZpLq6/+Y+pOvssUtlw3qRTdJaMgpCVYYnIdDpLRWuOJY9XpdsnSxSGmeDVI92Njb
+         graH6Am88P8JYO6WQUXQPIsOaFZesfP/AddEvmXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/30] Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 086/148] i40e: Fix VF set max MTU size
 Date:   Mon, 26 Sep 2022 12:12:00 +0200
-Message-Id: <20220926100737.181257997@linuxfoundation.org>
+Message-Id: <20220926100759.274117745@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
+[ Upstream commit 372539def2824c43b6afe2403045b140f65c5acc ]
 
-Passed through PCI device sometimes misbehave on Gen1 VMs when Hyper-V
-DRM driver is also loaded. Looking at IOMEM assignment, we can see e.g.
+Max MTU sent to VF is set to 0 during memory allocation. It cause
+that max MTU on VF is changed to IAVF_MAX_RXBUFFER and does not
+depend on data from HW.
 
-$ cat /proc/iomem
-...
-f8000000-fffbffff : PCI Bus 0000:00
-  f8000000-fbffffff : 0000:00:08.0
-    f8000000-f8001fff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
-...
-fe0000000-fffffffff : PCI Bus 0000:00
-  fe0000000-fe07fffff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
-    fe0000000-fe07fffff : 2ba2:00:02.0
-      fe0000000-fe07fffff : mlx4_core
+Set max_mtu field in virtchnl_vf_resource struct to inform
+VF in GET_VF_RESOURCES msg what size should be max frame.
 
-the interesting part is the 'f8000000' region as it is actually the
-VM's framebuffer:
-
-$ lspci -v
-...
-0000:00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA (prog-if 00 [VGA controller])
-	Flags: bus master, fast devsel, latency 0, IRQ 11
-	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
-...
-
- hv_vmbus: registering driver hyperv_drm
- hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Synthvid Version major 3, minor 5
- hyperv_drm 0000:00:08.0: vgaarb: deactivate vga console
- hyperv_drm 0000:00:08.0: BAR 0: can't reserve [mem 0xf8000000-0xfbffffff]
- hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Cannot request framebuffer, boot fb still active?
-
-Note: "Cannot request framebuffer" is not a fatal error in
-hyperv_setup_gen1() as the code assumes there's some other framebuffer
-device there but we actually have some other PCI device (mlx4 in this
-case) config space there!
-
-The problem appears to be that vmbus_allocate_mmio() can use dedicated
-framebuffer region to serve any MMIO request from any device. The
-semantics one might assume of a parameter named "fb_overlap_ok"
-aren't implemented because !fb_overlap_ok essentially has no effect.
-The existing semantics are really "prefer_fb_overlap". This patch
-implements the expected and needed semantics, which is to not allocate
-from the frame buffer space when !fb_overlap_ok.
-
-Note, Gen2 VMs are usually unaffected by the issue because
-framebuffer region is already taken by EFI fb (in case kernel supports
-it) but Gen1 VMs may have this region unclaimed by the time Hyper-V PCI
-pass-through driver tries allocating MMIO space if Hyper-V DRM/FB drivers
-load after it. Devices can be brought up in any sequence so let's
-resolve the issue by always ignoring 'fb_mmio' region for non-FB
-requests, even if the region is unclaimed.
-
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20220827130345.1320254-4-vkuznets@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 3248aa7a35b3..cb3e22f10d68 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1186,7 +1186,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 			bool fb_overlap_ok)
- {
- 	struct resource *iter, *shadow;
--	resource_size_t range_min, range_max, start;
-+	resource_size_t range_min, range_max, start, end;
- 	const char *dev_n = dev_name(&device_obj->device);
- 	int retval;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index d78ac5e7f658..c078fbaf19fd 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2038,6 +2038,25 @@ static void i40e_del_qch(struct i40e_vf *vf)
+ 	}
+ }
  
-@@ -1221,6 +1221,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 		range_max = iter->end;
- 		start = (range_min + align - 1) & ~(align - 1);
- 		for (; start + size - 1 <= range_max; start += align) {
-+			end = start + size - 1;
++/**
++ * i40e_vc_get_max_frame_size
++ * @vf: pointer to the VF
++ *
++ * Max frame size is determined based on the current port's max frame size and
++ * whether a port VLAN is configured on this VF. The VF is not aware whether
++ * it's in a port VLAN so the PF needs to account for this in max frame size
++ * checks and sending the max frame size to the VF.
++ **/
++static u16 i40e_vc_get_max_frame_size(struct i40e_vf *vf)
++{
++	u16 max_frame_size = vf->pf->hw.phy.link_info.max_frame_size;
 +
-+			/* Skip the whole fb_mmio region if not fb_overlap_ok */
-+			if (!fb_overlap_ok && fb_mmio &&
-+			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
-+			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
-+				continue;
++	if (vf->port_vlan_id)
++		max_frame_size -= VLAN_HLEN;
 +
- 			shadow = __request_region(iter, start, size, NULL,
- 						  IORESOURCE_BUSY);
- 			if (!shadow)
++	return max_frame_size;
++}
++
+ /**
+  * i40e_vc_get_vf_resources_msg
+  * @vf: pointer to the VF info
+@@ -2139,6 +2158,7 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
+ 	vfres->max_vectors = pf->hw.func_caps.num_msix_vectors_vf;
+ 	vfres->rss_key_size = I40E_HKEY_ARRAY_SIZE;
+ 	vfres->rss_lut_size = I40E_VF_HLUT_ARRAY_SIZE;
++	vfres->max_mtu = i40e_vc_get_max_frame_size(vf);
+ 
+ 	if (vf->lan_vsi_idx) {
+ 		vfres->vsi_res[0].vsi_id = vf->lan_vsi_id;
 -- 
 2.35.1
 
