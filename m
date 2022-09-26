@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DCC45EAD6A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 19:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 820C05EAD6D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 19:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230161AbiIZRAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 13:00:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S230091AbiIZRAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 13:00:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230008AbiIZQ7g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 12:59:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69FDC28E24;
-        Mon, 26 Sep 2022 08:59:53 -0700 (PDT)
+        with ESMTP id S230093AbiIZQ7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 12:59:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6B41CFFE
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 09:00:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52FBC60DBF;
-        Mon, 26 Sep 2022 15:59:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260B1C433C1;
-        Mon, 26 Sep 2022 15:59:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664207992;
-        bh=T62VMtRqEZ1ynuRiLve/sryNWui8CQ7pF8ybsY5aRus=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=if5lJPaLrzPnCW0qkc4dhYdV84CagZCivk9x9UScmTKJxGEAfDgX5+IZKCwUy8mzS
-         n7qLALuX+USlJbJEiouPPpfiNJBGfDhEE5tIzVMv4ryC0GtvRmDNlgwcOsP/2hRR2L
-         C9PnJVraK2zzggToj5y3cDD6Ga8+36U37lzRfyfg=
-Date:   Mon, 26 Sep 2022 17:59:49 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.4 000/120] 5.4.215-rc1 review
-Message-ID: <YzHMdYD2E6gwxiip@kroah.com>
-References: <20220926100750.519221159@linuxfoundation.org>
- <39503234-9c35-cdd8-bd8c-d5c3d7d3af1e@roeck-us.net>
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2987B80B06
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 15:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24556C433D6;
+        Mon, 26 Sep 2022 15:59:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1664207998;
+        bh=lCXiO5pkSuuEK+otVIzDciHG2H+yZcwpbuBZsPzrWa8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HgiVK7mlWxF02ggtQ8CCAWjFQap9Zpjtj+0XJ0De6iqH3MkSmfzxxO9L6k1akCCFS
+         8Pf9uM333SznQrsjGEKuU7PXs3ESYJDNjfao4hJpww3eO1EntSD263zFhTaJ1qxwgb
+         C602ymei1Y6K573DFfnZWSP6Fe03gHrZRjGi83ztEF/7jE+YpHJF5d5g3iVe5JtDF4
+         x27ffxgVKpmN5AZNqmvy0aTlSSm+3q9ajX4011KfzhS2kLpypDA2rUkQPTOdH8tZj2
+         aMcwbX7QZoIiWLtgPvaJbaQ+sDjt2S5VWNiTOmvgXNRXUPXYhVjBHf3uE3KBaNpw+F
+         33RaINjWgiCEA==
+From:   SeongJae Park <sj@kernel.org>
+To:     Levi Yun <ppbuk5246@gmail.com>
+Cc:     sj@kernel.org, akpm@linux-foundation.org, damon@lists.linux.dev,
+        linux-mm@kvack.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3] damon/sysfs: Fix possible memleak on damon_sysfs_add_target.
+Date:   Mon, 26 Sep 2022 15:59:54 +0000
+Message-Id: <20220926155954.48379-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220925234327.26345-1-ppbuk5246@gmail.com>
+References: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <39503234-9c35-cdd8-bd8c-d5c3d7d3af1e@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,36 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 26, 2022 at 06:38:39AM -0700, Guenter Roeck wrote:
-> On 9/26/22 03:10, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.215 release.
-> > There are 120 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed, 28 Sep 2022 10:07:26 +0000.
-> > Anything received after that time might be too late.
-> > 
+Hi Levi,
+
+On Mon, 26 Sep 2022 08:43:27 +0900 Levi Yun <ppbuk5246@gmail.com> wrote:
+
+> When damon_sysfs_add_target couldn't find proper task,
+> New allocated damon_target structure isn't registered yet,
+> So, it's impossible to free new allocated one by
+> damon_sysfs_destroy_targets.
 > 
-> Building arm:ixp4xx_defconfig ... failed
-> --------------
-> Error log:
-> drivers/gpio/gpio-ixp4xx.c:171:18: error: 'IRQCHIP_IMMUTABLE' undeclared here (not in a function); did you mean 'IS_IMMUTABLE'?
->   171 |         .flags = IRQCHIP_IMMUTABLE,
->       |                  ^~~~~~~~~~~~~~~~~
->       |                  IS_IMMUTABLE
-> drivers/gpio/gpio-ixp4xx.c:172:9: error: 'GPIOCHIP_IRQ_RESOURCE_HELPERS' undeclared here (not in a function)
->   172 |         GPIOCHIP_IRQ_RESOURCE_HELPERS,
->       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> drivers/gpio/gpio-ixp4xx.c:172:9: warning: excess elements in struct initializer
-> drivers/gpio/gpio-ixp4xx.c:172:9: note: (near initialization for 'ixp4xx_gpio_irqchip')
-> drivers/gpio/gpio-ixp4xx.c: In function 'ixp4xx_gpio_probe':
-> drivers/gpio/gpio-ixp4xx.c:296:9: error: implicit declaration of function 'gpio_irq_chip_set_chip' [-Werror=implicit-function-declaration]
->   296 |         gpio_irq_chip_set_chip(girq, &ixp4xx_gpio_irqchip);
->       |         ^~~~~~~~~~~~~~~~~~~~~~
+> By calling daemon_add_target as soon as allocating new target, Fix this
+> possible memory leak.
+> 
+> Signed-off-by: Levi Yun <ppbuk5246@gmail.com>
+> Fixes:74bd8b7d2f8e7
 
-Offending patch now dropped, will do a -rc2 soon.
+The commit is indeed the last one which touched the code, but the bug was
+introduced earlier than that, by commit a61ea561c871 ("mm/damon/sysfs: link
+DAMON for virtual address spaces monitoring").
 
-thanks,
+Also, let's add one space before the commit hash, then only 12 characters for
+the hash, and then one line summary of the commit[1], like below.
 
-greg k-h
+Fixes: a61ea561c871 ("mm/damon/sysfs: link DAMON for virtual address spaces monitoring")
+
+[1] https://www.kernel.org/doc/html/v4.15/process/submitting-patches.html#describe-your-changes
+
+> Cc: <stable@vger.kernel.org>
+> ---
+
+Also, putting the change log of the patch here would be a good practice.
+
+Other than the very minor things,
+
+Reviewed-by: SeongJae Park <sj@kernel.org>
+
+
+As the changes I'm requesting are very minor, I will revise and post a new
+version of this patch on my own.
+
+
+Thanks,
+SJ
+
+>  mm/damon/sysfs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/damon/sysfs.c b/mm/damon/sysfs.c
+> index 7488e27c87c3..bdef9682d0a0 100644
+> --- a/mm/damon/sysfs.c
+> +++ b/mm/damon/sysfs.c
+> @@ -2182,12 +2182,12 @@ static int damon_sysfs_add_target(struct damon_sysfs_target *sys_target,
+>  
+>  	if (!t)
+>  		return -ENOMEM;
+> +	damon_add_target(ctx, t);
+>  	if (damon_target_has_pid(ctx)) {
+>  		t->pid = find_get_pid(sys_target->pid);
+>  		if (!t->pid)
+>  			goto destroy_targets_out;
+>  	}
+> -	damon_add_target(ctx, t);
+>  	err = damon_sysfs_set_regions(t, sys_target->regions);
+>  	if (err)
+>  		goto destroy_targets_out;
+> -- 
+> 2.35.1
+> 
