@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC9795EA2C0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A54215EA470
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234878AbiIZLOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:14:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
+        id S238533AbiIZLqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:46:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237371AbiIZLNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F7461D5C;
-        Mon, 26 Sep 2022 03:36:00 -0700 (PDT)
+        with ESMTP id S238532AbiIZLnn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:43:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A007D72B70;
+        Mon, 26 Sep 2022 03:46:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E7E4B802C7;
-        Mon, 26 Sep 2022 10:36:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D43C433B5;
-        Mon, 26 Sep 2022 10:35:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EE54B802C7;
+        Mon, 26 Sep 2022 10:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B91C433D6;
+        Mon, 26 Sep 2022 10:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188559;
-        bh=zRrMrRABLsN3WrZIDEo2465rJQHnOyEX8cPMpJTlbZg=;
+        s=korg; t=1664189156;
+        bh=2hLsJWGAQFTznAbHWLTE6GPksFM8PJHIBk/dzmbwijk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jr8Ix8qgPaKZN1PyAkxirZMRGGrFRWR+7MGcAECPoGOCTEQIUXhQ1wLOuW4Q2b0/x
-         v3uCGLZWjJm193HAv27w8hMr//Oood/e0+rtWfB6hcOngw/kVCXL7hoWHrDQBYiEFo
-         FmNV+28i2XZc2egySxUZdDMaQjZhrAuyfC6kdc8M=
+        b=gJDyIeSmGbsRAQNN8FoErApJenVlgSQcehqF/d2w/41NzIxRQLS399cuGgKSi7Xfj
+         ZCntlm0mmwqhk6LJ50xEJIywZNBe6xVojRdvufZlwg5Fnmeahm29S/s8CJu/R6aH4k
+         slP0SoZXlghfgNCD6Hupodkz09+6hpx//BCjlcdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.15 046/148] riscv: fix a nasty sigreturn bug...
+        stable@vger.kernel.org, Ding Hui <dinghui@sangfor.com.cn>,
+        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 5.19 091/207] ice: Fix crash by keep old cfg when update TCs more than queues
 Date:   Mon, 26 Sep 2022 12:11:20 +0200
-Message-Id: <20220926100757.736026480@linuxfoundation.org>
+Message-Id: <20220926100810.667021865@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +55,199 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Ding Hui <dinghui@sangfor.com.cn>
 
-commit 762df359aa5849e010ef04c3ed79d57588ce17d9 upstream.
+[ Upstream commit a509702cac95a8b450228a037c8542f57e538e5b ]
 
-riscv has an equivalent of arm bug fixed by 653d48b22166 ("arm: fix
-really nasty sigreturn bug"); if signal gets caught by an interrupt that
-hits when we have the right value in a0 (-513), *and* another signal
-gets delivered upon sigreturn() (e.g. included into the blocked mask for
-the first signal and posted while the handler had been running), the
-syscall restart logics will see regs->cause equal to EXC_SYSCALL (we are
-in a syscall, after all) and a0 already restored to its original value
-(-513, which happens to be -ERESTARTNOINTR) and assume that we need to
-apply the usual syscall restart logics.
+There are problems if allocated queues less than Traffic Classes.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/YxJEiSq%2FCGaL6Gm9@ZenIV/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Commit a632b2a4c920 ("ice: ethtool: Prohibit improper channel config
+for DCB") already disallow setting less queues than TCs.
+
+Another case is if we first set less queues, and later update more TCs
+config due to LLDP, ice_vsi_cfg_tc() will failed but left dirty
+num_txq/rxq and tc_cfg in vsi, that will cause invalid pointer access.
+
+[   95.968089] ice 0000:3b:00.1: More TCs defined than queues/rings allocated.
+[   95.968092] ice 0000:3b:00.1: Trying to use more Rx queues (8), than were allocated (1)!
+[   95.968093] ice 0000:3b:00.1: Failed to config TC for VSI index: 0
+[   95.969621] general protection fault: 0000 [#1] SMP NOPTI
+[   95.969705] CPU: 1 PID: 58405 Comm: lldpad Kdump: loaded Tainted: G     U  W  O     --------- -t - 4.18.0 #1
+[   95.969867] Hardware name: O.E.M/BC11SPSCB10, BIOS 8.23 12/30/2021
+[   95.969992] RIP: 0010:devm_kmalloc+0xa/0x60
+[   95.970052] Code: 5c ff ff ff 31 c0 5b 5d 41 5c c3 b8 f4 ff ff ff eb f4 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 89 d1 <8b> 97 60 02 00 00 48 8d 7e 18 48 39 f7 72 3f 55 89 ce 53 48 8b 4c
+[   95.970344] RSP: 0018:ffffc9003f553888 EFLAGS: 00010206
+[   95.970425] RAX: dead000000000200 RBX: ffffea003c425b00 RCX: 00000000006080c0
+[   95.970536] RDX: 00000000006080c0 RSI: 0000000000000200 RDI: dead000000000200
+[   95.970648] RBP: dead000000000200 R08: 00000000000463c0 R09: ffff888ffa900000
+[   95.970760] R10: 0000000000000000 R11: 0000000000000002 R12: ffff888ff6b40100
+[   95.970870] R13: ffff888ff6a55018 R14: 0000000000000000 R15: ffff888ff6a55460
+[   95.970981] FS:  00007f51b7d24700(0000) GS:ffff88903ee80000(0000) knlGS:0000000000000000
+[   95.971108] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   95.971197] CR2: 00007fac5410d710 CR3: 0000000f2c1de002 CR4: 00000000007606e0
+[   95.971309] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   95.971419] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   95.971530] PKRU: 55555554
+[   95.971573] Call Trace:
+[   95.971622]  ice_setup_rx_ring+0x39/0x110 [ice]
+[   95.971695]  ice_vsi_setup_rx_rings+0x54/0x90 [ice]
+[   95.971774]  ice_vsi_open+0x25/0x120 [ice]
+[   95.971843]  ice_open_internal+0xb8/0x1f0 [ice]
+[   95.971919]  ice_ena_vsi+0x4f/0xd0 [ice]
+[   95.971987]  ice_dcb_ena_dis_vsi.constprop.5+0x29/0x90 [ice]
+[   95.972082]  ice_pf_dcb_cfg+0x29a/0x380 [ice]
+[   95.972154]  ice_dcbnl_setets+0x174/0x1b0 [ice]
+[   95.972220]  dcbnl_ieee_set+0x89/0x230
+[   95.972279]  ? dcbnl_ieee_del+0x150/0x150
+[   95.972341]  dcb_doit+0x124/0x1b0
+[   95.972392]  rtnetlink_rcv_msg+0x243/0x2f0
+[   95.972457]  ? dcb_doit+0x14d/0x1b0
+[   95.972510]  ? __kmalloc_node_track_caller+0x1d3/0x280
+[   95.972591]  ? rtnl_calcit.isra.31+0x100/0x100
+[   95.972661]  netlink_rcv_skb+0xcf/0xf0
+[   95.972720]  netlink_unicast+0x16d/0x220
+[   95.972781]  netlink_sendmsg+0x2ba/0x3a0
+[   95.975891]  sock_sendmsg+0x4c/0x50
+[   95.979032]  ___sys_sendmsg+0x2e4/0x300
+[   95.982147]  ? kmem_cache_alloc+0x13e/0x190
+[   95.985242]  ? __wake_up_common_lock+0x79/0x90
+[   95.988338]  ? __check_object_size+0xac/0x1b0
+[   95.991440]  ? _copy_to_user+0x22/0x30
+[   95.994539]  ? move_addr_to_user+0xbb/0xd0
+[   95.997619]  ? __sys_sendmsg+0x53/0x80
+[   96.000664]  __sys_sendmsg+0x53/0x80
+[   96.003747]  do_syscall_64+0x5b/0x1d0
+[   96.006862]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+Only update num_txq/rxq when passed check, and restore tc_cfg if setup
+queue map failed.
+
+Fixes: a632b2a4c920 ("ice: ethtool: Prohibit improper channel config for DCB")
+Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
+Reviewed-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 42 +++++++++++++++---------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
 
---- a/arch/riscv/kernel/signal.c
-+++ b/arch/riscv/kernel/signal.c
-@@ -121,6 +121,8 @@ SYSCALL_DEFINE0(rt_sigreturn)
- 	if (restore_altstack(&frame->uc.uc_stack))
- 		goto badframe;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 6c4e1d45235e..1169fd7811b0 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -911,7 +911,7 @@ static void ice_set_dflt_vsi_ctx(struct ice_hw *hw, struct ice_vsi_ctx *ctxt)
+  */
+ static int ice_vsi_setup_q_map(struct ice_vsi *vsi, struct ice_vsi_ctx *ctxt)
+ {
+-	u16 offset = 0, qmap = 0, tx_count = 0, pow = 0;
++	u16 offset = 0, qmap = 0, tx_count = 0, rx_count = 0, pow = 0;
+ 	u16 num_txq_per_tc, num_rxq_per_tc;
+ 	u16 qcount_tx = vsi->alloc_txq;
+ 	u16 qcount_rx = vsi->alloc_rxq;
+@@ -978,23 +978,25 @@ static int ice_vsi_setup_q_map(struct ice_vsi *vsi, struct ice_vsi_ctx *ctxt)
+ 	 * at least 1)
+ 	 */
+ 	if (offset)
+-		vsi->num_rxq = offset;
++		rx_count = offset;
+ 	else
+-		vsi->num_rxq = num_rxq_per_tc;
++		rx_count = num_rxq_per_tc;
  
-+	regs->cause = -1UL;
+-	if (vsi->num_rxq > vsi->alloc_rxq) {
++	if (rx_count > vsi->alloc_rxq) {
+ 		dev_err(ice_pf_to_dev(vsi->back), "Trying to use more Rx queues (%u), than were allocated (%u)!\n",
+-			vsi->num_rxq, vsi->alloc_rxq);
++			rx_count, vsi->alloc_rxq);
+ 		return -EINVAL;
+ 	}
+ 
+-	vsi->num_txq = tx_count;
+-	if (vsi->num_txq > vsi->alloc_txq) {
++	if (tx_count > vsi->alloc_txq) {
+ 		dev_err(ice_pf_to_dev(vsi->back), "Trying to use more Tx queues (%u), than were allocated (%u)!\n",
+-			vsi->num_txq, vsi->alloc_txq);
++			tx_count, vsi->alloc_txq);
+ 		return -EINVAL;
+ 	}
+ 
++	vsi->num_txq = tx_count;
++	vsi->num_rxq = rx_count;
 +
- 	return regs->a0;
+ 	if (vsi->type == ICE_VSI_VF && vsi->num_txq != vsi->num_rxq) {
+ 		dev_dbg(ice_pf_to_dev(vsi->back), "VF VSI should have same number of Tx and Rx queues. Hence making them equal\n");
+ 		/* since there is a chance that num_rxq could have been changed
+@@ -3487,6 +3489,7 @@ ice_vsi_setup_q_map_mqprio(struct ice_vsi *vsi, struct ice_vsi_ctx *ctxt,
+ 	u16 pow, offset = 0, qcount_tx = 0, qcount_rx = 0, qmap;
+ 	u16 tc0_offset = vsi->mqprio_qopt.qopt.offset[0];
+ 	int tc0_qcount = vsi->mqprio_qopt.qopt.count[0];
++	u16 new_txq, new_rxq;
+ 	u8 netdev_tc = 0;
+ 	int i;
  
- badframe:
+@@ -3527,21 +3530,24 @@ ice_vsi_setup_q_map_mqprio(struct ice_vsi *vsi, struct ice_vsi_ctx *ctxt,
+ 		}
+ 	}
+ 
+-	/* Set actual Tx/Rx queue pairs */
+-	vsi->num_txq = offset + qcount_tx;
+-	if (vsi->num_txq > vsi->alloc_txq) {
++	new_txq = offset + qcount_tx;
++	if (new_txq > vsi->alloc_txq) {
+ 		dev_err(ice_pf_to_dev(vsi->back), "Trying to use more Tx queues (%u), than were allocated (%u)!\n",
+-			vsi->num_txq, vsi->alloc_txq);
++			new_txq, vsi->alloc_txq);
+ 		return -EINVAL;
+ 	}
+ 
+-	vsi->num_rxq = offset + qcount_rx;
+-	if (vsi->num_rxq > vsi->alloc_rxq) {
++	new_rxq = offset + qcount_rx;
++	if (new_rxq > vsi->alloc_rxq) {
+ 		dev_err(ice_pf_to_dev(vsi->back), "Trying to use more Rx queues (%u), than were allocated (%u)!\n",
+-			vsi->num_rxq, vsi->alloc_rxq);
++			new_rxq, vsi->alloc_rxq);
+ 		return -EINVAL;
+ 	}
+ 
++	/* Set actual Tx/Rx queue pairs */
++	vsi->num_txq = new_txq;
++	vsi->num_rxq = new_rxq;
++
+ 	/* Setup queue TC[0].qmap for given VSI context */
+ 	ctxt->info.tc_mapping[0] = cpu_to_le16(qmap);
+ 	ctxt->info.q_mapping[0] = cpu_to_le16(vsi->rxq_map[0]);
+@@ -3573,6 +3579,7 @@ int ice_vsi_cfg_tc(struct ice_vsi *vsi, u8 ena_tc)
+ {
+ 	u16 max_txqs[ICE_MAX_TRAFFIC_CLASS] = { 0 };
+ 	struct ice_pf *pf = vsi->back;
++	struct ice_tc_cfg old_tc_cfg;
+ 	struct ice_vsi_ctx *ctx;
+ 	struct device *dev;
+ 	int i, ret = 0;
+@@ -3597,6 +3604,7 @@ int ice_vsi_cfg_tc(struct ice_vsi *vsi, u8 ena_tc)
+ 			max_txqs[i] = vsi->num_txq;
+ 	}
+ 
++	memcpy(&old_tc_cfg, &vsi->tc_cfg, sizeof(old_tc_cfg));
+ 	vsi->tc_cfg.ena_tc = ena_tc;
+ 	vsi->tc_cfg.numtc = num_tc;
+ 
+@@ -3613,8 +3621,10 @@ int ice_vsi_cfg_tc(struct ice_vsi *vsi, u8 ena_tc)
+ 	else
+ 		ret = ice_vsi_setup_q_map(vsi, ctx);
+ 
+-	if (ret)
++	if (ret) {
++		memcpy(&vsi->tc_cfg, &old_tc_cfg, sizeof(vsi->tc_cfg));
+ 		goto out;
++	}
+ 
+ 	/* must to indicate which section of VSI context are being modified */
+ 	ctx->info.valid_sections = cpu_to_le16(ICE_AQ_VSI_PROP_RXQ_MAP_VALID);
+-- 
+2.35.1
+
 
 
