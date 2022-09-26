@@ -2,129 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAC15EA7A7
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAE05EA7B2
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235787AbiIZNwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 09:52:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
+        id S233214AbiIZNzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 09:55:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235409AbiIZNvj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:51:39 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC587115468;
-        Mon, 26 Sep 2022 05:07:48 -0700 (PDT)
-Received: from fraeml740-chm.china.huawei.com (unknown [172.18.147.226])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4MbgyQ5Krsz67Mvl;
-        Mon, 26 Sep 2022 19:49:02 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- fraeml740-chm.china.huawei.com (10.206.15.221) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 26 Sep 2022 13:50:13 +0200
-Received: from localhost (10.202.226.42) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 26 Sep
- 2022 12:50:13 +0100
-Date:   Mon, 26 Sep 2022 12:50:12 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@huawei.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Kent Gustavsson <kent@minoris.se>,
-        "Marcus Folkesson" <marcus.folkesson@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4 042/120] iio:adc:mcp3911: Switch to generic firmware
- properties.
-Message-ID: <20220926125012.00001f86@huawei.com>
-In-Reply-To: <20220926100752.250813953@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
-        <20220926100752.250813953@linuxfoundation.org>
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.29; i686-w64-mingw32)
+        with ESMTP id S235122AbiIZNyd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:54:33 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786A580519;
+        Mon, 26 Sep 2022 05:10:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=jOpbznQq1TexzS0cQB6vYt4+4yFj1cmjMb21VcAwnhk=; b=o/sYytLUDM+Vd1vccnhn2XqfHV
+        f6OSdgpiDrbeBWn8ZBEegKKdGzSsdwYXq/KS4EW87EJEVH6wuwN43+curv1WaQ0azzbam0Dr2VfVN
+        YhAtSfbpdw1CQ+SzSUULHaUQuwDS6IC3C/y5016A986PdHReO8D/CxioWTwqR0J+zBlHQOq+2YfNG
+        ck+0O9CPWYGxjYlABBytMWWeBPmD05YWVZsD4PtSA0be5/ZOwBQ4mtwpz6viZn/g8qM3vlUx6NN9y
+        2vG+hDLF/JkAntNvRO8SbIoPSZfGrysx+j61m5RbpTw1aNkY9W6K+5HfeovazTCiUrD8XZIu6Hivg
+        kAonF4JA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ocmu1-00AQi8-8Q; Mon, 26 Sep 2022 12:08:01 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A6FEE3015B5;
+        Mon, 26 Sep 2022 14:07:56 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 8FC5429A13691; Mon, 26 Sep 2022 14:07:56 +0200 (CEST)
+Date:   Mon, 26 Sep 2022 14:07:56 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     K Prateek Nayak <kprateek.nayak@amd.com>
+Cc:     linux-kernel@vger.kernel.org, rafael@kernel.org, lenb@kernel.org,
+        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
+        dave.hansen@linux.intel.com, bp@alien8.de, tglx@linutronix.de,
+        andi@lisas.de, puwen@hygon.cn, mario.limonciello@amd.com,
+        rui.zhang@intel.com, gpiccoli@igalia.com,
+        daniel.lezcano@linaro.org, ananth.narayan@amd.com,
+        gautham.shenoy@amd.com, Calvin Ong <calvin.ong@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] x86,acpi: Limit "Dummy wait" workaround to older AMD
+ and Intel processors
+Message-ID: <YzGWHMIsD7RBhEP+@hirez.programming.kicks-ass.net>
+References: <20220923153801.9167-1-kprateek.nayak@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.202.226.42]
-X-ClientProxiedBy: lhrpeml100004.china.huawei.com (7.191.162.219) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220923153801.9167-1-kprateek.nayak@amd.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 26 Sep 2022 12:11:15 +0200
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-
-> From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> 
-> [ Upstream commit 4efc1c614d334883cce09c38aa3fe74d3fb0bbf0 ]
-> 
-> This allows use of the driver with other types of firmware such as ACPI
-> PRP0001 based probing.
-> 
-> Also part of a general attempt to remove direct use of of_ specific
-> accessors from IIO.
-> 
-> Added an include for mod_devicetable.h whilst here to cover the
-> struct of_device_id definition.
-
-I'd treat this a feature enabling rather than a fix.
-It's small however, so if someone has a sent a backport request I'm fine
-with it going in stable. If not, probably just unnecessary noise for stable.
-
-Jonathan
-
-> 
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Cc: Kent Gustavsson <kent@minoris.se>
-> Reviewed-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> Stable-dep-of: cfbd76d5c9c4 ("iio: adc: mcp3911: correct "microchip,device-addr" property")
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/iio/adc/mcp3911.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
-> index 4e2e8e819b1e..cd8b1bab9cf0 100644
-> --- a/drivers/iio/adc/mcp3911.c
-> +++ b/drivers/iio/adc/mcp3911.c
-> @@ -10,6 +10,8 @@
->  #include <linux/err.h>
->  #include <linux/iio/iio.h>
->  #include <linux/module.h>
-> +#include <linux/mod_devicetable.h>
-> +#include <linux/property.h>
->  #include <linux/regulator/consumer.h>
->  #include <linux/spi/spi.h>
+On Fri, Sep 23, 2022 at 09:08:01PM +0530, K Prateek Nayak wrote:
+> diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+> index ef4775c6db01..fcd3617ed315 100644
+> --- a/arch/x86/include/asm/cpufeatures.h
+> +++ b/arch/x86/include/asm/cpufeatures.h
+> @@ -460,5 +460,6 @@
+>  #define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
+>  #define X86_BUG_RETBLEED		X86_BUG(27) /* CPU is affected by RETBleed */
+>  #define X86_BUG_EIBRS_PBRSB		X86_BUG(28) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
+> +#define X86_BUG_STPCLK			X86_BUG(29) /* STPCLK# signal does not get asserted in time during IOPORT based C-state entry */
 >  
-> @@ -209,12 +211,13 @@ static const struct iio_info mcp3911_info = {
->  	.write_raw = mcp3911_write_raw,
->  };
+>  #endif /* _ASM_X86_CPUFEATURES_H */
+> diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+> index 48276c0e479d..8cb5887a53a3 100644
+> --- a/arch/x86/kernel/cpu/amd.c
+> +++ b/arch/x86/kernel/cpu/amd.c
+> @@ -988,6 +988,18 @@ static void init_amd(struct cpuinfo_x86 *c)
+>  	if (!cpu_has(c, X86_FEATURE_XENPV))
+>  		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
 >  
-> -static int mcp3911_config(struct mcp3911 *adc, struct device_node *of_node)
-> +static int mcp3911_config(struct mcp3911 *adc)
->  {
-> +	struct device *dev = &adc->spi->dev;
->  	u32 configreg;
->  	int ret;
+> +	/*
+> +	 * CPUs based on the Zen microarchitecture (Fam 17h onward) can
+> +	 * guarantee that STPCLK# signal is asserted in time after the
+> +	 * P_LVL2 read to freeze execution after an IOPORT based C-state
+> +	 * entry. Among the older AMD processors, there has been at least
+> +	 * one report of an AMD Athlon processor on a VIA chipset
+> +	 * (circa 2006) having this issue. Mark all these older AMD
+> +	 * processor families as being affected.
+> +	 */
+> +	if (c->x86 < 0x17)
+> +		set_cpu_bug(c, X86_BUG_STPCLK);
+> +
+>  	/*
+>  	 * Turn on the Instructions Retired free counter on machines not
+>  	 * susceptible to erratum #1054 "Instructions Retired Performance
+> diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+> index 2d7ea5480ec3..96fe1320c238 100644
+> --- a/arch/x86/kernel/cpu/intel.c
+> +++ b/arch/x86/kernel/cpu/intel.c
+> @@ -696,6 +696,18 @@ static void init_intel(struct cpuinfo_x86 *c)
+>  		((c->x86_model == INTEL_FAM6_ATOM_GOLDMONT)))
+>  		set_cpu_bug(c, X86_BUG_MONITOR);
 >  
-> -	of_property_read_u32(of_node, "device-addr", &adc->dev_addr);
-> +	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
->  	if (adc->dev_addr > 3) {
->  		dev_err(&adc->spi->dev,
->  			"invalid device address (%i). Must be in range 0-3.\n",
-> @@ -298,7 +301,7 @@ static int mcp3911_probe(struct spi_device *spi)
->  		}
->  	}
->  
-> -	ret = mcp3911_config(adc, spi->dev.of_node);
-> +	ret = mcp3911_config(adc);
->  	if (ret)
->  		goto clk_disable;
->  
+> +	/*
+> +	 * Intel chipsets prior to Nehalem used the ACPI processor_idle
+> +	 * driver for C-state management. Some of these processors that
+> +	 * used IOPORT based C-states could not guarantee that STPCLK#
+> +	 * signal gets asserted in time after P_LVL2 read to freeze
+> +	 * execution properly. Since a clear cut-off point is not known
+> +	 * as to when this bug was solved, mark all the chipsets as
+> +	 * being affected. Only the ones that use IOPORT based C-state
+> +	 * transitions via the acpi_idle driver will be impacted.
+> +	 */
+> +	set_cpu_bug(c, X86_BUG_STPCLK);
+> +
+>  #ifdef CONFIG_X86_64
+>  	if (c->x86 == 15)
+>  		c->x86_cache_alignment = c->x86_clflush_size * 2;
 
+Quiz time:
+
+  #define X86_VENDOR_INTEL       0
+  #define X86_VENDOR_CYRIX       1
+  #define X86_VENDOR_AMD         2
+  #define X86_VENDOR_UMC         3
+  #define X86_VENDOR_CENTAUR     5
+  #define X86_VENDOR_TRANSMETA   7
+  #define X86_VENDOR_NSC         8
+  #define X86_VENDOR_HYGON       9
+  #define X86_VENDOR_ZHAOXIN     10
+  #define X86_VENDOR_VORTEX      11
+  #define X86_VENDOR_NUM         12
+  #define X86_VENDOR_UNKNOWN     0xff
+
+For how many of the above have you changed behaviour?
+
+Not to mention that this is the gazillion-th time AMD has failed to
+change HYGON in lock-step. That's Zen too -- deal with it.
