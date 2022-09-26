@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1A625EA1FE
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A562E5EA47D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237121AbiIZLAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:00:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34448 "EHLO
+        id S238672AbiIZLqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:46:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237391AbiIZK7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:40 -0400
+        with ESMTP id S238989AbiIZLp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:45:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E64635D113;
-        Mon, 26 Sep 2022 03:31:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29E7D7330B;
+        Mon, 26 Sep 2022 03:47:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EC5160A5C;
-        Mon, 26 Sep 2022 10:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD17C433D6;
-        Mon, 26 Sep 2022 10:29:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F208B60A37;
+        Mon, 26 Sep 2022 10:45:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD466C433C1;
+        Mon, 26 Sep 2022 10:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188199;
-        bh=zRrMrRABLsN3WrZIDEo2465rJQHnOyEX8cPMpJTlbZg=;
+        s=korg; t=1664189159;
+        bh=19KlRLI+ImLM1gK/lv/gMMi8YiwPQlSzvAQZM4tGZNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiTbE0AcM4NFeruLeG1+R98Cj7aPqucYwRWkL9oIq87t155cHFPRJjgpHEgqqSAQt
-         Hlwtie4mud9MKR5Mk0XveKbM6nsOofDgjmMgMIEOYr4GRsj9BTnUQqNPQ3Xz4RT0kp
-         l19JM/HfxaISU2qXjndf5tWUqQXH1hjv+/d6fskU=
+        b=Siaseete7FaqQhVZvO/Fb9m49qFTwHZHMwJkLc6OYJqCLI5ZrGLKE8ikgNqdfhv3z
+         e0w3HNyvUjgOp2nIXmmOJ5l+jYT1LvXfIU+kQRZhv9JtuPYqeFfUsl8Rjo0hweSc13
+         wODS0PFU+C9uQdxR1pGjaLUUyBfWiW90mgMCVxqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 055/141] riscv: fix a nasty sigreturn bug...
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Norbert Zulinski <norbertx.zulinski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 092/207] iavf: Fix cached head and tail value for iavf_get_tx_pending
 Date:   Mon, 26 Sep 2022 12:11:21 +0200
-Message-Id: <20220926100756.441521697@linuxfoundation.org>
+Message-Id: <20220926100810.715575081@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Brett Creeley <brett.creeley@intel.com>
 
-commit 762df359aa5849e010ef04c3ed79d57588ce17d9 upstream.
+[ Upstream commit 809f23c0423a43266e47a7dc67e95b5cb4d1cbfc ]
 
-riscv has an equivalent of arm bug fixed by 653d48b22166 ("arm: fix
-really nasty sigreturn bug"); if signal gets caught by an interrupt that
-hits when we have the right value in a0 (-513), *and* another signal
-gets delivered upon sigreturn() (e.g. included into the blocked mask for
-the first signal and posted while the handler had been running), the
-syscall restart logics will see regs->cause equal to EXC_SYSCALL (we are
-in a syscall, after all) and a0 already restored to its original value
-(-513, which happens to be -ERESTARTNOINTR) and assume that we need to
-apply the usual syscall restart logics.
+The underlying hardware may or may not allow reading of the head or tail
+registers and it really makes no difference if we use the software
+cached values. So, always used the software cached values.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/YxJEiSq%2FCGaL6Gm9@ZenIV/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c6c12595b73 ("i40e: Detection and recovery of TX queue hung logic moved to service_task from tx_timeout")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Co-developed-by: Norbert Zulinski <norbertx.zulinski@intel.com>
+Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf_txrx.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/signal.c
-+++ b/arch/riscv/kernel/signal.c
-@@ -121,6 +121,8 @@ SYSCALL_DEFINE0(rt_sigreturn)
- 	if (restore_altstack(&frame->uc.uc_stack))
- 		goto badframe;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
+index 06d18797d25a..4c3f3f419110 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
+@@ -114,8 +114,11 @@ u32 iavf_get_tx_pending(struct iavf_ring *ring, bool in_sw)
+ {
+ 	u32 head, tail;
  
-+	regs->cause = -1UL;
-+
- 	return regs->a0;
++	/* underlying hardware might not allow access and/or always return
++	 * 0 for the head/tail registers so just use the cached values
++	 */
+ 	head = ring->next_to_clean;
+-	tail = readl(ring->tail);
++	tail = ring->next_to_use;
  
- badframe:
+ 	if (head != tail)
+ 		return (head < tail) ?
+-- 
+2.35.1
+
 
 
