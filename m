@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE345EA23E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9013B5EA102
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237059AbiIZLEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43024 "EHLO
+        id S236315AbiIZKpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237422AbiIZLEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:04:08 -0400
+        with ESMTP id S236445AbiIZKnn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:43:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB515F231;
-        Mon, 26 Sep 2022 03:33:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A463B4B;
+        Mon, 26 Sep 2022 03:24:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 356F2B80925;
-        Mon, 26 Sep 2022 10:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D057C433C1;
-        Mon, 26 Sep 2022 10:31:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F037B80682;
+        Mon, 26 Sep 2022 10:24:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4295DC433C1;
+        Mon, 26 Sep 2022 10:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188281;
-        bh=STN83xp9evJqJZLuHCkw/lnhnKc/4/65pi4u/jxUtL8=;
+        s=korg; t=1664187894;
+        bh=14LOge9ZT3P4ZiqBhc7nTzeEF/5VcYCWhsD0HB6YN1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+f+p7zdiofO3qn6nLjT0UxBx33xCScsJy1FQsJnHzvMDPIso+ENwno0vLMcWBVp0
-         KjH1S5FwYViUV5OubSpWw0f1ID87PJkvVW7PtU8EL99x2VmfIuNSs1bxl59JeV+9G+
-         wHDoGh2xzGGYLTdvZtOVNIO81jaJzIJqptiBCUDw=
+        b=M/va6fZu7wJDI5oZMEJFc9H1dlnuyK3nLFxwrghBaoYKVPGbkQXgeeIjNt/AlAMOe
+         vPV/3xY5mMuVLPdtnONnXizrZGr/cAzjGy6P6o4p6Hffhiy1VPrdcdfqVoe89M4Wy4
+         VAYMZUwhMk6NrSBaADxmkyk/101LDtfh3RJoV4lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Kees Cook <keescook@chromium.org>,
-        syzbot+a448cda4dba2dac50de5@syzkaller.appspotmail.com,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/141] wireguard: netlink: avoid variable-sized memcpy on sockaddr
-Date:   Mon, 26 Sep 2022 12:12:06 +0200
-Message-Id: <20220926100758.051419605@linuxfoundation.org>
+        stable@vger.kernel.org, Stan Lu <stan.lu@mediatek.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.4 094/120] usb: xhci-mtk: fix issue of out-of-bounds array access
+Date:   Mon, 26 Sep 2022 12:12:07 +0200
+Message-Id: <20220926100754.444731153@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 26c013108c12b94bc023bf19198a4300596c98b1 ]
+commit de5107f473190538a65aac7edea85209cd5c1a8f upstream.
 
-Doing a variable-sized memcpy is slower, and the compiler isn't smart
-enough to turn this into a constant-size assignment.
+Bus bandwidth array access is based on esit, increase one
+will cause out-of-bounds issue; for example, when esit is
+XHCI_MTK_MAX_ESIT, will overstep boundary.
 
-Further, Kees' latest fortified memcpy will actually bark, because the
-destination pointer is type sockaddr, not explicitly sockaddr_in or
-sockaddr_in6, so it thinks there's an overflow:
-
-    memcpy: detected field-spanning write (size 28) of single field
-    "&endpoint.addr" at drivers/net/wireguard/netlink.c:446 (size 16)
-
-Fix this by just assigning by using explicit casts for each checked
-case.
-
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reported-by: syzbot+a448cda4dba2dac50de5@syzkaller.appspotmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
+Cc: <stable@vger.kernel.org>
+Reported-by: Stan Lu <stan.lu@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1629189389-18779-5-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/netlink.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireguard/netlink.c b/drivers/net/wireguard/netlink.c
-index d0f3b6d7f408..5c804bcabfe6 100644
---- a/drivers/net/wireguard/netlink.c
-+++ b/drivers/net/wireguard/netlink.c
-@@ -436,14 +436,13 @@ static int set_peer(struct wg_device *wg, struct nlattr **attrs)
- 	if (attrs[WGPEER_A_ENDPOINT]) {
- 		struct sockaddr *addr = nla_data(attrs[WGPEER_A_ENDPOINT]);
- 		size_t len = nla_len(attrs[WGPEER_A_ENDPOINT]);
-+		struct endpoint endpoint = { { { 0 } } };
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -539,10 +539,12 @@ static u32 get_esit_boundary(struct mu3h
+ 	u32 boundary = sch_ep->esit;
  
--		if ((len == sizeof(struct sockaddr_in) &&
--		     addr->sa_family == AF_INET) ||
--		    (len == sizeof(struct sockaddr_in6) &&
--		     addr->sa_family == AF_INET6)) {
--			struct endpoint endpoint = { { { 0 } } };
--
--			memcpy(&endpoint.addr, addr, len);
-+		if (len == sizeof(struct sockaddr_in) && addr->sa_family == AF_INET) {
-+			endpoint.addr4 = *(struct sockaddr_in *)addr;
-+			wg_socket_set_peer_endpoint(peer, &endpoint);
-+		} else if (len == sizeof(struct sockaddr_in6) && addr->sa_family == AF_INET6) {
-+			endpoint.addr6 = *(struct sockaddr_in6 *)addr;
- 			wg_socket_set_peer_endpoint(peer, &endpoint);
- 		}
+ 	if (sch_ep->sch_tt) { /* LS/FS with TT */
+-		/* tune for CS */
+-		if (sch_ep->ep_type != ISOC_OUT_EP)
+-			boundary++;
+-		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
++		/*
++		 * tune for CS, normally esit >= 8 for FS/LS,
++		 * not add one for other types to avoid access array
++		 * out of boundary
++		 */
++		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
+ 			boundary--;
  	}
--- 
-2.35.1
-
+ 
 
 
