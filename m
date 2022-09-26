@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4BD5EA1F0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86D65E9F34
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237009AbiIZLAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34448 "EHLO
+        id S235262AbiIZKVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237280AbiIZK7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B375C968;
-        Mon, 26 Sep 2022 03:30:55 -0700 (PDT)
+        with ESMTP id S235122AbiIZKTj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:19:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF7239BA4;
+        Mon, 26 Sep 2022 03:15:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2613EB8094F;
-        Mon, 26 Sep 2022 10:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C377C43145;
-        Mon, 26 Sep 2022 10:30:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95F7060B7E;
+        Mon, 26 Sep 2022 10:15:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FC89C433C1;
+        Mon, 26 Sep 2022 10:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188226;
-        bh=TPTqPH8lO4PrEtCqgz7vLf7xXCtNmo5sVkmCqzTcWpU=;
+        s=korg; t=1664187352;
+        bh=MRUCR1Lz2qczprGMgNKSmFDlSBGdKaIUwaI0ntVBi7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sP1pscyow0sAFomdZ6nOljMV74w7KL1vlQA+yHwRihmIWEYr7YmbTKV3/p7GebeuG
-         G9pt8PIRGFtRV5ByjDnCBCYTsbDXmG9daeL+Ox6BeW8jsyyQ5J8SfqMAXuOSIntkWu
-         ahj05juouLmItWAkHGsAFUbwwn78zKhyeAyMnwsE=
+        b=a7rPHBMkEV2fQncSf7lMOelUjaHeguBteBylPh7khBB5iLa4Ehjo+GiqMLyh5PIqS
+         f3FqULtZ5yTOGSLt0F3wfV/Wpqnuf6LrzdRteYr8oKiC81gYBGE2sIbX4k1Udb7PqD
+         QFukEeM0tC0gB41rDtHSLo/pHTd2w0VtNlwqCorU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Schocher <hs@denx.de>,
-        Fabio Estevam <festevam@denx.de>, Marek Vasut <marex@denx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/141] drm/panel: simple: Fix innolux_g121i1_l01 bus_format
-Date:   Mon, 26 Sep 2022 12:11:47 +0200
-Message-Id: <20220926100757.391528875@linuxfoundation.org>
+        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 20/40] ALSA: hda/tegra: set depop delay for tegra
+Date:   Mon, 26 Sep 2022 12:11:48 +0200
+Message-Id: <20220926100739.012982173@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Schocher <hs@denx.de>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit a7c48a0ab87ae52c087d663e83e56b8225ac4cce ]
+commit 3c4d8c24fb6c44f426e447b04800b0ed61a7b5ae upstream.
 
-innolux_g121i1_l01 sets bpc to 6, so use the corresponding bus format:
-MEDIA_BUS_FMT_RGB666_1X7X3_SPWG.
+Reduce the suspend time by setting depop delay to 10ms for
+tegra.
 
-Fixes: 4ae13e486866 ("drm/panel: simple: Add more properties to Innolux G121I1-L01")
-Signed-off-by: Heiko Schocher <hs@denx.de>
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220826165021.1592532-1-festevam@denx.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913053641.23299-1-mkumard@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index bf2c845ef3a2..b7b37082a9d7 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2201,7 +2201,7 @@ static const struct panel_desc innolux_g121i1_l01 = {
- 		.enable = 200,
- 		.disable = 20,
- 	},
--	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
-+	.bus_format = MEDIA_BUS_FMT_RGB666_1X7X3_SPWG,
- 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
- };
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3422,6 +3422,7 @@ static int patch_tegra_hdmi(struct hda_c
+ 	if (err)
+ 		return err;
  
--- 
-2.35.1
-
++	codec->depop_delay = 10;
+ 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
+ 	spec = codec->spec;
+ 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
 
 
