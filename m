@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CC25E9F02
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3FE55EA4CF
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235123AbiIZKRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
+        id S235186AbiIZLxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:53:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234509AbiIZKQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:16:57 -0400
+        with ESMTP id S238601AbiIZLwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:52:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B2315A24;
-        Mon, 26 Sep 2022 03:14:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3D945754C;
+        Mon, 26 Sep 2022 03:49:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9A28B80921;
-        Mon, 26 Sep 2022 10:14:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05C11C433D6;
-        Mon, 26 Sep 2022 10:14:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B928B80185;
+        Mon, 26 Sep 2022 10:47:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70244C433C1;
+        Mon, 26 Sep 2022 10:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187278;
-        bh=P/jPu5lRTU5KAlw0BfvfSuAKw0KPbUzxhtuOZH99Lpk=;
+        s=korg; t=1664189271;
+        bh=STN83xp9evJqJZLuHCkw/lnhnKc/4/65pi4u/jxUtL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+VwhgMxkv/pozO2r5WADI3x959mQBVwkaWKqK/WEDOrIz+FqYREu0jxJya9Cp/mx
-         5ujp8HcgdYvMHQbBgrfu0IAhYP33rNVqh9uiWt83YIhRu5xg1m2qcicbDSd4uYA07g
-         gGWCcb7x5UHZuRIVa6O6Cy8pNfXhltaGfyBiw9WM=
+        b=OmqE4zLP/ChAG/2vvubjZZt0pruflxHRqzG0NnPpcs39G9/DVrPxJIgzOsp+c8CKV
+         2hg6BBPBVTWY8NOZT5SXJngSJFks6cLslTYY4mBEoPISqYsflrRQ00q4KcLYhxqD9M
+         IreD0VjOoX6qPOnaaFRfqvuUcTLg/4CxiHm0odTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.9 27/30] serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Kees Cook <keescook@chromium.org>,
+        syzbot+a448cda4dba2dac50de5@syzkaller.appspotmail.com,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 129/207] wireguard: netlink: avoid variable-sized memcpy on sockaddr
 Date:   Mon, 26 Sep 2022 12:11:58 +0200
-Message-Id: <20220926100737.111078157@linuxfoundation.org>
+Message-Id: <20220926100812.320737292@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 754f68044c7dd6c52534ba3e0f664830285c4b15 upstream.
+[ Upstream commit 26c013108c12b94bc023bf19198a4300596c98b1 ]
 
-DMA complete & stop paths did not correctly account Tx'ed characters
-into icount.tx. Using uart_xmit_advance() fixes the problem.
+Doing a variable-sized memcpy is slower, and the compiler isn't smart
+enough to turn this into a constant-size assignment.
 
-Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
-Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220901143934.8850-3-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Further, Kees' latest fortified memcpy will actually bark, because the
+destination pointer is type sockaddr, not explicitly sockaddr_in or
+sockaddr_in6, so it thinks there's an overflow:
+
+    memcpy: detected field-spanning write (size 28) of single field
+    "&endpoint.addr" at drivers/net/wireguard/netlink.c:446 (size 16)
+
+Fix this by just assigning by using explicit casts for each checked
+case.
+
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reported-by: syzbot+a448cda4dba2dac50de5@syzkaller.appspotmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/wireguard/netlink.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -409,7 +409,7 @@ static void tegra_uart_tx_dma_complete(v
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	spin_lock_irqsave(&tup->uport.lock, flags);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(&tup->uport);
-@@ -493,7 +493,6 @@ static unsigned int tegra_uart_tx_empty(
- static void tegra_uart_stop_tx(struct uart_port *u)
- {
- 	struct tegra_uart_port *tup = to_tegra_uport(u);
--	struct circ_buf *xmit = &tup->uport.state->xmit;
- 	struct dma_tx_state state;
- 	unsigned int count;
+diff --git a/drivers/net/wireguard/netlink.c b/drivers/net/wireguard/netlink.c
+index d0f3b6d7f408..5c804bcabfe6 100644
+--- a/drivers/net/wireguard/netlink.c
++++ b/drivers/net/wireguard/netlink.c
+@@ -436,14 +436,13 @@ static int set_peer(struct wg_device *wg, struct nlattr **attrs)
+ 	if (attrs[WGPEER_A_ENDPOINT]) {
+ 		struct sockaddr *addr = nla_data(attrs[WGPEER_A_ENDPOINT]);
+ 		size_t len = nla_len(attrs[WGPEER_A_ENDPOINT]);
++		struct endpoint endpoint = { { { 0 } } };
  
-@@ -504,7 +503,7 @@ static void tegra_uart_stop_tx(struct ua
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- }
- 
+-		if ((len == sizeof(struct sockaddr_in) &&
+-		     addr->sa_family == AF_INET) ||
+-		    (len == sizeof(struct sockaddr_in6) &&
+-		     addr->sa_family == AF_INET6)) {
+-			struct endpoint endpoint = { { { 0 } } };
+-
+-			memcpy(&endpoint.addr, addr, len);
++		if (len == sizeof(struct sockaddr_in) && addr->sa_family == AF_INET) {
++			endpoint.addr4 = *(struct sockaddr_in *)addr;
++			wg_socket_set_peer_endpoint(peer, &endpoint);
++		} else if (len == sizeof(struct sockaddr_in6) && addr->sa_family == AF_INET6) {
++			endpoint.addr6 = *(struct sockaddr_in6 *)addr;
+ 			wg_socket_set_peer_endpoint(peer, &endpoint);
+ 		}
+ 	}
+-- 
+2.35.1
+
 
 
