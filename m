@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA225EA4A2
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2A8F5EA270
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235086AbiIZLtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50880 "EHLO
+        id S237229AbiIZLHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238773AbiIZLrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:47:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67E3B74DF4;
-        Mon, 26 Sep 2022 03:47:45 -0700 (PDT)
+        with ESMTP id S237360AbiIZLGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:06:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9D950047;
+        Mon, 26 Sep 2022 03:34:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 914FB60A37;
-        Mon, 26 Sep 2022 10:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05CEC433D7;
-        Mon, 26 Sep 2022 10:47:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83708609FB;
+        Mon, 26 Sep 2022 10:32:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84748C433D7;
+        Mon, 26 Sep 2022 10:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189263;
-        bh=ZmKY2Sdv8dFo4Uiq2WCxXNdpELsTk6liyF6+9D2rwtk=;
+        s=korg; t=1664188350;
+        bh=AVRsrIsgiC9iOeuJ9kYUi3jx3bvONckuSF+If+EI2rM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfRlPvmW6vWuNnxcQaNANvcRx1lzIDASPOUaQBKWagv5muZynrNE363GLD93lvwCm
-         AZnJ7cYfiFSPwfljD77QbYen9Yu6oWd2QPDqD86e7DPm8UWa8aeXbz5z41N0PTd1iB
-         eOFRmxUuk2YMrbF595AAN1U7rhvAJ+X5V52FJw6c=
+        b=U+aOkYGe3WKaM1a3S+3lGwDobCsX9mGLWElfOAjKFqVZMbECTCzvNbP18oqZkHNe6
+         c292DMFTHYdPnqg7xBE6fj+Vt6KEnjSdDJXQEPFkn/paLRF5hX9YX7S+hrWEZFqSJi
+         yEBvrsJLYX44Nzvp3LN/5t/H9ok3DtMRujB2lvrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 127/207] sfc/siena: fix null pointer dereference in efx_hard_start_xmit
+Subject: [PATCH 5.10 090/141] drm/hisilicon/hibmc: Allow to be built if COMPILE_TEST is enabled
 Date:   Mon, 26 Sep 2022 12:11:56 +0200
-Message-Id: <20220926100812.239218464@linuxfoundation.org>
+Message-Id: <20220926100757.691723943@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 589c6eded10c77a12b7b2cf235b6b19a2bdb91fa ]
+[ Upstream commit a0f25a6bb319aa05e04dcf51707c97c2881b4f47 ]
 
-Like in previous patch for sfc, prevent potential (but unlikely) NULL
-pointer dereference.
+The commit feeb07d0ca5a ("drm/hisilicon/hibmc: Make CONFIG_DRM_HISI_HIBMC
+depend on ARM64") made the driver Kconfig symbol to depend on ARM64 since
+it only supports that architecture and loading the module on others would
+lead to incorrect video modes being used.
 
-Fixes: 12804793b17c ("sfc: decouple TXQ type from label")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Link: https://lore.kernel.org/r/20220915141958.16458-1-ihuguet@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+But it also prevented the driver to be built on other architectures which
+is useful to have compile test coverage when doing subsystem wide changes.
+
+Make the dependency instead to be (ARM64 || COMPILE_TEST), so the driver
+is buildable when the CONFIG_COMPILE_TEST option is enabled.
+
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211216210936.3329977-1-javierm@redhat.com
+Stable-dep-of: d8a79c030549 ("drm/hisilicon: Add depends on MMU")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/siena/tx.c | 2 +-
+ drivers/gpu/drm/hisilicon/hibmc/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/siena/tx.c b/drivers/net/ethernet/sfc/siena/tx.c
-index e166dcb9b99c..91e87594ed1e 100644
---- a/drivers/net/ethernet/sfc/siena/tx.c
-+++ b/drivers/net/ethernet/sfc/siena/tx.c
-@@ -336,7 +336,7 @@ netdev_tx_t efx_siena_hard_start_xmit(struct sk_buff *skb,
- 		 * previous packets out.
- 		 */
- 		if (!netdev_xmit_more())
--			efx_tx_send_pending(tx_queue->channel);
-+			efx_tx_send_pending(efx_get_tx_channel(efx, index));
- 		return NETDEV_TX_OK;
- 	}
- 
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/Kconfig b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+index 43943e980203..073adfe438dd 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/Kconfig
++++ b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config DRM_HISI_HIBMC
+ 	tristate "DRM Support for Hisilicon Hibmc"
+-	depends on DRM && PCI && ARM64
++	depends on DRM && PCI && (ARM64 || COMPILE_TEST)
+ 	select DRM_KMS_HELPER
+ 	select DRM_VRAM_HELPER
+ 	select DRM_TTM
 -- 
 2.35.1
 
