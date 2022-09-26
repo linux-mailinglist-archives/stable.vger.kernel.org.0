@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CEE5EA425
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4D85EA173
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238208AbiIZLlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:41:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35032 "EHLO
+        id S236641AbiIZKvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:51:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238213AbiIZLkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:40:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB8754CAB;
-        Mon, 26 Sep 2022 03:45:16 -0700 (PDT)
+        with ESMTP id S236978AbiIZKuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:50:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A563D58520;
+        Mon, 26 Sep 2022 03:27:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A695760B4A;
-        Mon, 26 Sep 2022 10:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA022C433D6;
-        Mon, 26 Sep 2022 10:44:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D5EA601D2;
+        Mon, 26 Sep 2022 10:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3139AC433C1;
+        Mon, 26 Sep 2022 10:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189048;
-        bh=7JnsuAXEvBceyJsJFdQODT+KhmgkDfvrhwdZoOUtVDw=;
+        s=korg; t=1664188032;
+        bh=NEZTy+BKfXvX5oTntyTl1H1SF2mGN6DXR21RV/cXAjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUOOOqZhldmHl1SXzNHmLVUn2jhpB5MoiIqFM5nwDMu6KlWgbEkZTagGIEPHeEtIy
-         EMrUeySG5A+weh2B9yTEu300cQUTaWMwS3QoGkVgB2Wf3HYWgsBxBbTQOtrOgX2Wg7
-         2Lpx88awrJkuwTRXiz7Vf67bw/SSGZb/5BjQMVMM=
+        b=zEcnxuTPBVU7Loc1h24J/Oq5/uIdsF5NhifOjONPWlvDLk8/vv1klX+M8ZwgyvEuL
+         4K7qg5mNKCDl1OQzHgQij3jaHbFtLXD8NFmNK0s4safff7r92YDk3j9vx/tXEn6unz
+         bd3MKdFYg1vp/Q6afK3Ngd3naMUULpMRofJCtSYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@kernel.org
-Subject: [PATCH 5.19 056/207] drm/i915/gem: Flush contexts on driver release
+        stable@vger.kernel.org, Ikjoon Jang <ikjn@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 019/141] usb: xhci-mtk: relax TT periodic bandwidth allocation
 Date:   Mon, 26 Sep 2022 12:10:45 +0200
-Message-Id: <20220926100809.117685854@linuxfoundation.org>
+Message-Id: <20220926100755.270440341@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+From: Ikjoon Jang <ikjn@chromium.org>
 
-commit 5ce8f7444f8fbb5adee644590c0e4e1890ab004c upstream.
+[ Upstream commit 548011957d1d72e0b662300c8b32b81d593b796e ]
 
-Due to i915_perf assuming that it can use the i915_gem_context reference
-to protect its i915->gem.contexts.list iteration, we need to defer removal
-of the context from the list until last reference to the context is put.
-However, there is a risk of triggering kernel warning on contexts list not
-empty at driver release time if we deleagate that task to a worker for
-i915_gem_context_release_work(), unless that work is flushed first.
-Unfortunately, it is not flushed on driver release.  Fix it.
+Currently xhci-mtk needs software-managed bandwidth allocation for
+periodic endpoints, it allocates the microframe index for the first
+start-split packet for each endpoint. As this index allocation logic
+should avoid the conflicts with other full/low-speed periodic endpoints,
+it uses the worst case byte budgets on high-speed bus bandwidth
+For example, for an isochronos IN endpoint with 192 bytes budget,
+it will consume the whole 4 u-frames(188 * 4) while the actual
+full-speed bus budget should be just 192bytes.
 
-Instead of additionally calling flush_workqueue(), either directly or via
-a new dedicated wrapper around it, replace last call to
-i915_gem_drain_freed_objects() with existing i915_gem_drain_workqueue()
-that performs both tasks.
+This patch changes the low/full-speed bandwidth allocation logic
+to use "approximate" best case budget for lower speed bandwidth
+management. For the same endpoint from the above example, the
+approximate best case budget is now reduced to (188 * 2) bytes.
 
-Fixes: 75eefd82581f ("drm/i915: Release i915_gem_context from a worker")
-Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Cc: stable@kernel.org # v5.16+
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916092403.201355-2-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit 1cec34442408a77ba5396b19725fed2c398005c3)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Without this patch, many usb audio headsets with 3 interfaces
+(audio input, audio output, and HID) cannot be configured
+on xhci-mtk.
+
+Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
+Link: https://lore.kernel.org/r/20210805133937.1.Ia8174b875bc926c12ce427a5a1415dea31cc35ae@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_gem.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-mtk-sch.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -1191,7 +1191,8 @@ void i915_gem_driver_release(struct drm_
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index f048af9c5335..4a7b200674ea 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -408,16 +408,17 @@ static int check_fs_bus_bw(struct mu3h_sch_ep_info *sch_ep, int offset)
+ 	u32 num_esit, tmp;
+ 	int base;
+ 	int i, j;
++	u8 uframes = DIV_ROUND_UP(sch_ep->maxpkt, FS_PAYLOAD_MAX);
  
- 	intel_uc_cleanup_firmwares(&to_gt(dev_priv)->uc);
+ 	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
++
++	if (sch_ep->ep_type == INT_IN_EP || sch_ep->ep_type == ISOC_IN_EP)
++		offset++;
++
+ 	for (i = 0; i < num_esit; i++) {
+ 		base = offset + i * sch_ep->esit;
  
--	i915_gem_drain_freed_objects(dev_priv);
-+	/* Flush any outstanding work, including i915_gem_context.release_work. */
-+	i915_gem_drain_workqueue(dev_priv);
+-		/*
+-		 * Compared with hs bus, no matter what ep type,
+-		 * the hub will always delay one uframe to send data
+-		 */
+-		for (j = 0; j < sch_ep->cs_count; j++) {
++		for (j = 0; j < uframes; j++) {
+ 			tmp = tt->fs_bus_bw[base + j] + sch_ep->bw_cost_per_microframe;
+ 			if (tmp > FS_PAYLOAD_MAX)
+ 				return -ESCH_BW_OVERFLOW;
+@@ -494,6 +495,8 @@ static void update_sch_tt(struct usb_device *udev,
+ 	u32 base, num_esit;
+ 	int bw_updated;
+ 	int i, j;
++	int offset = sch_ep->offset;
++	u8 uframes = DIV_ROUND_UP(sch_ep->maxpkt, FS_PAYLOAD_MAX);
  
- 	drm_WARN_ON(&dev_priv->drm, !list_empty(&dev_priv->gem.contexts.list));
- }
+ 	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
+ 
+@@ -502,10 +505,13 @@ static void update_sch_tt(struct usb_device *udev,
+ 	else
+ 		bw_updated = -sch_ep->bw_cost_per_microframe;
+ 
++	if (sch_ep->ep_type == INT_IN_EP || sch_ep->ep_type == ISOC_IN_EP)
++		offset++;
++
+ 	for (i = 0; i < num_esit; i++) {
+-		base = sch_ep->offset + i * sch_ep->esit;
++		base = offset + i * sch_ep->esit;
+ 
+-		for (j = 0; j < sch_ep->cs_count; j++)
++		for (j = 0; j < uframes; j++)
+ 			tt->fs_bus_bw[base + j] += bw_updated;
+ 	}
+ 
+-- 
+2.35.1
+
 
 
