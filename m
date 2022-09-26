@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77FB95EA0CF
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5560A5E9FBF
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236350AbiIZKlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:41:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        id S235545AbiIZK3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236211AbiIZKkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:40:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A439E543DE;
-        Mon, 26 Sep 2022 03:24:03 -0700 (PDT)
+        with ESMTP id S235352AbiIZK1r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:27:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529A24DF1F;
+        Mon, 26 Sep 2022 03:18:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC92760A5C;
-        Mon, 26 Sep 2022 10:23:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDC0EC433C1;
-        Mon, 26 Sep 2022 10:23:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52823B8093B;
+        Mon, 26 Sep 2022 10:18:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88813C433D6;
+        Mon, 26 Sep 2022 10:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187795;
-        bh=b6qvDLbU9WXzBEoN8ULEK7TzDkyXP7uu1A+Izne3E/0=;
+        s=korg; t=1664187519;
+        bh=4rwkvD/DNcjNXfcsWGkTsOeqnSDE+8I7hUNF1BK6CT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c66mOm+OprdHFsebIFeLJ9Ap7gTaN1+FxjEEt5KFXMM/au6DIhHTH3KEtTRD5rkeO
-         TTUkuYqnXRGaK4/CsDNbS1F9kzCDbdtTFJg12aDjNRUtFSHjNCL0TBTL1OZxUoZBDK
-         Ikr+A9jz6UaLJWJNb6l3nXCV37FlFvFKiIhymVx8=
+        b=utQ1AlSFcPw0HyY7HPmnQYcV1Q4ZHQRlGk5ZoQFFt8KK/Vj9zrMRij4ltMtpJ1jlm
+         sLei4jx2w16w7WHg5GHD3sjfmZBGDrfR81X+diIzk4JwJTbDh8TbCaidKPrJmLQKR9
+         w17hYyQCX+ezWohxCBL7cmebZCdIExU3DZV6Tf+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 062/120] ALSA: hda/realtek: Add quirk for ASUS GA503R laptop
+        stable@vger.kernel.org, Youling Tang <tangyouling@loongson.cn>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/58] mksysmap: Fix the mismatch of L0 symbols in System.map
 Date:   Mon, 26 Sep 2022 12:11:35 +0200
-Message-Id: <20220926100753.231330587@linuxfoundation.org>
+Message-Id: <20220926100742.028511893@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Youling Tang <tangyouling@loongson.cn>
 
-commit ba1f818053b0668a1ce2fe86b840e81b592cc560 upstream.
+[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
 
-The ASUS G15 2022 (GA503R) series laptop has the same node-to-DAC pairs
-as early models and the G14, this includes bass speakers which are by
-default mapped incorrectly to the 0x06 node.
+When System.map was generated, the kernel used mksysmap to filter the
+kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
 
-Add a quirk to use the same DAC pairs as the G14.
+$ cat System.map | grep L0
+9000000000221540 t L0
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220915080921.35563-4-luke@ljones.dev
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The L0 symbol exists in System.map, but not in .tmp_System.map. When
+"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
+data" error message in link-vmlinux.sh script.
+
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8276,6 +8276,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e5e, "ASUS ROG Strix G513", ALC294_FIXUP_ASUS_G513_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
-+	SND_PCI_QUIRK(0x1043, 0x1c52, "ASUS Zephyrus G15 2022", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
- 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index 9aa23d15862a..ad8bbc52267d 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
+ 
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
+-- 
+2.35.1
+
 
 
