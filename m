@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F045EA011
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A36C5EA310
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235689AbiIZKdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:33:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60352 "EHLO
+        id S233701AbiIZLTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:19:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235675AbiIZKc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:32:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318C82250C;
-        Mon, 26 Sep 2022 03:20:15 -0700 (PDT)
+        with ESMTP id S234376AbiIZLSJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C766610D;
+        Mon, 26 Sep 2022 03:38:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70F6960BAF;
-        Mon, 26 Sep 2022 10:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6941EC433C1;
-        Mon, 26 Sep 2022 10:20:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F325A60BB7;
+        Mon, 26 Sep 2022 10:31:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B105C433C1;
+        Mon, 26 Sep 2022 10:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187602;
-        bh=75DfJ5Yqg1z2SFT3L+O7MKMIFpGoOqNpgcehWq6lixc=;
+        s=korg; t=1664188304;
+        bh=gvkZWypXOh4rePqQv6nflT5PDiq3Lx826yWj1qul/5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIYqc2LMs/2lqB3N8UKZJjg+8lXWEkC9iq9ffMP5rj6mP34SpAZJz91RbMdc3N+tA
-         51M+AHb3iycGfUMmuiFPhVtdeTJ8BcI5LgSP9ZpE1vUTu+gP/TvWx0p69xQZHM+6KI
-         SBcFGmW6CxfSrojF9gIKhJ9Eqndl1AytlFq2tyy0=
+        b=NnWgKIXD8NkX5xq6s4w4asWUT9JVDMC9zWUG08elYL/xKd5+U/T7ixAZh0kkA2LzK
+         RJu6d/T5985tKarYTlRY+tl1UO+YdJnHPhf1VCxe7bhEUJXQ6ddzm4LxqPWNwHDN1K
+         P46Bm7GDZMp+B4U1OCBR6Suzaw7841qK97kLd4OI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 52/58] s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
-Date:   Mon, 26 Sep 2022 12:12:11 +0200
-Message-Id: <20220926100743.366856012@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 106/141] netfilter: nf_tables: fix percpu memory leak at nf_tables_addchain()
+Date:   Mon, 26 Sep 2022 12:12:12 +0200
+Message-Id: <20220926100758.282294291@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit db7ba07108a48c0f95b74fabbfd5d63e924f992d upstream.
+[ Upstream commit 9a4d6dd554b86e65581ef6b6638a39ae079b17ac ]
 
-Fix Oops in dasd_alias_get_start_dev() function caused by the pavgroup
-pointer being NULL.
+It seems to me that percpu memory for chain stats started leaking since
+commit 3bc158f8d0330f0a ("netfilter: nf_tables: map basechain priority to
+hardware priority") when nft_chain_offload_priority() returned an error.
 
-The pavgroup pointer is checked on the entrance of the function but
-without the lcu->lock being held. Therefore there is a race window
-between dasd_alias_get_start_dev() and _lcu_update() which sets
-pavgroup to NULL with the lcu->lock held.
-
-Fix by checking the pavgroup pointer with lcu->lock held.
-
-Cc: <stable@vger.kernel.org> # 2.6.25+
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220919154931.4123002-2-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 3bc158f8d0330f0a ("netfilter: nf_tables: map basechain priority to hardware priority")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_alias.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -675,12 +675,12 @@ int dasd_alias_remove_device(struct dasd
- struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- {
- 	struct dasd_eckd_private *alias_priv, *private = base_device->private;
--	struct alias_pav_group *group = private->pavgroup;
- 	struct alias_lcu *lcu = private->lcu;
- 	struct dasd_device *alias_device;
-+	struct alias_pav_group *group;
- 	unsigned long flags;
- 
--	if (!group || !lcu)
-+	if (!lcu)
- 		return NULL;
- 	if (lcu->pav == NO_PAV ||
- 	    lcu->flags & (NEED_UAC_UPDATE | UPDATE_PENDING))
-@@ -697,6 +697,11 @@ struct dasd_device *dasd_alias_get_start
- 	}
- 
- 	spin_lock_irqsave(&lcu->lock, flags);
-+	group = private->pavgroup;
-+	if (!group) {
-+		spin_unlock_irqrestore(&lcu->lock, flags);
-+		return NULL;
-+	}
- 	alias_device = group->next;
- 	if (!alias_device) {
- 		if (list_empty(&group->aliaslist)) {
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index d65c47bcbfc9..810995d712ac 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2045,6 +2045,7 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		if (err < 0) {
+ 			nft_chain_release_hook(&hook);
+ 			kfree(basechain);
++			free_percpu(stats);
+ 			return err;
+ 		}
+ 		if (stats)
+-- 
+2.35.1
+
 
 
