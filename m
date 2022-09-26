@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 540285EA38A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BED5D5EA394
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237954AbiIZL1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35276 "EHLO
+        id S233482AbiIZL1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:27:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234847AbiIZL0Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:26:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BABC69F4A;
-        Mon, 26 Sep 2022 03:40:48 -0700 (PDT)
+        with ESMTP id S237940AbiIZL0v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:26:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEBC6A489;
+        Mon, 26 Sep 2022 03:41:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E96BD609FE;
-        Mon, 26 Sep 2022 10:40:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5914C433D6;
-        Mon, 26 Sep 2022 10:40:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8808B80688;
+        Mon, 26 Sep 2022 10:40:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DBD8C433D6;
+        Mon, 26 Sep 2022 10:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188847;
-        bh=p308GEKL87lFJ0U7hsKmHpyPZR1lRw7skm/TfB2cL2M=;
+        s=korg; t=1664188850;
+        bh=3qMiBviQLJD7UsBBT4SvQ9/507KRJ/0h50pF7lkKJlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuHlKXhZbIAHBmVBkAccjAayF6SWl3sQQZ15IR3QcsDASjpPC48EXE5ElRyQAwYGu
-         4LaaJRR43i+m5FKUmoeNOqWd2fblt5hwhMSh//3op+6jL9ZMk9qaSYvjkhF6pqEGSJ
-         RTPFonfz7dHPHUdE+kdRR2SUEOQhT5kICH8ezjT0=
+        b=UBTowmvbx667AbIZDceFdPeEstaUW7k9IebI4PFLGvqnnk9el75jrPT9rAVDsajwf
+         IHd9LBpxqLCzY/E71AAr3Wf9ZPywihm4RHIbHrDGIsK9tj+zQgdktS3LtL1zkcZfzY
+         kXOVgRyorVccznvRHG2d87F76gH9vF6bxmSc9soE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 140/148] drm/amdgpu: dont register a dirty callback for non-atomic
-Date:   Mon, 26 Sep 2022 12:12:54 +0200
-Message-Id: <20220926100801.461684305@linuxfoundation.org>
+        stable@vger.kernel.org, David Wysochanski <dwysocha@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: [PATCH 5.15 141/148] NFSv4: Fixes for nfs4_inode_return_delegation()
+Date:   Mon, 26 Sep 2022 12:12:55 +0200
+Message-Id: <20220926100801.499600091@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
 References: <20220926100756.074519146@linuxfoundation.org>
@@ -55,59 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit abbc7a3dafb91b9d4ec56b70ec9a7520f8e13334 ]
+commit 6e176d47160cec8bcaa28d9aa06926d72d54237c upstream.
 
-Some asics still support non-atomic code paths.
+We mustn't call nfs_wb_all() on anything other than a regular file.
+Furthermore, we can exit early when we don't hold a delegation.
 
-Fixes: 66f99628eb2440 ("drm/amdgpu: use dirty framebuffer helper")
-Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
-Reviewed-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: David Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/nfs/delegation.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index 47fb722ab374..d3d2c214554e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -36,6 +36,7 @@
- #include <linux/pm_runtime.h>
- #include <drm/drm_crtc_helper.h>
- #include <drm/drm_damage_helper.h>
-+#include <drm/drm_drv.h>
- #include <drm/drm_edid.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_fb_helper.h>
-@@ -491,6 +492,11 @@ bool amdgpu_display_ddc_probe(struct amdgpu_connector *amdgpu_connector,
- static const struct drm_framebuffer_funcs amdgpu_fb_funcs = {
- 	.destroy = drm_gem_fb_destroy,
- 	.create_handle = drm_gem_fb_create_handle,
-+};
-+
-+static const struct drm_framebuffer_funcs amdgpu_fb_funcs_atomic = {
-+	.destroy = drm_gem_fb_destroy,
-+	.create_handle = drm_gem_fb_create_handle,
- 	.dirty = drm_atomic_helper_dirtyfb,
- };
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -755,11 +755,13 @@ int nfs4_inode_return_delegation(struct
+ 	struct nfs_delegation *delegation;
  
-@@ -1111,7 +1117,10 @@ int amdgpu_display_gem_fb_verify_and_init(
- 	if (ret)
- 		goto err;
+ 	delegation = nfs_start_delegation_return(nfsi);
+-	/* Synchronous recall of any application leases */
+-	break_lease(inode, O_WRONLY | O_RDWR);
+-	nfs_wb_all(inode);
+-	if (delegation != NULL)
++	if (delegation != NULL) {
++		/* Synchronous recall of any application leases */
++		break_lease(inode, O_WRONLY | O_RDWR);
++		if (S_ISREG(inode->i_mode))
++			nfs_wb_all(inode);
+ 		return nfs_end_delegation_return(inode, delegation, 1);
++	}
+ 	return 0;
+ }
  
--	ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs);
-+	if (drm_drv_uses_atomic_modeset(dev))
-+		ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs_atomic);
-+	else
-+		ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs);
- 	if (ret)
- 		goto err;
- 
--- 
-2.35.1
-
 
 
