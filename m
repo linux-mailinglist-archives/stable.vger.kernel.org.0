@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7600F5EA16A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F6A5EA276
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236261AbiIZKux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37274 "EHLO
+        id S233244AbiIZLIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:08:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236805AbiIZKt2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2106657E3A;
-        Mon, 26 Sep 2022 03:26:46 -0700 (PDT)
+        with ESMTP id S237305AbiIZLHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:07:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DE751402;
+        Mon, 26 Sep 2022 03:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F367560B60;
-        Mon, 26 Sep 2022 10:26:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 046B7C433C1;
-        Mon, 26 Sep 2022 10:26:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6CFCB80942;
+        Mon, 26 Sep 2022 10:34:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60649C433D6;
+        Mon, 26 Sep 2022 10:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188004;
-        bh=HB4HQg8p6iR1xwdOY6Vvs6qH4r8fom0AKnci64txzYY=;
+        s=korg; t=1664188458;
+        bh=h62uxua1+0TpFbufiuCzOyC10k0JkQvNcXqCkOcpJsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sLyuMCNnacrL9EuCEMlzdU2xmv/ExcwRC+StIOtQlUeeduguKp35HneqscmjeXbg2
-         bqbvsTwCCMW415RA+JXBqYAUPygE3cCP3qYs0xClfGkmk7lFWrDHp3Mel/x6cVQ7Xp
-         kYYFQnMFsAsX7/c+svq3HytX0JERvXGeEJjq4qZk=
+        b=xd34K33r6Af4uK5CxIC0C6ULgEY28qtxL+Hk5ENdUcLWZkwQMc99Ss+I4OsQMsqyi
+         3hQuIhFKBexZ1ghkJTIkNk7tk9D7WAI1yOvJR7vwhrzE58VKdmUhxQ6GOBmhieR2Zw
+         KGPpsSmrHUE2C88LpfDnOcGAEwFN8AUMwJ/a99cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/141] usb: dwc3: gadget: Refactor pullup()
+Subject: [PATCH 5.15 002/148] drm/amdgpu: make sure to init common IP before gmc
 Date:   Mon, 26 Sep 2022 12:10:36 +0200
-Message-Id: <20220926100754.977549412@linuxfoundation.org>
+Message-Id: <20220926100756.158888817@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 861c010a2ee1bc4a66d23f0da4aa22e75d8eaa24 ]
+[ Upstream commit a8671493d2074950553da3cf07d1be43185ef6c6 ]
 
-Move soft-disconnect sequence out of dwc3_gadget_pullup(). No
-functional change here.
+Move common IP init before GMC init so that HDP gets
+remapped before GMC init which uses it.
 
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/4c0f259b17d95acaaa931f90276683a48a32fe22.1650593829.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 040f2dbd2010 ("usb: dwc3: gadget: Avoid duplicate requests to enable Run/Stop")
+This fixes the Unsupported Request error reported through
+AER during driver load. The error happens as a write happens
+to the remap offset before real remapping is done.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216373
+
+The error was unnoticed before and got visible because of the commit
+referenced below. This doesn't fix anything in the commit below, rather
+fixes the issue in amdgpu exposed by the commit. The reference is only
+to associate this commit with below one so that both go together.
+
+Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 65 ++++++++++++++++++++++-----------------
- 1 file changed, 36 insertions(+), 29 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 3820dff0387a..bd1050f75558 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2120,6 +2120,40 @@ static void dwc3_gadget_disable_irq(struct dwc3 *dwc);
- static void __dwc3_gadget_stop(struct dwc3 *dwc);
- static int __dwc3_gadget_start(struct dwc3 *dwc);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index f443b4630f9d..7450773821f4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2388,8 +2388,16 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
+ 		}
+ 		adev->ip_blocks[i].status.sw = true;
  
-+static int dwc3_gadget_soft_disconnect(struct dwc3 *dwc)
-+{
-+	u32 count;
-+
-+	dwc->connected = false;
-+
-+	/*
-+	 * In the Synopsys DesignWare Cores USB3 Databook Rev. 3.30a
-+	 * Section 4.1.8 Table 4-7, it states that for a device-initiated
-+	 * disconnect, the SW needs to ensure that it sends "a DEPENDXFER
-+	 * command for any active transfers" before clearing the RunStop
-+	 * bit.
-+	 */
-+	dwc3_stop_active_transfers(dwc);
-+	__dwc3_gadget_stop(dwc);
-+
-+	/*
-+	 * In the Synopsys DesignWare Cores USB3 Databook Rev. 3.30a
-+	 * Section 1.3.4, it mentions that for the DEVCTRLHLT bit, the
-+	 * "software needs to acknowledge the events that are generated
-+	 * (by writing to GEVNTCOUNTn) while it is waiting for this bit
-+	 * to be set to '1'."
-+	 */
-+	count = dwc3_readl(dwc->regs, DWC3_GEVNTCOUNT(0));
-+	count &= DWC3_GEVNTCOUNT_MASK;
-+	if (count > 0) {
-+		dwc3_writel(dwc->regs, DWC3_GEVNTCOUNT(0), count);
-+		dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
-+			dwc->ev_buf->length;
-+	}
-+
-+	return dwc3_gadget_run_stop(dwc, false, false);
-+}
-+
- static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
- {
- 	struct dwc3		*dwc = gadget_to_dwc(g);
-@@ -2176,33 +2210,7 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
- 	spin_lock_irqsave(&dwc->lock, flags);
+-		/* need to do gmc hw init early so we can allocate gpu mem */
+-		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC) {
++		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_COMMON) {
++			/* need to do common hw init early so everything is set up for gmc */
++			r = adev->ip_blocks[i].version->funcs->hw_init((void *)adev);
++			if (r) {
++				DRM_ERROR("hw_init %d failed %d\n", i, r);
++				goto init_failed;
++			}
++			adev->ip_blocks[i].status.hw = true;
++		} else if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC) {
++			/* need to do gmc hw init early so we can allocate gpu mem */
+ 			/* Try to reserve bad pages early */
+ 			if (amdgpu_sriov_vf(adev))
+ 				amdgpu_virt_exchange_data(adev);
+@@ -3037,8 +3045,8 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
+ 	int i, r;
  
- 	if (!is_on) {
--		u32 count;
--
--		dwc->connected = false;
--		/*
--		 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
--		 * Section 4.1.8 Table 4-7, it states that for a device-initiated
--		 * disconnect, the SW needs to ensure that it sends "a DEPENDXFER
--		 * command for any active transfers" before clearing the RunStop
--		 * bit.
--		 */
--		dwc3_stop_active_transfers(dwc);
--		__dwc3_gadget_stop(dwc);
--
--		/*
--		 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
--		 * Section 1.3.4, it mentions that for the DEVCTRLHLT bit, the
--		 * "software needs to acknowledge the events that are generated
--		 * (by writing to GEVNTCOUNTn) while it is waiting for this bit
--		 * to be set to '1'."
--		 */
--		count = dwc3_readl(dwc->regs, DWC3_GEVNTCOUNT(0));
--		count &= DWC3_GEVNTCOUNT_MASK;
--		if (count > 0) {
--			dwc3_writel(dwc->regs, DWC3_GEVNTCOUNT(0), count);
--			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
--						dwc->ev_buf->length;
--		}
-+		ret = dwc3_gadget_soft_disconnect(dwc);
- 	} else {
- 		/*
- 		 * In the Synopsys DWC_usb31 1.90a programming guide section
-@@ -2216,9 +2224,8 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
- 
- 		dwc3_event_buffers_setup(dwc);
- 		__dwc3_gadget_start(dwc);
-+		ret = dwc3_gadget_run_stop(dwc, true, false);
- 	}
--
--	ret = dwc3_gadget_run_stop(dwc, is_on, false);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
- 	enable_irq(dwc->irq_gadget);
- 
+ 	static enum amd_ip_block_type ip_order[] = {
+-		AMD_IP_BLOCK_TYPE_GMC,
+ 		AMD_IP_BLOCK_TYPE_COMMON,
++		AMD_IP_BLOCK_TYPE_GMC,
+ 		AMD_IP_BLOCK_TYPE_PSP,
+ 		AMD_IP_BLOCK_TYPE_IH,
+ 	};
 -- 
 2.35.1
 
