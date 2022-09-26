@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9947B5EA612
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B515EA587
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235475AbiIZM3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:29:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51594 "EHLO
+        id S239190AbiIZMGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235841AbiIZM2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:28:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628145FAFE;
-        Mon, 26 Sep 2022 04:08:22 -0700 (PDT)
+        with ESMTP id S239972AbiIZMGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:06:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F44B7E038;
+        Mon, 26 Sep 2022 03:55:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55AD760C6E;
-        Mon, 26 Sep 2022 10:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49350C433D6;
-        Mon, 26 Sep 2022 10:32:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1156CE10DC;
+        Mon, 26 Sep 2022 10:49:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161C1C433C1;
+        Mon, 26 Sep 2022 10:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188373;
-        bh=14LOge9ZT3P4ZiqBhc7nTzeEF/5VcYCWhsD0HB6YN1A=;
+        s=korg; t=1664189358;
+        bh=xN7VbhVCMnKTVW43mRCQHob7/sSu/RcC7woljp5Xo80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLy1fZcHqwAi1BknEHaL3JNusRD4xCv/3um/b6iXriWAcRFBVyYlsq4XF6Xo8V0M2
-         BzCbeeXOpVC1WiHEmX6pW0UwQMOLX1MmDv8zmE0jm1kbqkNkuoV+h8Tixa0wsQP7FC
-         SqctbAzA96CykGHUQrCwF7OrIylpsLupCY7mS+wQ=
+        b=kS37EpXKeNDDMkmunrSnJroiQuQYqtruX6zBq+btBMANDc/FAjviyDJZ8WigBpSKt
+         FIdwNMPwyXKcSK+Y/DaYb9ihGzv6iSfIs5EYhwsc9fYxEeT2WCZQNndU2YEaiOjha2
+         JNDYPXa14ORsHWPJqCWqnqmz/de9r65M9gjBavaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stan Lu <stan.lu@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.10 121/141] usb: xhci-mtk: fix issue of out-of-bounds array access
-Date:   Mon, 26 Sep 2022 12:12:27 +0200
-Message-Id: <20220926100758.848138877@linuxfoundation.org>
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.19 160/207] serial: fsl_lpuart: Reset prior to registration
+Date:   Mon, 26 Sep 2022 12:12:29 +0200
+Message-Id: <20220926100813.821388050@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit de5107f473190538a65aac7edea85209cd5c1a8f upstream.
+commit 60f361722ad2ae5ee667d0b0545d40c42f754daf upstream.
 
-Bus bandwidth array access is based on esit, increase one
-will cause out-of-bounds issue; for example, when esit is
-XHCI_MTK_MAX_ESIT, will overstep boundary.
+Since commit bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset
+for imx7ulp and imx8qxp"), certain i.MX UARTs are reset after they've
+already been registered.  Register state may thus be clobbered after
+user space has begun to open and access the UART.
 
-Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
-Cc: <stable@vger.kernel.org>
-Reported-by: Stan Lu <stan.lu@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1629189389-18779-5-git-send-email-chunfeng.yun@mediatek.com
+Avoid by performing the reset prior to registration.
+
+Fixes: bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset for imx7ulp and imx8qxp")
+Cc: stable@vger.kernel.org # v5.15+
+Cc: Fugang Duan <fugang.duan@nxp.com>
+Cc: Sherry Sun <sherry.sun@nxp.com>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/72fb646c1b0b11c989850c55f52f9ff343d1b2fa.1662884345.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -539,10 +539,12 @@ static u32 get_esit_boundary(struct mu3h
- 	u32 boundary = sch_ep->esit;
- 
- 	if (sch_ep->sch_tt) { /* LS/FS with TT */
--		/* tune for CS */
--		if (sch_ep->ep_type != ISOC_OUT_EP)
--			boundary++;
--		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
-+		/*
-+		 * tune for CS, normally esit >= 8 for FS/LS,
-+		 * not add one for other types to avoid access array
-+		 * out of boundary
-+		 */
-+		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
- 			boundary--;
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2706,14 +2706,15 @@ static int lpuart_probe(struct platform_
+ 		lpuart_reg.cons = LPUART_CONSOLE;
+ 		handler = lpuart_int;
  	}
+-	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+-	if (ret)
+-		goto failed_attach_port;
  
+ 	ret = lpuart_global_reset(sport);
+ 	if (ret)
+ 		goto failed_reset;
+ 
++	ret = uart_add_one_port(&lpuart_reg, &sport->port);
++	if (ret)
++		goto failed_attach_port;
++
+ 	ret = uart_get_rs485_mode(&sport->port);
+ 	if (ret)
+ 		goto failed_get_rs485;
+@@ -2736,9 +2737,9 @@ static int lpuart_probe(struct platform_
+ 
+ failed_irq_request:
+ failed_get_rs485:
+-failed_reset:
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
++failed_reset:
+ 	lpuart_disable_clks(sport);
+ 	return ret;
+ }
 
 
