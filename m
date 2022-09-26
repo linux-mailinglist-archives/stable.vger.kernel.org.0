@@ -2,85 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AF025E9F83
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:26:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B79CF5E9F27
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235403AbiIZK0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
+        id S235189AbiIZKUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:20:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235752AbiIZKY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92DA4DB27;
-        Mon, 26 Sep 2022 03:18:22 -0700 (PDT)
+        with ESMTP id S235279AbiIZKTP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:19:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913CA4A82A;
+        Mon, 26 Sep 2022 03:15:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF2FFB80835;
-        Mon, 26 Sep 2022 10:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499D3C433D6;
-        Mon, 26 Sep 2022 10:18:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 899DE60B5E;
+        Mon, 26 Sep 2022 10:15:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79068C433D6;
+        Mon, 26 Sep 2022 10:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187491;
-        bh=QkgGLY6ojXfsFX8zbq5zAU0p6m3ZpG+WK/cJf+TUKpU=;
+        s=korg; t=1664187337;
+        bh=2x6zsb67uTFw6Zg5Vv9Mn/ateOWgVoYfDeRhJLjFAvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTGXNT68s2LngR/fovuY5qCcuMlWsjteZlPjefytu4oxxJR+pHSuEyOsZh4dcfbWL
-         GwCRy7JXyQK89TvJkIwZqZjgtCnRjtptmXnVC2h6H/TWctpj6a9mJagh1uZEcTobZe
-         XkniqoDIjg8OQNiqppRG9UoDBCOtEQxZ3G3axcPY=
+        b=yPiv6+DCNbI10XY8z8tANe1zzZmM3m4WZHdlV6XgLgskOk4e9zJOBp1pbPqk+gYxA
+         BqAdXSe+DUmdLtylWzClrPB95I8neGNtqhwBat3x/bWX46VNYkNl7PxZPd/bx5ZyW/
+         bgL/h6Yq/Oq0ilMAv9ZeNeBk60ybHD1Y382CpOFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.19 25/58] USB: core: Fix RST error in hub.c
+        stable@vger.kernel.org,
+        syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Siddh Raman Pant <code@siddh.me>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 16/40] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
 Date:   Mon, 26 Sep 2022 12:11:44 +0200
-Message-Id: <20220926100742.369703644@linuxfoundation.org>
+Message-Id: <20220926100738.847583156@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit 766a96dc558385be735a370db867e302c8f22153 upstream.
+[ Upstream commit 60deb9f10eec5c6a20252ed36238b55d8b614a2c ]
 
-A recent commit added an invalid RST expression to a kerneldoc comment
-in hub.c.  The fix is trivial.
+ieee80211_scan_rx() tries to access scan_req->flags after a
+null check, but a UAF is observed when the scan is completed
+and __ieee80211_scan_completed() executes, which then calls
+cfg80211_scan_done() leading to the freeing of scan_req.
 
-Fixes: 9c6d778800b9 ("USB: core: Prevent nested device-reset calls")
-Cc: <stable@vger.kernel.org>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Reviewed-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YxDDcsLtRZ7c20pq@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since scan_req is rcu_dereference()'d, prevent the racing in
+__ieee80211_scan_completed() by ensuring that from mac80211's
+POV it is no longer accessed from an RCU read critical section
+before we call cfg80211_scan_done().
+
+Cc: stable@vger.kernel.org
+Link: https://syzkaller.appspot.com/bug?extid=f9acff9bf08a845f225d
+Reported-by: syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com
+Suggested-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Link: https://lore.kernel.org/r/20220819200340.34826-1-code@siddh.me
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/scan.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5852,7 +5852,7 @@ re_enumerate_no_bos:
-  *
-  * Return: The same as for usb_reset_and_verify_device().
-  * However, if a reset is already in progress (for instance, if a
-- * driver doesn't have pre_ or post_reset() callbacks, and while
-+ * driver doesn't have pre_reset() or post_reset() callbacks, and while
-  * being unbound or re-bound during the ongoing reset its disconnect()
-  * or probe() routine tries to perform a second, nested reset), the
-  * routine returns -EINPROGRESS.
+diff --git a/net/mac80211/scan.c b/net/mac80211/scan.c
+index dd9d7c4b7f2d..5df8f393c119 100644
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -385,10 +385,6 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
+ 	scan_req = rcu_dereference_protected(local->scan_req,
+ 					     lockdep_is_held(&local->mtx));
+ 
+-	if (scan_req != local->int_scan_req) {
+-		local->scan_info.aborted = aborted;
+-		cfg80211_scan_done(scan_req, &local->scan_info);
+-	}
+ 	RCU_INIT_POINTER(local->scan_req, NULL);
+ 
+ 	scan_sdata = rcu_dereference_protected(local->scan_sdata,
+@@ -398,6 +394,13 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
+ 	local->scanning = 0;
+ 	local->scan_chandef.chan = NULL;
+ 
++	synchronize_rcu();
++
++	if (scan_req != local->int_scan_req) {
++		local->scan_info.aborted = aborted;
++		cfg80211_scan_done(scan_req, &local->scan_info);
++	}
++
+ 	/* Set power back to normal operating levels. */
+ 	ieee80211_hw_config(local, 0);
+ 
+-- 
+2.35.1
+
 
 
