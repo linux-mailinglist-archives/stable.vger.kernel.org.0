@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE9D95EA6BC
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 516335EA5D1
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234288AbiIZNAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 09:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41560 "EHLO
+        id S234271AbiIZMVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:21:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234246AbiIZNAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:00:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B671B348F;
-        Mon, 26 Sep 2022 04:33:37 -0700 (PDT)
+        with ESMTP id S236937AbiIZMUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:20:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E60E5E54E;
+        Mon, 26 Sep 2022 04:03:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0466A60BFE;
-        Mon, 26 Sep 2022 10:35:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F071CC433D7;
-        Mon, 26 Sep 2022 10:35:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B832460C2C;
+        Mon, 26 Sep 2022 10:35:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2702C433D6;
+        Mon, 26 Sep 2022 10:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188516;
-        bh=RrerlyvG1QQXmzxluSY2tKcrtycXbWxbSDmCpxhe650=;
+        s=korg; t=1664188508;
+        bh=1y0q+u6EV0rLjQTxA/4Bpi/smPNPAutMC++toO7fWdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKloAiWWxEh0UCDl1pXPi2cdVvPM5BMQewrjKlrXXz1X/AkW0uuhCLgTHTb6w4g3P
-         mnqapcRakhVSspf2mv5FWz/qyVNLEVC1aZWaDLU5dHfuF6BOHjW7b/nZdyb/bjbekH
-         AF0IjA7QW0uuTNKxkEK/ZhUhJ/6x/nkFH5PkUP6s=
+        b=oULuOSQgCo55ebQmdG3Lmacv17eJOZYsfVoHi2krcR6cI7LuJuIP7nkEP+v+N5Jjq
+         rYOdkyMV4093T5q8Bon0KIAtnMzA1PwNI4i4sxYBEPkRTe1yozA2jxw3oSmaEQmNoC
+         KJr3YxPFmQfVYVLAqHwEazutoO+cJNFZIJ6bq4/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Piyush Mehta <piyush.mehta@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 016/148] usb: gadget: udc-xilinx: replace memcpy with memcpy_toio
-Date:   Mon, 26 Sep 2022 12:10:50 +0200
-Message-Id: <20220926100756.669681312@linuxfoundation.org>
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 031/148] ALSA: hda/realtek: Add pincfg for ASUS G533Z HP jack
+Date:   Mon, 26 Sep 2022 12:11:05 +0200
+Message-Id: <20220926100757.212646817@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
 References: <20220926100756.074519146@linuxfoundation.org>
@@ -53,156 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piyush Mehta <piyush.mehta@amd.com>
+From: Luke D. Jones <luke@ljones.dev>
 
-[ Upstream commit 8cb339f1c1f04baede9d54c1e40ac96247a6393b ]
+commit bc2c23549ccd7105eb6ff0d4f0ac519285628673 upstream.
 
-For ARM processor, unaligned access to device memory is not allowed.
-Method memcpy does not take care of alignment.
+Fixes up the pincfg for ASUS ROG Strix G15 (G533Z) headphone combo jack
 
-USB detection failure with the unaligned address of memory access, with
-below kernel crash. To fix the unaligned address the kernel panic issue,
-replace memcpy with memcpy_toio method.
+[ Fixed the position in the quirk table by tiwai ]
 
-Kernel crash:
-Unable to handle kernel paging request at virtual address ffff80000c05008a
-Mem abort info:
-  ESR = 0x96000061
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-  FSC = 0x21: alignment fault
-Data abort info:
-  ISV = 0, ISS = 0x00000061
-  CM = 0, WnR = 1
-swapper pgtable: 4k pages, 48-bit VAs, pgdp=000000000143b000
-[ffff80000c05008a] pgd=100000087ffff003, p4d=100000087ffff003,
-pud=100000087fffe003, pmd=1000000800bcc003, pte=00680000a0010713
-Internal error: Oops: 96000061 [#1] SMP
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.15.19-xilinx-v2022.1 #1
-Hardware name: ZynqMP ZCU102 Rev1.0 (DT)
-pstate: 200000c5 (nzCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : __memcpy+0x30/0x260
-lr : __xudc_ep0_queue+0xf0/0x110
-sp : ffff800008003d00
-x29: ffff800008003d00 x28: ffff800009474e80 x27: 00000000000000a0
-x26: 0000000000000100 x25: 0000000000000012 x24: ffff000800bc8080
-x23: 0000000000000001 x22: 0000000000000012 x21: ffff000800bc8080
-x20: 0000000000000012 x19: ffff000800bc8080 x18: 0000000000000000
-x17: ffff800876482000 x16: ffff800008004000 x15: 0000000000004000
-x14: 00001f09785d0400 x13: 0103020101005567 x12: 0781400000000200
-x11: 00000000c5672a10 x10: 00000000000008d0 x9 : ffff800009463cf0
-x8 : ffff8000094757b0 x7 : 0201010055670781 x6 : 4000000002000112
-x5 : ffff80000c05009a x4 : ffff000800a15012 x3 : ffff00080362ad80
-x2 : 0000000000000012 x1 : ffff000800a15000 x0 : ffff80000c050088
-Call trace:
- __memcpy+0x30/0x260
- xudc_ep0_queue+0x3c/0x60
- usb_ep_queue+0x38/0x44
- composite_ep0_queue.constprop.0+0x2c/0xc0
- composite_setup+0x8d0/0x185c
- configfs_composite_setup+0x74/0xb0
- xudc_irq+0x570/0xa40
- __handle_irq_event_percpu+0x58/0x170
- handle_irq_event+0x60/0x120
- handle_fasteoi_irq+0xc0/0x220
- handle_domain_irq+0x60/0x90
- gic_handle_irq+0x74/0xa0
- call_on_irq_stack+0x2c/0x60
- do_interrupt_handler+0x54/0x60
- el1_interrupt+0x30/0x50
- el1h_64_irq_handler+0x18/0x24
- el1h_64_irq+0x78/0x7c
- arch_cpu_idle+0x18/0x2c
- do_idle+0xdc/0x15c
- cpu_startup_entry+0x28/0x60
- rest_init+0xc8/0xe0
- arch_call_rest_init+0x10/0x1c
- start_kernel+0x694/0x6d4
- __primary_switched+0xa4/0xac
-
-Fixes: 1f7c51660034 ("usb: gadget: Add xilinx usb2 device support")
-Cc: stable@vger.kernel.org
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Piyush Mehta <piyush.mehta@amd.com>
-Link: https://lore.kernel.org/r/20220824071253.1261096-1-piyush.mehta@amd.com
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220915080921.35563-3-luke@ljones.dev
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/udc-xilinx.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/udc-xilinx.c b/drivers/usb/gadget/udc/udc-xilinx.c
-index 9cf43731bcd1..218d9423807a 100644
---- a/drivers/usb/gadget/udc/udc-xilinx.c
-+++ b/drivers/usb/gadget/udc/udc-xilinx.c
-@@ -496,11 +496,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
- 		/* Get the Buffer address and copy the transmit data.*/
- 		eprambase = (u32 __force *)(udc->addr + ep->rambase);
- 		if (ep->is_in) {
--			memcpy(eprambase, bufferptr, bytestosend);
-+			memcpy_toio(eprambase, bufferptr, bytestosend);
- 			udc->write_fn(udc->addr, ep->offset +
- 				      XUSB_EP_BUF0COUNT_OFFSET, bufferlen);
- 		} else {
--			memcpy(bufferptr, eprambase, bytestosend);
-+			memcpy_toio(bufferptr, eprambase, bytestosend);
- 		}
- 		/*
- 		 * Enable the buffer for transmission.
-@@ -514,11 +514,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
- 		eprambase = (u32 __force *)(udc->addr + ep->rambase +
- 			     ep->ep_usb.maxpacket);
- 		if (ep->is_in) {
--			memcpy(eprambase, bufferptr, bytestosend);
-+			memcpy_toio(eprambase, bufferptr, bytestosend);
- 			udc->write_fn(udc->addr, ep->offset +
- 				      XUSB_EP_BUF1COUNT_OFFSET, bufferlen);
- 		} else {
--			memcpy(bufferptr, eprambase, bytestosend);
-+			memcpy_toio(bufferptr, eprambase, bytestosend);
- 		}
- 		/*
- 		 * Enable the buffer for transmission.
-@@ -1020,7 +1020,7 @@ static int __xudc_ep0_queue(struct xusb_ep *ep0, struct xusb_req *req)
- 			   udc->addr);
- 		length = req->usb_req.actual = min_t(u32, length,
- 						     EP0_MAX_PACKET);
--		memcpy(corebuf, req->usb_req.buf, length);
-+		memcpy_toio(corebuf, req->usb_req.buf, length);
- 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, length);
- 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
- 	} else {
-@@ -1746,7 +1746,7 @@ static void xudc_handle_setup(struct xusb_udc *udc)
- 
- 	/* Load up the chapter 9 command buffer.*/
- 	ep0rambase = (u32 __force *) (udc->addr + XUSB_SETUP_PKT_ADDR_OFFSET);
--	memcpy(&setup, ep0rambase, 8);
-+	memcpy_toio(&setup, ep0rambase, 8);
- 
- 	udc->setup = setup;
- 	udc->setup.wValue = cpu_to_le16(setup.wValue);
-@@ -1833,7 +1833,7 @@ static void xudc_ep0_out(struct xusb_udc *udc)
- 			     (ep0->rambase << 2));
- 		buffer = req->usb_req.buf + req->usb_req.actual;
- 		req->usb_req.actual = req->usb_req.actual + bytes_to_rx;
--		memcpy(buffer, ep0rambase, bytes_to_rx);
-+		memcpy_toio(buffer, ep0rambase, bytes_to_rx);
- 
- 		if (req->usb_req.length == req->usb_req.actual) {
- 			/* Data transfer completed get ready for Status stage */
-@@ -1909,7 +1909,7 @@ static void xudc_ep0_in(struct xusb_udc *udc)
- 				     (ep0->rambase << 2));
- 			buffer = req->usb_req.buf + req->usb_req.actual;
- 			req->usb_req.actual = req->usb_req.actual + length;
--			memcpy(ep0rambase, buffer, length);
-+			memcpy_toio(ep0rambase, buffer, length);
- 		}
- 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, count);
- 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6880,6 +6880,7 @@ enum {
+ 	ALC294_FIXUP_ASUS_GU502_PINS,
+ 	ALC294_FIXUP_ASUS_GU502_VERBS,
+ 	ALC294_FIXUP_ASUS_G513_PINS,
++	ALC285_FIXUP_ASUS_G533Z_PINS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_GPIO_LED,
+@@ -8216,6 +8217,15 @@ static const struct hda_fixup alc269_fix
+ 				{ }
+ 		},
+ 	},
++	[ALC285_FIXUP_ASUS_G533Z_PINS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x14, 0x90170120 },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC294_FIXUP_ASUS_G513_PINS,
++	},
+ 	[ALC294_FIXUP_ASUS_COEF_1B] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -9013,6 +9023,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1bbd, "ASUS Z550MA", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x1c23, "Asus X55U", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
++	SND_PCI_QUIRK(0x1043, 0x1c92, "ASUS ROG Strix G15", ALC285_FIXUP_ASUS_G533Z_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
 
 
