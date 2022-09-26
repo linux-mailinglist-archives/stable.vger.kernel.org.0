@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C02E15EA0C2
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:41:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DCC35EA1D8
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:59:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236047AbiIZKld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:41:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32818 "EHLO
+        id S237430AbiIZK7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:59:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236027AbiIZKj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FE53E77B;
-        Mon, 26 Sep 2022 03:23:58 -0700 (PDT)
+        with ESMTP id S237006AbiIZK55 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:57:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A0A1EAC7;
+        Mon, 26 Sep 2022 03:30:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0578FB80924;
-        Mon, 26 Sep 2022 10:23:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39FCCC433C1;
-        Mon, 26 Sep 2022 10:23:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05BF5B80925;
+        Mon, 26 Sep 2022 10:28:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66269C433D6;
+        Mon, 26 Sep 2022 10:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187820;
-        bh=/KzNBC/1o7m8B9RSy27+tliksvw2eqi39Mn6M3WBaDs=;
+        s=korg; t=1664188115;
+        bh=6xSNUn0HRtb1Ca3s4FbSQ4sQMc4zkrPGQ3R5LBRzxFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNr4jX+L5UVJf9zNzuXTdlHyTUUGBIoZ7RHb3Acba3IhtAIf7UsjCK727A/sacNSk
-         X8/Dk4ptiq/E+1bs2cGoqsQc3/KNmzC8zIqC6beVrbZBaxqRy6FAeeos1agyTE3Uua
-         +HaDEEzYEuxotOLHN4YMjPQuLKu7Pv+dY58DBjzQ=
+        b=EqxoUvQkOD4EjwmQWYdgaz4Cfr8+hpebDVjEW7fHeKn5xvnm/teqwOlyodcSxqsY0
+         hCNPvrz4DbGvlg0WBiSPfbwakajwTZO1z8G/Kshzjl1ZnTSUzfOtG+GYNFKuVWmLpJ
+         A7ygG87NH48dxi7YsZn8bs01eVzC5aFmf3q1qX84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/120] usb: xhci-mtk: add a function to (un)load bandwidth info
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 045/141] ALSA: hda/realtek: Add pincfg for ASUS G533Z HP jack
 Date:   Mon, 26 Sep 2022 12:11:11 +0200
-Message-Id: <20220926100752.083339049@linuxfoundation.org>
+Message-Id: <20220926100756.081796682@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,106 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Luke D. Jones <luke@ljones.dev>
 
-[ Upstream commit 338af695fffb12a9407c376ce0cebce896c15050 ]
+commit bc2c23549ccd7105eb6ff0d4f0ac519285628673 upstream.
 
-Extract a function to load/unload bandwidth info, and remove
-a dummy check of TT offset.
+Fixes up the pincfg for ASUS ROG Strix G15 (G533Z) headphone combo jack
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/6fbc000756a4a4a7efbce651b785fee7561becb6.1615170625.git.chunfeng.yun@mediatek.com
+[ Fixed the position in the quirk table by tiwai ]
+
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220915080921.35563-3-luke@ljones.dev
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 548011957d1d ("usb: xhci-mtk: relax TT periodic bandwidth allocation")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c | 37 ++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 21 deletions(-)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index b1da3cb077c9..9a9685f74940 100644
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -375,7 +375,6 @@ static void update_bus_bw(struct mu3h_sch_bw_info *sch_bw,
- 					sch_ep->bw_budget_table[j];
- 		}
- 	}
--	sch_ep->allocated = used;
- }
- 
- static int check_fs_bus_bw(struct mu3h_sch_ep_info *sch_ep, int offset)
-@@ -509,6 +508,19 @@ static void update_sch_tt(struct usb_device *udev,
- 		list_del(&sch_ep->tt_endpoint);
- }
- 
-+static int load_ep_bw(struct usb_device *udev, struct mu3h_sch_bw_info *sch_bw,
-+		      struct mu3h_sch_ep_info *sch_ep, bool loaded)
-+{
-+	if (sch_ep->sch_tt)
-+		update_sch_tt(udev, sch_ep, loaded);
-+
-+	/* update bus bandwidth info */
-+	update_bus_bw(sch_bw, sch_ep, loaded);
-+	sch_ep->allocated = loaded;
-+
-+	return 0;
-+}
-+
- static u32 get_esit_boundary(struct mu3h_sch_ep_info *sch_ep)
- {
- 	u32 boundary = sch_ep->esit;
-@@ -535,7 +547,6 @@ static int check_sch_bw(struct usb_device *udev,
- 	u32 esit_boundary;
- 	u32 min_num_budget;
- 	u32 min_cs_count;
--	bool tt_offset_ok = false;
- 	int ret;
- 
- 	/*
-@@ -552,8 +563,6 @@ static int check_sch_bw(struct usb_device *udev,
- 			ret = check_sch_tt(udev, sch_ep, offset);
- 			if (ret)
- 				continue;
--			else
--				tt_offset_ok = true;
- 		}
- 
- 		if ((offset + sch_ep->num_budget_microframes) > esit_boundary)
-@@ -585,29 +594,15 @@ static int check_sch_bw(struct usb_device *udev,
- 	sch_ep->cs_count = min_cs_count;
- 	sch_ep->num_budget_microframes = min_num_budget;
- 
--	if (sch_ep->sch_tt) {
--		/* all offset for tt is not ok*/
--		if (!tt_offset_ok)
--			return -ERANGE;
--
--		update_sch_tt(udev, sch_ep, 1);
--	}
--
--	/* update bus bandwidth info */
--	update_bus_bw(sch_bw, sch_ep, 1);
--
--	return 0;
-+	return load_ep_bw(udev, sch_bw, sch_ep, true);
- }
- 
- static void destroy_sch_ep(struct usb_device *udev,
- 	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
- {
- 	/* only release ep bw check passed by check_sch_bw() */
--	if (sch_ep->allocated) {
--		update_bus_bw(sch_bw, sch_ep, 0);
--		if (sch_ep->sch_tt)
--			update_sch_tt(udev, sch_ep, 0);
--	}
-+	if (sch_ep->allocated)
-+		load_ep_bw(udev, sch_bw, sch_ep, false);
- 
- 	if (sch_ep->sch_tt)
- 		drop_tt(udev);
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6825,6 +6825,7 @@ enum {
+ 	ALC294_FIXUP_ASUS_GU502_PINS,
+ 	ALC294_FIXUP_ASUS_GU502_VERBS,
+ 	ALC294_FIXUP_ASUS_G513_PINS,
++	ALC285_FIXUP_ASUS_G533Z_PINS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_GPIO_LED,
+@@ -8160,6 +8161,15 @@ static const struct hda_fixup alc269_fix
+ 				{ }
+ 		},
+ 	},
++	[ALC285_FIXUP_ASUS_G533Z_PINS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x14, 0x90170120 },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC294_FIXUP_ASUS_G513_PINS,
++	},
+ 	[ALC294_FIXUP_ASUS_COEF_1B] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -8942,6 +8952,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1bbd, "ASUS Z550MA", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x1c23, "Asus X55U", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
++	SND_PCI_QUIRK(0x1043, 0x1c92, "ASUS ROG Strix G15", ALC285_FIXUP_ASUS_G533Z_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
 
 
