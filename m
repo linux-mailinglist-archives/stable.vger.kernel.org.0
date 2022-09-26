@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED55C5E9FC6
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8935E9ED8
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235533AbiIZK3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52478 "EHLO
+        id S233279AbiIZKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235467AbiIZK0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:26:53 -0400
+        with ESMTP id S234495AbiIZKOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:14:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7CA3FA12;
-        Mon, 26 Sep 2022 03:18:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420DD474D7;
+        Mon, 26 Sep 2022 03:14:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EE0DB80930;
-        Mon, 26 Sep 2022 10:18:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BEAFC433C1;
-        Mon, 26 Sep 2022 10:18:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 501EBB80925;
+        Mon, 26 Sep 2022 10:14:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C66AC433D6;
+        Mon, 26 Sep 2022 10:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187503;
-        bh=Tbxxrcgh3NePnoXuNMJDxvg8ntbWKR5LUqSxLZ3lIHQ=;
+        s=korg; t=1664187245;
+        bh=LxUOv1BX67hgdtLI6gm3VnbJnfvixz22w9sx+VWQYrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNWxOJXYGLWyEtVvoc0/Q17o2PI5bnr56L9ABJU0i1aGVa82+KwEUo8O7O4ts9Xqo
-         LKuOAXiE+zo0hmPiopcdGDeZ1ac0UrCnVi82aikVRie2SXdGCbhDpTcV1ss1zcEg4l
-         IBYYFxi3wmU67qqJOT9fFnVCC27QCDS/5alkcn/I=
+        b=hG3UYtLOrQvT2/l/rBGGgJ/XZpgsbSa6l2elg6zqlljFTBrFcLKIXxbEx/GdjInZE
+         exevv45UyvOSkVCn8BSg7ykuNZiUQFtqFgkb6fpbsLcytfxiJ1bcHMaqTWQuBJ3WeS
+         aKhVkKHFit9Y+HkA8kigK2z0TjvW4pi1w3EUHJCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 29/58] ALSA: hda: add Intel 5 Series / 3400 PCI DID
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com,
+        Muchun Song <songmuchun@bytedance.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Chao Yu <chao.yu@oppo.com>,
+        David Rientjes <rientjes@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 4.9 17/30] mm/slub: fix to return errno if kmalloc() fails
 Date:   Mon, 26 Sep 2022 12:11:48 +0200
-Message-Id: <20220926100742.529655798@linuxfoundation.org>
+Message-Id: <20220926100736.769408253@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Chao Yu <chao.yu@oppo.com>
 
-commit 4d40ceef4745536289012670103c59264e0fb3ec upstream.
+commit 7e9c323c52b379d261a72dc7bd38120a761a93cd upstream.
 
-Handle 0x3b57 variant with same AZX_DCAPS_INTEL_PCH_NOPM
-capabilities as 0x3b56. In practise this allow use of HDMI/DP
-display audio via i915.
+In create_unique_id(), kmalloc(, GFP_KERNEL) can fail due to
+out-of-memory, if it fails, return errno correctly rather than
+triggering panic via BUG_ON();
 
-BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/2751
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220912183716.2126312-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+kernel BUG at mm/slub.c:5893!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+
+Call trace:
+ sysfs_slab_add+0x258/0x260 mm/slub.c:5973
+ __kmem_cache_create+0x60/0x118 mm/slub.c:4899
+ create_cache mm/slab_common.c:229 [inline]
+ kmem_cache_create_usercopy+0x19c/0x31c mm/slab_common.c:335
+ kmem_cache_create+0x1c/0x28 mm/slab_common.c:390
+ f2fs_kmem_cache_create fs/f2fs/f2fs.h:2766 [inline]
+ f2fs_init_xattr_caches+0x78/0xb4 fs/f2fs/xattr.c:808
+ f2fs_fill_super+0x1050/0x1e0c fs/f2fs/super.c:4149
+ mount_bdev+0x1b8/0x210 fs/super.c:1400
+ f2fs_mount+0x44/0x58 fs/f2fs/super.c:4512
+ legacy_get_tree+0x30/0x74 fs/fs_context.c:610
+ vfs_get_tree+0x40/0x140 fs/super.c:1530
+ do_new_mount+0x1dc/0x4e4 fs/namespace.c:3040
+ path_mount+0x358/0x914 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __arm64_sys_mount+0x2f8/0x408 fs/namespace.c:3568
+
+Cc: <stable@kernel.org>
+Fixes: 81819f0fc8285 ("SLUB core")
+Reported-by: syzbot+81684812ea68216e08c5@syzkaller.appspotmail.com
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/slub.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2634,6 +2634,8 @@ static const struct pci_device_id azx_id
- 	/* 5 Series/3400 */
- 	{ PCI_DEVICE(0x8086, 0x3b56),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
-+	{ PCI_DEVICE(0x8086, 0x3b57),
-+	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
- 	/* Poulsbo */
- 	{ PCI_DEVICE(0x8086, 0x811b),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5601,7 +5601,8 @@ static char *create_unique_id(struct kme
+ 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
+ 	char *p = name;
+ 
+-	BUG_ON(!name);
++	if (!name)
++		return ERR_PTR(-ENOMEM);
+ 
+ 	*p++ = ':';
+ 	/*
+@@ -5649,6 +5650,8 @@ static int sysfs_slab_add(struct kmem_ca
+ 		 * for the symlinks.
+ 		 */
+ 		name = create_unique_id(s);
++		if (IS_ERR(name))
++			return PTR_ERR(name);
+ 	}
+ 
+ 	s->kobj.kset = cache_kset(s);
 
 
