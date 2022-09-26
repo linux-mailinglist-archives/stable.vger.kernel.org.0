@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D93E5EA365
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 111615EA3AE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237808AbiIZLYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42064 "EHLO
+        id S234433AbiIZLbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:31:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238098AbiIZLYI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:24:08 -0400
+        with ESMTP id S238010AbiIZLaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:30:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB6E2A269;
-        Mon, 26 Sep 2022 03:40:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17FCA6BD44;
+        Mon, 26 Sep 2022 03:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0033F60B6A;
-        Mon, 26 Sep 2022 10:40:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5FDBC433C1;
-        Mon, 26 Sep 2022 10:40:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED13560C0B;
+        Mon, 26 Sep 2022 10:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0484AC433C1;
+        Mon, 26 Sep 2022 10:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188819;
-        bh=9DEejuMfkrhuIDbcoEKbjnyHibaoLFWXahlnTgslgB0=;
+        s=korg; t=1664188822;
+        bh=ayO3WIFiJihs2MM+opQbImdBIj0AnX09GvLi7XT6pkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFAAH7gSXvLKObZ0TrBjHVoh0VZh9NSTHcTi5KL+XwuLVUCH1oWVs736zsXPK4e3m
-         aEuOKQ91ayb+SrgF0K6bUK/d82+KbL02+ISH5KMwyXG55F1NboTZZ5iJXJvG2GMG3P
-         yRbJaf+q9sTQ1uLXtJxJJQUQTYWSLo08TwPLH/co=
+        b=scEmFJqAcLIYWsS2SCHfhUVuH8Z+ct9Ip+VRYhr2XB4aaLWrXIk7CQrAhFlGJkVtj
+         os6EQtah027ZAvpyTer3EKwdv18kxViPJCbS4pJytcc0Argr/sL8+C4EuYBqpQbQSk
+         VV+/vwYfMzw7lo90RhFLghJokJBb6Ouxj79EkunA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
-        =?UTF-8?q?Ma=C3=ADra=20Canal?= <mairacanal@riseup.net>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        stable@vger.kernel.org, Dan Carpenter <error27@gmail.com>,
+        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
         Nathan Chancellor <nathan@kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 132/148] drm/amd/display: Mark dml30s UseMinimumDCFCLK() as noinline for stack usage
-Date:   Mon, 26 Sep 2022 12:12:46 +0200
-Message-Id: <20220926100801.163130396@linuxfoundation.org>
+Subject: [PATCH 5.15 133/148] drm/rockchip: Fix return type of cdn_dp_connector_mode_valid
+Date:   Mon, 26 Sep 2022 12:12:47 +0200
+Message-Id: <20220926100801.201481338@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
 References: <20220926100756.074519146@linuxfoundation.org>
@@ -57,56 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 41012d715d5d7b9751ae84b8fb255e404ac9c5d0 ]
+[ Upstream commit b0b9408f132623dc88e78adb5282f74e4b64bb57 ]
 
-This function consumes a lot of stack space and it blows up the size of
-dml30_ModeSupportAndSystemConfigurationFull() with clang:
+The mode_valid field in drm_connector_helper_funcs is expected to be of
+type:
+enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
+				     struct drm_display_mode *mode);
 
-  drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn30/display_mode_vba_30.c:3542:6: error: stack frame size (2200) exceeds limit (2048) in 'dml30_ModeSupportAndSystemConfigurationFull' [-Werror,-Wframe-larger-than]
-  void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_lib)
-       ^
-  1 error generated.
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
-Commit a0f7e7f759cf ("drm/amd/display: fix i386 frame size warning")
-aimed to address this for i386 but it did not help x86_64.
+The return type of cdn_dp_connector_mode_valid should be changed from
+int to enum drm_mode_status.
 
-To reduce the amount of stack space that
-dml30_ModeSupportAndSystemConfigurationFull() uses, mark
-UseMinimumDCFCLK() as noinline, using the _for_stack variant for
-documentation. While this will increase the total amount of stack usage
-between the two functions (1632 and 1304 bytes respectively), it will
-make sure both stay below the limit of 2048 bytes for these files. The
-aforementioned change does help reduce UseMinimumDCFCLK()'s stack usage
-so it should not be reverted in favor of this change.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1681
-Reported-by: "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-Tested-by: Maíra Canal <mairacanal@riseup.net>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220913205555.155149-1-nhuck@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/rockchip/cdn-dp-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-index e3d9f1decdfc..518672a2450f 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-@@ -6658,8 +6658,7 @@ static double CalculateUrgentLatency(
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+index 13c6b857158f..6b5d0722afa6 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+@@ -277,8 +277,9 @@ static int cdn_dp_connector_get_modes(struct drm_connector *connector)
  	return ret;
  }
  
--
--static void UseMinimumDCFCLK(
-+static noinline_for_stack void UseMinimumDCFCLK(
- 		struct display_mode_lib *mode_lib,
- 		int MaxInterDCNTileRepeaters,
- 		int MaxPrefetchMode,
+-static int cdn_dp_connector_mode_valid(struct drm_connector *connector,
+-				       struct drm_display_mode *mode)
++static enum drm_mode_status
++cdn_dp_connector_mode_valid(struct drm_connector *connector,
++			    struct drm_display_mode *mode)
+ {
+ 	struct cdn_dp_device *dp = connector_to_dp(connector);
+ 	struct drm_display_info *display_info = &dp->connector.display_info;
 -- 
 2.35.1
 
