@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD975EA27E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE265E9FBD
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233382AbiIZLJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:09:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40672 "EHLO
+        id S235514AbiIZK3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234895AbiIZLHo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:07:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE1B5F7E1;
-        Mon, 26 Sep 2022 03:34:25 -0700 (PDT)
+        with ESMTP id S235560AbiIZK2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05AA44DB71;
+        Mon, 26 Sep 2022 03:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8F206091B;
-        Mon, 26 Sep 2022 10:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B99C433C1;
-        Mon, 26 Sep 2022 10:32:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFDD3B80936;
+        Mon, 26 Sep 2022 10:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7045C433D6;
+        Mon, 26 Sep 2022 10:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188335;
-        bh=3x2h50JdoAcQVprYAQqg2DgQc1fdRvQHq+up7HL7uJs=;
+        s=korg; t=1664187528;
+        bh=5yVkGeIa9tVEy8jpr69BZmy26C/8lkf9me70+HR20uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rftdpMjhTeV3D1dpkqbLu9L1lfdrauzp+ZeLL91nzOVPw3tY+RmkDm/TZ7u1/shSw
-         RZZBkTjXtnXD6g+5A8yUM8Hcj2C7WxkxdrUhwC78zEZT7BiEU9QMUDRxmm2Ce7mHvo
-         7AG8RFesKfu4igssPAsHcKNwtIeYOAeATAjJrBtA=
+        b=ObD+37BJFWKHV/6CpWjVhmT+P+UYDotgm0hVv/HQBrYK41t4CUJpPAnf5Qy4+WdIS
+         /DEfBVbNEXgjvPhowEGxgikhCIz+SlsGAyakqZ+qBRYj4WwIgvbfMzm7lt57WkNE9e
+         sN04xTHF5npxcldVaAw3/vQEIkbhN+NTyxY6MglA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Edward Cree <ecree.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Igor Ryzhov <iryzhov@nfware.com>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/141] sfc: fix null pointer dereference in efx_hard_start_xmit
+Subject: [PATCH 4.19 36/58] netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
 Date:   Mon, 26 Sep 2022 12:11:55 +0200
-Message-Id: <20220926100757.660287898@linuxfoundation.org>
+Message-Id: <20220926100742.797555771@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Igor Ryzhov <iryzhov@nfware.com>
 
-[ Upstream commit 0a242eb2913a4aa3d6fbdb86559f27628e9466f3 ]
+[ Upstream commit 39aebedeaaa95757f5c1f2ddb5f43fdddbf478ca ]
 
-Trying to get the channel from the tx_queue variable here is wrong
-because we can only be here if tx_queue is NULL, so we shouldn't
-dereference it. As the above comment in the code says, this is very
-unlikely to happen, but it's wrong anyway so let's fix it.
+ct_sip_next_header and ct_sip_get_header return an absolute
+value of matchoff, not a shift from current dataoff.
+So dataoff should be assigned matchoff, not incremented by it.
 
-I hit this issue because of a different bug that caused tx_queue to be
-NULL. If that happens, this is the error message that we get here:
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000020
-  [...]
-  RIP: 0010:efx_hard_start_xmit+0x153/0x170 [sfc]
+This issue can be seen in the scenario when there are multiple
+Contact headers and the first one is using a hostname and other headers
+use IP addresses. In this case, ct_sip_walk_headers will work as follows:
 
-Fixes: 12804793b17c ("sfc: decouple TXQ type from label")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220914111135.21038-1-ihuguet@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The first ct_sip_get_header call to will find the first Contact header
+but will return -1 as the header uses a hostname. But matchoff will
+be changed to the offset of this header. After that, dataoff should be
+set to matchoff, so that the next ct_sip_get_header call find the next
+Contact header. But instead of assigning dataoff to matchoff, it is
+incremented by it, which is not correct, as matchoff is an absolute
+value of the offset. So on the next call to the ct_sip_get_header,
+dataoff will be incorrect, and the next Contact header may not be
+found at all.
+
+Fixes: 05e3ced297fe ("[NETFILTER]: nf_conntrack_sip: introduce SIP-URI parsing helper")
+Signed-off-by: Igor Ryzhov <iryzhov@nfware.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_sip.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/tx.c b/drivers/net/ethernet/sfc/tx.c
-index 1665529a7271..fcc7de8ae2bf 100644
---- a/drivers/net/ethernet/sfc/tx.c
-+++ b/drivers/net/ethernet/sfc/tx.c
-@@ -545,7 +545,7 @@ netdev_tx_t efx_hard_start_xmit(struct sk_buff *skb,
- 		 * previous packets out.
- 		 */
- 		if (!netdev_xmit_more())
--			efx_tx_send_pending(tx_queue->channel);
-+			efx_tx_send_pending(efx_get_tx_channel(efx, index));
- 		return NETDEV_TX_OK;
+diff --git a/net/netfilter/nf_conntrack_sip.c b/net/netfilter/nf_conntrack_sip.c
+index c8d2b6688a2a..046f118dea06 100644
+--- a/net/netfilter/nf_conntrack_sip.c
++++ b/net/netfilter/nf_conntrack_sip.c
+@@ -471,7 +471,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
+ 				return ret;
+ 			if (ret == 0)
+ 				break;
+-			dataoff += *matchoff;
++			dataoff = *matchoff;
+ 		}
+ 		*in_header = 0;
+ 	}
+@@ -483,7 +483,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
+ 			break;
+ 		if (ret == 0)
+ 			return ret;
+-		dataoff += *matchoff;
++		dataoff = *matchoff;
  	}
  
+ 	if (in_header)
 -- 
 2.35.1
 
