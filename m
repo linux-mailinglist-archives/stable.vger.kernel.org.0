@@ -2,227 +2,315 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0505EAB90
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 17:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78445EABFF
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 18:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236240AbiIZPsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 11:48:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
+        id S234494AbiIZQGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 12:06:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234740AbiIZPr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 11:47:56 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2047.outbound.protection.outlook.com [40.107.94.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFC111A07;
-        Mon, 26 Sep 2022 07:33:59 -0700 (PDT)
+        with ESMTP id S234502AbiIZQFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 12:05:43 -0400
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC927B865B;
+        Mon, 26 Sep 2022 07:53:24 -0700 (PDT)
+Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QEr8CQ000716;
+        Mon, 26 Sep 2022 07:53:08 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=PPS06212021;
+ bh=Jb6V+06BEdF9Ac01xYmXtxA2KlEjLpK/+r68H8wCNKI=;
+ b=GgEh955brCbAgXwahCepattwIOPGj/O4jz3/vqUdGNsPMs5XU1mXr5JxCs1ylzIuqH+D
+ jtMYDUKE4cLjEgwOeIJXXaQditv8qevnLih3sH09QpeJAwKazazxzWugkiJtVJnlIXwA
+ xnZb4V2GjAaSEeRttmPighqsisYwS32ajAbX8kW05JwkTUC/QZVFSXzu2i3+XInnbsXw
+ 5vOv6PO7AubLiJ2uEvJLcaeFJKp1PkBQbhndCxfaUbN8cOe5OpO9QRbIbQ2bPvJSd88e
+ vcOAqJTKsPf9oYOGSZrDnoKVLRhNDlPiBlx8g6br5U1kpd6pNYbX1FVx6PxBhzKKEdNG uw== 
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2102.outbound.protection.outlook.com [104.47.55.102])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3jt1dk9cpj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Sep 2022 07:53:07 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lLOZHYrEJTQx68KiU3nEP9odOVNbJY2xeQ8p5RgbsMHmMn/U1yBF+ssJGDuCIcGInyiEG1LVHjjPDXYJ6I098TcBy8NiIghh4KOV52exdje9LDyK7jYlOvOSC89rMs55Mt+EfpJfy4Q8sluYyLKAXg5IUOzR6LYlQ6G3/YyLyZoznuxbahnun7KlhvO17w9vPNrWrsoe4Vx0hKfeTgOblR6BPYUwBzYBRS5CvYRT0s9ddz57ErMuS03yspLbzFKkg+ZX0p3isjpmKyB6DJ5qaAVjyjCKxCuvfQz5prZT6CjoH77DAw2uCwh2LoSuSGF4ErblWdFqnTlfZZfRsW8v+w==
+ b=An4Ke7aUid7DSWReZhwGK2MDU2eKKJ465zRS2mA6jgCsAoYSj+yYIcpEMCHwCu+UC8YUXSzc+AR7dnPuMAEzC00C2uZ/cYP1ojPUnZHmbIcje8nBKq8F3UOPv+E1mEu0AGD46OgD9FM350NBaiqr3YYRQve+hYJAodxrY5lsk1vojINtnBizwsXc9f0EaAln+oh4sRubeupqUvXX5C9rzHixjGSVQH2YHjcoraM2toN37FNvSgEaTrteivKQ3BiFvLqNddQz32DXdIkT8V35tw+yScph7MkTwSQ539gX0PcHQ/R3badDxabf69aosSp+Wzo17DRkPITTtdo0ru2+rQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IxIu2VIM2syklhCbENPFSfAMW7jQK4u32lpiI8bWdKg=;
- b=hfbpA8KchsW3iwOsvOshb5t6Q3yVpAjd19pUidAWTtvHG58VRf1zrXeFNcCB5J7s60tRogaUbPcF2nL/VJkSfGR5GTPqFeS93qT+4wOBz6Wf+iuBgeCwTnA8VTfFOuUGaUT628oKgWwdVrTQaEhMbsBJ1w4NFBbfctXvDcwzf7j/Cx2gHFdc8XHn8hal/DCVhr0YC6VrKq0NEw0DAaOEI6Ud9udBDFqDmkNDwtJaYub9fWswhBM/Pep+epQSm+nQ4upizvW15xEAjk5eAMcczifii+kbKpSZV3RoqmhfI9MNBxpALrpNo2LLjv+mgTXwZuzAzaozVLLyR4llQD8OgA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=gmail.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IxIu2VIM2syklhCbENPFSfAMW7jQK4u32lpiI8bWdKg=;
- b=WXyjrMdifZ1FfCnbOLpklZekYshFMrm73RVQY6ZatFzugz3B2VAQ17cPWtR4HjB/oU7+3tNBGr8GwUMwxCfwMy+dsk69H6ZgcvfVA8ng7y4tYDM7mE3SkeADZjak/GRQ+OGXydbrR5NlM6b6NaLiH9ahO+UbpQ+Wz7DbTFhKOQQ=
-Received: from BN8PR12CA0012.namprd12.prod.outlook.com (2603:10b6:408:60::25)
- by MN0PR12MB6247.namprd12.prod.outlook.com (2603:10b6:208:3c1::15) with
+ bh=Jb6V+06BEdF9Ac01xYmXtxA2KlEjLpK/+r68H8wCNKI=;
+ b=Fr96J3MzUQtaDZI+vg1060Ul3XLgFCwYIoBWpKzdoDNnSerTmPJqf9ewM2CN81udUEooMJQRhjPzS8/fL6nVgnUSkiZey69y5QX08XC3APgkdLk36quuuihdU1BJvIAIeHxk3ZzrUmkFv34csbkSbRocjjExsq+uqDJ2hnHLLWDreFU2kN0ukL5Byw5pBKBmYY5wDik0hioBzIcU4eHSP+3bGOz6G330pLVw84E+aR7fT+FUig0YCwHymTHloNHfKTT8RDTpyR+/N8M44rRlKNIjGM+iEuTuBB7jCuy/C89z0Se6BGPQDTy1gGGDMwjSLrYdsdv8z/XJHXuzULw8MA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
+ by BL3PR11MB6385.namprd11.prod.outlook.com (2603:10b6:208:3b5::20) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.25; Mon, 26 Sep
- 2022 14:33:56 +0000
-Received: from BN8NAM11FT065.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:60:cafe::43) by BN8PR12CA0012.outlook.office365.com
- (2603:10b6:408:60::25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.25 via Frontend
- Transport; Mon, 26 Sep 2022 14:33:56 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BN8NAM11FT065.mail.protection.outlook.com (10.13.177.63) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5654.14 via Frontend Transport; Mon, 26 Sep 2022 14:33:56 +0000
-Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.28; Mon, 26 Sep
- 2022 09:33:53 -0500
-From:   Mario Limonciello <mario.limonciello@amd.com>
-To:     <mario.limonciello@amd.com>,
-        Andreas Noever <andreas.noever@gmail.com>,
-        Michael Jamet <michael.jamet@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Yehezkel Bernat <YehezkelShB@gmail.com>
-CC:     Mehta Sanju <Sanju.Mehta@amd.com>, <stable@vger.kernel.org>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4] thunderbolt: Explicitly enable lane adapter hotplug events at startup
-Date:   Mon, 26 Sep 2022 09:33:50 -0500
-Message-ID: <20220926143351.11483-1-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
+ 2022 14:53:05 +0000
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::9df7:43d1:af9d:4d3f]) by DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::9df7:43d1:af9d:4d3f%6]) with mapi id 15.20.5654.026; Mon, 26 Sep 2022
+ 14:53:05 +0000
+From:   Ovidiu Panait <ovidiu.panait@windriver.com>
+To:     stable@vger.kernel.org
+Cc:     kvm@vger.kernel.org, liam.merwick@oracle.com,
+        Mingwei Zhang <mizhang@google.com>,
+        Sean Christpherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 1/1] KVM: SEV: add cache flush to solve SEV cache incoherency issues
+Date:   Mon, 26 Sep 2022 17:52:47 +0300
+Message-Id: <20220926145247.3688090-1-ovidiu.panait@windriver.com>
+X-Mailer: git-send-email 2.37.3
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
+X-ClientProxiedBy: VI1PR06CA0121.eurprd06.prod.outlook.com
+ (2603:10a6:803:a0::14) To DM4PR11MB5327.namprd11.prod.outlook.com
+ (2603:10b6:5:392::22)
+MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT065:EE_|MN0PR12MB6247:EE_
-X-MS-Office365-Filtering-Correlation-Id: 575e0834-6349-4c2d-7baa-08da9fcc24bc
+X-MS-TrafficTypeDiagnostic: DM4PR11MB5327:EE_|BL3PR11MB6385:EE_
+X-MS-Office365-Filtering-Correlation-Id: 998f8a43-0148-4eb5-23f0-08da9fced174
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dJVmwsVJY6AVO47H52kkX/pXIWdUzMQr4ocOPk0IENu/RgiHnjjmDt9TyOVSRqD20gtTlw5CRNboNxcBwuHjOiRPMc33qIp9KN9QC/arBMweElKBr3jtVYugZWt0J9kmxIHLBMzLfh4khezuR8kb5o5nnjd5P938l/zYwS8wXmdDBn3V+XsTzMfVFc7T5YIV1LXMX/qGAxHzGEaBQxm3Eac3/naQuPbh0+qR4DFASZ4HFOcLo/xJOp6SHAFT5kF3BTCK7hNOTcOdF9LYjiTGuRtq/umRuppbCkyaMxjcvQEgfpMNU7x7l7dlAgHQKw6pxOSk6NGcg4UWQrtb9ojSIezKuQ2Jz/82G+EXpTQF0WTQbhcQrZQTAogT1Zh+ICGtLLwoH2uDMF+ukwUpV+pTzbjsdxHjjeOyy3KQv3F83G9mw918OUHtLLmyrYGecTYCtUTpPubardwXcNtiSijzjekNjXAS2bZ98CcEHU8ucCDh6VZX598UBhMlEtjZnmWsh/+V6Ugjw31BfxOZeUW/0/At7sfVg1xoMXGd7l7xY7Xk22C460y+uZKA1TAKYlJJK+C34ylv0Q/Q7AzIs0LJe+eySOdwcW+lMore6DAfTmRlxgpP8XquDmNA804MsoOwcdMR8sULhyyusffZGWNgRVO9fXRM148AiYLKte/L7w5oPvVXD0znNLz+xDqkPNjIvQbOx7RhgthmajUx/ge9tJdHxsVbDV+sXh21BJOTqDjFoeEXgeTQrZAz01Qus2XjgKZRhkDc1hHUDVSC/jKvP4+c6xWAu3syJEffR/81gdJ3w1YsmX0NEplLLzrqHq7U
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(136003)(346002)(39860400002)(396003)(376002)(451199015)(46966006)(40470700004)(36840700001)(2906002)(2616005)(26005)(186003)(1076003)(47076005)(426003)(5660300002)(44832011)(8936002)(83380400001)(7696005)(86362001)(36756003)(36860700001)(40460700003)(54906003)(40480700001)(70206006)(70586007)(82310400005)(356005)(16526019)(336012)(81166007)(8676002)(316002)(478600001)(110136005)(41300700001)(4326008)(82740400003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2022 14:33:56.4198
+X-Microsoft-Antispam-Message-Info: sfdV/cLuxL/eZUzPBahJrPsgkO5C04QiwG5+ILgLn2sK63I6sJ9bRztv6iZe1PC04y2GHOtYRlJNcuA9HjP/RzQj9SF0N41PJSaWhMhXmN1+n5Kwl8vs4ieTLz3z78Qy/1SZHB5HsbrKzcKsbtSfat1Lmvcnc5ZBzhFh7u82tBVi7+2HRhZCr/561pp1KzYRWsMSFC+Be+HrPswEhxNud0Qxw14CJE3+o5ZSabQbadf36RGFOs5D2Eai0J7ooAl9Gx/X+DOY/3VcuMSxgHawNK1KhrmKS82DJ4HYdgUtpSXbh61TKK6beWNnGTe8sZRrZavb3mNqyYoUgmfbH5AZPad23Iv7cQhLqAO5HCrGI+oUqEmmWrNIO/xWV/L4PRzXqLnmXdGH9LWubb2AxmQ2FK1QoT3Qs+ijzTb3vKosbPrM236SCBueQ0PIqGq7yvlU6exoZXMkcFzLyRuc5ncDOia7UECmkwa4A89N6ygMJ0FOVwBx1boJiHOh4XaEnzcuyehPxt4Ogd+klfsPmAfvaDFt/zRx6s/g9NqRO5q8H2sJMi3XG4rfZN4Dws5e+9KGDnTYCpmsUPuMbpUk+9j7DONpnaIEMDoGOAc0S9VlEu031L1AmDHF7SqHE4NF1kILl3vr+hKIYsxLeHNYxOnVzrVAbgg4xJUyIZ0pY0rtm01rlInN2z/eT+v4bbO+Bet1r1EBgOmdRVBJ2kBwcj4Wbl45+IYjJ62m2VCLBlsB0Ac9X9aNBStrgf7soRXLp+ivBmsRbzyIggHaE/kNkOV7+Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39850400004)(346002)(396003)(366004)(136003)(376002)(451199015)(86362001)(38100700002)(38350700002)(36756003)(2906002)(1076003)(186003)(5660300002)(26005)(44832011)(6512007)(6486002)(107886003)(6666004)(52116002)(41300700001)(478600001)(6506007)(83380400001)(2616005)(316002)(54906003)(6916009)(8676002)(4326008)(8936002)(66476007)(66946007)(66556008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7bB1LQwVMgfZ7+0f0i8nJBhiUVuLjpKO+KDsSEbOLJVgiMufWIX9osKxpyLu?=
+ =?us-ascii?Q?dLOpRlpTOfOoZ/OO7mKo2dERyo4X2e/w3zeDPLJ5AokCZcfs84NxjpPm4iUD?=
+ =?us-ascii?Q?5OqarPqafQibJ2Tp3Ncg8xqPF70QMdDZrjdcgZMQg+lE6p4XFH1WWbEjuWez?=
+ =?us-ascii?Q?bkrWLgdvAs2mhG+CFa9yutKvjK0yXfaPxbld/SJgJ3vWDqIpeWdjOyfyezFu?=
+ =?us-ascii?Q?FwEn3kUQKbo1ImOmEHRVM4rsE0hD7DH28sad76IzfeOyuYU0/vIRvYV5HiDn?=
+ =?us-ascii?Q?IZd6W2TzV/jMVoSwsI1XEeKntkeLzKIJuyTIoO74QY2W9qISiUXutdbZHJ8t?=
+ =?us-ascii?Q?r1BnpsZacyOoViw6RCaqixCd8MUalOvcJXOPYqPCNoQeBVZSS94JG28ioXvw?=
+ =?us-ascii?Q?6jLcZwlDtStZcb3bQxTHrjJANTYQJehO5v2dtvVv99evB9Apw4fTHQgnBFBt?=
+ =?us-ascii?Q?o5os9bAuJDq7lmWT/WIS5ljcUEJDnUKePUzNd7RsT6xgg1KYPR2p+kSs8LWj?=
+ =?us-ascii?Q?KSjREFmdMrzDb6ytoSb2KDeoqdmagnWa15yHYbU8sk3vxL2PtrRCKS8xh6Uw?=
+ =?us-ascii?Q?68Ckr090edLreUnaKBND0A364eocZ4HOAG+ma/y62ky9DbUDRTfMeiFWMoKm?=
+ =?us-ascii?Q?mfygpjKmkG8KR4RSBLl9KC0FGkVQGe395poKiWGbV68fSNOHIygUntr/yGQe?=
+ =?us-ascii?Q?9WH/K7sJnqe0cFVYAcdK42Y6Y1alZh+m5XW7EL8EF0yY29P7HFRVsYdi/a6r?=
+ =?us-ascii?Q?ioC4481nr5hIbpCN0Z/swtsfvw5ryhrrFHBNmq6LL3oFEIuQ7XqFLs3yaoRO?=
+ =?us-ascii?Q?NKCimgvMPmR15YvOGCPc4Opyg9Wu/hdzUdD+xfnkYtqGYCStYYCHHC1+VE9L?=
+ =?us-ascii?Q?4hc1jr6veNxl8qvD0yzv+38lEd08LVH+8GWyHJQdw3pJSBp/djK4T9LiP0Yd?=
+ =?us-ascii?Q?dRuRU2R21DDEgUCRs+o+M/VO46ngK5ucHdpGPWFzKUE67Wf+7oun6VGXYgLS?=
+ =?us-ascii?Q?HIFCcOKfQHFkerae8oswznKrfI+RDJYwZl7R3du6nGmIZQcJy9Cw8cblxbxi?=
+ =?us-ascii?Q?nY1nV7JDJxrHEEvciSt2j9CfgjeSqpzzmLo8ewQ2AcFgLt0HWg1s++0Crrwc?=
+ =?us-ascii?Q?PMP3qgnr/8zrEt0J2KV0PkmU4uaUmXOToPJdxt/wd9jtuN8Hf3g2X2sYb/fA?=
+ =?us-ascii?Q?ekfKttUfv8jgNY1AE8bw2EKzCOyFA9NmkamhV+ZhmH+aZKF3YbHuLHQogH2x?=
+ =?us-ascii?Q?sRljoSAjs0mgyKVgYn68kijQEHJbe/9Pe4B7gnMVOGUs0zQvAnP2btUSecJ4?=
+ =?us-ascii?Q?BVh3Msd3K6ilOXGS8oONDP9kzW4zxY/2tXQS46FkEBV0Zqg49g0225N6sw//?=
+ =?us-ascii?Q?Cm1Gtym2tW3csEBQbhqM88b4EzbRJhFe/vQ9SytRnb6TiJguBmQoOSrjuE+j?=
+ =?us-ascii?Q?PJ2njLRMF0gri0812dcVVSMhCeMP4LotSkdD34+qK4EWgNMiZIio+vGbLtFO?=
+ =?us-ascii?Q?0oZxUhZcJjeMZMC8IOr8F0xCrt3olONWDf8yJ2i+nF/I5cLKTQrR6+HALxpp?=
+ =?us-ascii?Q?hDQzANP+hX5vJUSj7ltDSsZEkQXkaTQ9GeivabT5x7UUFbGLTnVMk+3tznwS?=
+ =?us-ascii?Q?ow=3D=3D?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 998f8a43-0148-4eb5-23f0-08da9fced174
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2022 14:53:05.4193
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 575e0834-6349-4c2d-7baa-08da9fcc24bc
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT065.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB6247
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: sgd9oBUfld7Quxi1EBelKW7LavILcmLe+0qVyea5xK3v5fjaYoIF+jONQbK51cPXjxV4s2gvMOHS1bpHysAOhiXyDVX3MZjOdU2SbU5Ho0Y=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR11MB6385
+X-Proofpoint-GUID: -RD1jTqYFRUJ9gmMdLOwf_welVMyGC87
+X-Proofpoint-ORIG-GUID: -RD1jTqYFRUJ9gmMdLOwf_welVMyGC87
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-26_08,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 malwarescore=0 mlxscore=0 lowpriorityscore=0
+ impostorscore=0 suspectscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209260094
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Software that has run before the USB4 CM in Linux runs may have disabled
-hotplug events for a given lane adapter.
+From: Mingwei Zhang <mizhang@google.com>
 
-Other CMs such as that one distributed with Windows 11 will enable hotplug
-events. Do the same thing in the Linux CM which fixes hotplug events on
-"AMD Pink Sardine".
+commit 683412ccf61294d727ead4a73d97397396e69a6b upstream.
+
+Flush the CPU caches when memory is reclaimed from an SEV guest (where
+reclaim also includes it being unmapped from KVM's memslots).  Due to lack
+of coherency for SEV encrypted memory, failure to flush results in silent
+data corruption if userspace is malicious/broken and doesn't ensure SEV
+guest memory is properly pinned and unpinned.
+
+Cache coherency is not enforced across the VM boundary in SEV (AMD APM
+vol.2 Section 15.34.7). Confidential cachelines, generated by confidential
+VM guests have to be explicitly flushed on the host side. If a memory page
+containing dirty confidential cachelines was released by VM and reallocated
+to another user, the cachelines may corrupt the new user at a later time.
+
+KVM takes a shortcut by assuming all confidential memory remain pinned
+until the end of VM lifetime. Therefore, KVM does not flush cache at
+mmu_notifier invalidation events. Because of this incorrect assumption and
+the lack of cache flushing, malicous userspace can crash the host kernel:
+creating a malicious VM and continuously allocates/releases unpinned
+confidential memory pages when the VM is running.
+
+Add cache flush operations to mmu_notifier operations to ensure that any
+physical memory leaving the guest VM get flushed. In particular, hook
+mmu_notifier_invalidate_range_start and mmu_notifier_release events and
+flush cache accordingly. The hook after releasing the mmu lock to avoid
+contention with other vCPUs.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Suggested-by: Sean Christpherson <seanjc@google.com>
+Reported-by: Mingwei Zhang <mizhang@google.com>
+Signed-off-by: Mingwei Zhang <mizhang@google.com>
+Message-Id: <20220421031407.2516575-4-mizhang@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[OP: applied kvm_arch_guest_memory_reclaimed() calls in
+__kvm_set_memory_region() and kvm_mmu_notifier_invalidate_range_start();
+OP: adjusted kvm_arch_guest_memory_reclaimed() to not use static_call_cond()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
-v3->v4:
- * Adjust calling location from a new static function.
-v2->v3:
- * Guard with tb_switch_is_icm to avoid risk to Intel FW CM case
-v1->v2:
- * s/usb4_enable_hotplug/usb4_port_hotplug_enable/
- * Clarify intended users in documentation comment
- * Only call for lane adapters
- * Add stable tag
+ arch/x86/include/asm/kvm_host.h |  1 +
+ arch/x86/kvm/svm.c              |  9 +++++++++
+ arch/x86/kvm/x86.c              |  6 ++++++
+ include/linux/kvm_host.h        |  2 ++
+ virt/kvm/kvm_main.c             | 16 ++++++++++++++--
+ 5 files changed, 32 insertions(+), 2 deletions(-)
 
- drivers/thunderbolt/switch.c  | 24 ++++++++++++++++++++++++
- drivers/thunderbolt/tb.h      |  1 +
- drivers/thunderbolt/tb_regs.h |  1 +
- drivers/thunderbolt/usb4.c    | 20 ++++++++++++++++++++
- 4 files changed, 46 insertions(+)
-
-diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
-index 77d7f07ca075..e7851c926538 100644
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -2822,6 +2822,26 @@ static void tb_switch_credits_init(struct tb_switch *sw)
- 		tb_sw_info(sw, "failed to determine preferred buffer allocation, using defaults\n");
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 4bc476d7fa6c..7167f94ed250 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1204,6 +1204,7 @@ struct kvm_x86_ops {
+ 	int (*mem_enc_op)(struct kvm *kvm, void __user *argp);
+ 	int (*mem_enc_reg_region)(struct kvm *kvm, struct kvm_enc_region *argp);
+ 	int (*mem_enc_unreg_region)(struct kvm *kvm, struct kvm_enc_region *argp);
++	void (*guest_memory_reclaimed)(struct kvm *kvm);
+ 
+ 	int (*get_msr_feature)(struct kvm_msr_entry *entry);
+ 
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 1efcc7d4bc88..95f1293babae 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5072,6 +5072,14 @@ static void reload_tss(struct kvm_vcpu *vcpu)
+ 	load_TR_desc();
  }
  
-+static int tb_switch_port_hotplug_enable(struct tb_switch *sw)
++static void sev_guest_memory_reclaimed(struct kvm *kvm)
 +{
-+	struct tb_port *port;
++	if (!sev_guest(kvm))
++		return;
 +
-+	if (tb_switch_is_icm(sw))
-+		return 0;
-+
-+	tb_switch_for_each_port(sw, port) {
-+		int res;
-+
-+		if (!port->cap_usb4)
-+			continue;
-+
-+		res = usb4_port_hotplug_enable(port);
-+		if (res)
-+			return res;
-+	}
-+	return 0;
++	wbinvd_on_all_cpus();
 +}
 +
- /**
-  * tb_switch_add() - Add a switch to the domain
-  * @sw: Switch to add
-@@ -2891,6 +2911,10 @@ int tb_switch_add(struct tb_switch *sw)
- 			return ret;
- 	}
- 
-+	ret = tb_switch_port_hotplug_enable(sw);
-+	if (ret)
-+		return ret;
-+
- 	ret = device_add(&sw->dev);
- 	if (ret) {
- 		dev_err(&sw->dev, "failed to add device: %d\n", ret);
-diff --git a/drivers/thunderbolt/tb.h b/drivers/thunderbolt/tb.h
-index 5db76de40cc1..332159f984fc 100644
---- a/drivers/thunderbolt/tb.h
-+++ b/drivers/thunderbolt/tb.h
-@@ -1174,6 +1174,7 @@ int usb4_switch_add_ports(struct tb_switch *sw);
- void usb4_switch_remove_ports(struct tb_switch *sw);
- 
- int usb4_port_unlock(struct tb_port *port);
-+int usb4_port_hotplug_enable(struct tb_port *port);
- int usb4_port_configure(struct tb_port *port);
- void usb4_port_unconfigure(struct tb_port *port);
- int usb4_port_configure_xdomain(struct tb_port *port);
-diff --git a/drivers/thunderbolt/tb_regs.h b/drivers/thunderbolt/tb_regs.h
-index 166054110388..bbe38b2d9057 100644
---- a/drivers/thunderbolt/tb_regs.h
-+++ b/drivers/thunderbolt/tb_regs.h
-@@ -308,6 +308,7 @@ struct tb_regs_port_header {
- #define ADP_CS_5				0x05
- #define ADP_CS_5_LCA_MASK			GENMASK(28, 22)
- #define ADP_CS_5_LCA_SHIFT			22
-+#define ADP_CS_5_DHP				BIT(31)
- 
- /* TMU adapter registers */
- #define TMU_ADP_CS_3				0x03
-diff --git a/drivers/thunderbolt/usb4.c b/drivers/thunderbolt/usb4.c
-index 3a2e7126db9d..f0b5a8f1ed3a 100644
---- a/drivers/thunderbolt/usb4.c
-+++ b/drivers/thunderbolt/usb4.c
-@@ -1046,6 +1046,26 @@ int usb4_port_unlock(struct tb_port *port)
- 	return tb_port_write(port, &val, TB_CFG_PORT, ADP_CS_4, 1);
- }
- 
-+/**
-+ * usb4_port_hotplug_enable() - Enables hotplug for a port
-+ * @port: USB4 port to operate on
-+ *
-+ * Enables hot plug events on a given port. This is only intended
-+ * to be used on lane, DP-IN, and DP-OUT adapters.
-+ */
-+int usb4_port_hotplug_enable(struct tb_port *port)
-+{
-+	int ret;
-+	u32 val;
-+
-+	ret = tb_port_read(port, &val, TB_CFG_PORT, ADP_CS_5, 1);
-+	if (ret)
-+		return ret;
-+
-+	val &= ~ADP_CS_5_DHP;
-+	return tb_port_write(port, &val, TB_CFG_PORT, ADP_CS_5, 1);
-+}
-+
- static int usb4_port_set_configured(struct tb_port *port, bool configured)
+ static void pre_sev_run(struct vcpu_svm *svm, int cpu)
  {
- 	int ret;
+ 	struct svm_cpu_data *sd = per_cpu(svm_data, cpu);
+@@ -7385,6 +7393,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.mem_enc_op = svm_mem_enc_op,
+ 	.mem_enc_reg_region = svm_register_enc_region,
+ 	.mem_enc_unreg_region = svm_unregister_enc_region,
++	.guest_memory_reclaimed = sev_guest_memory_reclaimed,
+ 
+ 	.nested_enable_evmcs = NULL,
+ 	.nested_get_evmcs_version = NULL,
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index d0b297583df8..bb391ff7a901 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8046,6 +8046,12 @@ void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+ 		kvm_make_all_cpus_request(kvm, KVM_REQ_APIC_PAGE_RELOAD);
+ }
+ 
++void kvm_arch_guest_memory_reclaimed(struct kvm *kvm)
++{
++	if (kvm_x86_ops->guest_memory_reclaimed)
++		kvm_x86_ops->guest_memory_reclaimed(kvm);
++}
++
+ void kvm_vcpu_reload_apic_access_page(struct kvm_vcpu *vcpu)
+ {
+ 	struct page *page = NULL;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index dd4cdad76b18..9a35585271d8 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1408,6 +1408,8 @@ static inline long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+ 					    unsigned long start, unsigned long end);
+ 
++void kvm_arch_guest_memory_reclaimed(struct kvm *kvm);
++
+ #ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
+ int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu);
+ #else
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 0008fc49528a..b1cb2ef209ca 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -164,6 +164,10 @@ __weak void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+ {
+ }
+ 
++__weak void kvm_arch_guest_memory_reclaimed(struct kvm *kvm)
++{
++}
++
+ bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
+ {
+ 	/*
+@@ -324,6 +328,12 @@ void kvm_reload_remote_mmus(struct kvm *kvm)
+ 	kvm_make_all_cpus_request(kvm, KVM_REQ_MMU_RELOAD);
+ }
+ 
++static void kvm_flush_shadow_all(struct kvm *kvm)
++{
++	kvm_arch_flush_shadow_all(kvm);
++	kvm_arch_guest_memory_reclaimed(kvm);
++}
++
+ int kvm_vcpu_init(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned id)
+ {
+ 	struct page *page;
+@@ -435,6 +445,7 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
+ 		kvm_flush_remote_tlbs(kvm);
+ 
+ 	spin_unlock(&kvm->mmu_lock);
++	kvm_arch_guest_memory_reclaimed(kvm);
+ 	srcu_read_unlock(&kvm->srcu, idx);
+ 
+ 	return 0;
+@@ -538,7 +549,7 @@ static void kvm_mmu_notifier_release(struct mmu_notifier *mn,
+ 	int idx;
+ 
+ 	idx = srcu_read_lock(&kvm->srcu);
+-	kvm_arch_flush_shadow_all(kvm);
++	kvm_flush_shadow_all(kvm);
+ 	srcu_read_unlock(&kvm->srcu, idx);
+ }
+ 
+@@ -844,7 +855,7 @@ static void kvm_destroy_vm(struct kvm *kvm)
+ #if defined(CONFIG_MMU_NOTIFIER) && defined(KVM_ARCH_WANT_MMU_NOTIFIER)
+ 	mmu_notifier_unregister(&kvm->mmu_notifier, kvm->mm);
+ #else
+-	kvm_arch_flush_shadow_all(kvm);
++	kvm_flush_shadow_all(kvm);
+ #endif
+ 	kvm_arch_destroy_vm(kvm);
+ 	kvm_destroy_devices(kvm);
+@@ -1143,6 +1154,7 @@ int __kvm_set_memory_region(struct kvm *kvm,
+ 		 *	- kvm_is_visible_gfn (mmu_check_roots)
+ 		 */
+ 		kvm_arch_flush_shadow_memslot(kvm, slot);
++		kvm_arch_guest_memory_reclaimed(kvm);
+ 
+ 		/*
+ 		 * We can re-use the old_memslots from above, the only difference
 -- 
-2.34.1
+2.37.3
 
