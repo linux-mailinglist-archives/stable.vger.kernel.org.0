@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A095EA4BF
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4C45EA471
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238594AbiIZLvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:51:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
+        id S238371AbiIZLqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:46:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238780AbiIZLts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB7E75FF7;
-        Mon, 26 Sep 2022 03:48:30 -0700 (PDT)
+        with ESMTP id S238921AbiIZLpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:45:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D7773939;
+        Mon, 26 Sep 2022 03:47:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84D6FB802C7;
-        Mon, 26 Sep 2022 10:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D73D3C433D6;
-        Mon, 26 Sep 2022 10:48:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F368460C13;
+        Mon, 26 Sep 2022 10:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B3CEC433D6;
+        Mon, 26 Sep 2022 10:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189309;
-        bh=zluzXjF/oF3xR44I3+gJzSJtEsdyJheyxQR6K6shb3k=;
+        s=korg; t=1664188307;
+        bh=HopNTFdcmTqxm/bXN7v1c7b6TVs8bWw71xRLQwPXREQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mW+1mlja95+FNIsN1iXSU5BPzzpDw/xBc2P5vZTK6VhkjZ+4loNHqZa6A3PMlF9py
-         +AQP/eERv6kmOjDjyb05HoAyzyD+ed08AIV7imVGbNNrFdDwG2nxKsgNivQitJcjZ/
-         h2BsCWF7WpZBUzF94xaIYOisM5Zq4vldptTdcZ6s=
+        b=ucWcPlSSvsXamq2BCgcrYmwHEIhXNkn+ad9V2XJWQ3Ex44Ax/3FwkZIHBUDOUAe/Y
+         E7ihju4AHSOsT/v8yr6IPRUdME8RtCJHFFC/Eqow28dyLSAMGpn5P5aMu6XOKFCGpl
+         6U376K0GCtYDSLhAPPKhiog1x/+MmzOoYqjXky+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 144/207] can: gs_usb: gs_can_open(): fix race dev->can.state condition
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+a24c5252f3e3ab733464@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 107/141] netfilter: ebtables: fix memory leak when blob is malformed
 Date:   Mon, 26 Sep 2022 12:12:13 +0200
-Message-Id: <20220926100812.954667396@linuxfoundation.org>
+Message-Id: <20220926100758.314011924@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 5440428b3da65408dba0241985acb7a05258b85e ]
+[ Upstream commit 62ce44c4fff947eebdf10bb582267e686e6835c9 ]
 
-The dev->can.state is set to CAN_STATE_ERROR_ACTIVE, after the device
-has been started. On busy networks the CAN controller might receive
-CAN frame between and go into an error state before the dev->can.state
-is assigned.
+The bug fix was incomplete, it "replaced" crash with a memory leak.
+The old code had an assignment to "ret" embedded into the conditional,
+restore this.
 
-Assign dev->can.state before starting the controller to close the race
-window.
-
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220920195216.232481-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 7997eff82828 ("netfilter: ebtables: reject blobs that don't provide all entry points")
+Reported-and-tested-by: syzbot+a24c5252f3e3ab733464@syzkaller.appspotmail.com
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
-index d3a658b444b5..092cd51b3926 100644
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -824,6 +824,7 @@ static int gs_can_open(struct net_device *netdev)
- 		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
- 
- 	/* finally start device */
-+	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
- 	dm->flags = cpu_to_le32(flags);
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
-@@ -835,13 +836,12 @@ static int gs_can_open(struct net_device *netdev)
- 	if (rc < 0) {
- 		netdev_err(netdev, "Couldn't start device (err=%d)\n", rc);
- 		kfree(dm);
-+		dev->can.state = CAN_STATE_STOPPED;
- 		return rc;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 310740cc684a..06b80b584381 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -999,8 +999,10 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 		goto free_iterate;
  	}
  
- 	kfree(dm);
+-	if (repl->valid_hooks != t->valid_hooks)
++	if (repl->valid_hooks != t->valid_hooks) {
++		ret = -EINVAL;
+ 		goto free_unlock;
++	}
  
--	dev->can.state = CAN_STATE_ERROR_ACTIVE;
--
- 	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
+ 	if (repl->num_counters && repl->num_counters != t->private->nentries) {
+ 		ret = -EINVAL;
 -- 
 2.35.1
 
