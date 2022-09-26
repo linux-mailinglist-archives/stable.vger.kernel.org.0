@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 791835EA000
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 538E45EA2E0
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235672AbiIZKcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52154 "EHLO
+        id S237637AbiIZLQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:16:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235682AbiIZKaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:30:17 -0400
+        with ESMTP id S236020AbiIZLPO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:15:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AB695BC;
-        Mon, 26 Sep 2022 03:19:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CE265258;
+        Mon, 26 Sep 2022 03:36:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 874C360B60;
-        Mon, 26 Sep 2022 10:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D70DC433D7;
-        Mon, 26 Sep 2022 10:19:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A836609FE;
+        Mon, 26 Sep 2022 10:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E5DC433C1;
+        Mon, 26 Sep 2022 10:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187581;
-        bh=g+vMcxNmAy28LBGEzMAhjU8n7hjEgxGZ9DO/fXUrtSo=;
+        s=korg; t=1664188618;
+        bh=YzwZ+d+bD+1c7lCL2iXpE240iPwQJFVL3vUdyqCAnWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2ix0zKxYZ0SS8KamVm503e0siyxkBIivPGdeSgIf4XfsU7ZoYFBX5RLk4AnsIzdE
-         AasZIVEDdE9AH65VHrjwl2PIFxPMA6dPh9iv9HLwORrkmUmfcsVLbv1fOrpfGTXUGD
-         NWMeUeJsl48m4YHwADQfRuH1kpq4nB+DzcBGVqOw=
+        b=xEqf9N0Vy0a1ohgriGzi/32Bee1R0yOSl7cuBr03ibl0ukjgTKb3yadUJ8pCNWuOP
+         jse447Z2etIcXtEk9c5VCuuQaLTWQ7u3e0kH0s6yyAtk+0OTE/jM9SvTwqfCwNyYrJ
+         pc3o6bymCkdlCjRTAZT029qNzJEoNi/P3CrHrViU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/58] usb: dwc3: pci: add support for the Intel Jasper Lake
+Subject: [PATCH 5.15 067/148] netfilter: nf_conntrack_irc: Tighten matching on DCC message
 Date:   Mon, 26 Sep 2022 12:11:41 +0200
-Message-Id: <20220926100742.249054602@linuxfoundation.org>
+Message-Id: <20220926100758.557152913@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: David Leadbeater <dgl@dgl.cx>
 
-[ Upstream commit e25d1e8532c3d84f075deca1580a7d61e0f43ce6 ]
+[ Upstream commit e8d5dfd1d8747b56077d02664a8838c71ced948e ]
 
-This patch adds the necessary PCI ID for Intel Jasper Lake
-devices.
+CTCP messages should only be at the start of an IRC message, not
+anywhere within it.
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Stable-dep-of: bad0d1d726ac ("usb: dwc3: pci: Add support for Intel Raptor Lake")
+While the helper only decodes packes in the ORIGINAL direction, its
+possible to make a client send a CTCP message back by empedding one into
+a PING request.  As-is, thats enough to make the helper believe that it
+saw a CTCP message.
+
+Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
+Signed-off-by: David Leadbeater <dgl@dgl.cx>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nf_conntrack_irc.c | 34 ++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index cddf02add6f1..125cecb1bc99 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -39,6 +39,7 @@
- #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
- #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
- #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
-+#define PCI_DEVICE_ID_INTEL_JSP			0x4dee
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index 18b90e334b5b..159e1e4441a4 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -151,15 +151,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 	data = ib_ptr;
+ 	data_limit = ib_ptr + skb->len - dataoff;
  
- #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
- #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
-@@ -363,6 +364,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPH),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+-	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
+-	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
+-	while (data < data_limit - (19 + MINMATCHLEN)) {
+-		if (memcmp(data, "\1DCC ", 5)) {
++	/* Skip any whitespace */
++	while (data < data_limit - 10) {
++		if (*data == ' ' || *data == '\r' || *data == '\n')
++			data++;
++		else
++			break;
++	}
 +
- 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
- 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
- 	{  }	/* Terminating Entry */
++	/* strlen("PRIVMSG x ")=10 */
++	if (data < data_limit - 10) {
++		if (strncasecmp("PRIVMSG ", data, 8))
++			goto out;
++		data += 8;
++	}
++
++	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
++	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
++	 */
++	while (data < data_limit - (21 + MINMATCHLEN)) {
++		/* Find first " :", the start of message */
++		if (memcmp(data, " :", 2)) {
+ 			data++;
+ 			continue;
+ 		}
++		data += 2;
++
++		/* then check that place only for the DCC command */
++		if (memcmp(data, "\1DCC ", 5))
++			goto out;
+ 		data += 5;
+-		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
++		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
+ 
+ 		iph = ip_hdr(skb);
+ 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
+@@ -175,7 +197,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 			pr_debug("DCC %s detected\n", dccprotos[i]);
+ 
+ 			/* we have at least
+-			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
++			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
+ 			 * data left (== 14/13 bytes) */
+ 			if (parse_dcc(data, data_limit, &dcc_ip,
+ 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
 -- 
 2.35.1
 
