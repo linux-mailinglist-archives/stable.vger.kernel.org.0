@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 538E45EA2E0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B6E5EA135
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237637AbiIZLQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:16:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        id S236557AbiIZKqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:46:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236020AbiIZLPO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:15:14 -0400
+        with ESMTP id S236839AbiIZKos (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:44:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CE265258;
-        Mon, 26 Sep 2022 03:36:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0B5564D8;
+        Mon, 26 Sep 2022 03:25:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A836609FE;
-        Mon, 26 Sep 2022 10:36:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E5DC433C1;
-        Mon, 26 Sep 2022 10:36:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 235EA60B9A;
+        Mon, 26 Sep 2022 10:25:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356A2C43140;
+        Mon, 26 Sep 2022 10:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188618;
-        bh=YzwZ+d+bD+1c7lCL2iXpE240iPwQJFVL3vUdyqCAnWw=;
+        s=korg; t=1664187943;
+        bh=wYMWX1RdKzeoF4adCEB63kIZCJOyfUXgVp3rUBJ24FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEqf9N0Vy0a1ohgriGzi/32Bee1R0yOSl7cuBr03ibl0ukjgTKb3yadUJ8pCNWuOP
-         jse447Z2etIcXtEk9c5VCuuQaLTWQ7u3e0kH0s6yyAtk+0OTE/jM9SvTwqfCwNyYrJ
-         pc3o6bymCkdlCjRTAZT029qNzJEoNi/P3CrHrViU=
+        b=hCYqNtnDOLuGH69uCMy8cMALO7FJApT4iWcZx2p8OaFAcEK+B7jwA7WLl1mS3ROR/
+         NzRggAjoKRfRX1YlhghHzR8BohQ0Pi0lTCmP7x09uL5MWd6tQ5Ke6K38mjuEkBjxhX
+         d4rNhKfMKRgmrq0qK6FfLXFcPZvy2eSchCbzFTQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        stable@vger.kernel.org, Igor Ryzhov <iryzhov@nfware.com>,
         Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/148] netfilter: nf_conntrack_irc: Tighten matching on DCC message
-Date:   Mon, 26 Sep 2022 12:11:41 +0200
-Message-Id: <20220926100758.557152913@linuxfoundation.org>
+Subject: [PATCH 5.4 069/120] netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+Date:   Mon, 26 Sep 2022 12:11:42 +0200
+Message-Id: <20220926100753.514780869@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,82 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Igor Ryzhov <iryzhov@nfware.com>
 
-[ Upstream commit e8d5dfd1d8747b56077d02664a8838c71ced948e ]
+[ Upstream commit 39aebedeaaa95757f5c1f2ddb5f43fdddbf478ca ]
 
-CTCP messages should only be at the start of an IRC message, not
-anywhere within it.
+ct_sip_next_header and ct_sip_get_header return an absolute
+value of matchoff, not a shift from current dataoff.
+So dataoff should be assigned matchoff, not incremented by it.
 
-While the helper only decodes packes in the ORIGINAL direction, its
-possible to make a client send a CTCP message back by empedding one into
-a PING request.  As-is, thats enough to make the helper believe that it
-saw a CTCP message.
+This issue can be seen in the scenario when there are multiple
+Contact headers and the first one is using a hostname and other headers
+use IP addresses. In this case, ct_sip_walk_headers will work as follows:
 
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
+The first ct_sip_get_header call to will find the first Contact header
+but will return -1 as the header uses a hostname. But matchoff will
+be changed to the offset of this header. After that, dataoff should be
+set to matchoff, so that the next ct_sip_get_header call find the next
+Contact header. But instead of assigning dataoff to matchoff, it is
+incremented by it, which is not correct, as matchoff is an absolute
+value of the offset. So on the next call to the ct_sip_get_header,
+dataoff will be incorrect, and the next Contact header may not be
+found at all.
+
+Fixes: 05e3ced297fe ("[NETFILTER]: nf_conntrack_sip: introduce SIP-URI parsing helper")
+Signed-off-by: Igor Ryzhov <iryzhov@nfware.com>
 Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 34 ++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ net/netfilter/nf_conntrack_sip.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index 18b90e334b5b..159e1e4441a4 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -151,15 +151,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 	data = ib_ptr;
- 	data_limit = ib_ptr + skb->len - dataoff;
- 
--	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
--	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
--	while (data < data_limit - (19 + MINMATCHLEN)) {
--		if (memcmp(data, "\1DCC ", 5)) {
-+	/* Skip any whitespace */
-+	while (data < data_limit - 10) {
-+		if (*data == ' ' || *data == '\r' || *data == '\n')
-+			data++;
-+		else
-+			break;
-+	}
-+
-+	/* strlen("PRIVMSG x ")=10 */
-+	if (data < data_limit - 10) {
-+		if (strncasecmp("PRIVMSG ", data, 8))
-+			goto out;
-+		data += 8;
-+	}
-+
-+	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
-+	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
-+	 */
-+	while (data < data_limit - (21 + MINMATCHLEN)) {
-+		/* Find first " :", the start of message */
-+		if (memcmp(data, " :", 2)) {
- 			data++;
- 			continue;
+diff --git a/net/netfilter/nf_conntrack_sip.c b/net/netfilter/nf_conntrack_sip.c
+index b83dc9bf0a5d..78fd9122b70c 100644
+--- a/net/netfilter/nf_conntrack_sip.c
++++ b/net/netfilter/nf_conntrack_sip.c
+@@ -477,7 +477,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
+ 				return ret;
+ 			if (ret == 0)
+ 				break;
+-			dataoff += *matchoff;
++			dataoff = *matchoff;
  		}
-+		data += 2;
-+
-+		/* then check that place only for the DCC command */
-+		if (memcmp(data, "\1DCC ", 5))
-+			goto out;
- 		data += 5;
--		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
-+		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
+ 		*in_header = 0;
+ 	}
+@@ -489,7 +489,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
+ 			break;
+ 		if (ret == 0)
+ 			return ret;
+-		dataoff += *matchoff;
++		dataoff = *matchoff;
+ 	}
  
- 		iph = ip_hdr(skb);
- 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
-@@ -175,7 +197,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 			pr_debug("DCC %s detected\n", dccprotos[i]);
- 
- 			/* we have at least
--			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
-+			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
- 			 * data left (== 14/13 bytes) */
- 			if (parse_dcc(data, data_limit, &dcc_ip,
- 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
+ 	if (in_header)
 -- 
 2.35.1
 
