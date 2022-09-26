@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C315E9F42
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B205E9F73
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235296AbiIZKWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37708 "EHLO
+        id S235366AbiIZKZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:25:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235249AbiIZKVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:21:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1BF4B4A3;
-        Mon, 26 Sep 2022 03:16:07 -0700 (PDT)
+        with ESMTP id S235700AbiIZKYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 272A837F93;
+        Mon, 26 Sep 2022 03:18:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A240FB8091E;
-        Mon, 26 Sep 2022 10:16:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D68C433D7;
-        Mon, 26 Sep 2022 10:16:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B84660BBF;
+        Mon, 26 Sep 2022 10:17:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6BEC433D7;
+        Mon, 26 Sep 2022 10:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187364;
-        bh=oNBH8HAXn+y6fBbQmefAHGzvMjBfcArG+c+7kUIY7Gs=;
+        s=korg; t=1664187451;
+        bh=KNRkChDz/lxghQSg1o/o/sFxhP3xl2eP6X2+b6fcYQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVR0m5vMDU+LvDMFWATDf9FT9NdS2E03ylbMO2nmcICSY086oBNwOvlBFtwb9lJrE
-         Acq79tP3Yij3BUmngmLjvTmahUqrSi2CJIm2Bf/js54D13RtfYpR+OGWQkub06RonT
-         LdPucHwHbA0oSPo8LNQ4gP1hL+Lwdpxr/WYYnmf0=
+        b=PKs2793nydi5PXjtrlgaVNHBTFwShcYcNAEh5+e/yhz9HvT81sDVnV6ZWTChJKEuW
+         oTjD/hgXn+wVv6UCDQQsSy/HcOoNzky7RQUKa6taIjAFBU4GpCDfgodhmLeOXqe7RN
+         OU16bwmhsq1v62YiEJVzn7OuXhxyXC+eNluHccJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stuart Menefy <stuart.menefy@mathembedded.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/40] drm/meson: Correct OSD1 global alpha value
+Subject: [PATCH 4.19 12/58] rxrpc: Fix local destruction being repeated
 Date:   Mon, 26 Sep 2022 12:11:31 +0200
-Message-Id: <20220926100738.338184163@linuxfoundation.org>
+Message-Id: <20220926100741.855339878@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Menefy <stuart.menefy@mathembedded.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 6836829c8ea453c9e3e518e61539e35881c8ed5f ]
+[ Upstream commit d3d863036d688313f8d566b87acd7d99daf82749 ]
 
-VIU_OSD1_CTRL_STAT.GLOBAL_ALPHA is a 9 bit field, so the maximum
-value is 0x100 not 0xff.
+If the local processor work item for the rxrpc local endpoint gets requeued
+by an event (such as an incoming packet) between it getting scheduled for
+destruction and the UDP socket being closed, the rxrpc_local_destroyer()
+function can get run twice.  The second time it can hang because it can end
+up waiting for cleanup events that will never happen.
 
-This matches the vendor kernel.
-
-Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220908155103.686904-1-stuart.menefy@mathembedded.com
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_plane.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/local_object.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/meson/meson_plane.c b/drivers/gpu/drm/meson/meson_plane.c
-index 85fa39e2be34..75132d0c5c28 100644
---- a/drivers/gpu/drm/meson/meson_plane.c
-+++ b/drivers/gpu/drm/meson/meson_plane.c
-@@ -105,7 +105,7 @@ static void meson_plane_atomic_update(struct drm_plane *plane,
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index fe190a691872..5a01479aae3f 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -452,6 +452,9 @@ static void rxrpc_local_processor(struct work_struct *work)
+ 		container_of(work, struct rxrpc_local, processor);
+ 	bool again;
  
- 	/* Enable OSD and BLK0, set max global alpha */
- 	priv->viu.osd1_ctrl_stat = OSD_ENABLE |
--				   (0xFF << OSD_GLOBAL_ALPHA_SHIFT) |
-+				   (0x100 << OSD_GLOBAL_ALPHA_SHIFT) |
- 				   OSD_BLK0_ENABLE;
++	if (local->dead)
++		return;
++
+ 	trace_rxrpc_local(local->debug_id, rxrpc_local_processing,
+ 			  atomic_read(&local->usage), NULL);
  
- 	/* Set up BLK0 to point to the right canvas */
 -- 
 2.35.1
 
