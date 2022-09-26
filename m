@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 974AA5E9F18
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0235EA08F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235011AbiIZKT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44056 "EHLO
+        id S236117AbiIZKkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:40:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235120AbiIZKSg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:18:36 -0400
+        with ESMTP id S236338AbiIZKjC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0A723F30C;
-        Mon, 26 Sep 2022 03:15:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D98054CA2A;
+        Mon, 26 Sep 2022 03:22:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 706DB60C05;
-        Mon, 26 Sep 2022 10:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B9CC433C1;
-        Mon, 26 Sep 2022 10:15:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72A9C60C13;
+        Mon, 26 Sep 2022 10:22:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DCA7C433D7;
+        Mon, 26 Sep 2022 10:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187314;
-        bh=CG9aAULDUhtiAPLE9alwsdWAAH+xFtD0LK43un1xG8A=;
+        s=korg; t=1664187776;
+        bh=hcZDXeQDxdVuyJ5ymRRkRVN0FZjYJSq5O2pvudqyo+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MblFZi+5kUTzhhGUdcrJZx+SZbtTdQnPQJIhnLSFp+sZ+ZqQRyDhipsPYa1Nu/t+J
-         IgEeBb/KvRXPjTiofKzUo76VTkXrDdtNLbRmsJhqp7dxNUFr5OQm4lwLqLlk8i+8z4
-         hJAociYXjFa2raXYFN1HWon48tqo7gZAELhFWRJQ=
+        b=fHTuJZO5AFfxlTEDbmS+zRBGdrtmHJXRLrbORHPLdqIokESdPyrsLMu6K6s6LkLc1
+         RPXZnemByD4fYKKICjyjmp2KORePNUWL60wkWalp1Rsd8aD0S9ohn+IqMaJAQ1M3+E
+         ZVwLwksIljc0LMeBHKxbPGEK3wI28QEE1D2Bv6II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/40] of: fdt: fix off-by-one error in unflatten_dt_nodes()
+        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 056/120] ALSA: hda/tegra: set depop delay for tegra
 Date:   Mon, 26 Sep 2022 12:11:29 +0200
-Message-Id: <20220926100738.249994311@linuxfoundation.org>
+Message-Id: <20220926100752.849014990@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,41 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit 2f945a792f67815abca26fa8a5e863ccf3fa1181 ]
+commit 3c4d8c24fb6c44f426e447b04800b0ed61a7b5ae upstream.
 
-Commit 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
-forgot to fix up the depth check in the loop body in unflatten_dt_nodes()
-which makes it possible to overflow the nps[] buffer...
+Reduce the suspend time by setting depop delay to 10ms for
+tegra.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
-
-Fixes: 78c44d910d3e ("drivers/of: Fix depth when unflattening devicetree")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/7c354554-006f-6b31-c195-cdfe4caee392@omp.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913053641.23299-1-mkumard@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/fdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 512d3a8439c9..cc9b8c699da4 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -425,7 +425,7 @@ static int unflatten_dt_nodes(const void *blob,
- 	for (offset = 0;
- 	     offset >= 0 && depth >= initial_depth;
- 	     offset = fdt_next_node(blob, offset, &depth)) {
--		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH))
-+		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH - 1))
- 			continue;
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3703,6 +3703,7 @@ static int patch_tegra_hdmi(struct hda_c
+ 	if (err)
+ 		return err;
  
- 		fpsizes[depth+1] = populate_node(blob, offset, &mem,
--- 
-2.35.1
-
++	codec->depop_delay = 10;
+ 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
+ 	spec = codec->spec;
+ 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
 
 
