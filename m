@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0072A5EA2CC
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 937115E9FB6
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234361AbiIZLO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54130 "EHLO
+        id S235346AbiIZK3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237721AbiIZLN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FBF61138;
-        Mon, 26 Sep 2022 03:36:27 -0700 (PDT)
+        with ESMTP id S235492AbiIZK1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:27:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33B213CDA;
+        Mon, 26 Sep 2022 03:18:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C35860AF5;
-        Mon, 26 Sep 2022 10:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6138AC433C1;
-        Mon, 26 Sep 2022 10:36:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EE78B80918;
+        Mon, 26 Sep 2022 10:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73B09C433C1;
+        Mon, 26 Sep 2022 10:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188586;
-        bh=LWYZwJRb+TV/vCBOlcrgL3YiYNJhcCtWUrDD++5bLvg=;
+        s=korg; t=1664187463;
+        bh=y+PRtFkl83ke0GT/qXHOdLqx3No8r0w2wDg24eeFJGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3qNOUQnmPph8+QLvRMvKMwLbu2+aDfUMdz1VR1IanBDcYHJ4N/0WHwspCS6aPavc
-         hKspLkQCT1qg6YqYUaVqnydxvQ/LSoGKR480H5/0QvDB1n5CPdZf/suAA+pPm43C2/
-         oOc151xAHvzYs6O5v0rhlHSQtiZ9qX+YdG1yxqaU=
+        b=O9U9qa351lk9LEg/gq6EWBF+Wg3fGXBypI/TpTOLyOkikdzObq/kw5LwEPzFShYre
+         XGbjrl8ThdLwyNl0oy/Ovw7rP0pRVIX9Kyy1uItHpdB8T9pCH70JN4YMvFYmtSSEHm
+         GBgMKM7eewqXJ7IAglRRL/mMT6RDdLmZ3JxZlimA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sinan Kaya <Sinan.Kaya@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 049/148] net: mana: Add rmb after checking owner bits
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 04/58] parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
 Date:   Mon, 26 Sep 2022 12:11:23 +0200
-Message-Id: <20220926100757.863881132@linuxfoundation.org>
+Message-Id: <20220926100741.587425413@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 6fd2c68da55c552f86e401ebe40c4a619025ef69 upstream.
+[ Upstream commit 38238be4e881a5d0abbe4872b4cd6ed790be06c8 ]
 
-Per GDMA spec, rmb is necessary after checking owner_bits, before
-reading EQ or CQ entries.
+Add missing iounmap() before return from ccio_probe(), if ccio_init_resources()
+fails.
 
-Add rmb in these two places to comply with the specs.
-
-Cc: stable@vger.kernel.org
-Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
-Reported-by: Sinan Kaya <Sinan.Kaya@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Link: https://lore.kernel.org/r/1662928805-15861-1-git-send-email-haiyangz@microsoft.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d46c742f827f ("parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microsoft/mana/gdma_main.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/parisc/ccio-dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/microsoft/mana/gdma_main.c
-+++ b/drivers/net/ethernet/microsoft/mana/gdma_main.c
-@@ -368,6 +368,11 @@ static void mana_gd_process_eq_events(vo
- 			break;
- 		}
- 
-+		/* Per GDMA spec, rmb is necessary after checking owner_bits, before
-+		 * reading eqe.
-+		 */
-+		rmb();
-+
- 		mana_gd_process_eqe(eq);
- 
- 		eq->head++;
-@@ -1096,6 +1101,11 @@ static int mana_gd_read_cqe(struct gdma_
- 	if (WARN_ON_ONCE(owner_bits != new_bits))
- 		return -1;
- 
-+	/* Per GDMA spec, rmb is necessary after checking owner_bits, before
-+	 * reading completion info
-+	 */
-+	rmb();
-+
- 	comp->wq_num = cqe->cqe_info.wq_num;
- 	comp->is_sq = cqe->cqe_info.is_sq;
- 	memcpy(comp->cqe_data, cqe->cqe_data, GDMA_COMP_DATA_SIZE);
+diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
+index 73ee74d6e7a3..2c763f9d75df 100644
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1555,6 +1555,7 @@ static int __init ccio_probe(struct parisc_device *dev)
+ 	}
+ 	ccio_ioc_init(ioc);
+ 	if (ccio_init_resources(ioc)) {
++		iounmap(ioc->ioc_regs);
+ 		kfree(ioc);
+ 		return -ENOMEM;
+ 	}
+-- 
+2.35.1
+
 
 
