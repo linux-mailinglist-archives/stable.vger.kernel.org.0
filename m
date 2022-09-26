@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D6C5EA1A7
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0972D5EA2E3
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236543AbiIZKzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:55:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
+        id S237580AbiIZLQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:16:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237137AbiIZKyi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:54:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2C6F4DF32;
-        Mon, 26 Sep 2022 03:28:55 -0700 (PDT)
+        with ESMTP id S237586AbiIZLPc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:15:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9CF36525C;
+        Mon, 26 Sep 2022 03:37:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B5E601D2;
-        Mon, 26 Sep 2022 10:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300D3C433C1;
-        Mon, 26 Sep 2022 10:28:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8CFFB80691;
+        Mon, 26 Sep 2022 10:35:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C38C433C1;
+        Mon, 26 Sep 2022 10:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188134;
-        bh=ZefyUdyjrZLLfgXROT+Cq73VQjC9GSiMHSF4lSNyBcw=;
+        s=korg; t=1664188546;
+        bh=4jNDAPT6RbG2o3QkyUAz8HExfwylqHzvfN+G8bKnPuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wH/EuCgSgUtcMYAHtm7QK3aHKvQG7ohnUJDAOhIGW3qtwV/cKnGngXcBTpk5oXC+x
-         ys5fj99/UHwwVKh7SF4N82JMBlxGJzHv3sebNxj75eBlFmsICbV0kDarttgRkKTjMQ
-         FkY59LchtZ0jRx1fU+7RvVZNElVq3c6/I9jUqcs4=
+        b=XvHqq1E3gTDMEwEAcwIaNCxGkdoQTM6lpWYNOVO3arT3Kqs3QIz62504ycEfnOz3d
+         ThEX6/+qEXT8av6NdaMLynQPevALTQQqU5n+wXCfa5nOx7dmsvbLu5bN2Pnh0E8jsY
+         vvxPdf/LXm4vp9w2+qWlonGgZfowEsxQDqCMw9yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 050/141] efi: x86: Wipe setup_data on pure EFI boot
-Date:   Mon, 26 Sep 2022 12:11:16 +0200
-Message-Id: <20220926100756.252548651@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.15 043/148] gpio: mockup: fix NULL pointer dereference when removing debugfs
+Date:   Mon, 26 Sep 2022 12:11:17 +0200
+Message-Id: <20220926100757.626042929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
 
-commit 63bf28ceb3ebbe76048c3fb2987996ca1ae64f83 upstream.
+commit b7df41a6f79dfb18ba2203f8c5f0e9c0b9b57f68 upstream.
 
-When booting the x86 kernel via EFI using the LoadImage/StartImage boot
-services [as opposed to the deprecated EFI handover protocol], the setup
-header is taken from the image directly, and given that EFI's LoadImage
-has no Linux/x86 specific knowledge regarding struct bootparams or
-struct setup_header, any absolute addresses in the setup header must
-originate from the file and not from a prior loading stage.
+We now remove the device's debugfs entries when unbinding the driver.
+This now causes a NULL-pointer dereference on module exit because the
+platform devices are unregistered *after* the global debugfs directory
+has been recursively removed. Fix it by unregistering the devices first.
 
-Since we cannot generally predict where LoadImage() decides to load an
-image (*), such absolute addresses must be treated as suspect: even if a
-prior boot stage intended to make them point somewhere inside the
-[signed] image, there is no way to validate that, and if they point at
-an arbitrary location in memory, the setup_data nodes will not be
-covered by any signatures or TPM measurements either, and could be made
-to contain an arbitrary sequence of SETUP_xxx nodes, which could
-interfere quite badly with the early x86 boot sequence.
-
-(*) Note that, while LoadImage() does take a buffer/size tuple in
-addition to a device path, which can be used to provide the image
-contents directly, it will re-allocate such images, as the memory
-footprint of an image is generally larger than the PE/COFF file
-representation.
-
-Cc: <stable@vger.kernel.org> # v5.10+
-Link: https://lore.kernel.org/all/20220904165321.1140894-1-Jason@zx2c4.com/
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 303e6da99429 ("gpio: mockup: remove gpio debugfs when remove device")
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/libstub/x86-stub.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpio/gpio-mockup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/libstub/x86-stub.c
-+++ b/drivers/firmware/efi/libstub/x86-stub.c
-@@ -414,6 +414,13 @@ efi_status_t __efiapi efi_pe_entry(efi_h
- 	hdr->ramdisk_image = 0;
- 	hdr->ramdisk_size = 0;
+--- a/drivers/gpio/gpio-mockup.c
++++ b/drivers/gpio/gpio-mockup.c
+@@ -618,9 +618,9 @@ static int __init gpio_mockup_init(void)
  
-+	/*
-+	 * Disregard any setup data that was provided by the bootloader:
-+	 * setup_data could be pointing anywhere, and we have no way of
-+	 * authenticating or validating the payload.
-+	 */
-+	hdr->setup_data = 0;
-+
- 	efi_stub_entry(handle, sys_table_arg, boot_params);
- 	/* not reached */
+ static void __exit gpio_mockup_exit(void)
+ {
++	gpio_mockup_unregister_pdevs();
+ 	debugfs_remove_recursive(gpio_mockup_dbg_dir);
+ 	platform_driver_unregister(&gpio_mockup_driver);
+-	gpio_mockup_unregister_pdevs();
+ }
  
+ module_init(gpio_mockup_init);
 
 
