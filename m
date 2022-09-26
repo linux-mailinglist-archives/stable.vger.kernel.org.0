@@ -2,54 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C23A5EA37E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:26:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1C35EA234
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236157AbiIZL0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:26:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35976 "EHLO
+        id S234809AbiIZLEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:04:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237827AbiIZLYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:24:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7DB67C91;
-        Mon, 26 Sep 2022 03:40:34 -0700 (PDT)
+        with ESMTP id S237356AbiIZLDy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA416958E;
+        Mon, 26 Sep 2022 03:32:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FAB60B60;
-        Mon, 26 Sep 2022 10:39:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA45EC433C1;
-        Mon, 26 Sep 2022 10:39:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9793860CA3;
+        Mon, 26 Sep 2022 10:31:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D933C433C1;
+        Mon, 26 Sep 2022 10:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188791;
-        bh=9Its7ESIwbnKfkGFB0GStUYtp3szj+6k5k8Re0jSq90=;
+        s=korg; t=1664188279;
+        bh=eJ+fDbbzA19SGMmU8INWJvoyHaXEcrggf1UMvpYzvDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iW7TotIlOp/8JPJ7WvPGxQ8PhdzbFrBcY0HQzmjKfY5C7Ow5awrr7OYzY2lE23kkn
-         TAtfWMwxRTsHAqt1j2sufGrQmcnOPWGeQg3NcZm/cQNByP1xDQB/B759syXDKpT2Jr
-         s8c6eZ5Dsmn3xLaSjwYfDjL48QKY4gLvmMDkaoo0=
+        b=QXafxHQspj1iy4sCDw6Kl3mxt7XeIPlIyewHKwf+32MJccZEkdsOVL5sLUg7BF5Bc
+         Hc5LBwLj/TMavknqCGm2UTieYVztIVrzS61tCqgMYwITCHMMld/xU+ZIzBq9lTdj7I
+         8zBeRrPpUoIQNmGa2nUm4riyfemSzUgpJYncLYVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Xinliang Liu <xinliang.liu@linaro.org>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        John Stultz <jstultz@google.com>,
-        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
-        Chen Feng <puck.chen@hisilicon.com>,
-        Christian Koenig <christian.koenig@amd.com>,
-        Huang Rui <ray.huang@amd.com>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 091/148] drm/hisilicon: Add depends on MMU
+Subject: [PATCH 5.10 099/141] wireguard: ratelimiter: disable timings test by default
 Date:   Mon, 26 Sep 2022 12:12:05 +0200
-Message-Id: <20220926100759.477999184@linuxfoundation.org>
+Message-Id: <20220926100758.018280750@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,61 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit d8a79c03054911c375a2252627a429c9bc4615b6 ]
+[ Upstream commit 684dec3cf45da2b0848298efae4adf3b2aeafeda ]
 
-The Kconfig symbol depended on MMU but was dropped by the commit
-acad3fe650a5 ("drm/hisilicon: Removed the dependency on the mmu")
-because it already had as a dependency ARM64 that already selects MMU.
+A previous commit tried to make the ratelimiter timings test more
+reliable but in the process made it less reliable on other
+configurations. This is an impossible problem to solve without
+increasingly ridiculous heuristics. And it's not even a problem that
+actually needs to be solved in any comprehensive way, since this is only
+ever used during development. So just cordon this off with a DEBUG_
+ifdef, just like we do for the trie's randomized tests, so it can be
+enabled while hacking on the code, and otherwise disabled in CI. In the
+process we also revert 151c8e499f47.
 
-But later, commit a0f25a6bb319 ("drm/hisilicon/hibmc: Allow to be built
-if COMPILE_TEST is enabled") allowed the driver to be built for non-ARM64
-when COMPILE_TEST is set but that could lead to unmet direct dependencies
-and linking errors.
-
-Prevent a kconfig warning when MMU is not enabled by making
-DRM_HISI_HIBMC depend on MMU.
-
-WARNING: unmet direct dependencies detected for DRM_TTM
-  Depends on [n]: HAS_IOMEM [=y] && DRM [=m] && MMU [=n]
-  Selected by [m]:
-  - DRM_TTM_HELPER [=m] && HAS_IOMEM [=y] && DRM [=m]
-  - DRM_HISI_HIBMC [=m] && HAS_IOMEM [=y] && DRM [=m] && PCI [=y] && (ARM64 || COMPILE_TEST [=y])
-
-Fixes: acad3fe650a5 ("drm/hisilicon: Removed the dependency on the mmu")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Xinliang Liu <xinliang.liu@linaro.org>
-Cc: Tian Tao  <tiantao6@hisilicon.com>
-Cc: John Stultz <jstultz@google.com>
-Cc: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-Cc: Chen Feng <puck.chen@hisilicon.com>
-Cc: Christian Koenig <christian.koenig@amd.com>
-Cc: Huang Rui <ray.huang@amd.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220531025557.29593-1-rdunlap@infradead.org
+Fixes: 151c8e499f47 ("wireguard: ratelimiter: use hrtimer in selftest")
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/hisilicon/hibmc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireguard/selftest/ratelimiter.c | 25 ++++++++------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/Kconfig b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
-index 073adfe438dd..4e41c144a290 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/Kconfig
-+++ b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
-@@ -2,6 +2,7 @@
- config DRM_HISI_HIBMC
- 	tristate "DRM Support for Hisilicon Hibmc"
- 	depends on DRM && PCI && (ARM64 || COMPILE_TEST)
-+	depends on MMU
- 	select DRM_KMS_HELPER
- 	select DRM_VRAM_HELPER
- 	select DRM_TTM
+diff --git a/drivers/net/wireguard/selftest/ratelimiter.c b/drivers/net/wireguard/selftest/ratelimiter.c
+index ba87d294604f..d4bb40a695ab 100644
+--- a/drivers/net/wireguard/selftest/ratelimiter.c
++++ b/drivers/net/wireguard/selftest/ratelimiter.c
+@@ -6,29 +6,28 @@
+ #ifdef DEBUG
+ 
+ #include <linux/jiffies.h>
+-#include <linux/hrtimer.h>
+ 
+ static const struct {
+ 	bool result;
+-	u64 nsec_to_sleep_before;
++	unsigned int msec_to_sleep_before;
+ } expected_results[] __initconst = {
+ 	[0 ... PACKETS_BURSTABLE - 1] = { true, 0 },
+ 	[PACKETS_BURSTABLE] = { false, 0 },
+-	[PACKETS_BURSTABLE + 1] = { true, NSEC_PER_SEC / PACKETS_PER_SECOND },
++	[PACKETS_BURSTABLE + 1] = { true, MSEC_PER_SEC / PACKETS_PER_SECOND },
+ 	[PACKETS_BURSTABLE + 2] = { false, 0 },
+-	[PACKETS_BURSTABLE + 3] = { true, (NSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
++	[PACKETS_BURSTABLE + 3] = { true, (MSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
+ 	[PACKETS_BURSTABLE + 4] = { true, 0 },
+ 	[PACKETS_BURSTABLE + 5] = { false, 0 }
+ };
+ 
+ static __init unsigned int maximum_jiffies_at_index(int index)
+ {
+-	u64 total_nsecs = 2 * NSEC_PER_SEC / PACKETS_PER_SECOND / 3;
++	unsigned int total_msecs = 2 * MSEC_PER_SEC / PACKETS_PER_SECOND / 3;
+ 	int i;
+ 
+ 	for (i = 0; i <= index; ++i)
+-		total_nsecs += expected_results[i].nsec_to_sleep_before;
+-	return nsecs_to_jiffies(total_nsecs);
++		total_msecs += expected_results[i].msec_to_sleep_before;
++	return msecs_to_jiffies(total_msecs);
+ }
+ 
+ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+@@ -43,12 +42,8 @@ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+ 	loop_start_time = jiffies;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(expected_results); ++i) {
+-		if (expected_results[i].nsec_to_sleep_before) {
+-			ktime_t timeout = ktime_add(ktime_add_ns(ktime_get_coarse_boottime(), TICK_NSEC * 4 / 3),
+-						    ns_to_ktime(expected_results[i].nsec_to_sleep_before));
+-			set_current_state(TASK_UNINTERRUPTIBLE);
+-			schedule_hrtimeout_range_clock(&timeout, 0, HRTIMER_MODE_ABS, CLOCK_BOOTTIME);
+-		}
++		if (expected_results[i].msec_to_sleep_before)
++			msleep(expected_results[i].msec_to_sleep_before);
+ 
+ 		if (time_is_before_jiffies(loop_start_time +
+ 					   maximum_jiffies_at_index(i)))
+@@ -132,7 +127,7 @@ bool __init wg_ratelimiter_selftest(void)
+ 	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
+ 		return true;
+ 
+-	BUILD_BUG_ON(NSEC_PER_SEC % PACKETS_PER_SECOND != 0);
++	BUILD_BUG_ON(MSEC_PER_SEC % PACKETS_PER_SECOND != 0);
+ 
+ 	if (wg_ratelimiter_init())
+ 		goto out;
+@@ -172,7 +167,7 @@ bool __init wg_ratelimiter_selftest(void)
+ 	++test;
+ #endif
+ 
+-	for (trials = TRIALS_BEFORE_GIVING_UP;;) {
++	for (trials = TRIALS_BEFORE_GIVING_UP; IS_ENABLED(DEBUG_RATELIMITER_TIMINGS);) {
+ 		int test_count = 0, ret;
+ 
+ 		ret = timings_test(skb4, hdr4, skb6, hdr6, &test_count);
 -- 
 2.35.1
 
