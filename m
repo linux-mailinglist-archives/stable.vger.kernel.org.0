@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9355E9FBE
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36665EA4FB
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235467AbiIZK3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46052 "EHLO
+        id S238853AbiIZL4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235696AbiIZK2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12914E844;
-        Mon, 26 Sep 2022 03:19:07 -0700 (PDT)
+        with ESMTP id S238908AbiIZLyF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5FE4CA39;
+        Mon, 26 Sep 2022 03:49:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4119A60B7E;
-        Mon, 26 Sep 2022 10:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333B4C433D7;
-        Mon, 26 Sep 2022 10:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43DA5B80926;
+        Mon, 26 Sep 2022 10:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8851DC433C1;
+        Mon, 26 Sep 2022 10:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187546;
-        bh=Bj2v3nwe6fdlLQ3qvbwTokg5tL8tDF3wlKOTFLUxep0=;
+        s=korg; t=1664189393;
+        bh=2TbbozwGCYo4oYPb7D3d7IgWjrP1CmeCObRzTOyfZ4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gYrrODSQWwCuVTp0DSfBpgpg3nsc90Y5dEJJ9B14e+r/bCe98sm1ZF5Dzvyqe9z+a
-         FJAREayE6QyShdd4ABNfHhx7Rpr5mlciPAf1UFQDsVdUXRqmgnIEt81nr47J4UvR4z
-         lXRCv9ZDxE9yBu/l2K2MLCuVaOv/tfMc5mk6MquE=
+        b=Mbrlzphjn5gvXCs0SOxGln3zYx8ldSJLeYP61OnlvfN6COvRsx3paTF01iA8WMIdx
+         ZBPVe8P3d9FsTIdiwwlpt/CbUoVmv12lrfDf+hc2zPA+3gbzw0Zc5N/JFnJb6l7xwH
+         4f59KpQnQr+NvTL2vnZUSh1YV+1DKVa2f+evmstQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Roberto Ricci <rroberto2r@gmail.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/58] i40e: Fix VF set max MTU size
+Subject: [PATCH 5.19 132/207] ipv6: Fix crash when IPv6 is administratively disabled
 Date:   Mon, 26 Sep 2022 12:12:01 +0200
-Message-Id: <20220926100742.992724603@linuxfoundation.org>
+Message-Id: <20220926100812.431984472@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Jaron <michalx.jaron@intel.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 372539def2824c43b6afe2403045b140f65c5acc ]
+[ Upstream commit 76dd07281338da6951fdab3432ced843fa87839c ]
 
-Max MTU sent to VF is set to 0 during memory allocation. It cause
-that max MTU on VF is changed to IAVF_MAX_RXBUFFER and does not
-depend on data from HW.
+The global 'raw_v6_hashinfo' variable can be accessed even when IPv6 is
+administratively disabled via the 'ipv6.disable=1' kernel command line
+option, leading to a crash [1].
 
-Set max_mtu field in virtchnl_vf_resource struct to inform
-VF in GET_VF_RESOURCES msg what size should be max frame.
+Fix by restoring the original behavior and always initializing the
+variable, regardless of IPv6 support being administratively disabled or
+not.
 
-Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+[1]
+ BUG: unable to handle page fault for address: ffffffffffffffc8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 173e18067 P4D 173e18067 PUD 173e1a067 PMD 0
+ Oops: 0000 [#1] PREEMPT SMP KASAN
+ CPU: 3 PID: 271 Comm: ss Not tainted 6.0.0-rc4-custom-00136-g0727a9a5fbc1 #1396
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
+ RIP: 0010:raw_diag_dump+0x310/0x7f0
+ [...]
+ Call Trace:
+  <TASK>
+  __inet_diag_dump+0x10f/0x2e0
+  netlink_dump+0x575/0xfd0
+  __netlink_dump_start+0x67b/0x940
+  inet_diag_handler_cmd+0x273/0x2d0
+  sock_diag_rcv_msg+0x317/0x440
+  netlink_rcv_skb+0x15e/0x430
+  sock_diag_rcv+0x2b/0x40
+  netlink_unicast+0x53b/0x800
+  netlink_sendmsg+0x945/0xe60
+  ____sys_sendmsg+0x747/0x960
+  ___sys_sendmsg+0x13a/0x1e0
+  __sys_sendmsg+0x118/0x1e0
+  do_syscall_64+0x34/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 0daf07e52709 ("raw: convert raw sockets to RCU")
+Reported-by: Roberto Ricci <rroberto2r@gmail.com>
+Tested-by: Roberto Ricci <rroberto2r@gmail.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220916084821.229287-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 20 +++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ net/ipv6/af_inet6.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index a39a8fe073ca..973350b34e08 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -1712,6 +1712,25 @@ static void i40e_del_qch(struct i40e_vf *vf)
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index 9f6f4a41245d..1012012a061f 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -1069,13 +1069,13 @@ static int __init inet6_init(void)
+ 	for (r = &inetsw6[0]; r < &inetsw6[SOCK_MAX]; ++r)
+ 		INIT_LIST_HEAD(r);
+ 
++	raw_hashinfo_init(&raw_v6_hashinfo);
++
+ 	if (disable_ipv6_mod) {
+ 		pr_info("Loaded, but administratively disabled, reboot required to enable\n");
+ 		goto out;
  	}
- }
  
-+/**
-+ * i40e_vc_get_max_frame_size
-+ * @vf: pointer to the VF
-+ *
-+ * Max frame size is determined based on the current port's max frame size and
-+ * whether a port VLAN is configured on this VF. The VF is not aware whether
-+ * it's in a port VLAN so the PF needs to account for this in max frame size
-+ * checks and sending the max frame size to the VF.
-+ **/
-+static u16 i40e_vc_get_max_frame_size(struct i40e_vf *vf)
-+{
-+	u16 max_frame_size = vf->pf->hw.phy.link_info.max_frame_size;
-+
-+	if (vf->port_vlan_id)
-+		max_frame_size -= VLAN_HLEN;
-+
-+	return max_frame_size;
-+}
-+
- /**
-  * i40e_vc_get_vf_resources_msg
-  * @vf: pointer to the VF info
-@@ -1814,6 +1833,7 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
- 	vfres->max_vectors = pf->hw.func_caps.num_msix_vectors_vf;
- 	vfres->rss_key_size = I40E_HKEY_ARRAY_SIZE;
- 	vfres->rss_lut_size = I40E_VF_HLUT_ARRAY_SIZE;
-+	vfres->max_mtu = i40e_vc_get_max_frame_size(vf);
- 
- 	if (vf->lan_vsi_idx) {
- 		vfres->vsi_res[0].vsi_id = vf->lan_vsi_id;
+-	raw_hashinfo_init(&raw_v6_hashinfo);
+-
+ 	err = proto_register(&tcpv6_prot, 1);
+ 	if (err)
+ 		goto out;
 -- 
 2.35.1
 
