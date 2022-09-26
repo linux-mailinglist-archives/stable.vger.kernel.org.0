@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2FC5EA3E7
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7600F5EA16A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238092AbiIZLf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
+        id S236261AbiIZKux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:50:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238259AbiIZLec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:32 -0400
+        with ESMTP id S236805AbiIZKt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AB254CA1;
-        Mon, 26 Sep 2022 03:43:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2106657E3A;
+        Mon, 26 Sep 2022 03:26:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F92760B6A;
-        Mon, 26 Sep 2022 10:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C4FFC433D7;
-        Mon, 26 Sep 2022 10:43:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F367560B60;
+        Mon, 26 Sep 2022 10:26:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 046B7C433C1;
+        Mon, 26 Sep 2022 10:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189016;
-        bh=O9SJA4ghkAux3cvtpQ0yAtf9EdNN19N+uoX2sLICkTk=;
+        s=korg; t=1664188004;
+        bh=HB4HQg8p6iR1xwdOY6Vvs6qH4r8fom0AKnci64txzYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsX4KT+jMDdAjl3nT03djd0YVGdYZVY/G9am7DbzouXipsG7+oNHeulCs1suJI546
-         YnJ5dIkBlHAWsHa65bmuee+WRrVNjUZGcyHWuC7OZ2pYwa6LbxPIr626ylxHifqVv1
-         jwVZ9mCtXfUhCp+JI3FPlue+Fv+NEbzfEciU3ABc=
+        b=sLyuMCNnacrL9EuCEMlzdU2xmv/ExcwRC+StIOtQlUeeduguKp35HneqscmjeXbg2
+         bqbvsTwCCMW415RA+JXBqYAUPygE3cCP3qYs0xClfGkmk7lFWrDHp3Mel/x6cVQ7Xp
+         kYYFQnMFsAsX7/c+svq3HytX0JERvXGeEJjq4qZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gil Fine <gil.fine@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.19 047/207] thunderbolt: Add support for Intel Maple Ridge single port controller
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 010/141] usb: dwc3: gadget: Refactor pullup()
 Date:   Mon, 26 Sep 2022 12:10:36 +0200
-Message-Id: <20220926100808.724222167@linuxfoundation.org>
+Message-Id: <20220926100754.977549412@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gil Fine <gil.fine@intel.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 14c7d905283744809e6b82efae2f490660a11cda upstream.
+[ Upstream commit 861c010a2ee1bc4a66d23f0da4aa22e75d8eaa24 ]
 
-Add support for Maple Ridge discrete USB4 host controller from Intel
-which has a single USB4 port (versus the already supported dual port
-Maple Ridge USB4 host controller).
+Move soft-disconnect sequence out of dwc3_gadget_pullup(). No
+functional change here.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Gil Fine <gil.fine@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/4c0f259b17d95acaaa931f90276683a48a32fe22.1650593829.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 040f2dbd2010 ("usb: dwc3: gadget: Avoid duplicate requests to enable Run/Stop")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/icm.c |    1 +
- drivers/thunderbolt/nhi.h |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/usb/dwc3/gadget.c | 65 ++++++++++++++++++++++-----------------
+ 1 file changed, 36 insertions(+), 29 deletions(-)
 
---- a/drivers/thunderbolt/icm.c
-+++ b/drivers/thunderbolt/icm.c
-@@ -2527,6 +2527,7 @@ struct tb *icm_probe(struct tb_nhi *nhi)
- 		tb->cm_ops = &icm_icl_ops;
- 		break;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 3820dff0387a..bd1050f75558 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2120,6 +2120,40 @@ static void dwc3_gadget_disable_irq(struct dwc3 *dwc);
+ static void __dwc3_gadget_stop(struct dwc3 *dwc);
+ static int __dwc3_gadget_start(struct dwc3 *dwc);
  
-+	case PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_2C_NHI:
- 	case PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_4C_NHI:
- 		icm->is_supported = icm_tgl_is_supported;
- 		icm->get_mode = icm_ar_get_mode;
---- a/drivers/thunderbolt/nhi.h
-+++ b/drivers/thunderbolt/nhi.h
-@@ -55,6 +55,7 @@ extern const struct tb_nhi_ops icl_nhi_o
-  * need for the PCI quirk anymore as we will use ICM also on Apple
-  * hardware.
-  */
-+#define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_2C_NHI		0x1134
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_4C_NHI		0x1137
- #define PCI_DEVICE_ID_INTEL_WIN_RIDGE_2C_NHI            0x157d
- #define PCI_DEVICE_ID_INTEL_WIN_RIDGE_2C_BRIDGE         0x157e
++static int dwc3_gadget_soft_disconnect(struct dwc3 *dwc)
++{
++	u32 count;
++
++	dwc->connected = false;
++
++	/*
++	 * In the Synopsys DesignWare Cores USB3 Databook Rev. 3.30a
++	 * Section 4.1.8 Table 4-7, it states that for a device-initiated
++	 * disconnect, the SW needs to ensure that it sends "a DEPENDXFER
++	 * command for any active transfers" before clearing the RunStop
++	 * bit.
++	 */
++	dwc3_stop_active_transfers(dwc);
++	__dwc3_gadget_stop(dwc);
++
++	/*
++	 * In the Synopsys DesignWare Cores USB3 Databook Rev. 3.30a
++	 * Section 1.3.4, it mentions that for the DEVCTRLHLT bit, the
++	 * "software needs to acknowledge the events that are generated
++	 * (by writing to GEVNTCOUNTn) while it is waiting for this bit
++	 * to be set to '1'."
++	 */
++	count = dwc3_readl(dwc->regs, DWC3_GEVNTCOUNT(0));
++	count &= DWC3_GEVNTCOUNT_MASK;
++	if (count > 0) {
++		dwc3_writel(dwc->regs, DWC3_GEVNTCOUNT(0), count);
++		dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
++			dwc->ev_buf->length;
++	}
++
++	return dwc3_gadget_run_stop(dwc, false, false);
++}
++
+ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ {
+ 	struct dwc3		*dwc = gadget_to_dwc(g);
+@@ -2176,33 +2210,7 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 
+ 	if (!is_on) {
+-		u32 count;
+-
+-		dwc->connected = false;
+-		/*
+-		 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
+-		 * Section 4.1.8 Table 4-7, it states that for a device-initiated
+-		 * disconnect, the SW needs to ensure that it sends "a DEPENDXFER
+-		 * command for any active transfers" before clearing the RunStop
+-		 * bit.
+-		 */
+-		dwc3_stop_active_transfers(dwc);
+-		__dwc3_gadget_stop(dwc);
+-
+-		/*
+-		 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
+-		 * Section 1.3.4, it mentions that for the DEVCTRLHLT bit, the
+-		 * "software needs to acknowledge the events that are generated
+-		 * (by writing to GEVNTCOUNTn) while it is waiting for this bit
+-		 * to be set to '1'."
+-		 */
+-		count = dwc3_readl(dwc->regs, DWC3_GEVNTCOUNT(0));
+-		count &= DWC3_GEVNTCOUNT_MASK;
+-		if (count > 0) {
+-			dwc3_writel(dwc->regs, DWC3_GEVNTCOUNT(0), count);
+-			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
+-						dwc->ev_buf->length;
+-		}
++		ret = dwc3_gadget_soft_disconnect(dwc);
+ 	} else {
+ 		/*
+ 		 * In the Synopsys DWC_usb31 1.90a programming guide section
+@@ -2216,9 +2224,8 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 
+ 		dwc3_event_buffers_setup(dwc);
+ 		__dwc3_gadget_start(dwc);
++		ret = dwc3_gadget_run_stop(dwc, true, false);
+ 	}
+-
+-	ret = dwc3_gadget_run_stop(dwc, is_on, false);
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+ 	enable_irq(dwc->irq_gadget);
+ 
+-- 
+2.35.1
+
 
 
