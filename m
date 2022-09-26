@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 553385EA483
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27F095EA2F2
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236023AbiIZLrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
+        id S237586AbiIZLQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:16:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239011AbiIZLp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:45:29 -0400
+        with ESMTP id S235020AbiIZLQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:16:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0819774CE4;
-        Mon, 26 Sep 2022 03:47:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F2A6524A;
+        Mon, 26 Sep 2022 03:37:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01AB060BB7;
-        Mon, 26 Sep 2022 10:47:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CECCAC433D6;
-        Mon, 26 Sep 2022 10:47:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C59A60A55;
+        Mon, 26 Sep 2022 10:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32045C433C1;
+        Mon, 26 Sep 2022 10:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189239;
-        bh=hQcWRXxZ4BZEXkkxaFOZs/IaqlSrhGIRXSNxcRDbbQw=;
+        s=korg; t=1664188642;
+        bh=d0NGvshIdLgsFhFa/UwAVgqQUXbygA154sf3xuY/DGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYgSCgVXWSZ4xCO8ABbn1I65uxXSdWxACKirBbENqHzyS27jwGYxh3YB53y4/GgD+
-         QR4RO1NZx3WdJSo8jcrsqbNGikWtH26NwY03IwaN/G7qHQY8QCoczBH9Zx3VdDVDlz
-         rsMkX9IcXx9sh8KG1fCV2Mt97TfLV8l/Q4OzqdYU=
+        b=KEHT+KCLuXGalUiUREMJxUjmcMr+9jGwkwaxoWuGgIo0OEwf/I+sM4iX4tbalXxS/
+         xIrxMTlQ8E1Xh2F0Cggyx0KcWKJSfBWA4JACdyMJotw3miJmAyOYS1c+NDnlJWDXFA
+         ZcLnx5Q8anWKKlA4a7hgG9S5UEe6QNvOIfpJArQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Edward Cree <ecree.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Rafael Mendonca <rafaelmendsr@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 119/207] sfc: fix TX channel offset when using legacy interrupts
+Subject: [PATCH 5.15 074/148] scsi: qla2xxx: Fix memory leak in __qlt_24xx_handle_abts()
 Date:   Mon, 26 Sep 2022 12:11:48 +0200
-Message-Id: <20220926100811.892001916@linuxfoundation.org>
+Message-Id: <20220926100758.808496532@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-[ Upstream commit f232af4295653afa4ade3230462b3be15ad16419 ]
+[ Upstream commit 601be20fc6a1b762044d2398befffd6bf236cebf ]
 
-In legacy interrupt mode the tx_channel_offset was hardcoded to 1, but
-that's not correct if efx_sepparate_tx_channels is false. In that case,
-the offset is 0 because the tx queues are in the single existing channel
-at index 0, together with the rx queue.
+Commit 8f394da36a36 ("scsi: qla2xxx: Drop TARGET_SCF_LOOKUP_LUN_FROM_TAG")
+made the __qlt_24xx_handle_abts() function return early if
+tcm_qla2xxx_find_cmd_by_tag() didn't find a command, but it missed to clean
+up the allocated memory for the management command.
 
-Without this fix, as soon as you try to send any traffic, it tries to
-get the tx queues from an uninitialized channel getting these errors:
-  WARNING: CPU: 1 PID: 0 at drivers/net/ethernet/sfc/tx.c:540 efx_hard_start_xmit+0x12e/0x170 [sfc]
-  [...]
-  RIP: 0010:efx_hard_start_xmit+0x12e/0x170 [sfc]
-  [...]
-  Call Trace:
-   <IRQ>
-   dev_hard_start_xmit+0xd7/0x230
-   sch_direct_xmit+0x9f/0x360
-   __dev_queue_xmit+0x890/0xa40
-  [...]
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000020
-  [...]
-  RIP: 0010:efx_hard_start_xmit+0x153/0x170 [sfc]
-  [...]
-  Call Trace:
-   <IRQ>
-   dev_hard_start_xmit+0xd7/0x230
-   sch_direct_xmit+0x9f/0x360
-   __dev_queue_xmit+0x890/0xa40
-  [...]
-
-Fixes: c308dfd1b43e ("sfc: fix wrong tx channel offset with efx_separate_tx_channels")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220914103648.16902-1-ihuguet@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220914024924.695604-1-rafaelmendsr@gmail.com
+Fixes: 8f394da36a36 ("scsi: qla2xxx: Drop TARGET_SCF_LOOKUP_LUN_FROM_TAG")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_target.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-index 032b8c0bd788..5b4d661ab986 100644
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -319,7 +319,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
- 		efx->n_channels = 1 + (efx_separate_tx_channels ? 1 : 0);
- 		efx->n_rx_channels = 1;
- 		efx->n_tx_channels = 1;
--		efx->tx_channel_offset = 1;
-+		efx->tx_channel_offset = efx_separate_tx_channels ? 1 : 0;
- 		efx->n_xdp_channels = 0;
- 		efx->xdp_channel_offset = efx->n_channels;
- 		efx->legacy_irq = efx->pci_dev->irq;
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index b86f6e1f21b5..4b4ca2a9524d 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -2166,8 +2166,10 @@ static int __qlt_24xx_handle_abts(struct scsi_qla_host *vha,
+ 
+ 	abort_cmd = ha->tgt.tgt_ops->find_cmd_by_tag(sess,
+ 				le32_to_cpu(abts->exchange_addr_to_abort));
+-	if (!abort_cmd)
++	if (!abort_cmd) {
++		mempool_free(mcmd, qla_tgt_mgmt_cmd_mempool);
+ 		return -EIO;
++	}
+ 	mcmd->unpacked_lun = abort_cmd->se_cmd.orig_fe_lun;
+ 
+ 	if (abort_cmd->qpair) {
 -- 
 2.35.1
 
