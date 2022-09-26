@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 460C75EA53A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54EEC5EA4FC
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238914AbiIZL7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:59:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57070 "EHLO
+        id S238813AbiIZL4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238244AbiIZL5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:57:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB077AC21;
-        Mon, 26 Sep 2022 03:51:52 -0700 (PDT)
+        with ESMTP id S239343AbiIZLzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:55:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC265850A;
+        Mon, 26 Sep 2022 03:50:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C22F960A55;
-        Mon, 26 Sep 2022 10:50:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3CDFC433C1;
-        Mon, 26 Sep 2022 10:50:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4C4760C84;
+        Mon, 26 Sep 2022 10:50:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B03F7C433C1;
+        Mon, 26 Sep 2022 10:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189442;
-        bh=iBEv28YXbxo+cUe3FhyzyxG21m501nMtoBPjMrC11p8=;
+        s=korg; t=1664189445;
+        bh=Ka5PaCCHQrmEX4KQM/pycNos7zvlpFKjn3hje8kJk5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bV5VMspjyMZV7ORvbIXWxW/OsOmA/wMZPTCB8pMzwaX0RwitMSblKlj8Uwu7APHcV
-         lRyavYsRKNcHISu2VTv++UJvgvdFXk3MG1XBi9Lv9CpA4e9fMuEviq2LpvE7FfCvwi
-         +YglYeDa2MPloW4tB+3KOFgvXmoxkm31cwyVlHm0=
+        b=PsjnYkMoXG3t/AQ1EaOPRhSz6IHYAvozNDV5Pxnu/pzzaHiw3gnZAX0rXAmL/Z/IU
+         rUpVlgSbGgroJ4Kj2ctjHeXyxFBwklw61RTdQY0fMsFnMQQn8LIV2nVzr85gSq31V0
+         8J4piza5UpxzPvz+dY4GIMYjzHK5x5zpAJmpfFEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 189/207] workqueue: dont skip lockdep work dependency in cancel_work_sync()
-Date:   Mon, 26 Sep 2022 12:12:58 +0200
-Message-Id: <20220926100815.074288435@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 190/207] i2c: imx: If pm_runtime_get_sync() returned 1 device access is possible
+Date:   Mon, 26 Sep 2022 12:12:59 +0200
+Message-Id: <20220926100815.121146290@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -55,96 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit c0feea594e058223973db94c1c32a830c9807c86 ]
+[ Upstream commit 085aacaa73163f4b8a89dec24ecb32cfacd34017 ]
 
-Like Hillf Danton mentioned
+pm_runtime_get_sync() returning 1 also means the device is powered. So
+resetting the chip registers in .remove() is possible and should be
+done.
 
-  syzbot should have been able to catch cancel_work_sync() in work context
-  by checking lockdep_map in __flush_work() for both flush and cancel.
-
-in [1], being unable to report an obvious deadlock scenario shown below is
-broken. From locking dependency perspective, sync version of cancel request
-should behave as if flush request, for it waits for completion of work if
-that work has already started execution.
-
-  ----------
-  #include <linux/module.h>
-  #include <linux/sched.h>
-  static DEFINE_MUTEX(mutex);
-  static void work_fn(struct work_struct *work)
-  {
-    schedule_timeout_uninterruptible(HZ / 5);
-    mutex_lock(&mutex);
-    mutex_unlock(&mutex);
-  }
-  static DECLARE_WORK(work, work_fn);
-  static int __init test_init(void)
-  {
-    schedule_work(&work);
-    schedule_timeout_uninterruptible(HZ / 10);
-    mutex_lock(&mutex);
-    cancel_work_sync(&work);
-    mutex_unlock(&mutex);
-    return -EINVAL;
-  }
-  module_init(test_init);
-  MODULE_LICENSE("GPL");
-  ----------
-
-The check this patch restores was added by commit 0976dfc1d0cd80a4
-("workqueue: Catch more locking problems with flush_work()").
-
-Then, lockdep's crossrelease feature was added by commit b09be676e0ff25bd
-("locking/lockdep: Implement the 'crossrelease' feature"). As a result,
-this check was once removed by commit fd1a5b04dfb899f8 ("workqueue: Remove
-now redundant lock acquisitions wrt. workqueue flushes").
-
-But lockdep's crossrelease feature was removed by commit e966eaeeb623f099
-("locking/lockdep: Remove the cross-release locking checks"). At this
-point, this check should have been restored.
-
-Then, commit d6e89786bed977f3 ("workqueue: skip lockdep wq dependency in
-cancel_work_sync()") introduced a boolean flag in order to distinguish
-flush_work() and cancel_work_sync(), for checking "struct workqueue_struct"
-dependency when called from cancel_work_sync() was causing false positives.
-
-Then, commit 87915adc3f0acdf0 ("workqueue: re-add lockdep dependencies for
-flushing") tried to restore "struct work_struct" dependency check, but by
-error checked this boolean flag. Like an example shown above indicates,
-"struct work_struct" dependency needs to be checked for both flush_work()
-and cancel_work_sync().
-
-Link: https://lkml.kernel.org/r/20220504044800.4966-1-hdanton@sina.com [1]
-Reported-by: Hillf Danton <hdanton@sina.com>
-Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Fixes: 87915adc3f0acdf0 ("workqueue: re-add lockdep dependencies for flushing")
-Cc: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: d98bdd3a5b50 ("i2c: imx: Make sure to unregister adapter on remove()")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index aa8a82bc6738..fc6e4f252345 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3066,10 +3066,8 @@ static bool __flush_work(struct work_struct *work, bool from_cancel)
- 	if (WARN_ON(!work->func))
- 		return false;
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index e47fa3465671..3082183bd66a 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1583,7 +1583,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	if (i2c_imx->dma)
+ 		i2c_imx_dma_free(i2c_imx);
  
--	if (!from_cancel) {
--		lock_map_acquire(&work->lockdep_map);
--		lock_map_release(&work->lockdep_map);
--	}
-+	lock_map_acquire(&work->lockdep_map);
-+	lock_map_release(&work->lockdep_map);
- 
- 	if (start_flush_work(work, &barr, from_cancel)) {
- 		wait_for_completion(&barr.done);
+-	if (ret == 0) {
++	if (ret >= 0) {
+ 		/* setup chip registers to defaults */
+ 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+ 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
 -- 
 2.35.1
 
