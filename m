@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 221645EAE0E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 19:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED235EAE11
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 19:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbiIZRWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 13:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
+        id S229749AbiIZRW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 13:22:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbiIZRVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 13:21:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956D1115A41;
-        Mon, 26 Sep 2022 09:36:37 -0700 (PDT)
+        with ESMTP id S230327AbiIZRVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 13:21:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93081116C3C;
+        Mon, 26 Sep 2022 09:36:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 923C5B80B38;
-        Mon, 26 Sep 2022 16:36:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A2EC433D6;
-        Mon, 26 Sep 2022 16:36:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 142AE60FE2;
+        Mon, 26 Sep 2022 16:36:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCA79C433D6;
+        Mon, 26 Sep 2022 16:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664210194;
-        bh=X+jrXgNFyuB/5SJaeiPtCZgGSU53kv8I5YLGXILP3zE=;
+        s=korg; t=1664210200;
+        bh=DykIBQr40P687L7Z/r8eOMkl7xNq2r/tmYauTSVc9hQ=;
         h=From:To:Cc:Subject:Date:From;
-        b=GTp8+d5htr/WShHDhFrrivQoqm30zX8zdraWtQ0zasslEVHwNoV4xdlXOO45pcLZo
-         OHG32AB6a1UY56u5yAtyimEva0unJOQvHFTdy9F5GdKAxdd2TUC9pYgVZ3iiknrTy8
-         3odXSD66C999EqObBh46K/vASTGqw64bPCMVWzhM=
+        b=btLUKzzwV1b8YgUq8bwGs0zQ8g7VNbExvihsJ0ZaRM5qjbLJ6hGy59uBhGbjk3Hw4
+         3oJJIIlpFB7o03VHJsXPZsJ0fQHjizyzrmcmOI0ou6Zvl0xbJ5ImrOpkf8oNH8B8Ih
+         dFtrq8FWFWjS5xucxuIHoZnCQzQM6GfI8SBWCzxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/21] 4.9.330-rc2 review
-Date:   Mon, 26 Sep 2022 18:36:31 +0200
-Message-Id: <20220926163533.310693334@linuxfoundation.org>
+Subject: [PATCH 4.14 00/38] 4.14.295-rc2 review
+Date:   Mon, 26 Sep 2022 18:36:37 +0200
+Message-Id: <20220926163535.997144838@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.330-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.295-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.330-rc2
+X-KernelTest-Version: 4.14.295-rc2
 X-KernelTest-Deadline: 2022-09-28T16:35+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,8 +61,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.330 release.
-There are 21 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.14.295 release.
+There are 38 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -70,9 +70,9 @@ Responses should be made by Wed, 28 Sep 2022 16:35:25 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.330-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.295-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
 and the diffstat can be found below.
 
 thanks,
@@ -83,7 +83,10 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.330-rc2
+    Linux 4.14.295-rc2
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    media: em28xx: initialize refcount before kref_get
 
 Jan Kara <jack@suse.cz>
     ext4: make directory inode spreading reflect flexbg size
@@ -109,6 +112,12 @@ Adrian Hunter <adrian.hunter@intel.com>
 Marc Kleine-Budde <mkl@pengutronix.de>
     can: gs_usb: gs_can_open(): fix race dev->can.state condition
 
+Florian Westphal <fw@strlen.de>
+    netfilter: ebtables: fix memory leak when blob is malformed
+
+Liang He <windhl@126.com>
+    of: mdio: Add of_node_put() when breaking out of for_each_xx
+
 Randy Dunlap <rdunlap@infradead.org>
     MIPS: lantiq: export clk_get_io() for lantiq_wdt.ko
 
@@ -118,11 +127,17 @@ Benjamin Poirier <bpoirier@nvidia.com>
 Lu Wei <luwei32@huawei.com>
     ipvlan: Fix out-of-bound bugs caused by unset skb->mac_header
 
+Brett Creeley <brett.creeley@intel.com>
+    iavf: Fix cached head and tail value for iavf_get_tx_pending
+
 David Leadbeater <dgl@dgl.cx>
     netfilter: nf_conntrack_irc: Tighten matching on DCC message
 
 Igor Ryzhov <iryzhov@nfware.com>
     netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+
+Fabio Estevam <festevam@denx.de>
+    arm64: dts: rockchip: Remove 'enable-active-low' from rk3399-puma
 
 Chao Yu <chao.yu@oppo.com>
     mm/slub: fix to return errno if kmalloc() fails
@@ -133,14 +148,41 @@ Kai Vehmanen <kai.vehmanen@linux.intel.com>
 Mohan Kumar <mkumard@nvidia.com>
     ALSA: hda/tegra: set depop delay for tegra
 
+jerry meng <jerry-meng@foxmail.com>
+    USB: serial: option: add Quectel RM520N
+
+Carl Yin(殷张成) <carl.yin@quectel.com>
+    USB: serial: option: add Quectel BG95 0x0203 composition
+
 Alan Stern <stern@rowland.harvard.edu>
     USB: core: Fix RST error in hub.c
 
 Siddh Raman Pant <code@siddh.me>
     wifi: mac80211: Fix UAF in ieee80211_scan_rx()
 
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/sigmatel: Fix unused variable warning for beep power change
+
 Hyunwoo Kim <imv4bel@gmail.com>
     video: fbdev: pxa3xx-gcu: Fix integer overflow in pxa3xx_gcu_write
+
+Youling Tang <tangyouling@loongson.cn>
+    mksysmap: Fix the mismatch of 'L0' symbols in System.map
+
+Alexander Sverdlin <alexander.sverdlin@nokia.com>
+    MIPS: OCTEON: irq: Fix octeon_irq_force_ciu_mapping()
+
+jerry.meng <jerry-meng@foxmail.com>
+    net: usb: qmi_wwan: add Quectel RM520N
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/sigmatel: Keep power up while beep is enabled
+
+Xiaolei Wang <xiaolei.wang@windriver.com>
+    regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: nau8824: Fix semaphore unbalance at error paths
 
 Stefan Metzmacher <metze@samba.org>
     cifs: don't send down the destination address to sendmsg for a SOCK_STREAM
@@ -148,33 +190,57 @@ Stefan Metzmacher <metze@samba.org>
 Yang Yingliang <yangyingliang@huawei.com>
     parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
 
+Stuart Menefy <stuart.menefy@mathembedded.com>
+    drm/meson: Correct OSD1 global alpha value
+
+Pali Rohár <pali@kernel.org>
+    gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
+
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    of: fdt: fix off-by-one error in unflatten_dt_nodes()
+
 
 -------------
 
 Diffstat:
 
- Makefile                          |  4 ++--
- arch/mips/lantiq/clk.c            |  1 +
- drivers/hv/vmbus_drv.c            | 10 +++++++++-
- drivers/net/can/usb/gs_usb.c      |  4 ++--
- drivers/net/ethernet/sun/sunhme.c |  4 ++--
- drivers/net/ipvlan/ipvlan_core.c  |  6 ++++--
- drivers/net/team/team.c           | 24 ++++++++++++++++++------
- drivers/parisc/ccio-dma.c         |  1 +
- drivers/s390/block/dasd_alias.c   |  9 +++++++--
- drivers/tty/serial/serial-tegra.c |  5 ++---
- drivers/usb/core/hub.c            |  2 +-
- drivers/video/fbdev/pxa3xx-gcu.c  |  2 +-
- fs/cifs/transport.c               |  4 ++--
- fs/ext4/ialloc.c                  |  2 +-
- include/linux/serial_core.h       | 17 +++++++++++++++++
- mm/slub.c                         |  5 ++++-
- net/mac80211/scan.c               | 11 +++++++----
- net/netfilter/nf_conntrack_irc.c  | 34 ++++++++++++++++++++++++++++------
- net/netfilter/nf_conntrack_sip.c  |  4 ++--
- sound/pci/hda/hda_intel.c         |  2 ++
- sound/pci/hda/patch_hdmi.c        |  1 +
- tools/perf/util/symbol-elf.c      |  7 ++-----
- 22 files changed, 116 insertions(+), 43 deletions(-)
+ Makefile                                      |  4 ++--
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi |  1 -
+ arch/mips/cavium-octeon/octeon-irq.c          | 10 ++++++++
+ arch/mips/lantiq/clk.c                        |  1 +
+ drivers/gpio/gpio-mpc8xxx.c                   |  1 +
+ drivers/gpu/drm/meson/meson_plane.c           |  2 +-
+ drivers/hv/vmbus_drv.c                        | 10 +++++++-
+ drivers/media/usb/em28xx/em28xx-cards.c       |  4 ++--
+ drivers/net/can/usb/gs_usb.c                  |  4 ++--
+ drivers/net/ethernet/intel/i40evf/i40e_txrx.c |  5 +++-
+ drivers/net/ethernet/sun/sunhme.c             |  4 ++--
+ drivers/net/ipvlan/ipvlan_core.c              |  6 +++--
+ drivers/net/team/team.c                       | 24 ++++++++++++++-----
+ drivers/net/usb/qmi_wwan.c                    |  1 +
+ drivers/of/fdt.c                              |  2 +-
+ drivers/of/of_mdio.c                          |  1 +
+ drivers/parisc/ccio-dma.c                     |  1 +
+ drivers/regulator/pfuze100-regulator.c        |  2 +-
+ drivers/s390/block/dasd_alias.c               |  9 +++++--
+ drivers/tty/serial/serial-tegra.c             |  5 ++--
+ drivers/usb/core/hub.c                        |  2 +-
+ drivers/usb/serial/option.c                   |  6 +++++
+ drivers/video/fbdev/pxa3xx-gcu.c              |  2 +-
+ fs/cifs/transport.c                           |  4 ++--
+ fs/ext4/ialloc.c                              |  2 +-
+ include/linux/serial_core.h                   | 17 ++++++++++++++
+ mm/slub.c                                     |  5 +++-
+ net/bridge/netfilter/ebtables.c               |  4 +++-
+ net/mac80211/scan.c                           | 11 +++++----
+ net/netfilter/nf_conntrack_irc.c              | 34 ++++++++++++++++++++++-----
+ net/netfilter/nf_conntrack_sip.c              |  4 ++--
+ scripts/mksysmap                              |  2 +-
+ sound/pci/hda/hda_intel.c                     |  2 ++
+ sound/pci/hda/patch_hdmi.c                    |  1 +
+ sound/pci/hda/patch_sigmatel.c                | 24 +++++++++++++++++++
+ sound/soc/codecs/nau8824.c                    | 17 ++++++++------
+ tools/perf/util/symbol-elf.c                  |  7 ++----
+ 37 files changed, 182 insertions(+), 59 deletions(-)
 
 
