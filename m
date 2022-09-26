@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B515EA587
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 351745EA5B5
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239190AbiIZMGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:06:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56478 "EHLO
+        id S235411AbiIZMOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:14:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239972AbiIZMGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:06:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F44B7E038;
-        Mon, 26 Sep 2022 03:55:35 -0700 (PDT)
+        with ESMTP id S239512AbiIZMNf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:13:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F2249B77;
+        Mon, 26 Sep 2022 03:58:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1156CE10DC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1BBD60B60;
+        Mon, 26 Sep 2022 10:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C11C433D6;
         Mon, 26 Sep 2022 10:49:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161C1C433C1;
-        Mon, 26 Sep 2022 10:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189358;
-        bh=xN7VbhVCMnKTVW43mRCQHob7/sSu/RcC7woljp5Xo80=;
+        s=korg; t=1664189361;
+        bh=xMarRssPDX5kzxQMfKSIOrhgYAogBN3kRzzwyrV9xu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kS37EpXKeNDDMkmunrSnJroiQuQYqtruX6zBq+btBMANDc/FAjviyDJZ8WigBpSKt
-         FIdwNMPwyXKcSK+Y/DaYb9ihGzv6iSfIs5EYhwsc9fYxEeT2WCZQNndU2YEaiOjha2
-         JNDYPXa14ORsHWPJqCWqnqmz/de9r65M9gjBavaU=
+        b=gv0RibuL7E2FlMPxr16C+iLs/UlKBgJ1aO3ncccRQw//ZSHs3huC/ykRmQuws8j/Q
+         Hg5DikwJx+/mMmCT4Gf26f3ynEfLhJcTVB96AoKp++yanW0/Q63W4AtP9EWUKW0PTm
+         x0W9HruUZXI/LGBomc3pZKwK5b8iPj6Wkh8MGUpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        Sherry Sun <sherry.sun@nxp.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.19 160/207] serial: fsl_lpuart: Reset prior to registration
-Date:   Mon, 26 Sep 2022 12:12:29 +0200
-Message-Id: <20220926100813.821388050@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 5.19 161/207] serial: Create uart_xmit_advance()
+Date:   Mon, 26 Sep 2022 12:12:30 +0200
+Message-Id: <20220926100813.873806970@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -54,60 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 60f361722ad2ae5ee667d0b0545d40c42f754daf upstream.
+commit e77cab77f2cb3a1ca2ba8df4af45bb35617ac16d upstream.
 
-Since commit bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset
-for imx7ulp and imx8qxp"), certain i.MX UARTs are reset after they've
-already been registered.  Register state may thus be clobbered after
-user space has begun to open and access the UART.
+A very common pattern in the drivers is to advance xmit tail
+index and do bookkeeping of Tx'ed characters. Create
+uart_xmit_advance() to handle it.
 
-Avoid by performing the reset prior to registration.
-
-Fixes: bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset for imx7ulp and imx8qxp")
-Cc: stable@vger.kernel.org # v5.15+
-Cc: Fugang Duan <fugang.duan@nxp.com>
-Cc: Sherry Sun <sherry.sun@nxp.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/72fb646c1b0b11c989850c55f52f9ff343d1b2fa.1662884345.git.lukas@wunner.de
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220901143934.8850-2-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/serial_core.h |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2706,14 +2706,15 @@ static int lpuart_probe(struct platform_
- 		lpuart_reg.cons = LPUART_CONSOLE;
- 		handler = lpuart_int;
- 	}
--	ret = uart_add_one_port(&lpuart_reg, &sport->port);
--	if (ret)
--		goto failed_attach_port;
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -302,6 +302,23 @@ struct uart_state {
+ /* number of characters left in xmit buffer before we ask for more */
+ #define WAKEUP_CHARS		256
  
- 	ret = lpuart_global_reset(sport);
- 	if (ret)
- 		goto failed_reset;
- 
-+	ret = uart_add_one_port(&lpuart_reg, &sport->port);
-+	if (ret)
-+		goto failed_attach_port;
++/**
++ * uart_xmit_advance - Advance xmit buffer and account Tx'ed chars
++ * @up: uart_port structure describing the port
++ * @chars: number of characters sent
++ *
++ * This function advances the tail of circular xmit buffer by the number of
++ * @chars transmitted and handles accounting of transmitted bytes (into
++ * @up's icount.tx).
++ */
++static inline void uart_xmit_advance(struct uart_port *up, unsigned int chars)
++{
++	struct circ_buf *xmit = &up->state->xmit;
 +
- 	ret = uart_get_rs485_mode(&sport->port);
- 	if (ret)
- 		goto failed_get_rs485;
-@@ -2736,9 +2737,9 @@ static int lpuart_probe(struct platform_
++	xmit->tail = (xmit->tail + chars) & (UART_XMIT_SIZE - 1);
++	up->icount.tx += chars;
++}
++
+ struct module;
+ struct tty_driver;
  
- failed_irq_request:
- failed_get_rs485:
--failed_reset:
- 	uart_remove_one_port(&lpuart_reg, &sport->port);
- failed_attach_port:
-+failed_reset:
- 	lpuart_disable_clks(sport);
- 	return ret;
- }
 
 
