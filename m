@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA5C5EA035
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 324FD5EA25A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235844AbiIZKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41274 "EHLO
+        id S235034AbiIZLGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235885AbiIZKdK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C675E46DB7;
-        Mon, 26 Sep 2022 03:20:28 -0700 (PDT)
+        with ESMTP id S234680AbiIZLFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E374F180;
+        Mon, 26 Sep 2022 03:33:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FC14B80942;
-        Mon, 26 Sep 2022 10:20:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF650C433D6;
-        Mon, 26 Sep 2022 10:20:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD794B8074E;
+        Mon, 26 Sep 2022 10:31:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDE5C433D6;
+        Mon, 26 Sep 2022 10:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187615;
-        bh=/lA8fMFsNi5naxqFFBOpSbNzw7wEV7l9A2vxjowuVPE=;
+        s=korg; t=1664188313;
+        bh=fTOFobLztgWomUcePqED+YQQvKqRE3uuRHz5dNeFLEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1y7+/RpPNtajYwd1NuCXtM1XJxIKFLouzrZccnXpNpJs9d8swaWSzOoudRPZ0E9kq
-         trvb4EK3n9vF9yEagoWH0wwCyLzh3sWY1upioX2Qqf8s/9XYzIdSoiE0MUSNla8Zho
-         ftKQjzPpeSyO6YBDjCzzsIGd0Z1sxaulv43xkWL0=
+        b=ylyZtoXkmtvTcjBslMDlqusWcQ3my8Q2b3xdQbKG7RJf8+OTSTZ03oxkMM7/GTIh0
+         acFarOD8KUaPAw/bZdIWJz9QPD+OLdrnSrewuJ7L4JLy7vNi66lS0kGknDqFOzJT/v
+         CSodCt60sgSw01k3MBWstkbAOmqRNgothEHZmNNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/58] workqueue: dont skip lockdep work dependency in cancel_work_sync()
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Lieven Hey <lieven.hey@kdab.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 109/141] perf jit: Include program header in ELF files
 Date:   Mon, 26 Sep 2022 12:12:15 +0200
-Message-Id: <20220926100743.531837914@linuxfoundation.org>
+Message-Id: <20220926100758.393086356@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Lieven Hey <lieven.hey@kdab.com>
 
-[ Upstream commit c0feea594e058223973db94c1c32a830c9807c86 ]
+[ Upstream commit babd04386b1df8c364cdaa39ac0e54349502e1e5 ]
 
-Like Hillf Danton mentioned
+The missing header makes it hard for programs like elfutils to open
+these files.
 
-  syzbot should have been able to catch cancel_work_sync() in work context
-  by checking lockdep_map in __flush_work() for both flush and cancel.
-
-in [1], being unable to report an obvious deadlock scenario shown below is
-broken. From locking dependency perspective, sync version of cancel request
-should behave as if flush request, for it waits for completion of work if
-that work has already started execution.
-
-  ----------
-  #include <linux/module.h>
-  #include <linux/sched.h>
-  static DEFINE_MUTEX(mutex);
-  static void work_fn(struct work_struct *work)
-  {
-    schedule_timeout_uninterruptible(HZ / 5);
-    mutex_lock(&mutex);
-    mutex_unlock(&mutex);
-  }
-  static DECLARE_WORK(work, work_fn);
-  static int __init test_init(void)
-  {
-    schedule_work(&work);
-    schedule_timeout_uninterruptible(HZ / 10);
-    mutex_lock(&mutex);
-    cancel_work_sync(&work);
-    mutex_unlock(&mutex);
-    return -EINVAL;
-  }
-  module_init(test_init);
-  MODULE_LICENSE("GPL");
-  ----------
-
-The check this patch restores was added by commit 0976dfc1d0cd80a4
-("workqueue: Catch more locking problems with flush_work()").
-
-Then, lockdep's crossrelease feature was added by commit b09be676e0ff25bd
-("locking/lockdep: Implement the 'crossrelease' feature"). As a result,
-this check was once removed by commit fd1a5b04dfb899f8 ("workqueue: Remove
-now redundant lock acquisitions wrt. workqueue flushes").
-
-But lockdep's crossrelease feature was removed by commit e966eaeeb623f099
-("locking/lockdep: Remove the cross-release locking checks"). At this
-point, this check should have been restored.
-
-Then, commit d6e89786bed977f3 ("workqueue: skip lockdep wq dependency in
-cancel_work_sync()") introduced a boolean flag in order to distinguish
-flush_work() and cancel_work_sync(), for checking "struct workqueue_struct"
-dependency when called from cancel_work_sync() was causing false positives.
-
-Then, commit 87915adc3f0acdf0 ("workqueue: re-add lockdep dependencies for
-flushing") tried to restore "struct work_struct" dependency check, but by
-error checked this boolean flag. Like an example shown above indicates,
-"struct work_struct" dependency needs to be checked for both flush_work()
-and cancel_work_sync().
-
-Link: https://lkml.kernel.org/r/20220504044800.4966-1-hdanton@sina.com [1]
-Reported-by: Hillf Danton <hdanton@sina.com>
-Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Fixes: 87915adc3f0acdf0 ("workqueue: re-add lockdep dependencies for flushing")
-Cc: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
+Reviewed-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Lieven Hey <lieven.hey@kdab.com>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Link: https://lore.kernel.org/r/20220915092910.711036-1-lieven.hey@kdab.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/perf/util/genelf.c | 14 ++++++++++++++
+ tools/perf/util/genelf.h |  4 ++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index b1bb6cb5802e..4ea2f7fd20ce 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -2917,10 +2917,8 @@ static bool __flush_work(struct work_struct *work, bool from_cancel)
- 	if (WARN_ON(!work->func))
- 		return false;
+diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
+index 953338b9e887..02cd9f75e3d2 100644
+--- a/tools/perf/util/genelf.c
++++ b/tools/perf/util/genelf.c
+@@ -251,6 +251,7 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
+ 	Elf_Data *d;
+ 	Elf_Scn *scn;
+ 	Elf_Ehdr *ehdr;
++	Elf_Phdr *phdr;
+ 	Elf_Shdr *shdr;
+ 	uint64_t eh_frame_base_offset;
+ 	char *strsym = NULL;
+@@ -285,6 +286,19 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
+ 	ehdr->e_version = EV_CURRENT;
+ 	ehdr->e_shstrndx= unwinding ? 4 : 2; /* shdr index for section name */
  
--	if (!from_cancel) {
--		lock_map_acquire(&work->lockdep_map);
--		lock_map_release(&work->lockdep_map);
--	}
-+	lock_map_acquire(&work->lockdep_map);
-+	lock_map_release(&work->lockdep_map);
++	/*
++	 * setup program header
++	 */
++	phdr = elf_newphdr(e, 1);
++	phdr[0].p_type = PT_LOAD;
++	phdr[0].p_offset = 0;
++	phdr[0].p_vaddr = 0;
++	phdr[0].p_paddr = 0;
++	phdr[0].p_filesz = csize;
++	phdr[0].p_memsz = csize;
++	phdr[0].p_flags = PF_X | PF_R;
++	phdr[0].p_align = 8;
++
+ 	/*
+ 	 * setup text section
+ 	 */
+diff --git a/tools/perf/util/genelf.h b/tools/perf/util/genelf.h
+index d4137559be05..ac638945b4cb 100644
+--- a/tools/perf/util/genelf.h
++++ b/tools/perf/util/genelf.h
+@@ -50,8 +50,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
  
- 	if (start_flush_work(work, &barr, from_cancel)) {
- 		wait_for_completion(&barr.done);
+ #if GEN_ELF_CLASS == ELFCLASS64
+ #define elf_newehdr	elf64_newehdr
++#define elf_newphdr	elf64_newphdr
+ #define elf_getshdr	elf64_getshdr
+ #define Elf_Ehdr	Elf64_Ehdr
++#define Elf_Phdr	Elf64_Phdr
+ #define Elf_Shdr	Elf64_Shdr
+ #define Elf_Sym		Elf64_Sym
+ #define ELF_ST_TYPE(a)	ELF64_ST_TYPE(a)
+@@ -59,8 +61,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
+ #define ELF_ST_VIS(a)	ELF64_ST_VISIBILITY(a)
+ #else
+ #define elf_newehdr	elf32_newehdr
++#define elf_newphdr	elf32_newphdr
+ #define elf_getshdr	elf32_getshdr
+ #define Elf_Ehdr	Elf32_Ehdr
++#define Elf_Phdr	Elf32_Phdr
+ #define Elf_Shdr	Elf32_Shdr
+ #define Elf_Sym		Elf32_Sym
+ #define ELF_ST_TYPE(a)	ELF32_ST_TYPE(a)
 -- 
 2.35.1
 
