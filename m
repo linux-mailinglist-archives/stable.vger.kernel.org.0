@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7775EA555
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F58D5EA4C1
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239179AbiIZMA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60880 "EHLO
+        id S238357AbiIZLvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:51:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239427AbiIZL6y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:58:54 -0400
+        with ESMTP id S238236AbiIZLvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:51:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CEF07C1BC;
-        Mon, 26 Sep 2022 03:52:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F62760D5;
+        Mon, 26 Sep 2022 03:48:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7C960AF5;
-        Mon, 26 Sep 2022 10:51:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D03CC433D6;
-        Mon, 26 Sep 2022 10:51:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 356E960CA3;
+        Mon, 26 Sep 2022 10:33:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 402FAC433D6;
+        Mon, 26 Sep 2022 10:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189485;
-        bh=Jh04ZgCVJUOdoccO5CyvPwcmwvALBeyaIwi9Zen4+4k=;
+        s=korg; t=1664188397;
+        bh=/C0jym3W36LqzFLJ72W++uwV3/cKZ208I2ml3w1Xx0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qggw+Yx0n6slXaV1AJs34t4Za0Uf7fhlnfdjKJ8ju7Wr/NdIRIPSIlN6v5gLeqrNe
-         S8cY+12e70c+W80BJVsX7N8/m3VwyLYoNPQGeI9yqStA69SI4yq6FncUzY/g+QthcQ
-         lHJphKWlY1z6zyQBIrmO1XI98p+e/0Av3lDA5ElI=
+        b=vIF6zym5uor3jX1wMhQXS7NdJHKfPa1bOqw1E6HCMIO4H3CTA2+s4EW/+OvGxysIM
+         OdjcN37vp450MQsihk2v8oXIZNC3jwcaZQRMerj3qC3hXNvPm48Zq1/t9plx3oPKDP
+         CxJ+cMxQIuETDE4IH53jaf5rniUTAxHonnLbzO1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        stable@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
+        Asmaa Mnebhi <asmaa@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 174/207] drm/gma500: Fix (vblank) IRQs not working after suspend/resume
+Subject: [PATCH 5.10 137/141] i2c: mlxbf: Fix frequency calculation
 Date:   Mon, 26 Sep 2022 12:12:43 +0200
-Message-Id: <20220926100814.441600933@linuxfoundation.org>
+Message-Id: <20220926100759.418516202@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,204 +53,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Asmaa Mnebhi <asmaa@nvidia.com>
 
-[ Upstream commit 235fdbc32d559db21e580f85035c59372704f09e ]
+[ Upstream commit 37f071ec327b04c83d47637c5e5c2199b39899ca ]
 
-Fix gnome-shell (and other page-flip users) hanging after suspend/resume
-because of the gma500's IRQs not working.
+The i2c-mlxbf.c driver is currently broken because there is a bug
+in the calculation of the frequency. core_f, core_r and core_od
+are components read from hardware registers and are used to
+compute the frequency used to compute different timing parameters.
+The shifting mechanism used to get core_f, core_r and core_od is
+wrong. Use FIELD_GET to mask and shift the bitfields properly.
 
-This fixes 2 problems with the IRQ handling:
-
-1. gma_power_off() calls gma_irq_uninstall() which does a free_irq(), but
-   gma_power_on() called gma_irq_preinstall() + gma_irq_postinstall() which
-   do not call request_irq. Replace the pre- + post-install calls with
-   gma_irq_install() which does prep + request + post.
-
-2. After fixing 1. IRQs still do not work on a Packard Bell Dot SC (Intel
-   Atom N2600, cedarview) netbook.
-
-   Cederview uses MSI interrupts and it seems that the BIOS re-configures
-   things back to normal APIC based interrupts during S3 suspend. There is
-   some MSI PCI-config registers save/restore code which tries to deal with
-   this, but on the Packard Bell Dot SC this is not sufficient to restore
-   MSI IRQ functionality after a suspend/resume.
-
-   Replace the PCI-config registers save/restore with pci_disable_msi() on
-   suspend + pci_enable_msi() on resume. Fixing e.g. gnome-shell hanging.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220906203852.527663-4-hdegoede@redhat.com
+Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
+Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
+Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/cdv_device.c      |  4 +---
- drivers/gpu/drm/gma500/oaktrail_device.c |  5 +----
- drivers/gpu/drm/gma500/power.c           |  8 +-------
- drivers/gpu/drm/gma500/psb_drv.c         |  2 +-
- drivers/gpu/drm/gma500/psb_drv.h         |  5 +----
- drivers/gpu/drm/gma500/psb_irq.c         | 15 ++++++++++++---
- drivers/gpu/drm/gma500/psb_irq.h         |  2 +-
- 7 files changed, 18 insertions(+), 23 deletions(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 63 +++++++++++++---------------------
+ 1 file changed, 23 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/cdv_device.c b/drivers/gpu/drm/gma500/cdv_device.c
-index dd32b484dd82..ce96234f3df2 100644
---- a/drivers/gpu/drm/gma500/cdv_device.c
-+++ b/drivers/gpu/drm/gma500/cdv_device.c
-@@ -581,11 +581,9 @@ static const struct psb_offset cdv_regmap[2] = {
- static int cdv_chip_setup(struct drm_device *dev)
- {
- 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
--	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	INIT_WORK(&dev_priv->hotplug_work, cdv_hotplug_work_func);
+diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
+index d78fb24d5588..bea82a787b4f 100644
+--- a/drivers/i2c/busses/i2c-mlxbf.c
++++ b/drivers/i2c/busses/i2c-mlxbf.c
+@@ -6,6 +6,7 @@
+  */
  
--	if (pci_enable_msi(pdev))
--		dev_warn(dev->dev, "Enabling MSI failed!\n");
-+	dev_priv->use_msi = true;
- 	dev_priv->regmap = cdv_regmap;
- 	gma_get_core_freq(dev);
- 	psb_intel_opregion_init(dev);
-diff --git a/drivers/gpu/drm/gma500/oaktrail_device.c b/drivers/gpu/drm/gma500/oaktrail_device.c
-index 5923a9c89312..f90e628cb482 100644
---- a/drivers/gpu/drm/gma500/oaktrail_device.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_device.c
-@@ -501,12 +501,9 @@ static const struct psb_offset oaktrail_regmap[2] = {
- static int oaktrail_chip_setup(struct drm_device *dev)
- {
- 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
--	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	int ret;
+ #include <linux/acpi.h>
++#include <linux/bitfield.h>
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
+@@ -63,13 +64,14 @@
+  */
+ #define MLXBF_I2C_TYU_PLL_OUT_FREQ  (400 * 1000 * 1000)
+ /* Reference clock for Bluefield - 156 MHz. */
+-#define MLXBF_I2C_PLL_IN_FREQ       (156 * 1000 * 1000)
++#define MLXBF_I2C_PLL_IN_FREQ       156250000ULL
  
--	if (pci_enable_msi(pdev))
--		dev_warn(dev->dev, "Enabling MSI failed!\n");
+ /* Constant used to determine the PLL frequency. */
+-#define MLNXBF_I2C_COREPLL_CONST    16384
++#define MLNXBF_I2C_COREPLL_CONST    16384ULL
++
++#define MLXBF_I2C_FREQUENCY_1GHZ  1000000000ULL
+ 
+ /* PLL registers. */
+-#define MLXBF_I2C_CORE_PLL_REG0         0x0
+ #define MLXBF_I2C_CORE_PLL_REG1         0x4
+ #define MLXBF_I2C_CORE_PLL_REG2         0x8
+ 
+@@ -187,22 +189,15 @@ enum {
+ #define MLXBF_I2C_COREPLL_FREQ          MLXBF_I2C_TYU_PLL_OUT_FREQ
+ 
+ /* Core PLL TYU configuration. */
+-#define MLXBF_I2C_COREPLL_CORE_F_TYU_MASK   GENMASK(12, 0)
+-#define MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK  GENMASK(3, 0)
+-#define MLXBF_I2C_COREPLL_CORE_R_TYU_MASK   GENMASK(5, 0)
 -
-+	dev_priv->use_msi = true;
- 	dev_priv->regmap = oaktrail_regmap;
+-#define MLXBF_I2C_COREPLL_CORE_F_TYU_SHIFT  3
+-#define MLXBF_I2C_COREPLL_CORE_OD_TYU_SHIFT 16
+-#define MLXBF_I2C_COREPLL_CORE_R_TYU_SHIFT  20
++#define MLXBF_I2C_COREPLL_CORE_F_TYU_MASK   GENMASK(15, 3)
++#define MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK  GENMASK(19, 16)
++#define MLXBF_I2C_COREPLL_CORE_R_TYU_MASK   GENMASK(25, 20)
  
- 	ret = mid_chip_setup(dev);
-diff --git a/drivers/gpu/drm/gma500/power.c b/drivers/gpu/drm/gma500/power.c
-index b91de6d36e41..66873085d450 100644
---- a/drivers/gpu/drm/gma500/power.c
-+++ b/drivers/gpu/drm/gma500/power.c
-@@ -139,8 +139,6 @@ static void gma_suspend_pci(struct pci_dev *pdev)
- 	dev_priv->regs.saveBSM = bsm;
- 	pci_read_config_dword(pdev, 0xFC, &vbt);
- 	dev_priv->regs.saveVBT = vbt;
--	pci_read_config_dword(pdev, PSB_PCIx_MSI_ADDR_LOC, &dev_priv->msi_addr);
--	pci_read_config_dword(pdev, PSB_PCIx_MSI_DATA_LOC, &dev_priv->msi_data);
+ /* Core PLL YU configuration. */
+ #define MLXBF_I2C_COREPLL_CORE_F_YU_MASK    GENMASK(25, 0)
+ #define MLXBF_I2C_COREPLL_CORE_OD_YU_MASK   GENMASK(3, 0)
+-#define MLXBF_I2C_COREPLL_CORE_R_YU_MASK    GENMASK(5, 0)
++#define MLXBF_I2C_COREPLL_CORE_R_YU_MASK    GENMASK(31, 26)
  
- 	pci_disable_device(pdev);
- 	pci_set_power_state(pdev, PCI_D3hot);
-@@ -168,9 +166,6 @@ static bool gma_resume_pci(struct pci_dev *pdev)
- 	pci_restore_state(pdev);
- 	pci_write_config_dword(pdev, 0x5c, dev_priv->regs.saveBSM);
- 	pci_write_config_dword(pdev, 0xFC, dev_priv->regs.saveVBT);
--	/* restoring MSI address and data in PCIx space */
--	pci_write_config_dword(pdev, PSB_PCIx_MSI_ADDR_LOC, dev_priv->msi_addr);
--	pci_write_config_dword(pdev, PSB_PCIx_MSI_DATA_LOC, dev_priv->msi_data);
- 	ret = pci_enable_device(pdev);
+-#define MLXBF_I2C_COREPLL_CORE_F_YU_SHIFT   0
+-#define MLXBF_I2C_COREPLL_CORE_OD_YU_SHIFT  1
+-#define MLXBF_I2C_COREPLL_CORE_R_YU_SHIFT   26
  
- 	if (ret != 0)
-@@ -223,8 +218,7 @@ int gma_power_resume(struct device *_dev)
- 	mutex_lock(&power_mutex);
- 	gma_resume_pci(pdev);
- 	gma_resume_display(pdev);
--	gma_irq_preinstall(dev);
--	gma_irq_postinstall(dev);
-+	gma_irq_install(dev);
- 	mutex_unlock(&power_mutex);
+ /* Core PLL frequency. */
+ static u64 mlxbf_i2c_corepll_frequency;
+@@ -485,8 +480,6 @@ static struct mutex mlxbf_i2c_bus_lock;
+ #define MLXBF_I2C_MASK_8    GENMASK(7, 0)
+ #define MLXBF_I2C_MASK_16   GENMASK(15, 0)
+ 
+-#define MLXBF_I2C_FREQUENCY_1GHZ  1000000000
+-
+ /*
+  * Function to poll a set of bits at a specific address; it checks whether
+  * the bits are equal to zero when eq_zero is set to 'true', and not equal
+@@ -1416,24 +1409,19 @@ static int mlxbf_i2c_init_master(struct platform_device *pdev,
  	return 0;
  }
-diff --git a/drivers/gpu/drm/gma500/psb_drv.c b/drivers/gpu/drm/gma500/psb_drv.c
-index 1d8744f3e702..54e756b48606 100644
---- a/drivers/gpu/drm/gma500/psb_drv.c
-+++ b/drivers/gpu/drm/gma500/psb_drv.c
-@@ -383,7 +383,7 @@ static int psb_driver_load(struct drm_device *dev, unsigned long flags)
- 	PSB_WVDC32(0xFFFFFFFF, PSB_INT_MASK_R);
- 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
  
--	gma_irq_install(dev, pdev->irq);
-+	gma_irq_install(dev);
- 
- 	dev->max_vblank_count = 0xffffff; /* only 24 bits of frame count */
- 
-diff --git a/drivers/gpu/drm/gma500/psb_drv.h b/drivers/gpu/drm/gma500/psb_drv.h
-index 0ddfec1a0851..4c3fc5eaf6ad 100644
---- a/drivers/gpu/drm/gma500/psb_drv.h
-+++ b/drivers/gpu/drm/gma500/psb_drv.h
-@@ -490,6 +490,7 @@ struct drm_psb_private {
- 	int rpm_enabled;
- 
- 	/* MID specific */
-+	bool use_msi;
- 	bool has_gct;
- 	struct oaktrail_gct_data gct_data;
- 
-@@ -499,10 +500,6 @@ struct drm_psb_private {
- 	/* Register state */
- 	struct psb_save_area regs;
- 
--	/* MSI reg save */
--	uint32_t msi_addr;
--	uint32_t msi_data;
--
- 	/* Hotplug handling */
- 	struct work_struct hotplug_work;
- 
-diff --git a/drivers/gpu/drm/gma500/psb_irq.c b/drivers/gpu/drm/gma500/psb_irq.c
-index e6e6d61bbeab..038f18ed0a95 100644
---- a/drivers/gpu/drm/gma500/psb_irq.c
-+++ b/drivers/gpu/drm/gma500/psb_irq.c
-@@ -316,17 +316,24 @@ void gma_irq_postinstall(struct drm_device *dev)
- 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
- }
- 
--int gma_irq_install(struct drm_device *dev, unsigned int irq)
-+int gma_irq_install(struct drm_device *dev)
+-static u64 mlxbf_calculate_freq_from_tyu(struct mlxbf_i2c_resource *corepll_res)
++static u64 mlxbf_i2c_calculate_freq_from_tyu(struct mlxbf_i2c_resource *corepll_res)
  {
-+	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	int ret;
+-	u64 core_frequency, pad_frequency;
++	u64 core_frequency;
+ 	u8 core_od, core_r;
+ 	u32 corepll_val;
+ 	u16 core_f;
  
--	if (irq == IRQ_NOTCONNECTED)
-+	if (dev_priv->use_msi && pci_enable_msi(pdev)) {
-+		dev_warn(dev->dev, "Enabling MSI failed!\n");
-+		dev_priv->use_msi = false;
-+	}
-+
-+	if (pdev->irq == IRQ_NOTCONNECTED)
- 		return -ENOTCONN;
+-	pad_frequency = MLXBF_I2C_PLL_IN_FREQ;
+-
+ 	corepll_val = readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG1);
  
- 	gma_irq_preinstall(dev);
+ 	/* Get Core PLL configuration bits. */
+-	core_f = rol32(corepll_val, MLXBF_I2C_COREPLL_CORE_F_TYU_SHIFT) &
+-			MLXBF_I2C_COREPLL_CORE_F_TYU_MASK;
+-	core_od = rol32(corepll_val, MLXBF_I2C_COREPLL_CORE_OD_TYU_SHIFT) &
+-			MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK;
+-	core_r = rol32(corepll_val, MLXBF_I2C_COREPLL_CORE_R_TYU_SHIFT) &
+-			MLXBF_I2C_COREPLL_CORE_R_TYU_MASK;
++	core_f = FIELD_GET(MLXBF_I2C_COREPLL_CORE_F_TYU_MASK, corepll_val);
++	core_od = FIELD_GET(MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK, corepll_val);
++	core_r = FIELD_GET(MLXBF_I2C_COREPLL_CORE_R_TYU_MASK, corepll_val);
  
- 	/* PCI devices require shared interrupts. */
--	ret = request_irq(irq, gma_irq_handler, IRQF_SHARED, dev->driver->name, dev);
-+	ret = request_irq(pdev->irq, gma_irq_handler, IRQF_SHARED, dev->driver->name, dev);
- 	if (ret)
- 		return ret;
+ 	/*
+ 	 * Compute PLL output frequency as follow:
+@@ -1445,31 +1433,26 @@ static u64 mlxbf_calculate_freq_from_tyu(struct mlxbf_i2c_resource *corepll_res)
+ 	 * Where PLL_OUT_FREQ and PLL_IN_FREQ refer to CoreFrequency
+ 	 * and PadFrequency, respectively.
+ 	 */
+-	core_frequency = pad_frequency * (++core_f);
++	core_frequency = MLXBF_I2C_PLL_IN_FREQ * (++core_f);
+ 	core_frequency /= (++core_r) * (++core_od);
  
-@@ -369,6 +376,8 @@ void gma_irq_uninstall(struct drm_device *dev)
- 	spin_unlock_irqrestore(&dev_priv->irqmask_lock, irqflags);
- 
- 	free_irq(pdev->irq, dev);
-+	if (dev_priv->use_msi)
-+		pci_disable_msi(pdev);
+ 	return core_frequency;
  }
  
- int gma_crtc_enable_vblank(struct drm_crtc *crtc)
-diff --git a/drivers/gpu/drm/gma500/psb_irq.h b/drivers/gpu/drm/gma500/psb_irq.h
-index b51e395194ff..7648f69824a5 100644
---- a/drivers/gpu/drm/gma500/psb_irq.h
-+++ b/drivers/gpu/drm/gma500/psb_irq.h
-@@ -17,7 +17,7 @@ struct drm_device;
+-static u64 mlxbf_calculate_freq_from_yu(struct mlxbf_i2c_resource *corepll_res)
++static u64 mlxbf_i2c_calculate_freq_from_yu(struct mlxbf_i2c_resource *corepll_res)
+ {
+ 	u32 corepll_reg1_val, corepll_reg2_val;
+-	u64 corepll_frequency, pad_frequency;
++	u64 corepll_frequency;
+ 	u8 core_od, core_r;
+ 	u32 core_f;
  
- void gma_irq_preinstall(struct drm_device *dev);
- void gma_irq_postinstall(struct drm_device *dev);
--int  gma_irq_install(struct drm_device *dev, unsigned int irq);
-+int  gma_irq_install(struct drm_device *dev);
- void gma_irq_uninstall(struct drm_device *dev);
+-	pad_frequency = MLXBF_I2C_PLL_IN_FREQ;
+-
+ 	corepll_reg1_val = readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG1);
+ 	corepll_reg2_val = readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG2);
  
- int  gma_crtc_enable_vblank(struct drm_crtc *crtc);
+ 	/* Get Core PLL configuration bits */
+-	core_f = rol32(corepll_reg1_val, MLXBF_I2C_COREPLL_CORE_F_YU_SHIFT) &
+-			MLXBF_I2C_COREPLL_CORE_F_YU_MASK;
+-	core_r = rol32(corepll_reg1_val, MLXBF_I2C_COREPLL_CORE_R_YU_SHIFT) &
+-			MLXBF_I2C_COREPLL_CORE_R_YU_MASK;
+-	core_od = rol32(corepll_reg2_val,  MLXBF_I2C_COREPLL_CORE_OD_YU_SHIFT) &
+-			MLXBF_I2C_COREPLL_CORE_OD_YU_MASK;
++	core_f = FIELD_GET(MLXBF_I2C_COREPLL_CORE_F_YU_MASK, corepll_reg1_val);
++	core_r = FIELD_GET(MLXBF_I2C_COREPLL_CORE_R_YU_MASK, corepll_reg1_val);
++	core_od = FIELD_GET(MLXBF_I2C_COREPLL_CORE_OD_YU_MASK, corepll_reg2_val);
+ 
+ 	/*
+ 	 * Compute PLL output frequency as follow:
+@@ -1481,7 +1464,7 @@ static u64 mlxbf_calculate_freq_from_yu(struct mlxbf_i2c_resource *corepll_res)
+ 	 * Where PLL_OUT_FREQ and PLL_IN_FREQ refer to CoreFrequency
+ 	 * and PadFrequency, respectively.
+ 	 */
+-	corepll_frequency = (pad_frequency * core_f) / MLNXBF_I2C_COREPLL_CONST;
++	corepll_frequency = (MLXBF_I2C_PLL_IN_FREQ * core_f) / MLNXBF_I2C_COREPLL_CONST;
+ 	corepll_frequency /= (++core_r) * (++core_od);
+ 
+ 	return corepll_frequency;
+@@ -2189,14 +2172,14 @@ static struct mlxbf_i2c_chip_info mlxbf_i2c_chip[] = {
+ 			[1] = &mlxbf_i2c_corepll_res[MLXBF_I2C_CHIP_TYPE_1],
+ 			[2] = &mlxbf_i2c_gpio_res[MLXBF_I2C_CHIP_TYPE_1]
+ 		},
+-		.calculate_freq = mlxbf_calculate_freq_from_tyu
++		.calculate_freq = mlxbf_i2c_calculate_freq_from_tyu
+ 	},
+ 	[MLXBF_I2C_CHIP_TYPE_2] = {
+ 		.type = MLXBF_I2C_CHIP_TYPE_2,
+ 		.shared_res = {
+ 			[0] = &mlxbf_i2c_corepll_res[MLXBF_I2C_CHIP_TYPE_2]
+ 		},
+-		.calculate_freq = mlxbf_calculate_freq_from_yu
++		.calculate_freq = mlxbf_i2c_calculate_freq_from_yu
+ 	}
+ };
+ 
 -- 
 2.35.1
 
