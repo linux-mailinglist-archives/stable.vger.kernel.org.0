@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4345E9FD8
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9116F5EA20B
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235709AbiIZKaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:30:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52448 "EHLO
+        id S237234AbiIZLBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:01:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235849AbiIZK3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:29:24 -0400
+        with ESMTP id S237432AbiIZK7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B60A146215;
-        Mon, 26 Sep 2022 03:19:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1AF5C9E1;
+        Mon, 26 Sep 2022 03:31:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4193EB80835;
-        Mon, 26 Sep 2022 10:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5660CC433C1;
-        Mon, 26 Sep 2022 10:19:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43E34B80835;
+        Mon, 26 Sep 2022 10:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 932A8C433C1;
+        Mon, 26 Sep 2022 10:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187553;
-        bh=9BkiyLBsVzXzC2PyiRUjj1lfylL5hzUuyzqnpUyygY8=;
+        s=korg; t=1664188190;
+        bh=ER3mexkbJMYny8HTxGhK3/B5gxon5l23I0zwMGyFQzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EN0lLV9nU0beqZaC7GHnqply8jfrCem3YhRDsv+E8c2B38GoniwHuOn73CMp490zi
-         YKdiYNrXBTW1atkJiUV4Xuo85bjcngzhIG3NPR9AUMEb7mTivHlSr5yw4cj1EujjX7
-         bikASeEA9I6PVm0zOjbeGyWuxOsPF6Mrugc4qOFQ=
+        b=C7NSrhANiRY7MTit5z4pUccUTqL66hUqdIPYaW0TV4uHCGhS+Ds+EVeyjNH74O5Wm
+         gz6AwPFtyw0SOtaazAIkpm+WFl1gt0JXU+AqgymOMUNCIsKUx7bV66siPKFAIwwys2
+         +489m+PPqW8Do/QTzg0MjtjHj3F2J0nKYbuaQn+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/58] video: fbdev: pxa3xx-gcu: Fix integer overflow in pxa3xx_gcu_write
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 070/141] netfilter: nfnetlink_osf: fix possible bogus match in nf_osf_find()
 Date:   Mon, 26 Sep 2022 12:11:36 +0200
-Message-Id: <20220926100742.062048441@linuxfoundation.org>
+Message-Id: <20220926100756.970645849@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit a09d2d00af53b43c6f11e6ab3cb58443c2cac8a7 ]
+[ Upstream commit 559c36c5a8d730c49ef805a72b213d3bba155cc8 ]
 
-In pxa3xx_gcu_write, a count parameter of type size_t is passed to words of
-type int.  Then, copy_from_user() may cause a heap overflow because it is used
-as the third argument of copy_from_user().
+nf_osf_find() incorrectly returns true on mismatch, this leads to
+copying uninitialized memory area in nft_osf which can be used to leak
+stale kernel stack data to userspace.
 
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 22c7652cdaa8 ("netfilter: nft_osf: Add version option support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa3xx-gcu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nfnetlink_osf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
-index 43695a33f062..aec0b85db5bf 100644
---- a/drivers/video/fbdev/pxa3xx-gcu.c
-+++ b/drivers/video/fbdev/pxa3xx-gcu.c
-@@ -394,7 +394,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
- 	struct pxa3xx_gcu_batch	*buffer;
- 	struct pxa3xx_gcu_priv *priv = to_pxa3xx_gcu_priv(file);
+diff --git a/net/netfilter/nfnetlink_osf.c b/net/netfilter/nfnetlink_osf.c
+index 79fbf37291f3..51e3953b414c 100644
+--- a/net/netfilter/nfnetlink_osf.c
++++ b/net/netfilter/nfnetlink_osf.c
+@@ -269,6 +269,7 @@ bool nf_osf_find(const struct sk_buff *skb,
+ 	struct nf_osf_hdr_ctx ctx;
+ 	const struct tcphdr *tcp;
+ 	struct tcphdr _tcph;
++	bool found = false;
  
--	int words = count / 4;
-+	size_t words = count / 4;
+ 	memset(&ctx, 0, sizeof(ctx));
  
- 	/* Does not need to be atomic. There's a lock in user space,
- 	 * but anyhow, this is just for statistics. */
+@@ -283,10 +284,11 @@ bool nf_osf_find(const struct sk_buff *skb,
+ 
+ 		data->genre = f->genre;
+ 		data->version = f->version;
++		found = true;
+ 		break;
+ 	}
+ 
+-	return true;
++	return found;
+ }
+ EXPORT_SYMBOL_GPL(nf_osf_find);
+ 
 -- 
 2.35.1
 
