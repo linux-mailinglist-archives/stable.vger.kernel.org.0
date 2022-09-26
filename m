@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE085EA71A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3FF5EA65F
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231543AbiIZN1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 09:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
+        id S236449AbiIZMnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:43:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234116AbiIZN0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:26:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2A857236;
-        Mon, 26 Sep 2022 04:51:37 -0700 (PDT)
+        with ESMTP id S236558AbiIZMmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:42:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CC4911ADC8;
+        Mon, 26 Sep 2022 04:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4A96B8095C;
-        Mon, 26 Sep 2022 10:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10717C433D6;
-        Mon, 26 Sep 2022 10:39:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23B9460A5C;
+        Mon, 26 Sep 2022 10:31:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 326B6C433C1;
+        Mon, 26 Sep 2022 10:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188794;
-        bh=nXLbPcp/lmo1PNRr7WbCA1M/+VZrKaywAvL2mtf1Ros=;
+        s=korg; t=1664188288;
+        bh=MSz5lceXVQTEFtNohFJnNhGsGvuO8syg31KTrCCdvHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkhvyZjcRHRGJTruBr3qVzXSyR2O8gksdDWZxA7iSnlEY1u1lxCt7inTEedtI42VQ
-         7r5u4SSdw18PLHUUcye/fze5XxsTvgHrRTq5jpkMGhZBL/0f65EI6B3IT3+nGbr7LL
-         QrORVKXNxLogFeBB0cB1OZ4SPjYEtoS2B4PQwQUQ=
+        b=2nn3ICuqON3PbF1bvyqu3rtxP7aR39x/oJsJQR2UZDHx1m1qZVbzKX6mZzChNekV/
+         azJl0ZuorR043KJn+lcSXXM9zho8HfdX8Met73x2u8rida6qDDQZHo8ijVLLQKlY/N
+         Zu1mOy2p6igW47KSMrWhngS/bJ0c41j4iu6qwHnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Liang He <windhl@126.com>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Christoph Hellwig <hch@lst.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/148] of: mdio: Add of_node_put() when breaking out of for_each_xx
-Date:   Mon, 26 Sep 2022 12:12:06 +0200
-Message-Id: <20220926100759.525282902@linuxfoundation.org>
+Subject: [PATCH 5.10 102/141] net: socket: remove register_gifconf
+Date:   Mon, 26 Sep 2022 12:12:08 +0200
+Message-Id: <20220926100758.113771921@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 1c48709e6d9d353acaaac1d8e33474756b121d78 ]
+[ Upstream commit b0e99d03778b2418aec20db99d97d19d25d198b6 ]
 
-In of_mdiobus_register(), we should call of_node_put() for 'child'
-escaped out of for_each_available_child_of_node().
+Since dynamic registration of the gifconf() helper is only used for
+IPv4, and this can not be in a loadable module, this can be simplified
+noticeably by turning it into a direct function call as a preparation
+for cleaning up the compat handling.
 
-Fixes: 66bdede495c7 ("of_mdio: Fix broken PHY IRQ in case of probe deferral")
-Co-developed-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220913125659.3331969-1-windhl@126.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 5641c751fe2f ("net: enetc: deny offload of tc-based TSN features on VF interfaces")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/of_mdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/inetdevice.h |  9 ++++++++
+ include/linux/netdevice.h  |  8 -------
+ net/core/dev_ioctl.c       | 43 +++++++++-----------------------------
+ net/ipv4/devinet.c         |  4 +---
+ 4 files changed, 20 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/net/mdio/of_mdio.c b/drivers/net/mdio/of_mdio.c
-index 9e3c815a070f..796e9c7857d0 100644
---- a/drivers/net/mdio/of_mdio.c
-+++ b/drivers/net/mdio/of_mdio.c
-@@ -231,6 +231,7 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
- 	return 0;
+diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
+index b68fca08be27..3088d94684c1 100644
+--- a/include/linux/inetdevice.h
++++ b/include/linux/inetdevice.h
+@@ -178,6 +178,15 @@ static inline struct net_device *ip_dev_find(struct net *net, __be32 addr)
  
- unregister:
-+	of_node_put(child);
- 	mdiobus_unregister(mdio);
- 	return rc;
+ int inet_addr_onlink(struct in_device *in_dev, __be32 a, __be32 b);
+ int devinet_ioctl(struct net *net, unsigned int cmd, struct ifreq *);
++#ifdef CONFIG_INET
++int inet_gifconf(struct net_device *dev, char __user *buf, int len, int size);
++#else
++static inline int inet_gifconf(struct net_device *dev, char __user *buf,
++			       int len, int size)
++{
++	return 0;
++}
++#endif
+ void devinet_init(void);
+ struct in_device *inetdev_by_index(struct net *, int);
+ __be32 inet_select_addr(const struct net_device *dev, __be32 dst, int scope);
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 6564fb4ac49e..ef75567efd27 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3201,14 +3201,6 @@ static inline bool dev_has_header(const struct net_device *dev)
+ 	return dev->header_ops && dev->header_ops->create;
  }
+ 
+-typedef int gifconf_func_t(struct net_device * dev, char __user * bufptr,
+-			   int len, int size);
+-int register_gifconf(unsigned int family, gifconf_func_t *gifconf);
+-static inline int unregister_gifconf(unsigned int family)
+-{
+-	return register_gifconf(family, NULL);
+-}
+-
+ #ifdef CONFIG_NET_FLOW_LIMIT
+ #define FLOW_LIMIT_HISTORY	(1 << 7)  /* must be ^2 and !overflow buckets */
+ struct sd_flow_limit {
+diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
+index 54fb18b4f55e..48afea19d3e1 100644
+--- a/net/core/dev_ioctl.c
++++ b/net/core/dev_ioctl.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/kmod.h>
+ #include <linux/netdevice.h>
++#include <linux/inetdevice.h>
+ #include <linux/etherdevice.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/net_tstamp.h>
+@@ -25,26 +26,6 @@ static int dev_ifname(struct net *net, struct ifreq *ifr)
+ 	return netdev_get_name(net, ifr->ifr_name, ifr->ifr_ifindex);
+ }
+ 
+-static gifconf_func_t *gifconf_list[NPROTO];
+-
+-/**
+- *	register_gifconf	-	register a SIOCGIF handler
+- *	@family: Address family
+- *	@gifconf: Function handler
+- *
+- *	Register protocol dependent address dumping routines. The handler
+- *	that is passed must not be freed or reused until it has been replaced
+- *	by another handler.
+- */
+-int register_gifconf(unsigned int family, gifconf_func_t *gifconf)
+-{
+-	if (family >= NPROTO)
+-		return -EINVAL;
+-	gifconf_list[family] = gifconf;
+-	return 0;
+-}
+-EXPORT_SYMBOL(register_gifconf);
+-
+ /*
+  *	Perform a SIOCGIFCONF call. This structure will change
+  *	size eventually, and there is nothing I can do about it.
+@@ -72,19 +53,15 @@ int dev_ifconf(struct net *net, struct ifconf *ifc, int size)
+ 
+ 	total = 0;
+ 	for_each_netdev(net, dev) {
+-		for (i = 0; i < NPROTO; i++) {
+-			if (gifconf_list[i]) {
+-				int done;
+-				if (!pos)
+-					done = gifconf_list[i](dev, NULL, 0, size);
+-				else
+-					done = gifconf_list[i](dev, pos + total,
+-							       len - total, size);
+-				if (done < 0)
+-					return -EFAULT;
+-				total += done;
+-			}
+-		}
++		int done;
++		if (!pos)
++			done = inet_gifconf(dev, NULL, 0, size);
++		else
++			done = inet_gifconf(dev, pos + total,
++					    len - total, size);
++		if (done < 0)
++			return -EFAULT;
++		total += done;
+ 	}
+ 
+ 	/*
+diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+index 8f1753875550..88b6120878cd 100644
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -1244,7 +1244,7 @@ int devinet_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr)
+ 	return ret;
+ }
+ 
+-static int inet_gifconf(struct net_device *dev, char __user *buf, int len, int size)
++int inet_gifconf(struct net_device *dev, char __user *buf, int len, int size)
+ {
+ 	struct in_device *in_dev = __in_dev_get_rtnl(dev);
+ 	const struct in_ifaddr *ifa;
+@@ -2766,8 +2766,6 @@ void __init devinet_init(void)
+ 		INIT_HLIST_HEAD(&inet_addr_lst[i]);
+ 
+ 	register_pernet_subsys(&devinet_ops);
+-
+-	register_gifconf(PF_INET, inet_gifconf);
+ 	register_netdevice_notifier(&ip_netdev_notifier);
+ 
+ 	queue_delayed_work(system_power_efficient_wq, &check_lifetime_work, 0);
 -- 
 2.35.1
 
