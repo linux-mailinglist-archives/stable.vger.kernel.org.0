@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3506D5EA30A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 403EE5EA1EC
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237646AbiIZLS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:18:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35180 "EHLO
+        id S236979AbiIZLAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:00:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237696AbiIZLRX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:17:23 -0400
+        with ESMTP id S237191AbiIZK7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FDF1659E3;
-        Mon, 26 Sep 2022 03:38:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A45E5B7BB;
+        Mon, 26 Sep 2022 03:30:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A873260C0B;
-        Mon, 26 Sep 2022 10:36:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E29BC433D6;
-        Mon, 26 Sep 2022 10:36:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E11CC60C94;
+        Mon, 26 Sep 2022 10:29:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E155DC433D6;
+        Mon, 26 Sep 2022 10:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188593;
-        bh=cAVjTlph+uYTY5nMF2GiWxeyu+HH3UT40wtrKGB0ylA=;
+        s=korg; t=1664188180;
+        bh=1JGr7LEV3Wr2rvR/26h69UgxUWkD3mhR1SV5NdHhshw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJmWtW16lQ/q+3fUJqW6zR7SnrIutucOE71GmTeniZSWu4Z4c+X4ITTryA8iKvavb
-         Vob8I+qI9G1JnrR706vYiEieRaYdFcNbmwlVd5qhmmTtCz9lz4w2Jnli5zBoWGJdIO
-         hb39ikURF3V13l6bKF8JVHY0rAZ6UmQ95SBPNlmk=
+        b=S+iEHrPkW3RIxPEUpnNhMxrGQEzoDfY7n43D6UuJ0G00+jMbBRlph1po0YrD6pe4a
+         RXeIcbjpLSBFa948IS6hdAna1RWC65y1AoCMWN2d2/2p2VcBtVeGRDbRaKllmHHnvh
+         N4jQ1yI7LHnGL5gpx67fZr/gIC0Zv9/kDijGUArY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/148] firmware: arm_scmi: Fix the asynchronous reset requests
+Subject: [PATCH 5.10 067/141] arm64: dts: rockchip: Remove enable-active-low from rk3399-puma
 Date:   Mon, 26 Sep 2022 12:11:33 +0200
-Message-Id: <20220926100758.240987476@linuxfoundation.org>
+Message-Id: <20220926100756.858074672@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit b75c83d9b961fd3abf7310f8d36d5e6e9f573efb ]
+[ Upstream commit a994b34b9abb9c08ee09e835b4027ff2147f9d94 ]
 
-SCMI Reset protocol specification allows the asynchronous reset request
-only when an autonomous reset action is specified. Reset requests based
-on explicit assert/deassert of signals should not be served
-asynchronously.
+The 'enable-active-low' property is not a valid one.
 
-Current implementation will instead issue an asynchronous request in any
-case, as long as the reset domain had advertised to support asynchronous
-resets.
+Only 'enable-active-high' is valid, and when this property is absent
+the gpio regulator will act as active low by default.
 
-Avoid requesting the asynchronous resets when the reset action is not
-of the autonomous type, even if the target reset domain does, in general,
-support the asynchronous requests.
+Remove the invalid 'enable-active-low' property.
 
-Link: https://lore.kernel.org/r/20220817172731.1185305-6-cristian.marussi@arm.com
-Fixes: 95a15d80aa0d ("firmware: arm_scmi: Add RESET protocol in SCMI v2.0")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 2c66fc34e945 ("arm64: dts: rockchip: add RK3399-Q7 (Puma) SoM")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Link: https://lore.kernel.org/r/20220827175140.1696699-1-festevam@denx.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/reset.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/firmware/arm_scmi/reset.c b/drivers/firmware/arm_scmi/reset.c
-index fc6237d6e926..e80a78205845 100644
---- a/drivers/firmware/arm_scmi/reset.c
-+++ b/drivers/firmware/arm_scmi/reset.c
-@@ -158,7 +158,7 @@ static int scmi_domain_reset(const struct scmi_protocol_handle *ph, u32 domain,
- 		return -EINVAL;
- 
- 	rdom = pi->dom_info + domain;
--	if (rdom->async_reset)
-+	if (rdom->async_reset && flags & AUTONOMOUS_RESET)
- 		flags |= ASYNCHRONOUS_RESET;
- 
- 	ret = ph->xops->xfer_get_init(ph, RESET, sizeof(*dom), 0, &t);
-@@ -170,7 +170,7 @@ static int scmi_domain_reset(const struct scmi_protocol_handle *ph, u32 domain,
- 	dom->flags = cpu_to_le32(flags);
- 	dom->reset_state = cpu_to_le32(state);
- 
--	if (rdom->async_reset)
-+	if (flags & ASYNCHRONOUS_RESET)
- 		ret = ph->xops->do_xfer_with_response(ph, t);
- 	else
- 		ret = ph->xops->do_xfer(ph, t);
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index 544110aaffc5..95bc7a5f61dd 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -102,7 +102,6 @@ vcc3v3_sys: vcc3v3-sys {
+ 	vcc5v0_host: vcc5v0-host-regulator {
+ 		compatible = "regulator-fixed";
+ 		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
+-		enable-active-low;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&vcc5v0_host_en>;
+ 		regulator-name = "vcc5v0_host";
 -- 
 2.35.1
 
