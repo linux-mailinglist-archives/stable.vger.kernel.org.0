@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0972D5EA2E3
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF40B5EA456
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237580AbiIZLQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:16:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59734 "EHLO
+        id S238142AbiIZLph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:45:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237586AbiIZLPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:15:32 -0400
+        with ESMTP id S238401AbiIZLnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:43:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9CF36525C;
-        Mon, 26 Sep 2022 03:37:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7D872873;
+        Mon, 26 Sep 2022 03:46:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8CFFB80691;
-        Mon, 26 Sep 2022 10:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C38C433C1;
-        Mon, 26 Sep 2022 10:35:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 683D0B802C5;
+        Mon, 26 Sep 2022 10:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0D0C433C1;
+        Mon, 26 Sep 2022 10:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188546;
-        bh=4jNDAPT6RbG2o3QkyUAz8HExfwylqHzvfN+G8bKnPuY=;
+        s=korg; t=1664189147;
+        bh=dPxiUNwktI/6LHpnNjBpRpD+Vb/t8nqMClxe9ag4g2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvHqq1E3gTDMEwEAcwIaNCxGkdoQTM6lpWYNOVO3arT3Kqs3QIz62504ycEfnOz3d
-         ThEX6/+qEXT8av6NdaMLynQPevALTQQqU5n+wXCfa5nOx7dmsvbLu5bN2Pnh0E8jsY
-         vvxPdf/LXm4vp9w2+qWlonGgZfowEsxQDqCMw9yc=
+        b=wiaZNj9yUx8QgNEBCsLBCwITzEGS0Wivu3ma6V1nv3ItEsPX1LVwB/o3+7GUpELzy
+         HphIs9K+ltIo5/b5lvskOA3ZC/Gq3qNaWrbfxOwmMEpnl9hNIG6yg8iINVYHIMfLPM
+         zWMn1cEbF0Ghx6/sCc09ooNObRnjSNoWO95A3uvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.15 043/148] gpio: mockup: fix NULL pointer dereference when removing debugfs
+        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 088/207] netfilter: nf_conntrack_irc: Tighten matching on DCC message
 Date:   Mon, 26 Sep 2022 12:11:17 +0200
-Message-Id: <20220926100757.626042929@linuxfoundation.org>
+Message-Id: <20220926100810.523597344@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <brgl@bgdev.pl>
+From: David Leadbeater <dgl@dgl.cx>
 
-commit b7df41a6f79dfb18ba2203f8c5f0e9c0b9b57f68 upstream.
+[ Upstream commit e8d5dfd1d8747b56077d02664a8838c71ced948e ]
 
-We now remove the device's debugfs entries when unbinding the driver.
-This now causes a NULL-pointer dereference on module exit because the
-platform devices are unregistered *after* the global debugfs directory
-has been recursively removed. Fix it by unregistering the devices first.
+CTCP messages should only be at the start of an IRC message, not
+anywhere within it.
 
-Fixes: 303e6da99429 ("gpio: mockup: remove gpio debugfs when remove device")
-Cc: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While the helper only decodes packes in the ORIGINAL direction, its
+possible to make a client send a CTCP message back by empedding one into
+a PING request.  As-is, thats enough to make the helper believe that it
+saw a CTCP message.
+
+Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
+Signed-off-by: David Leadbeater <dgl@dgl.cx>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mockup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_irc.c | 34 ++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
---- a/drivers/gpio/gpio-mockup.c
-+++ b/drivers/gpio/gpio-mockup.c
-@@ -618,9 +618,9 @@ static int __init gpio_mockup_init(void)
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index 992decbcaa5c..5703846bea3b 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -157,15 +157,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 	data = ib_ptr;
+ 	data_limit = ib_ptr + datalen;
  
- static void __exit gpio_mockup_exit(void)
- {
-+	gpio_mockup_unregister_pdevs();
- 	debugfs_remove_recursive(gpio_mockup_dbg_dir);
- 	platform_driver_unregister(&gpio_mockup_driver);
--	gpio_mockup_unregister_pdevs();
- }
+-	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
+-	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
+-	while (data < data_limit - (19 + MINMATCHLEN)) {
+-		if (memcmp(data, "\1DCC ", 5)) {
++	/* Skip any whitespace */
++	while (data < data_limit - 10) {
++		if (*data == ' ' || *data == '\r' || *data == '\n')
++			data++;
++		else
++			break;
++	}
++
++	/* strlen("PRIVMSG x ")=10 */
++	if (data < data_limit - 10) {
++		if (strncasecmp("PRIVMSG ", data, 8))
++			goto out;
++		data += 8;
++	}
++
++	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
++	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
++	 */
++	while (data < data_limit - (21 + MINMATCHLEN)) {
++		/* Find first " :", the start of message */
++		if (memcmp(data, " :", 2)) {
+ 			data++;
+ 			continue;
+ 		}
++		data += 2;
++
++		/* then check that place only for the DCC command */
++		if (memcmp(data, "\1DCC ", 5))
++			goto out;
+ 		data += 5;
+-		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
++		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
  
- module_init(gpio_mockup_init);
+ 		iph = ip_hdr(skb);
+ 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
+@@ -181,7 +203,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 			pr_debug("DCC %s detected\n", dccprotos[i]);
+ 
+ 			/* we have at least
+-			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
++			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
+ 			 * data left (== 14/13 bytes) */
+ 			if (parse_dcc(data, data_limit, &dcc_ip,
+ 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
+-- 
+2.35.1
+
 
 
