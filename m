@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E555EA6F6
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 15:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE8F5EA5DD
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235070AbiIZNTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 09:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36568 "EHLO
+        id S236364AbiIZMXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:23:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235894AbiIZNSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 09:18:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8D3DB;
-        Mon, 26 Sep 2022 04:45:33 -0700 (PDT)
+        with ESMTP id S237146AbiIZMXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:23:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE055A3DD;
+        Mon, 26 Sep 2022 04:05:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B8A2CE111C;
+        by sin.source.kernel.org (Postfix) with ESMTPS id E598BCE1122;
+        Mon, 26 Sep 2022 10:51:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5C61C433C1;
         Mon, 26 Sep 2022 10:51:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1923AC433C1;
-        Mon, 26 Sep 2022 10:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189474;
-        bh=LgrIYa0at/wSsDhTrNC+RUwDkoQVOs7ROK/IsjTDK8w=;
+        s=korg; t=1664189477;
+        bh=F0QpExpqRDTwj0Px6tY3UgvVq9CTES248BvTZVN/jfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=intx3gVkN2TpnFO2WOtfqLjpfVpwQJyUDh0AhTFP+Y/F9idjS7X9FO3V9YdoFKdR9
-         xBATgYzsdZIaE0nGSvAVK3Q80MBYeeaevTGLrqtfvhabxoZ2vFOBQX2Ol/7WxFF8Dz
-         8gYhB/dL8ICfZOqDEshXvOI38v/CFORKr7v1kny0=
+        b=QteQ670lN0iUnUFm7QgQa8JgxM3qVBLh9xQCPn4bjc6cQAfXlIvyvSP7i0AxV5QjX
+         XJAPvtim76HHQ3LATpShdLtFPlKMYFGEW9kCdC8vPOXJxSyLB0rFXfbjLzxTN9cbZp
+         10p/4OeFkNTEusqi62fQXm71u+Hm4o0tIxbJC5kQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+31c9594f6e43b9289b25@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>,
-        Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.19 170/207] block: Do not call blk_put_queue() if gendisk allocation fails
-Date:   Mon, 26 Sep 2022 12:12:39 +0200
-Message-Id: <20220926100814.266479156@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 171/207] Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
+Date:   Mon, 26 Sep 2022 12:12:40 +0200
+Message-Id: <20220926100814.314587683@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -55,74 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit aa0c680c3aa96a5f9f160d90dd95402ad578e2b0 upstream.
+[ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
 
-Commit 6f8191fdf41d ("block: simplify disk shutdown") removed the call
-to blk_get_queue() during gendisk allocation but missed to remove the
-corresponding cleanup code blk_put_queue() for it. Thus, if the gendisk
-allocation fails, the request_queue refcount gets decremented and
-reaches 0, causing blk_mq_release() to be called with a hctx still
-alive. That triggers a WARNING report, as found by syzkaller:
+Passed through PCI device sometimes misbehave on Gen1 VMs when Hyper-V
+DRM driver is also loaded. Looking at IOMEM assignment, we can see e.g.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 23016 at block/blk-mq.c:3881
-blk_mq_release+0xf8/0x3e0 block/blk-mq.c:3881
-[...] stripped
-RIP: 0010:blk_mq_release+0xf8/0x3e0 block/blk-mq.c:3881
-[...] stripped
-Call Trace:
- <TASK>
- blk_release_queue+0x153/0x270 block/blk-sysfs.c:780
- kobject_cleanup lib/kobject.c:673 [inline]
- kobject_release lib/kobject.c:704 [inline]
- kref_put include/linux/kref.h:65 [inline]
- kobject_put+0x1c8/0x540 lib/kobject.c:721
- __alloc_disk_node+0x4f7/0x610 block/genhd.c:1388
- __blk_mq_alloc_disk+0x13b/0x1f0 block/blk-mq.c:3961
- loop_add+0x3e2/0xaf0 drivers/block/loop.c:1978
- loop_control_ioctl+0x133/0x620 drivers/block/loop.c:2150
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:870 [inline]
- __se_sys_ioctl fs/ioctl.c:856 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[...] stripped
+$ cat /proc/iomem
+...
+f8000000-fffbffff : PCI Bus 0000:00
+  f8000000-fbffffff : 0000:00:08.0
+    f8000000-f8001fff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
+...
+fe0000000-fffffffff : PCI Bus 0000:00
+  fe0000000-fe07fffff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
+    fe0000000-fe07fffff : 2ba2:00:02.0
+      fe0000000-fe07fffff : mlx4_core
 
-Fixes: 6f8191fdf41d ("block: simplify disk shutdown")
-Reported-by: syzbot+31c9594f6e43b9289b25@syzkaller.appspotmail.com
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220811232338.254673-1-rafaelmendsr@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+the interesting part is the 'f8000000' region as it is actually the
+VM's framebuffer:
+
+$ lspci -v
+...
+0000:00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA (prog-if 00 [VGA controller])
+	Flags: bus master, fast devsel, latency 0, IRQ 11
+	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
+...
+
+ hv_vmbus: registering driver hyperv_drm
+ hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Synthvid Version major 3, minor 5
+ hyperv_drm 0000:00:08.0: vgaarb: deactivate vga console
+ hyperv_drm 0000:00:08.0: BAR 0: can't reserve [mem 0xf8000000-0xfbffffff]
+ hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Cannot request framebuffer, boot fb still active?
+
+Note: "Cannot request framebuffer" is not a fatal error in
+hyperv_setup_gen1() as the code assumes there's some other framebuffer
+device there but we actually have some other PCI device (mlx4 in this
+case) config space there!
+
+The problem appears to be that vmbus_allocate_mmio() can use dedicated
+framebuffer region to serve any MMIO request from any device. The
+semantics one might assume of a parameter named "fb_overlap_ok"
+aren't implemented because !fb_overlap_ok essentially has no effect.
+The existing semantics are really "prefer_fb_overlap". This patch
+implements the expected and needed semantics, which is to not allocate
+from the frame buffer space when !fb_overlap_ok.
+
+Note, Gen2 VMs are usually unaffected by the issue because
+framebuffer region is already taken by EFI fb (in case kernel supports
+it) but Gen1 VMs may have this region unclaimed by the time Hyper-V PCI
+pass-through driver tries allocating MMIO space if Hyper-V DRM/FB drivers
+load after it. Devices can be brought up in any sequence so let's
+resolve the issue by always ignoring 'fb_mmio' region for non-FB
+requests, even if the region is unclaimed.
+
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/20220827130345.1320254-4-vkuznets@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/hv/vmbus_drv.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -1359,7 +1359,7 @@ struct gendisk *__alloc_disk_node(struct
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 547ae334e5cd..027029efb008 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -2309,7 +2309,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
+ 			bool fb_overlap_ok)
+ {
+ 	struct resource *iter, *shadow;
+-	resource_size_t range_min, range_max, start;
++	resource_size_t range_min, range_max, start, end;
+ 	const char *dev_n = dev_name(&device_obj->device);
+ 	int retval;
  
- 	disk = kzalloc_node(sizeof(struct gendisk), GFP_KERNEL, node_id);
- 	if (!disk)
--		goto out_put_queue;
-+		return NULL;
- 
- 	disk->bdi = bdi_alloc(node_id);
- 	if (!disk->bdi)
-@@ -1403,8 +1403,6 @@ out_free_bdi:
- 	bdi_put(disk->bdi);
- out_free_disk:
- 	kfree(disk);
--out_put_queue:
--	blk_put_queue(q);
- 	return NULL;
- }
- 
+@@ -2344,6 +2344,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
+ 		range_max = iter->end;
+ 		start = (range_min + align - 1) & ~(align - 1);
+ 		for (; start + size - 1 <= range_max; start += align) {
++			end = start + size - 1;
++
++			/* Skip the whole fb_mmio region if not fb_overlap_ok */
++			if (!fb_overlap_ok && fb_mmio &&
++			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
++			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
++				continue;
++
+ 			shadow = __request_region(iter, start, size, NULL,
+ 						  IORESOURCE_BUSY);
+ 			if (!shadow)
+-- 
+2.35.1
+
 
 
