@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFAFB5EA4D3
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:53:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196145E9F55
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238229AbiIZLxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:53:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
+        id S235028AbiIZKZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:25:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238333AbiIZLwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:52:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A0F77551;
-        Mon, 26 Sep 2022 03:49:28 -0700 (PDT)
+        with ESMTP id S235307AbiIZKWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:22:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E265FD5;
+        Mon, 26 Sep 2022 03:16:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA09A60A52;
-        Mon, 26 Sep 2022 10:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA77C433B5;
-        Mon, 26 Sep 2022 10:48:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAA43B8091F;
+        Mon, 26 Sep 2022 10:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F7ECC433C1;
+        Mon, 26 Sep 2022 10:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189295;
-        bh=3IXoiwJCIaDbKrUUDVRIb5inhLm3+M4M/BB1M6oB4Yc=;
+        s=korg; t=1664187379;
+        bh=JqS8c52oGXzX8/IafG5a2GEB1z07rJ5BVr2sJYfUNxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EL4beRqxpczSBp/EudM5XpE4j38TKSsnJZQXq0WO79jDdeU23SzL64XyKfxo8V2Vi
-         ApKEuUCP//9ORLh7hWsRB5tdrJVgI5/76aLpxhORqD3N0QCrydbnaj7aFRrstNyjNk
-         UjuRpa05NpdsBkUyxxnmf8qpknYPgZ3sx+vQkVao=
+        b=pW2+saBfnoZgFs8hdAG1j6xXE8fkJ/mEMix9ClrfsfEEOcA15r5ll7OSRxY06IXBw
+         dPQIml+Y9eGAoamNVnMZJxIffopvSf4jRQEO0ph+mPgMtYYx4HIXD118fqfXDSHrD8
+         iAOglPh0ss9/20bc2lc/SWPcz//zHk+S8hErlWJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 107/207] net: team: Unsync device addresses on ndo_stop
+Subject: [PATCH 4.14 08/40] ASoC: nau8824: Fix semaphore unbalance at error paths
 Date:   Mon, 26 Sep 2022 12:11:36 +0200
-Message-Id: <20220926100811.387642363@linuxfoundation.org>
+Message-Id: <20220926100738.524202736@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Poirier <bpoirier@nvidia.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit bd60234222b2fd5573526da7bcd422801f271f5f ]
+[ Upstream commit 5628560e90395d3812800a8e44a01c32ffa429ec ]
 
-Netdev drivers are expected to call dev_{uc,mc}_sync() in their
-ndo_set_rx_mode method and dev_{uc,mc}_unsync() in their ndo_stop method.
-This is mentioned in the kerneldoc for those dev_* functions.
+The semaphore of nau8824 wasn't properly unlocked at some error
+handling code paths, hence this may result in the unbalance (and
+potential lock-up).  Fix them to handle the semaphore up properly.
 
-The team driver calls dev_{uc,mc}_unsync() during ndo_uninit instead of
-ndo_stop. This is ineffective because address lists (dev->{uc,mc}) have
-already been emptied in unregister_netdevice_many() before ndo_uninit is
-called. This mistake can result in addresses being leftover on former team
-ports after a team device has been deleted; see test_LAG_cleanup() in the
-last patch in this series.
-
-Add unsync calls at their expected location, team_close().
-
-v3:
-* When adding or deleting a port, only sync/unsync addresses if the team
-  device is up. In other cases, it is taken care of at the right time by
-  ndo_open/ndo_set_rx_mode/ndo_stop.
-
-Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
-Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220823081000.2965-3-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ sound/soc/codecs/nau8824.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index b07dde6f0abf..b9899913d246 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1275,10 +1275,12 @@ static int team_port_add(struct team *team, struct net_device *port_dev,
- 		}
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index e8ea51247b17..cc745374b828 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -1015,6 +1015,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 	struct snd_soc_codec *codec = dai->codec;
+ 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
+ 	unsigned int val_len = 0, osr, ctrl_val, bclk_fs, bclk_div;
++	int err = -EINVAL;
+ 
+ 	nau8824_sema_acquire(nau8824, HZ);
+ 
+@@ -1031,7 +1032,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		osr &= NAU8824_DAC_OVERSAMPLE_MASK;
+ 		if (nau8824_clock_check(nau8824, substream->stream,
+ 			nau8824->fs, osr))
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
+ 			NAU8824_CLK_DAC_SRC_MASK,
+ 			osr_dac_sel[osr].clk_src << NAU8824_CLK_DAC_SRC_SFT);
+@@ -1041,7 +1042,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		osr &= NAU8824_ADC_SYNC_DOWN_MASK;
+ 		if (nau8824_clock_check(nau8824, substream->stream,
+ 			nau8824->fs, osr))
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
+ 			NAU8824_CLK_ADC_SRC_MASK,
+ 			osr_adc_sel[osr].clk_src << NAU8824_CLK_ADC_SRC_SFT);
+@@ -1062,7 +1063,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		else if (bclk_fs <= 256)
+ 			bclk_div = 0;
+ 		else
+-			return -EINVAL;
++			goto error;
+ 		regmap_update_bits(nau8824->regmap,
+ 			NAU8824_REG_PORT0_I2S_PCM_CTRL_2,
+ 			NAU8824_I2S_LRC_DIV_MASK | NAU8824_I2S_BLK_DIV_MASK,
+@@ -1083,15 +1084,17 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
+ 		val_len |= NAU8824_I2S_DL_32;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		goto error;
  	}
  
--	netif_addr_lock_bh(dev);
--	dev_uc_sync_multiple(port_dev, dev);
--	dev_mc_sync_multiple(port_dev, dev);
--	netif_addr_unlock_bh(dev);
-+	if (dev->flags & IFF_UP) {
-+		netif_addr_lock_bh(dev);
-+		dev_uc_sync_multiple(port_dev, dev);
-+		dev_mc_sync_multiple(port_dev, dev);
-+		netif_addr_unlock_bh(dev);
-+	}
+ 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
+ 		NAU8824_I2S_DL_MASK, val_len);
++	err = 0;
  
- 	port->index = -1;
- 	list_add_tail_rcu(&port->list, &team->port_list);
-@@ -1349,8 +1351,10 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
- 	netdev_rx_handler_unregister(port_dev);
- 	team_port_disable_netpoll(port);
- 	vlan_vids_del_by_dev(port_dev, dev);
--	dev_uc_unsync(port_dev, dev);
--	dev_mc_unsync(port_dev, dev);
-+	if (dev->flags & IFF_UP) {
-+		dev_uc_unsync(port_dev, dev);
-+		dev_mc_unsync(port_dev, dev);
-+	}
- 	dev_close(port_dev);
- 	team_port_leave(team, port);
++ error:
+ 	nau8824_sema_release(nau8824);
  
-@@ -1700,6 +1704,14 @@ static int team_open(struct net_device *dev)
- 
- static int team_close(struct net_device *dev)
- {
-+	struct team *team = netdev_priv(dev);
-+	struct team_port *port;
-+
-+	list_for_each_entry(port, &team->port_list, list) {
-+		dev_uc_unsync(port->dev, dev);
-+		dev_mc_unsync(port->dev, dev);
-+	}
-+
- 	return 0;
+-	return 0;
++	return err;
  }
  
+ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+@@ -1100,8 +1103,6 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
+ 	unsigned int ctrl1_val = 0, ctrl2_val = 0;
+ 
+-	nau8824_sema_acquire(nau8824, HZ);
+-
+ 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		ctrl2_val |= NAU8824_I2S_MS_MASTER;
+@@ -1143,6 +1144,8 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 		return -EINVAL;
+ 	}
+ 
++	nau8824_sema_acquire(nau8824, HZ);
++
+ 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
+ 		NAU8824_I2S_DF_MASK | NAU8824_I2S_BP_MASK |
+ 		NAU8824_I2S_PCMB_EN, ctrl1_val);
 -- 
 2.35.1
 
