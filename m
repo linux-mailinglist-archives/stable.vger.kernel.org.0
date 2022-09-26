@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C33485E9F7A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C315E9F42
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235400AbiIZK0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
+        id S235296AbiIZKWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235740AbiIZKYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4097FE034;
-        Mon, 26 Sep 2022 03:18:14 -0700 (PDT)
+        with ESMTP id S235249AbiIZKVb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:21:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1BF4B4A3;
+        Mon, 26 Sep 2022 03:16:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E727060AF0;
-        Mon, 26 Sep 2022 10:17:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9EBC433D7;
-        Mon, 26 Sep 2022 10:17:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A240FB8091E;
+        Mon, 26 Sep 2022 10:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D68C433D7;
+        Mon, 26 Sep 2022 10:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187448;
-        bh=r8IED6lFpJpupHedByKgtomyHTVDFLhpVTD7qB0qhe0=;
+        s=korg; t=1664187364;
+        bh=oNBH8HAXn+y6fBbQmefAHGzvMjBfcArG+c+7kUIY7Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sodKVq9DgNDHnOOr7WAjKzoQj1UZegJEUJvvPM7ZystfZctF4RZR4o+TRTSl0oGGZ
-         55tOFpiySYEn1FQVOVe6u3CtOYjnl5t6anTgWsWceYwY2afTWvlOMhqpMxnZzXmkYk
-         00/88hbkC2hMr5MietEsrVIbgHa41woPsmTboGuA=
+        b=hVR0m5vMDU+LvDMFWATDf9FT9NdS2E03ylbMO2nmcICSY086oBNwOvlBFtwb9lJrE
+         Acq79tP3Yij3BUmngmLjvTmahUqrSi2CJIm2Bf/js54D13RtfYpR+OGWQkub06RonT
+         LdPucHwHbA0oSPo8LNQ4gP1hL+Lwdpxr/WYYnmf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Stuart Menefy <stuart.menefy@mathembedded.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/58] regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
-Date:   Mon, 26 Sep 2022 12:11:30 +0200
-Message-Id: <20220926100741.816304962@linuxfoundation.org>
+Subject: [PATCH 4.14 03/40] drm/meson: Correct OSD1 global alpha value
+Date:   Mon, 26 Sep 2022 12:11:31 +0200
+Message-Id: <20220926100738.338184163@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: Stuart Menefy <stuart.menefy@mathembedded.com>
 
-[ Upstream commit 78e1e867f44e6bdc72c0e6a2609a3407642fb30b ]
+[ Upstream commit 6836829c8ea453c9e3e518e61539e35881c8ed5f ]
 
-The pfuze_chip::regulator_descs is an array of size
-PFUZE100_MAX_REGULATOR, the pfuze_chip::pfuze_regulators
-is the pointer to the real regulators of a specific device.
-The number of real regulator is supposed to be less than
-the PFUZE100_MAX_REGULATOR, so we should use the size of
-'regulator_num * sizeof(struct pfuze_regulator)' in memcpy().
-This fixes the out of bounds access bug reported by KASAN.
+VIU_OSD1_CTRL_STAT.GLOBAL_ALPHA is a 9 bit field, so the maximum
+value is 0x100 not 0xff.
 
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Link: https://lore.kernel.org/r/20220825111922.1368055-1-xiaolei.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This matches the vendor kernel.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220908155103.686904-1-stuart.menefy@mathembedded.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 2 +-
+ drivers/gpu/drm/meson/meson_plane.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 8b1940110561..b1d73a6c7809 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -710,7 +710,7 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
- 		((pfuze_chip->chip_id == PFUZE3000) ? "3000" : "3001"))));
+diff --git a/drivers/gpu/drm/meson/meson_plane.c b/drivers/gpu/drm/meson/meson_plane.c
+index 85fa39e2be34..75132d0c5c28 100644
+--- a/drivers/gpu/drm/meson/meson_plane.c
++++ b/drivers/gpu/drm/meson/meson_plane.c
+@@ -105,7 +105,7 @@ static void meson_plane_atomic_update(struct drm_plane *plane,
  
- 	memcpy(pfuze_chip->regulator_descs, pfuze_chip->pfuze_regulators,
--		sizeof(pfuze_chip->regulator_descs));
-+		regulator_num * sizeof(struct pfuze_regulator));
+ 	/* Enable OSD and BLK0, set max global alpha */
+ 	priv->viu.osd1_ctrl_stat = OSD_ENABLE |
+-				   (0xFF << OSD_GLOBAL_ALPHA_SHIFT) |
++				   (0x100 << OSD_GLOBAL_ALPHA_SHIFT) |
+ 				   OSD_BLK0_ENABLE;
  
- 	ret = pfuze_parse_regulators_dt(pfuze_chip);
- 	if (ret)
+ 	/* Set up BLK0 to point to the right canvas */
 -- 
 2.35.1
 
