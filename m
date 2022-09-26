@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 070B95EA4EF
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3735EA294
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238722AbiIZL4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:56:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34528 "EHLO
+        id S237463AbiIZLLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:11:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239180AbiIZLyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9012E78219;
-        Mon, 26 Sep 2022 03:50:23 -0700 (PDT)
+        with ESMTP id S237792AbiIZLJi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:09:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3355856BBF;
+        Mon, 26 Sep 2022 03:35:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79DC160C41;
-        Mon, 26 Sep 2022 10:50:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF72C433D6;
-        Mon, 26 Sep 2022 10:50:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03926B80915;
+        Mon, 26 Sep 2022 10:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 349B3C433D7;
+        Mon, 26 Sep 2022 10:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189407;
-        bh=jR+9wdzZXg1ytd9GBg3XFo+5bh/ND8xS//zX2kiAkgE=;
+        s=korg; t=1664188412;
+        bh=YU5ZVW+vaaa0D5a/Gtln8E0+5y95LhWnRWKcQDa7Mfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vialv12cO+qJjwDfCwEyqga7S/boVA0IRIlLYFaifSUblu/4IpXSn0ZQGpQdSw9t1
-         LC9/TDhVNejqPJ2WMVu5RRWwKlOJFDOiSobLiAbCEU39YWB0sEwV4sobyOhLxIkCIO
-         E0Uv0ykDOH70nyg/hKqEqluqnTpU8Kr7SPqtT9ko=
+        b=lmsY6lA4zcgyJ0scuuiwY05KoN8+ZGz4biCqx02YeAAAz6soCdgO4gpCXD3xhQDFj
+         wZPG4IeyPc9Qn8xpLTTlGfmtGua+GQ85lVlrO/WpRdMQs4z5ZMzXKUTWk5v3nXh1bL
+         3lrD7r60CeVRWiMtmNd6UPhTHuo5ipdsvdQVK4rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Wang <KevinYang.Wang@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 178/207] drm/amdgpu: change the alignment size of TMR BO to 1M
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Ojaswin Mujoo <ojaswin@linux.ibm.com>, stable@kernel.org,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 141/141] ext4: make directory inode spreading reflect flexbg size
 Date:   Mon, 26 Sep 2022 12:12:47 +0200
-Message-Id: <20220926100814.598225135@linuxfoundation.org>
+Message-Id: <20220926100759.579489997@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Wang <KevinYang.Wang@amd.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 36de13fdb04abef3ee03ade5129ab146de63983b ]
+commit 613c5a85898d1cd44e68f28d65eccf64a8ace9cf upstream.
 
-align TMR BO size TO tmr size is not necessary,
-modify the size to 1M to avoid re-create BO fail
-when serious VRAM fragmentation.
+Currently the Orlov inode allocator searches for free inodes for a
+directory only in flex block groups with at most inodes_per_group/16
+more directory inodes than average per flex block group. However with
+growing size of flex block group this becomes unnecessarily strict.
+Scale allowed difference from average directory count per flex block
+group with flex block group size as we do with other metrics.
 
-v2:
-add new macro PSP_TMR_ALIGNMENT for TMR BO alignment size
-
-Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Tested-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/all/0d81a7c2-46b7-6010-62a4-3e6cfc1628d6@i2se.com/
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220908092136.11770-3-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/ialloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index b19bf0c3f373..79ce654bd3da 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -748,7 +748,7 @@ static int psp_tmr_init(struct psp_context *psp)
+--- a/fs/ext4/ialloc.c
++++ b/fs/ext4/ialloc.c
+@@ -508,7 +508,7 @@ static int find_group_orlov(struct super
+ 		goto fallback;
  	}
  
- 	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
--	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_SIZE(psp->adev),
-+	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_ALIGNMENT,
- 				      AMDGPU_GEM_DOMAIN_VRAM,
- 				      &psp->tmr_bo, &psp->tmr_mc_addr, pptr);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-index e431f4994931..cd366c7f311f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-@@ -36,6 +36,7 @@
- #define PSP_CMD_BUFFER_SIZE	0x1000
- #define PSP_1_MEG		0x100000
- #define PSP_TMR_SIZE(adev)	((adev)->asic_type == CHIP_ALDEBARAN ? 0x800000 : 0x400000)
-+#define PSP_TMR_ALIGNMENT	0x100000
- #define PSP_FW_NAME_LEN		0x24
- 
- enum psp_shared_mem_size {
--- 
-2.35.1
-
+-	max_dirs = ndirs / ngroups + inodes_per_group / 16;
++	max_dirs = ndirs / ngroups + inodes_per_group*flex_size / 16;
+ 	min_inodes = avefreei - inodes_per_group*flex_size / 4;
+ 	if (min_inodes < 1)
+ 		min_inodes = 1;
 
 
