@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FEC65EA492
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC9C05EA1F1
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238519AbiIZLrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53508 "EHLO
+        id S237040AbiIZLAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:00:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238514AbiIZLp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:45:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6441B74BB8;
-        Mon, 26 Sep 2022 03:47:27 -0700 (PDT)
+        with ESMTP id S237347AbiIZK71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 952775C9EB;
+        Mon, 26 Sep 2022 03:31:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02B4960A36;
-        Mon, 26 Sep 2022 10:46:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1272BC433C1;
-        Mon, 26 Sep 2022 10:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 966B9B80952;
+        Mon, 26 Sep 2022 10:30:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D207FC433D6;
+        Mon, 26 Sep 2022 10:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189174;
-        bh=J/fD2m4D+RAJIbJ4ywOImke5ptOLROIsQy4z/Q0yhfQ=;
+        s=korg; t=1664188251;
+        bh=3tdsAQP+V8e9ZD4BWk3zNjB2XQAPdWt1dSbmitw3cNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/eo2cm+sOPOifoapjDiCahAh9cIiDQqypXjasoRFpkVeqJ6M2QINareJFUQdmVm3
-         CTAru0CkRofwwjJXJZzxjZvMYApCsAX0NB0isWUC94pdyK5cfOxaGnpekwkojdogPZ
-         1nzTNPtUL63OcLzJynBQlD/+Gib5pwVV959w4va4=
+        b=OXKZmQoWOKG0UvpAS3uViv15WrO4CbmijQzg+SP1enzhb2Ej6DMb522eqQnTLlrXl
+         2BduczK+nI9Zwc4wdSYk1IuxS952GSp9KBj67Sk3wK+MeNPQsvR4DHEBVbpvpOdwUf
+         jtT+JCWrmQDJnaZURBxTvr57OyUByuEBhCxHOkOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 096/207] arm64: dts: tqma8mqml: Include phy-imx8-pcie.h header
+        stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Alex Elder <elder@linaro.org>
+Subject: [PATCH 5.10 059/141] interconnect: qcom: icc-rpmh: Add BCMs to commit list in pre_aggregate
 Date:   Mon, 26 Sep 2022 12:11:25 +0200
-Message-Id: <20220926100810.894474099@linuxfoundation.org>
+Message-Id: <20220926100756.596263294@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Mike Tipton <mdtipton@codeaurora.org>
 
-[ Upstream commit 70ae49c5ac876f0f4689889588544104209c09c4 ]
+commit b95b668eaaa2574e8ee72f143c52075e9955177e upstream.
 
-imx8mm-tqma8mqml.dtsi has PCIe support, so it should include
-<dt-bindings/phy/phy-imx8-pcie.h>.
+We're only adding BCMs to the commit list in aggregate(), but there are
+cases where pre_aggregate() is called without subsequently calling
+aggregate(). In particular, in icc_sync_state() when a node with initial
+BW has zero requests. Since BCMs aren't added to the commit list in
+these cases, we don't actually send the zero BW request to HW. So the
+resources remain on unnecessarily.
 
-Otherwise, there are build errors when this SoM dtsi is included
-on customers' carrier boards.
+Add BCMs to the commit list in pre_aggregate() instead, which is always
+called even when there are no requests.
 
-While at it, remove the PCI header from imx8mm-tqma8mqml-mba8mx.dts,
-which is now unneeded.
-
-Fixes: 1d84283101fc ("arm64: dts: tqma8mqml: add PCIe support")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
+[georgi: remove icc_sync_state for platforms with incomplete support]
+Link: https://lore.kernel.org/r/20211125174751.25317-1-djakov@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+[dianders: dropped sm8350.c which isn't present in 5.10]
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts | 1 -
- arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml.dtsi       | 1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/interconnect/qcom/icc-rpmh.c |   10 +++++-----
+ drivers/interconnect/qcom/sm8150.c   |    1 -
+ drivers/interconnect/qcom/sm8250.c   |    1 -
+ 3 files changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
-index 286d2df01cfa..7e0aeb2db305 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
-@@ -5,7 +5,6 @@
+--- a/drivers/interconnect/qcom/icc-rpmh.c
++++ b/drivers/interconnect/qcom/icc-rpmh.c
+@@ -20,13 +20,18 @@ void qcom_icc_pre_aggregate(struct icc_n
+ {
+ 	size_t i;
+ 	struct qcom_icc_node *qn;
++	struct qcom_icc_provider *qp;
  
- /dts-v1/;
+ 	qn = node->data;
++	qp = to_qcom_provider(node->provider);
  
--#include <dt-bindings/phy/phy-imx8-pcie.h>
- #include "imx8mm-tqma8mqml.dtsi"
- #include "mba8mx.dtsi"
+ 	for (i = 0; i < QCOM_ICC_NUM_BUCKETS; i++) {
+ 		qn->sum_avg[i] = 0;
+ 		qn->max_peak[i] = 0;
+ 	}
++
++	for (i = 0; i < qn->num_bcms; i++)
++		qcom_icc_bcm_voter_add(qp->voter, qn->bcms[i]);
+ }
+ EXPORT_SYMBOL_GPL(qcom_icc_pre_aggregate);
  
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml.dtsi
-index 16ee9b5179e6..f649dfacb4b6 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml.dtsi
-@@ -3,6 +3,7 @@
-  * Copyright 2020-2021 TQ-Systems GmbH
-  */
+@@ -44,10 +49,8 @@ int qcom_icc_aggregate(struct icc_node *
+ {
+ 	size_t i;
+ 	struct qcom_icc_node *qn;
+-	struct qcom_icc_provider *qp;
  
-+#include <dt-bindings/phy/phy-imx8-pcie.h>
- #include "imx8mm.dtsi"
+ 	qn = node->data;
+-	qp = to_qcom_provider(node->provider);
  
- / {
--- 
-2.35.1
-
+ 	if (!tag)
+ 		tag = QCOM_ICC_TAG_ALWAYS;
+@@ -67,9 +70,6 @@ int qcom_icc_aggregate(struct icc_node *
+ 	*agg_avg += avg_bw;
+ 	*agg_peak = max_t(u32, *agg_peak, peak_bw);
+ 
+-	for (i = 0; i < qn->num_bcms; i++)
+-		qcom_icc_bcm_voter_add(qp->voter, qn->bcms[i]);
+-
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(qcom_icc_aggregate);
+--- a/drivers/interconnect/qcom/sm8150.c
++++ b/drivers/interconnect/qcom/sm8150.c
+@@ -627,7 +627,6 @@ static struct platform_driver qnoc_drive
+ 	.driver = {
+ 		.name = "qnoc-sm8150",
+ 		.of_match_table = qnoc_of_match,
+-		.sync_state = icc_sync_state,
+ 	},
+ };
+ module_platform_driver(qnoc_driver);
+--- a/drivers/interconnect/qcom/sm8250.c
++++ b/drivers/interconnect/qcom/sm8250.c
+@@ -643,7 +643,6 @@ static struct platform_driver qnoc_drive
+ 	.driver = {
+ 		.name = "qnoc-sm8250",
+ 		.of_match_table = qnoc_of_match,
+-		.sync_state = icc_sync_state,
+ 	},
+ };
+ module_platform_driver(qnoc_driver);
 
 
