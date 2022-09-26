@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 581825EA15A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2FF5EA3B1
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236490AbiIZKul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49022 "EHLO
+        id S235278AbiIZLbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236643AbiIZKsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:48:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE4925789E;
-        Mon, 26 Sep 2022 03:26:20 -0700 (PDT)
+        with ESMTP id S234851AbiIZLaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:30:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFDB6BCF9;
+        Mon, 26 Sep 2022 03:41:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 050EB60C13;
-        Mon, 26 Sep 2022 10:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05A41C433D6;
-        Mon, 26 Sep 2022 10:26:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA49B80920;
+        Mon, 26 Sep 2022 10:32:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB41C433D7;
+        Mon, 26 Sep 2022 10:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187979;
-        bh=N3TddU4kN2v+JH26p5k5E5UOFYOaUiaRmR6KBiOEDBQ=;
+        s=korg; t=1664188329;
+        bh=mveKo5nAQBKgWfRiaBTpsLS+shiq4LILIKnjrBq+yJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sltEAyPcIUr1a+dNt7GmT/8Y8KrZVFb87Oudcs9M7cdwxa16eokSFvz2ktfPNRz1s
-         dAJZgifqKfomoguurUihrOfkCcuSW4ctZ9M/57nJTM3hz2aTE/VZR0xHNBEWM/V/3F
-         ygHt7EQuWUvdMOGtBXbiD1NJ+iBuxQ0aMIsZ9MdA=
+        b=wUEZAMy7IeQr0VcCnRxSeUbQRMYww9IWS95ihTrNEAY9cAX6sxmCGiOA2oixtP5V3
+         7tDoUhaVgicgQTXxAlAQhasufcEs/0j4wdLgJ0cOXNJmTFPTsJBpfUULMnxaTZ7Mu7
+         aYPdR+uCl+Jtw9Q80Nj0YL+uVnPRX74X0yOUDyTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 107/120] xfs: range check ri_cnt when recovering log items
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 114/141] net: sched: fix possible refcount leak in tc_new_tfilter()
 Date:   Mon, 26 Sep 2022 12:12:20 +0200
-Message-Id: <20220926100754.871725781@linuxfoundation.org>
+Message-Id: <20220926100758.576827702@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit d6abecb82573fed5f7e4b595b5c0bd37707d2848 upstream.
+[ Upstream commit c2e1cfefcac35e0eea229e148c8284088ce437b5 ]
 
-Range check the region counter when we're reassembling regions from log
-items during log recovery.  In the old days ASSERT would halt the
-kernel, but this isn't true any more so we have to make an explicit
-error return.
+tfilter_put need to be called to put the refount got by tp->ops->get to
+avoid possible refcount leak when chain->tmplt_ops != NULL and
+chain->tmplt_ops != tp->ops.
 
-Coverity-id: 1132508
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7d5509fa0d3d ("net: sched: extend proto ops with 'put' callback")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Vlad Buslov <vladbu@nvidia.com>
+Link: https://lore.kernel.org/r/20220921092734.31700-1-hbh25y@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_log_recover.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ net/sched/cls_api.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/xfs/xfs_log_recover.c
-+++ b/fs/xfs/xfs_log_recover.c
-@@ -4293,7 +4293,16 @@ xlog_recover_add_to_trans(
- 			kmem_zalloc(item->ri_total * sizeof(xfs_log_iovec_t),
- 				    0);
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index b8ffb7e4f696..c410a736301b 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -2124,6 +2124,7 @@ static int tc_new_tfilter(struct sk_buff *skb, struct nlmsghdr *n,
  	}
--	ASSERT(item->ri_total > item->ri_cnt);
-+
-+	if (item->ri_total <= item->ri_cnt) {
-+		xfs_warn(log->l_mp,
-+	"log item region count (%d) overflowed size (%d)",
-+				item->ri_cnt, item->ri_total);
-+		ASSERT(0);
-+		kmem_free(ptr);
-+		return -EFSCORRUPTED;
-+	}
-+
- 	/* Description region is ri_buf[0] */
- 	item->ri_buf[item->ri_cnt].i_addr = ptr;
- 	item->ri_buf[item->ri_cnt].i_len  = len;
+ 
+ 	if (chain->tmplt_ops && chain->tmplt_ops != tp->ops) {
++		tfilter_put(tp, fh);
+ 		NL_SET_ERR_MSG(extack, "Chain template is set to a different filter kind");
+ 		err = -EINVAL;
+ 		goto errout;
+-- 
+2.35.1
+
 
 
