@@ -2,111 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9464D5EA5E0
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:23:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC345EA59E
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbiIZMX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40568 "EHLO
+        id S239291AbiIZMJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:09:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239556AbiIZMXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:23:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05EB08A1DE;
-        Mon, 26 Sep 2022 04:05:26 -0700 (PDT)
+        with ESMTP id S239569AbiIZMI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:08:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0858A7FE7F;
+        Mon, 26 Sep 2022 03:56:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A2552CE1117;
-        Mon, 26 Sep 2022 10:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84783C433D6;
-        Mon, 26 Sep 2022 10:48:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 358F3B8094D;
+        Mon, 26 Sep 2022 10:39:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65300C433C1;
+        Mon, 26 Sep 2022 10:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189323;
-        bh=iQBts69Xg4uRZG7l2hp4cSGamepujS260GBRhpeKnlI=;
+        s=korg; t=1664188753;
+        bh=wyjmZCVcKEVSfKVNv8VJM84TEdaAO4pniYniRVVgyCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Usr4bFJUtRg+rESsU6WdhYe6dsAsE0Zf1x6vltQKpY1d7aHDFN/fXaZDkpK626BLW
-         i/4rYy7F+dayaIGrKe/csmWUWmSdA9xjDF7ZEnygvCJ056Xn0JLqBCxeGWJfTiPjXh
-         qoCWhyZRy4qLKHpcAaV6VbtoBbNI4UXFlz7/EhOA=
+        b=W4OG8kjrOm+zpEcsLlHML26FKYos1F8dyqa1ZfYcvGmMKOqKzF0uOH0Y6U1VPV948
+         pL4ZV8qBg3L720kuz64iVhbt9WV7lqigRKnfiePpoqSHDNvn3foshMrLTmpPp4KSGJ
+         ZC/p1G4hVhjU0AFvpiEE4Yephum2sdIiiMCAg3zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Hsin-Yi Wang <hsinyi@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 149/207] perf tools: Honor namespace when synthesizing build-ids
-Date:   Mon, 26 Sep 2022 12:12:18 +0200
-Message-Id: <20220926100813.321988454@linuxfoundation.org>
+Subject: [PATCH 5.15 110/148] drm/mediatek: dsi: Move mtk_dsi_stop() call back to mtk_dsi_poweroff()
+Date:   Mon, 26 Sep 2022 12:12:24 +0200
+Message-Id: <20220926100800.238110574@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit 999e4eaa4b3691acf85d094836260ec4b66c74fd ]
+[ Upstream commit 90144dd8b0d137d9e78ef34b3c418e51a49299ad ]
 
-It needs to enter the namespace before reading a file.
+As the comment right before the mtk_dsi_stop() call advises,
+mtk_dsi_stop() should only be called after
+mtk_drm_crtc_atomic_disable(). That's because that function calls
+drm_crtc_wait_one_vblank(), which requires the vblank irq to be enabled.
 
-Fixes: 4183a8d70a288627 ("perf tools: Allow synthesizing the build id for kernel/modules/tasks in PERF_RECORD_MMAP2")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20220920222822.2171056-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Previously mtk_dsi_stop(), being in mtk_dsi_poweroff() and guarded by a
+refcount, would only be called at the end of
+mtk_drm_crtc_atomic_disable(), through the call to mtk_crtc_ddp_hw_fini().
+Commit cde7e2e35c28 ("drm/mediatek: Separate poweron/poweroff from
+enable/disable and define new funcs") moved the mtk_dsi_stop() call to
+mtk_output_dsi_disable(), causing it to be called before
+mtk_drm_crtc_atomic_disable(), and consequently generating vblank
+timeout warnings during suspend.
+
+Move the mtk_dsi_stop() call back to mtk_dsi_poweroff() so that we have
+a working vblank irq during mtk_drm_crtc_atomic_disable() and stop
+getting vblank timeout warnings.
+
+Fixes: cde7e2e35c28 ("drm/mediatek: Separate poweron/poweroff from enable/disable and define new funcs")
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Tested-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Link: http://lists.infradead.org/pipermail/linux-mediatek/2022-August/046713.html
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/synthetic-events.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/tools/perf/util/synthetic-events.c b/tools/perf/util/synthetic-events.c
-index 84d17bd4efae..64e273b2b1b2 100644
---- a/tools/perf/util/synthetic-events.c
-+++ b/tools/perf/util/synthetic-events.c
-@@ -367,13 +367,24 @@ static void perf_record_mmap2__read_build_id(struct perf_record_mmap2 *event,
- 					     bool is_kernel)
- {
- 	struct build_id bid;
-+	struct nsinfo *nsi;
-+	struct nscookie nc;
- 	int rc;
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index fc437d4d4e2d..a6d28533f1b1 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -673,6 +673,16 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
+ 	if (--dsi->refcount != 0)
+ 		return;
  
--	if (is_kernel)
-+	if (is_kernel) {
- 		rc = sysfs__read_build_id("/sys/kernel/notes", &bid);
--	else
--		rc = filename__read_build_id(event->filename, &bid) > 0 ? 0 : -1;
-+		goto out;
-+	}
++	/*
++	 * mtk_dsi_stop() and mtk_dsi_start() is asymmetric, since
++	 * mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(),
++	 * which needs irq for vblank, and mtk_dsi_stop() will disable irq.
++	 * mtk_dsi_start() needs to be called in mtk_output_dsi_enable(),
++	 * after dsi is fully set.
++	 */
++	mtk_dsi_stop(dsi);
 +
-+	nsi = nsinfo__new(event->pid);
-+	nsinfo__mountns_enter(nsi, &nc);
++	mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500);
+ 	mtk_dsi_reset_engine(dsi);
+ 	mtk_dsi_lane0_ulp_mode_enter(dsi);
+ 	mtk_dsi_clk_ulp_mode_enter(dsi);
+@@ -723,17 +733,6 @@ static void mtk_output_dsi_disable(struct mtk_dsi *dsi)
+ 	if (!dsi->enabled)
+ 		return;
  
-+	rc = filename__read_build_id(event->filename, &bid) > 0 ? 0 : -1;
-+
-+	nsinfo__mountns_exit(&nc);
-+	nsinfo__put(nsi);
-+
-+out:
- 	if (rc == 0) {
- 		memcpy(event->build_id, bid.data, sizeof(bid.data));
- 		event->build_id_size = (u8) bid.size;
+-	/*
+-	 * mtk_dsi_stop() and mtk_dsi_start() is asymmetric, since
+-	 * mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(),
+-	 * which needs irq for vblank, and mtk_dsi_stop() will disable irq.
+-	 * mtk_dsi_start() needs to be called in mtk_output_dsi_enable(),
+-	 * after dsi is fully set.
+-	 */
+-	mtk_dsi_stop(dsi);
+-
+-	mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500);
+-
+ 	dsi->enabled = false;
+ }
+ 
 -- 
 2.35.1
 
