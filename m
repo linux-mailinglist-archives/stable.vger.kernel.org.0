@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FFB25EA349
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1D75EA228
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234499AbiIZLW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34208 "EHLO
+        id S236877AbiIZLDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:03:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231727AbiIZLVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:21:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0922C67164;
-        Mon, 26 Sep 2022 03:39:20 -0700 (PDT)
+        with ESMTP id S236679AbiIZLBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:01:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 351735E330;
+        Mon, 26 Sep 2022 03:31:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D734260BB7;
-        Mon, 26 Sep 2022 10:38:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E30C433D6;
-        Mon, 26 Sep 2022 10:38:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 796C5B802C5;
+        Mon, 26 Sep 2022 10:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC0C6C433C1;
+        Mon, 26 Sep 2022 10:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188707;
-        bh=NI1KVVdpCcaD/rkhIBvb6loFYvP+w155ya0gBH6kW10=;
+        s=korg; t=1664188298;
+        bh=+NgYKkqX3/2DaegQLFRVsDcdbL8KVVTr9cI3+4NSSHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L42KWepWKCu5QCscxMB4UZxmH2vmB9w1ZAUNiFfxWTs2djjC3gTSRzAbcoxj7u/cB
-         UKLubkCbNSlh2ssBq3eGXVPc7ran/z9tHQkWhACG+5E0Uita3w0Y+F/a29ncw15Ty1
-         r37lnZXb8he2uPLGlBj9o6KfQGRfOkHtuMawNbxU=
+        b=nuroTcNpmIzSObG7N0UnOWef+I6MjZL2hpUEDRd6N9GM42+SEhcb3PLGERU1UqHfl
+         7nofojZEyj9hPFHLx7XNJxSXxaSispcRKp39h3VtJl6l6EAS5WLutUKslnMxqQHY1b
+         1j4Xe7t72syHxsDqBXuZ9/4kgLRBzGQ/sOahB6cU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/148] net: enetc: move enetc_set_psfp() out of the common enetc_set_features()
-Date:   Mon, 26 Sep 2022 12:12:10 +0200
-Message-Id: <20220926100759.677969818@linuxfoundation.org>
+Subject: [PATCH 5.10 105/141] netfilter: nf_tables: fix nft_counters_enabled underflow at nf_tables_addchain()
+Date:   Mon, 26 Sep 2022 12:12:11 +0200
+Message-Id: <20220926100758.232735866@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,196 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit fed38e64d9b99d65a36c0dbadc3d3f8ddd9ea030 ]
+[ Upstream commit 921ebde3c0d22c8cba74ce8eb3cc4626abff1ccd ]
 
-The VF netdev driver shouldn't respond to changes in the NETIF_F_HW_TC
-flag; only PFs should. Moreover, TSN-specific code should go to
-enetc_qos.c, which should not be included in the VF driver.
+syzbot is reporting underflow of nft_counters_enabled counter at
+nf_tables_addchain() [1], for commit 43eb8949cfdffa76 ("netfilter:
+nf_tables: do not leave chain stats enabled on error") missed that
+nf_tables_chain_destroy() after nft_basechain_init() in the error path of
+nf_tables_addchain() decrements the counter because nft_basechain_init()
+makes nft_is_base_chain() return true by setting NFT_CHAIN_BASE flag.
 
-Fixes: 79e499829f3f ("net: enetc: add hw tc hw offload features for PSPF capability")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220916133209.3351399-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Increment the counter immediately after returning from
+nft_basechain_init().
+
+Link:  https://syzkaller.appspot.com/bug?extid=b5d82a651b71cd8a75ab [1]
+Reported-by: syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>
+Fixes: 43eb8949cfdffa76 ("netfilter: nf_tables: do not leave chain stats enabled on error")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c  | 32 +------------------
- drivers/net/ethernet/freescale/enetc/enetc.h  |  9 ++++--
- .../net/ethernet/freescale/enetc/enetc_pf.c   | 11 ++++++-
- .../net/ethernet/freescale/enetc/enetc_qos.c  | 23 +++++++++++++
- .../net/ethernet/freescale/enetc/enetc_vf.c   |  4 ++-
- 5 files changed, 44 insertions(+), 35 deletions(-)
+ net/netfilter/nf_tables_api.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 042327b9981f..bd840061ba8f 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -2307,29 +2307,6 @@ static int enetc_set_rss(struct net_device *ndev, int en)
- 	return 0;
- }
- 
--static int enetc_set_psfp(struct net_device *ndev, int en)
--{
--	struct enetc_ndev_priv *priv = netdev_priv(ndev);
--	int err;
--
--	if (en) {
--		err = enetc_psfp_enable(priv);
--		if (err)
--			return err;
--
--		priv->active_offloads |= ENETC_F_QCI;
--		return 0;
--	}
--
--	err = enetc_psfp_disable(priv);
--	if (err)
--		return err;
--
--	priv->active_offloads &= ~ENETC_F_QCI;
--
--	return 0;
--}
--
- static void enetc_enable_rxvlan(struct net_device *ndev, bool en)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index b8e7e1c5c08a..d65c47bcbfc9 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2001,7 +2001,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			      u8 policy, u32 flags)
  {
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-@@ -2348,11 +2325,9 @@ static void enetc_enable_txvlan(struct net_device *ndev, bool en)
- 		enetc_bdr_enable_txvlan(&priv->si->hw, i, en);
- }
+ 	const struct nlattr * const *nla = ctx->nla;
+-	struct nft_stats __percpu *stats = NULL;
+ 	struct nft_table *table = ctx->table;
+ 	struct nft_base_chain *basechain;
+ 	struct net *net = ctx->net;
+@@ -2015,6 +2014,7 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		return -EOVERFLOW;
  
--int enetc_set_features(struct net_device *ndev,
--		       netdev_features_t features)
-+void enetc_set_features(struct net_device *ndev, netdev_features_t features)
- {
- 	netdev_features_t changed = ndev->features ^ features;
--	int err = 0;
+ 	if (nla[NFTA_CHAIN_HOOK]) {
++		struct nft_stats __percpu *stats = NULL;
+ 		struct nft_chain_hook hook;
  
- 	if (changed & NETIF_F_RXHASH)
- 		enetc_set_rss(ndev, !!(features & NETIF_F_RXHASH));
-@@ -2364,11 +2339,6 @@ int enetc_set_features(struct net_device *ndev,
- 	if (changed & NETIF_F_HW_VLAN_CTAG_TX)
- 		enetc_enable_txvlan(ndev,
- 				    !!(features & NETIF_F_HW_VLAN_CTAG_TX));
--
--	if (changed & NETIF_F_HW_TC)
--		err = enetc_set_psfp(ndev, !!(features & NETIF_F_HW_TC));
--
--	return err;
- }
- 
- #ifdef CONFIG_FSL_ENETC_PTP_CLOCK
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
-index 08b283347d9c..5cacda8b4ef0 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.h
-@@ -385,8 +385,7 @@ void enetc_start(struct net_device *ndev);
- void enetc_stop(struct net_device *ndev);
- netdev_tx_t enetc_xmit(struct sk_buff *skb, struct net_device *ndev);
- struct net_device_stats *enetc_get_stats(struct net_device *ndev);
--int enetc_set_features(struct net_device *ndev,
--		       netdev_features_t features);
-+void enetc_set_features(struct net_device *ndev, netdev_features_t features);
- int enetc_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd);
- int enetc_setup_tc(struct net_device *ndev, enum tc_setup_type type,
- 		   void *type_data);
-@@ -421,6 +420,7 @@ int enetc_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
- int enetc_setup_tc_psfp(struct net_device *ndev, void *type_data);
- int enetc_psfp_init(struct enetc_ndev_priv *priv);
- int enetc_psfp_clean(struct enetc_ndev_priv *priv);
-+int enetc_set_psfp(struct net_device *ndev, bool en);
- 
- static inline void enetc_get_max_cap(struct enetc_ndev_priv *priv)
- {
-@@ -496,4 +496,9 @@ static inline int enetc_psfp_disable(struct enetc_ndev_priv *priv)
- {
- 	return 0;
- }
-+
-+static inline int enetc_set_psfp(struct net_device *ndev, bool en)
-+{
-+	return 0;
-+}
- #endif
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index d522bd5c90b4..36f5abd1c61b 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -708,6 +708,13 @@ static int enetc_pf_set_features(struct net_device *ndev,
- {
- 	netdev_features_t changed = ndev->features ^ features;
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+	int err;
-+
-+	if (changed & NETIF_F_HW_TC) {
-+		err = enetc_set_psfp(ndev, !!(features & NETIF_F_HW_TC));
-+		if (err)
-+			return err;
-+	}
- 
- 	if (changed & NETIF_F_HW_VLAN_CTAG_FILTER) {
- 		struct enetc_pf *pf = enetc_si_priv(priv->si);
-@@ -721,7 +728,9 @@ static int enetc_pf_set_features(struct net_device *ndev,
- 	if (changed & NETIF_F_LOOPBACK)
- 		enetc_set_loopback(ndev, !!(features & NETIF_F_LOOPBACK));
- 
--	return enetc_set_features(ndev, features);
-+	enetc_set_features(ndev, features);
-+
-+	return 0;
- }
- 
- static const struct net_device_ops enetc_ndev_ops = {
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-index d779dde522c8..6b236e0fd806 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-@@ -1529,6 +1529,29 @@ int enetc_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
+ 		if (flags & NFT_CHAIN_BINDING)
+@@ -2047,6 +2047,8 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			kfree(basechain);
+ 			return err;
+ 		}
++		if (stats)
++			static_branch_inc(&nft_counters_enabled);
+ 	} else {
+ 		if (flags & NFT_CHAIN_BASE)
+ 			return -EINVAL;
+@@ -2121,9 +2123,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		goto err_unregister_hook;
  	}
- }
  
-+int enetc_set_psfp(struct net_device *ndev, bool en)
-+{
-+	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+	int err;
-+
-+	if (en) {
-+		err = enetc_psfp_enable(priv);
-+		if (err)
-+			return err;
-+
-+		priv->active_offloads |= ENETC_F_QCI;
-+		return 0;
-+	}
-+
-+	err = enetc_psfp_disable(priv);
-+	if (err)
-+		return err;
-+
-+	priv->active_offloads &= ~ENETC_F_QCI;
-+
-+	return 0;
-+}
-+
- int enetc_psfp_init(struct enetc_ndev_priv *priv)
- {
- 	if (epsfp.psfp_sfi_bitmap)
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_vf.c b/drivers/net/ethernet/freescale/enetc/enetc_vf.c
-index 1a9d1e8b772c..8daea3a776b5 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_vf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_vf.c
-@@ -88,7 +88,9 @@ static int enetc_vf_set_mac_addr(struct net_device *ndev, void *addr)
- static int enetc_vf_set_features(struct net_device *ndev,
- 				 netdev_features_t features)
- {
--	return enetc_set_features(ndev, features);
-+	enetc_set_features(ndev, features);
-+
-+	return 0;
- }
+-	if (stats)
+-		static_branch_inc(&nft_counters_enabled);
+-
+ 	table->use++;
  
- /* Probing/ Init */
+ 	return 0;
 -- 
 2.35.1
 
