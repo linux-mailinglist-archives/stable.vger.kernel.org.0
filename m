@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4A05EA3A5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:30:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E0395E9F07
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235894AbiIZLaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:30:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53134 "EHLO
+        id S234264AbiIZKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238115AbiIZL3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:29:09 -0400
+        with ESMTP id S234891AbiIZKRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:17:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F09B6B8C2;
-        Mon, 26 Sep 2022 03:41:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B7836DF8;
+        Mon, 26 Sep 2022 03:15:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DCB9B8094C;
-        Mon, 26 Sep 2022 10:30:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98FFFC433C1;
-        Mon, 26 Sep 2022 10:30:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 101D5B80925;
+        Mon, 26 Sep 2022 10:15:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6797FC433C1;
+        Mon, 26 Sep 2022 10:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188205;
-        bh=W42rv9TgKqFk/X1IRVLQNs5Abq9CxDCZM/dMSrCtGTs=;
+        s=korg; t=1664187299;
+        bh=qKqAQRD6cxz9W/PwVbpSTLflZheubG7vtgJbTS+PnZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABhHkhvRlUB4RVfUMFjrnxZZ+BgQDaBETRxGVvFEKszWbJaw1QgyzMFjS5Enxcr3S
-         PvBcmYOMt7HwISDtC52w10Ik6E37TxKZ12m++dN3Q4vnvR81f3wzZ8ZiUdPKKGcKf0
-         ZhEXyblerQmeMktSWKGHreIUMZ9VqP2UaAjPQJ6Q=
+        b=vjOCGC/lTtLhVZJDmT6mN1hB4fEIFt+qPy/lkXkaRYtBP9kJXI2yisDR6BqkvxIj0
+         07V8opfoY3NEfltmWK9eM4H4F+J1G93M7uvmhZ/54JBkRy+uprv0d99UzlAlQvWf9R
+         4s56HroC5aGTCNTTfm2zOb7zqLnWFwRHzmnO/540=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ludovic Cintrat <ludovic.cintrat@gatewatcher.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/141] net: core: fix flow symmetric hash
-Date:   Mon, 26 Sep 2022 12:11:40 +0200
-Message-Id: <20220926100757.132118114@linuxfoundation.org>
+Subject: [PATCH 4.9 10/30] mips/pic32/pic32mzda: Fix refcount leak bugs
+Date:   Mon, 26 Sep 2022 12:11:41 +0200
+Message-Id: <20220926100736.537955607@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ludovic Cintrat <ludovic.cintrat@gatewatcher.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 64ae13ed478428135cddc2f1113dff162d8112d4 ]
+[ Upstream commit eb9e9bc4fa5fb489c92ec588b3fb35f042ba6d86 ]
 
-__flow_hash_consistentify() wrongly swaps ipv4 addresses in few cases.
-This function is indirectly used by __skb_get_hash_symmetric(), which is
-used to fanout packets in AF_PACKET.
-Intrusion detection systems may be impacted by this issue.
+of_find_matching_node(), of_find_compatible_node() and
+of_find_node_by_path() will return node pointers with refcout
+incremented. We should call of_node_put() when they are not
+used anymore.
 
-__flow_hash_consistentify() computes the addresses difference then swaps
-them if the difference is negative. In few cases src - dst and dst - src
-are both negative.
-
-The following snippet mimics __flow_hash_consistentify():
-
-```
- #include <stdio.h>
- #include <stdint.h>
-
- int main(int argc, char** argv) {
-
-     int diffs_d, diffd_s;
-     uint32_t dst  = 0xb225a8c0; /* 178.37.168.192 --> 192.168.37.178 */
-     uint32_t src  = 0x3225a8c0; /*  50.37.168.192 --> 192.168.37.50  */
-     uint32_t dst2 = 0x3325a8c0; /*  51.37.168.192 --> 192.168.37.51  */
-
-     diffs_d = src - dst;
-     diffd_s = dst - src;
-
-     printf("src:%08x dst:%08x, diff(s-d)=%d(0x%x) diff(d-s)=%d(0x%x)\n",
-             src, dst, diffs_d, diffs_d, diffd_s, diffd_s);
-
-     diffs_d = src - dst2;
-     diffd_s = dst2 - src;
-
-     printf("src:%08x dst:%08x, diff(s-d)=%d(0x%x) diff(d-s)=%d(0x%x)\n",
-             src, dst2, diffs_d, diffs_d, diffd_s, diffd_s);
-
-     return 0;
- }
-```
-
-Results:
-
-src:3225a8c0 dst:b225a8c0, \
-    diff(s-d)=-2147483648(0x80000000) \
-    diff(d-s)=-2147483648(0x80000000)
-
-src:3225a8c0 dst:3325a8c0, \
-    diff(s-d)=-16777216(0xff000000) \
-    diff(d-s)=16777216(0x1000000)
-
-In the first case the addresses differences are always < 0, therefore
-__flow_hash_consistentify() always swaps, thus dst->src and src->dst
-packets have differents hashes.
-
-Fixes: c3f8324188fa8 ("net: Add full IPv6 addresses to flow_keys")
-Signed-off-by: Ludovic Cintrat <ludovic.cintrat@gatewatcher.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/flow_dissector.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/mips/pic32/pic32mzda/init.c | 7 ++++++-
+ arch/mips/pic32/pic32mzda/time.c | 3 +++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index aad311c73810..ed120828c7e2 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -1494,9 +1494,8 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
+diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
+index 406c6c5cec29..f8985d4573e6 100644
+--- a/arch/mips/pic32/pic32mzda/init.c
++++ b/arch/mips/pic32/pic32mzda/init.c
+@@ -131,13 +131,18 @@ static int __init pic32_of_prepare_platform_data(struct of_dev_auxdata *lookup)
+ 		np = of_find_compatible_node(NULL, NULL, lookup->compatible);
+ 		if (np) {
+ 			lookup->name = (char *)np->name;
+-			if (lookup->phys_addr)
++			if (lookup->phys_addr) {
++				of_node_put(np);
+ 				continue;
++			}
+ 			if (!of_address_to_resource(np, 0, &res))
+ 				lookup->phys_addr = res.start;
++			of_node_put(np);
+ 		}
+ 	}
  
- 	switch (keys->control.addr_type) {
- 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
--		addr_diff = (__force u32)keys->addrs.v4addrs.dst -
--			    (__force u32)keys->addrs.v4addrs.src;
--		if (addr_diff < 0)
-+		if ((__force u32)keys->addrs.v4addrs.dst <
-+		    (__force u32)keys->addrs.v4addrs.src)
- 			swap(keys->addrs.v4addrs.src, keys->addrs.v4addrs.dst);
++	of_node_put(root);
++
+ 	return 0;
+ }
  
- 		if ((__force u16)keys->ports.dst <
+diff --git a/arch/mips/pic32/pic32mzda/time.c b/arch/mips/pic32/pic32mzda/time.c
+index 62a0a78b6c64..bfafe241c1b5 100644
+--- a/arch/mips/pic32/pic32mzda/time.c
++++ b/arch/mips/pic32/pic32mzda/time.c
+@@ -40,6 +40,9 @@ static unsigned int pic32_xlate_core_timer_irq(void)
+ 		goto default_map;
+ 
+ 	irq = irq_of_parse_and_map(node, 0);
++
++	of_node_put(node);
++
+ 	if (!irq)
+ 		goto default_map;
+ 
 -- 
 2.35.1
 
