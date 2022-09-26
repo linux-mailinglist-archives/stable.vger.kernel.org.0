@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9422C5EA09C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:40:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1A625EA1FE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236125AbiIZKkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:40:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
+        id S237121AbiIZLAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236360AbiIZKjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:39:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D2D53D24;
-        Mon, 26 Sep 2022 03:23:00 -0700 (PDT)
+        with ESMTP id S237391AbiIZK7k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E64635D113;
+        Mon, 26 Sep 2022 03:31:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B106560BB7;
-        Mon, 26 Sep 2022 10:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A097CC433D6;
-        Mon, 26 Sep 2022 10:22:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EC5160A5C;
+        Mon, 26 Sep 2022 10:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD17C433D6;
+        Mon, 26 Sep 2022 10:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187749;
-        bh=sQ0KOxyIJ2tE6SiJCJZSw/9TB+BEdLMmOzgVUtu/Y7M=;
+        s=korg; t=1664188199;
+        bh=zRrMrRABLsN3WrZIDEo2465rJQHnOyEX8cPMpJTlbZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yiQkCBtlLEAapPC/K8rP7Mw16yrh3utD0j1qJTOlSuQPF9+94TghI+Y01NwYr+ec4
-         2hZhUbLDfLNiHXsK7n3QBZNiiNvWKeKnyNU9OlLorweBSNDd1uGlQEXtNaGWklwOTq
-         zsRmMvLNCm9f3L6i8M3UBVmnRGI0jKzIkgyVqGfA=
+        b=tiTbE0AcM4NFeruLeG1+R98Cj7aPqucYwRWkL9oIq87t155cHFPRJjgpHEgqqSAQt
+         Hlwtie4mud9MKR5Mk0XveKbM6nsOofDgjmMgMIEOYr4GRsj9BTnUQqNPQ3Xz4RT0kp
+         l19JM/HfxaISU2qXjndf5tWUqQXH1hjv+/d6fskU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
-        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/120] usb: add quirks for Lenovo OneLink+ Dock
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.10 055/141] riscv: fix a nasty sigreturn bug...
 Date:   Mon, 26 Sep 2022 12:11:21 +0200
-Message-Id: <20220926100752.518599154@linuxfoundation.org>
+Message-Id: <20220926100756.441521697@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 3d5f70949f1b1168fbb17d06eb5c57e984c56c58 ]
+commit 762df359aa5849e010ef04c3ed79d57588ce17d9 upstream.
 
-The Lenovo OneLink+ Dock contains two VL812 USB3.0 controllers:
-17ef:1018 upstream
-17ef:1019 downstream
+riscv has an equivalent of arm bug fixed by 653d48b22166 ("arm: fix
+really nasty sigreturn bug"); if signal gets caught by an interrupt that
+hits when we have the right value in a0 (-513), *and* another signal
+gets delivered upon sigreturn() (e.g. included into the blocked mask for
+the first signal and posted while the handler had been running), the
+syscall restart logics will see regs->cause equal to EXC_SYSCALL (we are
+in a syscall, after all) and a0 already restored to its original value
+(-513, which happens to be -ERESTARTNOINTR) and assume that we need to
+apply the usual syscall restart logics.
 
-Those two controllers both have problems with some USB3.0 devices,
-particularly self-powered ones. Typical error messages include:
-
-  Timeout while waiting for setup device command
-  device not accepting address X, error -62
-  unable to enumerate USB device
-
-By process of elimination the controllers themselves were identified as
-the cause of the problem. Through trial and error the issue was solved
-by using USB_QUIRK_RESET_RESUME for both chips.
-
-Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220824191320.17883-1-jflf_kernel@gmx.com
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YxJEiSq%2FCGaL6Gm9@ZenIV/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/riscv/kernel/signal.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index f8f2de7899a9..dd7947547054 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -438,6 +438,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
- 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
+--- a/arch/riscv/kernel/signal.c
++++ b/arch/riscv/kernel/signal.c
+@@ -121,6 +121,8 @@ SYSCALL_DEFINE0(rt_sigreturn)
+ 	if (restore_altstack(&frame->uc.uc_stack))
+ 		goto badframe;
  
-+	/* Lenovo ThinkPad OneLink+ Dock twin hub controllers (VIA Labs VL812) */
-+	{ USB_DEVICE(0x17ef, 0x1018), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x17ef, 0x1019), .driver_info = USB_QUIRK_RESET_RESUME },
++	regs->cause = -1UL;
 +
- 	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
- 	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
+ 	return regs->a0;
  
--- 
-2.35.1
-
+ badframe:
 
 
