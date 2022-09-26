@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A39A45EA319
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C8C5EA032
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237644AbiIZLTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:19:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40568 "EHLO
+        id S235834AbiIZKfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237779AbiIZLS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383D152DEE;
-        Mon, 26 Sep 2022 03:38:34 -0700 (PDT)
+        with ESMTP id S235866AbiIZKdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71DBB24089;
+        Mon, 26 Sep 2022 03:20:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3A1460B4A;
-        Mon, 26 Sep 2022 10:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2688C433D6;
-        Mon, 26 Sep 2022 10:38:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AB4DB80930;
+        Mon, 26 Sep 2022 10:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95135C433C1;
+        Mon, 26 Sep 2022 10:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188713;
-        bh=InA7AL+nzmeiCg6Z8JU8GFP6nWWkPiSO9VNG2nPkU8I=;
+        s=korg; t=1664187606;
+        bh=Xl9DQuwvvXNb/6SB5ZGg1HtsmmbR8/7Nu6p+aHx3wMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o35ex/6m3KXaNOXoZ3Cw7sX3/Lb3VzyEbEitvdd3aZylzA465sQfkhGQLIxnZSgL2
-         DoB96Tvh+AH2suKd5qSOCfKLALPEpg0D8YpDOZBy3f0W1f7I+LYMtA4LEGtIhgpDzx
-         gsNWbgKDM3gpTcoXZ5NsTi/LpIZkBwuVjdqkLGdk=
+        b=ZXRhdJlt3uqLuU90g0y4ZWkZc5xdl3FsHe/nRLKvUdJ+gROLh2Srhfl1CBxWTOyOL
+         6ConAUsfZE4ZsNIrdsd7BNbDN5u5g/6dw4eHehrBoJMszOBd5TJoAGgIfzI6mEb6s/
+         YyPMS4b+gvWhCvgjkaXpb5cjIm/u69i3PWLasOSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 098/148] net/sched: taprio: avoid disabling offload when it was never enabled
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 53/58] Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
 Date:   Mon, 26 Sep 2022 12:12:12 +0200
-Message-Id: <20220926100759.754048008@linuxfoundation.org>
+Message-Id: <20220926100743.414849782@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit db46e3a88a09c5cf7e505664d01da7238cd56c92 ]
+[ Upstream commit f0880e2cb7e1f8039a048fdd01ce45ab77247221 ]
 
-In an incredibly strange API design decision, qdisc->destroy() gets
-called even if qdisc->init() never succeeded, not exclusively since
-commit 87b60cfacf9f ("net_sched: fix error recovery at qdisc creation"),
-but apparently also earlier (in the case of qdisc_create_dflt()).
+Passed through PCI device sometimes misbehave on Gen1 VMs when Hyper-V
+DRM driver is also loaded. Looking at IOMEM assignment, we can see e.g.
 
-The taprio qdisc does not fully acknowledge this when it attempts full
-offload, because it starts off with q->flags = TAPRIO_FLAGS_INVALID in
-taprio_init(), then it replaces q->flags with TCA_TAPRIO_ATTR_FLAGS
-parsed from netlink (in taprio_change(), tail called from taprio_init()).
+$ cat /proc/iomem
+...
+f8000000-fffbffff : PCI Bus 0000:00
+  f8000000-fbffffff : 0000:00:08.0
+    f8000000-f8001fff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
+...
+fe0000000-fffffffff : PCI Bus 0000:00
+  fe0000000-fe07fffff : bb8c4f33-2ba2-4808-9f7f-02f3b4da22fe
+    fe0000000-fe07fffff : 2ba2:00:02.0
+      fe0000000-fe07fffff : mlx4_core
 
-But in taprio_destroy(), we call taprio_disable_offload(), and this
-determines what to do based on FULL_OFFLOAD_IS_ENABLED(q->flags).
+the interesting part is the 'f8000000' region as it is actually the
+VM's framebuffer:
 
-But looking at the implementation of FULL_OFFLOAD_IS_ENABLED()
-(a bitwise check of bit 1 in q->flags), it is invalid to call this macro
-on q->flags when it contains TAPRIO_FLAGS_INVALID, because that is set
-to U32_MAX, and therefore FULL_OFFLOAD_IS_ENABLED() will return true on
-an invalid set of flags.
+$ lspci -v
+...
+0000:00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA (prog-if 00 [VGA controller])
+	Flags: bus master, fast devsel, latency 0, IRQ 11
+	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
+...
 
-As a result, it is possible to crash the kernel if user space forces an
-error between setting q->flags = TAPRIO_FLAGS_INVALID, and the calling
-of taprio_enable_offload(). This is because drivers do not expect the
-offload to be disabled when it was never enabled.
+ hv_vmbus: registering driver hyperv_drm
+ hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Synthvid Version major 3, minor 5
+ hyperv_drm 0000:00:08.0: vgaarb: deactivate vga console
+ hyperv_drm 0000:00:08.0: BAR 0: can't reserve [mem 0xf8000000-0xfbffffff]
+ hyperv_drm 5620e0c7-8062-4dce-aeb7-520c7ef76171: [drm] Cannot request framebuffer, boot fb still active?
 
-The error that we force here is to attach taprio as a non-root qdisc,
-but instead as child of an mqprio root qdisc:
+Note: "Cannot request framebuffer" is not a fatal error in
+hyperv_setup_gen1() as the code assumes there's some other framebuffer
+device there but we actually have some other PCI device (mlx4 in this
+case) config space there!
 
-$ tc qdisc add dev swp0 root handle 1: \
-	mqprio num_tc 8 map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 hw 0
-$ tc qdisc replace dev swp0 parent 1:1 \
-	taprio num_tc 8 map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 0 \
-	sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-Unable to handle kernel paging request at virtual address fffffffffffffff8
-[fffffffffffffff8] pgd=0000000000000000, p4d=0000000000000000
-Internal error: Oops: 96000004 [#1] PREEMPT SMP
-Call trace:
- taprio_dump+0x27c/0x310
- vsc9959_port_setup_tc+0x1f4/0x460
- felix_port_setup_tc+0x24/0x3c
- dsa_slave_setup_tc+0x54/0x27c
- taprio_disable_offload.isra.0+0x58/0xe0
- taprio_destroy+0x80/0x104
- qdisc_create+0x240/0x470
- tc_modify_qdisc+0x1fc/0x6b0
- rtnetlink_rcv_msg+0x12c/0x390
- netlink_rcv_skb+0x5c/0x130
- rtnetlink_rcv+0x1c/0x2c
+The problem appears to be that vmbus_allocate_mmio() can use dedicated
+framebuffer region to serve any MMIO request from any device. The
+semantics one might assume of a parameter named "fb_overlap_ok"
+aren't implemented because !fb_overlap_ok essentially has no effect.
+The existing semantics are really "prefer_fb_overlap". This patch
+implements the expected and needed semantics, which is to not allocate
+from the frame buffer space when !fb_overlap_ok.
 
-Fix this by keeping track of the operations we made, and undo the
-offload only if we actually did it.
+Note, Gen2 VMs are usually unaffected by the issue because
+framebuffer region is already taken by EFI fb (in case kernel supports
+it) but Gen1 VMs may have this region unclaimed by the time Hyper-V PCI
+pass-through driver tries allocating MMIO space if Hyper-V DRM/FB drivers
+load after it. Devices can be brought up in any sequence so let's
+resolve the issue by always ignoring 'fb_mmio' region for non-FB
+requests, even if the region is unclaimed.
 
-I've added "bool offloaded" inside a 4 byte hole between "int clockid"
-and "atomic64_t picos_per_byte". Now the first cache line looks like
-below:
-
-$ pahole -C taprio_sched net/sched/sch_taprio.o
-struct taprio_sched {
-        struct Qdisc * *           qdiscs;               /*     0     8 */
-        struct Qdisc *             root;                 /*     8     8 */
-        u32                        flags;                /*    16     4 */
-        enum tk_offsets            tk_offset;            /*    20     4 */
-        int                        clockid;              /*    24     4 */
-        bool                       offloaded;            /*    28     1 */
-
-        /* XXX 3 bytes hole, try to pack */
-
-        atomic64_t                 picos_per_byte;       /*    32     0 */
-
-        /* XXX 8 bytes hole, try to pack */
-
-        spinlock_t                 current_entry_lock;   /*    40     0 */
-
-        /* XXX 8 bytes hole, try to pack */
-
-        struct sched_entry *       current_entry;        /*    48     8 */
-        struct sched_gate_list *   oper_sched;           /*    56     8 */
-        /* --- cacheline 1 boundary (64 bytes) --- */
-
-Fixes: 9c66d1564676 ("taprio: Add support for hardware offloading")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/20220827130345.1320254-4-vkuznets@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/hv/vmbus_drv.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 474ba4db5de2..bb424f6264dd 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -66,6 +66,7 @@ struct taprio_sched {
- 	u32 flags;
- 	enum tk_offsets tk_offset;
- 	int clockid;
-+	bool offloaded;
- 	atomic64_t picos_per_byte; /* Using picoseconds because for 10Gbps+
- 				    * speeds it's sub-nanoseconds per byte
- 				    */
-@@ -1278,6 +1279,8 @@ static int taprio_enable_offload(struct net_device *dev,
- 		goto done;
- 	}
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index fca092cfe200..9cbe0b00ebf7 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1846,7 +1846,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
+ 			bool fb_overlap_ok)
+ {
+ 	struct resource *iter, *shadow;
+-	resource_size_t range_min, range_max, start;
++	resource_size_t range_min, range_max, start, end;
+ 	const char *dev_n = dev_name(&device_obj->device);
+ 	int retval;
  
-+	q->offloaded = true;
+@@ -1881,6 +1881,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
+ 		range_max = iter->end;
+ 		start = (range_min + align - 1) & ~(align - 1);
+ 		for (; start + size - 1 <= range_max; start += align) {
++			end = start + size - 1;
 +
- done:
- 	taprio_offload_free(offload);
- 
-@@ -1292,12 +1295,9 @@ static int taprio_disable_offload(struct net_device *dev,
- 	struct tc_taprio_qopt_offload *offload;
- 	int err;
- 
--	if (!FULL_OFFLOAD_IS_ENABLED(q->flags))
-+	if (!q->offloaded)
- 		return 0;
- 
--	if (!ops->ndo_setup_tc)
--		return -EOPNOTSUPP;
--
- 	offload = taprio_offload_alloc(0);
- 	if (!offload) {
- 		NL_SET_ERR_MSG(extack,
-@@ -1313,6 +1313,8 @@ static int taprio_disable_offload(struct net_device *dev,
- 		goto out;
- 	}
- 
-+	q->offloaded = false;
++			/* Skip the whole fb_mmio region if not fb_overlap_ok */
++			if (!fb_overlap_ok && fb_mmio &&
++			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
++			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
++				continue;
 +
- out:
- 	taprio_offload_free(offload);
- 
+ 			shadow = __request_region(iter, start, size, NULL,
+ 						  IORESOURCE_BUSY);
+ 			if (!shadow)
 -- 
 2.35.1
 
