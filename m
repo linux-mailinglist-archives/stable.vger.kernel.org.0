@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFABA5EA0FA
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBCD5EA1E0
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233792AbiIZKoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
+        id S236931AbiIZK7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236201AbiIZKm5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:42:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491FB18E24;
-        Mon, 26 Sep 2022 03:24:21 -0700 (PDT)
+        with ESMTP id S236941AbiIZK6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:58:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E754DF20;
+        Mon, 26 Sep 2022 03:30:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C2F8B80915;
-        Mon, 26 Sep 2022 10:23:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FBC7C433C1;
-        Mon, 26 Sep 2022 10:23:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16BB860B5E;
+        Mon, 26 Sep 2022 10:28:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C390C433C1;
+        Mon, 26 Sep 2022 10:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187833;
-        bh=vSdOEAMstmSmfi3lFpIiRMp77RLfuMXmUwhvpHUwSLg=;
+        s=korg; t=1664188128;
+        bh=Uxwm54e8RpQZ7VZdhu2ZIac0OER8M/TjZNPKE6rmbcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1FJf31N8W013+wnJtBFSTrwuML3r9kwchZefiWuredUO2uFA7MVdeeUab10oBD2C
-         lnoXwbrxrbi+6zBQY+9j5zQ4UCFIWRMBELXqMCHhPeXoVsHkVgRcjCChtZABYluKlF
-         stp9XIKVouK+gebxC7n6b7xmiLGj6Lj2Uuf6bs74=
+        b=tL5FNZYBcPyHvihnSECA5d8ERXGMIa1f4LSpy71amkbYDIBqU9d9klLi/U+FehpGT
+         i75x/SS/nxQGswPusw81lW3IS/SQJiiqZUcdEJlAbyNlN5EwgS/55MH+9xZrcmNoGD
+         gppLQ8/OeS0maKqlr2Zexs7EQRKae8XbbxM8wZxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Kent Gustavsson <kent@minoris.se>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/120] iio:adc:mcp3911: Switch to generic firmware properties.
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 049/141] media: flexcop-usb: fix endpoint type check
 Date:   Mon, 26 Sep 2022 12:11:15 +0200
-Message-Id: <20220926100752.250813953@linuxfoundation.org>
+Message-Id: <20220926100756.220221889@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 4efc1c614d334883cce09c38aa3fe74d3fb0bbf0 ]
+commit 763679f0eeff0185fc431498849bbc1c24460875 upstream.
 
-This allows use of the driver with other types of firmware such as ACPI
-PRP0001 based probing.
+Commit d725d20e81c2 ("media: flexcop-usb: sanity checking of endpoint
+type") tried to add an endpoint type sanity check for the single
+isochronous endpoint but instead broke the driver by checking the wrong
+descriptor or random data beyond the last endpoint descriptor.
 
-Also part of a general attempt to remove direct use of of_ specific
-accessors from IIO.
+Make sure to check the right endpoint descriptor.
 
-Added an include for mod_devicetable.h whilst here to cover the
-struct of_device_id definition.
-
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Kent Gustavsson <kent@minoris.se>
-Reviewed-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Stable-dep-of: cfbd76d5c9c4 ("iio: adc: mcp3911: correct "microchip,device-addr" property")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d725d20e81c2 ("media: flexcop-usb: sanity checking of endpoint type")
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: stable@vger.kernel.org	# 5.9
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20220822151027.27026-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/mcp3911.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/media/usb/b2c2/flexcop-usb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
-index 4e2e8e819b1e..cd8b1bab9cf0 100644
---- a/drivers/iio/adc/mcp3911.c
-+++ b/drivers/iio/adc/mcp3911.c
-@@ -10,6 +10,8 @@
- #include <linux/err.h>
- #include <linux/iio/iio.h>
- #include <linux/module.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/property.h>
- #include <linux/regulator/consumer.h>
- #include <linux/spi/spi.h>
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -512,7 +512,7 @@ static int flexcop_usb_init(struct flexc
  
-@@ -209,12 +211,13 @@ static const struct iio_info mcp3911_info = {
- 	.write_raw = mcp3911_write_raw,
- };
+ 	if (fc_usb->uintf->cur_altsetting->desc.bNumEndpoints < 1)
+ 		return -ENODEV;
+-	if (!usb_endpoint_is_isoc_in(&fc_usb->uintf->cur_altsetting->endpoint[1].desc))
++	if (!usb_endpoint_is_isoc_in(&fc_usb->uintf->cur_altsetting->endpoint[0].desc))
+ 		return -ENODEV;
  
--static int mcp3911_config(struct mcp3911 *adc, struct device_node *of_node)
-+static int mcp3911_config(struct mcp3911 *adc)
- {
-+	struct device *dev = &adc->spi->dev;
- 	u32 configreg;
- 	int ret;
- 
--	of_property_read_u32(of_node, "device-addr", &adc->dev_addr);
-+	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
- 	if (adc->dev_addr > 3) {
- 		dev_err(&adc->spi->dev,
- 			"invalid device address (%i). Must be in range 0-3.\n",
-@@ -298,7 +301,7 @@ static int mcp3911_probe(struct spi_device *spi)
- 		}
- 	}
- 
--	ret = mcp3911_config(adc, spi->dev.of_node);
-+	ret = mcp3911_config(adc);
- 	if (ret)
- 		goto clk_disable;
- 
--- 
-2.35.1
-
+ 	switch (fc_usb->udev->speed) {
 
 
