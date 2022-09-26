@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D9845EA25F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B8C5EA4B5
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237343AbiIZLGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:06:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56540 "EHLO
+        id S238372AbiIZLui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:50:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234052AbiIZLFx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:53 -0400
+        with ESMTP id S239089AbiIZLtT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:49:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1994F650;
-        Mon, 26 Sep 2022 03:33:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28D37539E;
+        Mon, 26 Sep 2022 03:48:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02A6960B60;
-        Mon, 26 Sep 2022 10:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED5D7C433C1;
-        Mon, 26 Sep 2022 10:32:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C74DD60AD6;
+        Mon, 26 Sep 2022 10:39:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA039C433C1;
+        Mon, 26 Sep 2022 10:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188338;
-        bh=3/2K3H93sz3A/W5h2g23S4x5Atb3f1yd+wC6xCWNrFg=;
+        s=korg; t=1664188747;
+        bh=3BvDZ6ejrWOywt6uTeACcA1u6Kx705dRV1/o7/aPg+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFpb12IAa2oDFXwsWSmJ3x3WAJZX7NsbooLFj2mslPINX4gN7lLPNjwHa7zSGzNf/
-         BudkslG/Tn1zS3/YIltHruNviHLtwE5fseY5RxipOYK8xi+QJElte3iNjtWAlDRSLK
-         S1bOwt+mNPspp3Xk1K0JMs74fMrrrJqqtnSq3YSQ=
+        b=H5M5I5WvyHLZP+gqHCS73Din/kv60ZJlhk608ZSC4fLooCcCkFJkCvI2z8L4sVqwq
+         RIRZ0VDYuXH1HXfqDbTW9Wkcz+RJeTf5kWhW8pCs7fpnkNeQnrRkuO/MPROG7qdWcY
+         pHVKyxXCOG52fqmIG5EVhS0bh2eXcj6YcMFko5co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
-        Horace Chen <horace.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 116/141] drm/amd/amdgpu: fixing read wrong pf2vf data in SRIOV
+        stable@vger.kernel.org, Daniel Dao <dqminh@cloudflare.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 108/148] perf kcore_copy: Do not check /proc/modules is unchanged
 Date:   Mon, 26 Sep 2022 12:12:22 +0200
-Message-Id: <20220926100758.659227043@linuxfoundation.org>
+Message-Id: <20220926100800.166496927@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,92 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingwen Chen <Jingwen.Chen2@amd.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 9a458402fb69bda886aa6cbe067311b6e3d9c52a upstream.
+[ Upstream commit 5b427df27b94aec1312cace48a746782a0925c53 ]
 
-[Why]
-This fixes 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange").
-we should read pf2vf data based at mman.fw_vram_usage_va after gmc
-sw_init. commit 892deb48269c breaks this logic.
+/proc/kallsyms and /proc/modules are compared before and after the copy
+in order to ensure no changes during the copy.
 
-[How]
-calling amdgpu_virt_exchange_data in amdgpu_virt_init_data_exchange to
-set the right base in the right sequence.
+However /proc/modules also might change due to reference counts changing
+even though that does not make any difference.
 
-v2:
-call amdgpu_virt_init_data_exchange after gmc sw_init to make data
-exchange workqueue run
+Any modules loaded or unloaded should be visible in changes to kallsyms,
+so it is not necessary to check /proc/modules also anyway.
 
-v3:
-clean up the code logic
+Remove the comparison checking that /proc/modules is unchanged.
 
-v4:
-add some comment and make the code more readable
-
-Fixes: 892deb48269c ("drm/amdgpu: Separate vf2pf work item init from virt data exchange")
-Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
-Reviewed-by: Horace Chen <horace.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fc1b691d7651d949 ("perf buildid-cache: Add ability to add kcore to the cache")
+Reported-by: Daniel Dao <dqminh@cloudflare.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Daniel Dao <dqminh@cloudflare.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: https://lore.kernel.org/r/20220914122429.8770-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c   |   20 +++++++-------------
- 2 files changed, 8 insertions(+), 14 deletions(-)
+ tools/perf/util/symbol-elf.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2224,7 +2224,7 @@ static int amdgpu_device_ip_init(struct
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index cb7b24493782..6c183df191aa 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -2091,8 +2091,8 @@ static int kcore_copy__compare_file(const char *from_dir, const char *to_dir,
+  * unusual.  One significant peculiarity is that the mapping (start -> pgoff)
+  * is not the same for the kernel map and the modules map.  That happens because
+  * the data is copied adjacently whereas the original kcore has gaps.  Finally,
+- * kallsyms and modules files are compared with their copies to check that
+- * modules have not been loaded or unloaded while the copies were taking place.
++ * kallsyms file is compared with its copy to check that modules have not been
++ * loaded or unloaded while the copies were taking place.
+  *
+  * Return: %0 on success, %-1 on failure.
+  */
+@@ -2155,9 +2155,6 @@ int kcore_copy(const char *from_dir, const char *to_dir)
+ 			goto out_extract_close;
  	}
  
- 	if (amdgpu_sriov_vf(adev))
--		amdgpu_virt_exchange_data(adev);
-+		amdgpu_virt_init_data_exchange(adev);
- 
- 	r = amdgpu_ib_pool_init(adev);
- 	if (r) {
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -584,20 +584,20 @@ void amdgpu_virt_init_data_exchange(stru
- 	adev->virt.fw_reserve.p_vf2pf = NULL;
- 	adev->virt.vf2pf_update_interval_ms = 0;
- 
--	if (adev->bios != NULL) {
--		adev->virt.vf2pf_update_interval_ms = 2000;
-+	if (adev->mman.fw_vram_usage_va != NULL) {
-+		/* go through this logic in ip_init and reset to init workqueue*/
-+		amdgpu_virt_exchange_data(adev);
- 
-+		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
-+		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
-+	} else if (adev->bios != NULL) {
-+		/* got through this logic in early init stage to get necessary flags, e.g. rlcg_acc related*/
- 		adev->virt.fw_reserve.p_pf2vf =
- 			(struct amd_sriov_msg_pf2vf_info_header *)
- 			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
- 
- 		amdgpu_virt_read_pf2vf_data(adev);
- 	}
+-	if (kcore_copy__compare_file(from_dir, to_dir, "modules"))
+-		goto out_extract_close;
 -
--	if (adev->virt.vf2pf_update_interval_ms != 0) {
--		INIT_DELAYED_WORK(&adev->virt.vf2pf_work, amdgpu_virt_update_vf2pf_work_item);
--		schedule_delayed_work(&(adev->virt.vf2pf_work), msecs_to_jiffies(adev->virt.vf2pf_update_interval_ms));
--	}
- }
+ 	if (kcore_copy__compare_file(from_dir, to_dir, "kallsyms"))
+ 		goto out_extract_close;
  
- 
-@@ -633,12 +633,6 @@ void amdgpu_virt_exchange_data(struct am
- 				if (adev->virt.ras_init_done)
- 					amdgpu_virt_add_bad_page(adev, bp_block_offset, bp_block_size);
- 			}
--	} else if (adev->bios != NULL) {
--		adev->virt.fw_reserve.p_pf2vf =
--			(struct amd_sriov_msg_pf2vf_info_header *)
--			(adev->bios + (AMD_SRIOV_MSG_PF2VF_OFFSET_KB << 10));
--
--		amdgpu_virt_read_pf2vf_data(adev);
- 	}
- }
- 
+-- 
+2.35.1
+
 
 
