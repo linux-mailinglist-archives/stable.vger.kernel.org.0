@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 666F35EA0DD
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C33485E9F7A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236400AbiIZKmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:42:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
+        id S235400AbiIZK0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236281AbiIZKlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:41:08 -0400
+        with ESMTP id S235740AbiIZKYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:24:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B119D214;
-        Mon, 26 Sep 2022 03:24:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4097FE034;
+        Mon, 26 Sep 2022 03:18:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F12660AD6;
-        Mon, 26 Sep 2022 10:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6D9C433D7;
-        Mon, 26 Sep 2022 10:22:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E727060AF0;
+        Mon, 26 Sep 2022 10:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9EBC433D7;
+        Mon, 26 Sep 2022 10:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187779;
-        bh=KGqJ0VQSvpJUltYutgQQm7E+eUEUVgDu+klqCsdNfa4=;
+        s=korg; t=1664187448;
+        bh=r8IED6lFpJpupHedByKgtomyHTVDFLhpVTD7qB0qhe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeqP/UQsXyJjjJAdrbN4+GWu6kUn5wpNRp+hF7NY7EdtrMEPhXr/pMbuBeI2/oCN6
-         2vbyYLyZ7ShkZM9FO8Am21wowE+f9xEuSSGgl7PvxIJYM6TLMw060xWlcT7xLS5YqY
-         1BLmiBV1LC579OQ8gd0YcXZEszbwyQMs8332wVpk=
+        b=sodKVq9DgNDHnOOr7WAjKzoQj1UZegJEUJvvPM7ZystfZctF4RZR4o+TRTSl0oGGZ
+         55tOFpiySYEn1FQVOVe6u3CtOYjnl5t6anTgWsWceYwY2afTWvlOMhqpMxnZzXmkYk
+         00/88hbkC2hMr5MietEsrVIbgHa41woPsmTboGuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 057/120] ALSA: hda: add Intel 5 Series / 3400 PCI DID
+        stable@vger.kernel.org, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 11/58] regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
 Date:   Mon, 26 Sep 2022 12:11:30 +0200
-Message-Id: <20220926100752.900612834@linuxfoundation.org>
+Message-Id: <20220926100741.816304962@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-commit 4d40ceef4745536289012670103c59264e0fb3ec upstream.
+[ Upstream commit 78e1e867f44e6bdc72c0e6a2609a3407642fb30b ]
 
-Handle 0x3b57 variant with same AZX_DCAPS_INTEL_PCH_NOPM
-capabilities as 0x3b56. In practise this allow use of HDMI/DP
-display audio via i915.
+The pfuze_chip::regulator_descs is an array of size
+PFUZE100_MAX_REGULATOR, the pfuze_chip::pfuze_regulators
+is the pointer to the real regulators of a specific device.
+The number of real regulator is supposed to be less than
+the PFUZE100_MAX_REGULATOR, so we should use the size of
+'regulator_num * sizeof(struct pfuze_regulator)' in memcpy().
+This fixes the out of bounds access bug reported by KASAN.
 
-BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/2751
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220912183716.2126312-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Link: https://lore.kernel.org/r/20220825111922.1368055-1-xiaolei.wang@windriver.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/pfuze100-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2528,6 +2528,8 @@ static const struct pci_device_id azx_id
- 	/* 5 Series/3400 */
- 	{ PCI_DEVICE(0x8086, 0x3b56),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
-+	{ PCI_DEVICE(0x8086, 0x3b57),
-+	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
- 	/* Poulsbo */
- 	{ PCI_DEVICE(0x8086, 0x811b),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
+diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
+index 8b1940110561..b1d73a6c7809 100644
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -710,7 +710,7 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
+ 		((pfuze_chip->chip_id == PFUZE3000) ? "3000" : "3001"))));
+ 
+ 	memcpy(pfuze_chip->regulator_descs, pfuze_chip->pfuze_regulators,
+-		sizeof(pfuze_chip->regulator_descs));
++		regulator_num * sizeof(struct pfuze_regulator));
+ 
+ 	ret = pfuze_parse_regulators_dt(pfuze_chip);
+ 	if (ret)
+-- 
+2.35.1
+
 
 
