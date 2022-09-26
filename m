@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B114F5EA0E9
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7C95EA49E
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236222AbiIZKnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
+        id S238661AbiIZLsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:48:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236389AbiIZKmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:42:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3AA654C8C;
-        Mon, 26 Sep 2022 03:24:20 -0700 (PDT)
+        with ESMTP id S238770AbiIZLrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:47:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB2D74DF2;
+        Mon, 26 Sep 2022 03:47:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 39BB5CE10EC;
-        Mon, 26 Sep 2022 10:24:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20EC4C433D6;
-        Mon, 26 Sep 2022 10:24:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8A7A60B6A;
+        Mon, 26 Sep 2022 10:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF50FC433B5;
+        Mon, 26 Sep 2022 10:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187854;
-        bh=cFpZPh8BcsEBB286zNWTT/jV0sq4ra5xGMtyfOdaR2s=;
+        s=korg; t=1664189260;
+        bh=GHqo4WW2TGo/HZhXm8DCsaihIeiuLfz8NFLTCRhWsjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JebGy2RTCy1bWpAh/nnsbTaN3Xaq3gLqp3ioAsK6SHkXEpc7QvGHZqN2u8QZucS5g
-         Dj5HxbbXplIeWiA4IFJFNLQXKeWvRLuW0q4PptRatjp+H/bxXgtWvYzPfSw0JCufz6
-         S0j4k2CoAo3Fj+IxCHOpWGXADmJp6/7R4i5wAVfY=
+        b=11FlMc+saWsTIMbqEHjTnmlkY4CC7xLEcrb1MnVbc5HEqIr/tv6v9bgoxoUGb9fPW
+         gFAI9MGMH3FaAO4HF+m5I1MXm0joDphMQ/bmYf17IwD0nvYGBFFBZjxWGSDihpIr8W
+         vQkyVcXLWGgtJMX5vExKq3M607MXXfxyL3pDeDck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/120] net/sched: taprio: avoid disabling offload when it was never enabled
+Subject: [PATCH 5.19 126/207] sfc/siena: fix TX channel offset when using legacy interrupts
 Date:   Mon, 26 Sep 2022 12:11:55 +0200
-Message-Id: <20220926100754.044822678@linuxfoundation.org>
+Message-Id: <20220926100812.200580187@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit db46e3a88a09c5cf7e505664d01da7238cd56c92 ]
+[ Upstream commit 974bb793aded499491246f6f9826e26c2b127320 ]
 
-In an incredibly strange API design decision, qdisc->destroy() gets
-called even if qdisc->init() never succeeded, not exclusively since
-commit 87b60cfacf9f ("net_sched: fix error recovery at qdisc creation"),
-but apparently also earlier (in the case of qdisc_create_dflt()).
+As in previous commit for sfc, fix TX channels offset when
+efx_siena_separate_tx_channels is false (the default)
 
-The taprio qdisc does not fully acknowledge this when it attempts full
-offload, because it starts off with q->flags = TAPRIO_FLAGS_INVALID in
-taprio_init(), then it replaces q->flags with TCA_TAPRIO_ATTR_FLAGS
-parsed from netlink (in taprio_change(), tail called from taprio_init()).
-
-But in taprio_destroy(), we call taprio_disable_offload(), and this
-determines what to do based on FULL_OFFLOAD_IS_ENABLED(q->flags).
-
-But looking at the implementation of FULL_OFFLOAD_IS_ENABLED()
-(a bitwise check of bit 1 in q->flags), it is invalid to call this macro
-on q->flags when it contains TAPRIO_FLAGS_INVALID, because that is set
-to U32_MAX, and therefore FULL_OFFLOAD_IS_ENABLED() will return true on
-an invalid set of flags.
-
-As a result, it is possible to crash the kernel if user space forces an
-error between setting q->flags = TAPRIO_FLAGS_INVALID, and the calling
-of taprio_enable_offload(). This is because drivers do not expect the
-offload to be disabled when it was never enabled.
-
-The error that we force here is to attach taprio as a non-root qdisc,
-but instead as child of an mqprio root qdisc:
-
-$ tc qdisc add dev swp0 root handle 1: \
-	mqprio num_tc 8 map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 hw 0
-$ tc qdisc replace dev swp0 parent 1:1 \
-	taprio num_tc 8 map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 0 \
-	sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-Unable to handle kernel paging request at virtual address fffffffffffffff8
-[fffffffffffffff8] pgd=0000000000000000, p4d=0000000000000000
-Internal error: Oops: 96000004 [#1] PREEMPT SMP
-Call trace:
- taprio_dump+0x27c/0x310
- vsc9959_port_setup_tc+0x1f4/0x460
- felix_port_setup_tc+0x24/0x3c
- dsa_slave_setup_tc+0x54/0x27c
- taprio_disable_offload.isra.0+0x58/0xe0
- taprio_destroy+0x80/0x104
- qdisc_create+0x240/0x470
- tc_modify_qdisc+0x1fc/0x6b0
- rtnetlink_rcv_msg+0x12c/0x390
- netlink_rcv_skb+0x5c/0x130
- rtnetlink_rcv+0x1c/0x2c
-
-Fix this by keeping track of the operations we made, and undo the
-offload only if we actually did it.
-
-I've added "bool offloaded" inside a 4 byte hole between "int clockid"
-and "atomic64_t picos_per_byte". Now the first cache line looks like
-below:
-
-$ pahole -C taprio_sched net/sched/sch_taprio.o
-struct taprio_sched {
-        struct Qdisc * *           qdiscs;               /*     0     8 */
-        struct Qdisc *             root;                 /*     8     8 */
-        u32                        flags;                /*    16     4 */
-        enum tk_offsets            tk_offset;            /*    20     4 */
-        int                        clockid;              /*    24     4 */
-        bool                       offloaded;            /*    28     1 */
-
-        /* XXX 3 bytes hole, try to pack */
-
-        atomic64_t                 picos_per_byte;       /*    32     0 */
-
-        /* XXX 8 bytes hole, try to pack */
-
-        spinlock_t                 current_entry_lock;   /*    40     0 */
-
-        /* XXX 8 bytes hole, try to pack */
-
-        struct sched_entry *       current_entry;        /*    48     8 */
-        struct sched_gate_list *   oper_sched;           /*    56     8 */
-        /* --- cacheline 1 boundary (64 bytes) --- */
-
-Fixes: 9c66d1564676 ("taprio: Add support for hardware offloading")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Fixes: 25bde571b4a8 ("sfc/siena: fix wrong tx channel offset with efx_separate_tx_channels")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Link: https://lore.kernel.org/r/20220915141653.15504-1-ihuguet@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sfc/siena/efx_channels.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 4c26f7fb32b3..842ccdcc0db2 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -65,6 +65,7 @@ struct taprio_sched {
- 	u32 flags;
- 	enum tk_offsets tk_offset;
- 	int clockid;
-+	bool offloaded;
- 	atomic64_t picos_per_byte; /* Using picoseconds because for 10Gbps+
- 				    * speeds it's sub-nanoseconds per byte
- 				    */
-@@ -1268,6 +1269,8 @@ static int taprio_enable_offload(struct net_device *dev,
- 		goto done;
- 	}
- 
-+	q->offloaded = true;
-+
- done:
- 	taprio_offload_free(offload);
- 
-@@ -1282,12 +1285,9 @@ static int taprio_disable_offload(struct net_device *dev,
- 	struct tc_taprio_qopt_offload *offload;
- 	int err;
- 
--	if (!FULL_OFFLOAD_IS_ENABLED(q->flags))
-+	if (!q->offloaded)
- 		return 0;
- 
--	if (!ops->ndo_setup_tc)
--		return -EOPNOTSUPP;
--
- 	offload = taprio_offload_alloc(0);
- 	if (!offload) {
- 		NL_SET_ERR_MSG(extack,
-@@ -1303,6 +1303,8 @@ static int taprio_disable_offload(struct net_device *dev,
- 		goto out;
- 	}
- 
-+	q->offloaded = false;
-+
- out:
- 	taprio_offload_free(offload);
- 
+diff --git a/drivers/net/ethernet/sfc/siena/efx_channels.c b/drivers/net/ethernet/sfc/siena/efx_channels.c
+index 017212a40df3..f54ebd007286 100644
+--- a/drivers/net/ethernet/sfc/siena/efx_channels.c
++++ b/drivers/net/ethernet/sfc/siena/efx_channels.c
+@@ -320,7 +320,7 @@ int efx_siena_probe_interrupts(struct efx_nic *efx)
+ 		efx->n_channels = 1 + (efx_siena_separate_tx_channels ? 1 : 0);
+ 		efx->n_rx_channels = 1;
+ 		efx->n_tx_channels = 1;
+-		efx->tx_channel_offset = 1;
++		efx->tx_channel_offset = efx_siena_separate_tx_channels ? 1 : 0;
+ 		efx->n_xdp_channels = 0;
+ 		efx->xdp_channel_offset = efx->n_channels;
+ 		efx->legacy_irq = efx->pci_dev->irq;
 -- 
 2.35.1
 
