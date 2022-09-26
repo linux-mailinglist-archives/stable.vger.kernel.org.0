@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEBB5EA0CB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3506D5EA30A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236355AbiIZKly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:41:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
+        id S237646AbiIZLS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236222AbiIZKkj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:40:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160CA4D176;
-        Mon, 26 Sep 2022 03:24:02 -0700 (PDT)
+        with ESMTP id S237696AbiIZLRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:17:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FDF1659E3;
+        Mon, 26 Sep 2022 03:38:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A928060C07;
-        Mon, 26 Sep 2022 10:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA7EBC433C1;
-        Mon, 26 Sep 2022 10:23:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A873260C0B;
+        Mon, 26 Sep 2022 10:36:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E29BC433D6;
+        Mon, 26 Sep 2022 10:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187789;
-        bh=tOpRTScNTYqFlhBKjkopRbmmvncO6LPRlcICQCyskfg=;
+        s=korg; t=1664188593;
+        bh=cAVjTlph+uYTY5nMF2GiWxeyu+HH3UT40wtrKGB0ylA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fh7MtMb7Cf4u321UuyqiX01fUh695r6YBPLx59hafd/k8SgaaTy/CMS/biBji3kl4
-         B+Mkfz3eUFugcdwMaguFQ37Tc/4Xe1jtopCjrfBSBwGMHIWCRP7C/emHjElYDCUYHh
-         rDlEjZ+WEf9qB09vFsbnCTN6/6xeDx6x0YrUIZww=
+        b=pJmWtW16lQ/q+3fUJqW6zR7SnrIutucOE71GmTeniZSWu4Z4c+X4ITTryA8iKvavb
+         Vob8I+qI9G1JnrR706vYiEieRaYdFcNbmwlVd5qhmmTtCz9lz4w2Jnli5zBoWGJdIO
+         hb39ikURF3V13l6bKF8JVHY0rAZ6UmQ95SBPNlmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 060/120] ALSA: hda/realtek: Add pincfg for ASUS G513 HP jack
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 059/148] firmware: arm_scmi: Fix the asynchronous reset requests
 Date:   Mon, 26 Sep 2022 12:11:33 +0200
-Message-Id: <20220926100753.026777601@linuxfoundation.org>
+Message-Id: <20220926100758.240987476@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit c611e659044168e7abcbae8ba1ea833521498fbb upstream.
+[ Upstream commit b75c83d9b961fd3abf7310f8d36d5e6e9f573efb ]
 
-Fixes up the pincfg for ASUS ROG Strix G513 headphone and mic combo jack
+SCMI Reset protocol specification allows the asynchronous reset request
+only when an autonomous reset action is specified. Reset requests based
+on explicit assert/deassert of signals should not be served
+asynchronously.
 
-[ Fixed the position in the quirk table by tiwai ]
+Current implementation will instead issue an asynchronous request in any
+case, as long as the reset domain had advertised to support asynchronous
+resets.
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220915080921.35563-2-luke@ljones.dev
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Avoid requesting the asynchronous resets when the reset action is not
+of the autonomous type, even if the target reset domain does, in general,
+support the asynchronous requests.
+
+Link: https://lore.kernel.org/r/20220817172731.1185305-6-cristian.marussi@arm.com
+Fixes: 95a15d80aa0d ("firmware: arm_scmi: Add RESET protocol in SCMI v2.0")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/firmware/arm_scmi/reset.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6484,6 +6484,7 @@ enum {
- 	ALC294_FIXUP_ASUS_GU502_HP,
- 	ALC294_FIXUP_ASUS_GU502_PINS,
- 	ALC294_FIXUP_ASUS_GU502_VERBS,
-+	ALC294_FIXUP_ASUS_G513_PINS,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
-@@ -7761,6 +7762,15 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc294_fixup_gu502_hp,
- 	},
-+	 [ALC294_FIXUP_ASUS_G513_PINS] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+				{ 0x19, 0x03a11050 }, /* front HP mic */
-+				{ 0x1a, 0x03a11c30 }, /* rear external mic */
-+				{ 0x21, 0x03211420 }, /* front HP out */
-+				{ }
-+		},
-+	},
- 	[ALC294_FIXUP_ASUS_COEF_1B] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8253,6 +8263,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
- 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
-+	SND_PCI_QUIRK(0x1043, 0x1e5e, "ASUS ROG Strix G513", ALC294_FIXUP_ASUS_G513_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+diff --git a/drivers/firmware/arm_scmi/reset.c b/drivers/firmware/arm_scmi/reset.c
+index fc6237d6e926..e80a78205845 100644
+--- a/drivers/firmware/arm_scmi/reset.c
++++ b/drivers/firmware/arm_scmi/reset.c
+@@ -158,7 +158,7 @@ static int scmi_domain_reset(const struct scmi_protocol_handle *ph, u32 domain,
+ 		return -EINVAL;
+ 
+ 	rdom = pi->dom_info + domain;
+-	if (rdom->async_reset)
++	if (rdom->async_reset && flags & AUTONOMOUS_RESET)
+ 		flags |= ASYNCHRONOUS_RESET;
+ 
+ 	ret = ph->xops->xfer_get_init(ph, RESET, sizeof(*dom), 0, &t);
+@@ -170,7 +170,7 @@ static int scmi_domain_reset(const struct scmi_protocol_handle *ph, u32 domain,
+ 	dom->flags = cpu_to_le32(flags);
+ 	dom->reset_state = cpu_to_le32(state);
+ 
+-	if (rdom->async_reset)
++	if (flags & ASYNCHRONOUS_RESET)
+ 		ret = ph->xops->do_xfer_with_response(ph, t);
+ 	else
+ 		ret = ph->xops->do_xfer(ph, t);
+-- 
+2.35.1
+
 
 
