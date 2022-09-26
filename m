@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE10D5EA4A5
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E6865EA466
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236313AbiIZLtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53474 "EHLO
+        id S238462AbiIZLpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238823AbiIZLrr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:47:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D6374CED;
-        Mon, 26 Sep 2022 03:47:54 -0700 (PDT)
+        with ESMTP id S238248AbiIZLml (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:42:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62BD726B8;
+        Mon, 26 Sep 2022 03:46:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0982B8091E;
-        Mon, 26 Sep 2022 10:41:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E7BC433D6;
-        Mon, 26 Sep 2022 10:41:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBE95B80924;
+        Mon, 26 Sep 2022 10:33:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F901C433D7;
+        Mon, 26 Sep 2022 10:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188893;
-        bh=QGczFgAHvbSQI3rwphu6DQAbiEnCcEoB8hmQoCSCrjw=;
+        s=korg; t=1664188388;
+        bh=zm91d3VKnzAezy3Obx9BDlw9gyCWzfFCaOa9sB9Etog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0b6KoCyblT6eJuaYahFw3gWn6sQ6t7218Rzp/yzB0ZuKD3VNzIlYJSDSI8jN7cEsC
-         nGPDdQyui6XQG3KAw15roAakML7P6s+gaw2e5Xnm1BdEloxEOpEZczlSm1cwnxVAVw
-         Vj+WrdcswVuQKOoLcIjqGMWTxOMhdqfLVDrSoXrw=
+        b=U67hgP7TT2Rq5B3oaQ1TGMDl07Sl+NPe14WIK3+lesABQ+ZMz8ZweftD7dbtYX6vd
+         brjvZuY6KJYlw5rRMvVULbsmzexd0UWluFi0sugLPtnKj6v6V0HUogu839uuZTs7J8
+         H4o0NI20gX/K7nPPJj2KGDoLORKB9PgiTllVhMWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 126/148] gpio: ixp4xx: Make irqchip immutable
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 134/141] i2c: imx: If pm_runtime_get_sync() returned 1 device access is possible
 Date:   Mon, 26 Sep 2022 12:12:40 +0200
-Message-Id: <20220926100800.896373858@linuxfoundation.org>
+Message-Id: <20220926100759.306970082@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 94e9bc73d85aa6ecfe249e985ff57abe0ab35f34 ]
+[ Upstream commit 085aacaa73163f4b8a89dec24ecb32cfacd34017 ]
 
-This turns the IXP4xx GPIO irqchip into an immutable
-irqchip, a bit different from the standard template due
-to being hierarchical.
+pm_runtime_get_sync() returning 1 also means the device is powered. So
+resetting the chip registers in .remove() is possible and should be
+done.
 
-Tested on the IXP4xx which uses drivers/ata/pata_ixp4xx_cf.c
-for a rootfs on compact flash with IRQs from this GPIO
-block to the CF ATA controller.
-
-Cc: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: d98bdd3a5b50 ("i2c: imx: Make sure to unregister adapter on remove()")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-ixp4xx.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-ixp4xx.c b/drivers/gpio/gpio-ixp4xx.c
-index b3b050604e0b..6bd047e2ca46 100644
---- a/drivers/gpio/gpio-ixp4xx.c
-+++ b/drivers/gpio/gpio-ixp4xx.c
-@@ -67,6 +67,14 @@ static void ixp4xx_gpio_irq_ack(struct irq_data *d)
- 	__raw_writel(BIT(d->hwirq), g->base + IXP4XX_REG_GPIS);
- }
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d3719df1c40d..be4ad516293b 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1289,7 +1289,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	if (i2c_imx->dma)
+ 		i2c_imx_dma_free(i2c_imx);
  
-+static void ixp4xx_gpio_mask_irq(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+
-+	irq_chip_mask_parent(d);
-+	gpiochip_disable_irq(gc, d->hwirq);
-+}
-+
- static void ixp4xx_gpio_irq_unmask(struct irq_data *d)
- {
- 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-@@ -76,6 +84,7 @@ static void ixp4xx_gpio_irq_unmask(struct irq_data *d)
- 	if (!(g->irq_edge & BIT(d->hwirq)))
- 		ixp4xx_gpio_irq_ack(d);
- 
-+	gpiochip_enable_irq(gc, d->hwirq);
- 	irq_chip_unmask_parent(d);
- }
- 
-@@ -153,12 +162,14 @@ static int ixp4xx_gpio_irq_set_type(struct irq_data *d, unsigned int type)
- 	return irq_chip_set_type_parent(d, IRQ_TYPE_LEVEL_HIGH);
- }
- 
--static struct irq_chip ixp4xx_gpio_irqchip = {
-+static const struct irq_chip ixp4xx_gpio_irqchip = {
- 	.name = "IXP4GPIO",
- 	.irq_ack = ixp4xx_gpio_irq_ack,
--	.irq_mask = irq_chip_mask_parent,
-+	.irq_mask = ixp4xx_gpio_mask_irq,
- 	.irq_unmask = ixp4xx_gpio_irq_unmask,
- 	.irq_set_type = ixp4xx_gpio_irq_set_type,
-+	.flags = IRQCHIP_IMMUTABLE,
-+	GPIOCHIP_IRQ_RESOURCE_HELPERS,
- };
- 
- static int ixp4xx_gpio_child_to_parent_hwirq(struct gpio_chip *gc,
-@@ -282,7 +293,7 @@ static int ixp4xx_gpio_probe(struct platform_device *pdev)
- 	g->gc.owner = THIS_MODULE;
- 
- 	girq = &g->gc.irq;
--	girq->chip = &ixp4xx_gpio_irqchip;
-+	gpio_irq_chip_set_chip(girq, &ixp4xx_gpio_irqchip);
- 	girq->fwnode = g->fwnode;
- 	girq->parent_domain = parent;
- 	girq->child_to_parent_hwirq = ixp4xx_gpio_child_to_parent_hwirq;
+-	if (ret == 0) {
++	if (ret >= 0) {
+ 		/* setup chip registers to defaults */
+ 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+ 		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
 -- 
 2.35.1
 
