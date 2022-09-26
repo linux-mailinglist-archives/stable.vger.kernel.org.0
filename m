@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E525EA162
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CE195EA4F9
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236546AbiIZKup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:50:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
+        id S238830AbiIZL4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236728AbiIZKtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:49:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FD7C5788F;
-        Mon, 26 Sep 2022 03:26:30 -0700 (PDT)
+        with ESMTP id S239294AbiIZLzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:55:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C346B7674C;
+        Mon, 26 Sep 2022 03:50:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E48C60C05;
-        Mon, 26 Sep 2022 10:26:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 291C1C433C1;
-        Mon, 26 Sep 2022 10:26:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9994760A1E;
+        Mon, 26 Sep 2022 10:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7942C433D6;
+        Mon, 26 Sep 2022 10:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187988;
-        bh=TYkAw3ddzhpkb5703Ow+vuHz71S7/pXKULuF/8cdCsU=;
+        s=korg; t=1664189341;
+        bh=DB6JJ0OuAQG/wy+oVUXwoV1NXhvvQF13oov5s/pVZwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oh+0a8kZReiv28ijsHSiPUtADvVBad8JFb5QARVfZqHCYYAXcpETW102607BuXmgh
-         O0z+D6mY7q2NpHVEbHQdDdfgogjnmviiitlWSgKNrOQTGhBXcTf2PdSX4iQmsFnBeP
-         Ikq4d+r74/QI9iqS71DNBtskv5RR0Il3dmCb15/I=
+        b=t9zbYKz2BW/iYuMFQIh99nm16rlKyMw7vJ6algIQVT496NnCZS53wUIAu4AqNIdjB
+         NNAN05R/U+LqvUQYboxoD9FSbe4QomG36zMWew4IOP5DOTzH4Axn/Qw2QO4OXOo51T
+         S8vTm2QR9288kLxEeU1AVXR1ggDClcr8ZU9cBZn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 110/120] xfs: convert EIO to EFSCORRUPTED when log contents are invalid
+        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
+        Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 154/207] bonding: fix NULL deref in bond_rr_gen_slave_id
 Date:   Mon, 26 Sep 2022 12:12:23 +0200
-Message-Id: <20220926100754.964029305@linuxfoundation.org>
+Message-Id: <20220926100813.544905260@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,219 +55,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Jonathan Toppins <jtoppins@redhat.com>
 
-commit 895e196fb6f84402dcd0c1d3c3feb8a58049564e upstream.
+[ Upstream commit 0e400d602f46360752e4b32ce842dba3808e15e6 ]
 
-Convert EIO to EFSCORRUPTED in the logging code when we can determine
-that the log contents are invalid.
+Fix a NULL dereference of the struct bonding.rr_tx_counter member because
+if a bond is initially created with an initial mode != zero (Round Robin)
+the memory required for the counter is never created and when the mode is
+changed there is never any attempt to verify the memory is allocated upon
+switching modes.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This causes the following Oops on an aarch64 machine:
+    [  334.686773] Unable to handle kernel paging request at virtual address ffff2c91ac905000
+    [  334.694703] Mem abort info:
+    [  334.697486]   ESR = 0x0000000096000004
+    [  334.701234]   EC = 0x25: DABT (current EL), IL = 32 bits
+    [  334.706536]   SET = 0, FnV = 0
+    [  334.709579]   EA = 0, S1PTW = 0
+    [  334.712719]   FSC = 0x04: level 0 translation fault
+    [  334.717586] Data abort info:
+    [  334.720454]   ISV = 0, ISS = 0x00000004
+    [  334.724288]   CM = 0, WnR = 0
+    [  334.727244] swapper pgtable: 4k pages, 48-bit VAs, pgdp=000008044d662000
+    [  334.733944] [ffff2c91ac905000] pgd=0000000000000000, p4d=0000000000000000
+    [  334.740734] Internal error: Oops: 96000004 [#1] SMP
+    [  334.745602] Modules linked in: bonding tls veth rfkill sunrpc arm_spe_pmu vfat fat acpi_ipmi ipmi_ssif ixgbe igb i40e mdio ipmi_devintf ipmi_msghandler arm_cmn arm_dsu_pmu cppc_cpufreq acpi_tad fuse zram crct10dif_ce ast ghash_ce sbsa_gwdt nvme drm_vram_helper drm_ttm_helper nvme_core ttm xgene_hwmon
+    [  334.772217] CPU: 7 PID: 2214 Comm: ping Not tainted 6.0.0-rc4-00133-g64ae13ed4784 #4
+    [  334.779950] Hardware name: GIGABYTE R272-P31-00/MP32-AR1-00, BIOS F18v (SCP: 1.08.20211002) 12/01/2021
+    [  334.789244] pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+    [  334.796196] pc : bond_rr_gen_slave_id+0x40/0x124 [bonding]
+    [  334.801691] lr : bond_xmit_roundrobin_slave_get+0x38/0xdc [bonding]
+    [  334.807962] sp : ffff8000221733e0
+    [  334.811265] x29: ffff8000221733e0 x28: ffffdbac8572d198 x27: ffff80002217357c
+    [  334.818392] x26: 000000000000002a x25: ffffdbacb33ee000 x24: ffff07ff980fa000
+    [  334.825519] x23: ffffdbacb2e398ba x22: ffff07ff98102000 x21: ffff07ff981029c0
+    [  334.832646] x20: 0000000000000001 x19: ffff07ff981029c0 x18: 0000000000000014
+    [  334.839773] x17: 0000000000000000 x16: ffffdbacb1004364 x15: 0000aaaabe2f5a62
+    [  334.846899] x14: ffff07ff8e55d968 x13: ffff07ff8e55db30 x12: 0000000000000000
+    [  334.854026] x11: ffffdbacb21532e8 x10: 0000000000000001 x9 : ffffdbac857178ec
+    [  334.861153] x8 : ffff07ff9f6e5a28 x7 : 0000000000000000 x6 : 000000007c2b3742
+    [  334.868279] x5 : ffff2c91ac905000 x4 : ffff2c91ac905000 x3 : ffff07ff9f554400
+    [  334.875406] x2 : ffff2c91ac905000 x1 : 0000000000000001 x0 : ffff07ff981029c0
+    [  334.882532] Call trace:
+    [  334.884967]  bond_rr_gen_slave_id+0x40/0x124 [bonding]
+    [  334.890109]  bond_xmit_roundrobin_slave_get+0x38/0xdc [bonding]
+    [  334.896033]  __bond_start_xmit+0x128/0x3a0 [bonding]
+    [  334.901001]  bond_start_xmit+0x54/0xb0 [bonding]
+    [  334.905622]  dev_hard_start_xmit+0xb4/0x220
+    [  334.909798]  __dev_queue_xmit+0x1a0/0x720
+    [  334.913799]  arp_xmit+0x3c/0xbc
+    [  334.916932]  arp_send_dst+0x98/0xd0
+    [  334.920410]  arp_solicit+0xe8/0x230
+    [  334.923888]  neigh_probe+0x60/0xb0
+    [  334.927279]  __neigh_event_send+0x3b0/0x470
+    [  334.931453]  neigh_resolve_output+0x70/0x90
+    [  334.935626]  ip_finish_output2+0x158/0x514
+    [  334.939714]  __ip_finish_output+0xac/0x1a4
+    [  334.943800]  ip_finish_output+0x40/0xfc
+    [  334.947626]  ip_output+0xf8/0x1a4
+    [  334.950931]  ip_send_skb+0x5c/0x100
+    [  334.954410]  ip_push_pending_frames+0x3c/0x60
+    [  334.958758]  raw_sendmsg+0x458/0x6d0
+    [  334.962325]  inet_sendmsg+0x50/0x80
+    [  334.965805]  sock_sendmsg+0x60/0x6c
+    [  334.969286]  __sys_sendto+0xc8/0x134
+    [  334.972853]  __arm64_sys_sendto+0x34/0x4c
+    [  334.976854]  invoke_syscall+0x78/0x100
+    [  334.980594]  el0_svc_common.constprop.0+0x4c/0xf4
+    [  334.985287]  do_el0_svc+0x38/0x4c
+    [  334.988591]  el0_svc+0x34/0x10c
+    [  334.991724]  el0t_64_sync_handler+0x11c/0x150
+    [  334.996072]  el0t_64_sync+0x190/0x194
+    [  334.999726] Code: b9001062 f9403c02 d53cd044 8b040042 (b8210040)
+    [  335.005810] ---[ end trace 0000000000000000 ]---
+    [  335.010416] Kernel panic - not syncing: Oops: Fatal exception in interrupt
+    [  335.017279] SMP: stopping secondary CPUs
+    [  335.021374] Kernel Offset: 0x5baca8eb0000 from 0xffff800008000000
+    [  335.027456] PHYS_OFFSET: 0x80000000
+    [  335.030932] CPU features: 0x0000,0085c029,19805c82
+    [  335.035713] Memory Limit: none
+    [  335.038756] Rebooting in 180 seconds..
+
+The fix is to allocate the memory in bond_open() which is guaranteed
+to be called before any packets are processed.
+
+Fixes: 848ca9182a7d ("net: bonding: Use per-cpu rr_tx_counter")
+CC: Jussi Maki <joamaki@gmail.com>
+Signed-off-by: Jonathan Toppins <jtoppins@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_bmap_item.c     |    4 ++--
- fs/xfs/xfs_extfree_item.c  |    2 +-
- fs/xfs/xfs_log_recover.c   |   32 ++++++++++++++++----------------
- fs/xfs/xfs_refcount_item.c |    2 +-
- fs/xfs/xfs_rmap_item.c     |    2 +-
- 5 files changed, 21 insertions(+), 21 deletions(-)
+ drivers/net/bonding/bond_main.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
---- a/fs/xfs/xfs_bmap_item.c
-+++ b/fs/xfs/xfs_bmap_item.c
-@@ -456,7 +456,7 @@ xfs_bui_recover(
- 	if (buip->bui_format.bui_nextents != XFS_BUI_MAX_FAST_EXTENTS) {
- 		set_bit(XFS_BUI_RECOVERED, &buip->bui_flags);
- 		xfs_bui_release(buip);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 83852e6719e2..ab7cb48f8dfd 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -4155,6 +4155,12 @@ static int bond_open(struct net_device *bond_dev)
+ 	struct list_head *iter;
+ 	struct slave *slave;
  
- 	/*
-@@ -490,7 +490,7 @@ xfs_bui_recover(
- 		 */
- 		set_bit(XFS_BUI_RECOVERED, &buip->bui_flags);
- 		xfs_bui_release(buip);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
++	if (BOND_MODE(bond) == BOND_MODE_ROUNDROBIN && !bond->rr_tx_counter) {
++		bond->rr_tx_counter = alloc_percpu(u32);
++		if (!bond->rr_tx_counter)
++			return -ENOMEM;
++	}
++
+ 	/* reset slave->backup and slave->inactive */
+ 	if (bond_has_slaves(bond)) {
+ 		bond_for_each_slave(bond, slave, iter) {
+@@ -6210,15 +6216,6 @@ static int bond_init(struct net_device *bond_dev)
+ 	if (!bond->wq)
+ 		return -ENOMEM;
  
- 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_itruncate,
---- a/fs/xfs/xfs_extfree_item.c
-+++ b/fs/xfs/xfs_extfree_item.c
-@@ -624,7 +624,7 @@ xfs_efi_recover(
- 			 */
- 			set_bit(XFS_EFI_RECOVERED, &efip->efi_flags);
- 			xfs_efi_release(efip);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 	}
+-	if (BOND_MODE(bond) == BOND_MODE_ROUNDROBIN) {
+-		bond->rr_tx_counter = alloc_percpu(u32);
+-		if (!bond->rr_tx_counter) {
+-			destroy_workqueue(bond->wq);
+-			bond->wq = NULL;
+-			return -ENOMEM;
+-		}
+-	}
+-
+ 	spin_lock_init(&bond->stats_lock);
+ 	netdev_lockdep_set_classes(bond_dev);
  
---- a/fs/xfs/xfs_log_recover.c
-+++ b/fs/xfs/xfs_log_recover.c
-@@ -471,7 +471,7 @@ xlog_find_verify_log_record(
- 			xfs_warn(log->l_mp,
- 		"Log inconsistent (didn't find previous header)");
- 			ASSERT(0);
--			error = -EIO;
-+			error = -EFSCORRUPTED;
- 			goto out;
- 		}
- 
-@@ -1350,7 +1350,7 @@ xlog_find_tail(
- 		return error;
- 	if (!error) {
- 		xfs_warn(log->l_mp, "%s: couldn't find sync record", __func__);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 	*tail_blk = BLOCK_LSN(be64_to_cpu(rhead->h_tail_lsn));
- 
-@@ -3166,7 +3166,7 @@ xlog_recover_inode_pass2(
- 		default:
- 			xfs_warn(log->l_mp, "%s: Invalid flag", __func__);
- 			ASSERT(0);
--			error = -EIO;
-+			error = -EFSCORRUPTED;
- 			goto out_release;
- 		}
- 	}
-@@ -3247,12 +3247,12 @@ xlog_recover_dquot_pass2(
- 	recddq = item->ri_buf[1].i_addr;
- 	if (recddq == NULL) {
- 		xfs_alert(log->l_mp, "NULL dquot in %s.", __func__);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 	if (item->ri_buf[1].i_len < sizeof(xfs_disk_dquot_t)) {
- 		xfs_alert(log->l_mp, "dquot too small (%d) in %s.",
- 			item->ri_buf[1].i_len, __func__);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 
- 	/*
-@@ -3279,7 +3279,7 @@ xlog_recover_dquot_pass2(
- 	if (fa) {
- 		xfs_alert(mp, "corrupt dquot ID 0x%x in log at %pS",
- 				dq_f->qlf_id, fa);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 	ASSERT(dq_f->qlf_len == 1);
- 
-@@ -4018,7 +4018,7 @@ xlog_recover_commit_pass1(
- 		xfs_warn(log->l_mp, "%s: invalid item type (%d)",
- 			__func__, ITEM_TYPE(item));
- 		ASSERT(0);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- }
- 
-@@ -4066,7 +4066,7 @@ xlog_recover_commit_pass2(
- 		xfs_warn(log->l_mp, "%s: invalid item type (%d)",
- 			__func__, ITEM_TYPE(item));
- 		ASSERT(0);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- }
- 
-@@ -4187,7 +4187,7 @@ xlog_recover_add_to_cont_trans(
- 		ASSERT(len <= sizeof(struct xfs_trans_header));
- 		if (len > sizeof(struct xfs_trans_header)) {
- 			xfs_warn(log->l_mp, "%s: bad header length", __func__);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 
- 		xlog_recover_add_item(&trans->r_itemq);
-@@ -4243,13 +4243,13 @@ xlog_recover_add_to_trans(
- 			xfs_warn(log->l_mp, "%s: bad header magic number",
- 				__func__);
- 			ASSERT(0);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 
- 		if (len > sizeof(struct xfs_trans_header)) {
- 			xfs_warn(log->l_mp, "%s: bad header length", __func__);
- 			ASSERT(0);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 
- 		/*
-@@ -4285,7 +4285,7 @@ xlog_recover_add_to_trans(
- 				  in_f->ilf_size);
- 			ASSERT(0);
- 			kmem_free(ptr);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 
- 		item->ri_total = in_f->ilf_size;
-@@ -4389,7 +4389,7 @@ xlog_recovery_process_trans(
- 	default:
- 		xfs_warn(log->l_mp, "%s: bad flag 0x%x", __func__, flags);
- 		ASSERT(0);
--		error = -EIO;
-+		error = -EFSCORRUPTED;
- 		break;
- 	}
- 	if (error || freeit)
-@@ -4469,7 +4469,7 @@ xlog_recover_process_ophdr(
- 		xfs_warn(log->l_mp, "%s: bad clientid 0x%x",
- 			__func__, ohead->oh_clientid);
- 		ASSERT(0);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 
- 	/*
-@@ -4479,7 +4479,7 @@ xlog_recover_process_ophdr(
- 	if (dp + len > end) {
- 		xfs_warn(log->l_mp, "%s: bad length 0x%x", __func__, len);
- 		WARN_ON(1);
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 
- 	trans = xlog_recover_ophdr_to_trans(rhash, rhead, ohead);
-@@ -5209,7 +5209,7 @@ xlog_valid_rec_header(
- 	    (be32_to_cpu(rhead->h_version) & (~XLOG_VERSION_OKBITS))))) {
- 		xfs_warn(log->l_mp, "%s: unrecognised log version (%d).",
- 			__func__, be32_to_cpu(rhead->h_version));
--		return -EIO;
-+		return -EFSCORRUPTED;
- 	}
- 
- 	/* LR body must have data or it wouldn't have been written */
---- a/fs/xfs/xfs_refcount_item.c
-+++ b/fs/xfs/xfs_refcount_item.c
-@@ -497,7 +497,7 @@ xfs_cui_recover(
- 			 */
- 			set_bit(XFS_CUI_RECOVERED, &cuip->cui_flags);
- 			xfs_cui_release(cuip);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 	}
- 
---- a/fs/xfs/xfs_rmap_item.c
-+++ b/fs/xfs/xfs_rmap_item.c
-@@ -539,7 +539,7 @@ xfs_rui_recover(
- 			 */
- 			set_bit(XFS_RUI_RECOVERED, &ruip->rui_flags);
- 			xfs_rui_release(ruip);
--			return -EIO;
-+			return -EFSCORRUPTED;
- 		}
- 	}
- 
+-- 
+2.35.1
+
 
 
