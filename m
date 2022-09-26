@@ -2,59 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BF2A5EAB12
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 17:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AFE75EAB6C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 17:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236549AbiIZPbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 11:31:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49588 "EHLO
+        id S229642AbiIZPno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 11:43:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237367AbiIZPah (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 11:30:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A174F38F;
-        Mon, 26 Sep 2022 07:16:18 -0700 (PDT)
+        with ESMTP id S233630AbiIZPmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 11:42:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81AD7BCA0;
+        Mon, 26 Sep 2022 07:26:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85292B80AB3;
-        Mon, 26 Sep 2022 14:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 431D9C433C1;
-        Mon, 26 Sep 2022 14:16:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F3E460DFB;
+        Mon, 26 Sep 2022 14:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB5DC433C1;
+        Mon, 26 Sep 2022 14:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664201776;
-        bh=TUYJYqSd4jor/lxJEt262VgRMafpQ9dsUBKaWm7idrI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=nb2Ky3/q5mbHR+N52o5cXYMMAuMbt9/GsKrdxhHJF6rI23h19460jHISA14ah/wDe
-         E/flHbDCVDH2veA1DNmrqsmvnAu4Id6P0ELhY1XumCfI+8AQh8RDaWuiJyTY5Iu3MJ
-         te8RUQ9L7RFRNUMliLdCZYQE08CrxW9iYMe4/q/F8/7ERw4SaV2ExoVHgNAcUEYATX
-         waUXRc1tsQC10RiVP12glpHdcT8H4twilZ3hCp/rnF6keg1xEOQxQM6ERWDQ5Rws3N
-         iK0vw/fdftHElavp2jE+O59RVoq1M/fbVnZnZUuQEAWZV/0CHyp1CsFNPAoYTJcE07
-         2dGOLZtd9LhfQ==
-Received: by mail-lj1-f182.google.com with SMTP id b6so7579545ljr.10;
-        Mon, 26 Sep 2022 07:16:16 -0700 (PDT)
-X-Gm-Message-State: ACrzQf2mJkttg/yBbSViPLhNH1fdHJn31j1/XXC0FOSrtEcgjtYwc2IH
-        WfEsICKqIulQd41oN5YPHJp1cWj9Dza0tbVMsUE=
-X-Google-Smtp-Source: AMsMyM5c8d1a2UhMc5k9AjXdsbaX+2CDsE/jo+VPh5QX+kWSUXCkxCIKYhHEUsPtBoQ/aXwnkIANy39qqzI0OfykCrE=
-X-Received: by 2002:a2e:8349:0:b0:26c:4311:9b84 with SMTP id
- l9-20020a2e8349000000b0026c43119b84mr8218226ljh.152.1664201774254; Mon, 26
- Sep 2022 07:16:14 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220926100738.148626940@linuxfoundation.org> <20220926100738.463310701@linuxfoundation.org>
- <20220926110826.GE8978@amd>
-In-Reply-To: <20220926110826.GE8978@amd>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 26 Sep 2022 16:16:02 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXHOMuaBeR_LqVBKVtmGaJQg5hznSxow5bosQ9+NzhZ72A@mail.gmail.com>
-Message-ID: <CAMj1kXHOMuaBeR_LqVBKVtmGaJQg5hznSxow5bosQ9+NzhZ72A@mail.gmail.com>
-Subject: Re: [PATCH 4.14 06/40] efi: libstub: Disable struct randomization
-To:     Pavel Machek <pavel@denx.de>
+        s=k20201202; t=1664202363;
+        bh=X4xEYQiSvmysaYuXeO17P0IpMlzWHLaU1dBHoIa/E40=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=QDFTKkJPkWSfs6Ico+7BRZ2i4BAocNPT54fLpAXerOe+nODe6YDcMvKaepQtYzVSz
+         LY8AWoiHhzQ8U9cQ+g8e6mQBIA0Sq467Jl4Me4leQAsORfudW3Kj8qNUpGW7caOGMv
+         DkUEZkhcPMcktwqWVxD3p08Gsh6clBqw3OqEBbIh9eG1BVfKRn1AKDQinMjr8Xf1tM
+         m0IQcXsDCc6MpSfJcdZVHElcaYoeJVFMCPqkHTpD3v1IGLC8z/0PbFrhe6kLkVk+Pw
+         YwiO1PtcvW4fb+iQ87WsAgAe4SEqYNJ92XFVYazYQA8c3h02PmSg0J47YUUSSrNq9J
+         i2kk4rMG3zBtw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1ocp3Z-00CiQY-AQ;
+        Mon, 26 Sep 2022 15:26:01 +0100
+Date:   Mon, 26 Sep 2022 10:25:59 -0400
+Message-ID: <8635ce8b60.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Marth <daniel.marth@inso.tuwien.ac.at>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com, Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH 5.4 000/120] 5.4.215-rc1 review
+In-Reply-To: <CA+G9fYsaviCxmAqWzOxgkU7HcmzU=e0LKci2_+5uPUOc+8xb3A@mail.gmail.com>
+References: <20220926100750.519221159@linuxfoundation.org>
+        <CA+G9fYsaviCxmAqWzOxgkU7HcmzU=e0LKci2_+5uPUOc+8xb3A@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: naresh.kamboju@linaro.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, slade@sladewatkins.com, linus.walleij@linaro.org, brgl@bgdev.pl
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -64,27 +71,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 26 Sept 2022 at 13:08, Pavel Machek <pavel@denx.de> wrote:
->
-> Hi!
->
-> > These structs look like the ideal randomization candidates to the
-> > randstruct plugin (as they only carry function pointers), but of course,
-> > these protocols are contracts between the firmware that exposes them,
-> > and the EFI applications (including our stubbed kernel) that invoke
-> > them. This means that struct randomization for EFI protocols is not a
-> > great idea, and given that the stub shares very little data with the
-> > core kernel that is represented as a randomizable struct, we're better
-> > off just disabling it completely here.
->
-> > Cc: <stable@vger.kernel.org> # v4.14+
->
-> AFAICT RANDSTRUCT_CFLAGS is not available in v4.19, so we should not
-> take this patch.
->
+On Mon, 26 Sep 2022 10:13:31 -0400,
+Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> 
+> On Mon, 26 Sept 2022 at 16:00, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.4.215 release.
+> > There are 120 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 28 Sep 2022 10:07:26 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.215-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Following build warnings / errors noticed on arm on stable-rc 5.4.
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> Regressions found on arm:
+> 
+>    - build-gcc-8-ixp4xx_defconfig
+>    - build-gcc-11-ixp4xx_defconfig
+>    - build-gcc-12-ixp4xx_defconfig
+>    - build-gcc-9-ixp4xx_defconfig
+>    - build-gcc-10-ixp4xx_defconfig
 
-Ugh, as it turns out, this macro doesn't exist before v5.19 so it
-should not be backported beyond that version at all.
+Colour me surprised. [1] explained why this was a bad idea...
 
-Greg, can you please drop this patch from all the -stable trees except
-v5.19? Thanks, and apologies for creating confusion.
+	M.
+
+[1] https://lore.kernel.org/all/CAMRc=Md9JKdW8wmbun_0_1y2RQbck7q=vzOkdw6n+FBgpf0h8w@mail.gmail.com/
+
+-- 
+Without deviation from the norm, progress is not possible.
