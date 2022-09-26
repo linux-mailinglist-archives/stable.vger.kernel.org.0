@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9431B5EA410
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F01945EA407
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238125AbiIZLjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48736 "EHLO
+        id S234418AbiIZLjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:39:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233417AbiIZLiK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:38:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EFB2FFED;
-        Mon, 26 Sep 2022 03:44:25 -0700 (PDT)
+        with ESMTP id S238166AbiIZLhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:37:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096476EF1E;
+        Mon, 26 Sep 2022 03:44:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29436B80942;
-        Mon, 26 Sep 2022 10:42:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF77C433C1;
-        Mon, 26 Sep 2022 10:42:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A46DB60A36;
+        Mon, 26 Sep 2022 10:42:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D444C433D6;
+        Mon, 26 Sep 2022 10:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188936;
-        bh=8qGXLMvWUTjEVTmM/cfRPaf8rj4RUemQlqnquuptqzU=;
+        s=korg; t=1664188940;
+        bh=mXgQHzzbXk8scCA00EwPq4JkzV+JHFrkwHS/AwZf3bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h5pfV6HDbRSs6ep937s8gDN51yh0kxBUS0Bf9/RKI4e8CgbTxF5QKoHEq/F/SwTuu
-         xA+GHfrQw2VPr1d9FzkM3NaH3x4f692q+nVGrfPV0Ug2ybmZ42veYCILZanHFPJtvo
-         lKSNvYm2/soJcKMfuKQ8jdwZDxEUDL8X3/mRcKRI=
+        b=voVb0GUgrFWRAaAZYimRjYLNyaLa4x3nJarP/VFWOG5wD1g0mnPNzL8QICKFWKclS
+         c26zGfPk3xTkAgkc5gUrAUjc1so/fxW2TeK77pkd2RmrIC5ZV8W7VSPFsw3u5f18Ul
+         8x25iLXGpI/8FORe1fZb4/LuhGmgp+mfNAnrtSkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Christie <michael.christie@oracle.com>,
-        Hannes Reinecke <hare@suse.de>,
-        John Garry <john.garry@huawei.com>,
-        Li Zhijian <lizhijian@fujitsu.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 020/207] scsi: core: Fix a use-after-free
-Date:   Mon, 26 Sep 2022 12:10:09 +0200
-Message-Id: <20220926100807.381304572@linuxfoundation.org>
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        feng xiangjun <fengxj325@gmail.com>,
+        Phil Auld <pauld@redhat.com>
+Subject: [PATCH 5.19 021/207] drivers/base: Fix unsigned comparison to -1 in CPUMAP_FILE_MAX_BYTES
+Date:   Mon, 26 Sep 2022 12:10:10 +0200
+Message-Id: <20220926100807.421848068@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -59,201 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Phil Auld <pauld@redhat.com>
 
-[ Upstream commit 8fe4ce5836e932f5766317cb651c1ff2a4cd0506 ]
+commit d7f06bdd6ee87fbefa05af5f57361d85e7715b11 upstream.
 
-There are two .exit_cmd_priv implementations. Both implementations use
-resources associated with the SCSI host. Make sure that these resources are
-still available when .exit_cmd_priv is called by waiting inside
-scsi_remove_host() until the tag set has been freed.
+As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
+This leads to very large file sizes:
 
-This commit fixes the following use-after-free:
+topology$ ls -l
+total 0
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
+-r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
+-r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
+-r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
+-r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
 
-==================================================================
-BUG: KASAN: use-after-free in srp_exit_cmd_priv+0x27/0xd0 [ib_srp]
-Read of size 8 at addr ffff888100337000 by task multipathd/16727
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x5e/0x5db
- kasan_report+0xab/0x120
- srp_exit_cmd_priv+0x27/0xd0 [ib_srp]
- scsi_mq_exit_request+0x4d/0x70
- blk_mq_free_rqs+0x143/0x410
- __blk_mq_free_map_and_rqs+0x6e/0x100
- blk_mq_free_tag_set+0x2b/0x160
- scsi_host_dev_release+0xf3/0x1a0
- device_release+0x54/0xe0
- kobject_put+0xa5/0x120
- device_release+0x54/0xe0
- kobject_put+0xa5/0x120
- scsi_device_dev_release_usercontext+0x4c1/0x4e0
- execute_in_process_context+0x23/0x90
- device_release+0x54/0xe0
- kobject_put+0xa5/0x120
- scsi_disk_release+0x3f/0x50
- device_release+0x54/0xe0
- kobject_put+0xa5/0x120
- disk_release+0x17f/0x1b0
- device_release+0x54/0xe0
- kobject_put+0xa5/0x120
- dm_put_table_device+0xa3/0x160 [dm_mod]
- dm_put_device+0xd0/0x140 [dm_mod]
- free_priority_group+0xd8/0x110 [dm_multipath]
- free_multipath+0x94/0xe0 [dm_multipath]
- dm_table_destroy+0xa2/0x1e0 [dm_mod]
- __dm_destroy+0x196/0x350 [dm_mod]
- dev_remove+0x10c/0x160 [dm_mod]
- ctl_ioctl+0x2c2/0x590 [dm_mod]
- dm_ctl_ioctl+0x5/0x10 [dm_mod]
- __x64_sys_ioctl+0xb4/0xf0
- dm_ctl_ioctl+0x5/0x10 [dm_mod]
- __x64_sys_ioctl+0xb4/0xf0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Adjust the inequality to catch the case when NR_CPUS is configured
+to a small value.
 
-Link: https://lore.kernel.org/r/20220826002635.919423-1-bvanassche@acm.org
-Fixes: 65ca846a5314 ("scsi: core: Introduce {init,exit}_cmd_priv()")
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Mike Christie <michael.christie@oracle.com>
-Cc: Hannes Reinecke <hare@suse.de>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Li Zhijian <lizhijian@fujitsu.com>
-Reported-by: Li Zhijian <lizhijian@fujitsu.com>
-Tested-by: Li Zhijian <lizhijian@fujitsu.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: stable@vger.kernel.org
+Cc: feng xiangjun <fengxj325@gmail.com>
+Reported-by: feng xiangjun <fengxj325@gmail.com>
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Link: https://lore.kernel.org/r/20220906203542.1796629-1-pauld@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c      | 16 +++++++++++++---
- drivers/scsi/scsi_lib.c   |  6 +++++-
- drivers/scsi/scsi_priv.h  |  2 +-
- drivers/scsi/scsi_scan.c  |  1 +
- drivers/scsi/scsi_sysfs.c |  1 +
- include/scsi/scsi_host.h  |  2 ++
- 6 files changed, 23 insertions(+), 5 deletions(-)
+ include/linux/cpumask.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 8352f90d997d..ae9a107c520d 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -182,6 +182,15 @@ void scsi_remove_host(struct Scsi_Host *shost)
- 	mutex_unlock(&shost->scan_mutex);
- 	scsi_proc_host_rm(shost);
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -1083,9 +1083,10 @@ cpumap_print_list_to_buf(char *buf, cons
+  * cover a worst-case of every other cpu being on one of two nodes for a
+  * very large NR_CPUS.
+  *
+- *  Use PAGE_SIZE as a minimum for smaller configurations.
++ *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
++ *  unsigned comparison to -1.
+  */
+-#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
++#define CPUMAP_FILE_MAX_BYTES  (((NR_CPUS * 9)/32 > PAGE_SIZE) \
+ 					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
+ #define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
  
-+	/*
-+	 * New SCSI devices cannot be attached anymore because of the SCSI host
-+	 * state so drop the tag set refcnt. Wait until the tag set refcnt drops
-+	 * to zero because .exit_cmd_priv implementations may need the host
-+	 * pointer.
-+	 */
-+	kref_put(&shost->tagset_refcnt, scsi_mq_free_tags);
-+	wait_for_completion(&shost->tagset_freed);
-+
- 	spin_lock_irqsave(shost->host_lock, flags);
- 	if (scsi_host_set_state(shost, SHOST_DEL))
- 		BUG_ON(scsi_host_set_state(shost, SHOST_DEL_RECOVERY));
-@@ -240,6 +249,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
- 	if (error)
- 		goto fail;
- 
-+	kref_init(&shost->tagset_refcnt);
-+	init_completion(&shost->tagset_freed);
-+
- 	/*
- 	 * Increase usage count temporarily here so that calling
- 	 * scsi_autopm_put_host() will trigger runtime idle if there is
-@@ -312,6 +324,7 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
- 	pm_runtime_disable(&shost->shost_gendev);
- 	pm_runtime_set_suspended(&shost->shost_gendev);
- 	pm_runtime_put_noidle(&shost->shost_gendev);
-+	kref_put(&shost->tagset_refcnt, scsi_mq_free_tags);
-  fail:
- 	return error;
- }
-@@ -345,9 +358,6 @@ static void scsi_host_dev_release(struct device *dev)
- 		kfree(dev_name(&shost->shost_dev));
- 	}
- 
--	if (shost->tag_set.tags)
--		scsi_mq_destroy_tags(shost);
--
- 	kfree(shost->shost_data);
- 
- 	ida_simple_remove(&host_index_ida, shost->host_no);
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 0a267d6e2f7c..7e990f7a9f16 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1995,9 +1995,13 @@ int scsi_mq_setup_tags(struct Scsi_Host *shost)
- 	return blk_mq_alloc_tag_set(tag_set);
- }
- 
--void scsi_mq_destroy_tags(struct Scsi_Host *shost)
-+void scsi_mq_free_tags(struct kref *kref)
- {
-+	struct Scsi_Host *shost = container_of(kref, typeof(*shost),
-+					       tagset_refcnt);
-+
- 	blk_mq_free_tag_set(&shost->tag_set);
-+	complete(&shost->tagset_freed);
- }
- 
- /**
-diff --git a/drivers/scsi/scsi_priv.h b/drivers/scsi/scsi_priv.h
-index 5c4786310a31..a0ee31d55f5f 100644
---- a/drivers/scsi/scsi_priv.h
-+++ b/drivers/scsi/scsi_priv.h
-@@ -94,7 +94,7 @@ extern void scsi_run_host_queues(struct Scsi_Host *shost);
- extern void scsi_requeue_run_queue(struct work_struct *work);
- extern void scsi_start_queue(struct scsi_device *sdev);
- extern int scsi_mq_setup_tags(struct Scsi_Host *shost);
--extern void scsi_mq_destroy_tags(struct Scsi_Host *shost);
-+extern void scsi_mq_free_tags(struct kref *kref);
- extern void scsi_exit_queue(void);
- extern void scsi_evt_thread(struct work_struct *work);
- 
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index 91ac901a6682..5d27f5196de6 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -340,6 +340,7 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
- 		kfree(sdev);
- 		goto out;
- 	}
-+	kref_get(&sdev->host->tagset_refcnt);
- 	sdev->request_queue = q;
- 	q->queuedata = sdev;
- 	__scsi_init_queue(sdev->host, q);
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index aa70d9282161..5d61f58399dc 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -1476,6 +1476,7 @@ void __scsi_remove_device(struct scsi_device *sdev)
- 	mutex_unlock(&sdev->state_mutex);
- 
- 	blk_mq_destroy_queue(sdev->request_queue);
-+	kref_put(&sdev->host->tagset_refcnt, scsi_mq_free_tags);
- 	cancel_work_sync(&sdev->requeue_work);
- 
- 	if (sdev->host->hostt->slave_destroy)
-diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
-index 667d889b92b5..3e1cea155049 100644
---- a/include/scsi/scsi_host.h
-+++ b/include/scsi/scsi_host.h
-@@ -557,6 +557,8 @@ struct Scsi_Host {
- 	struct scsi_host_template *hostt;
- 	struct scsi_transport_template *transportt;
- 
-+	struct kref		tagset_refcnt;
-+	struct completion	tagset_freed;
- 	/* Area to keep a shared tag map */
- 	struct blk_mq_tag_set	tag_set;
- 
--- 
-2.35.1
-
 
 
