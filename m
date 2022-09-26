@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D565EA25B
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87165EA15C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237311AbiIZLGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33612 "EHLO
+        id S234459AbiIZKuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:50:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237318AbiIZLFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF7415FC7;
-        Mon, 26 Sep 2022 03:33:41 -0700 (PDT)
+        with ESMTP id S236544AbiIZKsW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:48:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C48857255;
+        Mon, 26 Sep 2022 03:26:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CFC160A36;
-        Mon, 26 Sep 2022 10:33:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E93EC433D6;
-        Mon, 26 Sep 2022 10:33:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD406B802C5;
+        Mon, 26 Sep 2022 10:26:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21CEDC433D7;
+        Mon, 26 Sep 2022 10:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188415;
-        bh=oQPuOasZYVInoLrB9tEt2GLwL4GVW1WaHUuHC5vH7Bw=;
+        s=korg; t=1664187961;
+        bh=dufonf4R35DJKo/jPWcMKghv7Zd7OMUYJ1IDMfRbh6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JI7J9XdznA8m9RQnlDZWmhW42Y4HAfzybCS5bijc28fH/PGyVCOThUNbmcz0E5zY+
-         7Kckf5r5Mrs4jwzzuxLz5sWIok00EChKCI2XOxknW6gRNcdsixh6fI2d8PxYqyTYhp
-         Q6SK2ngAAVTUPbKv6q+qR+V5nM/EFY4v0dzeN/gU=
+        b=TcnMzeTmmZTdxtwBqjV9irVSyaLd57+DICcZxQIbnREbi4HqNQwbClW1Ho4nDEau3
+         5Zop40ah+dF+I4OhFjoM7+q17MXfyaL9SizgM66svrrLdODgrzqeCtaWkXpYVkuuuu
+         SqGb2OoX4PL5NNC1EvzUN2tIsggggSByAuRA9Ck0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Yang <Stanley.Yang@amd.com>,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 123/141] drm/amdgpu: Fix check for RAS support
-Date:   Mon, 26 Sep 2022 12:12:29 +0200
-Message-Id: <20220926100758.905442053@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 117/120] xfs: split the sunit parameter update into two parts
+Date:   Mon, 26 Sep 2022 12:12:30 +0200
+Message-Id: <20220926100755.208230523@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 084e2640e51626f413f85663e3ba7e32d4272477 ]
+commit 4f5b1b3a8fa07dc8ecedfaf539b3deed8931a73e upstream.
 
-Use positive logic to check for RAS
-support. Rename the function to actually indicate
-what it is testing for. Essentially, make the
-function a predicate with the correct name.
+If the administrator provided a sunit= mount option, we need to validate
+the raw parameter, convert the mount option units (512b blocks) into the
+internal unit (fs blocks), and then validate that the (now cooked)
+parameter doesn't screw anything up on disk.  The incore inode geometry
+computation can depend on the new sunit option, but a subsequent patch
+will make validating the cooked value depends on the computed inode
+geometry, so break the sunit update into two steps.
 
-Cc: Stanley Yang <Stanley.Yang@amd.com>
-Cc: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Stable-dep-of: 6c2049066355 ("drm/amdgpu: Don't enable LTR if not supported")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ fs/xfs/xfs_mount.c |  123 +++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 72 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index eb22a190c242..3638f0e12a2b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -1979,15 +1979,12 @@ int amdgpu_ras_request_reset_on_boot(struct amdgpu_device *adev,
- 	return 0;
- }
- 
--static int amdgpu_ras_check_asic_type(struct amdgpu_device *adev)
-+static bool amdgpu_ras_asic_supported(struct amdgpu_device *adev)
- {
--	if (adev->asic_type != CHIP_VEGA10 &&
--		adev->asic_type != CHIP_VEGA20 &&
--		adev->asic_type != CHIP_ARCTURUS &&
--		adev->asic_type != CHIP_SIENNA_CICHLID)
--		return 1;
--	else
--		return 0;
-+	return adev->asic_type == CHIP_VEGA10 ||
-+		adev->asic_type == CHIP_VEGA20 ||
-+		adev->asic_type == CHIP_ARCTURUS ||
-+		adev->asic_type == CHIP_SIENNA_CICHLID;
+--- a/fs/xfs/xfs_mount.c
++++ b/fs/xfs/xfs_mount.c
+@@ -365,66 +365,76 @@ release_buf:
  }
  
  /*
-@@ -2006,7 +2003,7 @@ static void amdgpu_ras_check_supported(struct amdgpu_device *adev,
- 	*supported = 0;
+- * Update alignment values based on mount options and sb values
++ * If we were provided with new sunit/swidth values as mount options, make sure
++ * that they pass basic alignment and superblock feature checks, and convert
++ * them into the same units (FSB) that everything else expects.  This step
++ * /must/ be done before computing the inode geometry.
+  */
+ STATIC int
+-xfs_update_alignment(xfs_mount_t *mp)
++xfs_validate_new_dalign(
++	struct xfs_mount	*mp)
+ {
+-	xfs_sb_t	*sbp = &(mp->m_sb);
++	if (mp->m_dalign == 0)
++		return 0;
  
- 	if (amdgpu_sriov_vf(adev) || !adev->is_atom_fw ||
--		amdgpu_ras_check_asic_type(adev))
-+	    !amdgpu_ras_asic_supported(adev))
- 		return;
+-	if (mp->m_dalign) {
++	/*
++	 * If stripe unit and stripe width are not multiples
++	 * of the fs blocksize turn off alignment.
++	 */
++	if ((BBTOB(mp->m_dalign) & mp->m_blockmask) ||
++	    (BBTOB(mp->m_swidth) & mp->m_blockmask)) {
++		xfs_warn(mp,
++	"alignment check failed: sunit/swidth vs. blocksize(%d)",
++			mp->m_sb.sb_blocksize);
++		return -EINVAL;
++	} else {
+ 		/*
+-		 * If stripe unit and stripe width are not multiples
+-		 * of the fs blocksize turn off alignment.
++		 * Convert the stripe unit and width to FSBs.
+ 		 */
+-		if ((BBTOB(mp->m_dalign) & mp->m_blockmask) ||
+-		    (BBTOB(mp->m_swidth) & mp->m_blockmask)) {
++		mp->m_dalign = XFS_BB_TO_FSBT(mp, mp->m_dalign);
++		if (mp->m_dalign && (mp->m_sb.sb_agblocks % mp->m_dalign)) {
+ 			xfs_warn(mp,
+-		"alignment check failed: sunit/swidth vs. blocksize(%d)",
+-				sbp->sb_blocksize);
++		"alignment check failed: sunit/swidth vs. agsize(%d)",
++				 mp->m_sb.sb_agblocks);
+ 			return -EINVAL;
+-		} else {
+-			/*
+-			 * Convert the stripe unit and width to FSBs.
+-			 */
+-			mp->m_dalign = XFS_BB_TO_FSBT(mp, mp->m_dalign);
+-			if (mp->m_dalign && (sbp->sb_agblocks % mp->m_dalign)) {
+-				xfs_warn(mp,
+-			"alignment check failed: sunit/swidth vs. agsize(%d)",
+-					 sbp->sb_agblocks);
+-				return -EINVAL;
+-			} else if (mp->m_dalign) {
+-				mp->m_swidth = XFS_BB_TO_FSBT(mp, mp->m_swidth);
+-			} else {
+-				xfs_warn(mp,
+-			"alignment check failed: sunit(%d) less than bsize(%d)",
+-					 mp->m_dalign, sbp->sb_blocksize);
+-				return -EINVAL;
+-			}
+-		}
+-
+-		/*
+-		 * Update superblock with new values
+-		 * and log changes
+-		 */
+-		if (xfs_sb_version_hasdalign(sbp)) {
+-			if (sbp->sb_unit != mp->m_dalign) {
+-				sbp->sb_unit = mp->m_dalign;
+-				mp->m_update_sb = true;
+-			}
+-			if (sbp->sb_width != mp->m_swidth) {
+-				sbp->sb_width = mp->m_swidth;
+-				mp->m_update_sb = true;
+-			}
++		} else if (mp->m_dalign) {
++			mp->m_swidth = XFS_BB_TO_FSBT(mp, mp->m_swidth);
+ 		} else {
+ 			xfs_warn(mp,
+-	"cannot change alignment: superblock does not support data alignment");
++		"alignment check failed: sunit(%d) less than bsize(%d)",
++				 mp->m_dalign, mp->m_sb.sb_blocksize);
+ 			return -EINVAL;
+ 		}
++	}
++
++	if (!xfs_sb_version_hasdalign(&mp->m_sb)) {
++		xfs_warn(mp,
++"cannot change alignment: superblock does not support data alignment");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++/* Update alignment values based on mount options and sb values. */
++STATIC int
++xfs_update_alignment(
++	struct xfs_mount	*mp)
++{
++	struct xfs_sb		*sbp = &mp->m_sb;
++
++	if (mp->m_dalign) {
++		if (sbp->sb_unit == mp->m_dalign &&
++		    sbp->sb_width == mp->m_swidth)
++			return 0;
++
++		sbp->sb_unit = mp->m_dalign;
++		sbp->sb_width = mp->m_swidth;
++		mp->m_update_sb = true;
+ 	} else if ((mp->m_flags & XFS_MOUNT_NOALIGN) != XFS_MOUNT_NOALIGN &&
+ 		    xfs_sb_version_hasdalign(&mp->m_sb)) {
+-			mp->m_dalign = sbp->sb_unit;
+-			mp->m_swidth = sbp->sb_width;
++		mp->m_dalign = sbp->sb_unit;
++		mp->m_swidth = sbp->sb_width;
+ 	}
  
- 	if (amdgpu_atomfirmware_mem_ecc_supported(adev)) {
--- 
-2.35.1
-
+ 	return 0;
+@@ -692,12 +702,12 @@ xfs_mountfs(
+ 	}
+ 
+ 	/*
+-	 * Check if sb_agblocks is aligned at stripe boundary
+-	 * If sb_agblocks is NOT aligned turn off m_dalign since
+-	 * allocator alignment is within an ag, therefore ag has
+-	 * to be aligned at stripe boundary.
++	 * If we were given new sunit/swidth options, do some basic validation
++	 * checks and convert the incore dalign and swidth values to the
++	 * same units (FSB) that everything else uses.  This /must/ happen
++	 * before computing the inode geometry.
+ 	 */
+-	error = xfs_update_alignment(mp);
++	error = xfs_validate_new_dalign(mp);
+ 	if (error)
+ 		goto out;
+ 
+@@ -708,6 +718,17 @@ xfs_mountfs(
+ 	xfs_rmapbt_compute_maxlevels(mp);
+ 	xfs_refcountbt_compute_maxlevels(mp);
+ 
++	/*
++	 * Check if sb_agblocks is aligned at stripe boundary.  If sb_agblocks
++	 * is NOT aligned turn off m_dalign since allocator alignment is within
++	 * an ag, therefore ag has to be aligned at stripe boundary.  Note that
++	 * we must compute the free space and rmap btree geometry before doing
++	 * this.
++	 */
++	error = xfs_update_alignment(mp);
++	if (error)
++		goto out;
++
+ 	/* enable fail_at_unmount as default */
+ 	mp->m_fail_unmount = true;
+ 
 
 
