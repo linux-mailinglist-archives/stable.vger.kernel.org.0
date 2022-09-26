@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F36665EA4FB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8375EA36A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238853AbiIZL4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:56:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43468 "EHLO
+        id S234423AbiIZLYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:24:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238908AbiIZLyF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5FE4CA39;
-        Mon, 26 Sep 2022 03:49:58 -0700 (PDT)
+        with ESMTP id S238116AbiIZLYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:24:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703175D137;
+        Mon, 26 Sep 2022 03:40:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43DA5B80926;
-        Mon, 26 Sep 2022 10:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8851DC433C1;
-        Mon, 26 Sep 2022 10:49:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E80160AF5;
+        Mon, 26 Sep 2022 10:39:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3C0C433C1;
+        Mon, 26 Sep 2022 10:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189393;
-        bh=2TbbozwGCYo4oYPb7D3d7IgWjrP1CmeCObRzTOyfZ4I=;
+        s=korg; t=1664188778;
+        bh=R3RI6cq0w+ukOeOITM/rJ0hYlgjqtClrsv5cJfKOpsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mbrlzphjn5gvXCs0SOxGln3zYx8ldSJLeYP61OnlvfN6COvRsx3paTF01iA8WMIdx
-         ZBPVe8P3d9FsTIdiwwlpt/CbUoVmv12lrfDf+hc2zPA+3gbzw0Zc5N/JFnJb6l7xwH
-         4f59KpQnQr+NvTL2vnZUSh1YV+1DKVa2f+evmstQ=
+        b=hkHP/yLD8u835jXcB6ftfDTjiuE5CSlq+6YqF1kSeqitXM7Beti565wDP4O/iExfD
+         QjVlyX0AN485FO9i4ytc5VA39Z3vNe4hx7nIDDiOtjSMYbKGjs3BkACfZQsDcIL9kk
+         XDBVMBVWQ+hhNwxQrFdSxl+3tPlNS+eQKVRfWw/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Ricci <rroberto2r@gmail.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Andrii Staikov <andrii.staikov@intel.com>,
+        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 132/207] ipv6: Fix crash when IPv6 is administratively disabled
+Subject: [PATCH 5.15 087/148] i40e: Fix set max_tx_rate when it is lower than 1 Mbps
 Date:   Mon, 26 Sep 2022 12:12:01 +0200
-Message-Id: <20220926100812.431984472@linuxfoundation.org>
+Message-Id: <20220926100759.319758583@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit 76dd07281338da6951fdab3432ced843fa87839c ]
+[ Upstream commit 198eb7e1b81d8ba676d0f4f120c092032ae69a8e ]
 
-The global 'raw_v6_hashinfo' variable can be accessed even when IPv6 is
-administratively disabled via the 'ipv6.disable=1' kernel command line
-option, leading to a crash [1].
+While converting max_tx_rate from bytes to Mbps, this value was set to 0,
+if the original value was lower than 125000 bytes (1 Mbps). This would
+cause no transmission rate limiting to occur. This happened due to lack of
+check of max_tx_rate against the 1 Mbps value for max_tx_rate and the
+following division by 125000. Fix this issue by adding a helper
+i40e_bw_bytes_to_mbits() which sets max_tx_rate to minimum usable value of
+50 Mbps, if its value is less than 1 Mbps, otherwise do the required
+conversion by dividing by 125000.
 
-Fix by restoring the original behavior and always initializing the
-variable, regardless of IPv6 support being administratively disabled or
-not.
-
-[1]
- BUG: unable to handle page fault for address: ffffffffffffffc8
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 173e18067 P4D 173e18067 PUD 173e1a067 PMD 0
- Oops: 0000 [#1] PREEMPT SMP KASAN
- CPU: 3 PID: 271 Comm: ss Not tainted 6.0.0-rc4-custom-00136-g0727a9a5fbc1 #1396
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
- RIP: 0010:raw_diag_dump+0x310/0x7f0
- [...]
- Call Trace:
-  <TASK>
-  __inet_diag_dump+0x10f/0x2e0
-  netlink_dump+0x575/0xfd0
-  __netlink_dump_start+0x67b/0x940
-  inet_diag_handler_cmd+0x273/0x2d0
-  sock_diag_rcv_msg+0x317/0x440
-  netlink_rcv_skb+0x15e/0x430
-  sock_diag_rcv+0x2b/0x40
-  netlink_unicast+0x53b/0x800
-  netlink_sendmsg+0x945/0xe60
-  ____sys_sendmsg+0x747/0x960
-  ___sys_sendmsg+0x13a/0x1e0
-  __sys_sendmsg+0x118/0x1e0
-  do_syscall_64+0x34/0x80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: 0daf07e52709 ("raw: convert raw sockets to RCU")
-Reported-by: Roberto Ricci <rroberto2r@gmail.com>
-Tested-by: Roberto Ricci <rroberto2r@gmail.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220916084821.229287-1-idosch@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 5ecae4120a6b ("i40e: Refactor VF BW rate limiting")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Andrii Staikov <andrii.staikov@intel.com>
+Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/af_inet6.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 32 +++++++++++++++++----
+ 1 file changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-index 9f6f4a41245d..1012012a061f 100644
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -1069,13 +1069,13 @@ static int __init inet6_init(void)
- 	for (r = &inetsw6[0]; r < &inetsw6[SOCK_MAX]; ++r)
- 		INIT_LIST_HEAD(r);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index ce6eea7a6002..5922520fdb01 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -5766,6 +5766,26 @@ static int i40e_get_link_speed(struct i40e_vsi *vsi)
+ 	}
+ }
  
-+	raw_hashinfo_init(&raw_v6_hashinfo);
++/**
++ * i40e_bw_bytes_to_mbits - Convert max_tx_rate from bytes to mbits
++ * @vsi: Pointer to vsi structure
++ * @max_tx_rate: max TX rate in bytes to be converted into Mbits
++ *
++ * Helper function to convert units before send to set BW limit
++ **/
++static u64 i40e_bw_bytes_to_mbits(struct i40e_vsi *vsi, u64 max_tx_rate)
++{
++	if (max_tx_rate < I40E_BW_MBPS_DIVISOR) {
++		dev_warn(&vsi->back->pdev->dev,
++			 "Setting max tx rate to minimum usable value of 50Mbps.\n");
++		max_tx_rate = I40E_BW_CREDIT_DIVISOR;
++	} else {
++		do_div(max_tx_rate, I40E_BW_MBPS_DIVISOR);
++	}
 +
- 	if (disable_ipv6_mod) {
- 		pr_info("Loaded, but administratively disabled, reboot required to enable\n");
- 		goto out;
++	return max_tx_rate;
++}
++
+ /**
+  * i40e_set_bw_limit - setup BW limit for Tx traffic based on max_tx_rate
+  * @vsi: VSI to be configured
+@@ -5788,10 +5808,10 @@ int i40e_set_bw_limit(struct i40e_vsi *vsi, u16 seid, u64 max_tx_rate)
+ 			max_tx_rate, seid);
+ 		return -EINVAL;
+ 	}
+-	if (max_tx_rate && max_tx_rate < 50) {
++	if (max_tx_rate && max_tx_rate < I40E_BW_CREDIT_DIVISOR) {
+ 		dev_warn(&pf->pdev->dev,
+ 			 "Setting max tx rate to minimum usable value of 50Mbps.\n");
+-		max_tx_rate = 50;
++		max_tx_rate = I40E_BW_CREDIT_DIVISOR;
  	}
  
--	raw_hashinfo_init(&raw_v6_hashinfo);
--
- 	err = proto_register(&tcpv6_prot, 1);
- 	if (err)
- 		goto out;
+ 	/* Tx rate credits are in values of 50Mbps, 0 is disabled */
+@@ -8082,9 +8102,9 @@ static int i40e_setup_tc(struct net_device *netdev, void *type_data)
+ 
+ 	if (i40e_is_tc_mqprio_enabled(pf)) {
+ 		if (vsi->mqprio_qopt.max_rate[0]) {
+-			u64 max_tx_rate = vsi->mqprio_qopt.max_rate[0];
++			u64 max_tx_rate = i40e_bw_bytes_to_mbits(vsi,
++						  vsi->mqprio_qopt.max_rate[0]);
+ 
+-			do_div(max_tx_rate, I40E_BW_MBPS_DIVISOR);
+ 			ret = i40e_set_bw_limit(vsi, vsi->seid, max_tx_rate);
+ 			if (!ret) {
+ 				u64 credits = max_tx_rate;
+@@ -10829,10 +10849,10 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	}
+ 
+ 	if (vsi->mqprio_qopt.max_rate[0]) {
+-		u64 max_tx_rate = vsi->mqprio_qopt.max_rate[0];
++		u64 max_tx_rate = i40e_bw_bytes_to_mbits(vsi,
++						  vsi->mqprio_qopt.max_rate[0]);
+ 		u64 credits = 0;
+ 
+-		do_div(max_tx_rate, I40E_BW_MBPS_DIVISOR);
+ 		ret = i40e_set_bw_limit(vsi, vsi->seid, max_tx_rate);
+ 		if (ret)
+ 			goto end_unlock;
 -- 
 2.35.1
 
