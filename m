@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C605EA45D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3343C5EA1C6
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238424AbiIZLpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:45:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41900 "EHLO
+        id S236949AbiIZK46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238673AbiIZLoT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:44:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8354372FF4;
-        Mon, 26 Sep 2022 03:46:39 -0700 (PDT)
+        with ESMTP id S237283AbiIZKzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:55:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B305A8BD;
+        Mon, 26 Sep 2022 03:29:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3B5D6091B;
-        Mon, 26 Sep 2022 10:46:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3DAEC433D6;
-        Mon, 26 Sep 2022 10:46:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFD6460AD6;
+        Mon, 26 Sep 2022 10:29:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2265C433D6;
+        Mon, 26 Sep 2022 10:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189198;
-        bh=ug9Ge9ICIjyQ5FTTGPTaKvIClq9/OIhcNwJxA9pxu+c=;
+        s=korg; t=1664188153;
+        bh=51LroLd0n2kkSnbQaeOumEoNu+EqencrziWglWY9DEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zECb0Hu1ItCpbcpso7LWpSB56Rz5OV5cpYqcDuBTg6+QfEuvwfmr6cOs6SNBQ0qnY
-         W7y0HKQdsnddMWmamtna9+/DWoeUGwy3aO9wjqJ7vm7jb1tl9VEkO1TPaIDBA9lzjs
-         dXse07AU4eHrimd1UftNRH60gvQRysQcnNfolBj0=
+        b=ZEyD/4sjFv4jq6SddX/BHab2GFb5Bo0Xl2miDloIr6ENyuoOoxPx4hE5RR9YbcReB
+         wlSI9MSaaC6HxTINkdfOZVipEiovM0AoUqLAl4Knxu2KKBx7dNnlBXmq4GmDZnpoqz
+         jSYFZi5+3QLwdEcRqF3doPeJKB2sp9szWSy7VWNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonardo Bras <leobras@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.19 064/207] KVM: x86: Reinstate kvm_vcpu_arch.guest_supported_xcr0
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 027/141] usb: cdns3: fix incorrect handling TRB_SMM flag for ISOC transfer
 Date:   Mon, 26 Sep 2022 12:10:53 +0200
-Message-Id: <20220926100809.463971916@linuxfoundation.org>
+Message-Id: <20220926100755.512020196@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,105 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit ee519b3a2ae3027c341bce829ee8c51f4f494f5b upstream.
+[ Upstream commit d5dcc33677d7415c5f23b3c052f9e80cbab9ea4e ]
 
-Reinstate the per-vCPU guest_supported_xcr0 by partially reverting
-commit 988896bb6182; the implicit assessment that guest_supported_xcr0 is
-always the same as guest_fpu.fpstate->user_xfeatures was incorrect.
+The TRB_SMM flag indicates that DMA has completed the TD service with
+this TRB. Usually it’s a last TRB in TD. In case of ISOC transfer for
+bInterval > 1 each ISOC transfer contains more than one TD associated
+with usb request (one TD per ITP). In such case the TRB_SMM flag will
+be set in every TD and driver will recognize the end of transfer after
+processing the first TD with TRB_SMM. In result driver stops updating
+request->actual and returns incorrect actual length.
+To fix this issue driver additionally must check TRB_CHAIN which is not
+used for isochronous transfers.
 
-kvm_vcpu_after_set_cpuid() isn't the only place that sets user_xfeatures,
-as user_xfeatures is set to fpu_user_cfg.default_features when guest_fpu
-is allocated via fpu_alloc_guest_fpstate() => __fpstate_reset().
-guest_supported_xcr0 on the other hand is zero-allocated.  If userspace
-never invokes KVM_SET_CPUID2, supported XCR0 will be '0', whereas the
-allowed user XFEATURES will be non-zero.
-
-Practically speaking, the edge case likely doesn't matter as no sane
-userspace will live migrate a VM without ever doing KVM_SET_CPUID2. The
-primary motivation is to prepare for KVM intentionally and explicitly
-setting bits in user_xfeatures that are not set in guest_supported_xcr0.
-
-Because KVM_{G,S}ET_XSAVE can be used to svae/restore FP+SSE state even
-if the host doesn't support XSAVE, KVM needs to set the FP+SSE bits in
-user_xfeatures even if they're not allowed in XCR0, e.g. because XCR0
-isn't exposed to the guest.  At that point, the simplest fix is to track
-the two things separately (allowed save/restore vs. allowed XCR0).
-
-Fixes: 988896bb6182 ("x86/kvm/fpu: Remove kvm_vcpu_arch.guest_supported_xcr0")
-Cc: stable@vger.kernel.org
-Cc: Leonardo Bras <leobras@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220824033057.3576315-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 249f0a25e8be ("usb: cdns3: gadget: handle sg list use case at completion correctly")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20220825062207.5824-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm_host.h |    1 +
- arch/x86/kvm/cpuid.c            |    5 ++---
- arch/x86/kvm/x86.c              |    9 ++-------
- 3 files changed, 5 insertions(+), 10 deletions(-)
+ drivers/usb/cdns3/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -713,6 +713,7 @@ struct kvm_vcpu_arch {
- 	struct fpu_guest guest_fpu;
+diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
+index c6fc14b169da..d0d4de80680f 100644
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -1531,7 +1531,8 @@ static void cdns3_transfer_completed(struct cdns3_device *priv_dev,
+ 						TRB_LEN(le32_to_cpu(trb->length));
  
- 	u64 xcr0;
-+	u64 guest_supported_xcr0;
+ 				if (priv_req->num_of_trb > 1 &&
+-					le32_to_cpu(trb->control) & TRB_SMM)
++					le32_to_cpu(trb->control) & TRB_SMM &&
++					le32_to_cpu(trb->control) & TRB_CHAIN)
+ 					transfer_end = true;
  
- 	struct kvm_pio_request pio;
- 	void *pio_data;
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -283,7 +283,6 @@ static void kvm_vcpu_after_set_cpuid(str
- {
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 	struct kvm_cpuid_entry2 *best;
--	u64 guest_supported_xcr0;
- 
- 	best = kvm_find_cpuid_entry(vcpu, 1, 0);
- 	if (best && apic) {
-@@ -295,10 +294,10 @@ static void kvm_vcpu_after_set_cpuid(str
- 		kvm_apic_set_version(vcpu);
- 	}
- 
--	guest_supported_xcr0 =
-+	vcpu->arch.guest_supported_xcr0 =
- 		cpuid_get_supported_xcr0(vcpu->arch.cpuid_entries, vcpu->arch.cpuid_nent);
- 
--	vcpu->arch.guest_fpu.fpstate->user_xfeatures = guest_supported_xcr0;
-+	vcpu->arch.guest_fpu.fpstate->user_xfeatures = vcpu->arch.guest_supported_xcr0;
- 
- 	kvm_update_pv_runtime(vcpu);
- 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1025,15 +1025,10 @@ void kvm_load_host_xsave_state(struct kv
- }
- EXPORT_SYMBOL_GPL(kvm_load_host_xsave_state);
- 
--static inline u64 kvm_guest_supported_xcr0(struct kvm_vcpu *vcpu)
--{
--	return vcpu->arch.guest_fpu.fpstate->user_xfeatures;
--}
--
- #ifdef CONFIG_X86_64
- static inline u64 kvm_guest_supported_xfd(struct kvm_vcpu *vcpu)
- {
--	return kvm_guest_supported_xcr0(vcpu) & XFEATURE_MASK_USER_DYNAMIC;
-+	return vcpu->arch.guest_supported_xcr0 & XFEATURE_MASK_USER_DYNAMIC;
- }
- #endif
- 
-@@ -1056,7 +1051,7 @@ static int __kvm_set_xcr(struct kvm_vcpu
- 	 * saving.  However, xcr0 bit 0 is always set, even if the
- 	 * emulated CPU does not support XSAVE (see kvm_vcpu_reset()).
- 	 */
--	valid_bits = kvm_guest_supported_xcr0(vcpu) | XFEATURE_MASK_FP;
-+	valid_bits = vcpu->arch.guest_supported_xcr0 | XFEATURE_MASK_FP;
- 	if (xcr0 & ~valid_bits)
- 		return 1;
- 
+ 				cdns3_ep_inc_deq(priv_ep);
+-- 
+2.35.1
+
 
 
