@@ -2,70 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0455E9BD6
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 10:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B0A5E9CB5
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 11:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234118AbiIZIUH convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 26 Sep 2022 04:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47722 "EHLO
+        id S233775AbiIZJAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 05:00:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233897AbiIZIT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 04:19:58 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40BAF12098
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 01:19:49 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-405-Qb3Og9akNIqbdq-vx1UKdQ-1; Mon, 26 Sep 2022 09:19:46 +0100
-X-MC-Unique: Qb3Og9akNIqbdq-vx1UKdQ-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Mon, 26 Sep
- 2022 09:19:40 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.040; Mon, 26 Sep 2022 09:19:40 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'K Prateek Nayak' <kprateek.nayak@amd.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "rafael@kernel.org" <rafael@kernel.org>,
-        "lenb@kernel.org" <lenb@kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "andi@lisas.de" <andi@lisas.de>, "puwen@hygon.cn" <puwen@hygon.cn>,
-        "mario.limonciello@amd.com" <mario.limonciello@amd.com>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "rui.zhang@intel.com" <rui.zhang@intel.com>,
-        "gpiccoli@igalia.com" <gpiccoli@igalia.com>,
-        "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
-        "ananth.narayan@amd.com" <ananth.narayan@amd.com>,
-        "gautham.shenoy@amd.com" <gautham.shenoy@amd.com>,
-        Calvin Ong <calvin.ong@amd.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] x86,acpi: Limit "Dummy wait" workaround to older AMD
- and Intel processors
-Thread-Topic: [PATCH v2] x86,acpi: Limit "Dummy wait" workaround to older AMD
- and Intel processors
-Thread-Index: AQHYz2KQHQ0Aty345ECS39s1ZZ3yPa3xXk7w
-Date:   Mon, 26 Sep 2022 08:19:40 +0000
-Message-ID: <93705b7dab2f4d6db7f4631648daf16f@AcuMS.aculab.com>
-References: <20220923153801.9167-1-kprateek.nayak@amd.com>
-In-Reply-To: <20220923153801.9167-1-kprateek.nayak@amd.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S234628AbiIZI7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 04:59:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79AEBDC4;
+        Mon, 26 Sep 2022 01:59:48 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1632F60918;
+        Mon, 26 Sep 2022 08:59:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DE62C433D6;
+        Mon, 26 Sep 2022 08:59:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664182787;
+        bh=+28qcCzIMz/Gaw8Kst2Zj3gwvYJ9LcyT/RtE49WdY/U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XyzYWwdYmkQApQYxM754SgE+A2RbMtN6y53TbjfHLcsvFnKeUTmIQ7jYnx1MzzFri
+         uRwQfgiXKDewbjffLmDyKrjVathFv3xniBUffYr4Z0rdUdyzoMulHe8+EQ4YGhnb5v
+         Fw12ojfqQeuImLDnH1jwi2ZHywpVKep5BsyHejqU=
+Date:   Mon, 26 Sep 2022 10:59:45 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sean Young <sean@mess.org>, linux-media@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Oliver Neukum <oneukum@suse.com>, stable@vger.kernel.org,
+        Dongliang Mu <mudongliangabcd@gmail.com>
+Subject: Re: [PATCH RESEND] media: flexcop-usb: fix endpoint type check
+Message-ID: <YzFqARJe+Msvm/QI@kroah.com>
+References: <20220822151027.27026-1-johan@kernel.org>
+ <YymBM1wJLAsBDU4E@hovoldconsulting.com>
+ <YywfxwBmdmvQ0i21@kroah.com>
+ <Yyws4Pd4bAl3iq2e@hovoldconsulting.com>
+ <Yyw1CJgv6nreCtB9@kroah.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yyw1CJgv6nreCtB9@kroah.com>
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,52 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: K Prateek Nayak
-> Sent: 23 September 2022 16:38
-....
+On Thu, Sep 22, 2022 at 12:12:24PM +0200, Greg Kroah-Hartman wrote:
+> On Thu, Sep 22, 2022 at 11:37:36AM +0200, Johan Hovold wrote:
+> > On Thu, Sep 22, 2022 at 10:41:43AM +0200, Greg Kroah-Hartman wrote:
+> > > On Tue, Sep 20, 2022 at 11:00:35AM +0200, Johan Hovold wrote:
+> > > > Mauro and Hans,
+> > > > 
+> > > > On Mon, Aug 22, 2022 at 05:10:27PM +0200, Johan Hovold wrote:
+> > > > > Commit d725d20e81c2 ("media: flexcop-usb: sanity checking of endpoint
+> > > > > type") tried to add an endpoint type sanity check for the single
+> > > > > isochronous endpoint but instead broke the driver by checking the wrong
+> > > > > descriptor or random data beyond the last endpoint descriptor.
+> > > > > 
+> > > > > Make sure to check the right endpoint descriptor.
+> > > > > 
+> > > > > Fixes: d725d20e81c2 ("media: flexcop-usb: sanity checking of endpoint type")
+> > > > > Cc: Oliver Neukum <oneukum@suse.com>
+> > > > > Cc: stable@vger.kernel.org	# 5.9
+> > > > > Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+> > > > > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > > > > ---
+> > > > > 
+> > > > > It's been two months and two completely ignored reminders so resending.
+> > > > > 
+> > > > > Can someone please pick this fix up and let me know when that has been
+> > > > > done?
+> > > > 
+> > > > It's been another month so sending yet another reminder. This driver as
+> > > > been broken since 5.9 and I posted this fix almost four months ago and
+> > > > have sent multiple reminders since.
+> > > > 
+> > > > Can someone please pick this one and the follow-up cleanups up?
+> > > 
+> > > I've taken this one in my tree now.  Which one were the "follow-up"
+> > > cleanups?
+> > 
+> > Thanks. These are the follow-up cleanups:
+> > 
+> > 	https://lore.kernel.org/lkml/20220822151456.27178-1-johan@kernel.org/
 > 
-> This workaround is very painful on modern systems with a large number of
-> cores. The "inl()" can take thousands of cycles. Sampling certain
-> workloads with IBS on AMD Zen3 system shows that a significant amount of
-> time is spent in the dummy op, which incorrectly gets accounted as
-> C-State residency. A large C-State residency value can prime the cpuidle
-> governor to recommend a deeper C-State during the subsequent idle
-> instances, starting a vicious cycle, leading to performance degradation
-> on workloads that rapidly switch between busy and idle phases.
-> (For the extent of the performance degradation refer link [2])
+> Thanks, I'll take them after the first one was merged into Linus's tree.
 
-Isn't that a horrid bug itself?
-Sounds like it affects any code that is doing pio reads of hardware buffers.
-While they are slow they are necessary.
-IIRC any PCIe read into an Altera fpga takes about 128 cycles of the 125MHz
-clock. The Intel cpu I've checked will only execute one concurrent PCIe read
-for each cpu core - so the cpu soon stalls for thousands of clocks.
+All now queued up, thanks.
 
-> The dummy wait is unnecessary on processors based on the Zen
-> microarchitecture (AMD family 17h+ and HYGON). Skip it to prevent
-> polluting the C-state residency information. Among the pre-family 17h
-> AMD processors, there has been at least one report of an AMD Athlon on a
-> VIA chipset (circa 2006) where this this problem was seen (see [3] for
-> report by Andreas Mohr).
-> 
-> Modern Intel processors use MWAIT based C-States in the intel_idle driver
-> and are not impacted by this code path. For older Intel processors that
-> use the acpi_idle driver, a workaround was suggested by Dave Hansen and
-> Rafael J. Wysocki to regard all Intel chipsets using the IOPORT based
-> C-state management as being affected by this problem (see [4] for
-> workaround proposed).
-
-Can you use a surrogate (maybe AVX support?) to exclude large groups
-on modern cpu?
-
-Another possibility is that is the io address doesn't really matter
-are there any locations that have moved on-die and are now executed
-much faster than the ISA bus speed of older systems?
-Or do all the 'originally ISA' peripherals still run at ISA speeds?
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+greg k-h
