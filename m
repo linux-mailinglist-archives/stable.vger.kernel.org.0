@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB985EA413
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9431B5EA410
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238140AbiIZLjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238125AbiIZLjV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Sep 2022 07:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47858 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238128AbiIZLi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:38:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67A512607;
-        Mon, 26 Sep 2022 03:44:32 -0700 (PDT)
+        with ESMTP id S233417AbiIZLiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:38:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EFB2FFED;
+        Mon, 26 Sep 2022 03:44:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FCEFB80930;
-        Mon, 26 Sep 2022 10:42:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BE01C4314B;
-        Mon, 26 Sep 2022 10:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29436B80942;
+        Mon, 26 Sep 2022 10:42:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF77C433C1;
+        Mon, 26 Sep 2022 10:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188930;
-        bh=EtrHFxWLma8xFG3uR3B2eD4nVc/vlr/KtMg12XZwn8w=;
+        s=korg; t=1664188936;
+        bh=8qGXLMvWUTjEVTmM/cfRPaf8rj4RUemQlqnquuptqzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yifp55WoXJbYnau7a7Vrg1HeD19X584i0TZnyFzoT0QSuWODG4AXoeJBvqNq4XYs9
-         5+aIA66wmRH6aAM5EUi5vKJHaGaX/30763K+zdvahSxryPJU6G+quLxSJCIcu/ATh8
-         ypJlkclrjE4lnzcHNYVRr4JWmv8fFB6YhvO1migE=
+        b=h5pfV6HDbRSs6ep937s8gDN51yh0kxBUS0Bf9/RKI4e8CgbTxF5QKoHEq/F/SwTuu
+         xA+GHfrQw2VPr1d9FzkM3NaH3x4f692q+nVGrfPV0Ug2ybmZ42veYCILZanHFPJtvo
+         lKSNvYm2/soJcKMfuKQ8jdwZDxEUDL8X3/mRcKRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        John Garry <john.garry@huawei.com>,
+        Li Zhijian <lizhijian@fujitsu.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 019/207] block: simplify disk shutdown
-Date:   Mon, 26 Sep 2022 12:10:08 +0200
-Message-Id: <20220926100807.331946650@linuxfoundation.org>
+Subject: [PATCH 5.19 020/207] scsi: core: Fix a use-after-free
+Date:   Mon, 26 Sep 2022 12:10:09 +0200
+Message-Id: <20220926100807.381304572@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -53,857 +59,199 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 6f8191fdf41d3a53cc1d63fe2234e812c55a0092 ]
+[ Upstream commit 8fe4ce5836e932f5766317cb651c1ff2a4cd0506 ]
 
-Set the queue dying flag and call blk_mq_exit_queue from del_gendisk for
-all disks that do not have separately allocated queues, and thus remove
-the need to call blk_cleanup_queue for them.
+There are two .exit_cmd_priv implementations. Both implementations use
+resources associated with the SCSI host. Make sure that these resources are
+still available when .exit_cmd_priv is called by waiting inside
+scsi_remove_host() until the tag set has been freed.
 
-Rename blk_cleanup_disk to blk_mq_destroy_queue to make it clear that
-this function is intended only for separately allocated blk-mq queues.
+This commit fixes the following use-after-free:
 
-This saves an extra queue freeze for devices without a separately
-allocated queue.
+==================================================================
+BUG: KASAN: use-after-free in srp_exit_cmd_priv+0x27/0xd0 [ib_srp]
+Read of size 8 at addr ffff888100337000 by task multipathd/16727
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_report.cold+0x5e/0x5db
+ kasan_report+0xab/0x120
+ srp_exit_cmd_priv+0x27/0xd0 [ib_srp]
+ scsi_mq_exit_request+0x4d/0x70
+ blk_mq_free_rqs+0x143/0x410
+ __blk_mq_free_map_and_rqs+0x6e/0x100
+ blk_mq_free_tag_set+0x2b/0x160
+ scsi_host_dev_release+0xf3/0x1a0
+ device_release+0x54/0xe0
+ kobject_put+0xa5/0x120
+ device_release+0x54/0xe0
+ kobject_put+0xa5/0x120
+ scsi_device_dev_release_usercontext+0x4c1/0x4e0
+ execute_in_process_context+0x23/0x90
+ device_release+0x54/0xe0
+ kobject_put+0xa5/0x120
+ scsi_disk_release+0x3f/0x50
+ device_release+0x54/0xe0
+ kobject_put+0xa5/0x120
+ disk_release+0x17f/0x1b0
+ device_release+0x54/0xe0
+ kobject_put+0xa5/0x120
+ dm_put_table_device+0xa3/0x160 [dm_mod]
+ dm_put_device+0xd0/0x140 [dm_mod]
+ free_priority_group+0xd8/0x110 [dm_multipath]
+ free_multipath+0x94/0xe0 [dm_multipath]
+ dm_table_destroy+0xa2/0x1e0 [dm_mod]
+ __dm_destroy+0x196/0x350 [dm_mod]
+ dev_remove+0x10c/0x160 [dm_mod]
+ ctl_ioctl+0x2c2/0x590 [dm_mod]
+ dm_ctl_ioctl+0x5/0x10 [dm_mod]
+ __x64_sys_ioctl+0xb4/0xf0
+ dm_ctl_ioctl+0x5/0x10 [dm_mod]
+ __x64_sys_ioctl+0xb4/0xf0
+ do_syscall_64+0x3b/0x90
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Link: https://lore.kernel.org/r/20220619060552.1850436-6-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 8fe4ce5836e9 ("scsi: core: Fix a use-after-free")
+Link: https://lore.kernel.org/r/20220826002635.919423-1-bvanassche@acm.org
+Fixes: 65ca846a5314 ("scsi: core: Introduce {init,exit}_cmd_priv()")
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Li Zhijian <lizhijian@fujitsu.com>
+Reported-by: Li Zhijian <lizhijian@fujitsu.com>
+Tested-by: Li Zhijian <lizhijian@fujitsu.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c                    | 37 -------------------------
- block/blk-mq.c                      | 43 +++++++++++++++++++++++++++--
- block/blk-sysfs.c                   |  5 ----
- block/blk.h                         |  3 ++
- block/bsg-lib.c                     |  4 +--
- block/genhd.c                       | 23 ++++++++-------
- drivers/block/ataflop.c             |  1 -
- drivers/block/loop.c                |  1 -
- drivers/block/mtip32xx/mtip32xx.c   |  2 --
- drivers/block/rnbd/rnbd-clt.c       |  2 +-
- drivers/block/sx8.c                 |  4 +--
- drivers/block/virtio_blk.c          |  1 -
- drivers/block/z2ram.c               |  1 -
- drivers/cdrom/gdrom.c               |  1 -
- drivers/memstick/core/ms_block.c    |  1 -
- drivers/memstick/core/mspro_block.c |  1 -
- drivers/mmc/core/block.c            |  1 -
- drivers/mmc/core/queue.c            |  1 -
- drivers/nvme/host/apple.c           |  2 +-
- drivers/nvme/host/core.c            |  1 -
- drivers/nvme/host/fc.c              | 12 ++++----
- drivers/nvme/host/pci.c             |  2 +-
- drivers/nvme/host/rdma.c            | 12 ++++----
- drivers/nvme/host/tcp.c             | 12 ++++----
- drivers/nvme/target/loop.c          | 12 ++++----
- drivers/s390/block/dasd.c           |  2 +-
- drivers/s390/block/dasd_genhd.c     |  4 +--
- drivers/scsi/scsi_lib.c             |  6 ++--
- drivers/scsi/scsi_sysfs.c           |  2 +-
- drivers/scsi/sd.c                   |  4 +--
- drivers/scsi/sr.c                   |  4 +--
- drivers/ufs/core/ufshcd.c           |  4 +--
- include/linux/blk-mq.h              |  3 ++
- include/linux/blkdev.h              |  4 +--
- 34 files changed, 105 insertions(+), 113 deletions(-)
+ drivers/scsi/hosts.c      | 16 +++++++++++++---
+ drivers/scsi/scsi_lib.c   |  6 +++++-
+ drivers/scsi/scsi_priv.h  |  2 +-
+ drivers/scsi/scsi_scan.c  |  1 +
+ drivers/scsi/scsi_sysfs.c |  1 +
+ include/scsi/scsi_host.h  |  2 ++
+ 6 files changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index b8083decc07f..7743c68177e8 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -284,43 +284,6 @@ void blk_queue_start_drain(struct request_queue *q)
- 	wake_up_all(&q->mq_freeze_wq);
- }
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index 8352f90d997d..ae9a107c520d 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -182,6 +182,15 @@ void scsi_remove_host(struct Scsi_Host *shost)
+ 	mutex_unlock(&shost->scan_mutex);
+ 	scsi_proc_host_rm(shost);
  
--/**
-- * blk_cleanup_queue - shutdown a request queue
-- * @q: request queue to shutdown
-- *
-- * Mark @q DYING, drain all pending requests, mark @q DEAD, destroy and
-- * put it.  All future requests will be failed immediately with -ENODEV.
-- *
-- * Context: can sleep
-- */
--void blk_cleanup_queue(struct request_queue *q)
--{
--	/* cannot be called from atomic context */
--	might_sleep();
--
--	WARN_ON_ONCE(blk_queue_registered(q));
--
--	/* mark @q DYING, no new request or merges will be allowed afterwards */
--	blk_queue_flag_set(QUEUE_FLAG_DYING, q);
--	blk_queue_start_drain(q);
--
--	/*
--	 * Drain all requests queued before DYING marking. Set DEAD flag to
--	 * prevent that blk_mq_run_hw_queues() accesses the hardware queues
--	 * after draining finished.
--	 */
--	blk_freeze_queue(q);
--	blk_sync_queue(q);
--	if (queue_is_mq(q)) {
--		blk_mq_cancel_work_sync(q);
--		blk_mq_exit_queue(q);
--	}
--
--	/* @q is and will stay empty, shutdown and put */
--	blk_put_queue(q);
--}
--EXPORT_SYMBOL(blk_cleanup_queue);
--
- /**
-  * blk_queue_enter() - try to increase q->q_usage_counter
-  * @q: request queue pointer
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 0a299941c622..6e22700dd6cf 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3896,7 +3896,7 @@ static struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
- 	q->queuedata = queuedata;
- 	ret = blk_mq_init_allocated_queue(set, q);
- 	if (ret) {
--		blk_cleanup_queue(q);
-+		blk_put_queue(q);
- 		return ERR_PTR(ret);
- 	}
- 	return q;
-@@ -3908,6 +3908,35 @@ struct request_queue *blk_mq_init_queue(struct blk_mq_tag_set *set)
- }
- EXPORT_SYMBOL(blk_mq_init_queue);
- 
-+/**
-+ * blk_mq_destroy_queue - shutdown a request queue
-+ * @q: request queue to shutdown
-+ *
-+ * This shuts down a request queue allocated by blk_mq_init_queue() and drops
-+ * the initial reference.  All future requests will failed with -ENODEV.
-+ *
-+ * Context: can sleep
-+ */
-+void blk_mq_destroy_queue(struct request_queue *q)
-+{
-+	WARN_ON_ONCE(!queue_is_mq(q));
-+	WARN_ON_ONCE(blk_queue_registered(q));
++	/*
++	 * New SCSI devices cannot be attached anymore because of the SCSI host
++	 * state so drop the tag set refcnt. Wait until the tag set refcnt drops
++	 * to zero because .exit_cmd_priv implementations may need the host
++	 * pointer.
++	 */
++	kref_put(&shost->tagset_refcnt, scsi_mq_free_tags);
++	wait_for_completion(&shost->tagset_freed);
 +
-+	might_sleep();
-+
-+	blk_queue_flag_set(QUEUE_FLAG_DYING, q);
-+	blk_queue_start_drain(q);
-+	blk_freeze_queue(q);
-+
-+	blk_sync_queue(q);
-+	blk_mq_cancel_work_sync(q);
-+	blk_mq_exit_queue(q);
-+
-+	/* @q is and will stay empty, shutdown and put */
-+	blk_put_queue(q);
-+}
-+EXPORT_SYMBOL(blk_mq_destroy_queue);
-+
- struct gendisk *__blk_mq_alloc_disk(struct blk_mq_tag_set *set, void *queuedata,
- 		struct lock_class_key *lkclass)
- {
-@@ -3920,13 +3949,23 @@ struct gendisk *__blk_mq_alloc_disk(struct blk_mq_tag_set *set, void *queuedata,
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	if (scsi_host_set_state(shost, SHOST_DEL))
+ 		BUG_ON(scsi_host_set_state(shost, SHOST_DEL_RECOVERY));
+@@ -240,6 +249,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+ 	if (error)
+ 		goto fail;
  
- 	disk = __alloc_disk_node(q, set->numa_node, lkclass);
- 	if (!disk) {
--		blk_cleanup_queue(q);
-+		blk_put_queue(q);
- 		return ERR_PTR(-ENOMEM);
- 	}
-+	set_bit(GD_OWNS_QUEUE, &disk->state);
- 	return disk;
- }
- EXPORT_SYMBOL(__blk_mq_alloc_disk);
- 
-+struct gendisk *blk_mq_alloc_disk_for_queue(struct request_queue *q,
-+		struct lock_class_key *lkclass)
-+{
-+	if (!blk_get_queue(q))
-+		return NULL;
-+	return __alloc_disk_node(q, NUMA_NO_NODE, lkclass);
-+}
-+EXPORT_SYMBOL(blk_mq_alloc_disk_for_queue);
++	kref_init(&shost->tagset_refcnt);
++	init_completion(&shost->tagset_freed);
 +
- static struct blk_mq_hw_ctx *blk_mq_alloc_and_init_hctx(
- 		struct blk_mq_tag_set *set, struct request_queue *q,
- 		int hctx_idx, int node)
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 9b905e9443e4..84d7f8701567 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -748,11 +748,6 @@ static void blk_free_queue_rcu(struct rcu_head *rcu_head)
-  * decremented with blk_put_queue(). Once the refcount reaches 0 this function
-  * is called.
-  *
-- * For drivers that have a request_queue on a gendisk and added with
-- * __device_add_disk() the refcount to request_queue will reach 0 with
-- * the last put_disk() called by the driver. For drivers which don't use
-- * __device_add_disk() this happens with blk_cleanup_queue().
-- *
-  * Drivers exist which depend on the release of the request_queue to be
-  * synchronous, it should not be deferred.
-  *
-diff --git a/block/blk.h b/block/blk.h
-index 434017701403..0d6668663ab5 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -411,6 +411,9 @@ int bdev_resize_partition(struct gendisk *disk, int partno, sector_t start,
- 		sector_t length);
- void blk_drop_partitions(struct gendisk *disk);
- 
-+struct gendisk *__alloc_disk_node(struct request_queue *q, int node_id,
-+		struct lock_class_key *lkclass);
-+
- int bio_add_hw_page(struct request_queue *q, struct bio *bio,
- 		struct page *page, unsigned int len, unsigned int offset,
- 		unsigned int max_sectors, bool *same_page);
-diff --git a/block/bsg-lib.c b/block/bsg-lib.c
-index acfe1357bf6c..fd4cd5e68282 100644
---- a/block/bsg-lib.c
-+++ b/block/bsg-lib.c
-@@ -324,7 +324,7 @@ void bsg_remove_queue(struct request_queue *q)
- 			container_of(q->tag_set, struct bsg_set, tag_set);
- 
- 		bsg_unregister_queue(bset->bd);
--		blk_cleanup_queue(q);
-+		blk_mq_destroy_queue(q);
- 		blk_mq_free_tag_set(&bset->tag_set);
- 		kfree(bset);
- 	}
-@@ -399,7 +399,7 @@ struct request_queue *bsg_setup_queue(struct device *dev, const char *name,
- 
- 	return q;
- out_cleanup_queue:
--	blk_cleanup_queue(q);
-+	blk_mq_destroy_queue(q);
- out_queue:
- 	blk_mq_free_tag_set(set);
- out_tag_set:
-diff --git a/block/genhd.c b/block/genhd.c
-index 278227ba1d53..4d15f828c449 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -617,6 +617,8 @@ void del_gendisk(struct gendisk *disk)
- 	 * Fail any new I/O.
- 	 */
- 	set_bit(GD_DEAD, &disk->state);
-+	if (test_bit(GD_OWNS_QUEUE, &disk->state))
-+		blk_queue_flag_set(QUEUE_FLAG_DYING, q);
- 	set_capacity(disk, 0);
- 
  	/*
-@@ -663,11 +665,16 @@ void del_gendisk(struct gendisk *disk)
- 	blk_mq_unquiesce_queue(q);
+ 	 * Increase usage count temporarily here so that calling
+ 	 * scsi_autopm_put_host() will trigger runtime idle if there is
+@@ -312,6 +324,7 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+ 	pm_runtime_disable(&shost->shost_gendev);
+ 	pm_runtime_set_suspended(&shost->shost_gendev);
+ 	pm_runtime_put_noidle(&shost->shost_gendev);
++	kref_put(&shost->tagset_refcnt, scsi_mq_free_tags);
+  fail:
+ 	return error;
+ }
+@@ -345,9 +358,6 @@ static void scsi_host_dev_release(struct device *dev)
+ 		kfree(dev_name(&shost->shost_dev));
+ 	}
  
- 	/*
--	 * Allow using passthrough request again after the queue is torn down.
-+	 * If the disk does not own the queue, allow using passthrough requests
-+	 * again.  Else leave the queue frozen to fail all I/O.
- 	 */
--	blk_queue_flag_clear(QUEUE_FLAG_INIT_DONE, q);
--	__blk_mq_unfreeze_queue(q, true);
+-	if (shost->tag_set.tags)
+-		scsi_mq_destroy_tags(shost);
 -
-+	if (!test_bit(GD_OWNS_QUEUE, &disk->state)) {
-+		blk_queue_flag_clear(QUEUE_FLAG_INIT_DONE, q);
-+		__blk_mq_unfreeze_queue(q, true);
-+	} else {
-+		if (queue_is_mq(q))
-+			blk_mq_exit_queue(q);
-+	}
- }
- EXPORT_SYMBOL(del_gendisk);
+ 	kfree(shost->shost_data);
  
-@@ -1338,9 +1345,6 @@ struct gendisk *__alloc_disk_node(struct request_queue *q, int node_id,
- {
- 	struct gendisk *disk;
- 
--	if (!blk_get_queue(q))
--		return NULL;
--
- 	disk = kzalloc_node(sizeof(struct gendisk), GFP_KERNEL, node_id);
- 	if (!disk)
- 		goto out_put_queue;
-@@ -1391,7 +1395,6 @@ struct gendisk *__alloc_disk_node(struct request_queue *q, int node_id,
- 	blk_put_queue(q);
- 	return NULL;
- }
--EXPORT_SYMBOL(__alloc_disk_node);
- 
- struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass)
- {
-@@ -1404,9 +1407,10 @@ struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass)
- 
- 	disk = __alloc_disk_node(q, node, lkclass);
- 	if (!disk) {
--		blk_cleanup_queue(q);
-+		blk_put_queue(q);
- 		return NULL;
- 	}
-+	set_bit(GD_OWNS_QUEUE, &disk->state);
- 	return disk;
- }
- EXPORT_SYMBOL(__blk_alloc_disk);
-@@ -1439,7 +1443,6 @@ EXPORT_SYMBOL(put_disk);
-  */
- void blk_cleanup_disk(struct gendisk *disk)
- {
--	blk_cleanup_queue(disk->queue);
- 	put_disk(disk);
- }
- EXPORT_SYMBOL(blk_cleanup_disk);
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index e232cc4fd444..c6e41ee18aaa 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -2045,7 +2045,6 @@ static void atari_floppy_cleanup(void)
- 			if (!unit[i].disk[type])
- 				continue;
- 			del_gendisk(unit[i].disk[type]);
--			blk_cleanup_queue(unit[i].disk[type]->queue);
- 			put_disk(unit[i].disk[type]);
- 		}
- 		blk_mq_free_tag_set(&unit[i].tag_set);
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a59910ef948e..1c036ef686fb 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -2062,7 +2062,6 @@ static void loop_remove(struct loop_device *lo)
- {
- 	/* Make this loop device unreachable from pathname. */
- 	del_gendisk(lo->lo_disk);
--	blk_cleanup_queue(lo->lo_disk->queue);
- 	blk_mq_free_tag_set(&lo->tag_set);
- 
- 	mutex_lock(&loop_ctl_mutex);
-diff --git a/drivers/block/mtip32xx/mtip32xx.c b/drivers/block/mtip32xx/mtip32xx.c
-index 6699e4b2f7f4..06994a35acc7 100644
---- a/drivers/block/mtip32xx/mtip32xx.c
-+++ b/drivers/block/mtip32xx/mtip32xx.c
-@@ -3677,7 +3677,6 @@ static int mtip_block_shutdown(struct driver_data *dd)
- 	if (test_bit(MTIP_DDF_INIT_DONE_BIT, &dd->dd_flag))
- 		del_gendisk(dd->disk);
- 
--	blk_cleanup_queue(dd->queue);
- 	blk_mq_free_tag_set(&dd->tags);
- 	put_disk(dd->disk);
- 	return 0;
-@@ -4040,7 +4039,6 @@ static void mtip_pci_remove(struct pci_dev *pdev)
- 		dev_info(&dd->pdev->dev, "device %s surprise removal\n",
- 						dd->disk->disk_name);
- 
--	blk_cleanup_queue(dd->queue);
- 	blk_mq_free_tag_set(&dd->tags);
- 
- 	/* De-initialize the protocol layer. */
-diff --git a/drivers/block/rnbd/rnbd-clt.c b/drivers/block/rnbd/rnbd-clt.c
-index 409c76b81aed..a4470374f54f 100644
---- a/drivers/block/rnbd/rnbd-clt.c
-+++ b/drivers/block/rnbd/rnbd-clt.c
-@@ -1755,7 +1755,7 @@ static void rnbd_destroy_sessions(void)
- 		list_for_each_entry_safe(dev, tn, &sess->devs_list, list) {
- 			/*
- 			 * Here unmap happens in parallel for only one reason:
--			 * blk_cleanup_queue() takes around half a second, so
-+			 * del_gendisk() takes around half a second, so
- 			 * on huge amount of devices the whole module unload
- 			 * procedure takes minutes.
- 			 */
-diff --git a/drivers/block/sx8.c b/drivers/block/sx8.c
-index 63b4f6431d2e..75057dbbcfbe 100644
---- a/drivers/block/sx8.c
-+++ b/drivers/block/sx8.c
-@@ -1536,7 +1536,7 @@ static int carm_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
- 		clear_bit(0, &carm_major_alloc);
- 	else if (host->major == 161)
- 		clear_bit(1, &carm_major_alloc);
--	blk_cleanup_queue(host->oob_q);
-+	blk_mq_destroy_queue(host->oob_q);
- 	blk_mq_free_tag_set(&host->tag_set);
- err_out_dma_free:
- 	dma_free_coherent(&pdev->dev, CARM_SHM_SIZE, host->shm, host->shm_dma);
-@@ -1570,7 +1570,7 @@ static void carm_remove_one (struct pci_dev *pdev)
- 		clear_bit(0, &carm_major_alloc);
- 	else if (host->major == 161)
- 		clear_bit(1, &carm_major_alloc);
--	blk_cleanup_queue(host->oob_q);
-+	blk_mq_destroy_queue(host->oob_q);
- 	blk_mq_free_tag_set(&host->tag_set);
- 	dma_free_coherent(&pdev->dev, CARM_SHM_SIZE, host->shm, host->shm_dma);
- 	iounmap(host->mmio);
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index d756423e0059..59d6d5faf739 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1107,7 +1107,6 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	flush_work(&vblk->config_work);
- 
- 	del_gendisk(vblk->disk);
--	blk_cleanup_queue(vblk->disk->queue);
- 	blk_mq_free_tag_set(&vblk->tag_set);
- 
- 	mutex_lock(&vblk->vdev_mutex);
-diff --git a/drivers/block/z2ram.c b/drivers/block/z2ram.c
-index 7a6ed83481b8..18ad43d9933e 100644
---- a/drivers/block/z2ram.c
-+++ b/drivers/block/z2ram.c
-@@ -384,7 +384,6 @@ static void __exit z2_exit(void)
- 
- 	for (i = 0; i < Z2MINOR_COUNT; i++) {
- 		del_gendisk(z2ram_gendisk[i]);
--		blk_cleanup_queue(z2ram_gendisk[i]->queue);
- 		put_disk(z2ram_gendisk[i]);
- 	}
- 	blk_mq_free_tag_set(&tag_set);
-diff --git a/drivers/cdrom/gdrom.c b/drivers/cdrom/gdrom.c
-index 8e78b37d0f6a..f4cc90ea6198 100644
---- a/drivers/cdrom/gdrom.c
-+++ b/drivers/cdrom/gdrom.c
-@@ -831,7 +831,6 @@ static int probe_gdrom(struct platform_device *devptr)
- 
- static int remove_gdrom(struct platform_device *devptr)
- {
--	blk_cleanup_queue(gd.gdrom_rq);
- 	blk_mq_free_tag_set(&gd.tag_set);
- 	free_irq(HW_EVENT_GDROM_CMD, &gd);
- 	free_irq(HW_EVENT_GDROM_DMA, &gd);
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index f8fdf88fb240..ecbc46714e68 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -2188,7 +2188,6 @@ static void msb_remove(struct memstick_dev *card)
- 
- 	/* Remove the disk */
- 	del_gendisk(msb->disk);
--	blk_cleanup_queue(msb->queue);
- 	blk_mq_free_tag_set(&msb->tag_set);
- 	msb->queue = NULL;
- 
-diff --git a/drivers/memstick/core/mspro_block.c b/drivers/memstick/core/mspro_block.c
-index 725ba74ded30..72e91c06c618 100644
---- a/drivers/memstick/core/mspro_block.c
-+++ b/drivers/memstick/core/mspro_block.c
-@@ -1294,7 +1294,6 @@ static void mspro_block_remove(struct memstick_dev *card)
- 	del_gendisk(msb->disk);
- 	dev_dbg(&card->dev, "mspro block remove\n");
- 
--	blk_cleanup_queue(msb->queue);
- 	blk_mq_free_tag_set(&msb->tag_set);
- 	msb->queue = NULL;
- 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index 912a398a9a76..2f89ae55c177 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2509,7 +2509,6 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
- 	return md;
- 
-  err_cleanup_queue:
--	blk_cleanup_queue(md->disk->queue);
- 	blk_mq_free_tag_set(&md->queue.tag_set);
-  err_kfree:
- 	kfree(md);
-diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-index fa5324ceeebe..f824cfdab75a 100644
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -494,7 +494,6 @@ void mmc_cleanup_queue(struct mmc_queue *mq)
- 	if (blk_queue_quiesced(q))
- 		blk_mq_unquiesce_queue(q);
- 
--	blk_cleanup_queue(q);
- 	blk_mq_free_tag_set(&mq->tag_set);
- 
- 	/*
-diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
-index d702d7d60235..2d23b7d41f7e 100644
---- a/drivers/nvme/host/apple.c
-+++ b/drivers/nvme/host/apple.c
-@@ -1502,7 +1502,7 @@ static int apple_nvme_probe(struct platform_device *pdev)
- 
- 	if (!blk_get_queue(anv->ctrl.admin_q)) {
- 		nvme_start_admin_queue(&anv->ctrl);
--		blk_cleanup_queue(anv->ctrl.admin_q);
-+		blk_mq_destroy_queue(anv->ctrl.admin_q);
- 		anv->ctrl.admin_q = NULL;
- 		ret = -ENODEV;
- 		goto put_dev;
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 2f965356f345..6d76fc608b74 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4105,7 +4105,6 @@ static void nvme_ns_remove(struct nvme_ns *ns)
- 	if (!nvme_ns_head_multipath(ns->head))
- 		nvme_cdev_del(&ns->cdev, &ns->cdev_device);
- 	del_gendisk(ns->disk);
--	blk_cleanup_queue(ns->queue);
- 
- 	down_write(&ns->ctrl->namespaces_rwsem);
- 	list_del_init(&ns->list);
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 4aff83b1b0c0..9a5ce70d7f21 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -2392,7 +2392,7 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	unsigned long flags;
- 
- 	if (ctrl->ctrl.tagset) {
--		blk_cleanup_queue(ctrl->ctrl.connect_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.connect_q);
- 		blk_mq_free_tag_set(&ctrl->tag_set);
- 	}
- 
-@@ -2402,8 +2402,8 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	spin_unlock_irqrestore(&ctrl->rport->lock, flags);
- 
- 	nvme_start_admin_queue(&ctrl->ctrl);
--	blk_cleanup_queue(ctrl->ctrl.admin_q);
--	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.admin_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.fabrics_q);
- 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
- 
- 	kfree(ctrl->queues);
-@@ -2953,7 +2953,7 @@ nvme_fc_create_io_queues(struct nvme_fc_ctrl *ctrl)
- out_delete_hw_queues:
- 	nvme_fc_delete_hw_io_queues(ctrl);
- out_cleanup_blk_queue:
--	blk_cleanup_queue(ctrl->ctrl.connect_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.connect_q);
- out_free_tag_set:
- 	blk_mq_free_tag_set(&ctrl->tag_set);
- 	nvme_fc_free_io_queues(ctrl);
-@@ -3642,9 +3642,9 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- 	return ERR_PTR(-EIO);
- 
- out_cleanup_admin_q:
--	blk_cleanup_queue(ctrl->ctrl.admin_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.admin_q);
- out_cleanup_fabrics_q:
--	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.fabrics_q);
- out_free_admin_tag_set:
- 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
- out_free_queues:
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 9f6614f7dbeb..3516678d3754 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1760,7 +1760,7 @@ static void nvme_dev_remove_admin(struct nvme_dev *dev)
- 		 * queue to flush these to completion.
- 		 */
- 		nvme_start_admin_queue(&dev->ctrl);
--		blk_cleanup_queue(dev->ctrl.admin_q);
-+		blk_mq_destroy_queue(dev->ctrl.admin_q);
- 		blk_mq_free_tag_set(&dev->admin_tagset);
- 	}
- }
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 46c2dcf72f7e..240024dd5d85 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -840,8 +840,8 @@ static void nvme_rdma_destroy_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 		bool remove)
- {
- 	if (remove) {
--		blk_cleanup_queue(ctrl->ctrl.admin_q);
--		blk_cleanup_queue(ctrl->ctrl.fabrics_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.admin_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.fabrics_q);
- 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
- 	}
- 	if (ctrl->async_event_sqe.data) {
-@@ -935,10 +935,10 @@ static int nvme_rdma_configure_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 	nvme_cancel_admin_tagset(&ctrl->ctrl);
- out_cleanup_queue:
- 	if (new)
--		blk_cleanup_queue(ctrl->ctrl.admin_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.admin_q);
- out_cleanup_fabrics_q:
- 	if (new)
--		blk_cleanup_queue(ctrl->ctrl.fabrics_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.fabrics_q);
- out_free_tagset:
- 	if (new)
- 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
-@@ -957,7 +957,7 @@ static void nvme_rdma_destroy_io_queues(struct nvme_rdma_ctrl *ctrl,
- 		bool remove)
- {
- 	if (remove) {
--		blk_cleanup_queue(ctrl->ctrl.connect_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.connect_q);
- 		blk_mq_free_tag_set(ctrl->ctrl.tagset);
- 	}
- 	nvme_rdma_free_io_queues(ctrl);
-@@ -1012,7 +1012,7 @@ static int nvme_rdma_configure_io_queues(struct nvme_rdma_ctrl *ctrl, bool new)
- out_cleanup_connect_q:
- 	nvme_cancel_tagset(&ctrl->ctrl);
- 	if (new)
--		blk_cleanup_queue(ctrl->ctrl.connect_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.connect_q);
- out_free_tag_set:
- 	if (new)
- 		blk_mq_free_tag_set(ctrl->ctrl.tagset);
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index daa0e160e121..d7e5bbdb9b75 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1881,7 +1881,7 @@ static void nvme_tcp_destroy_io_queues(struct nvme_ctrl *ctrl, bool remove)
- {
- 	nvme_tcp_stop_io_queues(ctrl);
- 	if (remove) {
--		blk_cleanup_queue(ctrl->connect_q);
-+		blk_mq_destroy_queue(ctrl->connect_q);
- 		blk_mq_free_tag_set(ctrl->tagset);
- 	}
- 	nvme_tcp_free_io_queues(ctrl);
-@@ -1936,7 +1936,7 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
- out_cleanup_connect_q:
- 	nvme_cancel_tagset(ctrl);
- 	if (new)
--		blk_cleanup_queue(ctrl->connect_q);
-+		blk_mq_destroy_queue(ctrl->connect_q);
- out_free_tag_set:
- 	if (new)
- 		blk_mq_free_tag_set(ctrl->tagset);
-@@ -1949,8 +1949,8 @@ static void nvme_tcp_destroy_admin_queue(struct nvme_ctrl *ctrl, bool remove)
- {
- 	nvme_tcp_stop_queue(ctrl, 0);
- 	if (remove) {
--		blk_cleanup_queue(ctrl->admin_q);
--		blk_cleanup_queue(ctrl->fabrics_q);
-+		blk_mq_destroy_queue(ctrl->admin_q);
-+		blk_mq_destroy_queue(ctrl->fabrics_q);
- 		blk_mq_free_tag_set(ctrl->admin_tagset);
- 	}
- 	nvme_tcp_free_admin_queue(ctrl);
-@@ -2008,10 +2008,10 @@ static int nvme_tcp_configure_admin_queue(struct nvme_ctrl *ctrl, bool new)
- 	nvme_cancel_admin_tagset(ctrl);
- out_cleanup_queue:
- 	if (new)
--		blk_cleanup_queue(ctrl->admin_q);
-+		blk_mq_destroy_queue(ctrl->admin_q);
- out_cleanup_fabrics_q:
- 	if (new)
--		blk_cleanup_queue(ctrl->fabrics_q);
-+		blk_mq_destroy_queue(ctrl->fabrics_q);
- out_free_tagset:
- 	if (new)
- 		blk_mq_free_tag_set(ctrl->admin_tagset);
-diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
-index 59024af2da2e..0f5c77e22a0a 100644
---- a/drivers/nvme/target/loop.c
-+++ b/drivers/nvme/target/loop.c
-@@ -266,8 +266,8 @@ static void nvme_loop_destroy_admin_queue(struct nvme_loop_ctrl *ctrl)
- 	if (!test_and_clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags))
- 		return;
- 	nvmet_sq_destroy(&ctrl->queues[0].nvme_sq);
--	blk_cleanup_queue(ctrl->ctrl.admin_q);
--	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.admin_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.fabrics_q);
- 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
- }
- 
-@@ -283,7 +283,7 @@ static void nvme_loop_free_ctrl(struct nvme_ctrl *nctrl)
- 	mutex_unlock(&nvme_loop_ctrl_mutex);
- 
- 	if (nctrl->tagset) {
--		blk_cleanup_queue(ctrl->ctrl.connect_q);
-+		blk_mq_destroy_queue(ctrl->ctrl.connect_q);
- 		blk_mq_free_tag_set(&ctrl->tag_set);
- 	}
- 	kfree(ctrl->queues);
-@@ -410,9 +410,9 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
- 
- out_cleanup_queue:
- 	clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags);
--	blk_cleanup_queue(ctrl->ctrl.admin_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.admin_q);
- out_cleanup_fabrics_q:
--	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.fabrics_q);
- out_free_tagset:
- 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
- out_free_sq:
-@@ -554,7 +554,7 @@ static int nvme_loop_create_io_queues(struct nvme_loop_ctrl *ctrl)
- 	return 0;
- 
- out_cleanup_connect_q:
--	blk_cleanup_queue(ctrl->ctrl.connect_q);
-+	blk_mq_destroy_queue(ctrl->ctrl.connect_q);
- out_free_tagset:
- 	blk_mq_free_tag_set(&ctrl->tag_set);
- out_destroy_queues:
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index ba6d78789660..e8489331f12b 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3280,7 +3280,7 @@ static int dasd_alloc_queue(struct dasd_block *block)
- static void dasd_free_queue(struct dasd_block *block)
- {
- 	if (block->request_queue) {
--		blk_cleanup_queue(block->request_queue);
-+		blk_mq_destroy_queue(block->request_queue);
- 		blk_mq_free_tag_set(&block->tag_set);
- 		block->request_queue = NULL;
- 	}
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index a7a33ebf4bbe..5a83f0a39901 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -41,8 +41,8 @@ int dasd_gendisk_alloc(struct dasd_block *block)
- 	if (base->devindex >= DASD_PER_MAJOR)
- 		return -EBUSY;
- 
--	gdp = __alloc_disk_node(block->request_queue, NUMA_NO_NODE,
--				&dasd_bio_compl_lkclass);
-+	gdp = blk_mq_alloc_disk_for_queue(block->request_queue,
-+					  &dasd_bio_compl_lkclass);
- 	if (!gdp)
- 		return -ENOMEM;
- 
+ 	ida_simple_remove(&host_index_ida, shost->host_no);
 diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index f5c876d03c1a..0a267d6e2f7c 100644
+index 0a267d6e2f7c..7e990f7a9f16 100644
 --- a/drivers/scsi/scsi_lib.c
 +++ b/drivers/scsi/scsi_lib.c
-@@ -168,7 +168,7 @@ static void __scsi_queue_insert(struct scsi_cmnd *cmd, int reason, bool unbusy)
- 	 * Requeue this command.  It will go before all other commands
- 	 * that are already in the queue. Schedule requeue work under
- 	 * lock such that the kblockd_schedule_work() call happens
--	 * before blk_cleanup_queue() finishes.
-+	 * before blk_mq_destroy_queue() finishes.
- 	 */
- 	cmd->result = 0;
+@@ -1995,9 +1995,13 @@ int scsi_mq_setup_tags(struct Scsi_Host *shost)
+ 	return blk_mq_alloc_tag_set(tag_set);
+ }
  
-@@ -429,9 +429,9 @@ static void scsi_starved_list_run(struct Scsi_Host *shost)
- 		 * it and the queue.  Mitigate by taking a reference to the
- 		 * queue and never touching the sdev again after we drop the
- 		 * host lock.  Note: if __scsi_remove_device() invokes
--		 * blk_cleanup_queue() before the queue is run from this
-+		 * blk_mq_destroy_queue() before the queue is run from this
- 		 * function then blk_run_queue() will return immediately since
--		 * blk_cleanup_queue() marks the queue with QUEUE_FLAG_DYING.
-+		 * blk_mq_destroy_queue() marks the queue with QUEUE_FLAG_DYING.
- 		 */
- 		slq = sdev->request_queue;
- 		if (!blk_get_queue(slq))
+-void scsi_mq_destroy_tags(struct Scsi_Host *shost)
++void scsi_mq_free_tags(struct kref *kref)
+ {
++	struct Scsi_Host *shost = container_of(kref, typeof(*shost),
++					       tagset_refcnt);
++
+ 	blk_mq_free_tag_set(&shost->tag_set);
++	complete(&shost->tagset_freed);
+ }
+ 
+ /**
+diff --git a/drivers/scsi/scsi_priv.h b/drivers/scsi/scsi_priv.h
+index 5c4786310a31..a0ee31d55f5f 100644
+--- a/drivers/scsi/scsi_priv.h
++++ b/drivers/scsi/scsi_priv.h
+@@ -94,7 +94,7 @@ extern void scsi_run_host_queues(struct Scsi_Host *shost);
+ extern void scsi_requeue_run_queue(struct work_struct *work);
+ extern void scsi_start_queue(struct scsi_device *sdev);
+ extern int scsi_mq_setup_tags(struct Scsi_Host *shost);
+-extern void scsi_mq_destroy_tags(struct Scsi_Host *shost);
++extern void scsi_mq_free_tags(struct kref *kref);
+ extern void scsi_exit_queue(void);
+ extern void scsi_evt_thread(struct work_struct *work);
+ 
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 91ac901a6682..5d27f5196de6 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -340,6 +340,7 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
+ 		kfree(sdev);
+ 		goto out;
+ 	}
++	kref_get(&sdev->host->tagset_refcnt);
+ 	sdev->request_queue = q;
+ 	q->queuedata = sdev;
+ 	__scsi_init_queue(sdev->host, q);
 diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index 43949798a2e4..aa70d9282161 100644
+index aa70d9282161..5d61f58399dc 100644
 --- a/drivers/scsi/scsi_sysfs.c
 +++ b/drivers/scsi/scsi_sysfs.c
-@@ -1475,7 +1475,7 @@ void __scsi_remove_device(struct scsi_device *sdev)
- 	scsi_device_set_state(sdev, SDEV_DEL);
+@@ -1476,6 +1476,7 @@ void __scsi_remove_device(struct scsi_device *sdev)
  	mutex_unlock(&sdev->state_mutex);
  
--	blk_cleanup_queue(sdev->request_queue);
-+	blk_mq_destroy_queue(sdev->request_queue);
+ 	blk_mq_destroy_queue(sdev->request_queue);
++	kref_put(&sdev->host->tagset_refcnt, scsi_mq_free_tags);
  	cancel_work_sync(&sdev->requeue_work);
  
  	if (sdev->host->hostt->slave_destroy)
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index a1a2ac09066f..cb587e488601 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3440,8 +3440,8 @@ static int sd_probe(struct device *dev)
- 	if (!sdkp)
- 		goto out;
+diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
+index 667d889b92b5..3e1cea155049 100644
+--- a/include/scsi/scsi_host.h
++++ b/include/scsi/scsi_host.h
+@@ -557,6 +557,8 @@ struct Scsi_Host {
+ 	struct scsi_host_template *hostt;
+ 	struct scsi_transport_template *transportt;
  
--	gd = __alloc_disk_node(sdp->request_queue, NUMA_NO_NODE,
--			       &sd_bio_compl_lkclass);
-+	gd = blk_mq_alloc_disk_for_queue(sdp->request_queue,
-+					 &sd_bio_compl_lkclass);
- 	if (!gd)
- 		goto out_free;
++	struct kref		tagset_refcnt;
++	struct completion	tagset_freed;
+ 	/* Area to keep a shared tag map */
+ 	struct blk_mq_tag_set	tag_set;
  
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 32d3b8274f14..a278b739d0c5 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -624,8 +624,8 @@ static int sr_probe(struct device *dev)
- 	if (!cd)
- 		goto fail;
- 
--	disk = __alloc_disk_node(sdev->request_queue, NUMA_NO_NODE,
--				 &sr_bio_compl_lkclass);
-+	disk = blk_mq_alloc_disk_for_queue(sdev->request_queue,
-+					   &sr_bio_compl_lkclass);
- 	if (!disk)
- 		goto fail_free;
- 	mutex_init(&cd->lock);
-diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
-index 829da9cb14a8..55bb0d0422d5 100644
---- a/drivers/ufs/core/ufshcd.c
-+++ b/drivers/ufs/core/ufshcd.c
-@@ -9519,7 +9519,7 @@ void ufshcd_remove(struct ufs_hba *hba)
- 	ufs_bsg_remove(hba);
- 	ufshpb_remove(hba);
- 	ufs_sysfs_remove_nodes(hba->dev);
--	blk_cleanup_queue(hba->tmf_queue);
-+	blk_mq_destroy_queue(hba->tmf_queue);
- 	blk_mq_free_tag_set(&hba->tmf_tag_set);
- 	scsi_remove_host(hba->host);
- 	/* disable interrupts */
-@@ -9815,7 +9815,7 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
- 	return 0;
- 
- free_tmf_queue:
--	blk_cleanup_queue(hba->tmf_queue);
-+	blk_mq_destroy_queue(hba->tmf_queue);
- free_tmf_tag_set:
- 	blk_mq_free_tag_set(&hba->tmf_tag_set);
- out_remove_scsi_host:
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index e2d9daf7e8dd..0fd96e92c6c6 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -686,10 +686,13 @@ struct gendisk *__blk_mq_alloc_disk(struct blk_mq_tag_set *set, void *queuedata,
- 									\
- 	__blk_mq_alloc_disk(set, queuedata, &__key);			\
- })
-+struct gendisk *blk_mq_alloc_disk_for_queue(struct request_queue *q,
-+		struct lock_class_key *lkclass);
- struct request_queue *blk_mq_init_queue(struct blk_mq_tag_set *);
- int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
- 		struct request_queue *q);
- void blk_mq_unregister_dev(struct device *, struct request_queue *);
-+void blk_mq_destroy_queue(struct request_queue *);
- 
- int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set);
- int blk_mq_alloc_sq_tag_set(struct blk_mq_tag_set *set,
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 76f77eed58c3..83eb8869a8c9 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -148,6 +148,7 @@ struct gendisk {
- #define GD_NATIVE_CAPACITY		3
- #define GD_ADDED			4
- #define GD_SUPPRESS_PART_SCAN		5
-+#define GD_OWNS_QUEUE			6
- 
- 	struct mutex open_mutex;	/* open/close mutex */
- 	unsigned open_partitions;	/* number of open partitions */
-@@ -810,8 +811,6 @@ static inline u64 sb_bdev_nr_blocks(struct super_block *sb)
- 
- int bdev_disk_changed(struct gendisk *disk, bool invalidate);
- 
--struct gendisk *__alloc_disk_node(struct request_queue *q, int node_id,
--		struct lock_class_key *lkclass);
- void put_disk(struct gendisk *disk);
- struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass);
- 
-@@ -953,7 +952,6 @@ static inline unsigned int blk_max_size_offset(struct request_queue *q,
- /*
-  * Access functions for manipulating queue properties
-  */
--extern void blk_cleanup_queue(struct request_queue *);
- void blk_queue_bounce_limit(struct request_queue *q, enum blk_bounce limit);
- extern void blk_queue_max_hw_sectors(struct request_queue *, unsigned int);
- extern void blk_queue_chunk_sectors(struct request_queue *, unsigned int);
 -- 
 2.35.1
 
