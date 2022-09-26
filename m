@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9013B5EA102
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E47635EA034
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236315AbiIZKpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:45:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42938 "EHLO
+        id S235837AbiIZKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236445AbiIZKnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:43:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A463B4B;
-        Mon, 26 Sep 2022 03:24:57 -0700 (PDT)
+        with ESMTP id S235943AbiIZKdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691614F187;
+        Mon, 26 Sep 2022 03:20:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F037B80682;
-        Mon, 26 Sep 2022 10:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4295DC433C1;
-        Mon, 26 Sep 2022 10:24:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E018060C2C;
+        Mon, 26 Sep 2022 10:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F9DC433D6;
+        Mon, 26 Sep 2022 10:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187894;
-        bh=14LOge9ZT3P4ZiqBhc7nTzeEF/5VcYCWhsD0HB6YN1A=;
+        s=korg; t=1664187621;
+        bh=zoFwJNAV8OYE3aCPPkf1bJp38WO9tMqisyaY5w41r3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/va6fZu7wJDI5oZMEJFc9H1dlnuyK3nLFxwrghBaoYKVPGbkQXgeeIjNt/AlAMOe
-         vPV/3xY5mMuVLPdtnONnXizrZGr/cAzjGy6P6o4p6Hffhiy1VPrdcdfqVoe89M4Wy4
-         VAYMZUwhMk6NrSBaADxmkyk/101LDtfh3RJoV4lw=
+        b=lE94j3upy1GPbuTlt6sg4NzntwWfYHHXfmho3Jz6cDLdraBXtJFi/lnHmdpltpJfl
+         TpRrdwWwgVk8+MFTTVKF2a86csGZdTspha8eEH3pd+40GGea+CnTiBOSEiM+GuOItk
+         qhZbdrNuOxu//XB0qQJ0DeEG6lOiT42tB/IOSLww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stan Lu <stan.lu@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.4 094/120] usb: xhci-mtk: fix issue of out-of-bounds array access
+        stable@vger.kernel.org, Daniel Dao <dqminh@cloudflare.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 48/58] perf kcore_copy: Do not check /proc/modules is unchanged
 Date:   Mon, 26 Sep 2022 12:12:07 +0200
-Message-Id: <20220926100754.444731153@linuxfoundation.org>
+Message-Id: <20220926100743.209738261@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit de5107f473190538a65aac7edea85209cd5c1a8f upstream.
+[ Upstream commit 5b427df27b94aec1312cace48a746782a0925c53 ]
 
-Bus bandwidth array access is based on esit, increase one
-will cause out-of-bounds issue; for example, when esit is
-XHCI_MTK_MAX_ESIT, will overstep boundary.
+/proc/kallsyms and /proc/modules are compared before and after the copy
+in order to ensure no changes during the copy.
 
-Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
-Cc: <stable@vger.kernel.org>
-Reported-by: Stan Lu <stan.lu@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1629189389-18779-5-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However /proc/modules also might change due to reference counts changing
+even though that does not make any difference.
+
+Any modules loaded or unloaded should be visible in changes to kallsyms,
+so it is not necessary to check /proc/modules also anyway.
+
+Remove the comparison checking that /proc/modules is unchanged.
+
+Fixes: fc1b691d7651d949 ("perf buildid-cache: Add ability to add kcore to the cache")
+Reported-by: Daniel Dao <dqminh@cloudflare.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Daniel Dao <dqminh@cloudflare.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: https://lore.kernel.org/r/20220914122429.8770-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/perf/util/symbol-elf.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -539,10 +539,12 @@ static u32 get_esit_boundary(struct mu3h
- 	u32 boundary = sch_ep->esit;
- 
- 	if (sch_ep->sch_tt) { /* LS/FS with TT */
--		/* tune for CS */
--		if (sch_ep->ep_type != ISOC_OUT_EP)
--			boundary++;
--		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
-+		/*
-+		 * tune for CS, normally esit >= 8 for FS/LS,
-+		 * not add one for other types to avoid access array
-+		 * out of boundary
-+		 */
-+		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
- 			boundary--;
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index bd33d6613929..5fba57c10edd 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -1871,8 +1871,8 @@ static int kcore_copy__compare_file(const char *from_dir, const char *to_dir,
+  * unusual.  One significant peculiarity is that the mapping (start -> pgoff)
+  * is not the same for the kernel map and the modules map.  That happens because
+  * the data is copied adjacently whereas the original kcore has gaps.  Finally,
+- * kallsyms and modules files are compared with their copies to check that
+- * modules have not been loaded or unloaded while the copies were taking place.
++ * kallsyms file is compared with its copy to check that modules have not been
++ * loaded or unloaded while the copies were taking place.
+  *
+  * Return: %0 on success, %-1 on failure.
+  */
+@@ -1935,9 +1935,6 @@ int kcore_copy(const char *from_dir, const char *to_dir)
+ 			goto out_extract_close;
  	}
  
+-	if (kcore_copy__compare_file(from_dir, to_dir, "modules"))
+-		goto out_extract_close;
+-
+ 	if (kcore_copy__compare_file(from_dir, to_dir, "kallsyms"))
+ 		goto out_extract_close;
+ 
+-- 
+2.35.1
+
 
 
