@@ -2,136 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBC345EA59E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:09:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE475EA5D6
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 14:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239291AbiIZMJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 08:09:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40150 "EHLO
+        id S239422AbiIZMVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 08:21:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239569AbiIZMI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:08:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0858A7FE7F;
-        Mon, 26 Sep 2022 03:56:15 -0700 (PDT)
+        with ESMTP id S239437AbiIZMU5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 08:20:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C24F5E54A;
+        Mon, 26 Sep 2022 04:03:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 358F3B8094D;
-        Mon, 26 Sep 2022 10:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65300C433C1;
-        Mon, 26 Sep 2022 10:39:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 468746068C;
+        Mon, 26 Sep 2022 10:49:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CD2DC433D6;
+        Mon, 26 Sep 2022 10:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188753;
-        bh=wyjmZCVcKEVSfKVNv8VJM84TEdaAO4pniYniRVVgyCI=;
+        s=korg; t=1664189352;
+        bh=4XjvDMY7+JMNNTaZ99vTKWavds7RXyMkidR26fFMFpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4OG8kjrOm+zpEcsLlHML26FKYos1F8dyqa1ZfYcvGmMKOqKzF0uOH0Y6U1VPV948
-         pL4ZV8qBg3L720kuz64iVhbt9WV7lqigRKnfiePpoqSHDNvn3foshMrLTmpPp4KSGJ
-         ZC/p1G4hVhjU0AFvpiEE4Yephum2sdIiiMCAg3zg=
+        b=gmHF06wl3JqtTE4Qc5W7PpsZfKxRdlvi0y+z/w2n3jxOM+mJO+ohdi8Et9pcqPS4X
+         bLNJ4ucVc7dX22tNxNS3SU8eKFV98SmceRAlsuHCT+Obwr7mRCAPdoKhpuIIiFyw8N
+         K5uVouAowlRVSYrqBcs3FKv2RasWAF52h6gc9tTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Hsin-Yi Wang <hsinyi@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/148] drm/mediatek: dsi: Move mtk_dsi_stop() call back to mtk_dsi_poweroff()
-Date:   Mon, 26 Sep 2022 12:12:24 +0200
-Message-Id: <20220926100800.238110574@linuxfoundation.org>
+Subject: [PATCH 5.19 158/207] selftests: forwarding: add shebang for sch_red.sh
+Date:   Mon, 26 Sep 2022 12:12:27 +0200
+Message-Id: <20220926100813.726220380@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 90144dd8b0d137d9e78ef34b3c418e51a49299ad ]
+[ Upstream commit 83e4b196838d90799a8879e5054a3beecf9ed256 ]
 
-As the comment right before the mtk_dsi_stop() call advises,
-mtk_dsi_stop() should only be called after
-mtk_drm_crtc_atomic_disable(). That's because that function calls
-drm_crtc_wait_one_vblank(), which requires the vblank irq to be enabled.
+RHEL/Fedora RPM build checks are stricter, and complain when executable
+files don't have a shebang line, e.g.
 
-Previously mtk_dsi_stop(), being in mtk_dsi_poweroff() and guarded by a
-refcount, would only be called at the end of
-mtk_drm_crtc_atomic_disable(), through the call to mtk_crtc_ddp_hw_fini().
-Commit cde7e2e35c28 ("drm/mediatek: Separate poweron/poweroff from
-enable/disable and define new funcs") moved the mtk_dsi_stop() call to
-mtk_output_dsi_disable(), causing it to be called before
-mtk_drm_crtc_atomic_disable(), and consequently generating vblank
-timeout warnings during suspend.
+*** WARNING: ./kselftests/net/forwarding/sch_red.sh is executable but has no shebang, removing executable bit
 
-Move the mtk_dsi_stop() call back to mtk_dsi_poweroff() so that we have
-a working vblank irq during mtk_drm_crtc_atomic_disable() and stop
-getting vblank timeout warnings.
+Fix it by adding shebang line.
 
-Fixes: cde7e2e35c28 ("drm/mediatek: Separate poweron/poweroff from enable/disable and define new funcs")
-Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Tested-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Link: http://lists.infradead.org/pipermail/linux-mediatek/2022-August/046713.html
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Fixes: 6cf0291f9517 ("selftests: forwarding: Add a RED test for SW datapath")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20220922024453.437757-1-liuhangbin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ tools/testing/selftests/net/forwarding/sch_red.sh | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index fc437d4d4e2d..a6d28533f1b1 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -673,6 +673,16 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
- 	if (--dsi->refcount != 0)
- 		return;
+diff --git a/tools/testing/selftests/net/forwarding/sch_red.sh b/tools/testing/selftests/net/forwarding/sch_red.sh
+index e714bae473fb..81f31179ac88 100755
+--- a/tools/testing/selftests/net/forwarding/sch_red.sh
++++ b/tools/testing/selftests/net/forwarding/sch_red.sh
+@@ -1,3 +1,4 @@
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
  
-+	/*
-+	 * mtk_dsi_stop() and mtk_dsi_start() is asymmetric, since
-+	 * mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(),
-+	 * which needs irq for vblank, and mtk_dsi_stop() will disable irq.
-+	 * mtk_dsi_start() needs to be called in mtk_output_dsi_enable(),
-+	 * after dsi is fully set.
-+	 */
-+	mtk_dsi_stop(dsi);
-+
-+	mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500);
- 	mtk_dsi_reset_engine(dsi);
- 	mtk_dsi_lane0_ulp_mode_enter(dsi);
- 	mtk_dsi_clk_ulp_mode_enter(dsi);
-@@ -723,17 +733,6 @@ static void mtk_output_dsi_disable(struct mtk_dsi *dsi)
- 	if (!dsi->enabled)
- 		return;
- 
--	/*
--	 * mtk_dsi_stop() and mtk_dsi_start() is asymmetric, since
--	 * mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(),
--	 * which needs irq for vblank, and mtk_dsi_stop() will disable irq.
--	 * mtk_dsi_start() needs to be called in mtk_output_dsi_enable(),
--	 * after dsi is fully set.
--	 */
--	mtk_dsi_stop(dsi);
--
--	mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500);
--
- 	dsi->enabled = false;
- }
- 
+ # This test sends one stream of traffic from H1 through a TBF shaper, to a RED
 -- 
 2.35.1
 
