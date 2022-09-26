@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B79CF5E9F27
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:20:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49B15E9F15
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235189AbiIZKUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
+        id S234889AbiIZKTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235279AbiIZKTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:19:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913CA4A82A;
-        Mon, 26 Sep 2022 03:15:38 -0700 (PDT)
+        with ESMTP id S234779AbiIZKSK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:18:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3503FA39;
+        Mon, 26 Sep 2022 03:15:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 899DE60B5E;
-        Mon, 26 Sep 2022 10:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79068C433D6;
-        Mon, 26 Sep 2022 10:15:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7589BCE10E9;
+        Mon, 26 Sep 2022 10:15:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C465C433C1;
+        Mon, 26 Sep 2022 10:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187337;
-        bh=2x6zsb67uTFw6Zg5Vv9Mn/ateOWgVoYfDeRhJLjFAvM=;
+        s=korg; t=1664187308;
+        bh=wpR2uPM5j62f5gxaMpy1qf7y9e1hJhxI6jbW71SU2yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPiv6+DCNbI10XY8z8tANe1zzZmM3m4WZHdlV6XgLgskOk4e9zJOBp1pbPqk+gYxA
-         BqAdXSe+DUmdLtylWzClrPB95I8neGNtqhwBat3x/bWX46VNYkNl7PxZPd/bx5ZyW/
-         bgL/h6Yq/Oq0ilMAv9ZeNeBk60ybHD1Y382CpOFY=
+        b=kuHhZHA5syHALewkg+YzIlh/s2sb/wdRFga2rP/TS9En/ZYn2E3Kt+74DJkYTAnw6
+         B6sZvhAeYGAuaAPZ+rmEmd2dvW+uQ5ODGMI6RYwH5Kz8N4t8lIm2ZqciHpAYUelihZ
+         Jcc+0muTEIt3N/emGwn5BcRQZSmdqd67tHMZqJCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,20 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Siddh Raman Pant <code@siddh.me>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/40] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
+Subject: [PATCH 4.9 13/30] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
 Date:   Mon, 26 Sep 2022 12:11:44 +0200
-Message-Id: <20220926100738.847583156@linuxfoundation.org>
+Message-Id: <20220926100736.646872576@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -84,7 +83,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/net/mac80211/scan.c b/net/mac80211/scan.c
-index dd9d7c4b7f2d..5df8f393c119 100644
+index 701adcb9262e..a73c362a0182 100644
 --- a/net/mac80211/scan.c
 +++ b/net/mac80211/scan.c
 @@ -385,10 +385,6 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
