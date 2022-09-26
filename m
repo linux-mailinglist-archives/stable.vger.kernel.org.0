@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 016905EA38C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:27:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA5075EA4DF
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235366AbiIZL1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42194 "EHLO
+        id S238304AbiIZL4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237675AbiIZL0b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:26:31 -0400
+        with ESMTP id S238813AbiIZLxu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:53:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B8069F6F;
-        Mon, 26 Sep 2022 03:40:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2015D48CAF;
+        Mon, 26 Sep 2022 03:49:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20FD1B8068A;
-        Mon, 26 Sep 2022 10:40:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F59C433D6;
-        Mon, 26 Sep 2022 10:40:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DDF1B80921;
+        Mon, 26 Sep 2022 10:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA2FC433C1;
+        Mon, 26 Sep 2022 10:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188834;
-        bh=yPR+aSuoNrFsZhZZCkn3ZC1acLKJnWnud/6ONVX08PM=;
+        s=korg; t=1664189372;
+        bh=5Wecxc0YtwM+6k5gpDHuu2iI+A5vqPhrYMOoNyICU3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llnUN3/2R4m5q5ff/AGPCm14Yk0JxvuRSX6CWv7ZvVfOMzwjgGDw7xUK+StSTWpIF
-         ZPiPlPR6ZYAixu5GfwBg0xuGAhpjw8ER+SP6FQVmRJOtuAAtVneN1B5np/KORzLEiU
-         5brxEaw/DkhzUY/0pg+sWHsUfezmJgGPWgtr7N2o=
+        b=cT+qI3IyPIsyPDE6BHWc0YO4bKH4AMAts3Fh4BYuCmm0hSV6A1YPXJE0tJLD1tOLw
+         dF7yl9atS8vlnYe7Tll1EjHyFZYLUWrJ8nuh8UUDd0d4uY5cDUKrek5YjVXeKcYLyC
+         qUwR1GTF1Dx8/jVCJ/bqo1AvWp5HZeUDvcBDXjys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        stable <stable@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.15 119/148] serial: Create uart_xmit_advance()
+        stable@vger.kernel.org, Marco Patalano <mpatalan@redhat.com>,
+        Muneendra <muneendra.kumar@broadcom.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.19 164/207] cgroup: cgroup_get_from_id() must check the looked-up kn is a directory
 Date:   Mon, 26 Sep 2022 12:12:33 +0200
-Message-Id: <20220926100800.598374044@linuxfoundation.org>
+Message-Id: <20220926100814.011227446@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit e77cab77f2cb3a1ca2ba8df4af45bb35617ac16d upstream.
+commit df02452f3df069a59bc9e69c84435bf115cb6e37 upstream.
 
-A very common pattern in the drivers is to advance xmit tail
-index and do bookkeeping of Tx'ed characters. Create
-uart_xmit_advance() to handle it.
+cgroup has to be one kernfs dir, otherwise kernel panic is caused,
+especially cgroup id is provide from userspace.
 
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220901143934.8850-2-ilpo.jarvinen@linux.intel.com
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Fixes: 6b658c4863c1 ("scsi: cgroup: Add cgroup_get_from_id()")
+Cc: Muneendra <muneendra.kumar@broadcom.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Acked-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Cc: stable@vger.kernel.org # v5.14+
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/serial_core.h |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ kernel/cgroup/cgroup.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -300,6 +300,23 @@ struct uart_state {
- /* number of characters left in xmit buffer before we ask for more */
- #define WAKEUP_CHARS		256
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -6026,6 +6026,9 @@ struct cgroup *cgroup_get_from_id(u64 id
+ 	if (!kn)
+ 		goto out;
  
-+/**
-+ * uart_xmit_advance - Advance xmit buffer and account Tx'ed chars
-+ * @up: uart_port structure describing the port
-+ * @chars: number of characters sent
-+ *
-+ * This function advances the tail of circular xmit buffer by the number of
-+ * @chars transmitted and handles accounting of transmitted bytes (into
-+ * @up's icount.tx).
-+ */
-+static inline void uart_xmit_advance(struct uart_port *up, unsigned int chars)
-+{
-+	struct circ_buf *xmit = &up->state->xmit;
++	if (kernfs_type(kn) != KERNFS_DIR)
++		goto put;
 +
-+	xmit->tail = (xmit->tail + chars) & (UART_XMIT_SIZE - 1);
-+	up->icount.tx += chars;
-+}
-+
- struct module;
- struct tty_driver;
+ 	rcu_read_lock();
  
+ 	cgrp = rcu_dereference(*(void __rcu __force **)&kn->priv);
+@@ -6033,7 +6036,7 @@ struct cgroup *cgroup_get_from_id(u64 id
+ 		cgrp = NULL;
+ 
+ 	rcu_read_unlock();
+-
++put:
+ 	kernfs_put(kn);
+ out:
+ 	return cgrp;
 
 
