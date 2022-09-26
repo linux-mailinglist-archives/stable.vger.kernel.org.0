@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC505EA4C7
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6CD5EA002
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238486AbiIZLwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:52:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39878 "EHLO
+        id S235523AbiIZKcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:32:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238525AbiIZLvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:51:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D05B76751;
-        Mon, 26 Sep 2022 03:48:58 -0700 (PDT)
+        with ESMTP id S235704AbiIZKaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:30:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58B41658D;
+        Mon, 26 Sep 2022 03:19:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F9B260B4A;
-        Mon, 26 Sep 2022 10:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65952C433D6;
-        Mon, 26 Sep 2022 10:46:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A180B60BB1;
+        Mon, 26 Sep 2022 10:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F1CDC433C1;
+        Mon, 26 Sep 2022 10:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189218;
-        bh=klu/CdF2GgcnLipy5mv8tLdF/E32HaFbW96q4R9qV+0=;
+        s=korg; t=1664187584;
+        bh=OKB7sDthagfc4CiDnzYEepFMAYz3D5hkcJdLt/uvffs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDoE596Xd2FjObqJHpJEHkq/kVQ4dGG8zp9GrBJhTFf5dyQifF9Bzp+QGDZmVY6DX
-         ULjMu1IKxCo1T9FOSKnTXMhRKSOum1FJmQxIXfuIL89Gj5wXBYbDv6zV0tpRrtsI+n
-         1HhkRrX6AeTR1uA/X+HKStXx2GNOVbOHzHbM940I=
+        b=xeP6N6I8M0F07O7zHrcB0NyyLMHA9SfzTwPa8LlYr8rpMvMZcDnxdNjFaymrrxjqx
+         HmmaOoQbEayF2CjAtTEemfi5qv0ML1wl7aQt5gXEgYueZhuz0FoJ6FyLFDI/TMyvBg
+         KSe1DD+no1R4jftTO2BUXfpwzyb5mCKEUFGG/e6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Norbert Zulinski <norbertx.zulinski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 113/207] iavf: Fix bad page state
+Subject: [PATCH 4.19 23/58] usb: dwc3: pci: add support for the Intel Alder Lake-S
 Date:   Mon, 26 Sep 2022 12:11:42 +0200
-Message-Id: <20220926100811.659677514@linuxfoundation.org>
+Message-Id: <20220926100742.297863807@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Zulinski <norbertx.zulinski@intel.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit 66039eb9015eee4f7ff0c99b83c65c7ecb3c8190 ]
+[ Upstream commit 1384ab4fee12c4c4f8bd37bc9f8686881587b286 ]
 
-Fix bad page state, free inappropriate page in handling dummy
-descriptor. iavf_build_skb now has to check not only if rx_buffer is
-NULL but also if size is zero, same thing in iavf_clean_rx_irq.
-Without this patch driver would free page that will be used
-by napi_build_skb.
+This patch adds the necessary PCI ID for Intel Alder Lake-S
+devices.
 
-Fixes: a9f49e006030 ("iavf: Fix handling of dummy receive descriptors")
-Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Stable-dep-of: bad0d1d726ac ("usb: dwc3: pci: Add support for Intel Raptor Lake")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_txrx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-index 4c3f3f419110..18b6a702a1d6 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-@@ -1393,7 +1393,7 @@ static struct sk_buff *iavf_build_skb(struct iavf_ring *rx_ring,
- #endif
- 	struct sk_buff *skb;
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index 125cecb1bc99..ec7063e63436 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -40,6 +40,7 @@
+ #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
+ #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
+ #define PCI_DEVICE_ID_INTEL_JSP			0x4dee
++#define PCI_DEVICE_ID_INTEL_ADLS		0x7ae1
  
--	if (!rx_buffer)
-+	if (!rx_buffer || !size)
- 		return NULL;
- 	/* prefetch first cache line of first page */
- 	va = page_address(rx_buffer->page) + rx_buffer->page_offset;
-@@ -1551,7 +1551,7 @@ static int iavf_clean_rx_irq(struct iavf_ring *rx_ring, int budget)
- 		/* exit if we failed to retrieve a buffer */
- 		if (!skb) {
- 			rx_ring->rx_stats.alloc_buff_failed++;
--			if (rx_buffer)
-+			if (rx_buffer && size)
- 				rx_buffer->pagecnt_bias++;
- 			break;
- 		}
+ #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
+ #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
+@@ -367,6 +368,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+ 
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_ADLS),
++	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
++
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
+ 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
+ 	{  }	/* Terminating Entry */
 -- 
 2.35.1
 
