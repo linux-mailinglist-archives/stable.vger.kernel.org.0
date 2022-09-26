@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C42FF5EA1C3
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4695EA043
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236879AbiIZK4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53178 "EHLO
+        id S235906AbiIZKfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237231AbiIZKy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:54:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F36675A148;
-        Mon, 26 Sep 2022 03:29:10 -0700 (PDT)
+        with ESMTP id S236269AbiIZKec (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818644AD5F;
+        Mon, 26 Sep 2022 03:21:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 44EEFCE10E0;
-        Mon, 26 Sep 2022 10:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EFCAC433C1;
-        Mon, 26 Sep 2022 10:28:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91EEF60AD6;
+        Mon, 26 Sep 2022 10:21:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84272C4314C;
+        Mon, 26 Sep 2022 10:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188081;
-        bh=XKuC3htTFydCdX33otrb1oPzdRhMOL5LIYnIRdG7kHY=;
+        s=korg; t=1664187693;
+        bh=hySRG2UVRTaeI4Q4gk6xmE/6JOw27WgqZsbbmA+cNNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdAGACkXHH2MIb+KLJPTXKb03XdHpO7umuJHTn8N1SFA3cRSjgqJDMpliN7GBK7sn
-         ZwxOO3/Ob3nyDbVdOJqrW5u/lTBGgFiztdwXZ45bDfSTCXSs6ilVPStmJVgmGzOAfY
-         pvjPrV4PtRBhbBq6/LUjQrj+1bEJ2njjJeoahLmQ=
+        b=i0iTH3HpZBLkFVLzKE9UFVrQHWc5WyvfajLWkMFqtDgUVAiG/yLwOMpd/btQ0xaEc
+         9h+ujXZBIfhhULU+uuU+05rm28Yhsqz8+Mkj67ikx+xMDq4qFnoQ9xmBAv/7Dpb3YV
+         dxN21RfQEo9GqVPNfmAwT2BvynUDtQezwbmkHaao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        D Scott Phillips <scott@os.amperecomputing.com>,
-        Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Wesley Cheng <wcheng@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/141] arm64/bti: Disable in kernel BTI when cross section thunks are broken
-Date:   Mon, 26 Sep 2022 12:11:01 +0200
-Message-Id: <20220926100755.759160976@linuxfoundation.org>
+Subject: [PATCH 5.4 029/120] usb: dwc3: gadget: Avoid starting DWC3 gadget during UDC unbind
+Date:   Mon, 26 Sep 2022 12:11:02 +0200
+Message-Id: <20220926100751.719085566@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-[ Upstream commit c0a454b9044fdc99486853aa424e5b3be2107078 ]
+[ Upstream commit 8217f07a50236779880f13e87f99224cd9117f83 ]
 
-GCC does not insert a `bti c` instruction at the beginning of a function
-when it believes that all callers reach the function through a direct
-branch[1]. Unfortunately the logic it uses to determine this is not
-sufficiently robust, for example not taking account of functions being
-placed in different sections which may be loaded separately, so we may
-still see thunks being generated to these functions. If that happens,
-the first instruction in the callee function will result in a Branch
-Target Exception due to the missing landing pad.
+There is a race present where the DWC3 runtime resume runs in parallel
+to the UDC unbind sequence.  This will eventually lead to a possible
+scenario where we are enabling the run/stop bit, without a valid
+composition defined.
 
-While this has currently only been observed in the case of modules
-having their main code loaded sufficiently far from their init section
-to require thunks it could potentially happen for other cases so the
-safest thing is to disable BTI for the kernel when building with an
-affected toolchain.
+Thread#1 (handling UDC unbind):
+usb_gadget_remove_driver()
+-->usb_gadget_disconnect()
+  -->dwc3_gadget_pullup(0)
+--> continue UDC unbind sequence
+-->Thread#2 is running in parallel here
 
-[1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106671
+Thread#2 (handing next cable connect)
+__dwc3_set_mode()
+  -->pm_runtime_get_sync()
+    -->dwc3_gadget_resume()
+      -->dwc->gadget_driver is NOT NULL yet
+      -->dwc3_gadget_run_stop(1)
+      --> _dwc3gadget_start()
+...
 
-Reported-by: D Scott Phillips <scott@os.amperecomputing.com>
-[Bits of the commit message are lifted from his report & workaround]
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220905142255.591990-1-broonie@kernel.org
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Will Deacon <will@kernel.org>
+Fix this by tracking the pullup disable routine, and avoiding resuming
+of the DWC3 gadget.  Once the UDC is re-binded, that will trigger the
+pullup enable routine, which would handle enabling the DWC3 gadget.
+
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/20210917021852.2037-1-wcheng@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 040f2dbd2010 ("usb: dwc3: gadget: Avoid duplicate requests to enable Run/Stop")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc3/core.h   | 2 ++
+ drivers/usb/dwc3/gadget.c | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 662311a513f0..af65ab83e63d 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -1654,6 +1654,8 @@ config ARM64_BTI_KERNEL
- 	depends on CC_HAS_BRANCH_PROT_PAC_RET_BTI
- 	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94697
- 	depends on !CC_IS_GCC || GCC_VERSION >= 100100
-+	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106671
-+	depends on !CC_IS_GCC
- 	# https://github.com/llvm/llvm-project/commit/a88c722e687e6780dcd6a58718350dc76fcc4cc9
- 	depends on !CC_IS_CLANG || CLANG_VERSION >= 120000
- 	depends on (!FUNCTION_GRAPH_TRACER || DYNAMIC_FTRACE_WITH_REGS)
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index da296f888f45..a93c61bc5a7d 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -994,6 +994,7 @@ struct dwc3_scratchpad_array {
+  * @tx_max_burst_prd: max periodic ESS transmit burst size
+  * @hsphy_interface: "utmi" or "ulpi"
+  * @connected: true when we're connected to a host, false otherwise
++ * @softconnect: true when gadget connect is called, false when disconnect runs
+  * @delayed_status: true when gadget driver asks for delayed status
+  * @ep0_bounced: true when we used bounce buffer
+  * @ep0_expect_in: true when we expect a DATA IN transfer
+@@ -1196,6 +1197,7 @@ struct dwc3 {
+ 	const char		*hsphy_interface;
+ 
+ 	unsigned		connected:1;
++	unsigned		softconnect:1;
+ 	unsigned		delayed_status:1;
+ 	unsigned		ep0_bounced:1;
+ 	unsigned		ep0_expect_in:1;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 80fee7ea83ca..079919b85d87 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2015,7 +2015,7 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 	int			ret;
+ 
+ 	is_on = !!is_on;
+-
++	dwc->softconnect = is_on;
+ 	/*
+ 	 * Per databook, when we want to stop the gadget, if a control transfer
+ 	 * is still in process, complete it and get the core into setup phase.
+@@ -3791,7 +3791,7 @@ int dwc3_gadget_resume(struct dwc3 *dwc)
+ {
+ 	int			ret;
+ 
+-	if (!dwc->gadget_driver)
++	if (!dwc->gadget_driver || !dwc->softconnect)
+ 		return 0;
+ 
+ 	ret = __dwc3_gadget_start(dwc);
 -- 
 2.35.1
 
