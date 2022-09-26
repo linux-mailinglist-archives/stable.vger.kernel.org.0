@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 953735EA2B4
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 097425EA3F4
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237553AbiIZLND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53056 "EHLO
+        id S238157AbiIZLhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:37:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237457AbiIZLLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:11:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE792606B1;
-        Mon, 26 Sep 2022 03:35:42 -0700 (PDT)
+        with ESMTP id S238081AbiIZLft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:35:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338646EF04;
+        Mon, 26 Sep 2022 03:43:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA24C609FB;
-        Mon, 26 Sep 2022 10:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F34C433C1;
-        Mon, 26 Sep 2022 10:34:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81BD2B8095B;
+        Mon, 26 Sep 2022 10:43:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C83C433C1;
+        Mon, 26 Sep 2022 10:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188465;
-        bh=tv52t3b1albqinSUtqZaK46JAGXXbMdaRMBXhRPrD48=;
+        s=korg; t=1664189029;
+        bh=hbX0O4j5USK+7RKpbhjOSEOCaH0sBE6gjVM88scBssA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WcWQG5aGVA0HXdafTwr8gBdq2+hinfZXyfJYSQ4eNo1ejF/nkR1Wfg0fw+jv9KXwt
-         q2qQ/6WJzab6qeDRL2oQFAN0dy9z47lQJbj8ihSdBXMbaohp0ej6A3pdM0aksgEaHB
-         8J5to5JwvZW2WnY7wSx8MbuV8whQ0zUOpmBFkK08=
+        b=Ru6Os3WQv+crTxS24IqmSwkuYbSEWls9F+cu75VkBzcWo/+Rbv9HDHwzv8KFYRIkO
+         bP9udvc7Ni6U9I9Bp2pBLc8rNU6UlHB8wkKKL3rmJx6ffrAfu+YPT2RJRsQhD8YxWJ
+         onzWpy9gjX1EPRX7oW2a95GSCo95TWe3jjsD4L+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/148] staging: r8188eu: Add Rosewill USB-N150 Nano to device tables
-Date:   Mon, 26 Sep 2022 12:10:38 +0200
-Message-Id: <20220926100756.232593153@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.19 050/207] wifi: mt76: fix reading current per-tid starting sequence number for aggregation
+Date:   Mon, 26 Sep 2022 12:10:39 +0200
+Message-Id: <20220926100808.862244223@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit e01f5c8d6af231b3b09e23c1fe8a4057cdcc4e42 ]
+commit c3a510e2b53785df31d882a773c4c0780b4c825f upstream.
 
-This device is reported as using the RTL8188EUS chip.
+The code was accidentally shifting register values down by tid % 32 instead of
+(tid * field_size) % 32.
 
-It has the improbable USB ID of 0bda:ffef, which normally would belong
-to Realtek, but this ID works for the reporter.
-
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220814175027.2689-1-Larry.Finger@lwfinger.net
+Cc: stable@vger.kernel.org
+Fixes: a28bef561a5c ("mt76: mt7615: re-enable offloading of sequence number assignment")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220826182329.18155-1-nbd@nbd.name
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/r8188eu/os_dep/usb_intf.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/r8188eu/os_dep/usb_intf.c b/drivers/staging/r8188eu/os_dep/usb_intf.c
-index b6c6fa72de44..640f1ca2d985 100644
---- a/drivers/staging/r8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/r8188eu/os_dep/usb_intf.c
-@@ -30,6 +30,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
- 	/*=== Realtek demoboard ===*/
- 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8179)}, /* 8188EUS */
- 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x0179)}, /* 8188ETV */
-+	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill USB-N150 Nano */
- 	/*=== Customer ID ===*/
- 	/****** 8188EUS ********/
- 	{USB_DEVICE(0x07B8, 0x8179)}, /* Abocom - Abocom */
--- 
-2.35.1
-
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -1138,7 +1138,7 @@ u32 mt7615_mac_get_sta_tid_sn(struct mt7
+ 	offset %= 32;
+ 
+ 	val = mt76_rr(dev, addr);
+-	val >>= (tid % 32);
++	val >>= offset;
+ 
+ 	if (offset > 20) {
+ 		addr += 4;
 
 
