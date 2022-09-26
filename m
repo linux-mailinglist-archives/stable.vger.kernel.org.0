@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64CED5E9F5F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E284F5EA31D
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235273AbiIZKZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59020 "EHLO
+        id S237638AbiIZLTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:19:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235440AbiIZKXt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:23:49 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849D9DEDD;
-        Mon, 26 Sep 2022 03:17:19 -0700 (PDT)
+        with ESMTP id S237751AbiIZLSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:18:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D9866A68;
+        Mon, 26 Sep 2022 03:38:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CE33ACE10E9;
-        Mon, 26 Sep 2022 10:16:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9F7AC433D6;
-        Mon, 26 Sep 2022 10:16:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53A6DB8091E;
+        Mon, 26 Sep 2022 10:38:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45AAC433C1;
+        Mon, 26 Sep 2022 10:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187411;
-        bh=LjL2pJ7jfJN9nliWkDI+Wueh5f4fUGrGKlyxUIDa3ZE=;
+        s=korg; t=1664188701;
+        bh=eJ+fDbbzA19SGMmU8INWJvoyHaXEcrggf1UMvpYzvDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWru3uGTZtmIoPBfWBfQ//UB6zUJxezVdjNMwst+DmHX72t1xa2uFUXKdUMSkDhQW
-         Pl97O1MIkx6RK25cb8VekikRpDCmqDBJ2K1ZJxYmUyQUfPf8c6fZKkQWOyBs+5N0Vp
-         7DrpWbk+bPnO+YGNJCJbGoP1NUl+A8PZcDoP152Y=
+        b=Bsndg4uRPQozWIAewi7lHPeyYVqbUrCMttL8bdKmtW7b9nDSXLVe7wTAX40+fTryO
+         mx0qROSP4nMf6wk7B+NTLK9DSzOxlBaNBNRpG4xAWQLC7h+/3lwYVUFfFwW7sYqKEI
+         16SfPpKH1+h2h2upA4QYT5qSQbAAWE4vqf5u71CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>
-Subject: [PATCH 4.14 40/40] media: em28xx: initialize refcount before kref_get
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 094/148] wireguard: ratelimiter: disable timings test by default
 Date:   Mon, 26 Sep 2022 12:12:08 +0200
-Message-Id: <20220926100739.866179955@linuxfoundation.org>
+Message-Id: <20220926100759.612525023@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit c08eadca1bdfa099e20a32f8fa4b52b2f672236d upstream.
+[ Upstream commit 684dec3cf45da2b0848298efae4adf3b2aeafeda ]
 
-The commit 47677e51e2a4("[media] em28xx: Only deallocate struct
-em28xx after finishing all extensions") adds kref_get to many init
-functions (e.g., em28xx_audio_init). However, kref_init is called too
-late in em28xx_usb_probe, since em28xx_init_dev before will invoke
-those init functions and call kref_get function. Then refcount bug
-occurs in my local syzkaller instance.
+A previous commit tried to make the ratelimiter timings test more
+reliable but in the process made it less reliable on other
+configurations. This is an impossible problem to solve without
+increasingly ridiculous heuristics. And it's not even a problem that
+actually needs to be solved in any comprehensive way, since this is only
+ever used during development. So just cordon this off with a DEBUG_
+ifdef, just like we do for the trie's randomized tests, so it can be
+enabled while hacking on the code, and otherwise disabled in CI. In the
+process we also revert 151c8e499f47.
 
-Fix it by moving kref_init before em28xx_init_dev. This issue occurs
-not only in dev but also dev->dev_next.
-
-Fixes: 47677e51e2a4 ("[media] em28xx: Only deallocate struct em28xx after finishing all extensions")
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[DP: drop changes related to dev->dev_next as second tuner functionality was added in 4.16]
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 151c8e499f47 ("wireguard: ratelimiter: use hrtimer in selftest")
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireguard/selftest/ratelimiter.c | 25 ++++++++------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
 
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -3644,6 +3644,8 @@ static int em28xx_usb_probe(struct usb_i
- 		goto err_free;
- 	}
+diff --git a/drivers/net/wireguard/selftest/ratelimiter.c b/drivers/net/wireguard/selftest/ratelimiter.c
+index ba87d294604f..d4bb40a695ab 100644
+--- a/drivers/net/wireguard/selftest/ratelimiter.c
++++ b/drivers/net/wireguard/selftest/ratelimiter.c
+@@ -6,29 +6,28 @@
+ #ifdef DEBUG
  
-+	kref_init(&dev->ref);
-+
- 	dev->devno = nr;
- 	dev->model = id->driver_info;
- 	dev->alt   = -1;
-@@ -3730,8 +3732,6 @@ static int em28xx_usb_probe(struct usb_i
- 			dev->dvb_xfer_bulk ? "bulk" : "isoc");
- 	}
+ #include <linux/jiffies.h>
+-#include <linux/hrtimer.h>
  
--	kref_init(&dev->ref);
--
- 	request_modules(dev);
+ static const struct {
+ 	bool result;
+-	u64 nsec_to_sleep_before;
++	unsigned int msec_to_sleep_before;
+ } expected_results[] __initconst = {
+ 	[0 ... PACKETS_BURSTABLE - 1] = { true, 0 },
+ 	[PACKETS_BURSTABLE] = { false, 0 },
+-	[PACKETS_BURSTABLE + 1] = { true, NSEC_PER_SEC / PACKETS_PER_SECOND },
++	[PACKETS_BURSTABLE + 1] = { true, MSEC_PER_SEC / PACKETS_PER_SECOND },
+ 	[PACKETS_BURSTABLE + 2] = { false, 0 },
+-	[PACKETS_BURSTABLE + 3] = { true, (NSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
++	[PACKETS_BURSTABLE + 3] = { true, (MSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
+ 	[PACKETS_BURSTABLE + 4] = { true, 0 },
+ 	[PACKETS_BURSTABLE + 5] = { false, 0 }
+ };
  
- 	/*
+ static __init unsigned int maximum_jiffies_at_index(int index)
+ {
+-	u64 total_nsecs = 2 * NSEC_PER_SEC / PACKETS_PER_SECOND / 3;
++	unsigned int total_msecs = 2 * MSEC_PER_SEC / PACKETS_PER_SECOND / 3;
+ 	int i;
+ 
+ 	for (i = 0; i <= index; ++i)
+-		total_nsecs += expected_results[i].nsec_to_sleep_before;
+-	return nsecs_to_jiffies(total_nsecs);
++		total_msecs += expected_results[i].msec_to_sleep_before;
++	return msecs_to_jiffies(total_msecs);
+ }
+ 
+ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+@@ -43,12 +42,8 @@ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+ 	loop_start_time = jiffies;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(expected_results); ++i) {
+-		if (expected_results[i].nsec_to_sleep_before) {
+-			ktime_t timeout = ktime_add(ktime_add_ns(ktime_get_coarse_boottime(), TICK_NSEC * 4 / 3),
+-						    ns_to_ktime(expected_results[i].nsec_to_sleep_before));
+-			set_current_state(TASK_UNINTERRUPTIBLE);
+-			schedule_hrtimeout_range_clock(&timeout, 0, HRTIMER_MODE_ABS, CLOCK_BOOTTIME);
+-		}
++		if (expected_results[i].msec_to_sleep_before)
++			msleep(expected_results[i].msec_to_sleep_before);
+ 
+ 		if (time_is_before_jiffies(loop_start_time +
+ 					   maximum_jiffies_at_index(i)))
+@@ -132,7 +127,7 @@ bool __init wg_ratelimiter_selftest(void)
+ 	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
+ 		return true;
+ 
+-	BUILD_BUG_ON(NSEC_PER_SEC % PACKETS_PER_SECOND != 0);
++	BUILD_BUG_ON(MSEC_PER_SEC % PACKETS_PER_SECOND != 0);
+ 
+ 	if (wg_ratelimiter_init())
+ 		goto out;
+@@ -172,7 +167,7 @@ bool __init wg_ratelimiter_selftest(void)
+ 	++test;
+ #endif
+ 
+-	for (trials = TRIALS_BEFORE_GIVING_UP;;) {
++	for (trials = TRIALS_BEFORE_GIVING_UP; IS_ENABLED(DEBUG_RATELIMITER_TIMINGS);) {
+ 		int test_count = 0, ret;
+ 
+ 		ret = timings_test(skb4, hdr4, skb6, hdr6, &test_count);
+-- 
+2.35.1
+
 
 
