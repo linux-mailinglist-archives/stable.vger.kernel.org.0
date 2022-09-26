@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8443C5EA1A9
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 681CE5EA042
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236578AbiIZKzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:55:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37816 "EHLO
+        id S235886AbiIZKfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236950AbiIZKyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:54:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C915A2CE;
-        Mon, 26 Sep 2022 03:28:19 -0700 (PDT)
+        with ESMTP id S236182AbiIZKeU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F075208B;
+        Mon, 26 Sep 2022 03:21:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06D11609FB;
-        Mon, 26 Sep 2022 10:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC508C433D6;
-        Mon, 26 Sep 2022 10:27:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E391160B60;
+        Mon, 26 Sep 2022 10:21:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6827C433D6;
+        Mon, 26 Sep 2022 10:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188069;
-        bh=0bcvpj+nDJF5b0kabJCU70IRobcvmtfUiQO6/T/pPwA=;
+        s=korg; t=1664187677;
+        bh=5QLnZeZk1iUlkHcoN3CoUqKZT2efnOAH3ucEpkO+tmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlCemyB/mGMPgAoiwX2sf6KlJCTj0LWncYH96u4PJ67H/eMsFsjnqHisBYwIfSJeI
-         h8GzSbapuxECAUKImxab2zEQ72noZg95HXE/Gou+D1CQ7Bn96M5nwENGAwllAGIjMK
-         nT3dtrC8ZBGDpQIUcpRHELCuJRYOu9wFstxZhPSU=
+        b=z0aDVjNFJ2jEflSOaKBGqgOLNrEz9ROMP7fL3h9u3M9NfRs4jXRTHofEscWFLM8WS
+         lpONZrHEDN+CyEakMtLjmN8rGarm2i3fT3pWMMCdOaGspZMIEfnDu6aYyqEVyLPkNt
+         n5VNmn0Ax8Xu+YzRCKRnyjFTUD8oZHQc6MghjfrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/141] vfio/type1: Prepare for batched pinning with struct vfio_batch
+Subject: [PATCH 5.4 024/120] MIPS: OCTEON: irq: Fix octeon_irq_force_ciu_mapping()
 Date:   Mon, 26 Sep 2022 12:10:57 +0200
-Message-Id: <20220926100755.635418577@linuxfoundation.org>
+Message-Id: <20220926100751.520562471@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,223 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 4b6c33b3229678e38a6b0bbd4367d4b91366b523 ]
+[ Upstream commit ba912afbd611d3a5f22af247721a071ad1d5b9e0 ]
 
-Get ready to pin more pages at once with struct vfio_batch, which
-represents a batch of pinned pages.
+For irq_domain_associate() to work the virq descriptor has to be
+pre-allocated in advance. Otherwise the following happens:
 
-The struct has a fallback page pointer to avoid two unlikely scenarios:
-pointlessly allocating a page if disable_hugepages is enabled or failing
-the whole pinning operation if the kernel can't allocate memory.
+WARNING: CPU: 0 PID: 0 at .../kernel/irq/irqdomain.c:527 irq_domain_associate+0x298/0x2e8
+error: virq128 is not allocated
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.78-... #1
+        ...
+Call Trace:
+[<ffffffff801344c4>] show_stack+0x9c/0x130
+[<ffffffff80769550>] dump_stack+0x90/0xd0
+[<ffffffff801576d0>] __warn+0x118/0x130
+[<ffffffff80157734>] warn_slowpath_fmt+0x4c/0x70
+[<ffffffff801b83c0>] irq_domain_associate+0x298/0x2e8
+[<ffffffff80a43bb8>] octeon_irq_init_ciu+0x4c8/0x53c
+[<ffffffff80a76cbc>] of_irq_init+0x1e0/0x388
+[<ffffffff80a452cc>] init_IRQ+0x4c/0xf4
+[<ffffffff80a3cc00>] start_kernel+0x404/0x698
 
-vaddr_get_pfn() becomes vaddr_get_pfns() to prepare for handling
-multiple pages, though for now only one page is stored in the pages
-array.
+Use irq_alloc_desc_at() to avoid the above problem.
 
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Stable-dep-of: 873aefb376bb ("vfio/type1: Unpin zero pages")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_type1.c | 71 +++++++++++++++++++++++++++------
- 1 file changed, 58 insertions(+), 13 deletions(-)
+ arch/mips/cavium-octeon/octeon-irq.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index 2d26244f9c32..0c15cffd5ef1 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -98,6 +98,12 @@ struct vfio_dma {
- 	unsigned long		*bitmap;
- };
- 
-+struct vfio_batch {
-+	struct page		**pages;	/* for pin_user_pages_remote */
-+	struct page		*fallback_page; /* if pages alloc fails */
-+	int			capacity;	/* length of pages array */
-+};
-+
- struct vfio_group {
- 	struct iommu_group	*iommu_group;
- 	struct list_head	next;
-@@ -428,6 +434,31 @@ static int put_pfn(unsigned long pfn, int prot)
- 	return 0;
- }
- 
-+#define VFIO_BATCH_MAX_CAPACITY (PAGE_SIZE / sizeof(struct page *))
-+
-+static void vfio_batch_init(struct vfio_batch *batch)
-+{
-+	if (unlikely(disable_hugepages))
-+		goto fallback;
-+
-+	batch->pages = (struct page **) __get_free_page(GFP_KERNEL);
-+	if (!batch->pages)
-+		goto fallback;
-+
-+	batch->capacity = VFIO_BATCH_MAX_CAPACITY;
-+	return;
-+
-+fallback:
-+	batch->pages = &batch->fallback_page;
-+	batch->capacity = 1;
-+}
-+
-+static void vfio_batch_fini(struct vfio_batch *batch)
-+{
-+	if (batch->capacity == VFIO_BATCH_MAX_CAPACITY)
-+		free_page((unsigned long)batch->pages);
-+}
-+
- static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
- 			    unsigned long vaddr, unsigned long *pfn,
- 			    bool write_fault)
-@@ -468,10 +499,10 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
-  * Returns the positive number of pfns successfully obtained or a negative
-  * error code.
-  */
--static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
--			 int prot, unsigned long *pfn)
-+static int vaddr_get_pfns(struct mm_struct *mm, unsigned long vaddr,
-+			  long npages, int prot, unsigned long *pfn,
-+			  struct page **pages)
+diff --git a/arch/mips/cavium-octeon/octeon-irq.c b/arch/mips/cavium-octeon/octeon-irq.c
+index 3ad1f76c063a..2d5e7b21d960 100644
+--- a/arch/mips/cavium-octeon/octeon-irq.c
++++ b/arch/mips/cavium-octeon/octeon-irq.c
+@@ -127,6 +127,16 @@ static void octeon_irq_free_cd(struct irq_domain *d, unsigned int irq)
+ static int octeon_irq_force_ciu_mapping(struct irq_domain *domain,
+ 					int irq, int line, int bit)
  {
--	struct page *page[1];
- 	struct vm_area_struct *vma;
- 	unsigned int flags = 0;
- 	int ret;
-@@ -480,10 +511,10 @@ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
- 		flags |= FOLL_WRITE;
- 
- 	mmap_read_lock(mm);
--	ret = pin_user_pages_remote(mm, vaddr, 1, flags | FOLL_LONGTERM,
--				    page, NULL, NULL);
--	if (ret == 1) {
--		*pfn = page_to_pfn(page[0]);
-+	ret = pin_user_pages_remote(mm, vaddr, npages, flags | FOLL_LONGTERM,
-+				    pages, NULL, NULL);
-+	if (ret > 0) {
-+		*pfn = page_to_pfn(pages[0]);
- 		goto done;
- 	}
- 
-@@ -516,7 +547,7 @@ static int vaddr_get_pfn(struct mm_struct *mm, unsigned long vaddr,
-  */
- static long vfio_pin_pages_remote(struct vfio_dma *dma, unsigned long vaddr,
- 				  long npage, unsigned long *pfn_base,
--				  unsigned long limit)
-+				  unsigned long limit, struct vfio_batch *batch)
- {
- 	unsigned long pfn = 0;
- 	long ret, pinned = 0, lock_acct = 0;
-@@ -527,7 +558,8 @@ static long vfio_pin_pages_remote(struct vfio_dma *dma, unsigned long vaddr,
- 	if (!current->mm)
- 		return -ENODEV;
- 
--	ret = vaddr_get_pfn(current->mm, vaddr, dma->prot, pfn_base);
-+	ret = vaddr_get_pfns(current->mm, vaddr, 1, dma->prot, pfn_base,
-+			     batch->pages);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -554,7 +586,8 @@ static long vfio_pin_pages_remote(struct vfio_dma *dma, unsigned long vaddr,
- 	/* Lock all the consecutive pages from pfn_base */
- 	for (vaddr += PAGE_SIZE, iova += PAGE_SIZE; pinned < npage;
- 	     pinned++, vaddr += PAGE_SIZE, iova += PAGE_SIZE) {
--		ret = vaddr_get_pfn(current->mm, vaddr, dma->prot, &pfn);
-+		ret = vaddr_get_pfns(current->mm, vaddr, 1, dma->prot, &pfn,
-+				     batch->pages);
- 		if (ret < 0)
- 			break;
- 
-@@ -617,6 +650,7 @@ static long vfio_unpin_pages_remote(struct vfio_dma *dma, dma_addr_t iova,
- static int vfio_pin_page_external(struct vfio_dma *dma, unsigned long vaddr,
- 				  unsigned long *pfn_base, bool do_accounting)
- {
-+	struct page *pages[1];
- 	struct mm_struct *mm;
- 	int ret;
- 
-@@ -624,7 +658,7 @@ static int vfio_pin_page_external(struct vfio_dma *dma, unsigned long vaddr,
- 	if (!mm)
- 		return -ENODEV;
- 
--	ret = vaddr_get_pfn(mm, vaddr, dma->prot, pfn_base);
-+	ret = vaddr_get_pfns(mm, vaddr, 1, dma->prot, pfn_base, pages);
- 	if (ret == 1 && do_accounting && !is_invalid_reserved_pfn(*pfn_base)) {
- 		ret = vfio_lock_acct(dma, 1, true);
- 		if (ret) {
-@@ -1270,15 +1304,19 @@ static int vfio_pin_map_dma(struct vfio_iommu *iommu, struct vfio_dma *dma,
- {
- 	dma_addr_t iova = dma->iova;
- 	unsigned long vaddr = dma->vaddr;
-+	struct vfio_batch batch;
- 	size_t size = map_size;
- 	long npage;
- 	unsigned long pfn, limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
- 	int ret = 0;
- 
-+	vfio_batch_init(&batch);
++	struct device_node *of_node;
++	int ret;
 +
- 	while (size) {
- 		/* Pin a contiguous chunk of memory */
- 		npage = vfio_pin_pages_remote(dma, vaddr + dma->size,
--					      size >> PAGE_SHIFT, &pfn, limit);
-+					      size >> PAGE_SHIFT, &pfn, limit,
-+					      &batch);
- 		if (npage <= 0) {
- 			WARN_ON(!npage);
- 			ret = (int)npage;
-@@ -1298,6 +1336,7 @@ static int vfio_pin_map_dma(struct vfio_iommu *iommu, struct vfio_dma *dma,
- 		dma->size += npage << PAGE_SHIFT;
- 	}
- 
-+	vfio_batch_fini(&batch);
- 	dma->iommu_mapped = true;
- 
- 	if (ret)
-@@ -1456,6 +1495,7 @@ static int vfio_bus_type(struct device *dev, void *data)
- static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 			     struct vfio_domain *domain)
- {
-+	struct vfio_batch batch;
- 	struct vfio_domain *d = NULL;
- 	struct rb_node *n;
- 	unsigned long limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
-@@ -1466,6 +1506,8 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 		d = list_first_entry(&iommu->domain_list,
- 				     struct vfio_domain, next);
- 
-+	vfio_batch_init(&batch);
++	of_node = irq_domain_get_of_node(domain);
++	if (!of_node)
++		return -EINVAL;
++	ret = irq_alloc_desc_at(irq, of_node_to_nid(of_node));
++	if (ret < 0)
++		return ret;
 +
- 	n = rb_first(&iommu->dma_list);
- 
- 	for (; n; n = rb_next(n)) {
-@@ -1513,7 +1555,8 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 
- 				npage = vfio_pin_pages_remote(dma, vaddr,
- 							      n >> PAGE_SHIFT,
--							      &pfn, limit);
-+							      &pfn, limit,
-+							      &batch);
- 				if (npage <= 0) {
- 					WARN_ON(!npage);
- 					ret = (int)npage;
-@@ -1546,6 +1589,7 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 		dma->iommu_mapped = true;
- 	}
- 
-+	vfio_batch_fini(&batch);
- 	return 0;
- 
- unwind:
-@@ -1586,6 +1630,7 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
- 		}
- 	}
- 
-+	vfio_batch_fini(&batch);
- 	return ret;
+ 	return irq_domain_associate(domain, irq, line << 6 | bit);
  }
  
 -- 
