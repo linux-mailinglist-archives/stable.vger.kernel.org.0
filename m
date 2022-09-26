@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 324FD5EA25A
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D030A5EA4EB
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235034AbiIZLGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:06:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33592 "EHLO
+        id S238655AbiIZL4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234680AbiIZLFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:35 -0400
+        with ESMTP id S239129AbiIZLyj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:54:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E374F180;
-        Mon, 26 Sep 2022 03:33:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5CD4D835;
+        Mon, 26 Sep 2022 03:50:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD794B8074E;
-        Mon, 26 Sep 2022 10:31:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDE5C433D6;
-        Mon, 26 Sep 2022 10:31:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 451D9B802C7;
+        Mon, 26 Sep 2022 10:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77956C433D6;
+        Mon, 26 Sep 2022 10:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188313;
-        bh=fTOFobLztgWomUcePqED+YQQvKqRE3uuRHz5dNeFLEM=;
+        s=korg; t=1664189315;
+        bh=iaB1KodNW2681CtVUDHZXZv/QS5f3KAqBTUzxLWxXwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylyZtoXkmtvTcjBslMDlqusWcQ3my8Q2b3xdQbKG7RJf8+OTSTZ03oxkMM7/GTIh0
-         acFarOD8KUaPAw/bZdIWJz9QPD+OLdrnSrewuJ7L4JLy7vNi66lS0kGknDqFOzJT/v
-         CSodCt60sgSw01k3MBWstkbAOmqRNgothEHZmNNI=
+        b=j/aKFhIurr/fX+Wx7+hNjUI9E/YHDx9qyCXkO2KdSdVYJgCQrrybWkOidPNZzZpbU
+         eiwuHYgJTnsSp4xgQXmcxNLVNBik+mk6/2xudsV+oe9YOqE5AJKCxOqECuki7aHovl
+         cAqqhOmhLJ+5aUbjD+n88NxiX7f+GTzI6UdD9UHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Lieven Hey <lieven.hey@kdab.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>, bpf@vger.kernel.org,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/141] perf jit: Include program header in ELF files
+Subject: [PATCH 5.19 146/207] perf stat: Fix cpu map index in bperf cgroup code
 Date:   Mon, 26 Sep 2022 12:12:15 +0200
-Message-Id: <20220926100758.393086356@linuxfoundation.org>
+Message-Id: <20220926100813.049490680@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lieven Hey <lieven.hey@kdab.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit babd04386b1df8c364cdaa39ac0e54349502e1e5 ]
+[ Upstream commit 3da35231d9e4949c4ae40e3ce653e7c468455d55 ]
 
-The missing header makes it hard for programs like elfutils to open
-these files.
+The previous cpu map introduced a bug in the bperf cgroup counter.  This
+results in a failure when user gives a partial cpu map starting from
+non-zero.
 
-Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Lieven Hey <lieven.hey@kdab.com>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Link: https://lore.kernel.org/r/20220915092910.711036-1-lieven.hey@kdab.com
+  $ sudo ./perf stat -C 1-2 --bpf-counters --for-each-cgroup ^. sleep 1
+  libbpf: prog 'on_cgrp_switch': failed to create BPF link for perf_event FD 0:
+                                 -9 (Bad file descriptor)
+  Failed to attach cgroup program
+
+To get the FD of an evsel, it should use a map index not the CPU number.
+
+Fixes: 0255571a16059c8e ("perf cpumap: Switch to using perf_cpu_map API")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: bpf@vger.kernel.org
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/r/20220916184132.1161506-3-namhyung@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/genelf.c | 14 ++++++++++++++
- tools/perf/util/genelf.h |  4 ++++
- 2 files changed, 18 insertions(+)
+ tools/perf/util/bpf_counter_cgroup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index 953338b9e887..02cd9f75e3d2 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -251,6 +251,7 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
- 	Elf_Data *d;
- 	Elf_Scn *scn;
- 	Elf_Ehdr *ehdr;
-+	Elf_Phdr *phdr;
- 	Elf_Shdr *shdr;
- 	uint64_t eh_frame_base_offset;
- 	char *strsym = NULL;
-@@ -285,6 +286,19 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
- 	ehdr->e_version = EV_CURRENT;
- 	ehdr->e_shstrndx= unwinding ? 4 : 2; /* shdr index for section name */
+diff --git a/tools/perf/util/bpf_counter_cgroup.c b/tools/perf/util/bpf_counter_cgroup.c
+index 63b9db657442..97c69a249c6e 100644
+--- a/tools/perf/util/bpf_counter_cgroup.c
++++ b/tools/perf/util/bpf_counter_cgroup.c
+@@ -95,7 +95,7 @@ static int bperf_load_program(struct evlist *evlist)
  
-+	/*
-+	 * setup program header
-+	 */
-+	phdr = elf_newphdr(e, 1);
-+	phdr[0].p_type = PT_LOAD;
-+	phdr[0].p_offset = 0;
-+	phdr[0].p_vaddr = 0;
-+	phdr[0].p_paddr = 0;
-+	phdr[0].p_filesz = csize;
-+	phdr[0].p_memsz = csize;
-+	phdr[0].p_flags = PF_X | PF_R;
-+	phdr[0].p_align = 8;
-+
- 	/*
- 	 * setup text section
- 	 */
-diff --git a/tools/perf/util/genelf.h b/tools/perf/util/genelf.h
-index d4137559be05..ac638945b4cb 100644
---- a/tools/perf/util/genelf.h
-+++ b/tools/perf/util/genelf.h
-@@ -50,8 +50,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
+ 	perf_cpu_map__for_each_cpu(cpu, i, evlist->core.all_cpus) {
+ 		link = bpf_program__attach_perf_event(skel->progs.on_cgrp_switch,
+-						      FD(cgrp_switch, cpu.cpu));
++						      FD(cgrp_switch, i));
+ 		if (IS_ERR(link)) {
+ 			pr_err("Failed to attach cgroup program\n");
+ 			err = PTR_ERR(link);
+@@ -123,7 +123,7 @@ static int bperf_load_program(struct evlist *evlist)
  
- #if GEN_ELF_CLASS == ELFCLASS64
- #define elf_newehdr	elf64_newehdr
-+#define elf_newphdr	elf64_newphdr
- #define elf_getshdr	elf64_getshdr
- #define Elf_Ehdr	Elf64_Ehdr
-+#define Elf_Phdr	Elf64_Phdr
- #define Elf_Shdr	Elf64_Shdr
- #define Elf_Sym		Elf64_Sym
- #define ELF_ST_TYPE(a)	ELF64_ST_TYPE(a)
-@@ -59,8 +61,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
- #define ELF_ST_VIS(a)	ELF64_ST_VISIBILITY(a)
- #else
- #define elf_newehdr	elf32_newehdr
-+#define elf_newphdr	elf32_newphdr
- #define elf_getshdr	elf32_getshdr
- #define Elf_Ehdr	Elf32_Ehdr
-+#define Elf_Phdr	Elf32_Phdr
- #define Elf_Shdr	Elf32_Shdr
- #define Elf_Sym		Elf32_Sym
- #define ELF_ST_TYPE(a)	ELF32_ST_TYPE(a)
+ 			map_fd = bpf_map__fd(skel->maps.events);
+ 			perf_cpu_map__for_each_cpu(cpu, j, evlist->core.all_cpus) {
+-				int fd = FD(evsel, cpu.cpu);
++				int fd = FD(evsel, j);
+ 				__u32 idx = evsel->core.idx * total_cpus + cpu.cpu;
+ 
+ 				err = bpf_map_update_elem(map_fd, &idx, &fd,
 -- 
 2.35.1
 
