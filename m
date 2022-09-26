@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF705EA22E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791835EA000
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236950AbiIZLEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:04:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
+        id S235672AbiIZKcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237059AbiIZLDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1E35EDF4;
-        Mon, 26 Sep 2022 03:32:21 -0700 (PDT)
+        with ESMTP id S235682AbiIZKaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:30:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AB695BC;
+        Mon, 26 Sep 2022 03:19:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9224DB8094D;
-        Mon, 26 Sep 2022 10:30:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1923C433D6;
-        Mon, 26 Sep 2022 10:30:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 874C360B60;
+        Mon, 26 Sep 2022 10:19:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D70DC433D7;
+        Mon, 26 Sep 2022 10:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188208;
-        bh=Jf6oRZhil1xoJGyJp8jVwLBg4X5qkPjZTxNA897XdmM=;
+        s=korg; t=1664187581;
+        bh=g+vMcxNmAy28LBGEzMAhjU8n7hjEgxGZ9DO/fXUrtSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MkozwcIZ4SL/z69reul6oToo5FyOZKkzzHJysMnlCw7h+l2kGEkmoUFFi3/mFCr/C
-         ivp06lRGYoMSClsYPj9U/LXc7r/X+4cf4tsgRkSXg5nG3GBAWzSP1VrkjYXVA+kt3a
-         2nRRTvlIgwGedKIUaMoK3OteS85MgDSOGUcPRjYI=
+        b=k2ix0zKxYZ0SS8KamVm503e0siyxkBIivPGdeSgIf4XfsU7ZoYFBX5RLk4AnsIzdE
+         AasZIVEDdE9AH65VHrjwl2PIFxPMA6dPh9iv9HLwORrkmUmfcsVLbv1fOrpfGTXUGD
+         NWMeUeJsl48m4YHwADQfRuH1kpq4nB+DzcBGVqOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/141] net: phy: aquantia: wait for the suspend/resume operations to finish
+Subject: [PATCH 4.19 22/58] usb: dwc3: pci: add support for the Intel Jasper Lake
 Date:   Mon, 26 Sep 2022 12:11:41 +0200
-Message-Id: <20220926100757.166693051@linuxfoundation.org>
+Message-Id: <20220926100742.249054602@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,120 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit ca2dccdeeb49a7e408112d681bf447984c845292 ]
+[ Upstream commit e25d1e8532c3d84f075deca1580a7d61e0f43ce6 ]
 
-The Aquantia datasheet notes that after issuing a Processor-Intensive
-MDIO operation, like changing the low-power state of the device, the
-driver should wait for the operation to finish before issuing a new MDIO
-command.
+This patch adds the necessary PCI ID for Intel Jasper Lake
+devices.
 
-The new aqr107_wait_processor_intensive_op() function is added which can
-be used after these kind of MDIO operations. At the moment, we are only
-adding it at the end of the suspend/resume calls.
-
-The issue was identified on a board featuring the AQR113C PHY, on
-which commands like 'ip link (..) up / down' issued without any delays
-between them would render the link on the PHY to remain down.
-The issue was easy to reproduce with a one-liner:
- $ ip link set dev ethX down; ip link set dev ethX up; \
- ip link set dev ethX down; ip link set dev ethX up;
-
-Fixes: ac9e81c230eb ("net: phy: aquantia: add suspend / resume callbacks for AQR107 family")
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220906130451.1483448-1-ioana.ciornei@nxp.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Stable-dep-of: bad0d1d726ac ("usb: dwc3: pci: Add support for Intel Raptor Lake")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/aquantia_main.c | 53 ++++++++++++++++++++++++++++++---
- 1 file changed, 49 insertions(+), 4 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/phy/aquantia_main.c b/drivers/net/phy/aquantia_main.c
-index 75a62d1cc737..7045595f8d7d 100644
---- a/drivers/net/phy/aquantia_main.c
-+++ b/drivers/net/phy/aquantia_main.c
-@@ -89,6 +89,9 @@
- #define VEND1_GLOBAL_FW_ID_MAJOR		GENMASK(15, 8)
- #define VEND1_GLOBAL_FW_ID_MINOR		GENMASK(7, 0)
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index cddf02add6f1..125cecb1bc99 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -39,6 +39,7 @@
+ #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
+ #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
+ #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
++#define PCI_DEVICE_ID_INTEL_JSP			0x4dee
  
-+#define VEND1_GLOBAL_GEN_STAT2			0xc831
-+#define VEND1_GLOBAL_GEN_STAT2_OP_IN_PROG	BIT(15)
-+
- #define VEND1_GLOBAL_RSVD_STAT1			0xc885
- #define VEND1_GLOBAL_RSVD_STAT1_FW_BUILD_ID	GENMASK(7, 4)
- #define VEND1_GLOBAL_RSVD_STAT1_PROV_ID		GENMASK(3, 0)
-@@ -123,6 +126,12 @@
- #define VEND1_GLOBAL_INT_VEND_MASK_GLOBAL2	BIT(1)
- #define VEND1_GLOBAL_INT_VEND_MASK_GLOBAL3	BIT(0)
+ #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
+ #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
+@@ -363,6 +364,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPH),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
  
-+/* Sleep and timeout for checking if the Processor-Intensive
-+ * MDIO operation is finished
-+ */
-+#define AQR107_OP_IN_PROG_SLEEP		1000
-+#define AQR107_OP_IN_PROG_TIMEOUT	100000
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
++	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
 +
- struct aqr107_hw_stat {
- 	const char *name;
- 	int reg;
-@@ -569,16 +578,52 @@ static void aqr107_link_change_notify(struct phy_device *phydev)
- 		phydev_info(phydev, "Aquantia 1000Base-T2 mode active\n");
- }
- 
-+static int aqr107_wait_processor_intensive_op(struct phy_device *phydev)
-+{
-+	int val, err;
-+
-+	/* The datasheet notes to wait at least 1ms after issuing a
-+	 * processor intensive operation before checking.
-+	 * We cannot use the 'sleep_before_read' parameter of read_poll_timeout
-+	 * because that just determines the maximum time slept, not the minimum.
-+	 */
-+	usleep_range(1000, 5000);
-+
-+	err = phy_read_mmd_poll_timeout(phydev, MDIO_MMD_VEND1,
-+					VEND1_GLOBAL_GEN_STAT2, val,
-+					!(val & VEND1_GLOBAL_GEN_STAT2_OP_IN_PROG),
-+					AQR107_OP_IN_PROG_SLEEP,
-+					AQR107_OP_IN_PROG_TIMEOUT, false);
-+	if (err) {
-+		phydev_err(phydev, "timeout: processor-intensive MDIO operation\n");
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
- static int aqr107_suspend(struct phy_device *phydev)
- {
--	return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
--				MDIO_CTRL1_LPOWER);
-+	int err;
-+
-+	err = phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
-+			       MDIO_CTRL1_LPOWER);
-+	if (err)
-+		return err;
-+
-+	return aqr107_wait_processor_intensive_op(phydev);
- }
- 
- static int aqr107_resume(struct phy_device *phydev)
- {
--	return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
--				  MDIO_CTRL1_LPOWER);
-+	int err;
-+
-+	err = phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
-+				 MDIO_CTRL1_LPOWER);
-+	if (err)
-+		return err;
-+
-+	return aqr107_wait_processor_intensive_op(phydev);
- }
- 
- static int aqr107_probe(struct phy_device *phydev)
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
+ 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
+ 	{  }	/* Terminating Entry */
 -- 
 2.35.1
 
