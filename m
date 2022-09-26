@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 735755EA46C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088035EA1CA
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238527AbiIZLqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:46:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
+        id S236919AbiIZK5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:57:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238460AbiIZLnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:43:18 -0400
+        with ESMTP id S236921AbiIZK4n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:56:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2977B72861;
-        Mon, 26 Sep 2022 03:46:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA53BFE;
+        Mon, 26 Sep 2022 03:29:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C2A60C05;
-        Mon, 26 Sep 2022 10:45:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC64C433B5;
-        Mon, 26 Sep 2022 10:45:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7545360A5C;
+        Mon, 26 Sep 2022 10:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74E2FC433D6;
+        Mon, 26 Sep 2022 10:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189103;
-        bh=Bd4NT7bbB8cLbIQEupGQ5VfJHKOTc2fkz7gqkI6Rt4M=;
+        s=korg; t=1664188090;
+        bh=OnHJPjH4h6Nbsq01JGvqFhs1so7/TP+GxApbv3kVy+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHt0CO0vvQvcWg2p4sP/Ye/xl5qY40dYoeVCBDn0eyJH4/ZbSJWne4vEGXxCTOJ4i
-         2TrKLaKSBoS0jguvugmdltLZ2ZYcLhI/IYLE0WMAOW1QqaPm7RNDm3kEgcEVZ3HWH+
-         ZxnqTyiex5b3hJYcGsOzWcjFdfu1TVVQhc4JUvCw=
+        b=Tget4cw8pscIaT8DfH+w4CeTrlvuNpnNj0d+77UQfks06Bzpd8Opf9DmVWZWjOGDd
+         tcjAR4FR/4jM4EZllWCfVLYtWGibcyh+LfXaDuiurFcLyo7mOrw4UdLU1l8dKeXlyo
+         X+jZ01U0N8e35HZ3IYPmVVHD/SZ1WH+iJysZ/OHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 075/207] arm64: dts: rockchip: Fix typo in lisense text for PX30.Core
+        stable@vger.kernel.org, jerry meng <jerry-meng@foxmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 038/141] USB: serial: option: add Quectel RM520N
 Date:   Mon, 26 Sep 2022 12:11:04 +0200
-Message-Id: <20220926100809.932747059@linuxfoundation.org>
+Message-Id: <20220926100755.855614173@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
-References: <20220926100806.522017616@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jagan Teki <jagan@amarulasolutions.com>
+From: jerry meng <jerry-meng@foxmail.com>
 
-[ Upstream commit 4a00c43818dcc19be97250d4c3c4a1e2f1ed4f9d ]
+commit d640c4cb8f2f933c0ca896541f9de7fb1ae245f4 upstream.
 
-Fix the Amarula Solutions typo mistake in lisense text added
-in Engicam PX30.Core SoM dtsi.
+add support for Quectel RM520N which is based on Qualcomm SDX62 chip.
 
-Fixes: d92a7c331f53c ("arm64: dts: rockchip: Add Engicam PX30.Core SOM")
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-Link: https://lore.kernel.org/r/20220822103524.266731-1-jagan@amarulasolutions.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+0x0801: DIAG + NMEA + AT + MODEM + RMNET
+
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#= 10 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0801 Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=RM520N-GL
+S:  SerialNumber=384af524
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: jerry meng <jerry-meng@foxmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/px30-engicam-px30-core.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/px30-engicam-px30-core.dtsi b/arch/arm64/boot/dts/rockchip/px30-engicam-px30-core.dtsi
-index 7249871530ab..5eecbefa8a33 100644
---- a/arch/arm64/boot/dts/rockchip/px30-engicam-px30-core.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/px30-engicam-px30-core.dtsi
-@@ -2,8 +2,8 @@
- /*
-  * Copyright (c) 2020 Fuzhou Rockchip Electronics Co., Ltd
-  * Copyright (c) 2020 Engicam srl
-- * Copyright (c) 2020 Amarula Solutons
-- * Copyright (c) 2020 Amarula Solutons(India)
-+ * Copyright (c) 2020 Amarula Solutions
-+ * Copyright (c) 2020 Amarula Solutions(India)
-  */
- 
- #include <dt-bindings/gpio/gpio.h>
--- 
-2.35.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -256,6 +256,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
++#define QUECTEL_PRODUCT_RM520N			0x0801
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+ #define QUECTEL_PRODUCT_EC200T			0x6026
+ #define QUECTEL_PRODUCT_RM500K			0x7001
+@@ -1161,6 +1162,9 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
+ 	  .driver_info = ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
 
 
