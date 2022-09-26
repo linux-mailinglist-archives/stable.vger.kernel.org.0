@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4815E9F53
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578E65E9FC4
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235783AbiIZKZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38454 "EHLO
+        id S235477AbiIZK3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235260AbiIZKWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:22:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73764D167;
-        Mon, 26 Sep 2022 03:16:34 -0700 (PDT)
+        with ESMTP id S235375AbiIZK2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA6FF491E9;
+        Mon, 26 Sep 2022 03:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CDF9DCE10E0;
-        Mon, 26 Sep 2022 10:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7CB7C433D6;
-        Mon, 26 Sep 2022 10:16:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 950A6B80835;
+        Mon, 26 Sep 2022 10:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDDBDC433D6;
+        Mon, 26 Sep 2022 10:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187389;
-        bh=T0teuM9jDGq2pMTenHhgY7xx5k15KfwtAGAQpuY1ap0=;
+        s=korg; t=1664187525;
+        bh=ca5roythMhaHkBzdHtuMVgWqhylGKDcDLuIspWrIoLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yHyjz9lKEjhq6HE3M8xg12JegLjXsiKA8rVYiCfZyqHgSD209A93h40zdzZ12HScm
-         Rng1cehMvoaL9d26ogVGhShBdbPe/aEZmtePOgwew8mWV2YOOF9lqvds5OPH26Fwud
-         1L0j74Ei4maaKB2tjB6FPeQDmMviPYVOSnn8WxKo=
+        b=nctFH5MG/FFUDvMoULgUK6/XKt1vLAmfgfZepSwmX5wniRzX0n1M0FOurCMCPm17f
+         Fh6U+o7HpqGMIuAzKYBQwxFlnB4g5uUO04buYyaj4IA/GWTQS4M+Un0aoAgK0D9z1N
+         stbjOqQ/WeuVDb6MWYrOVQ5S091uXfzG9S44XIBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/40] netfilter: nf_conntrack_irc: Tighten matching on DCC message
-Date:   Mon, 26 Sep 2022 12:11:53 +0200
-Message-Id: <20220926100739.242883621@linuxfoundation.org>
+Subject: [PATCH 4.19 35/58] arm64: dts: rockchip: Remove enable-active-low from rk3399-puma
+Date:   Mon, 26 Sep 2022 12:11:54 +0200
+Message-Id: <20220926100742.755484965@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,82 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit e8d5dfd1d8747b56077d02664a8838c71ced948e ]
+[ Upstream commit a994b34b9abb9c08ee09e835b4027ff2147f9d94 ]
 
-CTCP messages should only be at the start of an IRC message, not
-anywhere within it.
+The 'enable-active-low' property is not a valid one.
 
-While the helper only decodes packes in the ORIGINAL direction, its
-possible to make a client send a CTCP message back by empedding one into
-a PING request.  As-is, thats enough to make the helper believe that it
-saw a CTCP message.
+Only 'enable-active-high' is valid, and when this property is absent
+the gpio regulator will act as active low by default.
 
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Remove the invalid 'enable-active-low' property.
+
+Fixes: 2c66fc34e945 ("arm64: dts: rockchip: add RK3399-Q7 (Puma) SoM")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Link: https://lore.kernel.org/r/20220827175140.1696699-1-festevam@denx.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 34 ++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index 814220f7be67..27e2f9785e5f 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -150,15 +150,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 	data = ib_ptr;
- 	data_limit = ib_ptr + skb->len - dataoff;
- 
--	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
--	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
--	while (data < data_limit - (19 + MINMATCHLEN)) {
--		if (memcmp(data, "\1DCC ", 5)) {
-+	/* Skip any whitespace */
-+	while (data < data_limit - 10) {
-+		if (*data == ' ' || *data == '\r' || *data == '\n')
-+			data++;
-+		else
-+			break;
-+	}
-+
-+	/* strlen("PRIVMSG x ")=10 */
-+	if (data < data_limit - 10) {
-+		if (strncasecmp("PRIVMSG ", data, 8))
-+			goto out;
-+		data += 8;
-+	}
-+
-+	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
-+	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
-+	 */
-+	while (data < data_limit - (21 + MINMATCHLEN)) {
-+		/* Find first " :", the start of message */
-+		if (memcmp(data, " :", 2)) {
- 			data++;
- 			continue;
- 		}
-+		data += 2;
-+
-+		/* then check that place only for the DCC command */
-+		if (memcmp(data, "\1DCC ", 5))
-+			goto out;
- 		data += 5;
--		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
-+		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
- 
- 		iph = ip_hdr(skb);
- 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
-@@ -174,7 +196,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 			pr_debug("DCC %s detected\n", dccprotos[i]);
- 
- 			/* we have at least
--			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
-+			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
- 			 * data left (== 14/13 bytes) */
- 			if (parse_dcc(data, data_limit, &dcc_ip,
- 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index ce1320e4c106..6750b8100421 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -102,7 +102,6 @@ vcc3v3_sys: vcc3v3-sys {
+ 	vcc5v0_host: vcc5v0-host-regulator {
+ 		compatible = "regulator-fixed";
+ 		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
+-		enable-active-low;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&vcc5v0_host_en>;
+ 		regulator-name = "vcc5v0_host";
 -- 
 2.35.1
 
