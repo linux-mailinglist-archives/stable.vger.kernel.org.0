@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D945EA2CB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D985EA1AB
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237313AbiIZLO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53078 "EHLO
+        id S236583AbiIZKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237552AbiIZLNC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:13:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0533759270;
-        Mon, 26 Sep 2022 03:36:08 -0700 (PDT)
+        with ESMTP id S237123AbiIZKyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:54:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F128A5A3E4;
+        Mon, 26 Sep 2022 03:28:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21A92B80955;
-        Mon, 26 Sep 2022 10:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89CBDC433C1;
-        Mon, 26 Sep 2022 10:34:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CC5C60AD6;
+        Mon, 26 Sep 2022 10:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E84BC433C1;
+        Mon, 26 Sep 2022 10:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188490;
-        bh=FZSkThW1Di2Q/ddh5L6GCco4+nlirw4P4WfIbM5Rqhw=;
+        s=korg; t=1664188075;
+        bh=bz37jx5hMCM7WZNlmsLBhSfIG80Ah4F95y+eDgIpqtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dch/Mn7EzjZmG50sJ4cmnx8wIYzOAmRufP0c1FjkjOE2MtxF2F/ey1aX/rYk6tvK9
-         QyeGEIf6l1SwyDs0BNevZyQtfs/Qie8Qsy238AXuBOw4gfZAU6rgB1Qw7WqhxD4GAJ
-         /jMnFgc/O2L8sILfINBSe5s28miRZtdS6+fhXnUQ=
+        b=H8pRdC8IkH5gewiKY95ZpFcBFukgSj20kyCWYLy3Qqac7Z1A/OxzgwK/ByvMAzffQ
+         6dFG1UZGQAr2WtCId35XIeVINB0CSUaMOpalP4vsZlfRMuCVncUJqRhciuWfwoO5qS
+         T2MAxe7P7qxwgHQb/tsD4PeHhq8oPLWnS9f9x5CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 025/148] ALSA: hda/tegra: set depop delay for tegra
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Piyush Mehta <piyush.mehta@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 033/141] Revert "usb: gadget: udc-xilinx: replace memcpy with memcpy_toio"
 Date:   Mon, 26 Sep 2022 12:10:59 +0200
-Message-Id: <20220926100757.025064854@linuxfoundation.org>
+Message-Id: <20220926100755.697769434@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohan Kumar <mkumard@nvidia.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 3c4d8c24fb6c44f426e447b04800b0ed61a7b5ae upstream.
+[ Upstream commit fe0a2ac7c627b064c479ad0c3b25e531d342e048 ]
 
-Reduce the suspend time by setting depop delay to 10ms for
-tegra.
+This reverts commit 8cb339f1c1f04baede9d54c1e40ac96247a6393b as it
+throws up a bunch of sparse warnings as reported by the kernel test
+robot.
 
-Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220913053641.23299-1-mkumard@nvidia.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/202209020044.CX2PfZzM-lkp@intel.com
+Fixes: 8cb339f1c1f0 ("usb: gadget: udc-xilinx: replace memcpy with memcpy_toio")
+Cc: stable@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Piyush Mehta <piyush.mehta@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/udc/udc-xilinx.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -3868,6 +3868,7 @@ static int patch_tegra_hdmi(struct hda_c
- 	if (err)
- 		return err;
+diff --git a/drivers/usb/gadget/udc/udc-xilinx.c b/drivers/usb/gadget/udc/udc-xilinx.c
+index 01133dc42340..096f56a09e6a 100644
+--- a/drivers/usb/gadget/udc/udc-xilinx.c
++++ b/drivers/usb/gadget/udc/udc-xilinx.c
+@@ -496,11 +496,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
+ 		/* Get the Buffer address and copy the transmit data.*/
+ 		eprambase = (u32 __force *)(udc->addr + ep->rambase);
+ 		if (ep->is_in) {
+-			memcpy_toio(eprambase, bufferptr, bytestosend);
++			memcpy(eprambase, bufferptr, bytestosend);
+ 			udc->write_fn(udc->addr, ep->offset +
+ 				      XUSB_EP_BUF0COUNT_OFFSET, bufferlen);
+ 		} else {
+-			memcpy_toio(bufferptr, eprambase, bytestosend);
++			memcpy(bufferptr, eprambase, bytestosend);
+ 		}
+ 		/*
+ 		 * Enable the buffer for transmission.
+@@ -514,11 +514,11 @@ static int xudc_eptxrx(struct xusb_ep *ep, struct xusb_req *req,
+ 		eprambase = (u32 __force *)(udc->addr + ep->rambase +
+ 			     ep->ep_usb.maxpacket);
+ 		if (ep->is_in) {
+-			memcpy_toio(eprambase, bufferptr, bytestosend);
++			memcpy(eprambase, bufferptr, bytestosend);
+ 			udc->write_fn(udc->addr, ep->offset +
+ 				      XUSB_EP_BUF1COUNT_OFFSET, bufferlen);
+ 		} else {
+-			memcpy_toio(bufferptr, eprambase, bytestosend);
++			memcpy(bufferptr, eprambase, bytestosend);
+ 		}
+ 		/*
+ 		 * Enable the buffer for transmission.
+@@ -1020,7 +1020,7 @@ static int __xudc_ep0_queue(struct xusb_ep *ep0, struct xusb_req *req)
+ 			   udc->addr);
+ 		length = req->usb_req.actual = min_t(u32, length,
+ 						     EP0_MAX_PACKET);
+-		memcpy_toio(corebuf, req->usb_req.buf, length);
++		memcpy(corebuf, req->usb_req.buf, length);
+ 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, length);
+ 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
+ 	} else {
+@@ -1746,7 +1746,7 @@ static void xudc_handle_setup(struct xusb_udc *udc)
  
-+	codec->depop_delay = 10;
- 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
- 	spec = codec->spec;
- 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
+ 	/* Load up the chapter 9 command buffer.*/
+ 	ep0rambase = (u32 __force *) (udc->addr + XUSB_SETUP_PKT_ADDR_OFFSET);
+-	memcpy_toio(&setup, ep0rambase, 8);
++	memcpy(&setup, ep0rambase, 8);
+ 
+ 	udc->setup = setup;
+ 	udc->setup.wValue = cpu_to_le16(setup.wValue);
+@@ -1833,7 +1833,7 @@ static void xudc_ep0_out(struct xusb_udc *udc)
+ 			     (ep0->rambase << 2));
+ 		buffer = req->usb_req.buf + req->usb_req.actual;
+ 		req->usb_req.actual = req->usb_req.actual + bytes_to_rx;
+-		memcpy_toio(buffer, ep0rambase, bytes_to_rx);
++		memcpy(buffer, ep0rambase, bytes_to_rx);
+ 
+ 		if (req->usb_req.length == req->usb_req.actual) {
+ 			/* Data transfer completed get ready for Status stage */
+@@ -1909,7 +1909,7 @@ static void xudc_ep0_in(struct xusb_udc *udc)
+ 				     (ep0->rambase << 2));
+ 			buffer = req->usb_req.buf + req->usb_req.actual;
+ 			req->usb_req.actual = req->usb_req.actual + length;
+-			memcpy_toio(ep0rambase, buffer, length);
++			memcpy(ep0rambase, buffer, length);
+ 		}
+ 		udc->write_fn(udc->addr, XUSB_EP_BUF0COUNT_OFFSET, count);
+ 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET, 1);
+-- 
+2.35.1
+
 
 
