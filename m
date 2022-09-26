@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 196145E9F55
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490DD5E9EC8
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235028AbiIZKZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:25:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59636 "EHLO
+        id S234171AbiIZKN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:13:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235307AbiIZKWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:22:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E265FD5;
-        Mon, 26 Sep 2022 03:16:22 -0700 (PDT)
+        with ESMTP id S229670AbiIZKNz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:13:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB26DA7;
+        Mon, 26 Sep 2022 03:13:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAA43B8091F;
-        Mon, 26 Sep 2022 10:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F7ECC433C1;
-        Mon, 26 Sep 2022 10:16:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66ABE60AF2;
+        Mon, 26 Sep 2022 10:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65ECEC433C1;
+        Mon, 26 Sep 2022 10:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187379;
-        bh=JqS8c52oGXzX8/IafG5a2GEB1z07rJ5BVr2sJYfUNxg=;
+        s=korg; t=1664187232;
+        bh=tiXH/T7g462YrC81TWBszoTWj9vCYXtfXO+RNyErlGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pW2+saBfnoZgFs8hdAG1j6xXE8fkJ/mEMix9ClrfsfEEOcA15r5ll7OSRxY06IXBw
-         dPQIml+Y9eGAoamNVnMZJxIffopvSf4jRQEO0ph+mPgMtYYx4HIXD118fqfXDSHrD8
-         iAOglPh0ss9/20bc2lc/SWPcz//zHk+S8hErlWJw=
+        b=DNj81msI0hInpp7Q4bc3k1aPrLfd2jnYJaV+W19N8RsOlr3f8ckhvF6uvp3ei+Szn
+         XIl/ou0/gNk3XKTbaZwZdhukgE1b/FUkRdysorwd0lDv9mVXzOBabKm1eBMsK18KVu
+         oZ94JfFpMArd5G8kHL2BFxTY4k6w5ftrqTQFoynw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/40] ASoC: nau8824: Fix semaphore unbalance at error paths
+        stable@vger.kernel.org, Petr Cvek <petrcvekcz@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 05/30] video: fbdev: intelfb: Use aperture size from pci_resource_len
 Date:   Mon, 26 Sep 2022 12:11:36 +0200
-Message-Id: <20220926100738.524202736@linuxfoundation.org>
+Message-Id: <20220926100736.341936020@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Petr Cvek <petrcvekcz@gmail.com>
 
-[ Upstream commit 5628560e90395d3812800a8e44a01c32ffa429ec ]
+[ Upstream commit 25c9a15fb7bbfafb94dd3b4e3165c18b8e1bd039 ]
 
-The semaphore of nau8824 wasn't properly unlocked at some error
-handling code paths, hence this may result in the unbalance (and
-potential lock-up).  Fix them to handle the semaphore up properly.
+Aperture size for i9x5 variants is determined from PCI base address.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220823081000.2965-3-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+	if (pci_resource_start(pdev, 2) & 0x08000000)
+		*aperture_size = MB(128);
+	...
+
+This condition is incorrect as 128 MiB address can have the address
+set as 0x?8000000 or 0x?0000000. Also the code can be simplified to just
+use pci_resource_len().
+
+The true settings of the aperture size is in the MSAC register, which
+could be used instead. However the value is used only as an info message,
+so it doesn't matter.
+
+Signed-off-by: Petr Cvek <petrcvekcz@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/nau8824.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/intelfb/intelfbhw.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
-index e8ea51247b17..cc745374b828 100644
---- a/sound/soc/codecs/nau8824.c
-+++ b/sound/soc/codecs/nau8824.c
-@@ -1015,6 +1015,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 	struct snd_soc_codec *codec = dai->codec;
- 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
- 	unsigned int val_len = 0, osr, ctrl_val, bclk_fs, bclk_div;
-+	int err = -EINVAL;
- 
- 	nau8824_sema_acquire(nau8824, HZ);
- 
-@@ -1031,7 +1032,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		osr &= NAU8824_DAC_OVERSAMPLE_MASK;
- 		if (nau8824_clock_check(nau8824, substream->stream,
- 			nau8824->fs, osr))
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
- 			NAU8824_CLK_DAC_SRC_MASK,
- 			osr_dac_sel[osr].clk_src << NAU8824_CLK_DAC_SRC_SFT);
-@@ -1041,7 +1042,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		osr &= NAU8824_ADC_SYNC_DOWN_MASK;
- 		if (nau8824_clock_check(nau8824, substream->stream,
- 			nau8824->fs, osr))
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap, NAU8824_REG_CLK_DIVIDER,
- 			NAU8824_CLK_ADC_SRC_MASK,
- 			osr_adc_sel[osr].clk_src << NAU8824_CLK_ADC_SRC_SFT);
-@@ -1062,7 +1063,7 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		else if (bclk_fs <= 256)
- 			bclk_div = 0;
- 		else
--			return -EINVAL;
-+			goto error;
- 		regmap_update_bits(nau8824->regmap,
- 			NAU8824_REG_PORT0_I2S_PCM_CTRL_2,
- 			NAU8824_I2S_LRC_DIV_MASK | NAU8824_I2S_BLK_DIV_MASK,
-@@ -1083,15 +1084,17 @@ static int nau8824_hw_params(struct snd_pcm_substream *substream,
- 		val_len |= NAU8824_I2S_DL_32;
+diff --git a/drivers/video/fbdev/intelfb/intelfbhw.c b/drivers/video/fbdev/intelfb/intelfbhw.c
+index d31ed4e2c46f..3aa93565e935 100644
+--- a/drivers/video/fbdev/intelfb/intelfbhw.c
++++ b/drivers/video/fbdev/intelfb/intelfbhw.c
+@@ -199,13 +199,11 @@ int intelfbhw_get_memory(struct pci_dev *pdev, int *aperture_size,
+ 	case PCI_DEVICE_ID_INTEL_945GME:
+ 	case PCI_DEVICE_ID_INTEL_965G:
+ 	case PCI_DEVICE_ID_INTEL_965GM:
+-		/* 915, 945 and 965 chipsets support a 256MB aperture.
+-		   Aperture size is determined by inspected the
+-		   base address of the aperture. */
+-		if (pci_resource_start(pdev, 2) & 0x08000000)
+-			*aperture_size = MB(128);
+-		else
+-			*aperture_size = MB(256);
++		/*
++		 * 915, 945 and 965 chipsets support 64MB, 128MB or 256MB
++		 * aperture. Determine size from PCI resource length.
++		 */
++		*aperture_size = pci_resource_len(pdev, 2);
  		break;
  	default:
--		return -EINVAL;
-+		goto error;
- 	}
- 
- 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
- 		NAU8824_I2S_DL_MASK, val_len);
-+	err = 0;
- 
-+ error:
- 	nau8824_sema_release(nau8824);
- 
--	return 0;
-+	return err;
- }
- 
- static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
-@@ -1100,8 +1103,6 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 	struct nau8824 *nau8824 = snd_soc_codec_get_drvdata(codec);
- 	unsigned int ctrl1_val = 0, ctrl2_val = 0;
- 
--	nau8824_sema_acquire(nau8824, HZ);
--
- 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
- 	case SND_SOC_DAIFMT_CBM_CFM:
- 		ctrl2_val |= NAU8824_I2S_MS_MASTER;
-@@ -1143,6 +1144,8 @@ static int nau8824_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 		return -EINVAL;
- 	}
- 
-+	nau8824_sema_acquire(nau8824, HZ);
-+
- 	regmap_update_bits(nau8824->regmap, NAU8824_REG_PORT0_I2S_PCM_CTRL_1,
- 		NAU8824_I2S_DF_MASK | NAU8824_I2S_BP_MASK |
- 		NAU8824_I2S_PCMB_EN, ctrl1_val);
+ 		if ((tmp & INTEL_GMCH_MEM_MASK) == INTEL_GMCH_MEM_64M)
 -- 
 2.35.1
 
