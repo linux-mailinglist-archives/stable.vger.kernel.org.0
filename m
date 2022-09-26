@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB60C5EA453
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1AE5EA45A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:45:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238285AbiIZLpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:45:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37064 "EHLO
+        id S238366AbiIZLpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:45:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238608AbiIZLoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:44:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F4972B64;
-        Mon, 26 Sep 2022 03:46:31 -0700 (PDT)
+        with ESMTP id S238480AbiIZLn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:43:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D664672B79;
+        Mon, 26 Sep 2022 03:46:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86360B80691;
-        Mon, 26 Sep 2022 10:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A99C433D6;
-        Mon, 26 Sep 2022 10:46:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AC8760B4A;
+        Mon, 26 Sep 2022 10:46:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE46EC433D6;
+        Mon, 26 Sep 2022 10:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189180;
-        bh=fqLtuLhz5QTIlo+A3IXwAHfAVSOavrA51A9oFc9hZAw=;
+        s=korg; t=1664189183;
+        bh=yoFcUTeYEhvPl4lSixwPxNGPlFeykb4pDJGSGYoKqQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMgWkAI4YX9eJj7lEz07Uc3iivqV1G7Hkw9D9h9TDMesoVtJxkaY3ie0QrmUU/aP3
-         bkc6zl2/KHekLn4wAiC3sTOok0KnmT+eM8nFGAsgSXPPxraPrKKFiqDqHweq17jSXf
-         rvmKDW4tDH4Rg85I7LZ8GBUXUGrQtbm7cwRVnojQ=
+        b=t3KYgY1DFRmL4J35oz8NdKjrTiRhJEZiHiRNQHVuKI4+EZhdxHfNEy7aiov5hGXNN
+         hILYVWVQbflo5m4M+rtSIU8qaALG2H6l1QSwrxeFNVvs4LQDyZxyrMSrzgGm2kHNWv
+         xFT43pzW1fP/BlgGqr/yte9Wh9HprsjqF9C5rTi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Mohan Rao .vanimina" <mailtoc.mohanrao@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         Will Deacon <will@kernel.org>
-Subject: [PATCH 5.19 068/207] arm64: topology: fix possible overflow in amu_fie_setup()
-Date:   Mon, 26 Sep 2022 12:10:57 +0200
-Message-Id: <20220926100809.645226980@linuxfoundation.org>
+Subject: [PATCH 5.19 069/207] vmlinux.lds.h: CFI: Reduce alignment of jump-table to function alignment
+Date:   Mon, 26 Sep 2022 12:10:58 +0200
+Message-Id: <20220926100809.691241282@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -52,37 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Will Deacon <will@kernel.org>
 
-commit d4955c0ad77dbc684fc716387070ac24801b8bca upstream.
+commit 13b0566962914e167cb3238fbe29ced618f07a27 upstream.
 
-cpufreq_get_hw_max_freq() returns max frequency in kHz as *unsigned int*,
-while freq_inv_set_max_ratio() gets passed this frequency in Hz as 'u64'.
-Multiplying max frequency by 1000 can potentially result in overflow --
-multiplying by 1000ULL instead should avoid that...
+Due to undocumented, hysterical raisins on x86, the CFI jump-table
+sections in .text are needlessly aligned to PMD_SIZE in the vmlinux
+linker script. When compiling a CFI-enabled arm64 kernel with a 64KiB
+page-size, a PMD maps 512MiB of virtual memory and so the .text section
+increases to a whopping 940MiB and blows the final Image up to 960MiB.
+Others report a link failure.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
+Since the CFI jump-table requires only instruction alignment, reduce the
+alignment directives to function alignment for parity with other parts
+of the .text section. This reduces the size of the .text section for the
+aforementioned 64KiB page size arm64 kernel to 19MiB for a much more
+reasonable total Image size of 39MiB.
 
-Fixes: cd0ed03a8903 ("arm64: use activity monitors for frequency invariance")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/01493d64-2bce-d968-86dc-11a122a9c07d@omp.ru
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: "Mohan Rao .vanimina" <mailtoc.mohanrao@gmail.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/all/CAL_GTzigiNOMYkOPX1KDnagPhJtFNqSK=1USNbS0wUL4PW6-Uw@mail.gmail.com/
+Fixes: cf68fffb66d6 ("add support for Clang CFI")
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220922215715.13345-1-will@kernel.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/asm-generic/vmlinux.lds.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/topology.c
-+++ b/arch/arm64/kernel/topology.c
-@@ -251,7 +251,7 @@ static void amu_fie_setup(const struct c
- 	for_each_cpu(cpu, cpus) {
- 		if (!freq_counters_valid(cpu) ||
- 		    freq_inv_set_max_ratio(cpu,
--					   cpufreq_get_hw_max_freq(cpu) * 1000,
-+					   cpufreq_get_hw_max_freq(cpu) * 1000ULL,
- 					   arch_timer_get_rate()))
- 			return;
- 	}
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -543,10 +543,9 @@
+  */
+ #ifdef CONFIG_CFI_CLANG
+ #define TEXT_CFI_JT							\
+-		. = ALIGN(PMD_SIZE);					\
++		ALIGN_FUNCTION();					\
+ 		__cfi_jt_start = .;					\
+ 		*(.text..L.cfi.jumptable .text..L.cfi.jumptable.*)	\
+-		. = ALIGN(PMD_SIZE);					\
+ 		__cfi_jt_end = .;
+ #else
+ #define TEXT_CFI_JT
 
 
