@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 118465E9F45
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FEBB5EA0CB
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235264AbiIZKWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38130 "EHLO
+        id S236355AbiIZKly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:41:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235133AbiIZKVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:21:39 -0400
+        with ESMTP id S236222AbiIZKkj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:40:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C1A4BA68;
-        Mon, 26 Sep 2022 03:16:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160CA4D176;
+        Mon, 26 Sep 2022 03:24:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F37EE60B7E;
-        Mon, 26 Sep 2022 10:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF965C433C1;
-        Mon, 26 Sep 2022 10:16:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A928060C07;
+        Mon, 26 Sep 2022 10:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA7EBC433C1;
+        Mon, 26 Sep 2022 10:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187370;
-        bh=y7+eLYjbcVCNH/jVgiBmW+NgV5JOjwNfZtMYz35Va1M=;
+        s=korg; t=1664187789;
+        bh=tOpRTScNTYqFlhBKjkopRbmmvncO6LPRlcICQCyskfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rwt5x/nZTzaMcy1Sa50UAUnFUcDz8k5JKd1rUKli+J/xsZur1wPS0ZNjdF803RaBO
-         TrwSr7lTntMH05aVOEwuh2kmawRBtV4MgXfFbdFdmJDucYJNIOPx2eey+Fp2VhE/lb
-         Dk7MjAXN2/1yH2sjY4azrwRVjLYcnMTbV5Bby4t8=
+        b=Fh7MtMb7Cf4u321UuyqiX01fUh695r6YBPLx59hafd/k8SgaaTy/CMS/biBji3kl4
+         B+Mkfz3eUFugcdwMaguFQ37Tc/4Xe1jtopCjrfBSBwGMHIWCRP7C/emHjElYDCUYHh
+         rDlEjZ+WEf9qB09vFsbnCTN6/6xeDx6x0YrUIZww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/40] efi/libstub: Disable Shadow Call Stack
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 060/120] ALSA: hda/realtek: Add pincfg for ASUS G513 HP jack
 Date:   Mon, 26 Sep 2022 12:11:33 +0200
-Message-Id: <20220926100738.422260948@linuxfoundation.org>
+Message-Id: <20220926100753.026777601@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Luke D. Jones <luke@ljones.dev>
 
-[ Upstream commit cc49c71d2abe99c1c2c9bedf0693ad2d3ee4a067 ]
+commit c611e659044168e7abcbae8ba1ea833521498fbb upstream.
 
-Shadow stacks are not available in the EFI stub, filter out SCS flags.
+Fixes up the pincfg for ASUS ROG Strix G513 headphone and mic combo jack
 
-Suggested-by: James Morse <james.morse@arm.com>
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Stable-dep-of: 1a3887924a7e ("efi: libstub: Disable struct randomization")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[ Fixed the position in the quirk table by tiwai ]
+
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220915080921.35563-2-luke@ljones.dev
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/libstub/Makefile | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
-index 678bc910e080..54dbcec7e06f 100644
---- a/drivers/firmware/efi/libstub/Makefile
-+++ b/drivers/firmware/efi/libstub/Makefile
-@@ -23,6 +23,9 @@ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
- 				   $(call cc-option,-ffreestanding) \
- 				   $(call cc-option,-fno-stack-protector)
- 
-+# remove SCS flags from all objects in this directory
-+KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
-+
- GCOV_PROFILE			:= n
- KASAN_SANITIZE			:= n
- UBSAN_SANITIZE			:= n
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6484,6 +6484,7 @@ enum {
+ 	ALC294_FIXUP_ASUS_GU502_HP,
+ 	ALC294_FIXUP_ASUS_GU502_PINS,
+ 	ALC294_FIXUP_ASUS_GU502_VERBS,
++	ALC294_FIXUP_ASUS_G513_PINS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_GPIO_LED,
+@@ -7761,6 +7762,15 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc294_fixup_gu502_hp,
+ 	},
++	 [ALC294_FIXUP_ASUS_G513_PINS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++				{ 0x19, 0x03a11050 }, /* front HP mic */
++				{ 0x1a, 0x03a11c30 }, /* rear external mic */
++				{ 0x21, 0x03211420 }, /* front HP out */
++				{ }
++		},
++	},
+ 	[ALC294_FIXUP_ASUS_COEF_1B] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -8253,6 +8263,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
++	SND_PCI_QUIRK(0x1043, 0x1e5e, "ASUS ROG Strix G513", ALC294_FIXUP_ASUS_G513_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
 
 
