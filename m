@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C5C55E9F1D
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF705EA22E
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235083AbiIZKTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45718 "EHLO
+        id S236950AbiIZLEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:04:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235207AbiIZKSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:18:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A6546DB8;
-        Mon, 26 Sep 2022 03:15:30 -0700 (PDT)
+        with ESMTP id S237059AbiIZLDZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1E35EDF4;
+        Mon, 26 Sep 2022 03:32:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5DF8B80835;
-        Mon, 26 Sep 2022 10:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 139C5C433C1;
-        Mon, 26 Sep 2022 10:15:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9224DB8094D;
+        Mon, 26 Sep 2022 10:30:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1923C433D6;
+        Mon, 26 Sep 2022 10:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187327;
-        bh=4rwkvD/DNcjNXfcsWGkTsOeqnSDE+8I7hUNF1BK6CT8=;
+        s=korg; t=1664188208;
+        bh=Jf6oRZhil1xoJGyJp8jVwLBg4X5qkPjZTxNA897XdmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKWfmAbasshPdJC8C362h8GzhJimV7b6gwTCFAgKzwpYw5EicEEh9DHgaxdZRSqtk
-         kmbSlNjuWDEpsWjU6mtRpnrlXDYqwnYOrer2M5ErcEoi6mjUptxFVU2L66JsA19hQG
-         a47Q9yvNNVuRddUAzI5O5wtSWaWjIMt6mvPJYXis=
+        b=MkozwcIZ4SL/z69reul6oToo5FyOZKkzzHJysMnlCw7h+l2kGEkmoUFFi3/mFCr/C
+         ivp06lRGYoMSClsYPj9U/LXc7r/X+4cf4tsgRkSXg5nG3GBAWzSP1VrkjYXVA+kt3a
+         2nRRTvlIgwGedKIUaMoK3OteS85MgDSOGUcPRjYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youling Tang <tangyouling@loongson.cn>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/40] mksysmap: Fix the mismatch of L0 symbols in System.map
+Subject: [PATCH 5.10 075/141] net: phy: aquantia: wait for the suspend/resume operations to finish
 Date:   Mon, 26 Sep 2022 12:11:41 +0200
-Message-Id: <20220926100738.719276126@linuxfoundation.org>
+Message-Id: <20220926100757.166693051@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
-References: <20220926100738.148626940@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youling Tang <tangyouling@loongson.cn>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit c17a2538704f926ee4d167ba625e09b1040d8439 ]
+[ Upstream commit ca2dccdeeb49a7e408112d681bf447984c845292 ]
 
-When System.map was generated, the kernel used mksysmap to filter the
-kernel symbols, we need to filter "L0" symbols in LoongArch architecture.
+The Aquantia datasheet notes that after issuing a Processor-Intensive
+MDIO operation, like changing the low-power state of the device, the
+driver should wait for the operation to finish before issuing a new MDIO
+command.
 
-$ cat System.map | grep L0
-9000000000221540 t L0
+The new aqr107_wait_processor_intensive_op() function is added which can
+be used after these kind of MDIO operations. At the moment, we are only
+adding it at the end of the suspend/resume calls.
 
-The L0 symbol exists in System.map, but not in .tmp_System.map. When
-"cmp -s System.map .tmp_System.map" will show "Inconsistent kallsyms
-data" error message in link-vmlinux.sh script.
+The issue was identified on a board featuring the AQR113C PHY, on
+which commands like 'ip link (..) up / down' issued without any delays
+between them would render the link on the PHY to remain down.
+The issue was easy to reproduce with a one-liner:
+ $ ip link set dev ethX down; ip link set dev ethX up; \
+ ip link set dev ethX down; ip link set dev ethX up;
 
-Signed-off-by: Youling Tang <tangyouling@loongson.cn>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: ac9e81c230eb ("net: phy: aquantia: add suspend / resume callbacks for AQR107 family")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220906130451.1483448-1-ioana.ciornei@nxp.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mksysmap | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/aquantia_main.c | 53 ++++++++++++++++++++++++++++++---
+ 1 file changed, 49 insertions(+), 4 deletions(-)
 
-diff --git a/scripts/mksysmap b/scripts/mksysmap
-index 9aa23d15862a..ad8bbc52267d 100755
---- a/scripts/mksysmap
-+++ b/scripts/mksysmap
-@@ -41,4 +41,4 @@
- # so we just ignore them to let readprofile continue to work.
- # (At least sparc64 has __crc_ in the middle).
+diff --git a/drivers/net/phy/aquantia_main.c b/drivers/net/phy/aquantia_main.c
+index 75a62d1cc737..7045595f8d7d 100644
+--- a/drivers/net/phy/aquantia_main.c
++++ b/drivers/net/phy/aquantia_main.c
+@@ -89,6 +89,9 @@
+ #define VEND1_GLOBAL_FW_ID_MAJOR		GENMASK(15, 8)
+ #define VEND1_GLOBAL_FW_ID_MINOR		GENMASK(7, 0)
  
--$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
-+$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)\|\( L0\)' > $2
++#define VEND1_GLOBAL_GEN_STAT2			0xc831
++#define VEND1_GLOBAL_GEN_STAT2_OP_IN_PROG	BIT(15)
++
+ #define VEND1_GLOBAL_RSVD_STAT1			0xc885
+ #define VEND1_GLOBAL_RSVD_STAT1_FW_BUILD_ID	GENMASK(7, 4)
+ #define VEND1_GLOBAL_RSVD_STAT1_PROV_ID		GENMASK(3, 0)
+@@ -123,6 +126,12 @@
+ #define VEND1_GLOBAL_INT_VEND_MASK_GLOBAL2	BIT(1)
+ #define VEND1_GLOBAL_INT_VEND_MASK_GLOBAL3	BIT(0)
+ 
++/* Sleep and timeout for checking if the Processor-Intensive
++ * MDIO operation is finished
++ */
++#define AQR107_OP_IN_PROG_SLEEP		1000
++#define AQR107_OP_IN_PROG_TIMEOUT	100000
++
+ struct aqr107_hw_stat {
+ 	const char *name;
+ 	int reg;
+@@ -569,16 +578,52 @@ static void aqr107_link_change_notify(struct phy_device *phydev)
+ 		phydev_info(phydev, "Aquantia 1000Base-T2 mode active\n");
+ }
+ 
++static int aqr107_wait_processor_intensive_op(struct phy_device *phydev)
++{
++	int val, err;
++
++	/* The datasheet notes to wait at least 1ms after issuing a
++	 * processor intensive operation before checking.
++	 * We cannot use the 'sleep_before_read' parameter of read_poll_timeout
++	 * because that just determines the maximum time slept, not the minimum.
++	 */
++	usleep_range(1000, 5000);
++
++	err = phy_read_mmd_poll_timeout(phydev, MDIO_MMD_VEND1,
++					VEND1_GLOBAL_GEN_STAT2, val,
++					!(val & VEND1_GLOBAL_GEN_STAT2_OP_IN_PROG),
++					AQR107_OP_IN_PROG_SLEEP,
++					AQR107_OP_IN_PROG_TIMEOUT, false);
++	if (err) {
++		phydev_err(phydev, "timeout: processor-intensive MDIO operation\n");
++		return err;
++	}
++
++	return 0;
++}
++
+ static int aqr107_suspend(struct phy_device *phydev)
+ {
+-	return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
+-				MDIO_CTRL1_LPOWER);
++	int err;
++
++	err = phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
++			       MDIO_CTRL1_LPOWER);
++	if (err)
++		return err;
++
++	return aqr107_wait_processor_intensive_op(phydev);
+ }
+ 
+ static int aqr107_resume(struct phy_device *phydev)
+ {
+-	return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
+-				  MDIO_CTRL1_LPOWER);
++	int err;
++
++	err = phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, MDIO_CTRL1,
++				 MDIO_CTRL1_LPOWER);
++	if (err)
++		return err;
++
++	return aqr107_wait_processor_intensive_op(phydev);
+ }
+ 
+ static int aqr107_probe(struct phy_device *phydev)
 -- 
 2.35.1
 
