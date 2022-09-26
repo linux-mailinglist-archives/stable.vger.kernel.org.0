@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C505E9FCD
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4665EA48A
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235580AbiIZK3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:29:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45070 "EHLO
+        id S236493AbiIZLrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:47:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235702AbiIZK2y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602E24E84C;
-        Mon, 26 Sep 2022 03:19:08 -0700 (PDT)
+        with ESMTP id S238253AbiIZLpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:45:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2D474DC2;
+        Mon, 26 Sep 2022 03:47:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A0160AD6;
-        Mon, 26 Sep 2022 10:18:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86B07C433C1;
-        Mon, 26 Sep 2022 10:18:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 609CA6068C;
+        Mon, 26 Sep 2022 10:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75059C433C1;
+        Mon, 26 Sep 2022 10:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187509;
-        bh=GLloAbWf1ibfp4C7gKCcO5fNiAAMTzZrSFe2GtoRA7I=;
+        s=korg; t=1664189247;
+        bh=xXaYM+/QW243fqLUdMzgr5aSFHN50zkuiC7q6wscQzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yy2aX7GN00JMifX93pO/y0heXKP7D7Nhm3baPZQjN3TOgTQwSCMDxa8OLQxd8lz1v
-         5MgPYj6oU6uITW0yc1/eOx84dRHeSNGFfZtrYWKUjufnlDHe62wHM4IiHmkVqLi370
-         6WWrnD1o0xAnzDC9lKa45L6R+q5lZkgE0OnI7xvg=
+        b=ylln0ij+JAcJZzt0Xc7TNb5RcQ9apNtIPU+IWmwsyrnLG0sdSQS9aCzCDLEEOp7Eq
+         KQ1nLeSGq2kvgaUWW5Sm5wQuDcFhknfpBdTHAX8w8fyqoJRaXYFR1/xIbjlHdTOPHl
+         rhMF77T7LkVy0ck9igV7CqdO0wGhe1464gC3kgTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Peter Jones <pjones@redhat.com>
-Subject: [PATCH 4.19 31/58] efi: libstub: check Shim mode using MokSBStateRT
-Date:   Mon, 26 Sep 2022 12:11:50 +0200
-Message-Id: <20220926100742.617625457@linuxfoundation.org>
+        stable@vger.kernel.org, Shailend Chand <shailend@google.com>,
+        Jeroen de Borst <jeroendb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 122/207] gve: Fix GFP flags when allocing pages
+Date:   Mon, 26 Sep 2022 12:11:51 +0200
+Message-Id: <20220926100812.032687082@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Shailend Chand <shailend@google.com>
 
-commit 5f56a74cc0a6d9b9f8ba89cea29cd7c4774cb2b1 upstream.
+[ Upstream commit 8ccac4edc8da764389d4fc18b1df740892006557 ]
 
-We currently check the MokSBState variable to decide whether we should
-treat UEFI secure boot as being disabled, even if the firmware thinks
-otherwise. This is used by shim to indicate that it is not checking
-signatures on boot images. In the kernel, we use this to relax lockdown
-policies.
+Use GFP_ATOMIC when allocating pages out of the hotpath,
+continue to use GFP_KERNEL when allocating pages during setup.
 
-However, in cases where shim is not even being used, we don't want this
-variable to interfere with lockdown, given that the variable may be
-non-volatile and therefore persist across a reboot. This means setting
-it once will persistently disable lockdown checks on a given system.
+GFP_KERNEL will allow blocking which allows it to succeed
+more often in a low memory enviornment but in the hotpath we do
+not want to allow the allocation to block.
 
-So switch to the mirrored version of this variable, called MokSBStateRT,
-which is supposed to be volatile, and this is something we can check.
-
-Cc: <stable@vger.kernel.org> # v4.19+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Reviewed-by: Peter Jones <pjones@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9b8dd5e5ea48b ("gve: DQO: Add RX path")
+Signed-off-by: Shailend Chand <shailend@google.com>
+Signed-off-by: Jeroen de Borst <jeroendb@google.com>
+Link: https://lore.kernel.org/r/20220913000901.959546-1-jeroendb@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/secureboot.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/google/gve/gve_rx_dqo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/libstub/secureboot.c
-+++ b/drivers/firmware/efi/libstub/secureboot.c
-@@ -21,7 +21,7 @@ static const efi_char16_t efi_SetupMode_
+diff --git a/drivers/net/ethernet/google/gve/gve_rx_dqo.c b/drivers/net/ethernet/google/gve/gve_rx_dqo.c
+index 8c939628e2d8..2e6461b0ea8b 100644
+--- a/drivers/net/ethernet/google/gve/gve_rx_dqo.c
++++ b/drivers/net/ethernet/google/gve/gve_rx_dqo.c
+@@ -157,7 +157,7 @@ static int gve_alloc_page_dqo(struct gve_priv *priv,
+ 	int err;
  
- /* SHIM variables */
- static const efi_guid_t shim_guid = EFI_SHIM_LOCK_GUID;
--static const efi_char16_t shim_MokSBState_name[] = L"MokSBState";
-+static const efi_char16_t shim_MokSBState_name[] = L"MokSBStateRT";
+ 	err = gve_alloc_page(priv, &priv->pdev->dev, &buf_state->page_info.page,
+-			     &buf_state->addr, DMA_FROM_DEVICE, GFP_KERNEL);
++			     &buf_state->addr, DMA_FROM_DEVICE, GFP_ATOMIC);
+ 	if (err)
+ 		return err;
  
- #define get_efi_var(name, vendor, ...) \
- 	efi_call_runtime(get_variable, \
-@@ -60,8 +60,8 @@ enum efi_secureboot_mode efi_get_secureb
- 
- 	/*
- 	 * See if a user has put the shim into insecure mode. If so, and if the
--	 * variable doesn't have the runtime attribute set, we might as well
--	 * honor that.
-+	 * variable doesn't have the non-volatile attribute set, we might as
-+	 * well honor that.
- 	 */
- 	size = sizeof(moksbstate);
- 	status = get_efi_var(shim_MokSBState_name, &shim_guid,
-@@ -70,7 +70,7 @@ enum efi_secureboot_mode efi_get_secureb
- 	/* If it fails, we don't care why. Default to secure */
- 	if (status != EFI_SUCCESS)
- 		goto secure_boot_enabled;
--	if (!(attr & EFI_VARIABLE_RUNTIME_ACCESS) && moksbstate == 1)
-+	if (!(attr & EFI_VARIABLE_NON_VOLATILE) && moksbstate == 1)
- 		return efi_secureboot_mode_disabled;
- 
- secure_boot_enabled:
+-- 
+2.35.1
+
 
 
