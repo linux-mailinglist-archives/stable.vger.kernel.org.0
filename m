@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B6B5EA053
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2FC5EA3E7
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235986AbiIZKgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:36:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
+        id S238092AbiIZLf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:35:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236313AbiIZKeu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:34:50 -0400
+        with ESMTP id S238259AbiIZLec (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D00285245D;
-        Mon, 26 Sep 2022 03:21:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AB254CA1;
+        Mon, 26 Sep 2022 03:43:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B565960BB7;
-        Mon, 26 Sep 2022 10:21:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4F8C43148;
-        Mon, 26 Sep 2022 10:21:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F92760B6A;
+        Mon, 26 Sep 2022 10:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C4FFC433D7;
+        Mon, 26 Sep 2022 10:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187696;
-        bh=2eD7QGliI3wXPdxG3FW/UmNFLlJHY7urDvH1z6VQP54=;
+        s=korg; t=1664189016;
+        bh=O9SJA4ghkAux3cvtpQ0yAtf9EdNN19N+uoX2sLICkTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RgkcZ7RC8EVztKZ7tV0bbJNLUb3M1jQCWtjNbA6oVtGsxFl2WcCuelcl5a0lri+Yl
-         3EzWe0tCGfsBPXD86G6XOG2be/z55Ky+FRJ0voUudq/QWmcu9+PhbtrsdfppYtEsib
-         7/eTx+4SAY5yHZYsL3TOgfZcT3NzTexJ1VsrqJyc=
+        b=GsX4KT+jMDdAjl3nT03djd0YVGdYZVY/G9am7DbzouXipsG7+oNHeulCs1suJI546
+         YnJ5dIkBlHAWsHa65bmuee+WRrVNjUZGcyHWuC7OZ2pYwa6LbxPIr626ylxHifqVv1
+         jwVZ9mCtXfUhCp+JI3FPlue+Fv+NEbzfEciU3ABc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 003/120] gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
+        stable@vger.kernel.org, Gil Fine <gil.fine@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.19 047/207] thunderbolt: Add support for Intel Maple Ridge single port controller
 Date:   Mon, 26 Sep 2022 12:10:36 +0200
-Message-Id: <20220926100750.666778118@linuxfoundation.org>
+Message-Id: <20220926100808.724222167@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Gil Fine <gil.fine@intel.com>
 
-[ Upstream commit 279c12df8d2efb28def9d037f288cbfb97c30fe2 ]
+commit 14c7d905283744809e6b82efae2f490660a11cda upstream.
 
-Commit e39d5ef67804 ("powerpc/5xxx: extend mpc8xxx_gpio driver to support
-mpc512x gpios") implemented support for IRQ_TYPE_LEVEL_LOW flow type in
-mpc512x via falling edge type. Do same for mpc85xx which support was added
-in commit 345e5c8a1cc3 ("powerpc: Add interrupt support to mpc8xxx_gpio").
+Add support for Maple Ridge discrete USB4 host controller from Intel
+which has a single USB4 port (versus the already supported dual port
+Maple Ridge USB4 host controller).
 
-Fixes probing of lm90 hwmon driver on mpc85xx based board which use level
-interrupt. Without it kernel prints error and refuse lm90 to work:
-
-    [   15.258370] genirq: Setting trigger mode 8 for irq 49 failed (mpc8xxx_irq_set_type+0x0/0xf8)
-    [   15.267168] lm90 0-004c: cannot request IRQ 49
-    [   15.272708] lm90: probe of 0-004c failed with error -22
-
-Fixes: 345e5c8a1cc3 ("powerpc: Add interrupt support to mpc8xxx_gpio")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Gil Fine <gil.fine@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-mpc8xxx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thunderbolt/icm.c |    1 +
+ drivers/thunderbolt/nhi.h |    1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
-index d72a3a5507b0..f3bf82efea8e 100644
---- a/drivers/gpio/gpio-mpc8xxx.c
-+++ b/drivers/gpio/gpio-mpc8xxx.c
-@@ -190,6 +190,7 @@ static int mpc8xxx_irq_set_type(struct irq_data *d, unsigned int flow_type)
+--- a/drivers/thunderbolt/icm.c
++++ b/drivers/thunderbolt/icm.c
+@@ -2527,6 +2527,7 @@ struct tb *icm_probe(struct tb_nhi *nhi)
+ 		tb->cm_ops = &icm_icl_ops;
+ 		break;
  
- 	switch (flow_type) {
- 	case IRQ_TYPE_EDGE_FALLING:
-+	case IRQ_TYPE_LEVEL_LOW:
- 		raw_spin_lock_irqsave(&mpc8xxx_gc->lock, flags);
- 		gc->write_reg(mpc8xxx_gc->regs + GPIO_ICR,
- 			gc->read_reg(mpc8xxx_gc->regs + GPIO_ICR)
--- 
-2.35.1
-
++	case PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_2C_NHI:
+ 	case PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_4C_NHI:
+ 		icm->is_supported = icm_tgl_is_supported;
+ 		icm->get_mode = icm_ar_get_mode;
+--- a/drivers/thunderbolt/nhi.h
++++ b/drivers/thunderbolt/nhi.h
+@@ -55,6 +55,7 @@ extern const struct tb_nhi_ops icl_nhi_o
+  * need for the PCI quirk anymore as we will use ICM also on Apple
+  * hardware.
+  */
++#define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_2C_NHI		0x1134
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_4C_NHI		0x1137
+ #define PCI_DEVICE_ID_INTEL_WIN_RIDGE_2C_NHI            0x157d
+ #define PCI_DEVICE_ID_INTEL_WIN_RIDGE_2C_BRIDGE         0x157e
 
 
