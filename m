@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFDD85EA41E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F535EA358
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238309AbiIZLk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35464 "EHLO
+        id S236121AbiIZLY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:24:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238399AbiIZLjO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:39:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BB53A47F;
-        Mon, 26 Sep 2022 03:44:55 -0700 (PDT)
+        with ESMTP id S237602AbiIZLXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1315FD5;
+        Mon, 26 Sep 2022 03:39:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD54BB80185;
-        Mon, 26 Sep 2022 10:38:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0474C433D6;
-        Mon, 26 Sep 2022 10:38:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C3B460A36;
+        Mon, 26 Sep 2022 10:38:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11DE1C433D6;
+        Mon, 26 Sep 2022 10:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188716;
-        bh=qlPHg17W6hUOf55b5oHf+HaQ4b+6AlpbtgGxtNYA/OY=;
+        s=korg; t=1664188719;
+        bh=UQi9LSqABcy467axqnb3ehB0P6+Q+8c9a7f3kN/dJcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdemAVtKZeIAqK3J8VuMxXfTdhZRmQHbMINh7KB3pwZLmlDLhvaq8YLcUwQCkTxlB
-         kEkoAmAj9KpDrzGsKfoLydyezgdgNvVl+XGPkDi+85Ydp6OBtsl6AgufcLQOP7TJHA
-         xh6yEsO3xPFSxiw7YjyH7LY1V7MUbJPtNJoyGpVA=
+        b=n61sD23qUUxlicppAmkWlAhAEMHpvFQAod2vvJgr/gidq8DG0K/oH4aROzWSX7G2q
+         ZFq4TG+Qrydfea+0dxfLKK9Ls8gIpb4j7RnVmIHZ9GRkYYpLPYEbFdkUMo+kzwm0zd
+         EdtCBkTvi8ipuwAY5D6Al3qpPTAiiDgK+m9JM5gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 099/148] net/sched: taprio: make qdisc_leaf() see the per-netdev-queue pfifo child qdiscs
-Date:   Mon, 26 Sep 2022 12:12:13 +0200
-Message-Id: <20220926100759.792895188@linuxfoundation.org>
+Subject: [PATCH 5.15 100/148] netfilter: nf_tables: fix nft_counters_enabled underflow at nf_tables_addchain()
+Date:   Mon, 26 Sep 2022 12:12:14 +0200
+Message-Id: <20220926100759.826985157@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
 References: <20220926100756.074519146@linuxfoundation.org>
@@ -54,119 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 1461d212ab277d8bba1a753d33e9afe03d81f9d4 ]
+[ Upstream commit 921ebde3c0d22c8cba74ce8eb3cc4626abff1ccd ]
 
-taprio can only operate as root qdisc, and to that end, there exists the
-following check in taprio_init(), just as in mqprio:
+syzbot is reporting underflow of nft_counters_enabled counter at
+nf_tables_addchain() [1], for commit 43eb8949cfdffa76 ("netfilter:
+nf_tables: do not leave chain stats enabled on error") missed that
+nf_tables_chain_destroy() after nft_basechain_init() in the error path of
+nf_tables_addchain() decrements the counter because nft_basechain_init()
+makes nft_is_base_chain() return true by setting NFT_CHAIN_BASE flag.
 
-	if (sch->parent != TC_H_ROOT)
-		return -EOPNOTSUPP;
+Increment the counter immediately after returning from
+nft_basechain_init().
 
-And indeed, when we try to attach taprio to an mqprio child, it fails as
-expected:
-
-$ tc qdisc add dev swp0 root handle 1: mqprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 hw 0
-$ tc qdisc replace dev swp0 parent 1:2 taprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-	base-time 0 sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-Error: sch_taprio: Can only be attached as root qdisc.
-
-(extack message added by me)
-
-But when we try to attach a taprio child to a taprio root qdisc,
-surprisingly it doesn't fail:
-
-$ tc qdisc replace dev swp0 root handle 1: taprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-	base-time 0 sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-$ tc qdisc replace dev swp0 parent 1:2 taprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-	base-time 0 sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-
-This is because tc_modify_qdisc() behaves differently when mqprio is
-root, vs when taprio is root.
-
-In the mqprio case, it finds the parent qdisc through
-p = qdisc_lookup(dev, TC_H_MAJ(clid)), and then the child qdisc through
-q = qdisc_leaf(p, clid). This leaf qdisc q has handle 0, so it is
-ignored according to the comment right below ("It may be default qdisc,
-ignore it"). As a result, tc_modify_qdisc() goes through the
-qdisc_create() code path, and this gives taprio_init() a chance to check
-for sch_parent != TC_H_ROOT and error out.
-
-Whereas in the taprio case, the returned q = qdisc_leaf(p, clid) is
-different. It is not the default qdisc created for each netdev queue
-(both taprio and mqprio call qdisc_create_dflt() and keep them in
-a private q->qdiscs[], or priv->qdiscs[], respectively). Instead, taprio
-makes qdisc_leaf() return the _root_ qdisc, aka itself.
-
-When taprio does that, tc_modify_qdisc() goes through the qdisc_change()
-code path, because the qdisc layer never finds out about the child qdisc
-of the root. And through the ->change() ops, taprio has no reason to
-check whether its parent is root or not, just through ->init(), which is
-not called.
-
-The problem is the taprio_leaf() implementation. Even though code wise,
-it does the exact same thing as mqprio_leaf() which it is copied from,
-it works with different input data. This is because mqprio does not
-attach itself (the root) to each device TX queue, but one of the default
-qdiscs from its private array.
-
-In fact, since commit 13511704f8d7 ("net: taprio offload: enforce qdisc
-to netdev queue mapping"), taprio does this too, but just for the full
-offload case. So if we tried to attach a taprio child to a fully
-offloaded taprio root qdisc, it would properly fail too; just not to a
-software root taprio.
-
-To fix the problem, stop looking at the Qdisc that's attached to the TX
-queue, and instead, always return the default qdiscs that we've
-allocated (and to which we privately enqueue and dequeue, in software
-scheduling mode).
-
-Since Qdisc_class_ops :: leaf  is only called from tc_modify_qdisc(),
-the risk of unforeseen side effects introduced by this change is
-minimal.
-
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link:  https://syzkaller.appspot.com/bug?extid=b5d82a651b71cd8a75ab [1]
+Reported-by: syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>
+Fixes: 43eb8949cfdffa76 ("netfilter: nf_tables: do not leave chain stats enabled on error")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/netfilter/nf_tables_api.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index bb424f6264dd..ae7ca68f2cf9 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1950,12 +1950,14 @@ static int taprio_dump(struct Qdisc *sch, struct sk_buff *skb)
- 
- static struct Qdisc *taprio_leaf(struct Qdisc *sch, unsigned long cl)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index d35d09df83fe..d8e66467c06c 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2103,7 +2103,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			      struct netlink_ext_ack *extack)
  {
--	struct netdev_queue *dev_queue = taprio_queue_get(sch, cl);
-+	struct taprio_sched *q = qdisc_priv(sch);
-+	struct net_device *dev = qdisc_dev(sch);
-+	unsigned int ntx = cl - 1;
+ 	const struct nlattr * const *nla = ctx->nla;
+-	struct nft_stats __percpu *stats = NULL;
+ 	struct nft_table *table = ctx->table;
+ 	struct nft_base_chain *basechain;
+ 	struct net *net = ctx->net;
+@@ -2117,6 +2116,7 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		return -EOVERFLOW;
  
--	if (!dev_queue)
-+	if (ntx >= dev->num_tx_queues)
- 		return NULL;
+ 	if (nla[NFTA_CHAIN_HOOK]) {
++		struct nft_stats __percpu *stats = NULL;
+ 		struct nft_chain_hook hook;
  
--	return dev_queue->qdisc_sleeping;
-+	return q->qdiscs[ntx];
- }
+ 		if (flags & NFT_CHAIN_BINDING)
+@@ -2150,6 +2150,8 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			kfree(basechain);
+ 			return err;
+ 		}
++		if (stats)
++			static_branch_inc(&nft_counters_enabled);
+ 	} else {
+ 		if (flags & NFT_CHAIN_BASE)
+ 			return -EINVAL;
+@@ -2224,9 +2226,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		goto err_unregister_hook;
+ 	}
  
- static unsigned long taprio_find(struct Qdisc *sch, u32 classid)
+-	if (stats)
+-		static_branch_inc(&nft_counters_enabled);
+-
+ 	table->use++;
+ 
+ 	return 0;
 -- 
 2.35.1
 
