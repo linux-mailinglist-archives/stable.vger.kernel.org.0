@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8315E9EFA
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 681C55E9FB9
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235100AbiIZKRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:17:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46944 "EHLO
+        id S235448AbiIZK3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235113AbiIZKQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:16:55 -0400
+        with ESMTP id S235731AbiIZK3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:29:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C5A15A28;
-        Mon, 26 Sep 2022 03:14:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86494371B7;
+        Mon, 26 Sep 2022 03:19:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9A09B8091E;
-        Mon, 26 Sep 2022 10:14:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30ED4C433C1;
-        Mon, 26 Sep 2022 10:14:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0060AB80915;
+        Mon, 26 Sep 2022 10:19:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4485DC433C1;
+        Mon, 26 Sep 2022 10:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187287;
-        bh=2FBLOR6h3UCh5GKhSE+UT/LyXePGcm5basdWGeNhV3M=;
+        s=korg; t=1664187549;
+        bh=QrpR7eGmWGJOFeCxljvXhM5dhUNxn0kd5pVLLRFuS/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rBvgogenrDYg7P9vhE4oJ62kwQATJmc4MBjMK8Eu5+qvcYCXOzYVI3+TtU63l44v
-         BMUAT6WSHzhVvZpNwsKuJYvoDHIOu23r0o8vSjASrsGO8AAgpp6sXFFWYY03HzCVQL
-         zUTfRZHBIN/x2fAq8LpZ8aNdF7joFqREBo4ddQkw=
+        b=cgJBad8oV+ZvGIk7d/ZeuKl4Tryqf67/EkyTmJwYGcaXY3Evoq4tOY8glRWF9AaGq
+         Ehev3tBm272mhc2r/2OjfVbUIeme46W3CevdPWgsjWGqbMPKInTWi1n+2gzbr9KZ5Q
+         CAeWQ5BW2NO3GhMEjCXylExmEdE8k0kqFmq9xtqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Ojaswin Mujoo <ojaswin@linux.ibm.com>, stable@kernel.org,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 30/30] ext4: make directory inode spreading reflect flexbg size
-Date:   Mon, 26 Sep 2022 12:12:01 +0200
-Message-Id: <20220926100737.224531328@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Andrii Staikov <andrii.staikov@intel.com>,
+        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 43/58] i40e: Fix set max_tx_rate when it is lower than 1 Mbps
+Date:   Mon, 26 Sep 2022 12:12:02 +0200
+Message-Id: <20220926100743.020399776@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
-References: <20220926100736.153157100@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-commit 613c5a85898d1cd44e68f28d65eccf64a8ace9cf upstream.
+[ Upstream commit 198eb7e1b81d8ba676d0f4f120c092032ae69a8e ]
 
-Currently the Orlov inode allocator searches for free inodes for a
-directory only in flex block groups with at most inodes_per_group/16
-more directory inodes than average per flex block group. However with
-growing size of flex block group this becomes unnecessarily strict.
-Scale allowed difference from average directory count per flex block
-group with flex block group size as we do with other metrics.
+While converting max_tx_rate from bytes to Mbps, this value was set to 0,
+if the original value was lower than 125000 bytes (1 Mbps). This would
+cause no transmission rate limiting to occur. This happened due to lack of
+check of max_tx_rate against the 1 Mbps value for max_tx_rate and the
+following division by 125000. Fix this issue by adding a helper
+i40e_bw_bytes_to_mbits() which sets max_tx_rate to minimum usable value of
+50 Mbps, if its value is less than 1 Mbps, otherwise do the required
+conversion by dividing by 125000.
 
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Tested-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/all/0d81a7c2-46b7-6010-62a4-3e6cfc1628d6@i2se.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220908092136.11770-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ecae4120a6b ("i40e: Refactor VF BW rate limiting")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Andrii Staikov <andrii.staikov@intel.com>
+Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ialloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 32 +++++++++++++++++----
+ 1 file changed, 26 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -511,7 +511,7 @@ static int find_group_orlov(struct super
- 		goto fallback;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 85337806efc7..9669d8c8b6c7 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -5487,6 +5487,26 @@ static int i40e_get_link_speed(struct i40e_vsi *vsi)
+ 	}
+ }
+ 
++/**
++ * i40e_bw_bytes_to_mbits - Convert max_tx_rate from bytes to mbits
++ * @vsi: Pointer to vsi structure
++ * @max_tx_rate: max TX rate in bytes to be converted into Mbits
++ *
++ * Helper function to convert units before send to set BW limit
++ **/
++static u64 i40e_bw_bytes_to_mbits(struct i40e_vsi *vsi, u64 max_tx_rate)
++{
++	if (max_tx_rate < I40E_BW_MBPS_DIVISOR) {
++		dev_warn(&vsi->back->pdev->dev,
++			 "Setting max tx rate to minimum usable value of 50Mbps.\n");
++		max_tx_rate = I40E_BW_CREDIT_DIVISOR;
++	} else {
++		do_div(max_tx_rate, I40E_BW_MBPS_DIVISOR);
++	}
++
++	return max_tx_rate;
++}
++
+ /**
+  * i40e_set_bw_limit - setup BW limit for Tx traffic based on max_tx_rate
+  * @vsi: VSI to be configured
+@@ -5509,10 +5529,10 @@ int i40e_set_bw_limit(struct i40e_vsi *vsi, u16 seid, u64 max_tx_rate)
+ 			max_tx_rate, seid);
+ 		return -EINVAL;
+ 	}
+-	if (max_tx_rate && max_tx_rate < 50) {
++	if (max_tx_rate && max_tx_rate < I40E_BW_CREDIT_DIVISOR) {
+ 		dev_warn(&pf->pdev->dev,
+ 			 "Setting max tx rate to minimum usable value of 50Mbps.\n");
+-		max_tx_rate = 50;
++		max_tx_rate = I40E_BW_CREDIT_DIVISOR;
  	}
  
--	max_dirs = ndirs / ngroups + inodes_per_group / 16;
-+	max_dirs = ndirs / ngroups + inodes_per_group*flex_size / 16;
- 	min_inodes = avefreei - inodes_per_group*flex_size / 4;
- 	if (min_inodes < 1)
- 		min_inodes = 1;
+ 	/* Tx rate credits are in values of 50Mbps, 0 is disabled */
+@@ -6949,9 +6969,9 @@ static int i40e_setup_tc(struct net_device *netdev, void *type_data)
+ 
+ 	if (pf->flags & I40E_FLAG_TC_MQPRIO) {
+ 		if (vsi->mqprio_qopt.max_rate[0]) {
+-			u64 max_tx_rate = vsi->mqprio_qopt.max_rate[0];
++			u64 max_tx_rate = i40e_bw_bytes_to_mbits(vsi,
++						  vsi->mqprio_qopt.max_rate[0]);
+ 
+-			do_div(max_tx_rate, I40E_BW_MBPS_DIVISOR);
+ 			ret = i40e_set_bw_limit(vsi, vsi->seid, max_tx_rate);
+ 			if (!ret) {
+ 				u64 credits = max_tx_rate;
+@@ -9613,10 +9633,10 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	}
+ 
+ 	if (vsi->mqprio_qopt.max_rate[0]) {
+-		u64 max_tx_rate = vsi->mqprio_qopt.max_rate[0];
++		u64 max_tx_rate = i40e_bw_bytes_to_mbits(vsi,
++						  vsi->mqprio_qopt.max_rate[0]);
+ 		u64 credits = 0;
+ 
+-		do_div(max_tx_rate, I40E_BW_MBPS_DIVISOR);
+ 		ret = i40e_set_bw_limit(vsi, vsi->seid, max_tx_rate);
+ 		if (ret)
+ 			goto end_unlock;
+-- 
+2.35.1
+
 
 
