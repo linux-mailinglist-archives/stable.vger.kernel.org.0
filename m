@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8265EA43C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44905EA446
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238433AbiIZLmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41214 "EHLO
+        id S235130AbiIZLnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238245AbiIZLmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:42:16 -0400
+        with ESMTP id S238391AbiIZLmY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:42:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4123A6FA0B;
-        Mon, 26 Sep 2022 03:45:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9187170E;
+        Mon, 26 Sep 2022 03:45:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B41360B6A;
-        Mon, 26 Sep 2022 10:44:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E084C433D7;
-        Mon, 26 Sep 2022 10:44:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42B4660BB7;
+        Mon, 26 Sep 2022 10:44:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB6EC433D7;
+        Mon, 26 Sep 2022 10:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664189079;
-        bh=L31EZP0m5UA1cnHIbiHpxFtQI9DRA1la4q43bKaZdck=;
+        s=korg; t=1664189082;
+        bh=wp3OhQ1HPWF/aPMYW9YDhQ1V1FhPPVjSB/btCyYxl9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEDUqV7nSU8cYBbcicX2J2/blVjucxsc0VrdhqIfBIcAzssGkl5mjr7AdKAK5yLaM
-         V6HutbZHaa3Gh35UCIoP7IkLkMehhOO0B2qJT8rk3MhvrQ2k61EVWVgMMSXXvgGVmA
-         VyiQS4vtGGy9wtqze3DcCCPYpDGEPtw9Z+jJ3Wqw=
+        b=xq811rjES5FdSjNPMWb0Zw/28fsODyLatdC1tofwS3d89S6HJfRrKrK9kZkmRHWZX
+         zA2qkEzBGA8OKGk2ZjmZTl7NYgoSEvwAb+8eifsFT8BML/Ng44Hi4c7T8nXIQxlXy2
+         8GIEHxH7+Y4KhFK6WSWYVkZbSpsxTR0OvyPgTMLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 035/207] ALSA: hda/realtek: Add pincfg for ASUS G533Z HP jack
-Date:   Mon, 26 Sep 2022 12:10:24 +0200
-Message-Id: <20220926100808.032363245@linuxfoundation.org>
+Subject: [PATCH 5.19 036/207] ALSA: hda/realtek: Add quirk for ASUS GA503R laptop
+Date:   Mon, 26 Sep 2022 12:10:25 +0200
+Message-Id: <20220926100808.223997025@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
 References: <20220926100806.522017616@linuxfoundation.org>
@@ -54,54 +54,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luke D. Jones <luke@ljones.dev>
 
-commit bc2c23549ccd7105eb6ff0d4f0ac519285628673 upstream.
+commit ba1f818053b0668a1ce2fe86b840e81b592cc560 upstream.
 
-Fixes up the pincfg for ASUS ROG Strix G15 (G533Z) headphone combo jack
+The ASUS G15 2022 (GA503R) series laptop has the same node-to-DAC pairs
+as early models and the G14, this includes bass speakers which are by
+default mapped incorrectly to the 0x06 node.
 
-[ Fixed the position in the quirk table by tiwai ]
+Add a quirk to use the same DAC pairs as the G14.
 
 Signed-off-by: Luke D. Jones <luke@ljones.dev>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220915080921.35563-3-luke@ljones.dev
+Link: https://lore.kernel.org/r/20220915080921.35563-4-luke@ljones.dev
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -7038,6 +7038,7 @@ enum {
- 	ALC294_FIXUP_ASUS_GU502_PINS,
- 	ALC294_FIXUP_ASUS_GU502_VERBS,
- 	ALC294_FIXUP_ASUS_G513_PINS,
-+	ALC285_FIXUP_ASUS_G533Z_PINS,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
-@@ -8385,6 +8386,15 @@ static const struct hda_fixup alc269_fix
- 				{ }
- 		},
- 	},
-+	[ALC285_FIXUP_ASUS_G533Z_PINS] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x14, 0x90170120 },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_G513_PINS,
-+	},
- 	[ALC294_FIXUP_ASUS_COEF_1B] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -9335,6 +9345,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x1bbd, "ASUS Z550MA", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x1c23, "Asus X55U", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
-+	SND_PCI_QUIRK(0x1043, 0x1c92, "ASUS ROG Strix G15", ALC285_FIXUP_ASUS_G533Z_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+@@ -9353,6 +9353,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e5e, "ASUS ROG Strix G513", ALC294_FIXUP_ASUS_G513_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
++	SND_PCI_QUIRK(0x1043, 0x1c52, "ASUS Zephyrus G15 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
 
 
