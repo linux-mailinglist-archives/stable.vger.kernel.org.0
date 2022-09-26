@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A438D5EA119
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA5C5EA035
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236397AbiIZKpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:45:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
+        id S235844AbiIZKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236643AbiIZKoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:44:15 -0400
+        with ESMTP id S235885AbiIZKdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8BF4D4EC;
-        Mon, 26 Sep 2022 03:25:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C675E46DB7;
+        Mon, 26 Sep 2022 03:20:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 015BCB8091F;
-        Mon, 26 Sep 2022 10:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38501C433D6;
-        Mon, 26 Sep 2022 10:25:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FC14B80942;
+        Mon, 26 Sep 2022 10:20:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF650C433D6;
+        Mon, 26 Sep 2022 10:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187918;
-        bh=wz9FGAFTMsjW7TZL1vBSY65m+pX1Yx7gQHp9WzMqvlk=;
+        s=korg; t=1664187615;
+        bh=/lA8fMFsNi5naxqFFBOpSbNzw7wEV7l9A2vxjowuVPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irsvDzxsNYlo2nAP7jnDWBREszSzccDFOUOAq1BTI+KsLgAsZAb+nSgJJX4/Wm+xD
-         V8Fo2iDyoi8VBFn1sczwGkhd1HnbuJZziGRhfKMupGL1vQ95vEI0THeB+xgJTicJNf
-         fJyu0+wIqVsVUTIjnEm8JVZjwJDEyBwtFowwy9VA=
+        b=1y7+/RpPNtajYwd1NuCXtM1XJxIKFLouzrZccnXpNpJs9d8swaWSzOoudRPZ0E9kq
+         trvb4EK3n9vF9yEagoWH0wwCyLzh3sWY1upioX2Qqf8s/9XYzIdSoiE0MUSNla8Zho
+         ftKQjzPpeSyO6YBDjCzzsIGd0Z1sxaulv43xkWL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johannes Berg <johannes.berg@intel.com>,
         Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 101/120] workqueue: dont skip lockdep work dependency in cancel_work_sync()
-Date:   Mon, 26 Sep 2022 12:12:14 +0200
-Message-Id: <20220926100754.692014905@linuxfoundation.org>
+Subject: [PATCH 4.19 56/58] workqueue: dont skip lockdep work dependency in cancel_work_sync()
+Date:   Mon, 26 Sep 2022 12:12:15 +0200
+Message-Id: <20220926100743.531837914@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -129,10 +129,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index e90f37e22202..dd96391b44de 100644
+index b1bb6cb5802e..4ea2f7fd20ce 100644
 --- a/kernel/workqueue.c
 +++ b/kernel/workqueue.c
-@@ -3049,10 +3049,8 @@ static bool __flush_work(struct work_struct *work, bool from_cancel)
+@@ -2917,10 +2917,8 @@ static bool __flush_work(struct work_struct *work, bool from_cancel)
  	if (WARN_ON(!work->func))
  		return false;
  
