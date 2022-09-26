@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB8455EA02E
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7C155EA1EE
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235820AbiIZKfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60348 "EHLO
+        id S237007AbiIZLAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:00:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235873AbiIZKdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D6E4F68A;
-        Mon, 26 Sep 2022 03:20:43 -0700 (PDT)
+        with ESMTP id S237232AbiIZK7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:59:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 110634E86A;
+        Mon, 26 Sep 2022 03:30:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C23C5B80682;
-        Mon, 26 Sep 2022 10:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24BE1C433D6;
-        Mon, 26 Sep 2022 10:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6934BB80915;
+        Mon, 26 Sep 2022 10:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4D6CC433C1;
+        Mon, 26 Sep 2022 10:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187633;
-        bh=CkLv4OO4iQ7u/ZD/WpTAtghCtQKcj/hHxNDBawxyRHY=;
+        s=korg; t=1664188162;
+        bh=cK8B3WkbVBAYTuDXLByTeBjLGGmC+KvA8KcRA9a+1JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmzjsKJtkWEv2dAoZnb9OZybnUGf4qbGO2ckH3zT1gCHsIUwrZ12AfBSjoIVuofp0
-         PWkx3Ooj4IobbXKjN4zBVzafRnAiCirvcjlpy1e+5ukERTLwMaQoNk69UjYKgme+Wf
-         tnwcLrE+gZfXVj4SVL0aJMQskNuNI0IvWG/3yey8=
+        b=pUyiUmyDtwWKg3Z723vcil/m5ZRnJz2VJ03w6XOR6OmAVHNjoCXy0n4Qjnc1Mqnmx
+         N4Raqna8jrHF4+iJ9gssNIygEF7uslENDVpMBH3Paw3r+0y+NS1LUnYv/mnkHUMAsP
+         8UKo2mbeECytF0PenmHCraJCjdUWurHO/zUZBw2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 012/120] cifs: revalidate mapping when doing direct writes
-Date:   Mon, 26 Sep 2022 12:10:45 +0200
-Message-Id: <20220926100751.029025056@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Kent Gustavsson <kent@minoris.se>,
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 020/141] iio:adc:mcp3911: Switch to generic firmware properties.
+Date:   Mon, 26 Sep 2022 12:10:46 +0200
+Message-Id: <20220926100755.299003485@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 7500a99281dfed2d4a84771c933bcb9e17af279b upstream.
+[ Upstream commit 4efc1c614d334883cce09c38aa3fe74d3fb0bbf0 ]
 
-Kernel bugzilla: 216301
+This allows use of the driver with other types of firmware such as ACPI
+PRP0001 based probing.
 
-When doing direct writes we need to also invalidate the mapping in case
-we have a cached copy of the affected page(s) in memory or else
-subsequent reads of the data might return the old/stale content
-before we wrote an update to the server.
+Also part of a general attempt to remove direct use of of_ specific
+accessors from IIO.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Added an include for mod_devicetable.h whilst here to cover the
+struct of_device_id definition.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Kent Gustavsson <kent@minoris.se>
+Reviewed-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Stable-dep-of: cfbd76d5c9c4 ("iio: adc: mcp3911: correct "microchip,device-addr" property")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/adc/mcp3911.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3194,6 +3194,9 @@ static ssize_t __cifs_writev(
+diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
+index 65278270a75c..608842632925 100644
+--- a/drivers/iio/adc/mcp3911.c
++++ b/drivers/iio/adc/mcp3911.c
+@@ -10,6 +10,8 @@
+ #include <linux/err.h>
+ #include <linux/iio/iio.h>
+ #include <linux/module.h>
++#include <linux/mod_devicetable.h>
++#include <linux/property.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/spi/spi.h>
  
- ssize_t cifs_direct_writev(struct kiocb *iocb, struct iov_iter *from)
+@@ -209,12 +211,13 @@ static const struct iio_info mcp3911_info = {
+ 	.write_raw = mcp3911_write_raw,
+ };
+ 
+-static int mcp3911_config(struct mcp3911 *adc, struct device_node *of_node)
++static int mcp3911_config(struct mcp3911 *adc)
  {
-+	struct file *file = iocb->ki_filp;
-+
-+	cifs_revalidate_mapping(file->f_inode);
- 	return __cifs_writev(iocb, from, true);
- }
++	struct device *dev = &adc->spi->dev;
+ 	u32 configreg;
+ 	int ret;
  
+-	of_property_read_u32(of_node, "device-addr", &adc->dev_addr);
++	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
+ 	if (adc->dev_addr > 3) {
+ 		dev_err(&adc->spi->dev,
+ 			"invalid device address (%i). Must be in range 0-3.\n",
+@@ -298,7 +301,7 @@ static int mcp3911_probe(struct spi_device *spi)
+ 		}
+ 	}
+ 
+-	ret = mcp3911_config(adc, spi->dev.of_node);
++	ret = mcp3911_config(adc);
+ 	if (ret)
+ 		goto clk_disable;
+ 
+-- 
+2.35.1
+
 
 
