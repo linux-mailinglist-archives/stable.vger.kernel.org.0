@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 121B85EA3FB
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3569A5E9EC2
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238153AbiIZLhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:37:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48190 "EHLO
+        id S231435AbiIZKN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:13:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238045AbiIZLhK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:37:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF0B2ED46;
-        Mon, 26 Sep 2022 03:44:12 -0700 (PDT)
+        with ESMTP id S235033AbiIZKNs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:13:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A582F73;
+        Mon, 26 Sep 2022 03:13:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FD3C60CD4;
-        Mon, 26 Sep 2022 10:29:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E53A6C433C1;
-        Mon, 26 Sep 2022 10:29:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C878D60AF2;
+        Mon, 26 Sep 2022 10:13:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7885C433D6;
+        Mon, 26 Sep 2022 10:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188183;
-        bh=wYMWX1RdKzeoF4adCEB63kIZCJOyfUXgVp3rUBJ24FE=;
+        s=korg; t=1664187226;
+        bh=De71Q6KPiXPBoR+9AleU9zxny28K3+huMQeadpr9NMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrbRmU94wCa/Pg4T0ylJlruUmgLzKl39TDn0NzNK8xDx0AJKA5g9boPRD6C/BxUqX
-         VjeZ9yu2WcuWCTsGj1H7hIFXrmrZh5TrOHmkSvsKmAW2IBQQuLPKN6kYgx3fgxN7C2
-         wcsDt1CAauzEfKEu8CPz6LOkY16iwlNTRYEll4BM=
+        b=c/ysXU9bzhE8w4b8wPuYsJWOYqjJSf2/H2QPZyOq4bLCJmIc1dkmrSyjQqkrLwyiy
+         AP7r0re+rrQbnsy8nqz/Et8UtDe9vTXxHcmhGjz7SY4kFau5KzrKF+UWIHUdtrYlRd
+         bKtDbtMY1QCECXdsI8E8KKHMHwJKXi/2RQ2ToET0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Ryzhov <iryzhov@nfware.com>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Melissa Wen <mwen@igalia.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/141] netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+Subject: [PATCH 4.9 03/30] drm/vc4: crtc: Use an union to store the page flip callback
 Date:   Mon, 26 Sep 2022 12:11:34 +0200
-Message-Id: <20220926100756.896291466@linuxfoundation.org>
+Message-Id: <20220926100736.283415181@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100736.153157100@linuxfoundation.org>
+References: <20220926100736.153157100@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Ryzhov <iryzhov@nfware.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 39aebedeaaa95757f5c1f2ddb5f43fdddbf478ca ]
+[ Upstream commit 2523e9dcc3be91bf9fdc0d1e542557ca00bbef42 ]
 
-ct_sip_next_header and ct_sip_get_header return an absolute
-value of matchoff, not a shift from current dataoff.
-So dataoff should be assigned matchoff, not incremented by it.
+We'll need to extend the vc4_async_flip_state structure to rely on
+another callback implementation, so let's move the current one into a
+union.
 
-This issue can be seen in the scenario when there are multiple
-Contact headers and the first one is using a hostname and other headers
-use IP addresses. In this case, ct_sip_walk_headers will work as follows:
-
-The first ct_sip_get_header call to will find the first Contact header
-but will return -1 as the header uses a hostname. But matchoff will
-be changed to the offset of this header. After that, dataoff should be
-set to matchoff, so that the next ct_sip_get_header call find the next
-Contact header. But instead of assigning dataoff to matchoff, it is
-incremented by it, which is not correct, as matchoff is an absolute
-value of the offset. So on the next call to the ct_sip_get_header,
-dataoff will be incorrect, and the next Contact header may not be
-found at all.
-
-Fixes: 05e3ced297fe ("[NETFILTER]: nf_conntrack_sip: introduce SIP-URI parsing helper")
-Signed-off-by: Igor Ryzhov <iryzhov@nfware.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Melissa Wen <mwen@igalia.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220610115149.964394-10-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_sip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_sip.c b/net/netfilter/nf_conntrack_sip.c
-index b83dc9bf0a5d..78fd9122b70c 100644
---- a/net/netfilter/nf_conntrack_sip.c
-+++ b/net/netfilter/nf_conntrack_sip.c
-@@ -477,7 +477,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 				return ret;
- 			if (ret == 0)
- 				break;
--			dataoff += *matchoff;
-+			dataoff = *matchoff;
- 		}
- 		*in_header = 0;
- 	}
-@@ -489,7 +489,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 			break;
- 		if (ret == 0)
- 			return ret;
--		dataoff += *matchoff;
-+		dataoff = *matchoff;
- 	}
+diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
+index 51d34e7275ab..9d97f535a4d6 100644
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -717,17 +717,17 @@ struct vc4_async_flip_state {
+ 	struct drm_framebuffer *fb;
+ 	struct drm_pending_vblank_event *event;
  
- 	if (in_header)
+-	struct vc4_seqno_cb cb;
++	union {
++		struct vc4_seqno_cb seqno;
++	} cb;
+ };
+ 
+ /* Called when the V3D execution for the BO being flipped to is done, so that
+  * we can actually update the plane's address to point to it.
+  */
+ static void
+-vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
++vc4_async_page_flip_complete(struct vc4_async_flip_state *flip_state)
+ {
+-	struct vc4_async_flip_state *flip_state =
+-		container_of(cb, struct vc4_async_flip_state, cb);
+ 	struct drm_crtc *crtc = flip_state->crtc;
+ 	struct drm_device *dev = crtc->dev;
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+@@ -749,6 +749,14 @@ vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
+ 	up(&vc4->async_modeset);
+ }
+ 
++static void vc4_async_page_flip_seqno_complete(struct vc4_seqno_cb *cb)
++{
++	struct vc4_async_flip_state *flip_state =
++		container_of(cb, struct vc4_async_flip_state, cb.seqno);
++
++	vc4_async_page_flip_complete(flip_state);
++}
++
+ /* Implements async (non-vblank-synced) page flips.
+  *
+  * The page flip ioctl needs to return immediately, so we grab the
+@@ -794,8 +802,8 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
+ 	drm_atomic_set_fb_for_plane(plane->state, fb);
+ 	plane->fb = fb;
+ 
+-	vc4_queue_seqno_cb(dev, &flip_state->cb, bo->seqno,
+-			   vc4_async_page_flip_complete);
++	vc4_queue_seqno_cb(dev, &flip_state->cb.seqno, bo->seqno,
++			   vc4_async_page_flip_seqno_complete);
+ 
+ 	/* Driver takes ownership of state on successful async commit. */
+ 	return 0;
 -- 
 2.35.1
 
