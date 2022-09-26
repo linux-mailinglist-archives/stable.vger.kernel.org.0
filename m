@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EDF5EA29C
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F5C5EA02C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237368AbiIZLLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44324 "EHLO
+        id S235521AbiIZKfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:35:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237390AbiIZLK1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:10:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 284C05FF6C;
-        Mon, 26 Sep 2022 03:35:29 -0700 (PDT)
+        with ESMTP id S235611AbiIZKdX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:33:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56E44F3A1;
+        Mon, 26 Sep 2022 03:20:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D945B60B60;
-        Mon, 26 Sep 2022 10:34:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E739BC433D6;
-        Mon, 26 Sep 2022 10:34:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D50160B9A;
+        Mon, 26 Sep 2022 10:20:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E62C433B5;
+        Mon, 26 Sep 2022 10:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188452;
-        bh=r+0DVuaIGotR9kbJXXW7hRwVS86iHwtwFFKFcHbvqG0=;
+        s=korg; t=1664187636;
+        bh=AXLqAExynxexynN+a64WeqYqgR2F9VxCs+rGGpDCrxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIIU0FI6GDiQWfvPPnYMy8Zk7jWinqxJtzb2YMaJiDbwT2Dz8M6jw9pRzmZpKzBna
-         3J9dIPNXQHD7x3BpwnRUNKxnEayStTY1ypxD9M/tyHMrZIna3t5jH0LR9CpWyRUesp
-         P7BbJGjk+7Rr7c3Zt9sdSJxoJ3ZgW4SvD+tHjEVc=
+        b=GalQYhq/PVRwmOdfiSe1ooeCq2HK8fx47MglQlFAvY9Wk8CQWB7HTfxi+1n5hR23e
+         HV1L/wRUMiF6bVryITS3+uddwndAbE8k+gqyrXRuqkzFwvOhX62Fq4RSEs9USbPgoH
+         4tC1U4kPWD5WF/COnh06D/1g2irJsVAXhNNqcey0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 012/148] iio: adc: mcp3911: correct "microchip,device-addr" property
+        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 013/120] cifs: dont send down the destination address to sendmsg for a SOCK_STREAM
 Date:   Mon, 26 Sep 2022 12:10:46 +0200
-Message-Id: <20220926100756.509543258@linuxfoundation.org>
+Message-Id: <20220926100751.074521978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
+References: <20220926100750.519221159@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Stefan Metzmacher <metze@samba.org>
 
-[ Upstream commit cfbd76d5c9c449739bb74288d982bccf9ff822f4 ]
+commit 17d3df38dc5f4cec9b0ac6eb79c1859b6e2693a4 upstream.
 
-Go for the right property name that is documented in the bindings.
+This is ignored anyway by the tcp layer.
 
-Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220722130726.7627-3-marcus.folkesson@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/mcp3911.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/cifs/transport.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
-index 608842632925..7eecbfd491a4 100644
---- a/drivers/iio/adc/mcp3911.c
-+++ b/drivers/iio/adc/mcp3911.c
-@@ -217,7 +217,14 @@ static int mcp3911_config(struct mcp3911 *adc)
- 	u32 configreg;
- 	int ret;
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -209,8 +209,8 @@ smb_send_kvec(struct TCP_Server_Info *se
  
--	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
-+	ret = device_property_read_u32(dev, "microchip,device-addr", &adc->dev_addr);
-+
-+	/*
-+	 * Fallback to "device-addr" due to historical mismatch between
-+	 * dt-bindings and implementation
-+	 */
-+	if (ret)
-+		device_property_read_u32(dev, "device-addr", &adc->dev_addr);
- 	if (adc->dev_addr > 3) {
- 		dev_err(&adc->spi->dev,
- 			"invalid device address (%i). Must be in range 0-3.\n",
--- 
-2.35.1
-
+ 	*sent = 0;
+ 
+-	smb_msg->msg_name = (struct sockaddr *) &server->dstaddr;
+-	smb_msg->msg_namelen = sizeof(struct sockaddr);
++	smb_msg->msg_name = NULL;
++	smb_msg->msg_namelen = 0;
+ 	smb_msg->msg_control = NULL;
+ 	smb_msg->msg_controllen = 0;
+ 	if (server->noblocksnd)
 
 
