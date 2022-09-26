@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BD35EA295
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD6DE5EA533
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237469AbiIZLLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:11:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57388 "EHLO
+        id S238548AbiIZL7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:59:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237794AbiIZLJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:09:38 -0400
+        with ESMTP id S239010AbiIZL5V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:57:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA3D501A1;
-        Mon, 26 Sep 2022 03:35:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E49179EF7;
+        Mon, 26 Sep 2022 03:51:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 734E8B8092F;
-        Mon, 26 Sep 2022 10:33:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B824AC433C1;
-        Mon, 26 Sep 2022 10:33:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F085B8094E;
+        Mon, 26 Sep 2022 10:51:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65411C433D6;
+        Mon, 26 Sep 2022 10:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188431;
-        bh=QGczFgAHvbSQI3rwphu6DQAbiEnCcEoB8hmQoCSCrjw=;
+        s=korg; t=1664189488;
+        bh=rPOYb/usdg3kKuCluI9ZiRDJ+/5EpnjMM/bZ0kffn6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcY45A3m1WZrtYRz+V3Hg6jaZDg3gJMr1r4UkhyUmlZULRx4HogWmw/Usq3bVMyN9
-         VxCtFfcyjpQbEuSCJ94qiyq1z0+P1tcXiPVKUknHiOIuAcmZ65gx06YH/hKICh3gLo
-         cXibwFO8mNc/uIY3JOmP3Flew1ATmGIQOuYCtWog=
+        b=G+hejAsZDwj0SNvEyPqdgMedsoYl5cLUhnkkGgoDJzgc+OTEYvlhAFrvNWB/lOh6I
+         fHi3xE966VV0RcfsLWgyYafZYlMUaV6/V1Za/fdMkNAh02tlDUV2sDweUUw2Tmwekc
+         crLEYIODZQ9+3HH+Z2qg59umw8E5Ksjb0hJVtYqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 128/141] gpio: ixp4xx: Make irqchip immutable
+        stable@vger.kernel.org,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.19 165/207] phy: marvell: phy-mvebu-a3700-comphy: Remove broken reset support
 Date:   Mon, 26 Sep 2022 12:12:34 +0200
-Message-Id: <20220926100759.099973151@linuxfoundation.org>
+Message-Id: <20220926100814.051873209@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +54,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 94e9bc73d85aa6ecfe249e985ff57abe0ab35f34 ]
+commit 0a6fc70d76bddf98278af2ac000379c82aec8f11 upstream.
 
-This turns the IXP4xx GPIO irqchip into an immutable
-irqchip, a bit different from the standard template due
-to being hierarchical.
+Reset support for SATA PHY is somehow broken and after calling it, kernel
+is not able to detect and initialize SATA disk Samsung SSD 850 EMT0 [1].
 
-Tested on the IXP4xx which uses drivers/ata/pata_ixp4xx_cf.c
-for a rootfs on compact flash with IRQs from this GPIO
-block to the CF ATA controller.
+Reset support was introduced in commit 934337080c6c ("phy: marvell:
+phy-mvebu-a3700-comphy: Add native kernel implementation") as part of
+complete rewrite of this driver. v1 patch series of that commit [2] did
+not contain reset support and was tested that is working fine with
+Ethernet, SATA and USB PHYs without issues too.
 
-Cc: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So for now remove broken reset support and change implementation of
+power_off callback to power off all functions on specified lane (and not
+only selected function) because during startup kernel does not know which
+function was selected and configured by bootloader. Same logic was used
+also in v1 patch series of that commit.
+
+This change fixes issues with initialization of SATA disk Samsung SSD 850
+and disk is working again, like before mentioned commit.
+
+Once problem with PHY reset callback is solved its functionality could be
+re-introduced. But for now it is unknown why it does not work.
+
+[1] - https://lore.kernel.org/r/20220531124159.3e4lgn2v462irbtz@shindev/
+[2] - https://lore.kernel.org/r/20211028184242.22105-1-kabel@kernel.org/
+
+Reported-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Fixes: 934337080c6c ("phy: marvell: phy-mvebu-a3700-comphy: Add native kernel implementation")
+Cc: stable@vger.kernel.org # v5.18+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Tested-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Link: https://lore.kernel.org/r/20220829083046.15082-1-pali@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-ixp4xx.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/phy/marvell/phy-mvebu-a3700-comphy.c | 87 ++++----------------
+ 1 file changed, 17 insertions(+), 70 deletions(-)
 
-diff --git a/drivers/gpio/gpio-ixp4xx.c b/drivers/gpio/gpio-ixp4xx.c
-index b3b050604e0b..6bd047e2ca46 100644
---- a/drivers/gpio/gpio-ixp4xx.c
-+++ b/drivers/gpio/gpio-ixp4xx.c
-@@ -67,6 +67,14 @@ static void ixp4xx_gpio_irq_ack(struct irq_data *d)
- 	__raw_writel(BIT(d->hwirq), g->base + IXP4XX_REG_GPIS);
- }
- 
-+static void ixp4xx_gpio_mask_irq(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+
-+	irq_chip_mask_parent(d);
-+	gpiochip_disable_irq(gc, d->hwirq);
-+}
-+
- static void ixp4xx_gpio_irq_unmask(struct irq_data *d)
- {
- 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-@@ -76,6 +84,7 @@ static void ixp4xx_gpio_irq_unmask(struct irq_data *d)
- 	if (!(g->irq_edge & BIT(d->hwirq)))
- 		ixp4xx_gpio_irq_ack(d);
- 
-+	gpiochip_enable_irq(gc, d->hwirq);
- 	irq_chip_unmask_parent(d);
- }
- 
-@@ -153,12 +162,14 @@ static int ixp4xx_gpio_irq_set_type(struct irq_data *d, unsigned int type)
- 	return irq_chip_set_type_parent(d, IRQ_TYPE_LEVEL_HIGH);
- }
- 
--static struct irq_chip ixp4xx_gpio_irqchip = {
-+static const struct irq_chip ixp4xx_gpio_irqchip = {
- 	.name = "IXP4GPIO",
- 	.irq_ack = ixp4xx_gpio_irq_ack,
--	.irq_mask = irq_chip_mask_parent,
-+	.irq_mask = ixp4xx_gpio_mask_irq,
- 	.irq_unmask = ixp4xx_gpio_irq_unmask,
- 	.irq_set_type = ixp4xx_gpio_irq_set_type,
-+	.flags = IRQCHIP_IMMUTABLE,
-+	GPIOCHIP_IRQ_RESOURCE_HELPERS,
+diff --git a/drivers/phy/marvell/phy-mvebu-a3700-comphy.c b/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
+index a4d7d9bd100d..67712c77d806 100644
+--- a/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
++++ b/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
+@@ -274,7 +274,6 @@ struct mvebu_a3700_comphy_lane {
+ 	int submode;
+ 	bool invert_tx;
+ 	bool invert_rx;
+-	bool needs_reset;
  };
  
- static int ixp4xx_gpio_child_to_parent_hwirq(struct gpio_chip *gc,
-@@ -282,7 +293,7 @@ static int ixp4xx_gpio_probe(struct platform_device *pdev)
- 	g->gc.owner = THIS_MODULE;
+ struct gbe_phy_init_data_fix {
+@@ -1097,40 +1096,12 @@ mvebu_a3700_comphy_pcie_power_off(struct mvebu_a3700_comphy_lane *lane)
+ 			    0x0, PU_PLL_BIT | PU_RX_BIT | PU_TX_BIT);
+ }
  
- 	girq = &g->gc.irq;
--	girq->chip = &ixp4xx_gpio_irqchip;
-+	gpio_irq_chip_set_chip(girq, &ixp4xx_gpio_irqchip);
- 	girq->fwnode = g->fwnode;
- 	girq->parent_domain = parent;
- 	girq->child_to_parent_hwirq = ixp4xx_gpio_child_to_parent_hwirq;
+-static int mvebu_a3700_comphy_reset(struct phy *phy)
++static void mvebu_a3700_comphy_usb3_power_off(struct mvebu_a3700_comphy_lane *lane)
+ {
+-	struct mvebu_a3700_comphy_lane *lane = phy_get_drvdata(phy);
+-	u16 mask, data;
+-
+-	dev_dbg(lane->dev, "resetting lane %d\n", lane->id);
+-
+-	/* COMPHY reset for internal logic */
+-	comphy_lane_reg_set(lane, COMPHY_SFT_RESET,
+-			    SFT_RST_NO_REG, SFT_RST_NO_REG);
+-
+-	/* COMPHY register reset (cleared automatically) */
+-	comphy_lane_reg_set(lane, COMPHY_SFT_RESET, SFT_RST, SFT_RST);
+-
+-	/* PIPE soft and register reset */
+-	data = PIPE_SOFT_RESET | PIPE_REG_RESET;
+-	mask = data;
+-	comphy_lane_reg_set(lane, COMPHY_PIPE_RST_CLK_CTRL, data, mask);
+-
+-	/* Release PIPE register reset */
+-	comphy_lane_reg_set(lane, COMPHY_PIPE_RST_CLK_CTRL,
+-			    0x0, PIPE_REG_RESET);
+-
+-	/* Reset SB configuration register (only for lanes 0 and 1) */
+-	if (lane->id == 0 || lane->id == 1) {
+-		u32 mask, data;
+-
+-		data = PIN_RESET_CORE_BIT | PIN_RESET_COMPHY_BIT |
+-		       PIN_PU_PLL_BIT | PIN_PU_RX_BIT | PIN_PU_TX_BIT;
+-		mask = data | PIN_PU_IVREF_BIT | PIN_TX_IDLE_BIT;
+-		comphy_periph_reg_set(lane, COMPHY_PHY_CFG1, data, mask);
+-	}
+-
+-	return 0;
++	/*
++	 * The USB3 MAC sets the USB3 PHY to low state, so we do not
++	 * need to power off USB3 PHY again.
++	 */
+ }
+ 
+ static bool mvebu_a3700_comphy_check_mode(int lane,
+@@ -1171,10 +1142,6 @@ static int mvebu_a3700_comphy_set_mode(struct phy *phy, enum phy_mode mode,
+ 	    (lane->mode != mode || lane->submode != submode))
+ 		return -EBUSY;
+ 
+-	/* If changing mode, ensure reset is called */
+-	if (lane->mode != PHY_MODE_INVALID && lane->mode != mode)
+-		lane->needs_reset = true;
+-
+ 	/* Just remember the mode, ->power_on() will do the real setup */
+ 	lane->mode = mode;
+ 	lane->submode = submode;
+@@ -1185,7 +1152,6 @@ static int mvebu_a3700_comphy_set_mode(struct phy *phy, enum phy_mode mode,
+ static int mvebu_a3700_comphy_power_on(struct phy *phy)
+ {
+ 	struct mvebu_a3700_comphy_lane *lane = phy_get_drvdata(phy);
+-	int ret;
+ 
+ 	if (!mvebu_a3700_comphy_check_mode(lane->id, lane->mode,
+ 					   lane->submode)) {
+@@ -1193,14 +1159,6 @@ static int mvebu_a3700_comphy_power_on(struct phy *phy)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (lane->needs_reset) {
+-		ret = mvebu_a3700_comphy_reset(phy);
+-		if (ret)
+-			return ret;
+-
+-		lane->needs_reset = false;
+-	}
+-
+ 	switch (lane->mode) {
+ 	case PHY_MODE_USB_HOST_SS:
+ 		dev_dbg(lane->dev, "set lane %d to USB3 host mode\n", lane->id);
+@@ -1224,38 +1182,28 @@ static int mvebu_a3700_comphy_power_off(struct phy *phy)
+ {
+ 	struct mvebu_a3700_comphy_lane *lane = phy_get_drvdata(phy);
+ 
+-	switch (lane->mode) {
+-	case PHY_MODE_USB_HOST_SS:
+-		/*
+-		 * The USB3 MAC sets the USB3 PHY to low state, so we do not
+-		 * need to power off USB3 PHY again.
+-		 */
+-		break;
+-
+-	case PHY_MODE_SATA:
+-		mvebu_a3700_comphy_sata_power_off(lane);
+-		break;
+-
+-	case PHY_MODE_ETHERNET:
++	switch (lane->id) {
++	case 0:
++		mvebu_a3700_comphy_usb3_power_off(lane);
+ 		mvebu_a3700_comphy_ethernet_power_off(lane);
+-		break;
+-
+-	case PHY_MODE_PCIE:
++		return 0;
++	case 1:
+ 		mvebu_a3700_comphy_pcie_power_off(lane);
+-		break;
+-
++		mvebu_a3700_comphy_ethernet_power_off(lane);
++		return 0;
++	case 2:
++		mvebu_a3700_comphy_usb3_power_off(lane);
++		mvebu_a3700_comphy_sata_power_off(lane);
++		return 0;
+ 	default:
+ 		dev_err(lane->dev, "invalid COMPHY mode\n");
+ 		return -EINVAL;
+ 	}
+-
+-	return 0;
+ }
+ 
+ static const struct phy_ops mvebu_a3700_comphy_ops = {
+ 	.power_on	= mvebu_a3700_comphy_power_on,
+ 	.power_off	= mvebu_a3700_comphy_power_off,
+-	.reset		= mvebu_a3700_comphy_reset,
+ 	.set_mode	= mvebu_a3700_comphy_set_mode,
+ 	.owner		= THIS_MODULE,
+ };
+@@ -1393,8 +1341,7 @@ static int mvebu_a3700_comphy_probe(struct platform_device *pdev)
+ 		 * To avoid relying on the bootloader/firmware configuration,
+ 		 * power off all comphys.
+ 		 */
+-		mvebu_a3700_comphy_reset(phy);
+-		lane->needs_reset = false;
++		mvebu_a3700_comphy_power_off(phy);
+ 	}
+ 
+ 	provider = devm_of_phy_provider_register(&pdev->dev,
 -- 
-2.35.1
+2.37.3
 
 
 
