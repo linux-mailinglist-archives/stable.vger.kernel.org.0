@@ -2,94 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F095EA2F2
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:16:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D79D5EA22C
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237586AbiIZLQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:16:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53804 "EHLO
+        id S234631AbiIZLEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:04:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235020AbiIZLQU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:16:20 -0400
+        with ESMTP id S237116AbiIZLDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:03:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F2A6524A;
-        Mon, 26 Sep 2022 03:37:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047DF5D0FA;
+        Mon, 26 Sep 2022 03:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C59A60A55;
-        Mon, 26 Sep 2022 10:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32045C433C1;
-        Mon, 26 Sep 2022 10:37:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4D85609FB;
+        Mon, 26 Sep 2022 10:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A331C433C1;
+        Mon, 26 Sep 2022 10:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188642;
-        bh=d0NGvshIdLgsFhFa/UwAVgqQUXbygA154sf3xuY/DGE=;
+        s=korg; t=1664188230;
+        bh=FGL8GAtxfMw4n0JvjxgP9LDX324kIAJjB3fsedpwHWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEHT+KCLuXGalUiUREMJxUjmcMr+9jGwkwaxoWuGgIo0OEwf/I+sM4iX4tbalXxS/
-         xIrxMTlQ8E1Xh2F0Cggyx0KcWKJSfBWA4JACdyMJotw3miJmAyOYS1c+NDnlJWDXFA
-         ZcLnx5Q8anWKKlA4a7hgG9S5UEe6QNvOIfpJArQM=
+        b=DQtN3GcetVTe1cgojssPkSbMfv5N3bCzo/RZFF1sl5xXMuKtiZbLvmH/N/TSwTMtz
+         0ELTg0DJiKqpjf1jGzdss88dFJ/OuraHVGtKWxYFwVt4B/9mVBrntJNCodxIQ0gCB0
+         hFoLnrE9wkqXVVwOV98i9+JeBOkPdNPvlpLlk5Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Rafael Mendonca <rafaelmendsr@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/148] scsi: qla2xxx: Fix memory leak in __qlt_24xx_handle_abts()
+Subject: [PATCH 5.10 082/141] MIPS: lantiq: export clk_get_io() for lantiq_wdt.ko
 Date:   Mon, 26 Sep 2022 12:11:48 +0200
-Message-Id: <20220926100758.808496532@linuxfoundation.org>
+Message-Id: <20220926100757.429778779@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
+References: <20220926100754.639112000@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 601be20fc6a1b762044d2398befffd6bf236cebf ]
+[ Upstream commit 502550123bee6a2ffa438409b5b9aad4d6db3a8c ]
 
-Commit 8f394da36a36 ("scsi: qla2xxx: Drop TARGET_SCF_LOOKUP_LUN_FROM_TAG")
-made the __qlt_24xx_handle_abts() function return early if
-tcm_qla2xxx_find_cmd_by_tag() didn't find a command, but it missed to clean
-up the allocated memory for the management command.
+The lantiq WDT driver uses clk_get_io(), which is not exported,
+so export it to fix a build error:
 
-Link: https://lore.kernel.org/r/20220914024924.695604-1-rafaelmendsr@gmail.com
-Fixes: 8f394da36a36 ("scsi: qla2xxx: Drop TARGET_SCF_LOOKUP_LUN_FROM_TAG")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ERROR: modpost: "clk_get_io" [drivers/watchdog/lantiq_wdt.ko] undefined!
+
+Fixes: 287e3f3f4e68 ("MIPS: lantiq: implement support for clkdev api")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: John Crispin <john@phrozen.org>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/mips/lantiq/clk.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index b86f6e1f21b5..4b4ca2a9524d 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -2166,8 +2166,10 @@ static int __qlt_24xx_handle_abts(struct scsi_qla_host *vha,
+diff --git a/arch/mips/lantiq/clk.c b/arch/mips/lantiq/clk.c
+index 7a623684d9b5..2d5a0bcb0cec 100644
+--- a/arch/mips/lantiq/clk.c
++++ b/arch/mips/lantiq/clk.c
+@@ -50,6 +50,7 @@ struct clk *clk_get_io(void)
+ {
+ 	return &cpu_clk_generic[2];
+ }
++EXPORT_SYMBOL_GPL(clk_get_io);
  
- 	abort_cmd = ha->tgt.tgt_ops->find_cmd_by_tag(sess,
- 				le32_to_cpu(abts->exchange_addr_to_abort));
--	if (!abort_cmd)
-+	if (!abort_cmd) {
-+		mempool_free(mcmd, qla_tgt_mgmt_cmd_mempool);
- 		return -EIO;
-+	}
- 	mcmd->unpacked_lun = abort_cmd->se_cmd.orig_fe_lun;
- 
- 	if (abort_cmd->qpair) {
+ struct clk *clk_get_ppe(void)
+ {
 -- 
 2.35.1
 
