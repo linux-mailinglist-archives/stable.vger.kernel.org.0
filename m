@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A9F5EA0F3
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CDC95E9FD1
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234774AbiIZKnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:43:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60736 "EHLO
+        id S235473AbiIZK3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236267AbiIZKmb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:42:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B5DE90;
-        Mon, 26 Sep 2022 03:24:18 -0700 (PDT)
+        with ESMTP id S235620AbiIZK2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:28:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465864E600;
+        Mon, 26 Sep 2022 03:18:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F37CA609D1;
-        Mon, 26 Sep 2022 10:24:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1066FC433C1;
-        Mon, 26 Sep 2022 10:24:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97148B8092F;
+        Mon, 26 Sep 2022 10:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8912C433B5;
+        Mon, 26 Sep 2022 10:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187857;
-        bh=d2DtQtDp4JJPnrVB+mtoUIdTvXbw37ugwgs7rrKXT/0=;
+        s=korg; t=1664187531;
+        bh=3CAaS5EwBCW3W9RTHzr/UqlF5QrWtFo6WelZq7ipWko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LF9/m3n6QtPtK9m3nGe9HLw9C08nSx6hTmlaL0E5LTLSlTot+Z696uARV5SORNG98
-         iCr24ory/9HDn/zSvOuznee1pLntXiLotwE45O2TB80pPwY8aZr4/fodYrUf567U/s
-         icjRuAjejXQqe/Nwj2lEF/ycnSmyvmipTn/ocr8o=
+        b=cKYnIOS1K6wg3TReNm9GFP1ILzy0o340Txtfk2welSKi8Vv7wYYIEZwsWH/Wwy33K
+         Y1dAhKY3txYtQ8Q2Joi+/wbvDPdv5d+tku4f18+Lp/VBhHKrnoapPDoxe3yV3I3aMo
+         QP6Zb5kE/LLNWJupww45SgnXhp1S5OVgHxPC9Tvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/120] net/sched: taprio: make qdisc_leaf() see the per-netdev-queue pfifo child qdiscs
+Subject: [PATCH 4.19 37/58] netfilter: nf_conntrack_irc: Tighten matching on DCC message
 Date:   Mon, 26 Sep 2022 12:11:56 +0200
-Message-Id: <20220926100754.089287316@linuxfoundation.org>
+Message-Id: <20220926100742.830158315@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100750.519221159@linuxfoundation.org>
-References: <20220926100750.519221159@linuxfoundation.org>
+In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
+References: <20220926100741.430882406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: David Leadbeater <dgl@dgl.cx>
 
-[ Upstream commit 1461d212ab277d8bba1a753d33e9afe03d81f9d4 ]
+[ Upstream commit e8d5dfd1d8747b56077d02664a8838c71ced948e ]
 
-taprio can only operate as root qdisc, and to that end, there exists the
-following check in taprio_init(), just as in mqprio:
+CTCP messages should only be at the start of an IRC message, not
+anywhere within it.
 
-	if (sch->parent != TC_H_ROOT)
-		return -EOPNOTSUPP;
+While the helper only decodes packes in the ORIGINAL direction, its
+possible to make a client send a CTCP message back by empedding one into
+a PING request.  As-is, thats enough to make the helper believe that it
+saw a CTCP message.
 
-And indeed, when we try to attach taprio to an mqprio child, it fails as
-expected:
-
-$ tc qdisc add dev swp0 root handle 1: mqprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 hw 0
-$ tc qdisc replace dev swp0 parent 1:2 taprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-	base-time 0 sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-Error: sch_taprio: Can only be attached as root qdisc.
-
-(extack message added by me)
-
-But when we try to attach a taprio child to a taprio root qdisc,
-surprisingly it doesn't fail:
-
-$ tc qdisc replace dev swp0 root handle 1: taprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-	base-time 0 sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-$ tc qdisc replace dev swp0 parent 1:2 taprio num_tc 8 \
-	map 0 1 2 3 4 5 6 7 \
-	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-	base-time 0 sched-entry S 0x7f 990000 sched-entry S 0x80 100000 \
-	flags 0x0 clockid CLOCK_TAI
-
-This is because tc_modify_qdisc() behaves differently when mqprio is
-root, vs when taprio is root.
-
-In the mqprio case, it finds the parent qdisc through
-p = qdisc_lookup(dev, TC_H_MAJ(clid)), and then the child qdisc through
-q = qdisc_leaf(p, clid). This leaf qdisc q has handle 0, so it is
-ignored according to the comment right below ("It may be default qdisc,
-ignore it"). As a result, tc_modify_qdisc() goes through the
-qdisc_create() code path, and this gives taprio_init() a chance to check
-for sch_parent != TC_H_ROOT and error out.
-
-Whereas in the taprio case, the returned q = qdisc_leaf(p, clid) is
-different. It is not the default qdisc created for each netdev queue
-(both taprio and mqprio call qdisc_create_dflt() and keep them in
-a private q->qdiscs[], or priv->qdiscs[], respectively). Instead, taprio
-makes qdisc_leaf() return the _root_ qdisc, aka itself.
-
-When taprio does that, tc_modify_qdisc() goes through the qdisc_change()
-code path, because the qdisc layer never finds out about the child qdisc
-of the root. And through the ->change() ops, taprio has no reason to
-check whether its parent is root or not, just through ->init(), which is
-not called.
-
-The problem is the taprio_leaf() implementation. Even though code wise,
-it does the exact same thing as mqprio_leaf() which it is copied from,
-it works with different input data. This is because mqprio does not
-attach itself (the root) to each device TX queue, but one of the default
-qdiscs from its private array.
-
-In fact, since commit 13511704f8d7 ("net: taprio offload: enforce qdisc
-to netdev queue mapping"), taprio does this too, but just for the full
-offload case. So if we tried to attach a taprio child to a fully
-offloaded taprio root qdisc, it would properly fail too; just not to a
-software root taprio.
-
-To fix the problem, stop looking at the Qdisc that's attached to the TX
-queue, and instead, always return the default qdiscs that we've
-allocated (and to which we privately enqueue and dequeue, in software
-scheduling mode).
-
-Since Qdisc_class_ops :: leaf  is only called from tc_modify_qdisc(),
-the risk of unforeseen side effects introduced by this change is
-minimal.
-
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
+Signed-off-by: David Leadbeater <dgl@dgl.cx>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/netfilter/nf_conntrack_irc.c | 34 ++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 842ccdcc0db2..506ebae1f72c 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1906,12 +1906,14 @@ static int taprio_dump(struct Qdisc *sch, struct sk_buff *skb)
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index b7436935b57d..23ead02c6aa5 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -150,15 +150,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 	data = ib_ptr;
+ 	data_limit = ib_ptr + skb->len - dataoff;
  
- static struct Qdisc *taprio_leaf(struct Qdisc *sch, unsigned long cl)
- {
--	struct netdev_queue *dev_queue = taprio_queue_get(sch, cl);
-+	struct taprio_sched *q = qdisc_priv(sch);
-+	struct net_device *dev = qdisc_dev(sch);
-+	unsigned int ntx = cl - 1;
+-	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
+-	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
+-	while (data < data_limit - (19 + MINMATCHLEN)) {
+-		if (memcmp(data, "\1DCC ", 5)) {
++	/* Skip any whitespace */
++	while (data < data_limit - 10) {
++		if (*data == ' ' || *data == '\r' || *data == '\n')
++			data++;
++		else
++			break;
++	}
++
++	/* strlen("PRIVMSG x ")=10 */
++	if (data < data_limit - 10) {
++		if (strncasecmp("PRIVMSG ", data, 8))
++			goto out;
++		data += 8;
++	}
++
++	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
++	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
++	 */
++	while (data < data_limit - (21 + MINMATCHLEN)) {
++		/* Find first " :", the start of message */
++		if (memcmp(data, " :", 2)) {
+ 			data++;
+ 			continue;
+ 		}
++		data += 2;
++
++		/* then check that place only for the DCC command */
++		if (memcmp(data, "\1DCC ", 5))
++			goto out;
+ 		data += 5;
+-		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
++		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
  
--	if (!dev_queue)
-+	if (ntx >= dev->num_tx_queues)
- 		return NULL;
+ 		iph = ip_hdr(skb);
+ 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
+@@ -174,7 +196,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 			pr_debug("DCC %s detected\n", dccprotos[i]);
  
--	return dev_queue->qdisc_sleeping;
-+	return q->qdiscs[ntx];
- }
- 
- static unsigned long taprio_find(struct Qdisc *sch, u32 classid)
+ 			/* we have at least
+-			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
++			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
+ 			 * data left (== 14/13 bytes) */
+ 			if (parse_dcc(data, data_limit, &dcc_ip,
+ 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
 -- 
 2.35.1
 
