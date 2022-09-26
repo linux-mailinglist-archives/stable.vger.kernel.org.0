@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C795EA262
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C0B5EA3E9
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237346AbiIZLGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
+        id S238105AbiIZLgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234732AbiIZLF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:05:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05544F6B0;
-        Mon, 26 Sep 2022 03:33:59 -0700 (PDT)
+        with ESMTP id S238267AbiIZLef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BCE6DFA1;
+        Mon, 26 Sep 2022 03:43:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C9BC60C05;
-        Mon, 26 Sep 2022 10:33:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82142C433C1;
-        Mon, 26 Sep 2022 10:33:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 853AEB801BF;
+        Mon, 26 Sep 2022 10:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF88DC433C1;
+        Mon, 26 Sep 2022 10:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188422;
-        bh=BPFEgtuDPRS6M4K2zKUGEDYswwOrwW1BnzLKphyFSNw=;
+        s=korg; t=1664188896;
+        bh=QlSD194E8UHIoxw/b4CWEX4R9SntIHtgTWnYrvSgo8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFJrB5iUUwwFlMtnQB7cYXsoJmdkIQC6gzCTFabKoASDW2N+zUN2cVS0kDf4CLslI
-         nNmU4fBWP7VNTOsG2DACdhVKhww+pE5XkOU4Wj/QmUj8IfNwvD78JyGXKpLemj6Zh4
-         VJKAsArIqeBZeHaC+is0O3j9KqlwI2yU/z00R3lk=
+        b=Eoap5wtvuNb81myh0EnLJ1a/mVWQkDlJ893Ae5sKSe4Lme5C3JUbP3QLe790ve78U
+         +uaXTyK9dCfI+LIYAhUM6KW4yqI93p9T8UMFBspxgtlY3DL9ZfCiqJV448FFLf+nXx
+         lEwXOFNV2n7hJT/GXMdCfQm6mqL9Bpk/q+Xj39W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/141] cifs: always initialize struct msghdr smb_msg completely
+Subject: [PATCH 5.15 117/148] KVM: x86/mmu: Fold rmap_recycle into rmap_add
 Date:   Mon, 26 Sep 2022 12:12:31 +0200
-Message-Id: <20220926100758.986193625@linuxfoundation.org>
+Message-Id: <20220926100800.523753916@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
+References: <20220926100756.074519146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,102 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: David Matlack <dmatlack@google.com>
 
-[ Upstream commit bedc8f76b3539ac4f952114b316bcc2251e808ce ]
+[ Upstream commit 68be1306caea8948738cab04014ca4506b590d38 ]
 
-So far we were just lucky because the uninitialized members
-of struct msghdr are not used by default on a SOCK_STREAM tcp
-socket.
+Consolidate rmap_recycle and rmap_add into a single function since they
+are only ever called together (and only from one place). This has a nice
+side effect of eliminating an extra kvm_vcpu_gfn_to_memslot(). In
+addition it makes mmu_set_spte(), which is a very long function, a
+little shorter.
 
-But as new things like msg_ubuf and sg_from_iter where added
-recently, we should play on the safe side and avoid potention
-problems in future.
+No functional change intended.
 
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: David Matlack <dmatlack@google.com>
+Message-Id: <20210813203504.2742757-3-dmatlack@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Stable-dep-of: 604f533262ae ("KVM: x86/mmu: add missing update to max_mmu_rmap_size")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c   | 11 +++--------
- fs/cifs/transport.c |  6 +-----
- 2 files changed, 4 insertions(+), 13 deletions(-)
+ arch/x86/kvm/mmu/mmu.c | 40 ++++++++++++++--------------------------
+ 1 file changed, 14 insertions(+), 26 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 6e7d5b9e84b8..d1c3086d7ddd 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -695,9 +695,6 @@ cifs_readv_from_socket(struct TCP_Server_Info *server, struct msghdr *smb_msg)
- 	int length = 0;
- 	int total_read;
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index f267cca9fe09..ba1749a770eb 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -1071,20 +1071,6 @@ static bool rmap_can_add(struct kvm_vcpu *vcpu)
+ 	return kvm_mmu_memory_cache_nr_free_objects(mc);
+ }
  
--	smb_msg->msg_control = NULL;
--	smb_msg->msg_controllen = 0;
+-static int rmap_add(struct kvm_vcpu *vcpu, u64 *spte, gfn_t gfn)
+-{
+-	struct kvm_memory_slot *slot;
+-	struct kvm_mmu_page *sp;
+-	struct kvm_rmap_head *rmap_head;
 -
- 	for (total_read = 0; msg_data_left(smb_msg); total_read += length) {
- 		try_to_freeze();
- 
-@@ -748,7 +745,7 @@ int
- cifs_read_from_socket(struct TCP_Server_Info *server, char *buf,
- 		      unsigned int to_read)
+-	sp = sptep_to_sp(spte);
+-	kvm_mmu_page_set_gfn(sp, spte - sp->spt, gfn);
+-	slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
+-	rmap_head = gfn_to_rmap(gfn, sp->role.level, slot);
+-	return pte_list_add(vcpu, spte, rmap_head);
+-}
+-
+-
+ static void rmap_remove(struct kvm *kvm, u64 *spte)
  {
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
- 	struct kvec iov = {.iov_base = buf, .iov_len = to_read};
- 	iov_iter_kvec(&smb_msg.msg_iter, READ, &iov, 1, to_read);
- 
-@@ -758,15 +755,13 @@ cifs_read_from_socket(struct TCP_Server_Info *server, char *buf,
- ssize_t
- cifs_discard_from_socket(struct TCP_Server_Info *server, size_t to_read)
- {
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
+ 	struct kvm_memslots *slots;
+@@ -1097,9 +1083,9 @@ static void rmap_remove(struct kvm *kvm, u64 *spte)
+ 	gfn = kvm_mmu_page_get_gfn(sp, spte - sp->spt);
  
  	/*
- 	 *  iov_iter_discard already sets smb_msg.type and count and iov_offset
- 	 *  and cifs_readv_from_socket sets msg_control and msg_controllen
- 	 *  so little to initialize in struct msghdr
+-	 * Unlike rmap_add and rmap_recycle, rmap_remove does not run in the
+-	 * context of a vCPU so have to determine which memslots to use based
+-	 * on context information in sp->role.
++	 * Unlike rmap_add, rmap_remove does not run in the context of a vCPU
++	 * so we have to determine which memslots to use based on context
++	 * information in sp->role.
  	 */
--	smb_msg.msg_name = NULL;
--	smb_msg.msg_namelen = 0;
- 	iov_iter_discard(&smb_msg.msg_iter, READ, to_read);
+ 	slots = kvm_memslots_for_spte_role(kvm, sp->role);
  
- 	return cifs_readv_from_socket(server, &smb_msg);
-@@ -776,7 +771,7 @@ int
- cifs_read_page_from_socket(struct TCP_Server_Info *server, struct page *page,
- 	unsigned int page_offset, unsigned int to_read)
+@@ -1639,19 +1625,24 @@ static bool kvm_test_age_rmapp(struct kvm *kvm, struct kvm_rmap_head *rmap_head,
+ 
+ #define RMAP_RECYCLE_THRESHOLD 1000
+ 
+-static void rmap_recycle(struct kvm_vcpu *vcpu, u64 *spte, gfn_t gfn)
++static void rmap_add(struct kvm_vcpu *vcpu, u64 *spte, gfn_t gfn)
  {
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
- 	struct bio_vec bv = {
- 		.bv_page = page, .bv_len = to_read, .bv_offset = page_offset};
- 	iov_iter_bvec(&smb_msg.msg_iter, READ, &bv, 1, to_read);
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 383ae8744c33..b137006f0fd2 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -209,10 +209,6 @@ smb_send_kvec(struct TCP_Server_Info *server, struct msghdr *smb_msg,
+ 	struct kvm_memory_slot *slot;
+-	struct kvm_rmap_head *rmap_head;
+ 	struct kvm_mmu_page *sp;
++	struct kvm_rmap_head *rmap_head;
++	int rmap_count;
  
- 	*sent = 0;
+ 	sp = sptep_to_sp(spte);
++	kvm_mmu_page_set_gfn(sp, spte - sp->spt, gfn);
+ 	slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
+ 	rmap_head = gfn_to_rmap(gfn, sp->role.level, slot);
++	rmap_count = pte_list_add(vcpu, spte, rmap_head);
  
--	smb_msg->msg_name = NULL;
--	smb_msg->msg_namelen = 0;
--	smb_msg->msg_control = NULL;
--	smb_msg->msg_controllen = 0;
- 	if (server->noblocksnd)
- 		smb_msg->msg_flags = MSG_DONTWAIT + MSG_NOSIGNAL;
- 	else
-@@ -324,7 +320,7 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	sigset_t mask, oldmask;
- 	size_t total_len = 0, sent, size;
- 	struct socket *ssocket = server->ssocket;
--	struct msghdr smb_msg;
-+	struct msghdr smb_msg = {};
- 	__be32 rfc1002_marker;
+-	kvm_unmap_rmapp(vcpu->kvm, rmap_head, NULL, gfn, sp->role.level, __pte(0));
+-	kvm_flush_remote_tlbs_with_address(vcpu->kvm, sp->gfn,
+-			KVM_PAGES_PER_HPAGE(sp->role.level));
++	if (rmap_count > RMAP_RECYCLE_THRESHOLD) {
++		kvm_unmap_rmapp(vcpu->kvm, rmap_head, NULL, gfn, sp->role.level, __pte(0));
++		kvm_flush_remote_tlbs_with_address(
++				vcpu->kvm, sp->gfn, KVM_PAGES_PER_HPAGE(sp->role.level));
++	}
+ }
  
- 	if (cifs_rdma_enabled(server)) {
+ bool kvm_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+@@ -2718,7 +2709,6 @@ static int mmu_set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
+ 			bool host_writable)
+ {
+ 	int was_rmapped = 0;
+-	int rmap_count;
+ 	int set_spte_ret;
+ 	int ret = RET_PF_FIXED;
+ 	bool flush = false;
+@@ -2778,9 +2768,7 @@ static int mmu_set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
+ 
+ 	if (!was_rmapped) {
+ 		kvm_update_page_stats(vcpu->kvm, level, 1);
+-		rmap_count = rmap_add(vcpu, sptep, gfn);
+-		if (rmap_count > RMAP_RECYCLE_THRESHOLD)
+-			rmap_recycle(vcpu, sptep, gfn);
++		rmap_add(vcpu, sptep, gfn);
+ 	}
+ 
+ 	return ret;
 -- 
 2.35.1
 
