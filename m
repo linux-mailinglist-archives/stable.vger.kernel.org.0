@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 679515EA18F
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 616675EA3D8
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236797AbiIZKwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38794 "EHLO
+        id S235613AbiIZLez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:34:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234197AbiIZKuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:50:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C28A58B66;
-        Mon, 26 Sep 2022 03:27:22 -0700 (PDT)
+        with ESMTP id S238175AbiIZLeU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:34:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9676E2F3;
+        Mon, 26 Sep 2022 03:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 407B660B4A;
-        Mon, 26 Sep 2022 10:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8BAC433D6;
-        Mon, 26 Sep 2022 10:27:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 439BD60B6A;
+        Mon, 26 Sep 2022 10:43:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5156EC433C1;
+        Mon, 26 Sep 2022 10:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188041;
-        bh=owMO6i8j0s1D2nXvi4Y+MqM9J5EeXZn3P1/sPY45h6s=;
+        s=korg; t=1664189001;
+        bh=IwoZo9ErO1qaB5Lo6wIVc4jR3I3bfifsx1XX83v91Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkRZUuh+2XEtZknYfkkBb2HXJgFW39WO074VI46y9xjwZGfMJfT1vu1KMgUM6oPnf
-         xFdu9pEiqRzkXqUrQT7kb6Syd72ySaeWAm1zhAjlMnb94Nq8FIL/g1y9k1ftn7kxly
-         pTp8zD2MCAYqzJDD46kOtrfnWq4oE8yKWfjG0BS8=
+        b=pH6/OId5B5bmtUlDyScGz5BPuYYzpeapTAq1s6DU/0Ll5S347deY2lSbU0pMNWRoZ
+         oZ27x+JlWCCNpR+LxwVLiMmwuMlVg3xTF6vR/7Kb3BHY/0ik5exJnesesUoHogfyQT
+         zAHHyij8uRA44YXp0N3hk4zfacm5WLasRMw7JCKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 004/141] drm/amdgpu: make sure to init common IP before gmc
-Date:   Mon, 26 Sep 2022 12:10:30 +0200
-Message-Id: <20220926100754.788519022@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 042/207] btrfs: fix hang during unmount when stopping a space reclaim worker
+Date:   Mon, 26 Sep 2022 12:10:31 +0200
+Message-Id: <20220926100808.505914872@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +53,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit a8671493d2074950553da3cf07d1be43185ef6c6 ]
+commit a362bb864b8db4861977d00bd2c3222503ccc34b upstream.
 
-Move common IP init before GMC init so that HDP gets
-remapped before GMC init which uses it.
+Often when running generic/562 from fstests we can hang during unmount,
+resulting in a trace like this:
 
-This fixes the Unsupported Request error reported through
-AER during driver load. The error happens as a write happens
-to the remap offset before real remapping is done.
+  Sep 07 11:52:00 debian9 unknown: run fstests generic/562 at 2022-09-07 11:52:00
+  Sep 07 11:55:32 debian9 kernel: INFO: task umount:49438 blocked for more than 120 seconds.
+  Sep 07 11:55:32 debian9 kernel:       Not tainted 6.0.0-rc2-btrfs-next-122 #1
+  Sep 07 11:55:32 debian9 kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  Sep 07 11:55:32 debian9 kernel: task:umount          state:D stack:    0 pid:49438 ppid: 25683 flags:0x00004000
+  Sep 07 11:55:32 debian9 kernel: Call Trace:
+  Sep 07 11:55:32 debian9 kernel:  <TASK>
+  Sep 07 11:55:32 debian9 kernel:  __schedule+0x3c8/0xec0
+  Sep 07 11:55:32 debian9 kernel:  ? rcu_read_lock_sched_held+0x12/0x70
+  Sep 07 11:55:32 debian9 kernel:  schedule+0x5d/0xf0
+  Sep 07 11:55:32 debian9 kernel:  schedule_timeout+0xf1/0x130
+  Sep 07 11:55:32 debian9 kernel:  ? lock_release+0x224/0x4a0
+  Sep 07 11:55:32 debian9 kernel:  ? lock_acquired+0x1a0/0x420
+  Sep 07 11:55:32 debian9 kernel:  ? trace_hardirqs_on+0x2c/0xd0
+  Sep 07 11:55:32 debian9 kernel:  __wait_for_common+0xac/0x200
+  Sep 07 11:55:32 debian9 kernel:  ? usleep_range_state+0xb0/0xb0
+  Sep 07 11:55:32 debian9 kernel:  __flush_work+0x26d/0x530
+  Sep 07 11:55:32 debian9 kernel:  ? flush_workqueue_prep_pwqs+0x140/0x140
+  Sep 07 11:55:32 debian9 kernel:  ? trace_clock_local+0xc/0x30
+  Sep 07 11:55:32 debian9 kernel:  __cancel_work_timer+0x11f/0x1b0
+  Sep 07 11:55:32 debian9 kernel:  ? close_ctree+0x12b/0x5b3 [btrfs]
+  Sep 07 11:55:32 debian9 kernel:  ? __trace_bputs+0x10b/0x170
+  Sep 07 11:55:32 debian9 kernel:  close_ctree+0x152/0x5b3 [btrfs]
+  Sep 07 11:55:32 debian9 kernel:  ? evict_inodes+0x166/0x1c0
+  Sep 07 11:55:32 debian9 kernel:  generic_shutdown_super+0x71/0x120
+  Sep 07 11:55:32 debian9 kernel:  kill_anon_super+0x14/0x30
+  Sep 07 11:55:32 debian9 kernel:  btrfs_kill_super+0x12/0x20 [btrfs]
+  Sep 07 11:55:32 debian9 kernel:  deactivate_locked_super+0x2e/0xa0
+  Sep 07 11:55:32 debian9 kernel:  cleanup_mnt+0x100/0x160
+  Sep 07 11:55:32 debian9 kernel:  task_work_run+0x59/0xa0
+  Sep 07 11:55:32 debian9 kernel:  exit_to_user_mode_prepare+0x1a6/0x1b0
+  Sep 07 11:55:32 debian9 kernel:  syscall_exit_to_user_mode+0x16/0x40
+  Sep 07 11:55:32 debian9 kernel:  do_syscall_64+0x48/0x90
+  Sep 07 11:55:32 debian9 kernel:  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  Sep 07 11:55:32 debian9 kernel: RIP: 0033:0x7fcde59a57a7
+  Sep 07 11:55:32 debian9 kernel: RSP: 002b:00007ffe914217c8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+  Sep 07 11:55:32 debian9 kernel: RAX: 0000000000000000 RBX: 00007fcde5ae8264 RCX: 00007fcde59a57a7
+  Sep 07 11:55:32 debian9 kernel: RDX: 0000000000000000 RSI: 0000000000000000 RDI: 000055b57556cdd0
+  Sep 07 11:55:32 debian9 kernel: RBP: 000055b57556cba0 R08: 0000000000000000 R09: 00007ffe91420570
+  Sep 07 11:55:32 debian9 kernel: R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+  Sep 07 11:55:32 debian9 kernel: R13: 000055b57556cdd0 R14: 000055b57556ccb8 R15: 0000000000000000
+  Sep 07 11:55:32 debian9 kernel:  </TASK>
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216373
+What happens is the following:
 
-The error was unnoticed before and got visible because of the commit
-referenced below. This doesn't fix anything in the commit below, rather
-fixes the issue in amdgpu exposed by the commit. The reference is only
-to associate this commit with below one so that both go together.
+1) The cleaner kthread tries to start a transaction to delete an unused
+   block group, but the metadata reservation can not be satisfied right
+   away, so a reservation ticket is created and it starts the async
+   metadata reclaim task (fs_info->async_reclaim_work);
 
-Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+2) Writeback for all the filler inodes with an i_size of 2K starts
+   (generic/562 creates a lot of 2K files with the goal of filling
+   metadata space). We try to create an inline extent for them, but we
+   fail when trying to insert the inline extent with -ENOSPC (at
+   cow_file_range_inline()) - since this is not critical, we fallback
+   to non-inline mode (back to cow_file_range()), reserve extents, create
+   extent maps and create the ordered extents;
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+3) An unmount starts, enters close_ctree();
+
+4) The async reclaim task is flushing stuff, entering the flush states one
+   by one, until it reaches RUN_DELAYED_IPUTS. There it runs all current
+   delayed iputs.
+
+   After running the delayed iputs and before calling
+   btrfs_wait_on_delayed_iputs(), one or more ordered extents complete,
+   and btrfs_add_delayed_iput() is called for each one through
+   btrfs_finish_ordered_io() -> btrfs_put_ordered_extent(). This results
+   in bumping fs_info->nr_delayed_iputs from 0 to some positive value.
+
+   So the async reclaim task blocks at btrfs_wait_on_delayed_iputs() waiting
+   for fs_info->nr_delayed_iputs to become 0;
+
+5) The current transaction is committed by the transaction kthread, we then
+   start unpinning extents and end up calling btrfs_try_granting_tickets()
+   through unpin_extent_range(), since we released some space.
+   This results in satisfying the ticket created by the cleaner kthread at
+   step 1, waking up the cleaner kthread;
+
+6) At close_ctree() we ask the cleaner kthread to park;
+
+7) The cleaner kthread starts the transaction, deletes the unused block
+   group, and then calls kthread_should_park(), which returns true, so it
+   parks. And at this point we have the delayed iputs added by the
+   completion of the ordered extents still pending;
+
+8) Then later at close_ctree(), when we call:
+
+       cancel_work_sync(&fs_info->async_reclaim_work);
+
+   We hang forever, since the cleaner was parked and no one else can run
+   delayed iputs after that, while the reclaim task is waiting for the
+   remaining delayed iputs to be completed.
+
+Fix this by waiting for all ordered extents to complete and running the
+delayed iputs before attempting to stop the async reclaim tasks. Note that
+we can not wait for ordered extents with btrfs_wait_ordered_roots() (or
+other similar functions) because that waits for the BTRFS_ORDERED_COMPLETE
+flag to be set on an ordered extent, but the delayed iput is added after
+that, when doing the final btrfs_put_ordered_extent(). So instead wait for
+the work queues used for executing ordered extent completion to be empty,
+which works because we do the final put on an ordered extent at
+btrfs_finish_ordered_io() (while we are in the unmount context).
+
+Fixes: d6fd0ae25c6495 ("Btrfs: fix missing delayed iputs on unmount")
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/btrfs/disk-io.c |   25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 9ccc8c82353b..f44ab44abd64 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2179,8 +2179,16 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
- 		}
- 		adev->ip_blocks[i].status.sw = true;
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4637,6 +4637,31 @@ void __cold close_ctree(struct btrfs_fs_
+ 	/* clear out the rbtree of defraggable inodes */
+ 	btrfs_cleanup_defrag_inodes(fs_info);
  
--		/* need to do gmc hw init early so we can allocate gpu mem */
--		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC) {
-+		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_COMMON) {
-+			/* need to do common hw init early so everything is set up for gmc */
-+			r = adev->ip_blocks[i].version->funcs->hw_init((void *)adev);
-+			if (r) {
-+				DRM_ERROR("hw_init %d failed %d\n", i, r);
-+				goto init_failed;
-+			}
-+			adev->ip_blocks[i].status.hw = true;
-+		} else if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC) {
-+			/* need to do gmc hw init early so we can allocate gpu mem */
- 			/* Try to reserve bad pages early */
- 			if (amdgpu_sriov_vf(adev))
- 				amdgpu_virt_exchange_data(adev);
-@@ -2762,8 +2770,8 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
- 	int i, r;
- 
- 	static enum amd_ip_block_type ip_order[] = {
--		AMD_IP_BLOCK_TYPE_GMC,
- 		AMD_IP_BLOCK_TYPE_COMMON,
-+		AMD_IP_BLOCK_TYPE_GMC,
- 		AMD_IP_BLOCK_TYPE_PSP,
- 		AMD_IP_BLOCK_TYPE_IH,
- 	};
--- 
-2.35.1
-
++	/*
++	 * After we parked the cleaner kthread, ordered extents may have
++	 * completed and created new delayed iputs. If one of the async reclaim
++	 * tasks is running and in the RUN_DELAYED_IPUTS flush state, then we
++	 * can hang forever trying to stop it, because if a delayed iput is
++	 * added after it ran btrfs_run_delayed_iputs() and before it called
++	 * btrfs_wait_on_delayed_iputs(), it will hang forever since there is
++	 * no one else to run iputs.
++	 *
++	 * So wait for all ongoing ordered extents to complete and then run
++	 * delayed iputs. This works because once we reach this point no one
++	 * can either create new ordered extents nor create delayed iputs
++	 * through some other means.
++	 *
++	 * Also note that btrfs_wait_ordered_roots() is not safe here, because
++	 * it waits for BTRFS_ORDERED_COMPLETE to be set on an ordered extent,
++	 * but the delayed iput for the respective inode is made only when doing
++	 * the final btrfs_put_ordered_extent() (which must happen at
++	 * btrfs_finish_ordered_io() when we are unmounting).
++	 */
++	btrfs_flush_workqueue(fs_info->endio_write_workers);
++	/* Ordered extents for free space inodes. */
++	btrfs_flush_workqueue(fs_info->endio_freespace_worker);
++	btrfs_run_delayed_iputs(fs_info);
++
+ 	cancel_work_sync(&fs_info->async_reclaim_work);
+ 	cancel_work_sync(&fs_info->async_data_reclaim_work);
+ 	cancel_work_sync(&fs_info->preempt_reclaim_work);
 
 
