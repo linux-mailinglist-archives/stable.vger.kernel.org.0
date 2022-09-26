@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B71B15E9FE1
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94815EA501
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235737AbiIZKa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 06:30:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
+        id S238852AbiIZL4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:56:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235863AbiIZK31 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:29:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 754B34F1A6;
-        Mon, 26 Sep 2022 03:19:26 -0700 (PDT)
+        with ESMTP id S238603AbiIZLxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:53:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA5E1EECA;
+        Mon, 26 Sep 2022 03:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEE5460BB1;
-        Mon, 26 Sep 2022 10:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEDE3C433D7;
-        Mon, 26 Sep 2022 10:19:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34E2660A52;
+        Mon, 26 Sep 2022 10:49:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4334CC433C1;
+        Mon, 26 Sep 2022 10:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664187565;
-        bh=BeLwktw184kwrMLr9iq2nkZ4gwzXwvVuNsdWxpXBr+c=;
+        s=korg; t=1664189378;
+        bh=IJyVcokS76eYcgjYU/QcDdw9VqFByW+ywwfO1tCMjz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8VzaV0ycCBl0Sg6oySDUorbt+JyYAPT+H7WFKVQ5hVSznZZMMt0b++LOgu+COCSe
-         r5Xu9t0hLvc/EsNMsfbOYZsulGB7TT0QfW880xnTaGyLfdBtwRU56R4nYc/dPYLeTO
-         CVF9hyEhVXmtiveTjwEgTmnDWihqc9efCrpVMU1E=
+        b=r5FIVtzQXO+ggMRI5fPN4b/JYmp9d7F2anv8icohc3JDLWE+sAnwp2llsKa5k/woN
+         SwGEK+zlTIF8z/hwg8RMSmOPS67x/r21nA4Z5mUSBEzJLKPL0NdVBxEv8tkDUtxEXC
+         m0sO65zflDf2JneYe+szXMFx1izcRtRv3TEG+GhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Lieven Hey <lieven.hey@kdab.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 47/58] perf jit: Include program header in ELF files
+Subject: [PATCH 5.19 137/207] netfilter: nf_tables: fix nft_counters_enabled underflow at nf_tables_addchain()
 Date:   Mon, 26 Sep 2022 12:12:06 +0200
-Message-Id: <20220926100743.163390892@linuxfoundation.org>
+Message-Id: <20220926100812.649459985@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100741.430882406@linuxfoundation.org>
-References: <20220926100741.430882406@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lieven Hey <lieven.hey@kdab.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit babd04386b1df8c364cdaa39ac0e54349502e1e5 ]
+[ Upstream commit 921ebde3c0d22c8cba74ce8eb3cc4626abff1ccd ]
 
-The missing header makes it hard for programs like elfutils to open
-these files.
+syzbot is reporting underflow of nft_counters_enabled counter at
+nf_tables_addchain() [1], for commit 43eb8949cfdffa76 ("netfilter:
+nf_tables: do not leave chain stats enabled on error") missed that
+nf_tables_chain_destroy() after nft_basechain_init() in the error path of
+nf_tables_addchain() decrements the counter because nft_basechain_init()
+makes nft_is_base_chain() return true by setting NFT_CHAIN_BASE flag.
 
-Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Lieven Hey <lieven.hey@kdab.com>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Link: https://lore.kernel.org/r/20220915092910.711036-1-lieven.hey@kdab.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Increment the counter immediately after returning from
+nft_basechain_init().
+
+Link:  https://syzkaller.appspot.com/bug?extid=b5d82a651b71cd8a75ab [1]
+Reported-by: syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+b5d82a651b71cd8a75ab@syzkaller.appspotmail.com>
+Fixes: 43eb8949cfdffa76 ("netfilter: nf_tables: do not leave chain stats enabled on error")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/genelf.c | 14 ++++++++++++++
- tools/perf/util/genelf.h |  4 ++++
- 2 files changed, 18 insertions(+)
+ net/netfilter/nf_tables_api.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index afb8fe3a8e35..65e41e259af8 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -256,6 +256,7 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
- 	Elf_Data *d;
- 	Elf_Scn *scn;
- 	Elf_Ehdr *ehdr;
-+	Elf_Phdr *phdr;
- 	Elf_Shdr *shdr;
- 	uint64_t eh_frame_base_offset;
- 	char *strsym = NULL;
-@@ -290,6 +291,19 @@ jit_write_elf(int fd, uint64_t load_addr, const char *sym,
- 	ehdr->e_version = EV_CURRENT;
- 	ehdr->e_shstrndx= unwinding ? 4 : 2; /* shdr index for section name */
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 848cc81d6992..3aaf36df69d4 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2197,7 +2197,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			      struct netlink_ext_ack *extack)
+ {
+ 	const struct nlattr * const *nla = ctx->nla;
+-	struct nft_stats __percpu *stats = NULL;
+ 	struct nft_table *table = ctx->table;
+ 	struct nft_base_chain *basechain;
+ 	struct net *net = ctx->net;
+@@ -2212,6 +2211,7 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		return -EOVERFLOW;
  
-+	/*
-+	 * setup program header
-+	 */
-+	phdr = elf_newphdr(e, 1);
-+	phdr[0].p_type = PT_LOAD;
-+	phdr[0].p_offset = 0;
-+	phdr[0].p_vaddr = 0;
-+	phdr[0].p_paddr = 0;
-+	phdr[0].p_filesz = csize;
-+	phdr[0].p_memsz = csize;
-+	phdr[0].p_flags = PF_X | PF_R;
-+	phdr[0].p_align = 8;
-+
- 	/*
- 	 * setup text section
- 	 */
-diff --git a/tools/perf/util/genelf.h b/tools/perf/util/genelf.h
-index de322d51c7fe..23a7401a63d0 100644
---- a/tools/perf/util/genelf.h
-+++ b/tools/perf/util/genelf.h
-@@ -41,8 +41,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
+ 	if (nla[NFTA_CHAIN_HOOK]) {
++		struct nft_stats __percpu *stats = NULL;
+ 		struct nft_chain_hook hook;
  
- #if GEN_ELF_CLASS == ELFCLASS64
- #define elf_newehdr	elf64_newehdr
-+#define elf_newphdr	elf64_newphdr
- #define elf_getshdr	elf64_getshdr
- #define Elf_Ehdr	Elf64_Ehdr
-+#define Elf_Phdr	Elf64_Phdr
- #define Elf_Shdr	Elf64_Shdr
- #define Elf_Sym		Elf64_Sym
- #define ELF_ST_TYPE(a)	ELF64_ST_TYPE(a)
-@@ -50,8 +52,10 @@ int jit_add_debug_info(Elf *e, uint64_t code_addr, void *debug, int nr_debug_ent
- #define ELF_ST_VIS(a)	ELF64_ST_VISIBILITY(a)
- #else
- #define elf_newehdr	elf32_newehdr
-+#define elf_newphdr	elf32_newphdr
- #define elf_getshdr	elf32_getshdr
- #define Elf_Ehdr	Elf32_Ehdr
-+#define Elf_Phdr	Elf32_Phdr
- #define Elf_Shdr	Elf32_Shdr
- #define Elf_Sym		Elf32_Sym
- #define ELF_ST_TYPE(a)	ELF32_ST_TYPE(a)
+ 		if (flags & NFT_CHAIN_BINDING)
+@@ -2245,6 +2245,8 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			kfree(basechain);
+ 			return err;
+ 		}
++		if (stats)
++			static_branch_inc(&nft_counters_enabled);
+ 	} else {
+ 		if (flags & NFT_CHAIN_BASE)
+ 			return -EINVAL;
+@@ -2319,9 +2321,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		goto err_unregister_hook;
+ 	}
+ 
+-	if (stats)
+-		static_branch_inc(&nft_counters_enabled);
+-
+ 	table->use++;
+ 
+ 	return 0;
 -- 
 2.35.1
 
