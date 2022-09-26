@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 555B85EA362
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0522F5E9F62
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 12:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237796AbiIZLYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:24:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35994 "EHLO
+        id S233775AbiIZKZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 06:25:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237997AbiIZLXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:23:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB5A33A26;
-        Mon, 26 Sep 2022 03:40:05 -0700 (PDT)
+        with ESMTP id S235474AbiIZKXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 06:23:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 322424D25C;
+        Mon, 26 Sep 2022 03:17:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F20F860769;
-        Mon, 26 Sep 2022 10:39:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E49B3C433C1;
-        Mon, 26 Sep 2022 10:39:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CE74B8091F;
+        Mon, 26 Sep 2022 10:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF84CC433C1;
+        Mon, 26 Sep 2022 10:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188763;
-        bh=+WB6Gfrw4ofFl7keBuMJYWkIaY3LMVfFmiVWGO4Gix0=;
+        s=korg; t=1664187432;
+        bh=fAlZJ9xWNacVjByCeDTu4Kvh49DJCQi1wFo4hseHhVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWbZXpg3/pUIMFZR9SvY0V2y5KhvVvy3qrIQJrhZeDOGLUqPCfJRINtNv2R2384+u
-         OAZpLq6/+Y+pOvssUtlw3qRTdJaMgpCVYYnIdDpLRWuOJY9XpdsnSxSGmeDVI92Njb
-         graH6Am88P8JYO6WQUXQPIsOaFZesfP/AddEvmXU=
+        b=r1TAwnJDzojEiU9wMBRy9dsMAXgIaODI5lH15bnCW6lTpVczTXEUYU83UR+mM1hYn
+         WPmjOIy+kun54BrFcAp8t0MJ8ghuhNmBdm4FA8/z8/hMriRUR5/8qIy9hRLI9FydNq
+         46k6KIMVhTJCSO0ypgNEO/PZJ0B1xDHgqCqVZcPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 086/148] i40e: Fix VF set max MTU size
+Subject: [PATCH 4.14 32/40] can: gs_usb: gs_can_open(): fix race dev->can.state condition
 Date:   Mon, 26 Sep 2022 12:12:00 +0200
-Message-Id: <20220926100759.274117745@linuxfoundation.org>
+Message-Id: <20220926100739.533466515@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100756.074519146@linuxfoundation.org>
-References: <20220926100756.074519146@linuxfoundation.org>
+In-Reply-To: <20220926100738.148626940@linuxfoundation.org>
+References: <20220926100738.148626940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Jaron <michalx.jaron@intel.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 372539def2824c43b6afe2403045b140f65c5acc ]
+[ Upstream commit 5440428b3da65408dba0241985acb7a05258b85e ]
 
-Max MTU sent to VF is set to 0 during memory allocation. It cause
-that max MTU on VF is changed to IAVF_MAX_RXBUFFER and does not
-depend on data from HW.
+The dev->can.state is set to CAN_STATE_ERROR_ACTIVE, after the device
+has been started. On busy networks the CAN controller might receive
+CAN frame between and go into an error state before the dev->can.state
+is assigned.
 
-Set max_mtu field in virtchnl_vf_resource struct to inform
-VF in GET_VF_RESOURCES msg what size should be max frame.
+Assign dev->can.state before starting the controller to close the race
+window.
 
-Fixes: dab86afdbbd1 ("i40e/i40evf: Change the way we limit the maximum frame size for Rx")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Link: https://lore.kernel.org/all/20220920195216.232481-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 20 +++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/net/can/usb/gs_usb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index d78ac5e7f658..c078fbaf19fd 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2038,6 +2038,25 @@ static void i40e_del_qch(struct i40e_vf *vf)
+diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
+index 31c1dc0aa5cf..5e21486baa22 100644
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -686,6 +686,7 @@ static int gs_can_open(struct net_device *netdev)
+ 		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
+ 
+ 	/* finally start device */
++	dev->can.state = CAN_STATE_ERROR_ACTIVE;
+ 	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
+ 	dm->flags = cpu_to_le32(flags);
+ 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
+@@ -702,13 +703,12 @@ static int gs_can_open(struct net_device *netdev)
+ 	if (rc < 0) {
+ 		netdev_err(netdev, "Couldn't start device (err=%d)\n", rc);
+ 		kfree(dm);
++		dev->can.state = CAN_STATE_STOPPED;
+ 		return rc;
  	}
- }
  
-+/**
-+ * i40e_vc_get_max_frame_size
-+ * @vf: pointer to the VF
-+ *
-+ * Max frame size is determined based on the current port's max frame size and
-+ * whether a port VLAN is configured on this VF. The VF is not aware whether
-+ * it's in a port VLAN so the PF needs to account for this in max frame size
-+ * checks and sending the max frame size to the VF.
-+ **/
-+static u16 i40e_vc_get_max_frame_size(struct i40e_vf *vf)
-+{
-+	u16 max_frame_size = vf->pf->hw.phy.link_info.max_frame_size;
-+
-+	if (vf->port_vlan_id)
-+		max_frame_size -= VLAN_HLEN;
-+
-+	return max_frame_size;
-+}
-+
- /**
-  * i40e_vc_get_vf_resources_msg
-  * @vf: pointer to the VF info
-@@ -2139,6 +2158,7 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
- 	vfres->max_vectors = pf->hw.func_caps.num_msix_vectors_vf;
- 	vfres->rss_key_size = I40E_HKEY_ARRAY_SIZE;
- 	vfres->rss_lut_size = I40E_VF_HLUT_ARRAY_SIZE;
-+	vfres->max_mtu = i40e_vc_get_max_frame_size(vf);
+ 	kfree(dm);
  
- 	if (vf->lan_vsi_idx) {
- 		vfres->vsi_res[0].vsi_id = vf->lan_vsi_id;
+-	dev->can.state = CAN_STATE_ERROR_ACTIVE;
+-
+ 	parent->active_channels++;
+ 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
+ 		netif_start_queue(netdev);
 -- 
 2.35.1
 
