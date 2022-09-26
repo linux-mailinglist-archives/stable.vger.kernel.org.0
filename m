@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D01275EA338
-	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C255EA531
+	for <lists+stable@lfdr.de>; Mon, 26 Sep 2022 13:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237821AbiIZLVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 07:21:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
+        id S238224AbiIZL7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 07:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237663AbiIZLTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:19:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 633E252E61;
-        Mon, 26 Sep 2022 03:39:08 -0700 (PDT)
+        with ESMTP id S238972AbiIZL5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 07:57:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA9B7A74B;
+        Mon, 26 Sep 2022 03:51:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61FCB60C94;
-        Mon, 26 Sep 2022 10:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 532EDC433C1;
-        Mon, 26 Sep 2022 10:32:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 079C1B80782;
+        Mon, 26 Sep 2022 10:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E64FC433C1;
+        Mon, 26 Sep 2022 10:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664188379;
-        bh=YK4PKi78mPSYr1dez8eX75MboN5ZOy+NdJ94NHqrFdc=;
+        s=korg; t=1664189459;
+        bh=NR2nGKHCqMCbiIzfzdxCOwBE57OSql4xqN0iC9Rp7Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2C2naKMw6oyazBrrdY3brOncKxnkBVDSRZZM7pMsrrG0rsSHadtfoJ93y87zknbaj
-         ngd8blsjgs7F2kyVBkGnL5YA+D3XVshE2mrhVPVYpzhC0XO9JkRJT8BbLOjNqAPz4Z
-         qOtez5INhzq1I9P2ODppxgtU1hOh0fYQq6+9IZBY=
+        b=qD9beS6T7VcqO26fPylTqA+psdAV6w0gKAzYpbxdamuYdr6NwedXUXSpQvlwRBPPz
+         DXDnVbhlLmg7l7zmcMPLI4zZsqXvZVnlQobz+Q6CtNbejRWMCqNhy9eTea930B8RCt
+         /uQ8uYejDPd9MWUs53gnT63Lc7N3AJsX8K00QeOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
-        =?UTF-8?q?Ma=C3=ADra=20Canal?= <mairacanal@riseup.net>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/141] drm/amd/display: Mark dml30s UseMinimumDCFCLK() as noinline for stack usage
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 168/207] blk-mq: fix error handling in __blk_mq_alloc_disk
 Date:   Mon, 26 Sep 2022 12:12:37 +0200
-Message-Id: <20220926100759.194364478@linuxfoundation.org>
+Message-Id: <20220926100814.177713877@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220926100754.639112000@linuxfoundation.org>
-References: <20220926100754.639112000@linuxfoundation.org>
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+References: <20220926100806.522017616@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 41012d715d5d7b9751ae84b8fb255e404ac9c5d0 ]
+commit 0a3e5cc7bbfcd571a2e53779ef7d7aa3c57d5432 upstream.
 
-This function consumes a lot of stack space and it blows up the size of
-dml30_ModeSupportAndSystemConfigurationFull() with clang:
+To fully clean up the queue if the disk allocation fails we need to
+call blk_mq_destroy_queue and not just blk_put_queue.
 
-  drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn30/display_mode_vba_30.c:3542:6: error: stack frame size (2200) exceeds limit (2048) in 'dml30_ModeSupportAndSystemConfigurationFull' [-Werror,-Wframe-larger-than]
-  void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_lib)
-       ^
-  1 error generated.
-
-Commit a0f7e7f759cf ("drm/amd/display: fix i386 frame size warning")
-aimed to address this for i386 but it did not help x86_64.
-
-To reduce the amount of stack space that
-dml30_ModeSupportAndSystemConfigurationFull() uses, mark
-UseMinimumDCFCLK() as noinline, using the _for_stack variant for
-documentation. While this will increase the total amount of stack usage
-between the two functions (1632 and 1304 bytes respectively), it will
-make sure both stay below the limit of 2048 bytes for these files. The
-aforementioned change does help reduce UseMinimumDCFCLK()'s stack usage
-so it should not be reverted in favor of this change.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1681
-Reported-by: "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-Tested-by: Maíra Canal <mairacanal@riseup.net>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6f8191fdf41d ("block: simplify disk shutdown")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20220720130541.1323531-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ block/blk-mq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-index 2663f1b31842..e427f4ffa080 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-@@ -6653,8 +6653,7 @@ static double CalculateUrgentLatency(
- 	return ret;
- }
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3949,7 +3949,7 @@ struct gendisk *__blk_mq_alloc_disk(stru
  
--
--static void UseMinimumDCFCLK(
-+static noinline_for_stack void UseMinimumDCFCLK(
- 		struct display_mode_lib *mode_lib,
- 		int MaxInterDCNTileRepeaters,
- 		int MaxPrefetchMode,
--- 
-2.35.1
-
+ 	disk = __alloc_disk_node(q, set->numa_node, lkclass);
+ 	if (!disk) {
+-		blk_put_queue(q);
++		blk_mq_destroy_queue(q);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	set_bit(GD_OWNS_QUEUE, &disk->state);
 
 
