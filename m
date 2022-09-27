@@ -2,131 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 732DD5EBEAA
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 11:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5905EBEF5
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 11:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiI0JcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 05:32:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
+        id S229470AbiI0Jsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 05:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230455AbiI0JcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 05:32:22 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF07D98E8
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 02:32:20 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id n35-20020a05600c502300b003b4924c6868so516664wmr.1
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 02:32:20 -0700 (PDT)
+        with ESMTP id S231500AbiI0Js3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 05:48:29 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29991B56DD
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 02:48:28 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id a26so19523816ejc.4
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 02:48:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=c1lTYvs/G0HbGldaQkXL4iF+w5hjI0Lt6tEy56lMY1U=;
-        b=IIG8Bui+zHL7IWfR8G2NjDQAY580zeTo35G1wuYkB90CgyhrECnuu83P5MnZHyU+Z9
-         o40JqMrbCNFzCh8Rm1b2EUMajcyX720UytdUliqsF1ZPJiBeiqurHYLE4aKKxOUAqF3U
-         7XPoC8XwwMsBrLo5b7M3f0F1viQgrnNsgv/Ie683OlLUSoj/2d7SSaH/pq+HJnRxOO3x
-         niWNwcXveTTLcqLUHDhKCzbOBnonFaUfnpfgS5xEoGBjvANKx/n4KqyBiN+DOsTgzLdX
-         YYxaHZTN3WzqOL0J6nGgIVc1hY4q8u6IkgImMFuIXZ3yhsZrmzc2PLIU+CsVY3PSlzoM
-         3w2Q==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=82vvennylnV0/4KhbaFd6LeDxxoTfGU6HgqN3gksU9o=;
+        b=yeGFqCkqdFrM/cmPOVql/W7DdkZLtyuiKZ4Wb7jLhfJZbajs4TI3ByeZtXNTWE65VJ
+         OWbduUPWG6frWj6s3RIce0+S+8H86N+EZh4ewL0a5fDvfmDx7W/4k6h5vs/XsHi15WRy
+         ei+2aYGT0vGRRXNCEnpCLDyKNler1mF3K4NZSfo0hF4K0gMT5h1FcGrrnLADvtYs3GH9
+         kQDl85MN10rttrMYfzuG8u5obFbnTItQGgiXbxTxXjaVYeGiTTcU59wWZ7EFMLATssC/
+         WepmD9utMon85UT5ZircBQRgOJd/cv7THnDOXNIxeC5z9Q/TMZHaUTbpZ56+vMRjPhx4
+         emng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=c1lTYvs/G0HbGldaQkXL4iF+w5hjI0Lt6tEy56lMY1U=;
-        b=MRB13T6Md3gpugcxcAAYeVwJLc6qwgoCV2LEMUsP/G8eSGgS+HzReLiVaw93ZicHwN
-         n3H/xNylwmsG2oiTxzw0LoxPwTQKVTSWRkBvpePYPBpapbig7pj00QPavmZRjjrhKAvd
-         Bto/+ndj0FWBlzMT/2bhNGACknJeZCyDG0xM9x2C7OMM6ceOXB6VMRGvE2YXgXuGaNd7
-         g7fKIkgIv6ZEV299+A7dNHB7ZAtuFQEL2CTD0xlZboD0vzuz9f5MWPXwgLhiiskeb/sH
-         /HbAPCLsyjEsbdjVixu15563YxF/v34DnL+UXlxG1NL6ctrNhpIKWKQ0RCOzVTnAkbxX
-         iPQg==
-X-Gm-Message-State: ACrzQf0XQIUv9sF3gL1+YtwrXXiOy4bZOS5t/xdx/JCVSQFO6+HmNKMm
-        n3Bo2ezL/JVAuh6RPvwP1aDEXsj6LtvN7Q==
-X-Google-Smtp-Source: AMsMyM5qZ1kw/vB9fxScsIF7Ne1Y4ixIPht8M9DgMcU+/hZEyowsK2KJZjeeFC2AA7UntPiPU5rVew==
-X-Received: by 2002:a05:600c:284:b0:3b5:3360:3f8c with SMTP id 4-20020a05600c028400b003b533603f8cmr1931059wmk.83.1664271138724;
-        Tue, 27 Sep 2022 02:32:18 -0700 (PDT)
-Received: from [192.168.10.46] (146725694.box.freepro.com. [130.180.211.218])
-        by smtp.googlemail.com with ESMTPSA id r9-20020adfda49000000b002258235bda3sm1337746wrl.61.2022.09.27.02.32.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Sep 2022 02:32:18 -0700 (PDT)
-Message-ID: <68389021-ffcc-9554-f874-98cc8379df5b@linaro.org>
-Date:   Tue, 27 Sep 2022 11:32:17 +0200
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=82vvennylnV0/4KhbaFd6LeDxxoTfGU6HgqN3gksU9o=;
+        b=3wTsOIF+gA5tLvot4wfSzB7bX+TeTab7QQ2dGyswPfLGUMbkYsWrDE4C5uFjMH9W53
+         rerklu4FoL5oAvlKiX+x46ADU0UH9PJDCtQRzVu3vLPPCFehaYoMxggiTem4UYekErzZ
+         GnHwekeHR8h1CDbAo6eIAlcpyIjfpCxkBvi+uAUHD+y8ptRd4ZngGvNFKX/f+UH8r6W0
+         SorAWz8tlqjMe7YNR79E0sqly5L5AyEF4zRZNWVYxHJWmMH5hD11kZZGIzIRD4GuEJB+
+         aCcXbdcvBK3qhvKR/5UB0XCSl+sjfvrNgAcuol05TNVYwnHMCBtWZ5QzoqL3QYmdF4s+
+         VzXA==
+X-Gm-Message-State: ACrzQf3Ew3yUQRqRL7UT8z6/nPTsIg5QU31cIKpnecZjrlSO4mQEgT4e
+        qNcJLayMJg4H4OWXl9WRg1WU0DIYTNZf+NJg1IxoTQ==
+X-Google-Smtp-Source: AMsMyM62vIKawhwOB4lXBRto1UjiPfVQNGAvHUnT5B0AUe8TI4uB0kESXuYo6LlL2PvDa2Xdr51kh0bj9J+lIQW81XQ=
+X-Received: by 2002:a17:906:fd85:b0:77b:b538:6472 with SMTP id
+ xa5-20020a170906fd8500b0077bb5386472mr21630738ejb.48.1664272106530; Tue, 27
+ Sep 2022 02:48:26 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v2] clocksource/drivers/arm_arch_timer: Fix CNTPCT_LO and
- CNTVCT_LO value
-Content-Language: en-US
-To:     Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Yang Guo <guoyang2@huawei.com>, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-References: <20220927033221.49589-1-zhangshaokun@hisilicon.com>
-From:   Daniel Lezcano <daniel.lezcano@linaro.org>
-In-Reply-To: <20220927033221.49589-1-zhangshaokun@hisilicon.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20220926163546.791705298@linuxfoundation.org>
+In-Reply-To: <20220926163546.791705298@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 27 Sep 2022 15:18:14 +0530
+Message-ID: <CA+G9fYu6DQvRuD8b1C93qWjfJJrVGUatvatX0ij9nzZhkcf7uQ@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/115] 5.4.215-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27/09/2022 05:32, Shaokun Zhang wrote:
-> From: Yang Guo <guoyang2@huawei.com>
-> 
-> CNTPCT_LO and CNTVCT_LO are defined by mistake in commit '8b82c4f883a7',
-> so fix them according to the Arm ARM DDI 0487I.a, Table I2-4
-> "CNTBaseN memory map" as follows:
-> 
-> Offset    Register      Type Description
-> 0x000     CNTPCT[31:0]  RO   Physical Count register.
-> 0x004     CNTPCT[63:32] RO
-> 0x008     CNTVCT[31:0]  RO   Virtual Count register.
-> 0x00C     CNTVCT[63:32] RO
-> 
-> Fixes: 8b82c4f883a7 ("clocksource/drivers/arm_arch_timer: Move MMIO timer programming over to CVAL")
-> Cc: stable@vger.kernel.org
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Acked-by: Marc Zyngier <maz@kernel.org>
-> Signed-off-by: Yang Guo <guoyang2@huawei.com>
-> Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-> ---
+On Mon, 26 Sept 2022 at 22:06, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.215 release.
+> There are 115 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 28 Sep 2022 16:35:25 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.215-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Applied, thanks
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
->   drivers/clocksource/arm_arch_timer.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-> index 9ab8221ee3c6..8122a1646925 100644
-> --- a/drivers/clocksource/arm_arch_timer.c
-> +++ b/drivers/clocksource/arm_arch_timer.c
-> @@ -44,8 +44,8 @@
->   #define CNTACR_RWVT	BIT(4)
->   #define CNTACR_RWPT	BIT(5)
->   
-> -#define CNTVCT_LO	0x00
-> -#define CNTPCT_LO	0x08
-> +#define CNTPCT_LO	0x00
-> +#define CNTVCT_LO	0x08
->   #define CNTFRQ		0x10
->   #define CNTP_CVAL_LO	0x20
->   #define CNTP_CTL	0x2c
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+NOTE:
+Following powerpc mpc83xx defconfig with new gcc-12 build warnings.
+
+kernel/extable.c: In function 'sort_main_extable':
+kernel/extable.c:37:59: warning: comparison between two arrays [-Warray-compare]
+   37 |         if (main_extable_sort_needed && __stop___ex_table >
+__start___ex_table) {
+      |                                                           ^
+kernel/extable.c:37:59: note: use '&__stop___ex_table[0] >
+&__start___ex_table[0]' to compare the addresses
+arch/powerpc/boot/main.c: In function 'prep_initrd':
+arch/powerpc/boot/main.c:107:25: warning: comparison between two
+arrays [-Warray-compare]
+  107 |         if (_initrd_end > _initrd_start) {
+      |                         ^
+
+## Build
+* kernel: 5.4.215-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.4.y
+* git commit: e5e9eb4c04aab7d1ee7e7ed3020a07e23faad938
+* git describe: v5.4.214-116-ge5e9eb4c04aa
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.214-116-ge5e9eb4c04aa
+
+## No Test Regressions (compared to v5.4.214)
+
+## No Metric Regressions (compared to v5.4.214)
+
+## No Test Fixes (compared to v5.4.214)
+
+## No Metric Fixes (compared to v5.4.214)
 
 
--- 
-<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+## Test result summary
+total: 84880, pass: 74669, fail: 616, skip: 9225, xfail: 370
 
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 334 total, 334 passed, 0 failed
+* arm64: 64 total, 59 passed, 5 failed
+* i386: 31 total, 29 passed, 2 failed
+* mips: 56 total, 56 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 63 total, 63 passed, 0 failed
+* riscv: 27 total, 26 passed, 1 failed
+* s390: 15 total, 15 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 57 total, 55 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
