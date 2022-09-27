@@ -2,166 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92AC85EBF95
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 12:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E83EE5EBFFC
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 12:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230387AbiI0KUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 06:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36672 "EHLO
+        id S231143AbiI0KnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 06:43:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229631AbiI0KUH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 06:20:07 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C1C97B1B
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 03:20:03 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id 30so12536133edw.5
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 03:20:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=kg4wzP7dI4MPJJBqKBHwbPOCwSqMZKp1H54qferqwdo=;
-        b=C+bCu7NlsojnDd8u7g7J3rBBZ/wDTCG87AtNjFqRk167LyvAF9oPm89e31O1aLGPgW
-         O0QLVM1zQtmklPtlZOpQ6LlqPnwnYyDBFU82iOewwSL355zGu9kpS07Fj7n5YBEDYGsc
-         45L2/zEzjfDPbd8tp8Lw1jStboTKbVZyBagDUgH3iA1Az5adU1G3dH8iqAInk/avSbYg
-         rRqJSIc9RgyGClE1FCgX2+hrLEvi1ry8hK3ZdSqOuoXdp1BTkehws9iwOUci73gbL6d5
-         +yp7TACjlsKncujUp1Ymi1U/QwxfKoXF5O10bdYr3q1Ct41r6uPkGEIB3rM7+vIIMY/P
-         nszA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=kg4wzP7dI4MPJJBqKBHwbPOCwSqMZKp1H54qferqwdo=;
-        b=cfhMn9UQrcx4KKT/+MhT7YXEfH3jsXdOILV50b4Va5mmr3j7mMBQDT2h+97JdYWpVl
-         FsffyCq56L8GiKiJWoNr0Lf4VK7T4FfpZk4oey9zNG32n2a0jGNk2ww/0z8cyIyHqQjU
-         FnhI5P7A8+UBm1zIu4PaaLeOMg6qEym9e5IA4fyaGwjgXihGwnQwVa84bdwBCBU+xrx7
-         SXNkEpb/MJgZaAEyaY+oMQiYUriaVEzeft0cr3BjDAjPi/r4YqJKf34WfzxwHMO+J7ra
-         UH+PlV5EREmF8ImjLmpjjH6IeJdM1nSUXioiMN7DFFZmmTv4mQlcadWSTWjKEIBwKz5L
-         jCVQ==
-X-Gm-Message-State: ACrzQf3ah36EU5DtFNk7vs9i2o2Cxg3GJXuEczKsQEsWF61FQJ/mjXK9
-        MpjrjuF+fwDt/N5+bkRTqnfSf+FuIm2f07P4EmFh+Q==
-X-Google-Smtp-Source: AMsMyM6m4BBIa1LbwbPWa0/OXhMnb5e10al3HpegCgBMzIDmEpJ3z+SdxSpxeOnYBc0gKIZTiecG35utDPbyVWY2epQ=
-X-Received: by 2002:a05:6402:2989:b0:44e:90d0:b9ff with SMTP id
- eq9-20020a056402298900b0044e90d0b9ffmr26708279edb.110.1664274001877; Tue, 27
- Sep 2022 03:20:01 -0700 (PDT)
+        with ESMTP id S230169AbiI0KnG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 06:43:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6CC422C3;
+        Tue, 27 Sep 2022 03:43:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7EF01CE178E;
+        Tue, 27 Sep 2022 10:43:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD7B0C433D6;
+        Tue, 27 Sep 2022 10:42:57 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="KrzmBZra"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1664275374;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NJzK5QOVB5hTk/kwHZrgK27Cq8fKAJHhQ1EixID94zk=;
+        b=KrzmBZrab/rZ4Ha1dVmn8AHNvl7bnA78AzAWUmTNPTJD5sKf5k3PmRzQlUVmnqJm/UQ/Zs
+        WCOM07gwSEbBRKNgGcYSoASucoylxwqB+IPCxrVGz7J0diQ6YyWKU4i0RpRlNENpkbw0n8
+        kycWwpaE6/5J4uot1V6EWuxI/godCoA=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 66047c3f (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Tue, 27 Sep 2022 10:42:54 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sherry Yang <sherry.yang@oracle.com>,
+        Paul Webb <paul.x.webb@oracle.com>,
+        Phillip Goerl <phillip.goerl@oracle.com>,
+        Jack Vogel <jack.vogel@oracle.com>,
+        Nicky Veitch <nicky.veitch@oracle.com>,
+        Colm Harrington <colm.harrington@oracle.com>,
+        Ramanan Govindarajan <ramanan.govindarajan@oracle.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Tejun Heo <tj@kernel.org>,
+        Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org
+Subject: [PATCH v3] random: use expired per-cpu timer rather than wq for mixing fast pool
+Date:   Tue, 27 Sep 2022 12:42:33 +0200
+Message-Id: <20220927104233.1605507-1-Jason@zx2c4.com>
+In-Reply-To: <YzKy+bNedt2vu+a1@zx2c4.com>
+References: <YzKy+bNedt2vu+a1@zx2c4.com>
 MIME-Version: 1.0
-References: <20220926163533.310693334@linuxfoundation.org>
-In-Reply-To: <20220926163533.310693334@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 27 Sep 2022 15:49:50 +0530
-Message-ID: <CA+G9fYtKxzBcEdSDJkN-4=bPQDg9bd8sprwXigm+mLnWZmXF9Q@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/21] 4.9.330-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 26 Sept 2022 at 22:06, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Previously, the fast pool was dumped into the main pool periodically in
+the fast pool's hard IRQ handler. This worked fine and there weren't
+problems with it, until RT came around. Since RT converts spinlocks into
+sleeping locks, problems cropped up. Rather than switching to raw
+spinlocks, the RT developers preferred we make the transformation from
+originally doing:
+
+    do_some_stuff()
+    spin_lock()
+    do_some_other_stuff()
+    spin_unlock()
+
+to doing:
+
+    do_some_stuff()
+    queue_work_on(some_other_stuff_worker)
+
+This is an ordinary pattern done all over the kernel. However, Sherry
+noticed a 10% performance regression in qperf TCP over a 40gbps
+InfiniBand card. Quoting her message:
+
+> MT27500 Family [ConnectX-3] cards:
+> Infiniband device 'mlx4_0' port 1 status:
+> default gid: fe80:0000:0000:0000:0010:e000:0178:9eb1
+> base lid: 0x6
+> sm lid: 0x1
+> state: 4: ACTIVE
+> phys state: 5: LinkUp
+> rate: 40 Gb/sec (4X QDR)
+> link_layer: InfiniBand
 >
-> This is the start of the stable review cycle for the 4.9.330 release.
-> There are 21 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Cards are configured with IP addresses on private subnet for IPoIB
+> performance testing.
+> Regression identified in this bug is in TCP latency in this stack as reported
+> by qperf tcp_lat metric:
 >
-> Responses should be made by Wed, 28 Sep 2022 16:35:25 +0000.
-> Anything received after that time might be too late.
+> We have one system listen as a qperf server:
+> [root@yourQperfServer ~]# qperf
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.330-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> Have the other system connect to qperf server as a client (in this
+> case, it’s X7 server with Mellanox card):
+> [root@yourQperfClient ~]# numactl -m0 -N0 qperf 20.20.20.101 -v -uu -ub --time 60 --wait_server 20 -oo msg_size:4K:1024K:*2 tcp_lat
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Rather than incur the scheduling latency from queue_work_on, we can
+instead switch to running on the next timer tick, on the same core. This
+also batches things a bit more -- once per jiffy -- which is okay now
+that mix_interrupt_randomness() can credit multiple bits at once.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Reported-by: Sherry Yang <sherry.yang@oracle.com>
+Tested-by: Paul Webb <paul.x.webb@oracle.com>
+Cc: Sherry Yang <sherry.yang@oracle.com>
+Cc: Phillip Goerl <phillip.goerl@oracle.com>
+Cc: Jack Vogel <jack.vogel@oracle.com>
+Cc: Nicky Veitch <nicky.veitch@oracle.com>
+Cc: Colm Harrington <colm.harrington@oracle.com>
+Cc: Ramanan Govindarajan <ramanan.govindarajan@oracle.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: stable@vger.kernel.org
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ drivers/char/random.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-## Build
-* kernel: 4.9.330-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.9.y
-* git commit: f631754acd7bd6586aec88964a9882d05e5a604b
-* git describe: v4.9.329-22-gf631754acd7b
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.329-22-gf631754acd7b
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index a90d96f4b3bb..e591c6aadca4 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -921,17 +921,20 @@ struct fast_pool {
+ 	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
+-	struct work_struct mix;
++	struct timer_list mix;
+ };
+ 
++static void mix_interrupt_randomness(struct timer_list *work);
++
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
+ #ifdef CONFIG_64BIT
+ #define FASTMIX_PERM SIPHASH_PERMUTATION
+-	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 }
++	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 },
+ #else
+ #define FASTMIX_PERM HSIPHASH_PERMUTATION
+-	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 }
++	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 },
+ #endif
++	.mix = __TIMER_INITIALIZER(mix_interrupt_randomness, 0)
+ };
+ 
+ /*
+@@ -973,7 +976,7 @@ int __cold random_online_cpu(unsigned int cpu)
+ }
+ #endif
+ 
+-static void mix_interrupt_randomness(struct work_struct *work)
++static void mix_interrupt_randomness(struct timer_list *work)
+ {
+ 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
+ 	/*
+@@ -1027,10 +1030,11 @@ void add_interrupt_randomness(int irq)
+ 	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
+ 		return;
+ 
+-	if (unlikely(!fast_pool->mix.func))
+-		INIT_WORK(&fast_pool->mix, mix_interrupt_randomness);
+ 	fast_pool->count |= MIX_INFLIGHT;
+-	queue_work_on(raw_smp_processor_id(), system_highpri_wq, &fast_pool->mix);
++	if (!timer_pending(&fast_pool->mix)) {
++		fast_pool->mix.expires = jiffies;
++		add_timer_on(&fast_pool->mix, raw_smp_processor_id());
++	}
+ }
+ EXPORT_SYMBOL_GPL(add_interrupt_randomness);
+ 
+-- 
+2.37.3
 
-## No Test Regressions (compared to v4.9.329)
-
-## No Metric Regressions (compared to v4.9.329)
-
-## No Test Fixes (compared to v4.9.329)
-
-## No Metric Fixes (compared to v4.9.329)
-
-## Test result summary
-total: 38356, pass: 33768, fail: 305, skip: 3945, xfail: 338
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 282 total, 277 passed, 5 failed
-* arm64: 53 total, 46 passed, 7 failed
-* i386: 29 total, 28 passed, 1 failed
-* mips: 41 total, 40 passed, 1 failed
-* parisc: 12 total, 0 passed, 12 failed
-* powerpc: 45 total, 19 passed, 26 failed
-* s390: 15 total, 11 passed, 4 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 48 total, 47 passed, 1 failed
-
-## Test suites summary
-* igt-gpu-tools
-* kunit
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
