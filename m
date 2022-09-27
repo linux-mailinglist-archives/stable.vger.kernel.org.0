@@ -2,81 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3B65EBAA9
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 08:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E87785EBADD
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 08:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229851AbiI0GbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 02:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55476 "EHLO
+        id S230141AbiI0Gmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 02:42:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229910AbiI0GbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 02:31:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE6090811;
-        Mon, 26 Sep 2022 23:31:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B07F9B819CA;
-        Tue, 27 Sep 2022 06:31:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 033DCC4347C;
-        Tue, 27 Sep 2022 06:31:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664260263;
-        bh=wUd05ZMtrzG2JapTfKgG4cD0+3UZkyeQPhw+AsgVJ38=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R6+BRoYQFeO2spfMDsKTKVKUtDe5QyBP6ltwAUOVMu+3XSZz9y0CzZLYwPGa4ZkU5
-         Bxl7Ikr2p245BLXUFnDcCTuy+XNkzEceZ07Z6nQIK1nX3Ps29XQpxL7mdAg4oHGMSJ
-         YSQ/qh8Q8c0Y2JgEJSzk6QnwzggqBDFEcgeBTR0s=
-Date:   Tue, 27 Sep 2022 08:31:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jiri Slaby <jirislaby@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Oliver Neukum <oneukum@suse.com>,
-        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
-        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.19 014/207] Revert "usb: add quirks for Lenovo OneLink+
- Dock"
-Message-ID: <YzKYyDaTsoX1RliA@kroah.com>
-References: <20220926100806.522017616@linuxfoundation.org>
- <20220926100807.118539823@linuxfoundation.org>
- <d9d9651b-2561-03ce-8076-5b471929ff2d@kernel.org>
- <YzKOdhT7jTXwCaG8@kroah.com>
- <5ce2a0bd-d39a-71d7-2327-3850dfdd646c@kernel.org>
+        with ESMTP id S230131AbiI0Gmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 02:42:43 -0400
+X-Greylist: delayed 443 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Sep 2022 23:42:42 PDT
+Received: from isilmar-4.linta.de (isilmar-4.linta.de [136.243.71.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E838C937AE
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 23:42:42 -0700 (PDT)
+X-isilmar-external: YES
+X-isilmar-external: YES
+X-isilmar-external: YES
+X-isilmar-external: YES
+X-isilmar-external: YES
+X-isilmar-external: YES
+X-isilmar-external: YES
+Received: from owl.dominikbrodowski.net (owl.brodo.linta [10.2.0.111])
+        by isilmar-4.linta.de (Postfix) with ESMTPSA id C6814201327;
+        Tue, 27 Sep 2022 06:35:17 +0000 (UTC)
+Received: by owl.dominikbrodowski.net (Postfix, from userid 1000)
+        id 0FD2E80536; Tue, 27 Sep 2022 08:35:10 +0200 (CEST)
+Date:   Tue, 27 Sep 2022 08:35:10 +0200
+From:   Dominik Brodowski <linux@dominikbrodowski.net>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kasan-dev@googlegroups.com, Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] random: split initialization into early step and
+ later step
+Message-ID: <YzKZnkwCi0UwY/4Q@owl.dominikbrodowski.net>
+References: <20220926213130.1508261-1-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5ce2a0bd-d39a-71d7-2327-3850dfdd646c@kernel.org>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220926213130.1508261-1-Jason@zx2c4.com>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 27, 2022 at 08:18:26AM +0200, Jiri Slaby wrote:
-> On 27. 09. 22, 7:47, Greg Kroah-Hartman wrote:
-> > On Tue, Sep 27, 2022 at 07:23:46AM +0200, Jiri Slaby wrote:
-> > > I wonder, does it make sense to queue the commit (as 011/207) and
-> > > immediately its revert (the patch below) in a single release? I doubt
-> > > that...
-> > > 
-> > > The same holds for 012 (patch) + 015 (revert).
-> > 
-> > Yes it does, otherwise tools will pick up "hey, you forgot this patch
-> > that should have been applied here!" all the time.  Having the patch,
-> > and the revert, in the tree prevents that from happening.
+Am Mon, Sep 26, 2022 at 11:31:29PM +0200 schrieb Jason A. Donenfeld:
+> The full RNG initialization relies on some timestamps, made possible
+> with general functions like time_init() and timekeeping_init(). However,
+> these are only available rather late in initialization. Meanwhile, other
+> things, such as memory allocator functions, make use of the RNG much
+> earlier.
 > 
-> It'd be fairly easy to fix the tools not to pick up reverted commits, right?
+> So split RNG initialization into two phases. We can give arch randomness
+> very early on, and then later, after timekeeping and such are available,
+> initialize the rest.
+> 
+> This ensures that, for example, slabs are properly randomized if RDRAND
+> is available. Without this, CONFIG_SLAB_FREELIST_RANDOM=y loses a degree
+> of its security, because its random seed is potentially deterministic,
+> since it hasn't yet incorporated RDRAND. It also makes it possible to
+> use a better seed in kfence, which currently relies on only the cycle
+> counter.
+> 
+> Another positive consequence is that on systems with RDRAND, running
+> with CONFIG_WARN_ALL_UNSEEDED_RANDOM=y results in no warnings at all.
 
-Not really as they are usually quite "far" away from the original
-commits.
+Nice improvement. One question, though:
 
-But hey, if you have some scripts that can find all of that, I'm all for
-it, the ones I have right now don't account for this.
+>  #if defined(LATENT_ENTROPY_PLUGIN)
+>  	static const u8 compiletime_seed[BLAKE2S_BLOCK_SIZE] __initconst __latent_entropy;
+> @@ -803,34 +798,46 @@ int __init random_init(const char *command_line)
+>  			i += longs;
+>  			continue;
+>  		}
+> -		entropy[0] = random_get_entropy();
+> -		_mix_pool_bytes(entropy, sizeof(*entropy));
+>  		arch_bits -= sizeof(*entropy) * 8;
+>  		++i;
+>  	}
 
-thanks,
 
-greg k-h
+Previously, random_get_entropy() was mixed into the pool ARRAY_SIZE(entropy)
+times.
+
+> +/*
+> + * This is called a little bit after the prior function, and now there is
+> + * access to timestamps counters. Interrupts are not yet enabled.
+> + */
+> +void __init random_init(void)
+> +{
+> +	unsigned long entropy = random_get_entropy();
+> +	ktime_t now = ktime_get_real();
+> +
+> +	_mix_pool_bytes(utsname(), sizeof(*(utsname())));
+
+But now, it's only mixed into the pool once. Is this change on purpose?
+
+Thanks,
+	Dominik
