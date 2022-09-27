@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC3C5EB6A5
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 03:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF0AB5EB6D0
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 03:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229613AbiI0BGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 21:06:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        id S229508AbiI0B06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 21:26:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiI0BGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 21:06:21 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C04F7C30A
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 18:06:19 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id bh13so8055349pgb.4
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 18:06:19 -0700 (PDT)
+        with ESMTP id S229509AbiI0B05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 21:26:57 -0400
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E425A285C
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 18:26:56 -0700 (PDT)
+Received: by mail-pf1-x436.google.com with SMTP id a29so8365367pfk.5
+        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 18:26:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date;
-        bh=hdLwSXy69mEYwc+LdBxZarwy9iltvcwAjfyKQrwItrY=;
-        b=KJHVVcDS20rRMtR+9lvsNYxwdTsoL3t2AEU+5VfrafOZg6WqVRHRZIfjfxXyWdklLL
-         ZSVLuZj8F6Jg+TLOpq5BgZvfRt0U6eISV0DqmWiZWAz2qgRJUi3gLMB7WxE29vIa0NaX
-         ySLkOXDZHDbtZhtSTCtIFb+G3Dj0t9qwhwOz5YUZ0tl2Tdg+ZtTog98eeDqVjKNYUsAk
-         SZ6qIWzNE0AYRgnDkpQ+BGQuBt1+KcTYlluiCwsN5eGbEuWAHs68YYdByYN+8Z9Dch+V
-         0D9NOmMJIXUqFyWxxqDrNjncy4jiiXsEiBZ8JcOhqASbJo3cPK0KPXOCS/N0oA1PEqDf
-         Fq2A==
+        bh=M47cQ9bMQ0lC1FAtNDrLT63uiBAZfD181VbR383adiQ=;
+        b=7A41lbHcFil7nHpP7snLQQsLmk5ZGvPhlF8xiLoqlsePClcBYoxxeBvwIrVJ11Gky0
+         H2koh4ePVVw1GlIubDnyOdTUsRcrbSCNCTLONbLJd3GZRCK7gQucq15gCU5J3p2JbAPt
+         9HwMFRwSj0vx4FQleTiz1DgHoDz5OiXK54oRPG2RJVZ9c9KjGczbq1liRoNjreHDutK9
+         qTjz3pHV/2vshXvXsWLFcZYI3KDhcBm/z7N9BKAieT2xodT61ERxG9xc3oIAXlCiWeGO
+         0VYGhntXhdZkt4xJOHddXjwLG0IuW0/mNgJ9/96HGTlQ6XdbmSMXZtCESfivTUSLOCs1
+         CnYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=hdLwSXy69mEYwc+LdBxZarwy9iltvcwAjfyKQrwItrY=;
-        b=wdgcg9fvI2MmS6jDPyGZINyJN+7HbgoQcC17Z4yBnXrMgoQX1WgU+sEHFiwjjZZUoD
-         c3zETHCwY5g0BBvX3/PMK6vKauyuKjwyvrnHnV1sVXadve4DQBZ1GbgCOfLx/NJAfTA8
-         hM0H1BxmKn5GQhFyEGFQPM49PB0NFyCVAU1H/i+5t/8p1v/p9JEgIF3Y4Z+G7G3DF8go
-         iToOT9R/ihtUZEoJ9rtGCQ4emAT281n6/+kOVJU10q+SuYCbNWSGYjpE+Q8wQ++EGJTb
-         bCP4qIxQIlF0A+WHXb1eE5q8TlkPeiCB/XeYpGB0DxSC7OlzfD6YqWl3CNAKFeqaYFo9
-         NnPw==
-X-Gm-Message-State: ACrzQf04+9t1PnHtG+ljtU9LwVUsAK5Doxjg9A0l2Nd8718iWXsilXjf
-        WtDU6DnrtC45ziLSxz2o+POyyvZt+Tm43TfG
-X-Google-Smtp-Source: AMsMyM77BWnoFkIMDJ0a/SVQ92Uoe+mmugOZ5MvaWSu+GUim5B6bO/mwuqILzv+LcU6hL8tCjgrrkg==
-X-Received: by 2002:a65:6bc4:0:b0:439:8ff8:e2e1 with SMTP id e4-20020a656bc4000000b004398ff8e2e1mr22321758pgw.91.1664240778865;
-        Mon, 26 Sep 2022 18:06:18 -0700 (PDT)
+        bh=M47cQ9bMQ0lC1FAtNDrLT63uiBAZfD181VbR383adiQ=;
+        b=tPzCDre/bW/N0wD+ZjxSvdNq5TZI0mPcHWBL0uxbfIupaL30Ltk5lE5SAVVnyOY5yN
+         8+ktlQuRDM7A2o/FIB3vEZJeBbFNh0BR1X5M/dBAPjRm3kAXjFL8tAXFTxLU3SS2hV/5
+         Ci7JKysz3Wbky8EZVRVzw3o9s9GL0zUa+Mi/F/t6oB8XZFbQMZU1+5envnXgSM3HbtDQ
+         blktKeGEbi4NWIxS1s6Hd6p6RxVeaPYFqqCxgt0cYj2jdQsTLkfxYUiOyTvTTfN1Heay
+         Jh1+pSYKeCgOwXN5be2ibwgyoZGSW7o6DKsVjOpo05J8pv0HK/S6fiqoCckd6vNURmLp
+         721Q==
+X-Gm-Message-State: ACrzQf1ELyd+3cZLDq6/B5AnQtDtFzB4g+JJwyWbCgpNz//FEqz59w/2
+        2GVmaQKdX30+t8UWr7y4lqsnGHQsPO2Ebhpd
+X-Google-Smtp-Source: AMsMyM6l84gPDUSjjBQasZySg9Njsu9rjGM32XTACUbn/tky+0012X3U7E41gb8+Id0877MZ9rVoZQ==
+X-Received: by 2002:a05:6a00:f04:b0:547:50b1:4f4e with SMTP id cr4-20020a056a000f0400b0054750b14f4emr26566232pfb.69.1664242015863;
+        Mon, 26 Sep 2022 18:26:55 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ij4-20020a170902ab4400b001785dddc703sm72817plb.120.2022.09.26.18.06.18
+        by smtp.gmail.com with ESMTPSA id q14-20020a17090311ce00b00178af82a000sm90861plh.122.2022.09.26.18.26.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Sep 2022 18:06:18 -0700 (PDT)
-Message-ID: <63324c8a.170a0220.7b1f8.0375@mx.google.com>
-Date:   Mon, 26 Sep 2022 18:06:18 -0700 (PDT)
+        Mon, 26 Sep 2022 18:26:55 -0700 (PDT)
+Message-ID: <6332515f.170a0220.59930.0417@mx.google.com>
+Date:   Mon, 26 Sep 2022 18:26:55 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.11-208-gddfc037235223
-X-Kernelci-Branch: linux-5.19.y
+X-Kernelci-Kernel: v5.15.70-142-gf9f566b0cbd5
+X-Kernelci-Branch: queue/5.15
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.19.y baseline: 199 runs,
- 4 regressions (v5.19.11-208-gddfc037235223)
+Subject: stable-rc/queue/5.15 baseline: 116 runs,
+ 2 regressions (v5.15.70-142-gf9f566b0cbd5)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,39 +70,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.19.y baseline: 199 runs, 4 regressions (v5.19.11-208-gddf=
-c037235223)
+stable-rc/queue/5.15 baseline: 116 runs, 2 regressions (v5.15.70-142-gf9f56=
+6b0cbd5)
 
 Regressions Summary
 -------------------
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-hifive-unleashed-a00         | riscv | lab-baylibre  | gcc-10   | defconfig=
-                  | 1          =
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | imx_v6_v7=
-_defconfig        | 1          =
-
-imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | multi_v7_=
-defconfig         | 1          =
-
-sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
+panda     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
-nel/v5.19.11-208-gddfc037235223/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.70-142-gf9f566b0cbd5/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   linux-5.19.y
-  Describe: v5.19.11-208-gddfc037235223
+  Branch:   queue/5.15
+  Describe: v5.15.70-142-gf9f566b0cbd5
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      ddfc03723522344950fd8eddeec14bd1facf0ba5 =
+  SHA:      f9f566b0cbd5e191bfd7ceb6f830fdc1e5641b3c =
 
 
 
@@ -111,133 +105,68 @@ Test Regressions
 
 
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-hifive-unleashed-a00         | riscv | lab-baylibre  | gcc-10   | defconfig=
-                  | 1          =
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
-  Details:     https://kernelci.org/test/plan/id/63321409de2a135d2bec4f1a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-un=
-leashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-un=
-leashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63321409de2a135d2bec4=
-f1b
-        new failure (last pass: v5.19.11-208-gf962b265cecbb) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | imx_v6_v7=
-_defconfig        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63321a1d0c15c172b8ec4ec4
+  Details:     https://kernelci.org/test/plan/id/63321f46c6d1c6be99ec4ea6
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
+  Full config: omap2plus_defconfig
   Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
 10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ul=
-p-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ul=
-p-evk.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
+142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
+142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220919.0/armel/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/63321a1d0c15c172b8ec4=
-ec5
-        new failure (last pass: v5.19.10-40-g8d4fd61ab089) =
+  * baseline.login: https://kernelci.org/test/case/id/63321f46c6d1c6be99ec4=
+ea7
+        failing since 5 days (last pass: v5.15.69-17-g7d846e6eef7f, first f=
+ail: v5.15.69-45-g01bb9cc9bf6e) =
 
  =
 
 
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | multi_v7_=
-defconfig         | 1          =
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+panda     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
-  Details:     https://kernelci.org/test/plan/id/633216e952022ed2adec4ee1
+  Details:     https://kernelci.org/test/plan/id/63321fb66dc33ef7d6ec4ebe
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
+  Full config: omap2plus_defconfig
   Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
 10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp=
--evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp=
--evk.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
+142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
+142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220919.0/armel/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/633216e952022ed2adec4=
-ee2
-        new failure (last pass: v5.19.11) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63321bacee2815d460ec4eca
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
-baseline-sc7180-trogdor-lazor-limozeen.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
-1-208-gddfc037235223/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
-baseline-sc7180-trogdor-lazor-limozeen.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63321bacee2815d460ec4=
-ecb
-        failing since 3 days (last pass: v5.19.10-40-g8d4fd61ab089, first f=
-ail: v5.19.11) =
+  * baseline.login: https://kernelci.org/test/case/id/63321fb66dc33ef7d6ec4=
+ebf
+        failing since 34 days (last pass: v5.15.61-1-geccb923b9eab2, first =
+fail: v5.15.62-232-g7f3b8845612d) =
 
  =20
