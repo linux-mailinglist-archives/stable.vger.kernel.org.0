@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8055ED0E9
+	by mail.lfdr.de (Postfix) with ESMTP id 9A7DC5ED0EA
 	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 01:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231949AbiI0XRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 19:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
+        id S232333AbiI0XRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 19:17:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbiI0XRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 19:17:16 -0400
+        with ESMTP id S232196AbiI0XRR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 19:17:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628E3112FD0;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C35112FD2;
         Tue, 27 Sep 2022 16:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E7361C2F;
-        Tue, 27 Sep 2022 23:17:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DC55C433B5;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2185661C35;
+        Tue, 27 Sep 2022 23:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906ECC433D6;
         Tue, 27 Sep 2022 23:17:14 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.96)
         (envelope-from <rostedt@goodmis.org>)
-        id 1odJqL-00HDer-0G;
+        id 1odJqL-00HDfQ-1q;
         Tue, 27 Sep 2022 19:18:25 -0400
-Message-ID: <20220927231824.700269106@goodmis.org>
+Message-ID: <20220927231825.182416969@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Tue, 27 Sep 2022 19:15:26 -0400
+Date:   Tue, 27 Sep 2022 19:15:27 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org
-Subject: [PATCH 3/5] ring-buffer: Add ring_buffer_wake_waiters()
+Subject: [PATCH 4/5] tracing: Wake up ring buffer waiters on closing of the file
 References: <20220927231523.298295015@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,106 +48,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-On closing of a file that represents a ring buffer or flushing the file,
-there may be waiters on the ring buffer that needs to be woken up and exit
-the ring_buffer_wait() function.
-
-Add ring_buffer_wake_waiters() to wake up the waiters on the ring buffer
-and allow them to exit the wait loop.
+When the file that represents the ring buffer is closed, there may be
+waiters waiting on more input from the ring buffer. Call
+ring_buffer_wake_waiters() to wake up any waiters when the file is
+closed.
 
 Cc: stable@vger.kernel.org
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
+Fixes: e30f53aad2202 ("tracing: Do not busy wait in buffer splice")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- include/linux/ring_buffer.h |  2 +-
- kernel/trace/ring_buffer.c  | 34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 35 insertions(+), 1 deletion(-)
+ include/linux/trace_events.h |  1 +
+ kernel/trace/trace.c         | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/include/linux/ring_buffer.h b/include/linux/ring_buffer.h
-index dac53fd3afea..2504df9a0453 100644
---- a/include/linux/ring_buffer.h
-+++ b/include/linux/ring_buffer.h
-@@ -101,7 +101,7 @@ __ring_buffer_alloc(unsigned long size, unsigned flags, struct lock_class_key *k
- int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
- __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
- 			  struct file *filp, poll_table *poll_table);
--
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
+diff --git a/include/linux/trace_events.h b/include/linux/trace_events.h
+index 8401dec93c15..20749bd9db71 100644
+--- a/include/linux/trace_events.h
++++ b/include/linux/trace_events.h
+@@ -92,6 +92,7 @@ struct trace_iterator {
+ 	unsigned int		temp_size;
+ 	char			*fmt;	/* modified format holder */
+ 	unsigned int		fmt_size;
++	long			wait_index;
  
- #define RING_BUFFER_ALL_CPUS -1
+ 	/* trace_seq for __print_flags() and __print_symbolic() etc. */
+ 	struct trace_seq	tmp_seq;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index aed7ea6e6045..e101b0764b39 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -8160,6 +8160,12 @@ static int tracing_buffers_release(struct inode *inode, struct file *file)
  
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 5a7d818ca3ea..677812b8fae0 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -413,6 +413,7 @@ struct rb_irq_work {
- 	struct irq_work			work;
- 	wait_queue_head_t		waiters;
- 	wait_queue_head_t		full_waiters;
-+	long				wait_index;
- 	bool				waiters_pending;
- 	bool				full_waiters_pending;
- 	bool				wakeup_full;
-@@ -924,6 +925,32 @@ static void rb_wake_up_waiters(struct irq_work *work)
- 	}
- }
+ 	__trace_array_put(iter->tr);
  
-+/**
-+ * ring_buffer_wake_waiters - wake up any waiters on this ring buffer
-+ * @buffer: The ring buffer to wake waiters on
-+ *
-+ * In the case of a file that represents a ring buffer is closing,
-+ * it is prudent to wake up any waiters that are on this.
-+ */
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
-+{
-+	struct ring_buffer_per_cpu *cpu_buffer;
-+	struct rb_irq_work *rbwork;
-+
-+	if (cpu == RING_BUFFER_ALL_CPUS) {
-+		rbwork = &buffer->irq_work;
-+	} else {
-+		cpu_buffer = buffer->buffers[cpu];
-+		rbwork = &cpu_buffer->irq_work;
-+	}
-+
-+	rbwork->wait_index++;
-+	/* make sure the waiters see the new index */
++	iter->wait_index++;
++	/* Make sure the waiters see the new wait_index */
 +	smp_wmb();
 +
-+	rb_wake_up_waiters(&rbwork->work);
-+}
++	ring_buffer_wake_waiters(iter->array_buffer->buffer, iter->cpu_file);
 +
- /**
-  * ring_buffer_wait - wait for input to the ring buffer
-  * @buffer: buffer to wait on
-@@ -939,6 +966,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	DEFINE_WAIT(wait);
- 	struct rb_irq_work *work;
-+	long wait_index;
- 	int ret = 0;
+ 	if (info->spare)
+ 		ring_buffer_free_read_page(iter->array_buffer->buffer,
+ 					   info->spare_cpu, info->spare);
+@@ -8313,6 +8319,8 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
  
- 	/*
-@@ -957,6 +985,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 		work = &cpu_buffer->irq_work;
- 	}
- 
-+	wait_index = READ_ONCE(work->wait_index);
- 
- 	while (true) {
- 		if (full)
-@@ -1021,6 +1050,11 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 		}
- 
- 		schedule();
+ 	/* did we read anything? */
+ 	if (!spd.nr_pages) {
++		long wait_index;
 +
-+		/* Make sure to see the new wait index */
+ 		if (ret)
+ 			goto out;
+ 
+@@ -8320,10 +8328,17 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
+ 		if ((file->f_flags & O_NONBLOCK) || (flags & SPLICE_F_NONBLOCK))
+ 			goto out;
+ 
++		wait_index = READ_ONCE(iter->wait_index);
++
+ 		ret = wait_on_pipe(iter, iter->tr->buffer_percent);
+ 		if (ret)
+ 			goto out;
+ 
++		/* Make sure we see the new wait_index */
 +		smp_rmb();
-+		if (wait_index != work->wait_index)
-+			break;
++		if (wait_index != iter->wait_index)
++			goto out;
++
+ 		goto again;
  	}
  
- 	if (full)
 -- 
 2.35.1
