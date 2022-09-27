@@ -2,112 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D145EBBC4
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 09:42:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 803735EBBE1
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 09:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230455AbiI0HmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 03:42:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36440 "EHLO
+        id S230376AbiI0Hs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 03:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbiI0HmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 03:42:00 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C5B09A9F9
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 00:41:58 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-14-jMsfJ6V8OjGSAZiFmgYF0g-1; Tue, 27 Sep 2022 08:41:55 +0100
-X-MC-Unique: jMsfJ6V8OjGSAZiFmgYF0g-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Tue, 27 Sep
- 2022 08:41:52 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.040; Tue, 27 Sep 2022 08:41:52 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     "'Jason A. Donenfeld'" <Jason@zx2c4.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     Sherry Yang <sherry.yang@oracle.com>,
-        Paul Webb <paul.x.webb@oracle.com>,
-        Phillip Goerl <phillip.goerl@oracle.com>,
-        Jack Vogel <jack.vogel@oracle.com>,
-        Nicky Veitch <nicky.veitch@oracle.com>,
-        Colm Harrington <colm.harrington@oracle.com>,
-        Ramanan Govindarajan <ramanan.govindarajan@oracle.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tejun Heo <tj@kernel.org>,
-        Sultan Alsawaf <sultan@kerneltoast.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] random: use immediate per-cpu timer rather than
- workqueue for mixing fast pool
-Thread-Topic: [PATCH v2] random: use immediate per-cpu timer rather than
- workqueue for mixing fast pool
-Thread-Index: AQHY0fQr7t6Ylvgn6ECciijyeMbEm63y5QKQ
-Date:   Tue, 27 Sep 2022 07:41:52 +0000
-Message-ID: <62ae29f10d65401ab79e9bdb6af1576a@AcuMS.aculab.com>
-References: <20220922165528.3679479-1-Jason@zx2c4.com>
- <20220926220457.1517120-1-Jason@zx2c4.com>
-In-Reply-To: <20220926220457.1517120-1-Jason@zx2c4.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S229687AbiI0HsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 03:48:25 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B957B28C;
+        Tue, 27 Sep 2022 00:48:24 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id 78so8663244pgb.13;
+        Tue, 27 Sep 2022 00:48:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date;
+        bh=zi1Y8jSaMyM1hXTYB71esr2odkqj9tfK/vSz550IFdI=;
+        b=DTkOPXoWCgNZARijQYixdNfLvEfl8XBhwtEdWCDIB25wfX/3EUoOf9l8IukW8POB6U
+         kW4AIVXclTr3fdyEJDbwLYr8LBt1Up0h2a3tFybX+z4MjPs4n8nSnq6YT8ADCEtyDg2K
+         Suk/GdH3WCu19HOcx/j+q5N6+x5OG13M04AZNMHfbtZ1mkeA70LFV0uggSQLte3cnp4A
+         Il004X6f5cy4++w8VX9x2C1NTVr2JNy9GsnZOcDlsHm2VpAZA0OsbbUk2eVFcexhEWNq
+         D9Kcm/cetMSmsHmF6h95HWsLG/TU5tb04RXfK017qugk6W9LpdDgClO2m59aD/3Ws1LA
+         tQWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=zi1Y8jSaMyM1hXTYB71esr2odkqj9tfK/vSz550IFdI=;
+        b=4RC6Cae9u82++bIKZ/K/BC6SrLICvsv6Wk1R/zgYBx/bgob5AZgL1xLqdjAZpFdFo+
+         aENgrdEwfV3vD1M7pJWbxzdsgB0GhrGnA1P+PeCmSPF+VDvUuNmvb+pnZ6BkjFLBlfK0
+         DwdyqaKtl3JMhKOAmUi0wWdoODGNhqFt+EZe2oY1EbHnKrjXA4HydHOVMwEELIp0G2Zh
+         ooofnAcFQ8lbkyFUDlBAZ+u+DtqYjxPEZrjrG8C5VjkAiUE0aW0QuxLO9dfWuoaGtVnH
+         6b3EXIUU+09dA/fBDxJcTvusZjm0/Qfm0HNNfdqylsIY8M0WmgDTQDiwcGwgSj2ENZXX
+         SUOA==
+X-Gm-Message-State: ACrzQf3GubHuRjE4yQTShrzr+K2XXZJuvAZif1K/4jaoROgJP9ISs062
+        UkcL/UhDB9MrSAmgNr+GT/S5bPc6lyY=
+X-Google-Smtp-Source: AMsMyM545x9gn1r5MfJu04xCCdCypw0uxJLuS6vVcN3LHH6OdfsdjcucZ3m6jP/qG0rDiuH4MYMXAg==
+X-Received: by 2002:a63:6206:0:b0:439:54e1:c220 with SMTP id w6-20020a636206000000b0043954e1c220mr23109702pgb.445.1664264903508;
+        Tue, 27 Sep 2022 00:48:23 -0700 (PDT)
+Received: from debian.me (subs28-116-206-12-32.three.co.id. [116.206.12.32])
+        by smtp.gmail.com with ESMTPSA id w22-20020a1709026f1600b0016c5306917fsm802263plk.53.2022.09.27.00.48.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Sep 2022 00:48:22 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id 9EF791037F7; Tue, 27 Sep 2022 14:48:15 +0700 (WIB)
+Date:   Tue, 27 Sep 2022 14:48:15 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.19 000/207] 5.19.12-rc1 review
+Message-ID: <YzKqv29Z+6/LsJ9x@debian.me>
+References: <20220926100806.522017616@linuxfoundation.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="P65GX/BAqZEjdHOC"
+Content-Disposition: inline
+In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogSmFzb24gQS4gRG9uZW5mZWxkDQo+IFNlbnQ6IDI2IFNlcHRlbWJlciAyMDIyIDIzOjA1
-DQo+IA0KPiBQcmV2aW91c2x5LCB0aGUgZmFzdCBwb29sIHdhcyBkdW1wZWQgaW50byB0aGUgbWFp
-biBwb29sIHBlcm9pZGljYWxseSBpbg0KPiB0aGUgZmFzdCBwb29sJ3MgaGFyZCBJUlEgaGFuZGxl
-ci4gVGhpcyB3b3JrZWQgZmluZSBhbmQgdGhlcmUgd2VyZW4ndA0KPiBwcm9ibGVtcyB3aXRoIGl0
-LCB1bnRpbCBSVCBjYW1lIGFyb3VuZC4gU2luY2UgUlQgY29udmVydHMgc3BpbmxvY2tzIGludG8N
-Cj4gc2xlZXBpbmcgbG9ja3MsIHByb2JsZW1zIGNyb3BwZWQgdXAuIFJhdGhlciB0aGFuIHN3aXRj
-aGluZyB0byByYXcNCj4gc3BpbmxvY2tzLCB0aGUgUlQgZGV2ZWxvcGVycyBwcmVmZXJyZWQgd2Ug
-bWFrZSB0aGUgdHJhbnNmb3JtYXRpb24gZnJvbQ0KPiBvcmlnaW5hbGx5IGRvaW5nOg0KPiANCj4g
-ICAgIGRvX3NvbWVfc3R1ZmYoKQ0KPiAgICAgc3Bpbl9sb2NrKCkNCj4gICAgIGRvX3NvbWVfb3Ro
-ZXJfc3R1ZmYoKQ0KPiAgICAgc3Bpbl91bmxvY2soKQ0KPiANCj4gdG8gZG9pbmc6DQo+IA0KPiAg
-ICAgZG9fc29tZV9zdHVmZigpDQo+ICAgICBxdWV1ZV93b3JrX29uKHNvbWVfb3RoZXJfc3R1ZmZf
-d29ya2VyKQ0KPiANCj4gVGhpcyBpcyBhbiBvcmRpbmFyeSBwYXR0ZXJuIGRvbmUgYWxsIG92ZXIg
-dGhlIGtlcm5lbC4gSG93ZXZlciwgU2hlcnJ5DQo+IG5vdGljZWQgYSAxMCUgcGVyZm9ybWFuY2Ug
-cmVncmVzc2lvbiBpbiBxcGVyZiBUQ1Agb3ZlciBhIDQwZ2Jwcw0KPiBJbmZpbmlCYW5kIGNhcmQu
-IFF1b3RpbmcgaGVyIG1lc3NhZ2U6DQo+IA0KPiA+IE1UMjc1MDAgRmFtaWx5IFtDb25uZWN0WC0z
-XSBjYXJkczoNCj4gPiBJbmZpbmliYW5kIGRldmljZSAnbWx4NF8wJyBwb3J0IDEgc3RhdHVzOg0K
-PiA+IGRlZmF1bHQgZ2lkOiBmZTgwOjAwMDA6MDAwMDowMDAwOjAwMTA6ZTAwMDowMTc4OjllYjEN
-Cj4gPiBiYXNlIGxpZDogMHg2DQo+ID4gc20gbGlkOiAweDENCj4gPiBzdGF0ZTogNDogQUNUSVZF
-DQo+ID4gcGh5cyBzdGF0ZTogNTogTGlua1VwDQo+ID4gcmF0ZTogNDAgR2Ivc2VjICg0WCBRRFIp
-DQo+ID4gbGlua19sYXllcjogSW5maW5pQmFuZA0KPiA+DQo+ID4gQ2FyZHMgYXJlIGNvbmZpZ3Vy
-ZWQgd2l0aCBJUCBhZGRyZXNzZXMgb24gcHJpdmF0ZSBzdWJuZXQgZm9yIElQb0lCDQo+ID4gcGVy
-Zm9ybWFuY2UgdGVzdGluZy4NCj4gPiBSZWdyZXNzaW9uIGlkZW50aWZpZWQgaW4gdGhpcyBidWcg
-aXMgaW4gVENQIGxhdGVuY3kgaW4gdGhpcyBzdGFjayBhcyByZXBvcnRlZA0KPiA+IGJ5IHFwZXJm
-IHRjcF9sYXQgbWV0cmljOg0KPiA+DQo+ID4gV2UgaGF2ZSBvbmUgc3lzdGVtIGxpc3RlbiBhcyBh
-IHFwZXJmIHNlcnZlcjoNCj4gPiBbcm9vdEB5b3VyUXBlcmZTZXJ2ZXIgfl0jIHFwZXJmDQo+ID4N
-Cj4gPiBIYXZlIHRoZSBvdGhlciBzeXN0ZW0gY29ubmVjdCB0byBxcGVyZiBzZXJ2ZXIgYXMgYSBj
-bGllbnQgKGluIHRoaXMNCj4gPiBjYXNlLCBpdOKAmXMgWDcgc2VydmVyIHdpdGggTWVsbGFub3gg
-Y2FyZCk6DQo+ID4gW3Jvb3RAeW91clFwZXJmQ2xpZW50IH5dIyBudW1hY3RsIC1tMCAtTjAgcXBl
-cmYgMjAuMjAuMjAuMTAxIC12IC11dSAtdWIgLS10aW1lIDYwIC0td2FpdF9zZXJ2ZXIgMjAgLQ0K
-PiBvbyBtc2dfc2l6ZTo0SzoxMDI0SzoqMiB0Y3BfbGF0DQo+IA0KPiBSYXRoZXIgdGhhbiBpbmN1
-ciB0aGUgc2NoZWR1bGluZyBsYXRlbmN5IGZyb20gcXVldWVfd29ya19vbiwgd2UgY2FuDQo+IGlu
-c3RlYWQgc3dpdGNoIHRvIHJ1bm5pbmcgb24gdGhlIG5leHQgdGltZXIgdGljaywgb24gdGhlIHNh
-bWUgY29yZSwNCj4gZGVmZXJyYWJseSBzby4gVGhpcyBhbHNvIGJhdGNoZXMgdGhpbmdzIGEgYml0
-IG1vcmUgLS0gb25jZSBwZXIgamlmZnkgLS0NCj4gd2hpY2ggaXMgcHJvYmFibHkgb2theSBub3cg
-dGhhdCBtaXhfaW50ZXJydXB0X3JhbmRvbW5lc3MoKSBjYW4gY3JlZGl0DQo+IG11bHRpcGxlIGJp
-dHMgYXQgb25jZS4gSXQgc3RpbGwgcHV0cyBhIGJpdCBvZiBwcmVzc3VyZSBvbiBmYXN0X21peCgp
-LA0KPiBidXQgaG9wZWZ1bGx5IHRoYXQncyBhY2NlcHRhYmxlLg0KDQpJIHRob3VnaCBOT0haIHN5
-c3RlbXMgZGlkbid0IHRha2UgYSB0aW1lciBpbnRlcnJ1cHQgZXZlcnkgJ2ppZmZ5Jy4NCklmIHRo
-YXQgaXMgdHJ1ZSB3aGF0IGFjdHVhbGx5IGhhcHBlbnM/DQoNCglEYXZpZA0KDQotDQpSZWdpc3Rl
-cmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtl
-eW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
+--P65GX/BAqZEjdHOC
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 26, 2022 at 12:09:49PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.12 release.
+> There are 207 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+=20
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.1.0).
+
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--P65GX/BAqZEjdHOC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCYzKqugAKCRD2uYlJVVFO
+o9ViAP9ChpOBeXQV1hOCHANj9896r8IN4zT2Z7q14Ec4VosnNwEAl0HLiy7zVfGe
+iUgOyaJj5R66MCc9PgjUtUTwqaI70gs=
+=QSRu
+-----END PGP SIGNATURE-----
+
+--P65GX/BAqZEjdHOC--
