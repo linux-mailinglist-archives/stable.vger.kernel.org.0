@@ -2,173 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E00575EBD5C
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 10:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888595EBD5E
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 10:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbiI0Idd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 04:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
+        id S230452AbiI0IeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 04:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231314AbiI0Idc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 04:33:32 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E232A8952
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 01:33:30 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id a41so12196119edf.4
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 01:33:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=VTXV7aT5R11yPSl13EAHJwJP2TKui3gFrJyt6UxcJIg=;
-        b=Gi6/JYHJ0hnLxKiFkRwbLYS6VNogPTBrgAmNcIn0aTFtZ5ArPWCpLtzCB9HLVIc9AL
-         5GlxlOcV2pUoAfqbZXRcPSjZgiUYh0inwUlkn+E1FyVhIHd0lGphlg3QJ38FSbALQVzQ
-         Bxy2wOaD3WpeI9aEXGKgdSJ5WP5+nIi6UUN/Dtvkmsx5L6gexvQeAceWkGdvdA2bDcr2
-         sdXYG5QmjJfERJ3jJA00b1bxmB5l10AN7nrKvFuO6myWftF4B0W5OZjaoKQRl3X3sPE3
-         ECd7t9pnp+0DHMrjseL4nhlLfPFodz2QL5TIhXa39bUmXVuEiQP1WkD64wcvt5DorHkv
-         8rjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=VTXV7aT5R11yPSl13EAHJwJP2TKui3gFrJyt6UxcJIg=;
-        b=MbYnjNG4x1d7DO7BEM81uCBXgDM0si85xoHbt9rNdEWqTzKfh3wO/ur+XM0pjT9D2h
-         cllaA9i/3cvHSbdgT2NdvPmAlySxz7mncDK29feslaTSFmBF2VR5lbwUrreC7emyg5VQ
-         e0DcQcJkmhv/pJI1pbtVqQ/xVpNr1RzpBtI9hDYGeZNbhXuFjU5Lg67RJvynwSaroXfp
-         MVjngizLVI0wvjXHiAwj3EhAXQGpLfIlXKT1trWEtkoCBhCyJkSdBKdEPT3KUGld4p1R
-         S+Z89Qs06csEU/Ba2kYfGd/j5jYbQoKx0qAu7hGyvqA3CIJ+12DCSn+wQ6MPaFtq5p8J
-         Brgw==
-X-Gm-Message-State: ACrzQf330lQlmUZGmvbtv25bicWrbvTjd74Lh9T5fArlmVpfqWkmqTAt
-        5nbkJ/U5Ocwk+V7Dpno1rXNI/mee8i9INAbSPiERBQ==
-X-Google-Smtp-Source: AMsMyM6GGOfUNT9MJr+yLdS+k05XCxUHmRj3Qj3ApsCdkVhD5WehDKt+rRZGhTtu7Z6FtEyaykEgz4Xd1wStXh6G8AQ=
-X-Received: by 2002:a05:6402:1298:b0:457:c38a:2f10 with SMTP id
- w24-20020a056402129800b00457c38a2f10mr768435edv.264.1664267608964; Tue, 27
- Sep 2022 01:33:28 -0700 (PDT)
+        with ESMTP id S231513AbiI0Ids (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 04:33:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BDE6B4437;
+        Tue, 27 Sep 2022 01:33:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60AADB819DC;
+        Tue, 27 Sep 2022 08:33:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702C7C433D6;
+        Tue, 27 Sep 2022 08:33:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664267617;
+        bh=5GbFuRQK6NuGnXoajaKtdBAUELZ2+XVh6qsDB8ahhwA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=r6KoptzrKXBdbpsin9laScLz/M4TNQQdIasAuYQNtK9hzoJ18HLEsYRUlmj3vMeo+
+         S3UTBS+i/LybDeSJbsdAUl2QEjAFMyiqazzQwTIxNS8nUDUZ0X2+BAX54d+heh42bx
+         7tP/H7YpsdZ2gH7YD+v60Hd8QCCBmPgTptx7cIdY=
+Date:   Tue, 27 Sep 2022 10:33:34 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Dan Vacura <w36195@motorola.com>
+Cc:     linux-usb@vger.kernel.org,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] usb: gadget: uvc: fix sg handling in error case
+Message-ID: <YzK1Xry5KIrMr18F@kroah.com>
+References: <20220926195307.110121-1-w36195@motorola.com>
+ <20220926195307.110121-2-w36195@motorola.com>
 MIME-Version: 1.0
-References: <20220926163551.791017156@linuxfoundation.org>
-In-Reply-To: <20220926163551.791017156@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 27 Sep 2022 14:03:17 +0530
-Message-ID: <CA+G9fYtYKN9jUe615NsTecTeAg-3EZDjWPa7N2c+oAd-Ze0rnA@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/143] 5.15.71-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220926195307.110121-2-w36195@motorola.com>
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 26 Sept 2022 at 22:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.15.71 release.
-> There are 143 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 28 Sep 2022 16:35:25 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.71-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, Sep 26, 2022 at 02:53:07PM -0500, Dan Vacura wrote:
+> If there is a transmission error the buffer will be returned too early,
+> causing a memory fault as subsequent requests for that buffer are still
+> queued up to be sent. Refactor the error handling to wait for the final
+> request to come in before reporting back the buffer to userspace for all
+> transfer types (bulk/isoc/isoc_sg) to ensure userspace knows if the
+> frame was successfully sent.
+> 
+> Fixes: e81e7f9a0eb9 ("usb: gadget: uvc: add scatter gather support")
+> Cc: <stable@vger.kernel.org> # 859c675d84d4: usb: gadget: uvc: consistently use define for headerlen
+> Cc: <stable@vger.kernel.org> # f262ce66d40c: usb: gadget: uvc: use on returned header len in video_encode_isoc_sg
+> Cc: <stable@vger.kernel.org> # 61aa709ca58a: usb: gadget: uvc: rework uvcg_queue_next_buffer to uvcg_complete_buffer
+> Cc: <stable@vger.kernel.org> # 9b969f93bcef: usb: gadget: uvc: giveback vb2 buffer on req complete
+> Cc: <stable@vger.kernel.org> # aef11279888c: usb: gadget: uvc: improve sg exit condition
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I don't understand, why we backport all of these commits to 5.15.y if
+the original problem isn't in 5.15.y?
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Or is it?
 
-## Build
-* kernel: 5.15.71-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.15.y
-* git commit: 0b09b5df445f9effa9457d604de74e4c3b6606e9
-* git describe: v5.15.70-144-g0b09b5df445f
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.70-144-g0b09b5df445f
+I'm confused,
 
-## No test Regressions (compared to v5.15.70)
+greg k-h
 
-## No metric Regressions (compared to v5.15.70)
 
-## No mest Fixes (compared to v5.15.70)
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Dan Vacura <w36195@motorola.com>
+> 
+> ---
+>  drivers/usb/gadget/function/uvc_queue.c |  8 +++++---
+>  drivers/usb/gadget/function/uvc_queue.h |  2 +-
+>  drivers/usb/gadget/function/uvc_video.c | 18 ++++++++++++++----
+>  3 files changed, 20 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+> index ec500ee499ee..72e7ffd9a021 100644
+> --- a/drivers/usb/gadget/function/uvc_queue.c
+> +++ b/drivers/usb/gadget/function/uvc_queue.c
+> @@ -304,6 +304,7 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
+>  
+>  		queue->sequence = 0;
+>  		queue->buf_used = 0;
+> +		queue->flags &= ~UVC_QUEUE_MISSED_XFER;
+>  	} else {
+>  		ret = vb2_streamoff(&queue->queue, queue->queue.type);
+>  		if (ret < 0)
+> @@ -329,10 +330,11 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
+>  void uvcg_complete_buffer(struct uvc_video_queue *queue,
+>  					  struct uvc_buffer *buf)
+>  {
+> -	if ((queue->flags & UVC_QUEUE_DROP_INCOMPLETE) &&
+> -	     buf->length != buf->bytesused) {
+> -		buf->state = UVC_BUF_STATE_QUEUED;
+> +	if ((queue->flags & UVC_QUEUE_MISSED_XFER)) {
+> +		queue->flags &= ~UVC_QUEUE_MISSED_XFER;
+> +		buf->state = UVC_BUF_STATE_ERROR;
+>  		vb2_set_plane_payload(&buf->buf.vb2_buf, 0, 0);
+> +		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+>  		return;
+>  	}
+>  
+> diff --git a/drivers/usb/gadget/function/uvc_queue.h b/drivers/usb/gadget/function/uvc_queue.h
+> index 41f87b917f6b..741ec58ae9bb 100644
+> --- a/drivers/usb/gadget/function/uvc_queue.h
+> +++ b/drivers/usb/gadget/function/uvc_queue.h
+> @@ -42,7 +42,7 @@ struct uvc_buffer {
+>  };
+>  
+>  #define UVC_QUEUE_DISCONNECTED		(1 << 0)
+> -#define UVC_QUEUE_DROP_INCOMPLETE	(1 << 1)
+> +#define UVC_QUEUE_MISSED_XFER 		(1 << 1)
 
-## No metric Fixes (compared to v5.15.70)
+Why change the name of the error?
 
-## Test result summary
-total: 105358, pass: 93051, fail: 638, skip: 11351, xfail: 318
+>  
+>  struct uvc_video_queue {
+>  	struct vb2_queue queue;
+> diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+> index bb037fcc90e6..e46591b067a8 100644
+> --- a/drivers/usb/gadget/function/uvc_video.c
+> +++ b/drivers/usb/gadget/function/uvc_video.c
+> @@ -88,6 +88,7 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
+>  		struct uvc_buffer *buf)
+>  {
+>  	void *mem = req->buf;
+> +	struct uvc_request *ureq = req->context;
+>  	int len = video->req_size;
+>  	int ret;
+>  
+> @@ -113,13 +114,14 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
+>  		video->queue.buf_used = 0;
+>  		buf->state = UVC_BUF_STATE_DONE;
+>  		list_del(&buf->queue);
+> -		uvcg_complete_buffer(&video->queue, buf);
+>  		video->fid ^= UVC_STREAM_FID;
+> +		ureq->last_buf = buf;
+>  
+>  		video->payload_size = 0;
+>  	}
+>  
+>  	if (video->payload_size == video->max_payload_size ||
+> +	    video->queue.flags & UVC_QUEUE_MISSED_XFER ||
+>  	    buf->bytesused == video->queue.buf_used)
+>  		video->payload_size = 0;
+>  }
+> @@ -180,7 +182,8 @@ uvc_video_encode_isoc_sg(struct usb_request *req, struct uvc_video *video,
+>  	req->length -= len;
+>  	video->queue.buf_used += req->length - header_len;
+>  
+> -	if (buf->bytesused == video->queue.buf_used || !buf->sg) {
+> +	if (buf->bytesused == video->queue.buf_used || !buf->sg ||
+> +			video->queue.flags & UVC_QUEUE_MISSED_XFER) {
+>  		video->queue.buf_used = 0;
+>  		buf->state = UVC_BUF_STATE_DONE;
+>  		buf->offset = 0;
+> @@ -195,6 +198,7 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
+>  		struct uvc_buffer *buf)
+>  {
+>  	void *mem = req->buf;
+> +	struct uvc_request *ureq = req->context;
+>  	int len = video->req_size;
+>  	int ret;
+>  
+> @@ -209,12 +213,13 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
+>  
+>  	req->length = video->req_size - len;
+>  
+> -	if (buf->bytesused == video->queue.buf_used) {
+> +	if (buf->bytesused == video->queue.buf_used ||
+> +			video->queue.flags & UVC_QUEUE_MISSED_XFER) {
+>  		video->queue.buf_used = 0;
+>  		buf->state = UVC_BUF_STATE_DONE;
+>  		list_del(&buf->queue);
+> -		uvcg_complete_buffer(&video->queue, buf);
+>  		video->fid ^= UVC_STREAM_FID;
+> +		ureq->last_buf = buf;
+>  	}
+>  }
+>  
+> @@ -255,6 +260,11 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+>  	case 0:
+>  		break;
+>  
+> +	case -EXDEV:
+> +		uvcg_info(&video->uvc->func, "VS request missed xfer.\n");
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 339 total, 336 passed, 3 failed
-* arm64: 72 total, 70 passed, 2 failed
-* i386: 60 total, 54 passed, 6 failed
-* mips: 62 total, 59 passed, 3 failed
-* parisc: 14 total, 14 passed, 0 failed
-* powerpc: 69 total, 66 passed, 3 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 30 total, 27 passed, 3 failed
-* sh: 26 total, 24 passed, 2 failed
-* sparc: 14 total, 14 passed, 0 failed
-* x86_64: 65 total, 63 passed, 2 failed
+Why are you spamming the kernel logs at the info level for a USB
+transmission problem?   That could get very noisy, please change this to
+be at the debug level.
 
-## Test suites summary
-* fwts
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* v4l2-compliance
-* vdso
+thanks,
 
---
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
