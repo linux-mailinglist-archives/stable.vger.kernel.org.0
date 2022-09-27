@@ -2,67 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0AB5EB6D0
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 03:26:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE02F5EB739
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 03:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229508AbiI0B06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Sep 2022 21:26:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55082 "EHLO
+        id S229447AbiI0Bw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Sep 2022 21:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbiI0B05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 21:26:57 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E425A285C
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 18:26:56 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id a29so8365367pfk.5
-        for <stable@vger.kernel.org>; Mon, 26 Sep 2022 18:26:56 -0700 (PDT)
+        with ESMTP id S229502AbiI0Bw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Sep 2022 21:52:57 -0400
+Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCBD71BD7;
+        Mon, 26 Sep 2022 18:52:55 -0700 (PDT)
+Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-345528ceb87so86814647b3.11;
+        Mon, 26 Sep 2022 18:52:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=M47cQ9bMQ0lC1FAtNDrLT63uiBAZfD181VbR383adiQ=;
-        b=7A41lbHcFil7nHpP7snLQQsLmk5ZGvPhlF8xiLoqlsePClcBYoxxeBvwIrVJ11Gky0
-         H2koh4ePVVw1GlIubDnyOdTUsRcrbSCNCTLONbLJd3GZRCK7gQucq15gCU5J3p2JbAPt
-         9HwMFRwSj0vx4FQleTiz1DgHoDz5OiXK54oRPG2RJVZ9c9KjGczbq1liRoNjreHDutK9
-         qTjz3pHV/2vshXvXsWLFcZYI3KDhcBm/z7N9BKAieT2xodT61ERxG9xc3oIAXlCiWeGO
-         0VYGhntXhdZkt4xJOHddXjwLG0IuW0/mNgJ9/96HGTlQ6XdbmSMXZtCESfivTUSLOCs1
-         CnYw==
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=Z6mwGmWFe8kc9REvRMpgAR4kMVMlolmnZnXb+8WIi+s=;
+        b=KrczsANKZsMTyMklSFvkrdvxJgxIFI9kJDdLp/RYNJ9YvtGYD9R9MKHZ0WZ0lg57xX
+         qzCY3744UirNxRKftxwvbkH/QscgxysOQHIllQ4wmOvumns+waBQ3rfoqG3YWj8t8Q/V
+         jClKe0yY8Iz7O7VfocOX5ypMwSLaOmywHHlYCR+IMzWLatpVNqGJinBmar9ctO+njQgx
+         2aKdMhZrj4Me8wmnJXW485T7m8DL1twJWkK4VYCLr/Pv0ECL0024G9CdkKlRWIEeg7gL
+         YbtPq18WroXJfgls+3eyVXT3V1rPg3xZgrgCYxdS3RyNpYIS+6IXLCMpfYaGFifITt4F
+         27Bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=M47cQ9bMQ0lC1FAtNDrLT63uiBAZfD181VbR383adiQ=;
-        b=tPzCDre/bW/N0wD+ZjxSvdNq5TZI0mPcHWBL0uxbfIupaL30Ltk5lE5SAVVnyOY5yN
-         8+ktlQuRDM7A2o/FIB3vEZJeBbFNh0BR1X5M/dBAPjRm3kAXjFL8tAXFTxLU3SS2hV/5
-         Ci7JKysz3Wbky8EZVRVzw3o9s9GL0zUa+Mi/F/t6oB8XZFbQMZU1+5envnXgSM3HbtDQ
-         blktKeGEbi4NWIxS1s6Hd6p6RxVeaPYFqqCxgt0cYj2jdQsTLkfxYUiOyTvTTfN1Heay
-         Jh1+pSYKeCgOwXN5be2ibwgyoZGSW7o6DKsVjOpo05J8pv0HK/S6fiqoCckd6vNURmLp
-         721Q==
-X-Gm-Message-State: ACrzQf1ELyd+3cZLDq6/B5AnQtDtFzB4g+JJwyWbCgpNz//FEqz59w/2
-        2GVmaQKdX30+t8UWr7y4lqsnGHQsPO2Ebhpd
-X-Google-Smtp-Source: AMsMyM6l84gPDUSjjBQasZySg9Njsu9rjGM32XTACUbn/tky+0012X3U7E41gb8+Id0877MZ9rVoZQ==
-X-Received: by 2002:a05:6a00:f04:b0:547:50b1:4f4e with SMTP id cr4-20020a056a000f0400b0054750b14f4emr26566232pfb.69.1664242015863;
-        Mon, 26 Sep 2022 18:26:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q14-20020a17090311ce00b00178af82a000sm90861plh.122.2022.09.26.18.26.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Sep 2022 18:26:55 -0700 (PDT)
-Message-ID: <6332515f.170a0220.59930.0417@mx.google.com>
-Date:   Mon, 26 Sep 2022 18:26:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=Z6mwGmWFe8kc9REvRMpgAR4kMVMlolmnZnXb+8WIi+s=;
+        b=JstRS0Hw8r0WN1J2F4RtLk5E2Ra1KgV0zQKKld2sd1ug3jK4+FUxeNtAQhXXHDObvL
+         ry6NL6hXV/Q954nwDWxXH2sSpDMGaAuZEWSq/JfDhsXq47Fk+0IfSR3viqfC7glTxPfi
+         FR2dTG7MAdMMfFkr2RzreMcVTVtJCCXUIY3k8MXMC2SbzypjZyeagqk7bDAM9L6i+hXl
+         OeqfDffL80S9+kE1ghNzaUgaIxRdbOiZzgdYspsTo1kaGfa+u/mmi7Zg85dFx6lNRpLp
+         n3Oe03LxVysarNfDrHOUeDVy6VDlnvncFWrjiiQs+k5/6CKpx5PnBIpz4SGZ799liyRk
+         hBtw==
+X-Gm-Message-State: ACrzQf3r6Cf+8DiaJWXKpPrYWDjO5GG7Tv3taSpurOLOgORU8yofjAxz
+        nLfE1rJTE9CYTqLCGYp28H/O7cBtPV9DKDvb4eI=
+X-Google-Smtp-Source: AMsMyM6gAGGPR+PUOGrG4fFfhdSS86IMK5BBfOlEWtVx3KSbpPeZbjLW4xppB3pBN6UZOgIWqHfGVp6f+kPtGEHGUaI=
+X-Received: by 2002:a81:6a05:0:b0:349:fad4:37cf with SMTP id
+ f5-20020a816a05000000b00349fad437cfmr23936253ywc.137.1664243574189; Mon, 26
+ Sep 2022 18:52:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.70-142-gf9f566b0cbd5
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 116 runs,
- 2 regressions (v5.15.70-142-gf9f566b0cbd5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+References: <20220926160611.48536-1-sj@kernel.org> <20220926162326.49013-1-sj@kernel.org>
+In-Reply-To: <20220926162326.49013-1-sj@kernel.org>
+From:   Yun Levi <ppbuk5246@gmail.com>
+Date:   Tue, 27 Sep 2022 10:52:42 +0900
+Message-ID: <CAM7-yPQ-HnFP_h5x-yxLMVkktZ7rRtLf5TQi1Hz6pr9h_2+iKQ@mail.gmail.com>
+Subject: Re: [PATCH v4] damon/sysfs: Fix possible memleak on damon_sysfs_add_target.
+To:     SeongJae Park <sj@kernel.org>
+Cc:     akpm@linux-foundation.org, damon@lists.linux.dev,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,103 +66,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 116 runs, 2 regressions (v5.15.70-142-gf9f56=
-6b0cbd5)
+Thanks :)
 
-Regressions Summary
--------------------
+And Sorry to my mistake.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-panda     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.70-142-gf9f566b0cbd5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.70-142-gf9f566b0cbd5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f9f566b0cbd5e191bfd7ceb6f830fdc1e5641b3c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/63321f46c6d1c6be99ec4ea6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
-142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
-142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63321f46c6d1c6be99ec4=
-ea7
-        failing since 5 days (last pass: v5.15.69-17-g7d846e6eef7f, first f=
-ail: v5.15.69-45-g01bb9cc9bf6e) =
-
- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-panda     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/63321fb66dc33ef7d6ec4ebe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
-142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.70-=
-142-gf9f566b0cbd5/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63321fb66dc33ef7d6ec4=
-ebf
-        failing since 34 days (last pass: v5.15.61-1-geccb923b9eab2, first =
-fail: v5.15.62-232-g7f3b8845612d) =
-
- =20
+On Tue, Sep 27, 2022 at 1:23 AM SeongJae Park <sj@kernel.org> wrote:
+>
+> I forgot removing the closing dot of the subject and making the subject
+> lower-case.
+>
+> On Mon, 26 Sep 2022 16:06:11 +0000 SeongJae Park <sj@kernel.org> wrote:
+>
+> > From: Levi Yun <ppbuk5246@gmail.com>
+> >
+> > When damon_sysfs_add_target couldn't find proper task,
+> > New allocated damon_target structure isn't registered yet,
+> > So, it's impossible to free new allocated one by
+> > damon_sysfs_destroy_targets.
+> >
+> > By calling daemon_add_target as soon as allocating new target, Fix this
+>
+> Also we should s/daemon/damon/
+>
+> I will revise and send v5.
+>
+> > possible memory leak.
+> >
+> > Fixes: a61ea561c871 ("mm/damon/sysfs: link DAMON for virtual address spaces monitoring")
+> > Cc: <stable@vger.kernel.org> # 5.17.x
+> > Signed-off-by: Levi Yun <ppbuk5246@gmail.com>
+> > Reviewed-by: SeongJae Park <sj@kernel.org>
+> > Signed-off-by: SeongJae Park <sj@kernel.org>
+> > ---
+> >
+> > Changes from v3
+> > (https://lore.kernel.org/damon/20220925234327.26345-1-ppbuk5246@gmail.com/)
+> > - Fix Fixes: tag
+> > - Add patch changelog
+> >
+> > Changes from v2
+> > (https://lore.kernel.org/damon/20220925234053.26090-1-ppbuk5246@gmail.com/)
+> > - Add Fixes: and Cc: stable
+> >
+> > Changes from v1
+> > (https://lore.kernel.org/damon/20220925140257.23431-1-ppbuk5246@gmail.com/)
+> > - Do damon_add_target() earlier instead of explicitly freeing the object
+> >
+> >  mm/damon/sysfs.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/mm/damon/sysfs.c b/mm/damon/sysfs.c
+> > index 455215a5c059..9f1219a67e3f 100644
+> > --- a/mm/damon/sysfs.c
+> > +++ b/mm/damon/sysfs.c
+> > @@ -2172,12 +2172,12 @@ static int damon_sysfs_add_target(struct damon_sysfs_target *sys_target,
+> >
+> >       if (!t)
+> >               return -ENOMEM;
+> > +     damon_add_target(ctx, t);
+> >       if (damon_target_has_pid(ctx)) {
+> >               t->pid = find_get_pid(sys_target->pid);
+> >               if (!t->pid)
+> >                       goto destroy_targets_out;
+> >       }
+> > -     damon_add_target(ctx, t);
+> >       err = damon_sysfs_set_regions(t, sys_target->regions);
+> >       if (err)
+> >               goto destroy_targets_out;
+> > --
+> > 2.25.1
