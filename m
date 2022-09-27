@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7DC5ED0EA
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 01:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5258F5ED0EC
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 01:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbiI0XRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 19:17:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34072 "EHLO
+        id S232071AbiI0XRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 19:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232196AbiI0XRR (ORCPT
+        with ESMTP id S232233AbiI0XRR (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 19:17:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C35112FD2;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB01E112FD3;
         Tue, 27 Sep 2022 16:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2185661C35;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5019061C39;
         Tue, 27 Sep 2022 23:17:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906ECC433D6;
-        Tue, 27 Sep 2022 23:17:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BAD0C433C1;
+        Tue, 27 Sep 2022 23:17:15 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.96)
         (envelope-from <rostedt@goodmis.org>)
-        id 1odJqL-00HDfQ-1q;
-        Tue, 27 Sep 2022 19:18:25 -0400
-Message-ID: <20220927231825.182416969@goodmis.org>
+        id 1odJqM-00HDfz-0G;
+        Tue, 27 Sep 2022 19:18:26 -0400
+Message-ID: <20220927231825.685473208@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Tue, 27 Sep 2022 19:15:27 -0400
+Date:   Tue, 27 Sep 2022 19:15:28 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org
-Subject: [PATCH 4/5] tracing: Wake up ring buffer waiters on closing of the file
+Subject: [PATCH 5/5] tracing: Add ioctl() to force ring buffer waiters to wake up
 References: <20220927231523.298295015@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,74 +48,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-When the file that represents the ring buffer is closed, there may be
-waiters waiting on more input from the ring buffer. Call
-ring_buffer_wake_waiters() to wake up any waiters when the file is
-closed.
+If a process is waiting on the ring buffer for data, there currently isn't
+a clean way to force it to wake up. Add an ioctl call that will force any
+tasks that are waiting on the trace_pipe_raw file to wake up.
 
 Cc: stable@vger.kernel.org
 Fixes: e30f53aad2202 ("tracing: Do not busy wait in buffer splice")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- include/linux/trace_events.h |  1 +
- kernel/trace/trace.c         | 15 +++++++++++++++
- 2 files changed, 16 insertions(+)
+ kernel/trace/trace.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/include/linux/trace_events.h b/include/linux/trace_events.h
-index 8401dec93c15..20749bd9db71 100644
---- a/include/linux/trace_events.h
-+++ b/include/linux/trace_events.h
-@@ -92,6 +92,7 @@ struct trace_iterator {
- 	unsigned int		temp_size;
- 	char			*fmt;	/* modified format holder */
- 	unsigned int		fmt_size;
-+	long			wait_index;
- 
- 	/* trace_seq for __print_flags() and __print_symbolic() etc. */
- 	struct trace_seq	tmp_seq;
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index aed7ea6e6045..e101b0764b39 100644
+index e101b0764b39..fdbcabfdd2c4 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -8160,6 +8160,12 @@ static int tracing_buffers_release(struct inode *inode, struct file *file)
+@@ -8349,12 +8349,30 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
+ 	return ret;
+ }
  
- 	__trace_array_put(iter->tr);
- 
++/* An ioctl call to the ring buffer file will wake up all waiters */
++static long tracing_buffers_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct ftrace_buffer_info *info = file->private_data;
++	struct trace_iterator *iter = &info->iter;
++
++	mutex_lock(&trace_types_lock);
++
 +	iter->wait_index++;
 +	/* Make sure the waiters see the new wait_index */
 +	smp_wmb();
 +
 +	ring_buffer_wake_waiters(iter->array_buffer->buffer, iter->cpu_file);
++	mutex_unlock(&trace_types_lock);
++	return 0;
++}
 +
- 	if (info->spare)
- 		ring_buffer_free_read_page(iter->array_buffer->buffer,
- 					   info->spare_cpu, info->spare);
-@@ -8313,6 +8319,8 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
- 
- 	/* did we read anything? */
- 	if (!spd.nr_pages) {
-+		long wait_index;
-+
- 		if (ret)
- 			goto out;
- 
-@@ -8320,10 +8328,17 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
- 		if ((file->f_flags & O_NONBLOCK) || (flags & SPLICE_F_NONBLOCK))
- 			goto out;
- 
-+		wait_index = READ_ONCE(iter->wait_index);
-+
- 		ret = wait_on_pipe(iter, iter->tr->buffer_percent);
- 		if (ret)
- 			goto out;
- 
-+		/* Make sure we see the new wait_index */
-+		smp_rmb();
-+		if (wait_index != iter->wait_index)
-+			goto out;
-+
- 		goto again;
- 	}
+ static const struct file_operations tracing_buffers_fops = {
+ 	.open		= tracing_buffers_open,
+ 	.read		= tracing_buffers_read,
+ 	.poll		= tracing_buffers_poll,
+ 	.release	= tracing_buffers_release,
+ 	.splice_read	= tracing_buffers_splice_read,
++	.unlocked_ioctl = tracing_buffers_ioctl,
+ 	.llseek		= no_llseek,
+ };
  
 -- 
 2.35.1
