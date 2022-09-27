@@ -2,115 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2420F5EBB12
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 09:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D145EBBC4
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 09:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbiI0HEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 03:04:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
+        id S230455AbiI0HmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 03:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230219AbiI0HEL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 03:04:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27F876748;
-        Tue, 27 Sep 2022 00:04:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0E6FB8171C;
-        Tue, 27 Sep 2022 07:04:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BE3C433C1;
-        Tue, 27 Sep 2022 07:04:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664262246;
-        bh=XsVmdk3Kbtc8/UN1ScHldBcUEK5P+AuSRa66z5gbz/U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WuaZqi8rekW0piqvPJ7wdVbyrCFK2/etUczvKbvRii3/B4oqMjYoGU5AHVJ0UMZaV
-         vIw9nT1LZ8wPyRItZ0QVuCJujqsRBHoXv+0EHJ3J00QW3ZyNNRyuDUdshl6FweEUyl
-         tfbj7Sk4EViWyHKKlcahh7MpUoJj5pDfZwpZDvg3lm0x72kbZJezwGRduknMeaJ7MO
-         56ruRsR0z16BhX9kVZmtgqZY0VTaT7CLpw5QqUaEUmIE26BYPu0dU6DxlzdB7bkDZH
-         YrlgGpNxTzkfEhNue58lvG3tZ8mDXpad/SJa/EfHs52GDRIa66TkQycHJvPBjRWwyD
-         iMFWK8RE1GuTQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1od4dY-00033m-Eu; Tue, 27 Sep 2022 09:04:12 +0200
-Date:   Tue, 27 Sep 2022 09:04:12 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Frank Wunderlich <frank-w@public-files.de>
-Cc:     Frank Wunderlich <linux@fw-web.de>, linux-usb@vger.kernel.org,
-        =?utf-8?B?QmrDuHJu?= Mork <bjorn@mork.no>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: Aw: Re: [PATCH 1/2] USB: serial: qcserial: add new usb-id for
- Dell branded EM7455
-Message-ID: <YzKgbCl6eBfqvBa3@hovoldconsulting.com>
-References: <20220926150740.6684-1-linux@fw-web.de>
- <20220926150740.6684-2-linux@fw-web.de>
- <YzKYpPFyZYMkVaxS@hovoldconsulting.com>
- <trinity-91bc03bb-af6e-42bc-a365-455816214834-1664261303738@3c-app-gmx-bs56>
+        with ESMTP id S230447AbiI0HmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 03:42:00 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C5B09A9F9
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 00:41:58 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-14-jMsfJ6V8OjGSAZiFmgYF0g-1; Tue, 27 Sep 2022 08:41:55 +0100
+X-MC-Unique: jMsfJ6V8OjGSAZiFmgYF0g-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Tue, 27 Sep
+ 2022 08:41:52 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.040; Tue, 27 Sep 2022 08:41:52 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'Jason A. Donenfeld'" <Jason@zx2c4.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     Sherry Yang <sherry.yang@oracle.com>,
+        Paul Webb <paul.x.webb@oracle.com>,
+        Phillip Goerl <phillip.goerl@oracle.com>,
+        Jack Vogel <jack.vogel@oracle.com>,
+        Nicky Veitch <nicky.veitch@oracle.com>,
+        Colm Harrington <colm.harrington@oracle.com>,
+        Ramanan Govindarajan <ramanan.govindarajan@oracle.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Tejun Heo <tj@kernel.org>,
+        Sultan Alsawaf <sultan@kerneltoast.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2] random: use immediate per-cpu timer rather than
+ workqueue for mixing fast pool
+Thread-Topic: [PATCH v2] random: use immediate per-cpu timer rather than
+ workqueue for mixing fast pool
+Thread-Index: AQHY0fQr7t6Ylvgn6ECciijyeMbEm63y5QKQ
+Date:   Tue, 27 Sep 2022 07:41:52 +0000
+Message-ID: <62ae29f10d65401ab79e9bdb6af1576a@AcuMS.aculab.com>
+References: <20220922165528.3679479-1-Jason@zx2c4.com>
+ <20220926220457.1517120-1-Jason@zx2c4.com>
+In-Reply-To: <20220926220457.1517120-1-Jason@zx2c4.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <trinity-91bc03bb-af6e-42bc-a365-455816214834-1664261303738@3c-app-gmx-bs56>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 27, 2022 at 08:48:23AM +0200, Frank Wunderlich wrote:
-> Hi
-> 
-> > Gesendet: Dienstag, 27. September 2022 um 08:31 Uhr
-> > Von: "Johan Hovold" <johan@kernel.org>
+RnJvbTogSmFzb24gQS4gRG9uZW5mZWxkDQo+IFNlbnQ6IDI2IFNlcHRlbWJlciAyMDIyIDIzOjA1
+DQo+IA0KPiBQcmV2aW91c2x5LCB0aGUgZmFzdCBwb29sIHdhcyBkdW1wZWQgaW50byB0aGUgbWFp
+biBwb29sIHBlcm9pZGljYWxseSBpbg0KPiB0aGUgZmFzdCBwb29sJ3MgaGFyZCBJUlEgaGFuZGxl
+ci4gVGhpcyB3b3JrZWQgZmluZSBhbmQgdGhlcmUgd2VyZW4ndA0KPiBwcm9ibGVtcyB3aXRoIGl0
+LCB1bnRpbCBSVCBjYW1lIGFyb3VuZC4gU2luY2UgUlQgY29udmVydHMgc3BpbmxvY2tzIGludG8N
+Cj4gc2xlZXBpbmcgbG9ja3MsIHByb2JsZW1zIGNyb3BwZWQgdXAuIFJhdGhlciB0aGFuIHN3aXRj
+aGluZyB0byByYXcNCj4gc3BpbmxvY2tzLCB0aGUgUlQgZGV2ZWxvcGVycyBwcmVmZXJyZWQgd2Ug
+bWFrZSB0aGUgdHJhbnNmb3JtYXRpb24gZnJvbQ0KPiBvcmlnaW5hbGx5IGRvaW5nOg0KPiANCj4g
+ICAgIGRvX3NvbWVfc3R1ZmYoKQ0KPiAgICAgc3Bpbl9sb2NrKCkNCj4gICAgIGRvX3NvbWVfb3Ro
+ZXJfc3R1ZmYoKQ0KPiAgICAgc3Bpbl91bmxvY2soKQ0KPiANCj4gdG8gZG9pbmc6DQo+IA0KPiAg
+ICAgZG9fc29tZV9zdHVmZigpDQo+ICAgICBxdWV1ZV93b3JrX29uKHNvbWVfb3RoZXJfc3R1ZmZf
+d29ya2VyKQ0KPiANCj4gVGhpcyBpcyBhbiBvcmRpbmFyeSBwYXR0ZXJuIGRvbmUgYWxsIG92ZXIg
+dGhlIGtlcm5lbC4gSG93ZXZlciwgU2hlcnJ5DQo+IG5vdGljZWQgYSAxMCUgcGVyZm9ybWFuY2Ug
+cmVncmVzc2lvbiBpbiBxcGVyZiBUQ1Agb3ZlciBhIDQwZ2Jwcw0KPiBJbmZpbmlCYW5kIGNhcmQu
+IFF1b3RpbmcgaGVyIG1lc3NhZ2U6DQo+IA0KPiA+IE1UMjc1MDAgRmFtaWx5IFtDb25uZWN0WC0z
+XSBjYXJkczoNCj4gPiBJbmZpbmliYW5kIGRldmljZSAnbWx4NF8wJyBwb3J0IDEgc3RhdHVzOg0K
+PiA+IGRlZmF1bHQgZ2lkOiBmZTgwOjAwMDA6MDAwMDowMDAwOjAwMTA6ZTAwMDowMTc4OjllYjEN
+Cj4gPiBiYXNlIGxpZDogMHg2DQo+ID4gc20gbGlkOiAweDENCj4gPiBzdGF0ZTogNDogQUNUSVZF
+DQo+ID4gcGh5cyBzdGF0ZTogNTogTGlua1VwDQo+ID4gcmF0ZTogNDAgR2Ivc2VjICg0WCBRRFIp
+DQo+ID4gbGlua19sYXllcjogSW5maW5pQmFuZA0KPiA+DQo+ID4gQ2FyZHMgYXJlIGNvbmZpZ3Vy
+ZWQgd2l0aCBJUCBhZGRyZXNzZXMgb24gcHJpdmF0ZSBzdWJuZXQgZm9yIElQb0lCDQo+ID4gcGVy
+Zm9ybWFuY2UgdGVzdGluZy4NCj4gPiBSZWdyZXNzaW9uIGlkZW50aWZpZWQgaW4gdGhpcyBidWcg
+aXMgaW4gVENQIGxhdGVuY3kgaW4gdGhpcyBzdGFjayBhcyByZXBvcnRlZA0KPiA+IGJ5IHFwZXJm
+IHRjcF9sYXQgbWV0cmljOg0KPiA+DQo+ID4gV2UgaGF2ZSBvbmUgc3lzdGVtIGxpc3RlbiBhcyBh
+IHFwZXJmIHNlcnZlcjoNCj4gPiBbcm9vdEB5b3VyUXBlcmZTZXJ2ZXIgfl0jIHFwZXJmDQo+ID4N
+Cj4gPiBIYXZlIHRoZSBvdGhlciBzeXN0ZW0gY29ubmVjdCB0byBxcGVyZiBzZXJ2ZXIgYXMgYSBj
+bGllbnQgKGluIHRoaXMNCj4gPiBjYXNlLCBpdOKAmXMgWDcgc2VydmVyIHdpdGggTWVsbGFub3gg
+Y2FyZCk6DQo+ID4gW3Jvb3RAeW91clFwZXJmQ2xpZW50IH5dIyBudW1hY3RsIC1tMCAtTjAgcXBl
+cmYgMjAuMjAuMjAuMTAxIC12IC11dSAtdWIgLS10aW1lIDYwIC0td2FpdF9zZXJ2ZXIgMjAgLQ0K
+PiBvbyBtc2dfc2l6ZTo0SzoxMDI0SzoqMiB0Y3BfbGF0DQo+IA0KPiBSYXRoZXIgdGhhbiBpbmN1
+ciB0aGUgc2NoZWR1bGluZyBsYXRlbmN5IGZyb20gcXVldWVfd29ya19vbiwgd2UgY2FuDQo+IGlu
+c3RlYWQgc3dpdGNoIHRvIHJ1bm5pbmcgb24gdGhlIG5leHQgdGltZXIgdGljaywgb24gdGhlIHNh
+bWUgY29yZSwNCj4gZGVmZXJyYWJseSBzby4gVGhpcyBhbHNvIGJhdGNoZXMgdGhpbmdzIGEgYml0
+IG1vcmUgLS0gb25jZSBwZXIgamlmZnkgLS0NCj4gd2hpY2ggaXMgcHJvYmFibHkgb2theSBub3cg
+dGhhdCBtaXhfaW50ZXJydXB0X3JhbmRvbW5lc3MoKSBjYW4gY3JlZGl0DQo+IG11bHRpcGxlIGJp
+dHMgYXQgb25jZS4gSXQgc3RpbGwgcHV0cyBhIGJpdCBvZiBwcmVzc3VyZSBvbiBmYXN0X21peCgp
+LA0KPiBidXQgaG9wZWZ1bGx5IHRoYXQncyBhY2NlcHRhYmxlLg0KDQpJIHRob3VnaCBOT0haIHN5
+c3RlbXMgZGlkbid0IHRha2UgYSB0aW1lciBpbnRlcnJ1cHQgZXZlcnkgJ2ppZmZ5Jy4NCklmIHRo
+YXQgaXMgdHJ1ZSB3aGF0IGFjdHVhbGx5IGhhcHBlbnM/DQoNCglEYXZpZA0KDQotDQpSZWdpc3Rl
+cmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtl
+eW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
-> > On Mon, Sep 26, 2022 at 05:07:39PM +0200, Frank Wunderlich wrote:
-> > > From: Frank Wunderlich <frank-w@public-files.de>
-> 
-> > > +++ b/drivers/usb/serial/qcserial.c
-> > > @@ -177,6 +177,7 @@ static const struct usb_device_id id_table[] = {
-> > >  	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
-> > >  	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
-> > >  	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
-> > > +	{DEVICE_SWI(0x413c, 0x81c2)},	/* Dell Wireless 5811e QDL */
-> > 
-> > I assume this is not just for QDL mode as the comment indicates.
-> 
-> to be honest, have not found out yet what QDL means and assumed that
-> it's like the other dw5811e, so not changed comment :)
-
-I believe that's Qualcomm Download mode or similar, for flashing the
-device (cf. 5816e which has two entries, one for QDL mode).
-
-> > Could you post the output of usb-devices for this device?
-> 
-> Bus 001 Device 004: ID 413c:81c2 Sierra Wireless, Incorporated DW5811e Snapdragon™ X7 LTE
-> 
-> 
-> /:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=xhci-mtk/2p, 480M                                                                  
->     ID 1d6b:0002 Linux Foundation 2.0 root hub                                                                                      
->     |__ Port 1: Dev 2, If 0, Class=Hub, Driver=hub/4p, 480M                                                                         
->         ID 1a40:0101 Terminus Technology Inc. Hub                                                                                   
->         |__ Port 1: Dev 6, If 0, Class=Vendor Specific Class, Driver=qcserial, 480M                                                 
->             ID 413c:81c2 Dell Computer Corp.                                                                                        
->         |__ Port 1: Dev 6, If 2, Class=Vendor Specific Class, Driver=qcserial, 480M                                                 
->             ID 413c:81c2 Dell Computer Corp.                                                                                        
->         |__ Port 1: Dev 6, If 3, Class=Vendor Specific Class, Driver=qcserial, 480M                                                 
->             ID 413c:81c2 Dell Computer Corp.                                                                                        
->         |__ Port 1: Dev 6, If 8, Class=Vendor Specific Class, Driver=qmi_wwan, 480M                                                 
->             ID 413c:81c2 Dell Computer Corp.        
-
-Thanks. The above doesn't include all the details that usb-devices (or
-lsusb -v) would but still confirms the basic bits so I've applied the
-patch now after amending the comment.
-
-Johan
