@@ -2,84 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1378F5ECECA
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 22:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 559EC5ED0E7
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 01:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232294AbiI0Ukf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 16:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
+        id S229630AbiI0XRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 19:17:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232892AbiI0UkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 16:40:25 -0400
-X-Greylist: delayed 5121 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 27 Sep 2022 13:40:22 PDT
-Received: from server70.tadserver.com (server70.tadserver.com [194.59.214.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2D7558CF
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 13:40:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=moderntarh.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-        MIME-Version:Message-ID:Reply-To:From:Date:Subject:To:Sender:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=lgSJPHZygRr+RLXRbncZRNMSy/zf3X2kMy/EIvCfKEE=; b=d3721dy3JeeNmLkXChbySLEnkF
-        qGe2r0mplwhIzINu6DAa3rAC9Tnnrg5RDkp/+0AQgfCH7eZic5MBsufwbhz9b8t9oMr/2Psh2hCqO
-        BFWO5p/AY/3CwV5Xd0Ff0zUtamcNiHgxdcFS0CoicqBcxWgyIyQPaazUbhV+dXPsnBY1XKwI42VZv
-        QKX0/6OATcxgb6CvsP3qKoRNSRAjGt4px0Uqa8PpP+bdjx5vws6kEXlCuQFHMG0TyiMuZENpbW8/O
-        GkdIXUYcDrmOAng3Re0klx4RGHwZR67C1n2xbiqaF/d26pUjI0beJOKixJgnV8Z1bsfpp3bpTiUYE
-        +FGkHlfw==;
-Received: from moderntarh by server70.tadserver.com with local (Exim 4.95)
-        (envelope-from <esq.paulmartin@lawchambers.com>)
-        id 1odG2k-008nUu-1c
-        for stable@vger.kernel.org;
-        Tue, 27 Sep 2022 15:14:58 -0400
-To:     stable@vger.kernel.org
-Subject: =?UTF-8?B?0J/RgNC40LLQtdGC0YHRgtCy0YPRjiDRgtC10LHRjywg0LzQvtC5INC00L4=?=  =?UTF-8?B?0YDQvtCz0L7QuSDQtNGA0YPQsyw=?=
-X-PHP-Script: moderntarh.com/wp-content/fvk.php for 102.64.213.69
-X-PHP-Originating-Script: 1012:fvk.php
-Date:   Tue, 27 Sep 2022 22:44:57 +0330
-From:   Paul Martin <esq.paulmartin@lawchambers.com>
-Reply-To: esq.paulmartins@gmail.com
-Message-ID: <d1fddfa4fe068ad12872fa8809a83a34@moderntarh.com>
+        with ESMTP id S231949AbiI0XRP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 19:17:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DBE1129F7;
+        Tue, 27 Sep 2022 16:17:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D478961C30;
+        Tue, 27 Sep 2022 23:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C3BC433B5;
+        Tue, 27 Sep 2022 23:17:13 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.96)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1odJqK-00HDdk-0N;
+        Tue, 27 Sep 2022 19:18:24 -0400
+Message-ID: <20220927231823.718039222@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Tue, 27 Sep 2022 19:15:24 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/5] ring-buffer: Have the shortest_full queue be the shortest not longest
+References: <20220927231523.298295015@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server70.tadserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1012 983] / [47 12]
-X-AntiAbuse: Sender Address Domain - lawchambers.com
-X-Get-Message-Sender-Via: server70.tadserver.com: authenticated_id: moderntarh/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: server70.tadserver.com: moderntarh
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Spam-Status: No, score=3.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FORGED_REPLYTO,SPF_HELO_NONE,SPF_SOFTFAIL
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Приветствую тебя, мой дорогой друг,
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-Я уже второй раз пытаюсь связаться с вами. Я надеюсь, что вы получите это сообщение в добром здравии.
+The logic to know when the shortest waiters on the ring buffer should be
+woken up or not has uses a less than instead of a greater than compare,
+which causes the shortest_full to actually be the longest.
 
-Со стола: Барристер Пол Мартин, эсквайр. Калифорния, США. Я пишу, чтобы попросить вашей помощи, чтобы стать ближайшим родственником и конечным покупателем. Эти деньги на сумму более (8,5 миллионов долларов) принадлежат моему покойному клиенту, который умер несколько лет назад, и банк поручил мне представить бенефициара или деньги поступят в казну банка по мере
-невостребованный фон.
+Cc: stable@vger.kernel.org
+Fixes: 2c2b0a78b3739 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+ kernel/trace/ring_buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Если вы заинтересованы в том, чтобы помочь мне, мы разделим 40% для меня, 40% для вас, 10% для детского дома и 10% для любых расходов на доход, которые возникнут во время перевода. В подтверждение этого сообщения, указывающего на вашу заинтересованность, Ответить на мою личную электронную почту ниже для получения более подробной информации с вашим:
-
-(I) Ваше полное имя............ ,
-(II) Ваша страна .................,
-(III) Возраст ......................,
-
-
-Надеюсь скоро прочитать от вас более подробную информацию, и я надеюсь, что это сообщение дойдет до вас в добром здравии ..
-
-Искренне Ваш,
-Барристер Пол Мартин, эсквайр
-(Электронная почта: esq.paulmartins@gmail.com)
-
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 6b145d48dfd1..02db92c9eb1b 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1011,7 +1011,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
+ 			nr_pages = cpu_buffer->nr_pages;
+ 			dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
+ 			if (!cpu_buffer->shortest_full ||
+-			    cpu_buffer->shortest_full < full)
++			    cpu_buffer->shortest_full > full)
+ 				cpu_buffer->shortest_full = full;
+ 			raw_spin_unlock_irqrestore(&cpu_buffer->reader_lock, flags);
+ 			if (!pagebusy &&
+-- 
+2.35.1
