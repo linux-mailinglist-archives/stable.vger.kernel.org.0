@@ -2,245 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 793E45EC8A7
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 17:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC435EC8B3
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 17:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231379AbiI0Pxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 11:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41258 "EHLO
+        id S232683AbiI0PzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 11:55:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229779AbiI0Pxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 11:53:30 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CBC5E662;
-        Tue, 27 Sep 2022 08:53:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664294006; x=1695830006;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=yWf0AKBcbKVO8mFX9yX+cExaY/j0C7Lc8cRLyTHGlqI=;
-  b=ivfrbgqdwJFPYe48lZqgrlIWHfDVhm03IfvgK+VBzXItRYOEocBvUaRe
-   lLXZYwnPbzo8P+to2+fscrNlC3MCd157if1IlBVFq0Q/qK/mpBS1c4lD+
-   A5JZAf45bc22N1f1zvakho6MD8/25EH65ZfYxWR6MW1KYH1UKLrg9dcGO
-   ocD9l0lZCGkNKbQD70lSLlHRHlNUCln5woQ0gfi87MmvOXsWpkRsT6WD1
-   BvHvYBKYN5Zf8f2X5MJBExvb02yJruma6Y5EUXUsxdhBoJVqKWWE09oUk
-   ACjskrIBMLdXNRtx/wHGLpxDGWrwQrrgB0Rm4MyPKi7owm8QRrCd9+m6y
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10483"; a="365395783"
-X-IronPort-AV: E=Sophos;i="5.93,349,1654585200"; 
-   d="scan'208";a="365395783"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Sep 2022 08:53:25 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10483"; a="950335528"
-X-IronPort-AV: E=Sophos;i="5.93,349,1654585200"; 
-   d="scan'208";a="950335528"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga005.fm.intel.com with ESMTP; 27 Sep 2022 08:53:22 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 78D8D101; Tue, 27 Sep 2022 18:53:41 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Felipe Balbi <balbi@kernel.org>, Ferry Toth <fntoth@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral if extcon is present"
-Date:   Tue, 27 Sep 2022 18:53:32 +0300
-Message-Id: <20220927155332.10762-3-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
-References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
+        with ESMTP id S232790AbiI0Pym (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 11:54:42 -0400
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FF01B95C8;
+        Tue, 27 Sep 2022 08:54:27 -0700 (PDT)
+Received: from fraeml707-chm.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4McPJj3F7cz67yqL;
+        Tue, 27 Sep 2022 23:52:21 +0800 (CST)
+Received: from lhrpeml500003.china.huawei.com (7.191.162.67) by
+ fraeml707-chm.china.huawei.com (10.206.15.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 27 Sep 2022 17:54:24 +0200
+Received: from [10.48.156.245] (10.48.156.245) by
+ lhrpeml500003.china.huawei.com (7.191.162.67) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 27 Sep 2022 16:54:24 +0100
+Message-ID: <f24d0eb1-a578-2221-c8da-17ddbd35e96d@huawei.com>
+Date:   Tue, 27 Sep 2022 16:54:26 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH 5.10] scsi: hisi_sas: Revert "scsi: hisi_sas: Limit max hw
+ sectors for v3 HW"
+To:     Yu Kuai <yukuai1@huaweicloud.com>, <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>, <jejb@linux.ibm.com>,
+        <martin.petersen@oracle.com>
+CC:     <linux-scsi@vger.kernel.org>, <yi.zhang@huawei.com>,
+        "yukuai (C)" <yukuai3@huawei.com>
+References: <20220927130116.1013775-1-yukuai3@huawei.com>
+ <a1fe584c-5001-9983-3a3d-65d3bd396642@huawei.com>
+ <2bcb72eb-b9a7-8fed-f17d-3f1df4da9ee5@huaweicloud.com>
+ <f50cc744-f522-259a-e670-809d65361548@huawei.com>
+ <5b8cc025-0755-74c1-3df5-a95718d23861@huaweicloud.com>
+From:   John Garry <john.garry@huawei.com>
+In-Reply-To: <5b8cc025-0755-74c1-3df5-a95718d23861@huaweicloud.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Originating-IP: [10.48.156.245]
+X-ClientProxiedBy: lhrpeml500003.china.huawei.com (7.191.162.67) To
+ lhrpeml500003.china.huawei.com (7.191.162.67)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-6.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 0f01017191384e3962fa31520a9fd9846c3d352f.
+On 27/09/2022 15:05, Yu Kuai wrote:
+>>
+>> However both 5.15 stable and 5.19 mainline include fce54ed02757 - it 
+>> was automatically backported for 5.15 stable. Please double check that.
+>>
+>> And can you also check performance there for those kernels?
+> 
+> I'm pretty sure io split can decline performance, especially for HDD,
+> because blk-mq can't guarantee that split io can be dispatched to disk
+> sequentially. However, this is usually not common with proper
+> max_sectors_kb.
+> 
+> Here is an example that if max_sector_kb is 128k, performance will
+> drop a lot under high concurrency:
+> 
+> https://lore.kernel.org/all/20220408073916.1428590-1-yukuai3@huawei.com/
+> 
+> Here I set max_sectors_kb to 128k manually, and 1m random io performance
+> will drop while io concurrency increase:
+> 
+> | numjobs | v5.18-rc1 |
+> | ------- | --------- |
+> | 1       | 67.7      |
+> | 2       | 67.7      |
+> | 4       | 67.7      |
+> | 8       | 67.7      |
+> | 16      | 64.8      |
+> | 32      | 59.8      |
+> | 64      | 54.9      |
+> | 128     | 49        |
+> | 256     | 37.7      |
+> | 512     | 31.8      |
 
-As pointed out by Ferry this breaks Dual Role support on
-Intel Merrifield platforms.
+Commit fce54ed02757 was to circumvent a terrible performance hit for 
+IOMMU enabled from 4e89dce72521 - have you ever tested with IOMMU enabled?
 
-Fixes: 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral if extcon is present")
-Reported-by: Ferry Toth <fntoth@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Ferry Toth <fntoth@gmail.com> # for Merrifield
----
- drivers/usb/dwc3/core.c | 55 +----------------------------------------
- drivers/usb/dwc3/drd.c  | 50 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 51 insertions(+), 54 deletions(-)
+If fce54ed02757 really does cause a performance regression in some 
+scenarios, then we can consider reverting it from any stable kernel and 
+also backporting [0] when it is included in Linus' kernel
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index c2b463469d51..219d797e2230 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -23,7 +23,6 @@
- #include <linux/delay.h>
- #include <linux/dma-mapping.h>
- #include <linux/of.h>
--#include <linux/of_graph.h>
- #include <linux/acpi.h>
- #include <linux/pinctrl/consumer.h>
- #include <linux/reset.h>
-@@ -86,7 +85,7 @@ static int dwc3_get_dr_mode(struct dwc3 *dwc)
- 		 * mode. If the controller supports DRD but the dr_mode is not
- 		 * specified or set to OTG, then set the mode to peripheral.
- 		 */
--		if (mode == USB_DR_MODE_OTG && !dwc->edev &&
-+		if (mode == USB_DR_MODE_OTG &&
- 		    (!IS_ENABLED(CONFIG_USB_ROLE_SWITCH) ||
- 		     !device_property_read_bool(dwc->dev, "usb-role-switch")) &&
- 		    !DWC3_VER_IS_PRIOR(DWC3, 330A))
-@@ -1668,51 +1667,6 @@ static void dwc3_check_params(struct dwc3 *dwc)
- 	}
- }
- 
--static struct extcon_dev *dwc3_get_extcon(struct dwc3 *dwc)
--{
--	struct device *dev = dwc->dev;
--	struct device_node *np_phy;
--	struct extcon_dev *edev = NULL;
--	const char *name;
--
--	if (device_property_read_bool(dev, "extcon"))
--		return extcon_get_edev_by_phandle(dev, 0);
--
--	/*
--	 * Device tree platforms should get extcon via phandle.
--	 * On ACPI platforms, we get the name from a device property.
--	 * This device property is for kernel internal use only and
--	 * is expected to be set by the glue code.
--	 */
--	if (device_property_read_string(dev, "linux,extcon-name", &name) == 0) {
--		edev = extcon_get_extcon_dev(name);
--		if (!edev)
--			return ERR_PTR(-EPROBE_DEFER);
--
--		return edev;
--	}
--
--	/*
--	 * Try to get an extcon device from the USB PHY controller's "port"
--	 * node. Check if it has the "port" node first, to avoid printing the
--	 * error message from underlying code, as it's a valid case: extcon
--	 * device (and "port" node) may be missing in case of "usb-role-switch"
--	 * or OTG mode.
--	 */
--	np_phy = of_parse_phandle(dev->of_node, "phys", 0);
--	if (of_graph_is_present(np_phy)) {
--		struct device_node *np_conn;
--
--		np_conn = of_graph_get_remote_node(np_phy, -1, -1);
--		if (np_conn)
--			edev = extcon_find_edev_by_node(np_conn);
--		of_node_put(np_conn);
--	}
--	of_node_put(np_phy);
--
--	return edev;
--}
--
- static int dwc3_probe(struct platform_device *pdev)
- {
- 	struct device		*dev = &pdev->dev;
-@@ -1849,13 +1803,6 @@ static int dwc3_probe(struct platform_device *pdev)
- 		goto err2;
- 	}
- 
--	dwc->edev = dwc3_get_extcon(dwc);
--	if (IS_ERR(dwc->edev)) {
--		ret = PTR_ERR(dwc->edev);
--		dev_err_probe(dwc->dev, ret, "failed to get extcon\n");
--		goto err3;
--	}
--
- 	ret = dwc3_get_dr_mode(dwc);
- 	if (ret)
- 		goto err3;
-diff --git a/drivers/usb/dwc3/drd.c b/drivers/usb/dwc3/drd.c
-index 039bf241769a..8cad9e7d3368 100644
---- a/drivers/usb/dwc3/drd.c
-+++ b/drivers/usb/dwc3/drd.c
-@@ -8,6 +8,7 @@
-  */
- 
- #include <linux/extcon.h>
-+#include <linux/of_graph.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
- #include <linux/property.h>
-@@ -438,6 +439,51 @@ static int dwc3_drd_notifier(struct notifier_block *nb,
- 	return NOTIFY_DONE;
- }
- 
-+static struct extcon_dev *dwc3_get_extcon(struct dwc3 *dwc)
-+{
-+	struct device *dev = dwc->dev;
-+	struct device_node *np_phy;
-+	struct extcon_dev *edev = NULL;
-+	const char *name;
-+
-+	if (device_property_read_bool(dev, "extcon"))
-+		return extcon_get_edev_by_phandle(dev, 0);
-+
-+	/*
-+	 * Device tree platforms should get extcon via phandle.
-+	 * On ACPI platforms, we get the name from a device property.
-+	 * This device property is for kernel internal use only and
-+	 * is expected to be set by the glue code.
-+	 */
-+	if (device_property_read_string(dev, "linux,extcon-name", &name) == 0) {
-+		edev = extcon_get_extcon_dev(name);
-+		if (!edev)
-+			return ERR_PTR(-EPROBE_DEFER);
-+
-+		return edev;
-+	}
-+
-+	/*
-+	 * Try to get an extcon device from the USB PHY controller's "port"
-+	 * node. Check if it has the "port" node first, to avoid printing the
-+	 * error message from underlying code, as it's a valid case: extcon
-+	 * device (and "port" node) may be missing in case of "usb-role-switch"
-+	 * or OTG mode.
-+	 */
-+	np_phy = of_parse_phandle(dev->of_node, "phys", 0);
-+	if (of_graph_is_present(np_phy)) {
-+		struct device_node *np_conn;
-+
-+		np_conn = of_graph_get_remote_node(np_phy, -1, -1);
-+		if (np_conn)
-+			edev = extcon_find_edev_by_node(np_conn);
-+		of_node_put(np_conn);
-+	}
-+	of_node_put(np_phy);
-+
-+	return edev;
-+}
-+
- #if IS_ENABLED(CONFIG_USB_ROLE_SWITCH)
- #define ROLE_SWITCH 1
- static int dwc3_usb_role_switch_set(struct usb_role_switch *sw,
-@@ -542,6 +588,10 @@ int dwc3_drd_init(struct dwc3 *dwc)
- 	    device_property_read_bool(dwc->dev, "usb-role-switch"))
- 		return dwc3_setup_role_switch(dwc);
- 
-+	dwc->edev = dwc3_get_extcon(dwc);
-+	if (IS_ERR(dwc->edev))
-+		return PTR_ERR(dwc->edev);
-+
- 	if (dwc->edev) {
- 		dwc->edev_nb.notifier_call = dwc3_drd_notifier;
- 		ret = extcon_register_notifier(dwc->edev, EXTCON_USB_HOST,
--- 
-2.35.1
+[0] 
+https://lore.kernel.org/linux-iommu/495de02c-59ce-917f-1cb4-5425a37063ed@huawei.com/T/#m6a655d596fdf30e4e8b90100e16f75ae5d67341a
 
+thanks,
+John
