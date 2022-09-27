@@ -2,209 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 888595EBD5E
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 10:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E0C5EBD64
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 10:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbiI0IeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 04:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43900 "EHLO
+        id S230515AbiI0Ieg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 04:34:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231513AbiI0Ids (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 04:33:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BDE6B4437;
-        Tue, 27 Sep 2022 01:33:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60AADB819DC;
-        Tue, 27 Sep 2022 08:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702C7C433D6;
-        Tue, 27 Sep 2022 08:33:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664267617;
-        bh=5GbFuRQK6NuGnXoajaKtdBAUELZ2+XVh6qsDB8ahhwA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r6KoptzrKXBdbpsin9laScLz/M4TNQQdIasAuYQNtK9hzoJ18HLEsYRUlmj3vMeo+
-         S3UTBS+i/LybDeSJbsdAUl2QEjAFMyiqazzQwTIxNS8nUDUZ0X2+BAX54d+heh42bx
-         7tP/H7YpsdZ2gH7YD+v60Hd8QCCBmPgTptx7cIdY=
-Date:   Tue, 27 Sep 2022 10:33:34 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dan Vacura <w36195@motorola.com>
-Cc:     linux-usb@vger.kernel.org,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] usb: gadget: uvc: fix sg handling in error case
-Message-ID: <YzK1Xry5KIrMr18F@kroah.com>
-References: <20220926195307.110121-1-w36195@motorola.com>
- <20220926195307.110121-2-w36195@motorola.com>
+        with ESMTP id S231256AbiI0IeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 04:34:05 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E355B5150
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 01:34:03 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id t14so13809291wrx.8
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 01:34:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=Wblt6hLF9bmZyY1xDVXY8pdC3K0ygNsNvIqaUDgmAkk=;
+        b=k5uZMHyyZZmc2Xqpu8euyz3vL78JbusbBDZDc5AcSSNoVW3Yhi4GLppmbrPIQV4jDS
+         K1rJ8qnO5OiV2uvl8oIzLv2fhJmZdlT/ef1xU8f6+LNomSj4XdnpJN0hEvQ7uODlwx+g
+         n70sLpGzU/p2GGxzt+RczSwYIy4OZ/Zvphtv1DznsTdqZ5Wt6FQBdcPbSCG34yCAoFs6
+         hLEpbRrkN2VQXC98z0N+uyk6Iq9doz2CAe3ioOSt7nSpx6fMGiM+XEEE7I+pQxba61pA
+         x6NRaj0dyvoF6+peUn+bqEAAsLJHdNA3EzEoml5bGCYpAY1APrJXwU2T4SJiMeDAXm5Z
+         /Epw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=Wblt6hLF9bmZyY1xDVXY8pdC3K0ygNsNvIqaUDgmAkk=;
+        b=o1QWhznlcO8w6gRwVju/UUXTxPzftv+1wlE36n3h2dnkttSH34y7g2JF3zS/HjLd88
+         sI+TE4fdupXU2W74YaIsNotuNblamBVNpShSLhYNV1b7UvPEnJwfW2kACTM3/TWjGbm8
+         PgIwWliJD6VOOstZQ/eBjEX+Q2k+2GbpxP7tik8ftmO0CMN72+6SNZFTxlI75VfEMtDj
+         1oQeSRptpGMOygDQqTmC8rGD2RnmIlO0AZmXXTZn2dLB9/FT1R9oo+kxe2XNsXMh1OYu
+         Rc6JcpYbYw0gYk5lhJWBEA7utmc/xPxDz98aRwGf/LFuxXMV/aJJlHA5Lb89yUKeRLwn
+         CY/A==
+X-Gm-Message-State: ACrzQf05VLNMej99RHRtE0pJ2OVlBkltqaSRnZG/k1D1Qb+tMH13EtdO
+        bhvGhgTg688fz/Z3dyu5dScang==
+X-Google-Smtp-Source: AMsMyM6RttDAp/0iAh9Rj9RVW67dy+WEPWz+sYwSPYhKnTfO1uSdnEFAlOW1e0GfroFJ2d11LfowhA==
+X-Received: by 2002:a5d:61d1:0:b0:22c:c284:a886 with SMTP id q17-20020a5d61d1000000b0022cc284a886mr323562wrv.30.1664267641820;
+        Tue, 27 Sep 2022 01:34:01 -0700 (PDT)
+Received: from [192.168.10.46] (146725694.box.freepro.com. [130.180.211.218])
+        by smtp.googlemail.com with ESMTPSA id t126-20020a1c4684000000b003b505d26776sm13136638wma.5.2022.09.27.01.34.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Sep 2022 01:34:01 -0700 (PDT)
+Message-ID: <bf7ab516-3d18-6a5a-95f2-71f918b54cf1@linaro.org>
+Date:   Tue, 27 Sep 2022 10:34:00 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220926195307.110121-2-w36195@motorola.com>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v3 RESEND] thermal: qoriq: Only enable sites that actually
+ exist
+Content-Language: en-US
+To:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, linux-pm@vger.kernel.org
+Cc:     Amit Kucheria <amitk@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        linux-kernel@vger.kernel.org, kernel@puri.sm,
+        stable@vger.kernel.org
+References: <7115709.31r3eYUQgx@pliszka>
+From:   Daniel Lezcano <daniel.lezcano@linaro.org>
+In-Reply-To: <7115709.31r3eYUQgx@pliszka>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 26, 2022 at 02:53:07PM -0500, Dan Vacura wrote:
-> If there is a transmission error the buffer will be returned too early,
-> causing a memory fault as subsequent requests for that buffer are still
-> queued up to be sent. Refactor the error handling to wait for the final
-> request to come in before reporting back the buffer to userspace for all
-> transfer types (bulk/isoc/isoc_sg) to ensure userspace knows if the
-> frame was successfully sent.
+
+Hi Sebastian,
+
+On 27/09/2022 08:15, Sebastian Krzyszkowiak wrote:
+> On i.MX8MQ, enabling monitoring sites that aren't connected to anything
+> can cause unwanted side effects on some units. This seems to happen
+> once some of these sites report out-of-range readings and results in
+> sensor misbehavior, such as thermal zone readings getting stuck or even
+> suddenly reporting an impossibly high value, triggering emergency
+> shutdowns.
 > 
-> Fixes: e81e7f9a0eb9 ("usb: gadget: uvc: add scatter gather support")
-> Cc: <stable@vger.kernel.org> # 859c675d84d4: usb: gadget: uvc: consistently use define for headerlen
-> Cc: <stable@vger.kernel.org> # f262ce66d40c: usb: gadget: uvc: use on returned header len in video_encode_isoc_sg
-> Cc: <stable@vger.kernel.org> # 61aa709ca58a: usb: gadget: uvc: rework uvcg_queue_next_buffer to uvcg_complete_buffer
-> Cc: <stable@vger.kernel.org> # 9b969f93bcef: usb: gadget: uvc: giveback vb2 buffer on req complete
-> Cc: <stable@vger.kernel.org> # aef11279888c: usb: gadget: uvc: improve sg exit condition
+> The datasheet lists all non-existent sites as "reserved" and doesn't
+> make any guarantees about being able to enable them at all, so let's
+> not do that. Instead, iterate over sensor DT nodes and only enable
+> monitoring sites that are specified there prior to registering their
+> thermal zones. This still fixes the issue with bogus data being
+> reported on the first reading, but doesn't introduce problems that
+> come with reading from non-existent sites.
 
-I don't understand, why we backport all of these commits to 5.15.y if
-the original problem isn't in 5.15.y?
+Can you have a look at these patches:
 
-Or is it?
+https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git/commit/?h=thermal/linux-next&id=ab2266ecaa3254811f9f83992cf53fdfe3c62c86
 
-I'm confused,
+and
 
-greg k-h
+https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git/commit/?h=thermal/linux-next&id=7be4288625df54887b444991d743c6e1af21e27a
 
+Thanks
+   -- Daniel
 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Dan Vacura <w36195@motorola.com>
-> 
+> Fixes: 45038e03d633 ("thermal: qoriq: Enable all sensors before registering them")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
 > ---
->  drivers/usb/gadget/function/uvc_queue.c |  8 +++++---
->  drivers/usb/gadget/function/uvc_queue.h |  2 +-
->  drivers/usb/gadget/function/uvc_video.c | 18 ++++++++++++++----
->  3 files changed, 20 insertions(+), 8 deletions(-)
+> Resent <20220321170852.654094-1-sebastian.krzyszkowiak@puri.sm>
+> v3: add cc: stable
+> v2: augment the commit message with details on what the patch is doing
+> ---
+>   drivers/thermal/qoriq_thermal.c | 63 ++++++++++++++++++++++-----------
+>   1 file changed, 43 insertions(+), 20 deletions(-)
 > 
-> diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
-> index ec500ee499ee..72e7ffd9a021 100644
-> --- a/drivers/usb/gadget/function/uvc_queue.c
-> +++ b/drivers/usb/gadget/function/uvc_queue.c
-> @@ -304,6 +304,7 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
->  
->  		queue->sequence = 0;
->  		queue->buf_used = 0;
-> +		queue->flags &= ~UVC_QUEUE_MISSED_XFER;
->  	} else {
->  		ret = vb2_streamoff(&queue->queue, queue->queue.type);
->  		if (ret < 0)
-> @@ -329,10 +330,11 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
->  void uvcg_complete_buffer(struct uvc_video_queue *queue,
->  					  struct uvc_buffer *buf)
->  {
-> -	if ((queue->flags & UVC_QUEUE_DROP_INCOMPLETE) &&
-> -	     buf->length != buf->bytesused) {
-> -		buf->state = UVC_BUF_STATE_QUEUED;
-> +	if ((queue->flags & UVC_QUEUE_MISSED_XFER)) {
-> +		queue->flags &= ~UVC_QUEUE_MISSED_XFER;
-> +		buf->state = UVC_BUF_STATE_ERROR;
->  		vb2_set_plane_payload(&buf->buf.vb2_buf, 0, 0);
-> +		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
->  		return;
->  	}
->  
-> diff --git a/drivers/usb/gadget/function/uvc_queue.h b/drivers/usb/gadget/function/uvc_queue.h
-> index 41f87b917f6b..741ec58ae9bb 100644
-> --- a/drivers/usb/gadget/function/uvc_queue.h
-> +++ b/drivers/usb/gadget/function/uvc_queue.h
-> @@ -42,7 +42,7 @@ struct uvc_buffer {
->  };
->  
->  #define UVC_QUEUE_DISCONNECTED		(1 << 0)
-> -#define UVC_QUEUE_DROP_INCOMPLETE	(1 << 1)
-> +#define UVC_QUEUE_MISSED_XFER 		(1 << 1)
+> diff --git a/drivers/thermal/qoriq_thermal.c b/drivers/thermal/qoriq_thermal.c
+> index 73049f9bea25..ef0848849ee2 100644
+> --- a/drivers/thermal/qoriq_thermal.c
+> +++ b/drivers/thermal/qoriq_thermal.c
+> @@ -32,7 +32,6 @@
+>   #define TMR_DISABLE	0x0
+>   #define TMR_ME		0x80000000
+>   #define TMR_ALPF	0x0c000000
+> -#define TMR_MSITE_ALL	GENMASK(15, 0)
+>   
+>   #define REGS_TMTMIR	0x008	/* Temperature measurement interval Register */
+>   #define TMTMIR_DEFAULT	0x0000000f
+> @@ -129,33 +128,51 @@ static const struct thermal_zone_of_device_ops tmu_tz_ops = {
+>   static int qoriq_tmu_register_tmu_zone(struct device *dev,
+>   				       struct qoriq_tmu_data *qdata)
+>   {
+> -	int id;
+> +	int ret = 0;
+> +	struct device_node *np, *child, *sensor_np;
+>   
+> -	if (qdata->ver == TMU_VER1) {
+> -		regmap_write(qdata->regmap, REGS_TMR,
+> -			     TMR_MSITE_ALL | TMR_ME | TMR_ALPF);
+> -	} else {
+> -		regmap_write(qdata->regmap, REGS_V2_TMSR, TMR_MSITE_ALL);
+> -		regmap_write(qdata->regmap, REGS_TMR, TMR_ME | TMR_ALPF_V2);
+> -	}
+> +	np = of_find_node_by_name(NULL, "thermal-zones");
+> +	if (!np)
+> +		return -ENODEV;
+> +
+> +	sensor_np = of_node_get(dev->of_node);
+>   
+> -	for (id = 0; id < SITES_MAX; id++) {
+> +	for_each_available_child_of_node(np, child) {
+>   		struct thermal_zone_device *tzd;
+> -		struct qoriq_sensor *sensor = &qdata->sensor[id];
+> -		int ret;
+> +		struct qoriq_sensor *sensor;
+> +		int id, site;
+> +
+> +		ret = thermal_zone_of_get_sensor_id(child, sensor_np, &id);
+> +
+> +		if (ret < 0) {
+> +			dev_err(dev, "failed to get valid sensor id: %d\n", ret);
+> +			of_node_put(child);
+> +			break;
+> +		}
+>   
+> +		sensor = &qdata->sensor[id];
+>   		sensor->id = id;
+>   
+> +		/* Enable monitoring */
+> +		if (qdata->ver == TMU_VER1) {
+> +			site = 0x1 << (15 - id);
+> +			regmap_update_bits(qdata->regmap, REGS_TMR,
+> +					   site | TMR_ME | TMR_ALPF,
+> +					   site | TMR_ME | TMR_ALPF);
+> +		} else {
+> +			site = 0x1 << id;
+> +			regmap_update_bits(qdata->regmap, REGS_V2_TMSR, site, site);
+> +			regmap_write(qdata->regmap, REGS_TMR, TMR_ME | TMR_ALPF_V2);
+> +		}
+> +
+>   		tzd = devm_thermal_zone_of_sensor_register(dev, id,
+>   							   sensor,
+>   							   &tmu_tz_ops);
+> -		ret = PTR_ERR_OR_ZERO(tzd);
+> -		if (ret) {
+> -			if (ret == -ENODEV)
+> -				continue;
+> -
+> -			regmap_write(qdata->regmap, REGS_TMR, TMR_DISABLE);
+> -			return ret;
+> +		if (IS_ERR(tzd)) {
+> +			ret = PTR_ERR(tzd);
+> +			dev_err(dev, "failed to register thermal zone: %d\n", ret);
+> +			of_node_put(child);
+> +			break;
+>   		}
+>   
+>   		if (devm_thermal_add_hwmon_sysfs(tzd))
+> @@ -164,7 +181,13 @@ static int qoriq_tmu_register_tmu_zone(struct device *dev,
+>   
+>   	}
+>   
+> -	return 0;
+> +	of_node_put(sensor_np);
+> +	of_node_put(np);
+> +
+> +	if (ret)
+> +		regmap_write(qdata->regmap, REGS_TMR, TMR_DISABLE);
+> +
+> +	return ret;
+>   }
+>   
+>   static int qoriq_tmu_calibration(struct device *dev,
 
-Why change the name of the error?
 
->  
->  struct uvc_video_queue {
->  	struct vb2_queue queue;
-> diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-> index bb037fcc90e6..e46591b067a8 100644
-> --- a/drivers/usb/gadget/function/uvc_video.c
-> +++ b/drivers/usb/gadget/function/uvc_video.c
-> @@ -88,6 +88,7 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
->  		struct uvc_buffer *buf)
->  {
->  	void *mem = req->buf;
-> +	struct uvc_request *ureq = req->context;
->  	int len = video->req_size;
->  	int ret;
->  
-> @@ -113,13 +114,14 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
->  		video->queue.buf_used = 0;
->  		buf->state = UVC_BUF_STATE_DONE;
->  		list_del(&buf->queue);
-> -		uvcg_complete_buffer(&video->queue, buf);
->  		video->fid ^= UVC_STREAM_FID;
-> +		ureq->last_buf = buf;
->  
->  		video->payload_size = 0;
->  	}
->  
->  	if (video->payload_size == video->max_payload_size ||
-> +	    video->queue.flags & UVC_QUEUE_MISSED_XFER ||
->  	    buf->bytesused == video->queue.buf_used)
->  		video->payload_size = 0;
->  }
-> @@ -180,7 +182,8 @@ uvc_video_encode_isoc_sg(struct usb_request *req, struct uvc_video *video,
->  	req->length -= len;
->  	video->queue.buf_used += req->length - header_len;
->  
-> -	if (buf->bytesused == video->queue.buf_used || !buf->sg) {
-> +	if (buf->bytesused == video->queue.buf_used || !buf->sg ||
-> +			video->queue.flags & UVC_QUEUE_MISSED_XFER) {
->  		video->queue.buf_used = 0;
->  		buf->state = UVC_BUF_STATE_DONE;
->  		buf->offset = 0;
-> @@ -195,6 +198,7 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
->  		struct uvc_buffer *buf)
->  {
->  	void *mem = req->buf;
-> +	struct uvc_request *ureq = req->context;
->  	int len = video->req_size;
->  	int ret;
->  
-> @@ -209,12 +213,13 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
->  
->  	req->length = video->req_size - len;
->  
-> -	if (buf->bytesused == video->queue.buf_used) {
-> +	if (buf->bytesused == video->queue.buf_used ||
-> +			video->queue.flags & UVC_QUEUE_MISSED_XFER) {
->  		video->queue.buf_used = 0;
->  		buf->state = UVC_BUF_STATE_DONE;
->  		list_del(&buf->queue);
-> -		uvcg_complete_buffer(&video->queue, buf);
->  		video->fid ^= UVC_STREAM_FID;
-> +		ureq->last_buf = buf;
->  	}
->  }
->  
-> @@ -255,6 +260,11 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
->  	case 0:
->  		break;
->  
-> +	case -EXDEV:
-> +		uvcg_info(&video->uvc->func, "VS request missed xfer.\n");
+-- 
+<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
 
-Why are you spamming the kernel logs at the info level for a USB
-transmission problem?   That could get very noisy, please change this to
-be at the debug level.
-
-thanks,
-
-greg k-h
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
