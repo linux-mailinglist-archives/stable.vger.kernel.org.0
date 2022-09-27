@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF665EC490
-	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 15:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20AD95EC499
+	for <lists+stable@lfdr.de>; Tue, 27 Sep 2022 15:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbiI0NfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Sep 2022 09:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
+        id S231902AbiI0NgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Sep 2022 09:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232777AbiI0Net (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 09:34:49 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CB9895DC
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 06:34:07 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id h8-20020a17090a054800b00205ccbae31eso3045328pjf.5
-        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 06:34:07 -0700 (PDT)
+        with ESMTP id S229779AbiI0NgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Sep 2022 09:36:04 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAD33868D
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 06:36:01 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id u69so9449673pgd.2
+        for <stable@vger.kernel.org>; Tue, 27 Sep 2022 06:36:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date;
-        bh=CLDa3ppxoJcqIaZ7r0drbXP9VDA3euZcL0ZIYwm/7yE=;
-        b=ildLL5xoU1boL+iFXb0AQjvqpDf2CVq/6W1RLcUizFjT6gMfpbsxlfMANsRRnb1DDy
-         hApEJFb076zMQ1azB+Mo77DhDRgK4oJuQcA+mJtsLMP+JrbirHklE+2xoZnIF3XNlQd9
-         N9TzlNCDms7lu6rfEiatopQVHoNWIwRXrmR06nNcp+VHMufAX8jHuW/jFV7x2nPZrJxD
-         nIGlJwriXGdX6gZ2ckT/wP547RsdpgrV2oKxGmc4UUeXf5HXtdeen3oXw7aenLkj+a0Y
-         +B4VOH1SUeTdJBkYWQMy6V1aRh311YSxPCWH6GpUmIjN3nAJFzmIpn0Q4EeNGNnp9MA9
-         /s8w==
+        bh=OvqV+NSa3/TU2PdN3a0RAu+/NgnOrCkpv5ELWResKfw=;
+        b=4EiYta7HL5q8Qd8iKAkYCLjVze0k1Yamb/KJgBTWmThzSiiWap4XebzuOw/fKt275u
+         wGzqzQt23aEO699gVq/nZwOqz0dSLxITb0EHNtRgL6b+4OPlr0IEmP8yX8R61sKmK0ts
+         1AdTNr5BBFhpmQdPMtOeLykqw55U3ENGHRhZiDaBraekRyHS1ZpVApb3ufpFY7hiPyCW
+         +R12VgjmD+nEojB8gZFTOgdFatDGDGzI20zw2qHPTrJP8KIY26kauYYRmkBhStspmHCh
+         ZK75Yr9A6ullM3S/sUu2SZ1E+Rrm+d9KDsCAxZDGjiGOyq12ddv8SrPXwvCuoLsAb+YS
+         hhIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=CLDa3ppxoJcqIaZ7r0drbXP9VDA3euZcL0ZIYwm/7yE=;
-        b=IjWVLhEU6cHkZbiptnv7IOdPZc3gGr8AnvSvvnm3pKsLQNKtahMktay4dIysOC5hQ+
-         SXoWkaJkLrtqezhUnf21kIIJWc0+dH8Vvuq9kYBgMF2wR8KMNdG+7DKDsEl5VogvXM5z
-         d2osKI+myfeO5Q2+GAdRGzCkti6p8zGF5z1D1TBjkU6B3iJcTGgnFqVD6uGQDkBOoJvI
-         WSXYt32pfam3qpKakcKzWgv4XJjP3BzAfZM/ljCTwBe1XsXBfb+zHEe8/6JXmq1sw5xk
-         Ls8i1+Z3Uej+JIMEHN08MHmzthwfuiEBxocU+VMorzE1p2LDejeyu6mYWXGP04gNxC7P
-         2tAA==
-X-Gm-Message-State: ACrzQf1sd2hA8/Y+CgeGasNXryuUf8D/8HfGNod1aNRrnYvBKKLa7iab
-        vygc3zO+xacIHyog6OfcqvhtdVQy3KMwa2Es
-X-Google-Smtp-Source: AMsMyM46ueKNiB86eAADeKUaNMzzt9JZbjyz9l5sL2mXBHRba/m/bpkPCw1JeDYdrk+tbCf1Kz2byQ==
-X-Received: by 2002:a17:90b:1e0b:b0:205:bce5:467f with SMTP id pg11-20020a17090b1e0b00b00205bce5467fmr4608145pjb.24.1664285646159;
-        Tue, 27 Sep 2022 06:34:06 -0700 (PDT)
+        bh=OvqV+NSa3/TU2PdN3a0RAu+/NgnOrCkpv5ELWResKfw=;
+        b=KEzf3wMxUCt1f6zl6w0zlRs/GI1ooIsC6OrLWQEWY7HkKqkh0r4yKTfXDeUjMk3BLg
+         MgRGu/iwsTk231bttw5nVTDscIvznOHAR9FU9q/xHqaOV71KjnGbo/90/xVc980wlpcD
+         BHX8219ejED2qDAydipBSs0PBxuIRspD0kkpds/6wiWty343Fcla1A6AYoIlWz4w9Die
+         DqzvSJ8tlJ6JzkxBlPcrrTpgKsHYlPKbHjYpv/TTDbmZtJrWwF/p1EL0HXBr1ey73UK/
+         +Dne8M8DRap6KjcbH8QH3tnQkEb1hxAVQ5SS4x/VwI2kjw3wRBo/n+NxHQAz/8lbMqbd
+         rNlw==
+X-Gm-Message-State: ACrzQf05kQjnSbZFaFTCTc4bAMnlhJxaokvBVKOjDcIzTS1KnU+ZfPTU
+        28oiTzSLXCuuguZi/H92nd+Y27JiLpq62jp6
+X-Google-Smtp-Source: AMsMyM5991O9ubFcDVHOYd0Q3og///ksbjTEzLz2NukOcYzrwNQpohExhLTNZfisU47QDjehopkxLQ==
+X-Received: by 2002:aa7:9af5:0:b0:54e:5455:2b8c with SMTP id y21-20020aa79af5000000b0054e54552b8cmr29675870pfp.63.1664285760469;
+        Tue, 27 Sep 2022 06:36:00 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g3-20020aa79dc3000000b0053e3a6f7da4sm1785174pfq.12.2022.09.27.06.34.05
+        by smtp.gmail.com with ESMTPSA id i6-20020a170902c28600b001637529493esm1534256pld.66.2022.09.27.06.35.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Sep 2022 06:34:05 -0700 (PDT)
-Message-ID: <6332fbcd.a70a0220.d5a8f.2e9e@mx.google.com>
-Date:   Tue, 27 Sep 2022 06:34:05 -0700 (PDT)
+        Tue, 27 Sep 2022 06:35:59 -0700 (PDT)
+Message-ID: <6332fc3f.170a0220.8e403.287d@mx.google.com>
+Date:   Tue, 27 Sep 2022 06:35:59 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.10.145-138-gc79813af804a
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.145-137-ga1ae6a99cce9
 X-Kernelci-Branch: queue/5.10
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 build: 185 builds: 3 failed, 182 passed, 4 errors,
- 175 warnings (v5.10.145-138-gc79813af804a)
+Subject: stable-rc/queue/5.10 baseline: 102 runs,
+ 18 regressions (v5.10.145-137-ga1ae6a99cce9)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,1870 +70,698 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 build: 185 builds: 3 failed, 182 passed, 4 errors, 175=
- warnings (v5.10.145-138-gc79813af804a)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-0/kernel/v5.10.145-138-gc79813af804a/
-
-Tree: stable-rc
-Branch: queue/5.10
-Git Describe: v5.10.145-138-gc79813af804a
-Git Commit: c79813af804add709321717ba79ac86842930a56
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-arm:
-    rpc_defconfig: (gcc-10) FAIL
-
-mips:
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    axs103_defconfig (gcc-10): 1 warning
-    axs103_smp_defconfig (gcc-10): 1 warning
-    haps_hs_defconfig (gcc-10): 1 warning
-    haps_hs_smp_defconfig (gcc-10): 1 warning
-    hsdk_defconfig (gcc-10): 1 warning
-    nsimosci_hs_defconfig (gcc-10): 1 warning
-    nsimosci_hs_smp_defconfig (gcc-10): 1 warning
-    vdk_hs38_defconfig (gcc-10): 1 warning
-    vdk_hs38_smp_defconfig (gcc-10): 1 warning
-
-arm64:
-    defconfig (gcc-10): 1 warning
-    defconfig+arm64-chromebook (gcc-10): 1 warning
-
-arm:
-    am200epdkit_defconfig (gcc-10): 1 warning
-    aspeed_g4_defconfig (gcc-10): 1 warning
-    aspeed_g5_defconfig (gcc-10): 1 warning
-    assabet_defconfig (gcc-10): 1 warning
-    at91_dt_defconfig (gcc-10): 1 warning
-    axm55xx_defconfig (gcc-10): 1 warning
-    badge4_defconfig (gcc-10): 1 warning
-    bcm2835_defconfig (gcc-10): 1 warning
-    cerfcube_defconfig (gcc-10): 1 warning
-    cm_x300_defconfig (gcc-10): 1 warning
-    colibri_pxa270_defconfig (gcc-10): 1 warning
-    colibri_pxa300_defconfig (gcc-10): 1 warning
-    collie_defconfig (gcc-10): 1 warning
-    corgi_defconfig (gcc-10): 1 warning
-    davinci_all_defconfig (gcc-10): 1 warning
-    dove_defconfig (gcc-10): 1 warning
-    ebsa110_defconfig (gcc-10): 1 warning
-    efm32_defconfig (gcc-10): 1 warning
-    ep93xx_defconfig (gcc-10): 1 warning
-    eseries_pxa_defconfig (gcc-10): 1 warning
-    exynos_defconfig (gcc-10): 1 warning
-    ezx_defconfig (gcc-10): 1 warning
-    footbridge_defconfig (gcc-10): 1 warning
-    gemini_defconfig (gcc-10): 1 warning
-    h3600_defconfig (gcc-10): 1 warning
-    h5000_defconfig (gcc-10): 1 warning
-    hackkit_defconfig (gcc-10): 1 warning
-    hisi_defconfig (gcc-10): 1 warning
-    imote2_defconfig (gcc-10): 1 warning
-    imx_v4_v5_defconfig (gcc-10): 1 warning
-    imx_v6_v7_defconfig (gcc-10): 1 warning
-    integrator_defconfig (gcc-10): 1 warning
-    iop32x_defconfig (gcc-10): 1 warning
-    ixp4xx_defconfig (gcc-10): 1 warning
-    jornada720_defconfig (gcc-10): 1 warning
-    keystone_defconfig (gcc-10): 1 warning
-    lart_defconfig (gcc-10): 1 warning
-    lpc18xx_defconfig (gcc-10): 1 warning
-    lpc32xx_defconfig (gcc-10): 1 warning
-    lpd270_defconfig (gcc-10): 1 warning
-    lubbock_defconfig (gcc-10): 1 warning
-    magician_defconfig (gcc-10): 1 warning
-    mainstone_defconfig (gcc-10): 1 warning
-    mini2440_defconfig (gcc-10): 1 warning
-    mmp2_defconfig (gcc-10): 1 warning
-    moxart_defconfig (gcc-10): 1 warning
-    mps2_defconfig (gcc-10): 1 warning
-    multi_v5_defconfig (gcc-10): 1 warning
-    multi_v7_defconfig (gcc-10): 1 warning
-    mvebu_v5_defconfig (gcc-10): 1 warning
-    mvebu_v7_defconfig (gcc-10): 1 warning
-    mxs_defconfig (gcc-10): 1 warning
-    neponset_defconfig (gcc-10): 1 warning
-    netwinder_defconfig (gcc-10): 1 warning
-    nhk8815_defconfig (gcc-10): 1 warning
-    omap1_defconfig (gcc-10): 1 warning
-    omap2plus_defconfig (gcc-10): 1 warning
-    orion5x_defconfig (gcc-10): 1 warning
-    oxnas_v6_defconfig (gcc-10): 1 warning
-    palmz72_defconfig (gcc-10): 1 warning
-    pcm027_defconfig (gcc-10): 1 warning
-    pleb_defconfig (gcc-10): 1 warning
-    pxa168_defconfig (gcc-10): 1 warning
-    pxa255-idp_defconfig (gcc-10): 1 warning
-    pxa3xx_defconfig (gcc-10): 1 warning
-    pxa910_defconfig (gcc-10): 1 warning
-    pxa_defconfig (gcc-10): 1 warning
-    qcom_defconfig (gcc-10): 1 warning
-    realview_defconfig (gcc-10): 1 warning
-    rpc_defconfig (gcc-10): 4 errors
-    s3c2410_defconfig (gcc-10): 1 warning
-    s5pv210_defconfig (gcc-10): 1 warning
-    sama5_defconfig (gcc-10): 1 warning
-    shannon_defconfig (gcc-10): 1 warning
-    shmobile_defconfig (gcc-10): 1 warning
-    simpad_defconfig (gcc-10): 1 warning
-    socfpga_defconfig (gcc-10): 1 warning
-    spear13xx_defconfig (gcc-10): 1 warning
-    spear3xx_defconfig (gcc-10): 1 warning
-    spear6xx_defconfig (gcc-10): 1 warning
-    spitz_defconfig (gcc-10): 1 warning
-    sunxi_defconfig (gcc-10): 1 warning
-    tango4_defconfig (gcc-10): 1 warning
-    tct_hammer_defconfig (gcc-10): 1 warning
-    tegra_defconfig (gcc-10): 1 warning
-    trizeps4_defconfig (gcc-10): 1 warning
-    u8500_defconfig (gcc-10): 1 warning
-    versatile_defconfig (gcc-10): 1 warning
-    vexpress_defconfig (gcc-10): 1 warning
-    viper_defconfig (gcc-10): 1 warning
-    vt8500_v6_v7_defconfig (gcc-10): 1 warning
-    xcep_defconfig (gcc-10): 1 warning
-    zeus_defconfig (gcc-10): 1 warning
-
-i386:
-    i386_defconfig (gcc-10): 1 warning
-
-mips:
-    32r2el_defconfig (gcc-10): 2 warnings
-    ar7_defconfig (gcc-10): 1 warning
-    ath25_defconfig (gcc-10): 1 warning
-    ath79_defconfig (gcc-10): 1 warning
-    bcm47xx_defconfig (gcc-10): 1 warning
-    bcm63xx_defconfig (gcc-10): 1 warning
-    bigsur_defconfig (gcc-10): 1 warning
-    bmips_be_defconfig (gcc-10): 1 warning
-    bmips_stb_defconfig (gcc-10): 1 warning
-    capcella_defconfig (gcc-10): 1 warning
-    cavium_octeon_defconfig (gcc-10): 1 warning
-    ci20_defconfig (gcc-10): 1 warning
-    cobalt_defconfig (gcc-10): 1 warning
-    cu1000-neo_defconfig (gcc-10): 1 warning
-    cu1830-neo_defconfig (gcc-10): 1 warning
-    db1xxx_defconfig (gcc-10): 1 warning
-    decstation_64_defconfig (gcc-10): 2 warnings
-    decstation_defconfig (gcc-10): 2 warnings
-    decstation_r4k_defconfig (gcc-10): 2 warnings
-    fuloong2e_defconfig (gcc-10): 1 warning
-    gcw0_defconfig (gcc-10): 1 warning
-    gpr_defconfig (gcc-10): 1 warning
-    ip22_defconfig (gcc-10): 1 warning
-    ip32_defconfig (gcc-10): 1 warning
-    jazz_defconfig (gcc-10): 1 warning
-    jmr3927_defconfig (gcc-10): 1 warning
-    lemote2f_defconfig (gcc-10): 2 warnings
-    loongson1b_defconfig (gcc-10): 1 warning
-    loongson1c_defconfig (gcc-10): 1 warning
-    loongson3_defconfig (gcc-10): 1 warning
-    malta_defconfig (gcc-10): 1 warning
-    malta_kvm_defconfig (gcc-10): 1 warning
-    malta_kvm_guest_defconfig (gcc-10): 1 warning
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    maltaaprp_defconfig (gcc-10): 1 warning
-    maltasmvp_defconfig (gcc-10): 1 warning
-    maltasmvp_eva_defconfig (gcc-10): 1 warning
-    maltaup_defconfig (gcc-10): 1 warning
-    maltaup_xpa_defconfig (gcc-10): 1 warning
-    mpc30x_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 1 warning
-    nlm_xlp_defconfig (gcc-10): 1 warning
-    nlm_xlr_defconfig (gcc-10): 1 warning
-    omega2p_defconfig (gcc-10): 1 warning
-    pistachio_defconfig (gcc-10): 1 warning
-    qi_lb60_defconfig (gcc-10): 1 warning
-    rb532_defconfig (gcc-10): 1 warning
-    rbtx49xx_defconfig (gcc-10): 1 warning
-    rm200_defconfig (gcc-10): 2 warnings
-    rs90_defconfig (gcc-10): 1 warning
-    rt305x_defconfig (gcc-10): 1 warning
-    sb1250_swarm_defconfig (gcc-10): 1 warning
-    tb0219_defconfig (gcc-10): 1 warning
-    tb0226_defconfig (gcc-10): 1 warning
-    tb0287_defconfig (gcc-10): 1 warning
-    vocore2_defconfig (gcc-10): 1 warning
-    workpad_defconfig (gcc-10): 1 warning
-
-riscv:
-    defconfig (gcc-10): 1 warning
-    rv32_defconfig (gcc-10): 5 warnings
-
-x86_64:
-    x86_64_defconfig (gcc-10): 1 warning
-    x86_64_defconfig+x86-chromebook (gcc-10): 1 warning
-
-Errors summary:
-
-    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
-
-Warnings summary:
-
-    156  net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=
-=80=99 [-Wunused-variable]
-    9    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-=
-variable]
-    3    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_g=
-p_kthread=E2=80=99 defined but not used [-Wunused-function]
-    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
-    1    net/mac80211/mlme.c:4349:1: warning: the frame size of 1040 bytes =
-is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
-mbol check will be entirely skipped.
-
-Section mismatches summary:
-
-    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
-ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
- the function .init.text:ixp4xx_irq_init()
-    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
- Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
-emory to the function .init.text:prom_init_numa_memory()
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved symbol =
-check will be entirely skipped.
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings=
-, 0 section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
- section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warning=
-s, 0 section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warn=
-ing, 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
-Section mismatches:
-    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
-n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
-function .init.text:ixp4xx_irq_init()
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-    net/mac80211/mlme.c:4349:1: warning: the frame size of 1040 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
-Section mismatches:
-    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
-ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
- to the function .init.text:prom_init_numa_memory()
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0=
- section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-
----------------------------------------------------------------------------=
------
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0=
- section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable 'i' [-Wunused-varia=
-ble]
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0=
- section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-1 warning, 0 section mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    net/core/dev_ioctl.c:41:6: warning: unused variable =E2=80=98i=E2=80=99=
- [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----
-For more info write to <info@kernelci.org>
+stable-rc/queue/5.10 baseline: 102 runs, 18 regressions (v5.10.145-137-ga1a=
+e6a99cce9)
+
+Regressions Summary
+-------------------
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+juno-uboot                 | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+rk3399-gru-kevin           | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.145-137-ga1ae6a99cce9/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.145-137-ga1ae6a99cce9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a1ae6a99cce9d59d38c14add03edcfa27a9dee86 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+juno-uboot                 | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332d2bef6c5666587ec4eb2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-juno-uboot.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-juno-uboot.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332d2bef6c5666587ec4=
+eb3
+        new failure (last pass: v5.10.145-137-g7e427fa9bbc5f) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332dcb8fc787c03d2ec4ec0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332dcb8fc787c03d2ec4=
+ec1
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332de5c42ae949f91ec4ea6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332de5c42ae949f91ec4=
+ea7
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332ceaa242bc55c6bec4ece
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332ceaa242bc55c6bec4=
+ecf
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cf0e8f22b0f877ec4ecc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cf0e8f22b0f877ec4=
+ecd
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332dc7d656679199dec4ed6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332dc7d656679199dec4=
+ed7
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332de48b9f7010687ec4eb3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332de48b9f7010687ec4=
+eb4
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cdba08ed748771ec4f10
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cdba08ed748771ec4=
+f11
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cf0e4d946fff83ec4ed5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cf0e4d946fff83ec4=
+ed6
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332dc7c2c44463542ec4ec3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332dc7c2c44463542ec4=
+ec4
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332de5eb9f7010687ec4eba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332de5eb9f7010687ec4=
+ebb
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cd5b406fdcad7fec4ea7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cd5b406fdcad7fec4=
+ea8
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cf227fbe3ff04fec4ea9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cf227fbe3ff04fec4=
+eaa
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332dc687794ffcea8ec4f10
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-v=
+irt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332dc687794ffcea8ec4=
+f11
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332de9810d3275edeec4ea8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/base=
+line-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332de9810d3275edeec4=
+ea9
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cd57fbf4852b95ec4ef6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cd57fbf4852b95ec4=
+ef7
+        failing since 62 days (last pass: v5.10.101-110-ge437828b3a54, firs=
+t fail: v5.10.133-85-g4c4562ba4bd5) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332cf36c455019bd8ec4edc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6332cf36c455019bd8ec4=
+edd
+        failing since 63 days (last pass: v5.10.101-121-g37c714b8817b, firs=
+t fail: v5.10.133-85-gebd96107f6d2) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+rk3399-gru-kevin           | arm64 | lab-collabora | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6332ced41331051c85ec4ef2
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.145=
+-137-ga1ae6a99cce9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6332ced41331051c85ec4f18
+        failing since 203 days (last pass: v5.10.103-56-ge5a40f18f4ce, firs=
+t fail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-09-27T10:21:50.696350  /lava-7421303/1/../bin/lava-test-case
+    2022-09-27T10:21:50.707700  <8>[   34.003451] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
