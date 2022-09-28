@@ -2,92 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1955ED425
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 07:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A71895ED455
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 07:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbiI1FOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 01:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
+        id S232626AbiI1FtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 01:49:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiI1FOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 01:14:10 -0400
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D6A11E0D1;
-        Tue, 27 Sep 2022 22:14:09 -0700 (PDT)
-Received: by mail-wm1-f51.google.com with SMTP id e18so7794339wmq.3;
-        Tue, 27 Sep 2022 22:14:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=OB38kRi227skB/6g1/JGH5vPB3HcOBtn9y8MKLJUtto=;
-        b=ce/1DvN4M81ygbm1WC5rYz+47y1vA2gqTg64Dx1LlEhLPP5DA1FpG/NRBOJTv7NoXi
-         TLjc0rSqWNEnL4Jez8yAetw2F0ak6YseUWxwiUGDc5XLpvJvGopKYBLZvz8gDu+iXJAl
-         BLewyuyVAUbfOWZbpY3leQFQ1oSQI6HDqCo2cGK0ahGMUXPq/5vo1OkcPys7c2ieCDdJ
-         /fXlrdJV8FhUqVJZl8SqRxhjLMpUmTYBjz+mFFLb+7ZC2a5y82KSPVRLTpcEJnOXNeCu
-         VpfqsALT1qxvJ7XZby4p/n8nzb0w7p20wlpHnCE8SbYraE+sCBw+8fF39oFLTFkOn14C
-         gw+w==
-X-Gm-Message-State: ACrzQf0kTlaMsVIAAs7dtw7rzvFh1L6WXEOnN+GGEbjabMU7LNX+76xQ
-        K/InssNyKJ7ERnzpLEwqYwWRKjLZ5DM=
-X-Google-Smtp-Source: AMsMyM60RriHaQCzJJtBlHBY2m8du/ksKmv2Hv/4I8TeCsLiIosweyMkso0U0f0by+2iBhaQRNRRSg==
-X-Received: by 2002:a05:600c:4f44:b0:3b4:c554:a5f4 with SMTP id m4-20020a05600c4f4400b003b4c554a5f4mr5073655wmq.107.1664342047837;
-        Tue, 27 Sep 2022 22:14:07 -0700 (PDT)
-Received: from [192.168.1.49] (185-219-167-24-static.vivo.cz. [185.219.167.24])
-        by smtp.gmail.com with ESMTPSA id h9-20020a1c2109000000b003b4fac020c8sm661741wmh.16.2022.09.27.22.14.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Sep 2022 22:14:06 -0700 (PDT)
-Message-ID: <a223a99b-cbbe-aedb-cb08-7c79b9bcf7d0@kernel.org>
-Date:   Wed, 28 Sep 2022 07:14:05 +0200
+        with ESMTP id S232524AbiI1FtT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 01:49:19 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B1910B5A6;
+        Tue, 27 Sep 2022 22:49:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1664344158; x=1695880158;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=tfSVNvkkkk7LUtDYvoTctVOoAlifpjBiL33IWI+E+oc=;
+  b=kbu/R9nOh+hYpfGf+TsGI72qsD6RCMEc8qmNi+B11adzrNfxn39svlCB
+   qOc3E7ykBCihUHQgpOsBxz3IqnSfOa/EqqYnmgBCpoe5V+w7d3Uh4qsjI
+   pvIyT57ux4wsLV4QoHhWFwu/vn9jExB8nlzX2HpOJcvA2FeXjIkDPH2zN
+   Qd9EBBYQT6/Co54aMU/OyBts+atHKAVKfwshkTCFA044H5h031o+rPD7N
+   BjdTkeonOC1uiVvQ0x/6VpNXVSvw0L722wfmJa+IS8xt6CF+GgphM8fDZ
+   YO3NWykn9JZYCdnjHXjVfOaQ/+oWQE8M+OGwBO/i0eLh6H7GqsHomiqS0
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10483"; a="281230311"
+X-IronPort-AV: E=Sophos;i="5.93,351,1654585200"; 
+   d="scan'208";a="281230311"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Sep 2022 22:49:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10483"; a="624023897"
+X-IronPort-AV: E=Sophos;i="5.93,351,1654585200"; 
+   d="scan'208";a="624023897"
+Received: from mylly.fi.intel.com (HELO [10.237.72.162]) ([10.237.72.162])
+  by fmsmga007.fm.intel.com with ESMTP; 27 Sep 2022 22:49:15 -0700
+Message-ID: <31477388-b57b-5383-9c6a-18905c28253e@linux.intel.com>
+Date:   Wed, 28 Sep 2022 08:49:14 +0300
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH 5.19 000/207] 5.19.12-rc1 review
+ Firefox/102.0 Thunderbird/102.3.0
+Subject: Re: [PATCH] i2c: designware: Fix handling of real but unexpected
+ device interrupts
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220926100806.522017616@linuxfoundation.org>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <20220926100806.522017616@linuxfoundation.org>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>,
+        Samuel Clark <slc2015@gmail.com>, stable@vger.kernel.org,
+        Hans de Goede <hdegoede@redhat.com>
+References: <20220927135644.1656369-1-jarkko.nikula@linux.intel.com>
+ <YzMKHf+aNKiGVkyn@smile.fi.intel.com>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <YzMKHf+aNKiGVkyn@smile.fi.intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26. 09. 22, 12:09, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.12 release.
-> There are 207 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
++ Hans
+
+I forgot to Cc you yesterday even especially had a question for you :-(
+
+Patch here and my comment to Andy below.
+
+https://patchwork.ozlabs.org/project/linux-i2c/patch/20220927135644.1656369-1-jarkko.nikula@linux.intel.com/
+
+On 9/27/22 17:35, Andy Shevchenko wrote:
+> On Tue, Sep 27, 2022 at 04:56:44PM +0300, Jarkko Nikula wrote:
+>>   #define STATUS_IDLE			0x0
 > 
-> Responses should be made by Wed, 28 Sep 2022 10:07:26 +0000.
-> Anything received after that time might be too late.
+> A side note: I think the clearer is to use STATUS_MASK and use
+> '&= ~STATUS_MASK' instead of '= STATUS_IDLE' in the affected pieces
+> of the code.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
+>> -#define STATUS_WRITE_IN_PROGRESS	0x1
+>> -#define STATUS_READ_IN_PROGRESS		0x2
+>> +#define STATUS_ACTIVE			0x1
+>> +#define STATUS_WRITE_IN_PROGRESS	0x2
+>> +#define STATUS_READ_IN_PROGRESS		0x4
+> 
+> Can we at the same time replace them with BIT()?
+> 
+> ...
+> 
+> Otherwise looks good to me,
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+Good points. I'll add these to follow up patches.
 
-openSUSE configs¹⁾ all green. x86_64 runs fine.
-
-Tested-by: Jiri Slaby <jirislaby@kernel.org>
-
-¹⁾ armv6hl armv7hl arm64 i386 ppc64 ppc64le riscv64 s390x x86_64
-
--- 
-js
-suse labs
-
+Jarkko
