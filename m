@@ -2,214 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B70655EDFE0
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 17:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58C05EE02B
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 17:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234497AbiI1PNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 11:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43794 "EHLO
+        id S234073AbiI1PXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 11:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234599AbiI1PM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 11:12:58 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5E2B0890
-        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 08:12:50 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id v10-20020a17090a634a00b00205e48cf845so2684418pjs.4
-        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 08:12:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=w6fBZMESmRgjwlESP2ozzTtrQv3GKD4fE1uTt5qrSvk=;
-        b=Selb+ZX9CEXsLP/orV+Om6gxqJ1FZsNlNjIbLTvz8HsqpB3YUWXXJtn2ZiubARYg0h
-         iPUkvpAIOdRUEpLo6kMqnP8qprpqbWBEDMyi4FzmbQUj2l13DcMk9SmppEeB23lsbPj8
-         RDpBH2Rk2ZS0AQDg8QudB8ZoTy3FXP8jNc+40pfxM6CBQQZTT3gexRfh2kKIz+N7nN4k
-         DkuNyoqNZERFdzey4P6JFw8TsVOWMcL7jBBvg1348nfzdZ1XABGWnkzfRTq2Q/xWJ+7K
-         Sj5pUYMGqw3cg0NbpKAurEp4YeE/br1nQKhmTf1eAaK7wfH6yw0opMpkkgRKoWqZw6PZ
-         T5Tw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=w6fBZMESmRgjwlESP2ozzTtrQv3GKD4fE1uTt5qrSvk=;
-        b=RLkSgteSskSeKaATSyxQjwJVhX0mdorYlxiX77RLTCIn3mJcOZNoV0HNzVy0sfoENP
-         LHPh1YTrwvNy9stuYysNHqA/rezLo81pmjJcEgJNpXJZvV9nBrvW8dsB60wiq9/a1m0H
-         WFd/J4eZPgR+DYUY6MAcyXR8yLsJzIgClrseSf2uck09cs5XIvWpsDSFcn2kZTASW7a7
-         MxfGaWmlcQQYhoJlOfuWYTNHWNYvdjiXlTu0/vDOmWAUDFOOztKmpDpjFKZLWCcmgoMX
-         WE6FbCqykFdA7N8da+Rb6NbUoWXb5w2HILQraipOmFQPf9XyvMP9FT2CIN2Q//2mtdHi
-         ziVg==
-X-Gm-Message-State: ACrzQf00zLE1Qjfos/qsxeZcPeN6+H6oJ5Ha89sgT8OW3GcosS+5VDjT
-        7IQo+AFUI48w+LwDGEK5CNoMoTBkdwKsIADL
-X-Google-Smtp-Source: AMsMyM5ihb3NcIKWTGm/jAFJZ1y7WdO1vaRAo6OUB7uk5yOPWW4LdcZzoUMRVzxpTEtgDSI3LOFGdQ==
-X-Received: by 2002:a17:902:a517:b0:178:8bf4:c536 with SMTP id s23-20020a170902a51700b001788bf4c536mr321787plq.62.1664377969664;
-        Wed, 28 Sep 2022 08:12:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q5-20020a17090a4f8500b001fbb0f0b00fsm1671733pjh.35.2022.09.28.08.12.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Sep 2022 08:12:48 -0700 (PDT)
-Message-ID: <63346470.170a0220.fe253.2ba6@mx.google.com>
-Date:   Wed, 28 Sep 2022 08:12:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S234723AbiI1PXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 11:23:13 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B43EC841D
+        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 08:21:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1664378497; x=1695914497;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=i2QgZ7YKdOBHjwOfUHjB2NKlTe0ZdbfcFlxvIRTmAZs=;
+  b=Ixq5uzDlHGCr63+Vv/jV2oZw2MjTczdI801K3TjST+VVMlGbEN67rX7Z
+   cAZsUYBockcjxg7EgnE7eoXk+dxs/MHpCKLkmgDkWtsEgEqoqLx+RhECV
+   VMqXF3OrdnxvrfDq0biaPV4JvfqdynAmAhP2AXUJjQjh02wdmrVeC/W7y
+   g0iNezpmoXb7AO6zjQJBEjuLMaJsIUrtG0A4VdkUosC0KVXXuFLSluOHH
+   IKt5Dx9g/EdvkNnN3AHsW7uS8nUkpn5ams8d7mSNK/ZzL8EBp3jIZ3D/4
+   7hB/iXsJ8FFC67Pp+zPJ9HSiojqI+0z0xT0J2opq1u5vkPbMreDJ/051a
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10484"; a="301604646"
+X-IronPort-AV: E=Sophos;i="5.93,352,1654585200"; 
+   d="scan'208";a="301604646"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2022 08:21:35 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10484"; a="599613586"
+X-IronPort-AV: E=Sophos;i="5.93,352,1654585200"; 
+   d="scan'208";a="599613586"
+Received: from jkrzyszt-mobl1.ger.corp.intel.com ([10.213.5.184])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2022 08:21:33 -0700
+From:   Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+To:     stable@vger.kernel.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Subject: [PATCH 5.15] drm/i915/gem: Really move i915_gem_context.link under ref protection
+Date:   Wed, 28 Sep 2022 17:20:51 +0200
+Message-Id: <20220928152051.267360-1-janusz.krzysztofik@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.11-208-ge0d15091986ad
-X-Kernelci-Branch: queue/5.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.19 baseline: 170 runs,
- 3 regressions (v5.19.11-208-ge0d15091986ad)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.19 baseline: 170 runs, 3 regressions (v5.19.11-208-ge0d15=
-091986ad)
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-Regressions Summary
--------------------
+[ Upstream commit d119888b09bd567e07c6b93a07f175df88857e02 ]
 
-platform        | arch | lab           | compiler | defconfig           | r=
-egressions
-----------------+------+---------------+----------+---------------------+--=
-----------
-imx7ulp-evk     | arm  | lab-nxp       | gcc-10   | imx_v6_v7_defconfig | 1=
-          =
+i915_perf assumes that it can use the i915_gem_context reference to
+protect its i915->gem.contexts.list iteration. However, this requires
+that we do not remove the context from the list until after we drop the
+final reference and release the struct. If, as currently, we remove the
+context from the list during context_close(), the link.next pointer may
+be poisoned while we are holding the context reference and cause a GPF:
 
-imx7ulp-evk     | arm  | lab-nxp       | gcc-10   | multi_v7_defconfig  | 1=
-          =
+[ 4070.573157] i915 0000:00:02.0: [drm:i915_perf_open_ioctl [i915]] filtering on ctx_id=0x1fffff ctx_id_mask=0x1fffff
+[ 4070.574881] general protection fault, probably for non-canonical address 0xdead000000000100: 0000 [#1] PREEMPT SMP
+[ 4070.574897] CPU: 1 PID: 284392 Comm: amd_performance Tainted: G            E     5.17.9 #180
+[ 4070.574903] Hardware name: Intel Corporation NUC7i5BNK/NUC7i5BNB, BIOS BNKBL357.86A.0052.2017.0918.1346 09/18/2017
+[ 4070.574907] RIP: 0010:oa_configure_all_contexts.isra.0+0x222/0x350 [i915]
+[ 4070.574982] Code: 08 e8 32 6e 10 e1 4d 8b 6d 50 b8 ff ff ff ff 49 83 ed 50 f0 41 0f c1 04 24 83 f8 01 0f 84 e3 00 00 00 85 c0 0f 8e fa 00 00 00 <49> 8b 45 50 48 8d 70 b0 49 8d 45 50 48 39 44 24 10 0f 85 34 fe ff
+[ 4070.574990] RSP: 0018:ffffc90002077b78 EFLAGS: 00010202
+[ 4070.574995] RAX: 0000000000000002 RBX: 0000000000000002 RCX: 0000000000000000
+[ 4070.575000] RDX: 0000000000000001 RSI: ffffc90002077b20 RDI: ffff88810ddc7c68
+[ 4070.575004] RBP: 0000000000000001 R08: ffff888103242648 R09: fffffffffffffffc
+[ 4070.575008] R10: ffffffff82c50bc0 R11: 0000000000025c80 R12: ffff888101bf1860
+[ 4070.575012] R13: dead0000000000b0 R14: ffffc90002077c04 R15: ffff88810be5cabc
+[ 4070.575016] FS:  00007f1ed50c0780(0000) GS:ffff88885ec80000(0000) knlGS:0000000000000000
+[ 4070.575021] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 4070.575025] CR2: 00007f1ed5590280 CR3: 000000010ef6f005 CR4: 00000000003706e0
+[ 4070.575029] Call Trace:
+[ 4070.575033]  <TASK>
+[ 4070.575037]  lrc_configure_all_contexts+0x13e/0x150 [i915]
+[ 4070.575103]  gen8_enable_metric_set+0x4d/0x90 [i915]
+[ 4070.575164]  i915_perf_open_ioctl+0xbc0/0x1500 [i915]
+[ 4070.575224]  ? asm_common_interrupt+0x1e/0x40
+[ 4070.575232]  ? i915_oa_init_reg_state+0x110/0x110 [i915]
+[ 4070.575290]  drm_ioctl_kernel+0x85/0x110
+[ 4070.575296]  ? update_load_avg+0x5f/0x5e0
+[ 4070.575302]  drm_ioctl+0x1d3/0x370
+[ 4070.575307]  ? i915_oa_init_reg_state+0x110/0x110 [i915]
+[ 4070.575382]  ? gen8_gt_irq_handler+0x46/0x130 [i915]
+[ 4070.575445]  __x64_sys_ioctl+0x3c4/0x8d0
+[ 4070.575451]  ? __do_softirq+0xaa/0x1d2
+[ 4070.575456]  do_syscall_64+0x35/0x80
+[ 4070.575461]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 4070.575467] RIP: 0033:0x7f1ed5c10397
+[ 4070.575471] Code: 3c 1c e8 1c ff ff ff 85 c0 79 87 49 c7 c4 ff ff ff ff 5b 5d 4c 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a9 da 0d 00 f7 d8 64 89 01 48
+[ 4070.575478] RSP: 002b:00007ffd65c8d7a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[ 4070.575484] RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 00007f1ed5c10397
+[ 4070.575488] RDX: 00007ffd65c8d7c0 RSI: 0000000040106476 RDI: 0000000000000006
+[ 4070.575492] RBP: 00005620972f9c60 R08: 000000000000000a R09: 0000000000000005
+[ 4070.575496] R10: 000000000000000d R11: 0000000000000246 R12: 000000000000000a
+[ 4070.575500] R13: 000000000000000d R14: 0000000000000000 R15: 00007ffd65c8d7c0
+[ 4070.575505]  </TASK>
+[ 4070.575507] Modules linked in: nls_ascii(E) nls_cp437(E) vfat(E) fat(E) i915(E) x86_pkg_temp_thermal(E) intel_powerclamp(E) crct10dif_pclmul(E) crc32_pclmul(E) crc32c_intel(E) aesni_intel(E) crypto_simd(E) intel_gtt(E) cryptd(E) ttm(E) rapl(E) intel_cstate(E) drm_kms_helper(E) cfbfillrect(E) syscopyarea(E) cfbimgblt(E) intel_uncore(E) sysfillrect(E) mei_me(E) sysimgblt(E) i2c_i801(E) fb_sys_fops(E) mei(E) intel_pch_thermal(E) i2c_smbus(E) cfbcopyarea(E) video(E) button(E) efivarfs(E) autofs4(E)
+[ 4070.575549] ---[ end trace 0000000000000000 ]---
 
-qemu_mips-malta | mips | lab-collabora | gcc-10   | malta_defconfig     | 1=
-          =
+v3: fix incorrect syntax of spin_lock() replacing spin_lock_irqsave()
 
+v2: irqsave not required in a worker, neither conversion to irq safe
+    elsewhere (Tvrtko),
+  - perf: it's safe to call gen8_configure_context() even if context has
+    been closed, no need to check,
+  - drop unrelated cleanup (Andi, Tvrtko)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
-nel/v5.19.11-208-ge0d15091986ad/plan/baseline/
+Reported-by: Mark Janes <mark.janes@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/6222
+References: a4e7ccdac38e ("drm/i915: Move context management under GEM")
+Fixes: f8246cf4d9a9 ("drm/i915/gem: Drop free_work for GEM contexts")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.12+
+Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220916092403.201355-3-janusz.krzysztofik@linux.intel.com
+(cherry picked from commit ad3aa7c31efa5a09b0dba42e66cfdf77e0db7dc2)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[janusz: backport]
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+---
+ drivers/gpu/drm/i915/gem/i915_gem_context.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.19
-  Describe: v5.19.11-208-ge0d15091986ad
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e0d15091986ad8880b9ff425584f5bac667297a3 =
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+index ba2e037a82e4e..60f6a731f1bf6 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -997,6 +997,10 @@ void i915_gem_context_release(struct kref *ref)
+ 	trace_i915_context_free(ctx);
+ 	GEM_BUG_ON(!i915_gem_context_is_closed(ctx));
+ 
++	spin_lock(&ctx->i915->gem.contexts.lock);
++	list_del(&ctx->link);
++	spin_unlock(&ctx->i915->gem.contexts.lock);
++
+ 	if (ctx->syncobj)
+ 		drm_syncobj_put(ctx->syncobj);
+ 
+@@ -1228,10 +1232,6 @@ static void context_close(struct i915_gem_context *ctx)
+ 	 */
+ 	lut_close(ctx);
+ 
+-	spin_lock(&ctx->i915->gem.contexts.lock);
+-	list_del(&ctx->link);
+-	spin_unlock(&ctx->i915->gem.contexts.lock);
+-
+ 	mutex_unlock(&ctx->mutex);
+ 
+ 	/*
+-- 
+2.25.1
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch | lab           | compiler | defconfig           | r=
-egressions
-----------------+------+---------------+----------+---------------------+--=
-----------
-imx7ulp-evk     | arm  | lab-nxp       | gcc-10   | imx_v6_v7_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63342f6f33066e2de2ec4ed2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.11-=
-208-ge0d15091986ad/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-=
-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.11-=
-208-ge0d15091986ad/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-=
-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63342f6f33066e2de2ec4=
-ed3
-        failing since 2 days (last pass: v5.19.11-158-gc8a84e45064d0, first=
- fail: v5.19.11-186-ge96864168d41) =
-
- =
-
-
-
-platform        | arch | lab           | compiler | defconfig           | r=
-egressions
-----------------+------+---------------+----------+---------------------+--=
-----------
-imx7ulp-evk     | arm  | lab-nxp       | gcc-10   | multi_v7_defconfig  | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63343136493293b5acec4f44
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.11-=
-208-ge0d15091986ad/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.11-=
-208-ge0d15091986ad/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63343136493293b5acec4=
-f45
-        failing since 1 day (last pass: v5.19.11-158-gc8a84e45064d0, first =
-fail: v5.19.11-206-g444111497b13) =
-
- =
-
-
-
-platform        | arch | lab           | compiler | defconfig           | r=
-egressions
-----------------+------+---------------+----------+---------------------+--=
-----------
-qemu_mips-malta | mips | lab-collabora | gcc-10   | malta_defconfig     | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6334339f8a3f40b3cfec4ed6
-
-  Results:     4 PASS, 1 FAIL, 2 SKIP
-  Full config: malta_defconfig
-  Compiler:    gcc-10 (mips-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.11-=
-208-ge0d15091986ad/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qemu_=
-mips-malta.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.11-=
-208-ge0d15091986ad/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qemu_=
-mips-malta.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/mipsel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6334339f8a3f40b=
-3cfec4eda
-        failing since 0 day (last pass: v5.19.11-207-g5704e94c78ce, first f=
-ail: v5.19.11-208-g633f59cac516)
-        1 lines
-
-    2022-09-28T11:44:16.673904  kern  :alert : CPU 0 Unable to handle kerne=
-l paging request at virtual address 00007e54, epc =3D=3D 80200cc0, ra =3D=
-=3D 8023ee18
-    2022-09-28T11:44:16.711356  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
-rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>   =
-
- =20
