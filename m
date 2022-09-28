@@ -2,120 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 031E65ED65C
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 09:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2A6D5ED73F
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 10:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232524AbiI1HjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 03:39:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53790 "EHLO
+        id S232770AbiI1INj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 04:13:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232623AbiI1His (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 03:38:48 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABCB4112FD1;
-        Wed, 28 Sep 2022 00:37:09 -0700 (PDT)
-Received: from fraeml705-chm.china.huawei.com (unknown [172.18.147.226])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4McpDq0wD2z6H76D;
-        Wed, 28 Sep 2022 15:35:23 +0800 (CST)
-Received: from lhrpeml500003.china.huawei.com (7.191.162.67) by
- fraeml705-chm.china.huawei.com (10.206.15.54) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2375.31; Wed, 28 Sep 2022 09:36:36 +0200
-Received: from [10.126.175.219] (10.126.175.219) by
- lhrpeml500003.china.huawei.com (7.191.162.67) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 28 Sep 2022 08:36:36 +0100
-Message-ID: <c618db25-89ed-8814-b825-50655236a92d@huawei.com>
-Date:   Wed, 28 Sep 2022 08:36:39 +0100
+        with ESMTP id S233974AbiI1INg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 04:13:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDA5F185E
+        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 01:13:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1664352811;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lNzA3PtO6KVkcwvX2e9uAcm92K64t3NApyRdbIxailw=;
+        b=cICjOLc1LscYr/qSMXdfeY6m6tlGnZ9AkLb1fYguF2QnFkJlfa3bboqHEGXhezb9NwAdjg
+        fsyS78swxBFe/cJ4Xq2TEBI0o+VTedVNLOjsQXc3kdzMdo3uGuWUPpfqbIXA0xVU8wqiWX
+        1ieeVUSkeTR2in9/m6yG3BmBulYi1mI=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-458-qYeDnoJyNyKuJf6nlsZqqg-1; Wed, 28 Sep 2022 04:13:28 -0400
+X-MC-Unique: qYeDnoJyNyKuJf6nlsZqqg-1
+Received: by mail-ej1-f72.google.com with SMTP id 7-20020a170906328700b007838b96bf70so3903622ejw.7
+        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 01:13:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=lNzA3PtO6KVkcwvX2e9uAcm92K64t3NApyRdbIxailw=;
+        b=lx1bwpbfRAqV1fn9qesRCnmfu5dTQ0zkwg9VSBXK19WJZo+bKGptLYUVX/mOXnelFB
+         LXPmA9ir+QFZxiuoBtx6Q+UY9YFBFZwoXefacAJs0gA9I/XIwEEFw3ye6waax/h0vKOr
+         4SG07exuLF+GE1494p6CUArADuECkUR+rPXuET0oqDhgFVsxvTQRyKKTCcVU4zIuwKs5
+         iT1n2JSw3dIgx36ot8Vzk76kLsZWzqf2f/8f+Mi4F/1nd6wJYnkDz931VAYoH5dWhiJX
+         RLSSHoWuEPmJw4sJxAnktIm1hkoRwlxyNqdbzNz/6zaUjWadkoolFMnu5MfeEFvVwD7I
+         HicQ==
+X-Gm-Message-State: ACrzQf11drQy204jBeNyRdiy/kIG6GFwRy/Grw9OsXLzGm5PUuos4vsh
+        lo94429/G2TofsDOXc440Sk+M6ShgBk1oBdFbGcoT+HYcRzoAg/xQ3jyLfOHwNMqMKMsLZYzaBz
+        HKhiBX56i9TeH3Dsz
+X-Received: by 2002:a17:907:1df1:b0:779:4f57:6bb2 with SMTP id og49-20020a1709071df100b007794f576bb2mr26774869ejc.407.1664352807227;
+        Wed, 28 Sep 2022 01:13:27 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5dA1MWILEDniSI11YNVQ9D8vaRwbRSstK1PCtmzAzQIvf+LLKoLYEFDlGlOG4F8R/ghzbRng==
+X-Received: by 2002:a17:907:1df1:b0:779:4f57:6bb2 with SMTP id og49-20020a1709071df100b007794f576bb2mr26774851ejc.407.1664352807047;
+        Wed, 28 Sep 2022 01:13:27 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:d69d:5353:dba5:ee81? (2001-1c00-0c1e-bf00-d69d-5353-dba5-ee81.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:d69d:5353:dba5:ee81])
+        by smtp.gmail.com with ESMTPSA id p14-20020a17090653ce00b0077f20a722dfsm1949464ejo.165.2022.09.28.01.13.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Sep 2022 01:13:26 -0700 (PDT)
+Message-ID: <5b8a4060-b800-6701-e0c9-cc8dfa0e6b67@redhat.com>
+Date:   Wed, 28 Sep 2022 10:13:25 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH 5.10] scsi: hisi_sas: Revert "scsi: hisi_sas: Limit max hw
- sectors for v3 HW"
-To:     Yu Kuai <yukuai1@huaweicloud.com>, <gregkh@linuxfoundation.org>,
-        <stable@vger.kernel.org>, <jejb@linux.ibm.com>,
-        <martin.petersen@oracle.com>
-CC:     <linux-scsi@vger.kernel.org>, <yi.zhang@huawei.com>,
-        "yukuai (C)" <yukuai3@huawei.com>
-References: <20220927130116.1013775-1-yukuai3@huawei.com>
- <a1fe584c-5001-9983-3a3d-65d3bd396642@huawei.com>
- <2bcb72eb-b9a7-8fed-f17d-3f1df4da9ee5@huaweicloud.com>
- <f50cc744-f522-259a-e670-809d65361548@huawei.com>
- <5b8cc025-0755-74c1-3df5-a95718d23861@huaweicloud.com>
- <f24d0eb1-a578-2221-c8da-17ddbd35e96d@huawei.com>
- <4734dd2d-8a32-98b5-3fda-9def720724c9@huaweicloud.com>
-From:   John Garry <john.garry@huawei.com>
-In-Reply-To: <4734dd2d-8a32-98b5-3fda-9def720724c9@huaweicloud.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: [PATCH] i2c: designware: Fix handling of real but unexpected
+ device interrupts
+Content-Language: en-US, nl
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>,
+        Samuel Clark <slc2015@gmail.com>, stable@vger.kernel.org
+References: <20220927135644.1656369-1-jarkko.nikula@linux.intel.com>
+ <YzMKHf+aNKiGVkyn@smile.fi.intel.com>
+ <31477388-b57b-5383-9c6a-18905c28253e@linux.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <31477388-b57b-5383-9c6a-18905c28253e@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.126.175.219]
-X-ClientProxiedBy: lhrpeml100003.china.huawei.com (7.191.160.210) To
- lhrpeml500003.china.huawei.com (7.191.162.67)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-6.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28/09/2022 02:35, Yu Kuai wrote:
->>>> However both 5.15 stable and 5.19 mainline include fce54ed02757 - it 
->>>> was automatically backported for 5.15 stable. Please double check that.
->>>>
->>>> And can you also check performance there for those kernels?
->>>
->>> I'm pretty sure io split can decline performance, especially for HDD,
->>> because blk-mq can't guarantee that split io can be dispatched to disk
->>> sequentially. However, this is usually not common with proper
->>> max_sectors_kb.
->>>
->>> Here is an example that if max_sector_kb is 128k, performance will
->>> drop a lot under high concurrency:
->>>
->>> https://lore.kernel.org/all/20220408073916.1428590-1-yukuai3@huawei.com/
+Hi Jarkko,
 
-This never got merged in any form, right?
+On 9/28/22 07:49, Jarkko Nikula wrote:
+> + Hans
+> 
+> I forgot to Cc you yesterday even especially had a question for you :-(
 
->>>
->>> Here I set max_sectors_kb to 128k manually, and 1m random io performance
->>> will drop while io concurrency increase:
->>>
->>> | numjobs | v5.18-rc1 |
->>> | ------- | --------- |
->>> | 1       | 67.7      |
->>> | 2       | 67.7      |
->>> | 4       | 67.7      |
->>> | 8       | 67.7      |
->>> | 16      | 64.8      |
->>> | 32      | 59.8      |
->>> | 64      | 54.9      |
->>> | 128     | 49        |
->>> | 256     | 37.7      |
->>> | 512     | 31.8      |
+Yes I can test this on BYT and CHT hw where one of the i2c-designware
+busses is shared with the PUNIT. I have added this patch to me personal
+tree which I regularly test on these kinda devices.
+
+I will let you know if I hit any issues, if you don't hear anything from
+me then you can assume I have not hit any issues :)
+
+You also mention being especially interested on testing on hw where
+the interrupt line is shared with other devices. I don't think the
+i2c-designware interrupts are ever shared with other hw on the BYT/CHT
+devices I have.
+
+Regards,
+
+Hans
+
+
+
+> Patch here and my comment to Andy below.
+> 
+> https://patchwork.ozlabs.org/project/linux-i2c/patch/20220927135644.1656369-1-jarkko.nikula@linux.intel.com/
+> 
+> On 9/27/22 17:35, Andy Shevchenko wrote:
+>> On Tue, Sep 27, 2022 at 04:56:44PM +0300, Jarkko Nikula wrote:
+>>>   #define STATUS_IDLE            0x0
 >>
->> Commit fce54ed02757 was to circumvent a terrible performance hit for 
->> IOMMU enabled from 4e89dce72521 - have you ever tested with IOMMU 
->> enabled?
-> 
-> I understand that fce54ed02757 fix a terrible performance regression,
-> and I'm not familiar with IOMMU and I never test that.
+>> A side note: I think the clearer is to use STATUS_MASK and use
+>> '&= ~STATUS_MASK' instead of '= STATUS_IDLE' in the affected pieces
+>> of the code.
 >>
->> If fce54ed02757 really does cause a performance regression in some 
->> scenarios, then we can consider reverting it from any stable kernel 
->> and also backporting [0] when it is included in Linus' kernel
+>>> -#define STATUS_WRITE_IN_PROGRESS    0x1
+>>> -#define STATUS_READ_IN_PROGRESS        0x2
+>>> +#define STATUS_ACTIVE            0x1
+>>> +#define STATUS_WRITE_IN_PROGRESS    0x2
+>>> +#define STATUS_READ_IN_PROGRESS        0x4
+>>
+>> Can we at the same time replace them with BIT()?
+>>
+>> ...
+>>
+>> Otherwise looks good to me,
+>> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>>
+> Good points. I'll add these to follow up patches.
 > 
-> That sounds good.
+> Jarkko
 > 
-> For 5.10 stable, I think it's ok to revert it for now, and if someone
-> cares about the problem 4e89dce72521 fixed, they can try to backport it
-> together with follow up patches.
 
-For 5.10 stable revert only,
-
-Reviewed-by: John Garry <john.garry@huawei.com>
-
-Thanks,
-John
