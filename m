@@ -2,146 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E135ED786
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 10:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 819385ED86C
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 11:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229477AbiI1IUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 04:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60362 "EHLO
+        id S233215AbiI1JGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 05:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230305AbiI1IUB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 04:20:01 -0400
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2081.outbound.protection.outlook.com [40.107.100.81])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F131818B30;
-        Wed, 28 Sep 2022 01:19:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iQ8N0pB47+3JeY2eYysS+Ick2sbLTzMF5Pb6DaCNU8OTU3V0Fz/uAKCKeD8ESmddWCSfbcKLa63QERe+GzCikQ6eDMYpnLKHUCD3UJf6kxsRkr9hSN8lg/60/3SWnUvhFAW0cGSkAXB81ZBWNTbhgcOcvMQuWJHZ1xeDhhQ2k7WTYzd8L3J14VTo1pbbnCsjp9ZdaR98xNcYQEPHMsCawZuIi9+7Zu+fFq98VDG0o8vrx2akIGXt2EykzUGy/Rnt/xS9qFU0WO/1xwCwq0gHs2dTU9nn0OWnV3Szs7NQeYvIul8ZYMcP4br25ni1Vsp/f//gmbtd4ETmPXpoojdG3A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=X9zlzH/F2yYETCwThCwOkni+NMvOHTJI5gtQoUOqStY=;
- b=BS4lFYCM/f4xAgQXRzmCKY17k+G1MQfB9Oa/EzRGcV7miNoo3Ki2TlbZ5nfWiw7w646KNF9FVvZ/4GzFzOE7C28hpFlqiaiWNVN9SEE4E5d2/IfywHA8zGBUisgk7elVfWQMEJ3rG5G6trrVToN5YegJYQiCSIKvdik6ua6icwbFM7Nb7azcHeCyJ9VDGiRfsBuzZyKkfm2nPGbR7F9rWQcOmiNpgXG8440GBpwqKjwmmdkfNGB5O9m95EuYsH/stL61rFSTuPJr3VE+GOKOeMnlzCAfD0YsuCJxNMY3DH5mdH12+wM4k/w2H5Lv/opDJB9HRTXNhWKxay+4jBcYfg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=linuxfoundation.org
- smtp.mailfrom=nvidia.com; dmarc=pass (p=reject sp=reject pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=X9zlzH/F2yYETCwThCwOkni+NMvOHTJI5gtQoUOqStY=;
- b=pUIlzX3H10BkUznM2NCkCaM6fR2zCo5QwSRuPcGTu053sskBOKISLA5rtoERk3sh4lRjBj/NEjWx3PCgbFlrJoJ2H2qKR2hjTqRJfGlD+USqAIV4cLXRSWxzyTE1B2PJBxyZoWe1hePs/JbK0UsuHWCSFftrsrg/OzpevEblsBLmoyBhx9E1/NihHEfaSoNqZu0/AxYR3vwfaVFiJfS/JYhG7fy8pniJQCny2NMHZYr2BhrJPL2QR1EBEhwJWzMKlIeQocf1L9NASnLVlDpSTMwsCkJ6QAmyhDWbbaw2i6gKMpE3XIP/ys1xQhVXGQrg045yiYKctxWHXx9UNpFeIA==
-Received: from DM6PR17CA0027.namprd17.prod.outlook.com (2603:10b6:5:1b3::40)
- by DM6PR12MB4516.namprd12.prod.outlook.com (2603:10b6:5:2ac::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.17; Wed, 28 Sep
- 2022 08:19:57 +0000
-Received: from DM6NAM11FT067.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:1b3:cafe::b6) by DM6PR17CA0027.outlook.office365.com
- (2603:10b6:5:1b3::40) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.17 via Frontend
- Transport; Wed, 28 Sep 2022 08:19:57 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- DM6NAM11FT067.mail.protection.outlook.com (10.13.172.76) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5676.17 via Frontend Transport; Wed, 28 Sep 2022 08:19:57 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Wed, 28 Sep
- 2022 01:19:45 -0700
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.29; Wed, 28 Sep 2022 01:19:45 -0700
-Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
- (10.126.190.181) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29 via Frontend
- Transport; Wed, 28 Sep 2022 01:19:45 -0700
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.15 000/143] 5.15.71-rc2 review
-In-Reply-To: <20220926163551.791017156@linuxfoundation.org>
-References: <20220926163551.791017156@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S233285AbiI1JGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 05:06:36 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E5E140FD
+        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 02:06:35 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1odT1V-00075R-M8
+        for stable@vger.kernel.org; Wed, 28 Sep 2022 11:06:33 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id 10AB0EF6A5
+        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 09:06:33 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id D0E1DEF698;
+        Wed, 28 Sep 2022 09:06:30 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 1931824f;
+        Wed, 28 Sep 2022 09:06:29 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Jacob Kroon <jacob.kroon@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH net] can: c_can: don't cache TX messages for C_CAN cores
+Date:   Wed, 28 Sep 2022 11:06:29 +0200
+Message-Id: <20220928090629.1124190-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220928090629.1124190-1-mkl@pengutronix.de>
+References: <20220928090629.1124190-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-Message-ID: <52a40942-4b98-4caa-b704-ef80891f204d@drhqmail202.nvidia.com>
-Date:   Wed, 28 Sep 2022 01:19:45 -0700
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT067:EE_|DM6PR12MB4516:EE_
-X-MS-Office365-Filtering-Correlation-Id: efaf73ca-567a-43a3-7672-08daa12a3aaf
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: niEGbXGnEZiFY/dVZxxatvjKzNqbrADnCU/iPHsIeSXlt+epMJi3Ly/PHLESWSeap9qcS7vYjjw9S7dalZkftBBLi+PRlf+jXUQXu99W/p9R3GLFr3x9X4Ijx+0htzAgMDSNR+AIa98nUCbPpBflFphLiDI9SzPaDOPVo8vLoaFYo289JVT7zDNoir4w+qAGUqiAky6uUbAChATS+B3DSx/l72nQKGlp8LQHqK9dXiFevWHtlTDe0AcYfscAAGr98gbOul+DBwDwRHhYODUt0lx9uDgPw8sFXohZYMcVqqi8tqJc2vn0Lwsb21EqmW1HTUnyBRRGuNCS0shN1rYWCogSvMI6iWNbxCpvx0FAHxjMAu+bFvYoRi5yNNlgrLkTDtZqG9YIrOn4vDuR1xTM2y8RehBLUZlCeLeuI5R+Oy0fRn7HqVYUR8KpkcPUKvFEGh5dBwvaBWiTmu5w6gyKOoOqUDSLdwCVf4W0xa4Bigu/T6ZueSZ0oHXm/KM5l7tTRvc2ZShzAcULjibU2mqO8iistkH+WZ+CzuVpyy8WncppxmHVYyrngsRlmTYeWYVhBGygM/UZg2yjhqP26dG5JN/UbjAbp+bqxzjLuChgMOSaVtJLQDLNjJCpCBvU0WqZ+5OKl6b2lxLxJjC9mGIV9I/Baff5YzuVIeXs9tybdqPkKkVdzIlT/BP0EhLGy01Z9tKOux4hBgkWdlYkKsreylen2IIyLIl6rmiYWy2H/FNAokkm/baccdkIcv9yt3nolqfq7qtIhUoTiWhWQ4hPzBTGL0sS2ClKNSEGVR01gweAgzvqU0A4FRUTDl3+q/lsaMKfP9yw282AV6rt0XlP9SFpYbIHGYVP5VQwF8nZXk8=
-X-Forefront-Antispam-Report: CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230022)(4636009)(376002)(346002)(136003)(39860400002)(396003)(451199015)(40470700004)(36840700001)(46966006)(8936002)(4326008)(8676002)(31686004)(54906003)(966005)(186003)(6916009)(478600001)(316002)(336012)(7636003)(41300700001)(82740400003)(26005)(70586007)(2906002)(40460700003)(7416002)(31696002)(86362001)(40480700001)(82310400005)(426003)(70206006)(5660300002)(36860700001)(356005)(47076005);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2022 08:19:57.0216
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: efaf73ca-567a-43a3-7672-08daa12a3aaf
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT067.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4516
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 26 Sep 2022 18:37:05 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.71 release.
-> There are 143 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 28 Sep 2022 16:35:25 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.71-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+As Jacob noticed, the optimization introduced in 387da6bc7a82 ("can:
+c_can: cache frames to operate as a true FIFO") doesn't properly work
+on C_CAN, but on D_CAN IP cores. The exact reasons are still unknown.
 
-All tests passing for Tegra ...
+For now disable caching if CAN frames in the TX path for C_CAN cores.
 
-Test results for stable-v5.15:
-    10 builds:	10 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    114 tests:	114 pass, 0 fail
+Fixes: 387da6bc7a82 ("can: c_can: cache frames to operate as a true FIFO")
+Link: https://lore.kernel.org/all/20220928083354.1062321-1-mkl@pengutronix.de
+Link: https://lore.kernel.org/all/15a8084b-9617-2da1-6704-d7e39d60643b@gmail.com
+Reported-by: Jacob Kroon <jacob.kroon@gmail.com>
+Tested-by: Jacob Kroon <jacob.kroon@gmail.com>
+Cc: stable@vger.kernel.org # v5.15
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/c_can/c_can.h      | 17 +++++++++++++++--
+ drivers/net/can/c_can/c_can_main.c | 11 +++++------
+ 2 files changed, 20 insertions(+), 8 deletions(-)
 
-Linux version:	5.15.71-rc2-g0b09b5df445f
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
+diff --git a/drivers/net/can/c_can/c_can.h b/drivers/net/can/c_can/c_can.h
+index f23a03300a81..029cd8194ed5 100644
+--- a/drivers/net/can/c_can/c_can.h
++++ b/drivers/net/can/c_can/c_can.h
+@@ -235,9 +235,22 @@ static inline u8 c_can_get_tx_tail(const struct c_can_tx_ring *ring)
+ 	return ring->tail & (ring->obj_num - 1);
+ }
+ 
+-static inline u8 c_can_get_tx_free(const struct c_can_tx_ring *ring)
++static inline u8 c_can_get_tx_free(const struct c_can_priv *priv,
++				   const struct c_can_tx_ring *ring)
+ {
+-	return ring->obj_num - (ring->head - ring->tail);
++	u8 head = c_can_get_tx_head(ring);
++	u8 tail = c_can_get_tx_tail(ring);
++
++	if (priv->type == BOSCH_D_CAN)
++		return ring->obj_num - (ring->head - ring->tail);
++
++	/* This is not a FIFO. C/D_CAN sends out the buffers
++	 * prioritized. The lowest buffer number wins.
++	 */
++	if (head < tail)
++		return 0;
++
++	return ring->obj_num - head;
+ }
+ 
+ #endif /* C_CAN_H */
+diff --git a/drivers/net/can/c_can/c_can_main.c b/drivers/net/can/c_can/c_can_main.c
+index dc8132862f33..d6605dbb7737 100644
+--- a/drivers/net/can/c_can/c_can_main.c
++++ b/drivers/net/can/c_can/c_can_main.c
+@@ -429,7 +429,7 @@ static void c_can_setup_receive_object(struct net_device *dev, int iface,
+ static bool c_can_tx_busy(const struct c_can_priv *priv,
+ 			  const struct c_can_tx_ring *tx_ring)
+ {
+-	if (c_can_get_tx_free(tx_ring) > 0)
++	if (c_can_get_tx_free(priv, tx_ring) > 0)
+ 		return false;
+ 
+ 	netif_stop_queue(priv->dev);
+@@ -437,7 +437,7 @@ static bool c_can_tx_busy(const struct c_can_priv *priv,
+ 	/* Memory barrier before checking tx_free (head and tail) */
+ 	smp_mb();
+ 
+-	if (c_can_get_tx_free(tx_ring) == 0) {
++	if (c_can_get_tx_free(priv, tx_ring) == 0) {
+ 		netdev_dbg(priv->dev,
+ 			   "Stopping tx-queue (tx_head=0x%08x, tx_tail=0x%08x, len=%d).\n",
+ 			   tx_ring->head, tx_ring->tail,
+@@ -465,7 +465,7 @@ static netdev_tx_t c_can_start_xmit(struct sk_buff *skb,
+ 
+ 	idx = c_can_get_tx_head(tx_ring);
+ 	tx_ring->head++;
+-	if (c_can_get_tx_free(tx_ring) == 0)
++	if (c_can_get_tx_free(priv, tx_ring) == 0)
+ 		netif_stop_queue(dev);
+ 
+ 	if (idx < c_can_get_tx_tail(tx_ring))
+@@ -748,7 +748,7 @@ static void c_can_do_tx(struct net_device *dev)
+ 		return;
+ 
+ 	tx_ring->tail += pkts;
+-	if (c_can_get_tx_free(tx_ring)) {
++	if (c_can_get_tx_free(priv, tx_ring)) {
+ 		/* Make sure that anybody stopping the queue after
+ 		 * this sees the new tx_ring->tail.
+ 		 */
+@@ -760,8 +760,7 @@ static void c_can_do_tx(struct net_device *dev)
+ 	stats->tx_packets += pkts;
+ 
+ 	tail = c_can_get_tx_tail(tx_ring);
+-
+-	if (tail == 0) {
++	if (priv->type == BOSCH_D_CAN && tail == 0) {
+ 		u8 head = c_can_get_tx_head(tx_ring);
+ 
+ 		/* Start transmission for all cached messages */
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+base-commit: 44d70bb561dac9363f45787aa93dfca36877ee01
+-- 
+2.35.1
 
-Jon
+
