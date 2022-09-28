@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 166775EDA63
+	by mail.lfdr.de (Postfix) with ESMTP id B58765EDA64
 	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 12:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233408AbiI1KtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 06:49:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54644 "EHLO
+        id S233482AbiI1KtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 06:49:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233521AbiI1KtT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 06:49:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0711AE23F;
-        Wed, 28 Sep 2022 03:49:13 -0700 (PDT)
+        with ESMTP id S233841AbiI1KtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 06:49:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D37B24A3;
+        Wed, 28 Sep 2022 03:49:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCD3E61E0A;
-        Wed, 28 Sep 2022 10:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1CECC433C1;
-        Wed, 28 Sep 2022 10:49:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 885ACB82027;
+        Wed, 28 Sep 2022 10:49:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D752EC433D6;
+        Wed, 28 Sep 2022 10:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664362151;
-        bh=glpMsqtYY4/globRN3kaFS46tXQYlxqWPy4cfJhjA1k=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ApMfLKEvMRJsYrm6RLQE9VOMQet0GSL4PTCYEyFe9tnFExBeuFs2rUSx8EVlDk2NU
-         OcqpSGKfxDpg6K0LzumsnGoKONLayRIwso/VB0QSkT2BgDZHj+dpvatSUf5tOzW1CK
-         PaoiKtnFZVkgkWG+4l0zLpzwsvIx8h2hEpQiapdw=
+        s=korg; t=1664362154;
+        bh=lz5UvwmVEyBVk9iIvx4vXgJgToZj2gscHPmFUc6TeVc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AuQG/4tXX3v9Z74KtbICtusjM9+gq6cBcTJAC57L7badogFHkpN8vW61M6NMjMjZr
+         Po6N05GHHcAZuG198B7YbaB6YDhedc21TAFR+d5bIuY2gqm6YhDhLHNDFYxq5wXjZs
+         aSTd4EKqP5iYXlb34tsjsXsvv5KEwHFWMEGpmDig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.330
-Date:   Wed, 28 Sep 2022 12:49:03 +0200
-Message-Id: <1664362142229114@kroah.com>
+Subject: Linux 4.14.295
+Date:   Wed, 28 Sep 2022 12:49:07 +0200
+Message-Id: <16643621474389@kroah.com>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <166436214215459@kroah.com>
-References: <166436214215459@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,520 +49,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 31cf32eb5fc9..ad86576ed692 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 329
-+SUBLEVEL = 330
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/mips/lantiq/clk.c b/arch/mips/lantiq/clk.c
-index d1de57b86683..e0835a743e41 100644
---- a/arch/mips/lantiq/clk.c
-+++ b/arch/mips/lantiq/clk.c
-@@ -52,6 +52,7 @@ struct clk *clk_get_io(void)
- {
- 	return &cpu_clk_generic[2];
- }
-+EXPORT_SYMBOL_GPL(clk_get_io);
- 
- struct clk *clk_get_ppe(void)
- {
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 3248aa7a35b3..cb3e22f10d68 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1186,7 +1186,7 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 			bool fb_overlap_ok)
- {
- 	struct resource *iter, *shadow;
--	resource_size_t range_min, range_max, start;
-+	resource_size_t range_min, range_max, start, end;
- 	const char *dev_n = dev_name(&device_obj->device);
- 	int retval;
- 
-@@ -1221,6 +1221,14 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
- 		range_max = iter->end;
- 		start = (range_min + align - 1) & ~(align - 1);
- 		for (; start + size - 1 <= range_max; start += align) {
-+			end = start + size - 1;
-+
-+			/* Skip the whole fb_mmio region if not fb_overlap_ok */
-+			if (!fb_overlap_ok && fb_mmio &&
-+			    (((start >= fb_mmio->start) && (start <= fb_mmio->end)) ||
-+			     ((end >= fb_mmio->start) && (end <= fb_mmio->end))))
-+				continue;
-+
- 			shadow = __request_region(iter, start, size, NULL,
- 						  IORESOURCE_BUSY);
- 			if (!shadow)
-diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
-index e3dc59fffdb7..8472667ffe71 100644
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -687,6 +687,7 @@ static int gs_can_open(struct net_device *netdev)
- 		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
- 
- 	/* finally start device */
-+	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
- 	dm->flags = cpu_to_le32(flags);
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
-@@ -703,13 +704,12 @@ static int gs_can_open(struct net_device *netdev)
- 	if (rc < 0) {
- 		netdev_err(netdev, "Couldn't start device (err=%d)\n", rc);
- 		kfree(dm);
-+		dev->can.state = CAN_STATE_STOPPED;
- 		return rc;
- 	}
- 
- 	kfree(dm);
- 
--	dev->can.state = CAN_STATE_ERROR_ACTIVE;
--
- 	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
-diff --git a/drivers/net/ethernet/sun/sunhme.c b/drivers/net/ethernet/sun/sunhme.c
-index b38106a7cb5d..b421a1d44783 100644
---- a/drivers/net/ethernet/sun/sunhme.c
-+++ b/drivers/net/ethernet/sun/sunhme.c
-@@ -2064,9 +2064,9 @@ static void happy_meal_rx(struct happy_meal *hp, struct net_device *dev)
- 
- 			skb_reserve(copy_skb, 2);
- 			skb_put(copy_skb, len);
--			dma_sync_single_for_cpu(hp->dma_dev, dma_addr, len, DMA_FROM_DEVICE);
-+			dma_sync_single_for_cpu(hp->dma_dev, dma_addr, len + 2, DMA_FROM_DEVICE);
- 			skb_copy_from_linear_data(skb, copy_skb->data, len);
--			dma_sync_single_for_device(hp->dma_dev, dma_addr, len, DMA_FROM_DEVICE);
-+			dma_sync_single_for_device(hp->dma_dev, dma_addr, len + 2, DMA_FROM_DEVICE);
- 			/* Reuse original ring buffer. */
- 			hme_write_rxd(hp, this,
- 				      (RXFLAG_OWN|((RX_BUF_ALLOC_SIZE-RX_OFFSET)<<16)),
-diff --git a/drivers/net/ipvlan/ipvlan_core.c b/drivers/net/ipvlan/ipvlan_core.c
-index 6c0982a39486..7668584c3843 100644
---- a/drivers/net/ipvlan/ipvlan_core.c
-+++ b/drivers/net/ipvlan/ipvlan_core.c
-@@ -441,7 +441,6 @@ static int ipvlan_process_v6_outbound(struct sk_buff *skb)
- 
- static int ipvlan_process_outbound(struct sk_buff *skb)
- {
--	struct ethhdr *ethh = eth_hdr(skb);
- 	int ret = NET_XMIT_DROP;
- 
- 	/* The ipvlan is a pseudo-L2 device, so the packets that we receive
-@@ -451,6 +450,8 @@ static int ipvlan_process_outbound(struct sk_buff *skb)
- 	if (skb_mac_header_was_set(skb)) {
- 		/* In this mode we dont care about
- 		 * multicast and broadcast traffic */
-+		struct ethhdr *ethh = eth_hdr(skb);
-+
- 		if (is_multicast_ether_addr(ethh->h_dest)) {
- 			pr_debug_ratelimited(
- 				"Dropped {multi|broad}cast of type=[%x]\n",
-@@ -520,7 +521,7 @@ static int ipvlan_xmit_mode_l3(struct sk_buff *skb, struct net_device *dev)
- static int ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
- {
- 	const struct ipvl_dev *ipvlan = netdev_priv(dev);
--	struct ethhdr *eth = eth_hdr(skb);
-+	struct ethhdr *eth = skb_eth_hdr(skb);
- 	struct ipvl_addr *addr;
- 	void *lyr3h;
- 	int addr_type;
-@@ -544,6 +545,7 @@ static int ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
- 		return dev_forward_skb(ipvlan->phy_dev, skb);
- 
- 	} else if (is_multicast_ether_addr(eth->h_dest)) {
-+		skb_reset_mac_header(skb);
- 		ipvlan_skb_crossing_ns(skb, NULL);
- 		ipvlan_multicast_enqueue(ipvlan->port, skb);
- 		return NET_XMIT_SUCCESS;
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index 001dea7aaba3..657e12e0b5e2 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1280,10 +1280,12 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
- 		}
- 	}
- 
--	netif_addr_lock_bh(dev);
--	dev_uc_sync_multiple(port_dev, dev);
--	dev_mc_sync_multiple(port_dev, dev);
--	netif_addr_unlock_bh(dev);
-+	if (dev->flags & IFF_UP) {
-+		netif_addr_lock_bh(dev);
-+		dev_uc_sync_multiple(port_dev, dev);
-+		dev_mc_sync_multiple(port_dev, dev);
-+		netif_addr_unlock_bh(dev);
-+	}
- 
- 	port->index = -1;
- 	list_add_tail_rcu(&port->list, &team->port_list);
-@@ -1354,8 +1356,10 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
- 	netdev_rx_handler_unregister(port_dev);
- 	team_port_disable_netpoll(port);
- 	vlan_vids_del_by_dev(port_dev, dev);
--	dev_uc_unsync(port_dev, dev);
--	dev_mc_unsync(port_dev, dev);
-+	if (dev->flags & IFF_UP) {
-+		dev_uc_unsync(port_dev, dev);
-+		dev_mc_unsync(port_dev, dev);
-+	}
- 	dev_close(port_dev);
- 	team_port_leave(team, port);
- 
-@@ -1703,6 +1707,14 @@ static int team_open(struct net_device *dev)
- 
- static int team_close(struct net_device *dev)
- {
-+	struct team *team = netdev_priv(dev);
-+	struct team_port *port;
-+
-+	list_for_each_entry(port, &team->port_list, list) {
-+		dev_uc_unsync(port->dev, dev);
-+		dev_mc_unsync(port->dev, dev);
-+	}
-+
- 	return 0;
- }
- 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index 633762f8d775..84a93ddcd57a 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1569,6 +1569,7 @@ static int __init ccio_probe(struct parisc_device *dev)
- 	ioc->ioc_regs = ioremap_nocache(dev->hpa.start, 4096);
- 	ccio_ioc_init(ioc);
- 	if (ccio_init_resources(ioc)) {
-+		iounmap(ioc->ioc_regs);
- 		kfree(ioc);
- 		return -ENOMEM;
- 	}
-diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
-index 2002684a68b3..53eb32c65abb 100644
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -674,12 +674,12 @@ int dasd_alias_remove_device(struct dasd_device *device)
- struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- {
- 	struct dasd_eckd_private *alias_priv, *private = base_device->private;
--	struct alias_pav_group *group = private->pavgroup;
- 	struct alias_lcu *lcu = private->lcu;
- 	struct dasd_device *alias_device;
-+	struct alias_pav_group *group;
- 	unsigned long flags;
- 
--	if (!group || !lcu)
-+	if (!lcu)
- 		return NULL;
- 	if (lcu->pav == NO_PAV ||
- 	    lcu->flags & (NEED_UAC_UPDATE | UPDATE_PENDING))
-@@ -696,6 +696,11 @@ struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- 	}
- 
- 	spin_lock_irqsave(&lcu->lock, flags);
-+	group = private->pavgroup;
-+	if (!group) {
-+		spin_unlock_irqrestore(&lcu->lock, flags);
-+		return NULL;
-+	}
- 	alias_device = group->next;
- 	if (!alias_device) {
- 		if (list_empty(&group->aliaslist)) {
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index 731ac35acb31..1896e0d9a64b 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -409,7 +409,7 @@ static void tegra_uart_tx_dma_complete(void *args)
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	spin_lock_irqsave(&tup->uport.lock, flags);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(&tup->uport);
-@@ -493,7 +493,6 @@ static unsigned int tegra_uart_tx_empty(struct uart_port *u)
- static void tegra_uart_stop_tx(struct uart_port *u)
- {
- 	struct tegra_uart_port *tup = to_tegra_uport(u);
--	struct circ_buf *xmit = &tup->uport.state->xmit;
- 	struct dma_tx_state state;
- 	unsigned int count;
- 
-@@ -504,7 +503,7 @@ static void tegra_uart_stop_tx(struct uart_port *u)
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
--	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+	uart_xmit_advance(&tup->uport, count);
- 	tup->tx_in_progress = 0;
- }
- 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 611ff2c28f7a..37867df5e901 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5702,7 +5702,7 @@ static int usb_reset_and_verify_device(struct usb_device *udev)
-  *
-  * Return: The same as for usb_reset_and_verify_device().
-  * However, if a reset is already in progress (for instance, if a
-- * driver doesn't have pre_ or post_reset() callbacks, and while
-+ * driver doesn't have pre_reset() or post_reset() callbacks, and while
-  * being unbound or re-bound during the ongoing reset its disconnect()
-  * or probe() routine tries to perform a second, nested reset), the
-  * routine returns -EINPROGRESS.
-diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
-index 184773b6b9e4..2cca4b763d8d 100644
---- a/drivers/video/fbdev/pxa3xx-gcu.c
-+++ b/drivers/video/fbdev/pxa3xx-gcu.c
-@@ -391,7 +391,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
- 	struct pxa3xx_gcu_batch	*buffer;
- 	struct pxa3xx_gcu_priv *priv = to_pxa3xx_gcu_priv(file);
- 
--	int words = count / 4;
-+	size_t words = count / 4;
- 
- 	/* Does not need to be atomic. There's a lock in user space,
- 	 * but anyhow, this is just for statistics. */
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index de133eeebc8a..c821d13c6d72 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -140,8 +140,8 @@ smb_send_kvec(struct TCP_Server_Info *server, struct msghdr *smb_msg,
- 
- 	*sent = 0;
- 
--	smb_msg->msg_name = (struct sockaddr *) &server->dstaddr;
--	smb_msg->msg_namelen = sizeof(struct sockaddr);
-+	smb_msg->msg_name = NULL;
-+	smb_msg->msg_namelen = 0;
- 	smb_msg->msg_control = NULL;
- 	smb_msg->msg_controllen = 0;
- 	if (server->noblocksnd)
-diff --git a/fs/ext4/ialloc.c b/fs/ext4/ialloc.c
-index 4966c6d24ad2..17d7b86a6419 100644
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -511,7 +511,7 @@ static int find_group_orlov(struct super_block *sb, struct inode *parent,
- 		goto fallback;
- 	}
- 
--	max_dirs = ndirs / ngroups + inodes_per_group / 16;
-+	max_dirs = ndirs / ngroups + inodes_per_group*flex_size / 16;
- 	min_inodes = avefreei - inodes_per_group*flex_size / 4;
- 	if (min_inodes < 1)
- 		min_inodes = 1;
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index cd95b5e395a3..08399a68566b 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -294,6 +294,23 @@ struct uart_state {
- /* number of characters left in xmit buffer before we ask for more */
- #define WAKEUP_CHARS		256
- 
-+/**
-+ * uart_xmit_advance - Advance xmit buffer and account Tx'ed chars
-+ * @up: uart_port structure describing the port
-+ * @chars: number of characters sent
-+ *
-+ * This function advances the tail of circular xmit buffer by the number of
-+ * @chars transmitted and handles accounting of transmitted bytes (into
-+ * @up's icount.tx).
-+ */
-+static inline void uart_xmit_advance(struct uart_port *up, unsigned int chars)
-+{
-+	struct circ_buf *xmit = &up->state->xmit;
-+
-+	xmit->tail = (xmit->tail + chars) & (UART_XMIT_SIZE - 1);
-+	up->icount.tx += chars;
-+}
-+
- struct module;
- struct tty_driver;
- 
-diff --git a/mm/slub.c b/mm/slub.c
-index c07c5fa6adcd..3291d3ef86b0 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -5601,7 +5601,8 @@ static char *create_unique_id(struct kmem_cache *s)
- 	char *name = kmalloc(ID_STR_LENGTH, GFP_KERNEL);
- 	char *p = name;
- 
--	BUG_ON(!name);
-+	if (!name)
-+		return ERR_PTR(-ENOMEM);
- 
- 	*p++ = ':';
- 	/*
-@@ -5649,6 +5650,8 @@ static int sysfs_slab_add(struct kmem_cache *s)
- 		 * for the symlinks.
- 		 */
- 		name = create_unique_id(s);
-+		if (IS_ERR(name))
-+			return PTR_ERR(name);
- 	}
- 
- 	s->kobj.kset = cache_kset(s);
-diff --git a/net/mac80211/scan.c b/net/mac80211/scan.c
-index 701adcb9262e..a73c362a0182 100644
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -385,10 +385,6 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
- 	scan_req = rcu_dereference_protected(local->scan_req,
- 					     lockdep_is_held(&local->mtx));
- 
--	if (scan_req != local->int_scan_req) {
--		local->scan_info.aborted = aborted;
--		cfg80211_scan_done(scan_req, &local->scan_info);
--	}
- 	RCU_INIT_POINTER(local->scan_req, NULL);
- 
- 	scan_sdata = rcu_dereference_protected(local->scan_sdata,
-@@ -398,6 +394,13 @@ static void __ieee80211_scan_completed(struct ieee80211_hw *hw, bool aborted)
- 	local->scanning = 0;
- 	local->scan_chandef.chan = NULL;
- 
-+	synchronize_rcu();
-+
-+	if (scan_req != local->int_scan_req) {
-+		local->scan_info.aborted = aborted;
-+		cfg80211_scan_done(scan_req, &local->scan_info);
-+	}
-+
- 	/* Set power back to normal operating levels. */
- 	ieee80211_hw_config(local, 0);
- 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index c6a8bdc3a226..5d630288f86c 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -150,15 +150,37 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 	data = ib_ptr;
- 	data_limit = ib_ptr + skb->len - dataoff;
- 
--	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
--	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
--	while (data < data_limit - (19 + MINMATCHLEN)) {
--		if (memcmp(data, "\1DCC ", 5)) {
-+	/* Skip any whitespace */
-+	while (data < data_limit - 10) {
-+		if (*data == ' ' || *data == '\r' || *data == '\n')
-+			data++;
-+		else
-+			break;
-+	}
-+
-+	/* strlen("PRIVMSG x ")=10 */
-+	if (data < data_limit - 10) {
-+		if (strncasecmp("PRIVMSG ", data, 8))
-+			goto out;
-+		data += 8;
-+	}
-+
-+	/* strlen(" :\1DCC SENT t AAAAAAAA P\1\n")=26
-+	 * 7+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=26
-+	 */
-+	while (data < data_limit - (21 + MINMATCHLEN)) {
-+		/* Find first " :", the start of message */
-+		if (memcmp(data, " :", 2)) {
- 			data++;
- 			continue;
- 		}
-+		data += 2;
-+
-+		/* then check that place only for the DCC command */
-+		if (memcmp(data, "\1DCC ", 5))
-+			goto out;
- 		data += 5;
--		/* we have at least (19+MINMATCHLEN)-5 bytes valid data left */
-+		/* we have at least (21+MINMATCHLEN)-(2+5) bytes valid data left */
- 
- 		iph = ip_hdr(skb);
- 		pr_debug("DCC found in master %pI4:%u %pI4:%u\n",
-@@ -174,7 +196,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
- 			pr_debug("DCC %s detected\n", dccprotos[i]);
- 
- 			/* we have at least
--			 * (19+MINMATCHLEN)-5-dccprotos[i].matchlen bytes valid
-+			 * (21+MINMATCHLEN)-7-dccprotos[i].matchlen bytes valid
- 			 * data left (== 14/13 bytes) */
- 			if (parse_dcc(data, data_limit, &dcc_ip,
- 				       &dcc_port, &addr_beg_p, &addr_end_p)) {
-diff --git a/net/netfilter/nf_conntrack_sip.c b/net/netfilter/nf_conntrack_sip.c
-index 3a8dc39a9116..7dc23df7b4e3 100644
---- a/net/netfilter/nf_conntrack_sip.c
-+++ b/net/netfilter/nf_conntrack_sip.c
-@@ -471,7 +471,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 				return ret;
- 			if (ret == 0)
- 				break;
--			dataoff += *matchoff;
-+			dataoff = *matchoff;
- 		}
- 		*in_header = 0;
- 	}
-@@ -483,7 +483,7 @@ static int ct_sip_walk_headers(const struct nf_conn *ct, const char *dptr,
- 			break;
- 		if (ret == 0)
- 			return ret;
--		dataoff += *matchoff;
-+		dataoff = *matchoff;
- 	}
- 
- 	if (in_header)
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 74ce577de7df..ac49c9eb1654 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2316,6 +2316,8 @@ static const struct pci_device_id azx_ids[] = {
- 	/* 5 Series/3400 */
- 	{ PCI_DEVICE(0x8086, 0x3b56),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
-+	{ PCI_DEVICE(0x8086, 0x3b57),
-+	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
- 	/* Poulsbo */
- 	{ PCI_DEVICE(0x8086, 0x811b),
- 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 8b240a55cb89..d149cb00282c 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -3247,6 +3247,7 @@ static int patch_tegra_hdmi(struct hda_codec *codec)
- 	if (err)
- 		return err;
- 
-+	codec->depop_delay = 10;
- 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
- 	spec = codec->spec;
- 	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index e155783c601a..0a7e1543ce8f 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1694,8 +1694,8 @@ static int kcore_copy__compare_file(const char *from_dir, const char *to_dir,
-  * unusual.  One significant peculiarity is that the mapping (start -> pgoff)
-  * is not the same for the kernel map and the modules map.  That happens because
-  * the data is copied adjacently whereas the original kcore has gaps.  Finally,
-- * kallsyms and modules files are compared with their copies to check that
-- * modules have not been loaded or unloaded while the copies were taking place.
-+ * kallsyms file is compared with its copy to check that modules have not been
-+ * loaded or unloaded while the copies were taking place.
-  *
-  * Return: %0 on success, %-1 on failure.
-  */
-@@ -1758,9 +1758,6 @@ int kcore_copy(const char *from_dir, const char *to_dir)
- 					 kci.modules_map.len))
- 		goto out_extract_close;
- 
--	if (kcore_copy__compare_file(from_dir, to_dir, "modules"))
--		goto out_extract_close;
--
- 	if (kcore_copy__compare_file(from_dir, to_dir, "kallsyms"))
- 		goto out_extract_close;
- 
+I'm announcing the release of the 4.14.295 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                      |    2 -
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi |    1 
+ arch/mips/cavium-octeon/octeon-irq.c          |   10 +++++++
+ arch/mips/lantiq/clk.c                        |    1 
+ drivers/gpio/gpio-mpc8xxx.c                   |    1 
+ drivers/gpu/drm/meson/meson_plane.c           |    2 -
+ drivers/hv/vmbus_drv.c                        |   10 ++++++-
+ drivers/media/usb/em28xx/em28xx-cards.c       |    4 +--
+ drivers/net/can/usb/gs_usb.c                  |    4 +--
+ drivers/net/ethernet/intel/i40evf/i40e_txrx.c |    5 +++
+ drivers/net/ethernet/sun/sunhme.c             |    4 +--
+ drivers/net/ipvlan/ipvlan_core.c              |    6 +++-
+ drivers/net/team/team.c                       |   24 +++++++++++++-----
+ drivers/net/usb/qmi_wwan.c                    |    1 
+ drivers/of/fdt.c                              |    2 -
+ drivers/of/of_mdio.c                          |    1 
+ drivers/parisc/ccio-dma.c                     |    1 
+ drivers/regulator/pfuze100-regulator.c        |    2 -
+ drivers/s390/block/dasd_alias.c               |    9 +++++-
+ drivers/tty/serial/serial-tegra.c             |    5 +--
+ drivers/usb/core/hub.c                        |    2 -
+ drivers/usb/serial/option.c                   |    6 ++++
+ drivers/video/fbdev/pxa3xx-gcu.c              |    2 -
+ fs/cifs/transport.c                           |    4 +--
+ fs/ext4/ialloc.c                              |    2 -
+ include/linux/serial_core.h                   |   17 +++++++++++++
+ mm/slub.c                                     |    5 +++
+ net/bridge/netfilter/ebtables.c               |    4 ++-
+ net/mac80211/scan.c                           |   11 +++++---
+ net/netfilter/nf_conntrack_irc.c              |   34 +++++++++++++++++++++-----
+ net/netfilter/nf_conntrack_sip.c              |    4 +--
+ scripts/mksysmap                              |    2 -
+ sound/pci/hda/hda_intel.c                     |    2 +
+ sound/pci/hda/patch_hdmi.c                    |    1 
+ sound/pci/hda/patch_sigmatel.c                |   24 ++++++++++++++++++
+ sound/soc/codecs/nau8824.c                    |   17 +++++++------
+ tools/perf/util/symbol-elf.c                  |    7 +----
+ 37 files changed, 181 insertions(+), 58 deletions(-)
+
+Adrian Hunter (1):
+      perf kcore_copy: Do not check /proc/modules is unchanged
+
+Alan Stern (1):
+      USB: core: Fix RST error in hub.c
+
+Alexander Sverdlin (1):
+      MIPS: OCTEON: irq: Fix octeon_irq_force_ciu_mapping()
+
+Benjamin Poirier (1):
+      net: team: Unsync device addresses on ndo_stop
+
+Brett Creeley (1):
+      iavf: Fix cached head and tail value for iavf_get_tx_pending
+
+Carl Yin(殷张成) (1):
+      USB: serial: option: add Quectel BG95 0x0203 composition
+
+Chao Yu (1):
+      mm/slub: fix to return errno if kmalloc() fails
+
+David Leadbeater (1):
+      netfilter: nf_conntrack_irc: Tighten matching on DCC message
+
+Dongliang Mu (1):
+      media: em28xx: initialize refcount before kref_get
+
+Fabio Estevam (1):
+      arm64: dts: rockchip: Remove 'enable-active-low' from rk3399-puma
+
+Florian Westphal (1):
+      netfilter: ebtables: fix memory leak when blob is malformed
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.295
+
+Hyunwoo Kim (1):
+      video: fbdev: pxa3xx-gcu: Fix integer overflow in pxa3xx_gcu_write
+
+Igor Ryzhov (1):
+      netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+
+Ilpo Järvinen (2):
+      serial: Create uart_xmit_advance()
+      serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
+
+Jan Kara (1):
+      ext4: make directory inode spreading reflect flexbg size
+
+Kai Vehmanen (1):
+      ALSA: hda: add Intel 5 Series / 3400 PCI DID
+
+Liang He (1):
+      of: mdio: Add of_node_put() when breaking out of for_each_xx
+
+Lu Wei (1):
+      ipvlan: Fix out-of-bound bugs caused by unset skb->mac_header
+
+Marc Kleine-Budde (1):
+      can: gs_usb: gs_can_open(): fix race dev->can.state condition
+
+Mohan Kumar (1):
+      ALSA: hda/tegra: set depop delay for tegra
+
+Pali Rohár (1):
+      gpio: mpc8xxx: Fix support for IRQ_TYPE_LEVEL_LOW flow_type in mpc85xx
+
+Randy Dunlap (1):
+      MIPS: lantiq: export clk_get_io() for lantiq_wdt.ko
+
+Sean Anderson (1):
+      net: sunhme: Fix packet reception for len < RX_COPY_THRESHOLD
+
+Sergey Shtylyov (1):
+      of: fdt: fix off-by-one error in unflatten_dt_nodes()
+
+Siddh Raman Pant (1):
+      wifi: mac80211: Fix UAF in ieee80211_scan_rx()
+
+Stefan Haberland (1):
+      s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
+
+Stefan Metzmacher (1):
+      cifs: don't send down the destination address to sendmsg for a SOCK_STREAM
+
+Stuart Menefy (1):
+      drm/meson: Correct OSD1 global alpha value
+
+Takashi Iwai (3):
+      ASoC: nau8824: Fix semaphore unbalance at error paths
+      ALSA: hda/sigmatel: Keep power up while beep is enabled
+      ALSA: hda/sigmatel: Fix unused variable warning for beep power change
+
+Vitaly Kuznetsov (1):
+      Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
+
+Xiaolei Wang (1):
+      regulator: pfuze100: Fix the global-out-of-bounds access in pfuze100_regulator_probe()
+
+Yang Yingliang (1):
+      parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
+
+Youling Tang (1):
+      mksysmap: Fix the mismatch of 'L0' symbols in System.map
+
+jerry meng (1):
+      USB: serial: option: add Quectel RM520N
+
+jerry.meng (1):
+      net: usb: qmi_wwan: add Quectel RM520N
+
