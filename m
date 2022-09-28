@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E94A35EDA15
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 12:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6C85EDA62
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 12:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230305AbiI1Kah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 06:30:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42590 "EHLO
+        id S233760AbiI1KtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 06:49:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233320AbiI1Kad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 06:30:33 -0400
+        with ESMTP id S233835AbiI1KtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 06:49:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEEEF2F;
-        Wed, 28 Sep 2022 03:30:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A19AF0CA;
+        Wed, 28 Sep 2022 03:49:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78E3EB82024;
-        Wed, 28 Sep 2022 10:30:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35245C433D6;
-        Wed, 28 Sep 2022 10:30:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664361030;
-        bh=UzGll+k8wBj+Ek0YtUWqd2Ht46Qd8HsBBj7woBZT0JU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lriRxLomhxJEbw/wrLv0ke0UK4s3oUWcxVbIfkRMPPJgozbbJHN31fiYiMQ5rEguj
-         XykGCfkNkdlAhUSO3gFICVekG/XhZf4BadVDR5M8xyrU6qJO1n0v5cDggL+7aLEiHC
-         BknJQFhzMN0/4yqywDr8UpQdZhREMSSEBAczEIlEL6COPWlE4hmBtzi4J4WlCI6Vt1
-         k+s7eW/Itvo0LAKpfYQDrdOvfqmzdW054T1bkAB1yY94JDAqbj+FfRqpmeiTUizFKR
-         uKHJ/FUVKMlkHgNOOtUZXYPwh7SmJh+PfmXIm7NPLs7Oy8pVMmUIFt8SwKrjKkG3o1
-         jG16SjD1WPHag==
-Date:   Wed, 28 Sep 2022 11:30:24 +0100
-From:   Lee Jones <lee@kernel.org>
-To:     cy_huang <u0084500@gmail.com>
-Cc:     matthias.bgg@gmail.com, gene_chen@richtek.com,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        ChiYuan Huang <cy_huang@richtek.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mfd: mt6360: add bound check in regmap read/write
- function
-Message-ID: <YzQiQIpwpd8rD2qs@google.com>
-References: <1663143973-29254-1-git-send-email-u0084500@gmail.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id A74D2B81D56;
+        Wed, 28 Sep 2022 10:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1489CC433C1;
+        Wed, 28 Sep 2022 10:49:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664362146;
+        bh=n7DnCc9gmPsJT1ptQRXsKjiNijTjLuV37RqGZT/zl68=;
+        h=From:To:Cc:Subject:Date:From;
+        b=R4utxUXQSy40bkr5GbuvL7W7xstq9tfv7qimjs0Qxnc96UQH2UO87rarO/Ywnlyne
+         eimqEEyA3QeRCUrKXidpGP31+DR+jI+/cACYupAsgJHxKNgI8Bntr5qfqi7dmkG8/a
+         KHBXlmGhno7tLzHJyz75S3zGGKo1fon7DGaHCJSQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.330
+Date:   Wed, 28 Sep 2022 12:49:02 +0200
+Message-Id: <166436214215459@kroah.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1663143973-29254-1-git-send-email-u0084500@gmail.com>
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,51 +49,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 14 Sep 2022, cy_huang wrote:
+I'm announcing the release of the 4.9.330 kernel.
 
-> From: ChiYuan Huang <cy_huang@richtek.com>
-> 
-> Fix the potential risk for null pointer if bank index is over the maximimum.
-> 
-> Refer to the discussion list for the experiment result on mt6370.
-> https://lore.kernel.org/all/20220914013345.GA5802@cyhuang-hp-elitebook-840-g3.rt/
-> If not to check the bound, there is the same issue on mt6360.
-> 
-> Fixes: 3b0850440a06c (mfd: mt6360: Merge different sub-devices I2C read/write)
-> Cc: stable@vger.kernel.org
-> Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-> ---
->  drivers/mfd/mt6360-core.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/mfd/mt6360-core.c b/drivers/mfd/mt6360-core.c
-> index 6eaa677..d375333 100644
-> --- a/drivers/mfd/mt6360-core.c
-> +++ b/drivers/mfd/mt6360-core.c
-> @@ -410,6 +410,9 @@ static int mt6360_regmap_read(void *context, const void *reg, size_t reg_size,
->  	u8 crc;
->  	int ret;
->  
-> +	if (bank >= MT6360_SLAVE_MAX)
-> +		return -EINVAL;
-> +
+All users of the 4.9 kernel series must upgrade.
 
-It's too late to check bank's value here, we have already used it to
-index into an array by this point.  Please fix that.
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
->  	if (bank == MT6360_SLAVE_PMIC || bank == MT6360_SLAVE_LDO) {
->  		crc_needed = true;
->  		ret = mt6360_xlate_pmicldo_addr(&reg_addr, val_size);
-> @@ -460,6 +463,9 @@ static int mt6360_regmap_write(void *context, const void *val, size_t val_size)
->  	int write_size = val_size - MT6360_REGMAP_REG_BYTE_SIZE;
->  	int ret;
->  
-> +	if (bank >= MT6360_SLAVE_MAX)
-> +		return -EINVAL;
-> +
->  	if (bank == MT6360_SLAVE_PMIC || bank == MT6360_SLAVE_LDO) {
->  		crc_needed = true;
->  		ret = mt6360_xlate_pmicldo_addr(&reg_addr, val_size - MT6360_REGMAP_REG_BYTE_SIZE);
+thanks,
 
--- 
-Lee Jones [李琼斯]
+greg k-h
+
+------------
+
+ Makefile                          |    2 +-
+ arch/mips/lantiq/clk.c            |    1 +
+ drivers/hv/vmbus_drv.c            |   10 +++++++++-
+ drivers/net/can/usb/gs_usb.c      |    4 ++--
+ drivers/net/ethernet/sun/sunhme.c |    4 ++--
+ drivers/net/ipvlan/ipvlan_core.c  |    6 ++++--
+ drivers/net/team/team.c           |   24 ++++++++++++++++++------
+ drivers/parisc/ccio-dma.c         |    1 +
+ drivers/s390/block/dasd_alias.c   |    9 +++++++--
+ drivers/tty/serial/serial-tegra.c |    5 ++---
+ drivers/usb/core/hub.c            |    2 +-
+ drivers/video/fbdev/pxa3xx-gcu.c  |    2 +-
+ fs/cifs/transport.c               |    4 ++--
+ fs/ext4/ialloc.c                  |    2 +-
+ include/linux/serial_core.h       |   17 +++++++++++++++++
+ mm/slub.c                         |    5 ++++-
+ net/mac80211/scan.c               |   11 +++++++----
+ net/netfilter/nf_conntrack_irc.c  |   34 ++++++++++++++++++++++++++++------
+ net/netfilter/nf_conntrack_sip.c  |    4 ++--
+ sound/pci/hda/hda_intel.c         |    2 ++
+ sound/pci/hda/patch_hdmi.c        |    1 +
+ tools/perf/util/symbol-elf.c      |    7 ++-----
+ 22 files changed, 115 insertions(+), 42 deletions(-)
+
+Adrian Hunter (1):
+      perf kcore_copy: Do not check /proc/modules is unchanged
+
+Alan Stern (1):
+      USB: core: Fix RST error in hub.c
+
+Benjamin Poirier (1):
+      net: team: Unsync device addresses on ndo_stop
+
+Chao Yu (1):
+      mm/slub: fix to return errno if kmalloc() fails
+
+David Leadbeater (1):
+      netfilter: nf_conntrack_irc: Tighten matching on DCC message
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.330
+
+Hyunwoo Kim (1):
+      video: fbdev: pxa3xx-gcu: Fix integer overflow in pxa3xx_gcu_write
+
+Igor Ryzhov (1):
+      netfilter: nf_conntrack_sip: fix ct_sip_walk_headers
+
+Ilpo Järvinen (2):
+      serial: Create uart_xmit_advance()
+      serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
+
+Jan Kara (1):
+      ext4: make directory inode spreading reflect flexbg size
+
+Kai Vehmanen (1):
+      ALSA: hda: add Intel 5 Series / 3400 PCI DID
+
+Lu Wei (1):
+      ipvlan: Fix out-of-bound bugs caused by unset skb->mac_header
+
+Marc Kleine-Budde (1):
+      can: gs_usb: gs_can_open(): fix race dev->can.state condition
+
+Mohan Kumar (1):
+      ALSA: hda/tegra: set depop delay for tegra
+
+Randy Dunlap (1):
+      MIPS: lantiq: export clk_get_io() for lantiq_wdt.ko
+
+Sean Anderson (1):
+      net: sunhme: Fix packet reception for len < RX_COPY_THRESHOLD
+
+Siddh Raman Pant (1):
+      wifi: mac80211: Fix UAF in ieee80211_scan_rx()
+
+Stefan Haberland (1):
+      s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
+
+Stefan Metzmacher (1):
+      cifs: don't send down the destination address to sendmsg for a SOCK_STREAM
+
+Vitaly Kuznetsov (1):
+      Drivers: hv: Never allocate anything besides framebuffer from framebuffer memory region
+
+Yang Yingliang (1):
+      parisc: ccio-dma: Add missing iounmap in error path in ccio_probe()
+
