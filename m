@@ -2,167 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A58C05EE02B
-	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 17:23:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD3C5EE081
+	for <lists+stable@lfdr.de>; Wed, 28 Sep 2022 17:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234073AbiI1PXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Sep 2022 11:23:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35906 "EHLO
+        id S233765AbiI1PcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Sep 2022 11:32:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234723AbiI1PXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Sep 2022 11:23:13 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B43EC841D
-        for <stable@vger.kernel.org>; Wed, 28 Sep 2022 08:21:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664378497; x=1695914497;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=i2QgZ7YKdOBHjwOfUHjB2NKlTe0ZdbfcFlxvIRTmAZs=;
-  b=Ixq5uzDlHGCr63+Vv/jV2oZw2MjTczdI801K3TjST+VVMlGbEN67rX7Z
-   cAZsUYBockcjxg7EgnE7eoXk+dxs/MHpCKLkmgDkWtsEgEqoqLx+RhECV
-   VMqXF3OrdnxvrfDq0biaPV4JvfqdynAmAhP2AXUJjQjh02wdmrVeC/W7y
-   g0iNezpmoXb7AO6zjQJBEjuLMaJsIUrtG0A4VdkUosC0KVXXuFLSluOHH
-   IKt5Dx9g/EdvkNnN3AHsW7uS8nUkpn5ams8d7mSNK/ZzL8EBp3jIZ3D/4
-   7hB/iXsJ8FFC67Pp+zPJ9HSiojqI+0z0xT0J2opq1u5vkPbMreDJ/051a
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10484"; a="301604646"
-X-IronPort-AV: E=Sophos;i="5.93,352,1654585200"; 
-   d="scan'208";a="301604646"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2022 08:21:35 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10484"; a="599613586"
-X-IronPort-AV: E=Sophos;i="5.93,352,1654585200"; 
-   d="scan'208";a="599613586"
-Received: from jkrzyszt-mobl1.ger.corp.intel.com ([10.213.5.184])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2022 08:21:33 -0700
-From:   Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Subject: [PATCH 5.15] drm/i915/gem: Really move i915_gem_context.link under ref protection
-Date:   Wed, 28 Sep 2022 17:20:51 +0200
-Message-Id: <20220928152051.267360-1-janusz.krzysztofik@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S234441AbiI1Pbx (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 28 Sep 2022 11:31:53 -0400
+Received: from netrider.rowland.org (netrider.rowland.org [192.131.102.5])
+        by lindbergh.monkeyblade.net (Postfix) with SMTP id 68912D1E89
+        for <Stable@vger.kernel.org>; Wed, 28 Sep 2022 08:30:29 -0700 (PDT)
+Received: (qmail 490088 invoked by uid 1000); 28 Sep 2022 11:30:05 -0400
+Date:   Wed, 28 Sep 2022 11:30:05 -0400
+From:   Alan Stern <stern@rowland.harvard.edu>
+To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Min Guo <min.guo@mediatek.com>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        Stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] usb: mtu3: fix ep0's stall of out data stage
+Message-ID: <YzRofTAx+3pPCbrL@rowland.harvard.edu>
+References: <20220928091721.26112-1-chunfeng.yun@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220928091721.26112-1-chunfeng.yun@mediatek.com>
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_PASS,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+On Wed, Sep 28, 2022 at 05:17:20PM +0800, Chunfeng Yun wrote:
+> It happens when enable uvc function, the flow as below:
+> the controller switch to data stage, then call
+>     -> foward_to_driver() -> composite_setup() -> uvc_function_setup(),
+> it send out an event to user layer to notify it call
+>     -> ioctl() -> uvc_send_response() -> usb_ep_queue(),
+> but before the user call ioctl to queue ep0's buffer, the host already send
+> out data, but the controller find that no buffer is queued to receive data,
+> it send out STALL handshake.
+> 
+> To fix the issue, don't send out ACK of setup stage to switch to out data
+> stage until the buffer is available.
 
-[ Upstream commit d119888b09bd567e07c6b93a07f175df88857e02 ]
+You might find it is better to use the delayed_status routines already 
+present in the Gadget core.  Instead of delaying the response to the 
+Setup packet of the second control transfer, delay the status response 
+to the first control transfer.
 
-i915_perf assumes that it can use the i915_gem_context reference to
-protect its i915->gem.contexts.list iteration. However, this requires
-that we do not remove the context from the list until after we drop the
-final reference and release the struct. If, as currently, we remove the
-context from the list during context_close(), the link.next pointer may
-be poisoned while we are holding the context reference and cause a GPF:
+This approach has the advantage of working even when the second transfer 
+is not control but something else, such as bulk.
 
-[ 4070.573157] i915 0000:00:02.0: [drm:i915_perf_open_ioctl [i915]] filtering on ctx_id=0x1fffff ctx_id_mask=0x1fffff
-[ 4070.574881] general protection fault, probably for non-canonical address 0xdead000000000100: 0000 [#1] PREEMPT SMP
-[ 4070.574897] CPU: 1 PID: 284392 Comm: amd_performance Tainted: G            E     5.17.9 #180
-[ 4070.574903] Hardware name: Intel Corporation NUC7i5BNK/NUC7i5BNB, BIOS BNKBL357.86A.0052.2017.0918.1346 09/18/2017
-[ 4070.574907] RIP: 0010:oa_configure_all_contexts.isra.0+0x222/0x350 [i915]
-[ 4070.574982] Code: 08 e8 32 6e 10 e1 4d 8b 6d 50 b8 ff ff ff ff 49 83 ed 50 f0 41 0f c1 04 24 83 f8 01 0f 84 e3 00 00 00 85 c0 0f 8e fa 00 00 00 <49> 8b 45 50 48 8d 70 b0 49 8d 45 50 48 39 44 24 10 0f 85 34 fe ff
-[ 4070.574990] RSP: 0018:ffffc90002077b78 EFLAGS: 00010202
-[ 4070.574995] RAX: 0000000000000002 RBX: 0000000000000002 RCX: 0000000000000000
-[ 4070.575000] RDX: 0000000000000001 RSI: ffffc90002077b20 RDI: ffff88810ddc7c68
-[ 4070.575004] RBP: 0000000000000001 R08: ffff888103242648 R09: fffffffffffffffc
-[ 4070.575008] R10: ffffffff82c50bc0 R11: 0000000000025c80 R12: ffff888101bf1860
-[ 4070.575012] R13: dead0000000000b0 R14: ffffc90002077c04 R15: ffff88810be5cabc
-[ 4070.575016] FS:  00007f1ed50c0780(0000) GS:ffff88885ec80000(0000) knlGS:0000000000000000
-[ 4070.575021] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 4070.575025] CR2: 00007f1ed5590280 CR3: 000000010ef6f005 CR4: 00000000003706e0
-[ 4070.575029] Call Trace:
-[ 4070.575033]  <TASK>
-[ 4070.575037]  lrc_configure_all_contexts+0x13e/0x150 [i915]
-[ 4070.575103]  gen8_enable_metric_set+0x4d/0x90 [i915]
-[ 4070.575164]  i915_perf_open_ioctl+0xbc0/0x1500 [i915]
-[ 4070.575224]  ? asm_common_interrupt+0x1e/0x40
-[ 4070.575232]  ? i915_oa_init_reg_state+0x110/0x110 [i915]
-[ 4070.575290]  drm_ioctl_kernel+0x85/0x110
-[ 4070.575296]  ? update_load_avg+0x5f/0x5e0
-[ 4070.575302]  drm_ioctl+0x1d3/0x370
-[ 4070.575307]  ? i915_oa_init_reg_state+0x110/0x110 [i915]
-[ 4070.575382]  ? gen8_gt_irq_handler+0x46/0x130 [i915]
-[ 4070.575445]  __x64_sys_ioctl+0x3c4/0x8d0
-[ 4070.575451]  ? __do_softirq+0xaa/0x1d2
-[ 4070.575456]  do_syscall_64+0x35/0x80
-[ 4070.575461]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 4070.575467] RIP: 0033:0x7f1ed5c10397
-[ 4070.575471] Code: 3c 1c e8 1c ff ff ff 85 c0 79 87 49 c7 c4 ff ff ff ff 5b 5d 4c 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a9 da 0d 00 f7 d8 64 89 01 48
-[ 4070.575478] RSP: 002b:00007ffd65c8d7a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-[ 4070.575484] RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 00007f1ed5c10397
-[ 4070.575488] RDX: 00007ffd65c8d7c0 RSI: 0000000040106476 RDI: 0000000000000006
-[ 4070.575492] RBP: 00005620972f9c60 R08: 000000000000000a R09: 0000000000000005
-[ 4070.575496] R10: 000000000000000d R11: 0000000000000246 R12: 000000000000000a
-[ 4070.575500] R13: 000000000000000d R14: 0000000000000000 R15: 00007ffd65c8d7c0
-[ 4070.575505]  </TASK>
-[ 4070.575507] Modules linked in: nls_ascii(E) nls_cp437(E) vfat(E) fat(E) i915(E) x86_pkg_temp_thermal(E) intel_powerclamp(E) crct10dif_pclmul(E) crc32_pclmul(E) crc32c_intel(E) aesni_intel(E) crypto_simd(E) intel_gtt(E) cryptd(E) ttm(E) rapl(E) intel_cstate(E) drm_kms_helper(E) cfbfillrect(E) syscopyarea(E) cfbimgblt(E) intel_uncore(E) sysfillrect(E) mei_me(E) sysimgblt(E) i2c_i801(E) fb_sys_fops(E) mei(E) intel_pch_thermal(E) i2c_smbus(E) cfbcopyarea(E) video(E) button(E) efivarfs(E) autofs4(E)
-[ 4070.575549] ---[ end trace 0000000000000000 ]---
+Also it agrees better with the way the USB spec intends control 
+transfers to work.  The UDC is not supposed to complete the status stage 
+of a control transfer until the gadget has fully processed the 
+transfer's information and is ready to go forward.
 
-v3: fix incorrect syntax of spin_lock() replacing spin_lock_irqsave()
-
-v2: irqsave not required in a worker, neither conversion to irq safe
-    elsewhere (Tvrtko),
-  - perf: it's safe to call gen8_configure_context() even if context has
-    been closed, no need to check,
-  - drop unrelated cleanup (Andi, Tvrtko)
-
-Reported-by: Mark Janes <mark.janes@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/issues/6222
-References: a4e7ccdac38e ("drm/i915: Move context management under GEM")
-Fixes: f8246cf4d9a9 ("drm/i915/gem: Drop free_work for GEM contexts")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.12+
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916092403.201355-3-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit ad3aa7c31efa5a09b0dba42e66cfdf77e0db7dc2)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-[janusz: backport]
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
----
- drivers/gpu/drm/i915/gem/i915_gem_context.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index ba2e037a82e4e..60f6a731f1bf6 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -997,6 +997,10 @@ void i915_gem_context_release(struct kref *ref)
- 	trace_i915_context_free(ctx);
- 	GEM_BUG_ON(!i915_gem_context_is_closed(ctx));
- 
-+	spin_lock(&ctx->i915->gem.contexts.lock);
-+	list_del(&ctx->link);
-+	spin_unlock(&ctx->i915->gem.contexts.lock);
-+
- 	if (ctx->syncobj)
- 		drm_syncobj_put(ctx->syncobj);
- 
-@@ -1228,10 +1232,6 @@ static void context_close(struct i915_gem_context *ctx)
- 	 */
- 	lut_close(ctx);
- 
--	spin_lock(&ctx->i915->gem.contexts.lock);
--	list_del(&ctx->link);
--	spin_unlock(&ctx->i915->gem.contexts.lock);
--
- 	mutex_unlock(&ctx->mutex);
- 
- 	/*
--- 
-2.25.1
-
+Alan Stern
