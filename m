@@ -2,152 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4D75EFC35
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 19:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB445EFCF4
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 20:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbiI2Rsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 13:48:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34576 "EHLO
+        id S235771AbiI2SXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 14:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229904AbiI2Rsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 13:48:40 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2060.outbound.protection.outlook.com [40.107.243.60])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10890127576
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 10:48:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jniwYJql96CHuO/dxBHnVTE8NZ6cuAMmUUuNcnEzGai3EVU1KXkJpAWvFNrfiykLaksU7xcUkXVbsjGWsW9UUI6wDTxY/4t21bAcWYSaGuWPxjiks79EVYmi7PraF6hcqBdmBQ1IqoG2IH0Kme4hxz9EU9OaEqganPWumAmjJ8cehzcOUBgNBI1MojYFEcoRP9TTAnngbXUi5pUvgccYWbCcqlePxbS8Cxl7pO5/WNBJobPwSKmjeB9j3KRlxX3IvZWSez9VUFS/Pdj5Q8mg16PVeQqaFykKk+GdJwk+1lrr4Ev2rGrxk4WvqzbKgPS+sNdR0UhYX6AZY9Ytn+GODg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4NZ49kMbkx9+7MvDNXJLfcwMJ8RO/oZuHo9ve8U1phQ=;
- b=d5tMrAqHAD2Zz1YetlsHnmwhpb+Y5r74fSEOJFAgTNwIM9x9dEJQS0eRFJXI5CLr+wD1SIATEwQEdOBjcyyvk6dzEPZ3jaHZ88+N2am+Hb3CKUvBrrezPvJsyc4DnZ8U5Cy64vnBJbFH1Pc3Eo7Q4JGhT1NlY3vXrQMAh+iftVMe5fEFYNoVlwBP0kRzJOg8lhl3omRv9G1O9we3I+zORrsmFZg/G2qrK5zzrkxlrVK7DWiIXl8jdu1Q+kF1RiKFqyyc0IWsex64kGu4lYfEPXl7yL4+/C6QqCL5BxNgcKlqBa/OmdlvUe3PTLmfW9NNKCreLNz3leWTWuYy7Iy0Dg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4NZ49kMbkx9+7MvDNXJLfcwMJ8RO/oZuHo9ve8U1phQ=;
- b=RDR1H9TAKcnuXEqsgBmYKn/aD9ElFV31mn/WigKIfXCNdv+HXnK4SLjUZByMQvel8hqmyW6crCXpUVLzAxGiYSdaFUTDoYXujQjs/ZvC4TCLi3+MtqVQUd5kUfHaBjmQxSkb45kzRbNTJk6b8JTfOZv8bb3XNR+C2OH12XJei93A/R99vZJd1WZyu7FDnGz7YiMaL5EwGc4xN9UI8zFP9DJa+h2mSGY5XG/qpeqOecX70xeQpEhloKZ1OfzkqupsyOnlUNhtMqYJXBZiZEu8G4SgXtK+MJ9QjKwbbatmngo9REnd5blIrLhSVqsK033eKxkw1stgvsZurC4UTN/Njg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BY5PR12MB4917.namprd12.prod.outlook.com (2603:10b6:a03:1d1::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.22; Thu, 29 Sep
- 2022 17:48:36 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::f0c0:3a28:55e9:e99c]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::f0c0:3a28:55e9:e99c%5]) with mapi id 15.20.5676.019; Thu, 29 Sep 2022
- 17:48:36 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org,
-        Zhi Wang <zhi.a.wang@intel.com>
-Subject: [PATCH] drm/i915/gvt: Add missing vfio_unregister_group_dev() call
-Date:   Thu, 29 Sep 2022 14:48:35 -0300
-Message-Id: <0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com>
+        with ESMTP id S232380AbiI2SXQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 14:23:16 -0400
+Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8172142E25;
+        Thu, 29 Sep 2022 11:23:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1664475795; x=1696011795;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=SA5Zv3CFmymWcqoF3kgJhVL3n30g1TRkOiD3YxTlFFM=;
+  b=Vq4bNPnknL+/IWxZVw03yDGy2U0DJVeR8iE8J5Yjksra8jZzUqhAC8Id
+   lWV4GAxOWm290WsUSUGZtZG0/CGP6kA0iaPzvxt1fgq1v6tFHPF4e1+KL
+   Bz6VL9rhYZO1/a+D53MBBVwqBSp8qbnImsB5VQiOyvj/aiJZ7t3ZACw1b
+   A=;
+X-IronPort-AV: E=Sophos;i="5.93,356,1654560000"; 
+   d="scan'208";a="1059364674"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-b27d4a00.us-east-1.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2022 18:23:12 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1a-b27d4a00.us-east-1.amazon.com (Postfix) with ESMTPS id 2457281255;
+        Thu, 29 Sep 2022 18:23:12 +0000 (UTC)
+Received: from EX19D012UWB001.ant.amazon.com (10.13.138.50) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.38; Thu, 29 Sep 2022 18:23:11 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX19D012UWB001.ant.amazon.com (10.13.138.50) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.1118.12; Thu, 29 Sep 2022 18:23:11 +0000
+Received: from dev-dsk-risbhat-2b-8bdc64cd.us-west-2.amazon.com
+ (10.189.73.169) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.38 via Frontend Transport; Thu, 29 Sep 2022 18:23:10
+ +0000
+Received: by dev-dsk-risbhat-2b-8bdc64cd.us-west-2.amazon.com (Postfix, from userid 22673075)
+        id 98CF927B3; Thu, 29 Sep 2022 18:23:09 +0000 (UTC)
+From:   Rishabh Bhatnagar <risbhat@amazon.com>
+To:     <linux-kernel@vger.kernel.org>, <linux-nvme@lists.infradead.org>,
+        <stable@vger.kernel.org>
+CC:     <hch@lst.de>, <sagi@grimberg.me>, <axboe@fb.com>,
+        <kbusch@kernel.org>, <mbacco@amazon.com>, <benh@amazon.com>,
+        <sjpark@amazon.com>, "Rishabh Bhatnagar" <risbhat@amazon.com>
+Subject: [PATCH v2] nvme-pci: Set min align mask before calculating max_hw_sectors
+Date:   Thu, 29 Sep 2022 18:22:59 +0000
+Message-ID: <20220929182259.22523-1-risbhat@amazon.com>
+X-Mailer: git-send-email 2.37.1
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: MN2PR08CA0022.namprd08.prod.outlook.com
- (2603:10b6:208:239::27) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|BY5PR12MB4917:EE_
-X-MS-Office365-Filtering-Correlation-Id: 27d28af9-3c15-4a81-2b7a-08daa242d5c8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 9ELWvopIyPN8DfwltgwiAtdmPuXK+EqlTl7rKl4+6ird4van3WOxekZbat54gbLFslVRln8amq5am9LkwuI+sx07uXMTTqnr7UPJzMbR4FGRlgYCansZ0EofXUL5jRtnJp2UQTtkHYLhzyl9rQtPOEDlYNlSjCawwPFYkQGiX26mi5+EojX4x2j8f5PXN9YeRNBXOUBfxx+6WcQhkDKncvq6rd3M6eeLvBDjzEffwjW0LWvWrSZ38uec+iX7fh6CNNxB2KFQogtf4B6ZGHnPVv/8d6fnO/Br3OaeYuDK1l75NAGJvmo+Sk5Ciw5kJ3KOFd9CJ/0SByO1C03n+6AM+eZIroZzgPnuuIlNXbV4gc5WooIchnKV+P4aO5tuq3NM6YQ9UPHZdh42wdO9FDoSR6RemiTQ59qXFIuk2+QcoA4aQIA6jWCDmnfn6xMMef1PEi5S94oiSZWJ3JDn88Zck6xNXMQ/5Y1zmYeg1TLUw4M5GUxfoAkNNhYaCURxi5YqqGKxsCbjvfaNGl9cGvEMxb+5T0OJcr8+1/SUXa9DjOZTDjZg4oDDDamlEfB/UZDalHsRxRgmc7AyXxF5/KHtHSpL/SyCZKknwqBj3qJFc7zVXPUiAwYNihNes177AsDNBdCCScN5+Z56kxwZqrlj3wbQw2G8SLVwK1fBTrkqZeaq9XP5WU4pdeltf53RxOPXzdKSCwxraSCNC4QgjUydaGbGQNGn3hcytAjx9ogLCQVVGVWcqP0+Lk2eupgEdb85Z9JTAyHBp9BeC/ZNR2to0w==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(376002)(346002)(396003)(366004)(451199015)(6506007)(26005)(186003)(2616005)(6512007)(66476007)(66556008)(66946007)(8676002)(6486002)(36756003)(5660300002)(4326008)(478600001)(38100700002)(7416002)(41300700001)(921005)(86362001)(8936002)(2906002)(110136005)(54906003)(316002)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?FAqrU4fV0dy6fFhF9xj1YrhoouzBknw2+vQ4KxdgKwbwVmvxVsDp6+vKlkN8?=
- =?us-ascii?Q?r5LMdJnjIpY/TaKGUb7gXOxCMJ/3U9lMN84OIvTQdxscAgMPxDHYYj+tXwdh?=
- =?us-ascii?Q?kHcNVsmZBGeAsBV0H5IkImMtNaAW2/zBOPA9WsyeNRy1Y3bhqcCnN3qbh18H?=
- =?us-ascii?Q?STYUrfwmbN/rH4HXRPITi0dttCsjvcKRs0vj2OvPVsv3epfVdyVLrGUJu4KE?=
- =?us-ascii?Q?jNnoY3KQxnS5qBV4Ph6k3tm1njV2FrrDN3Gl4SxfTYXCL7APpYaRGhbtZ0zA?=
- =?us-ascii?Q?yPN47EO+DK52fPrTFNGi8zkbmu2tLY05AXCTncC6fD87ceWJruKaIGQ6+G5v?=
- =?us-ascii?Q?qqq3dIaxM3z8hsm3gI7MXfu8QApLTQShe563zHyPJzWNs9GXZCLCsjeOTBmJ?=
- =?us-ascii?Q?usc/Dg8hIkRYP2Os8Z2C8dF3Gsx+Zq4ssQXM4GCVaKzoNI83iCJItZ5bbWzV?=
- =?us-ascii?Q?19IEUsLaKoR+KxDNYdS/Jhfb3W5ESe/HIBGqDMQXSmGdf43fPRYJPv8HhLyY?=
- =?us-ascii?Q?/MKOjeF44QsRQo/yK4GaaeopvNYdtKEsGEYc6IVEVA+Xg7EUuu7UH2jnJ/SP?=
- =?us-ascii?Q?dUDzjenl6tRTH0O6p50N6qtsFFwt3yHP/HoCidCRpAs+aBYmxKcMepXxcWzc?=
- =?us-ascii?Q?lSJzQ6wYZfy8Tbaxa2LBvswLFgJEWosn3TrbE5qry1C58cj+vjVL7gAkh0Ll?=
- =?us-ascii?Q?3yX2ftnFCjIgLKJYYNK4Y40KKZdjEe6kHUoCQ/XyMKJO+I3ZixvAUPt3oxQV?=
- =?us-ascii?Q?UJcYZzqvRAVdR4VEiAnCjRSHrBAT9qFgST8h02ccmOpo12BT6UGN0I+NRvkq?=
- =?us-ascii?Q?2M4pIDzeRhHYjtWUgBeUykq9rDt7HJ7yvc+8rLBpj/IOEiAzuAywOwheBgEi?=
- =?us-ascii?Q?vp0XVKqpxgFSoobRR95aXF9mndZaP0EeKy8bSQyDm06PPClIAtJ9ZjwJ5BgZ?=
- =?us-ascii?Q?1hARrC2ezAOb7rW0oDj/VAdGCbcI19eKI6qOvu10CRNcaDE53nIU+Z4l5Kk8?=
- =?us-ascii?Q?vtC9L8+9DV1kqvtoP0dnvtADEiVK4DZEI3OcSa8ZDbMIRdjBIgEOuzbzK4zX?=
- =?us-ascii?Q?yVXdI0Y2T1umQSInx36T43cCGmHqGGTg0XZP5EHXTraS27z7hZkRUteuz0ej?=
- =?us-ascii?Q?K+fBK3muv0BZGHREq9kd0VTLYv2o0Sr4wLWmpSe3ZqhDYYPrzZc1CB7PFCdU?=
- =?us-ascii?Q?myQk5PAiryisCFB0VKrwwYnHfOn6Onqz3ZoRXZkgh7PZf1ti+Lp7nJMO/9i2?=
- =?us-ascii?Q?/wgLOcvm1AcUDuwx8kFpe0pOGJLVP23WPt/7Msg48kq3OIYoHHv2dbe9A8cw?=
- =?us-ascii?Q?FHv+b7BGjMPy0U1atnPj8IY6e2bC1+8cCiiQTNekxTKTmlDkynIDI/CFfbEl?=
- =?us-ascii?Q?IylXgj8rUe/wrOvDjwodI61Iv0YG1wN5aWwXSlL5kDrml6Qe5wMyTicGdoxt?=
- =?us-ascii?Q?QwP4LG+RyLyYPvhy9Iu9hEJ9MAnHjQtC7Ll4f5w+rI8ymapTFwCDw+Py8MoV?=
- =?us-ascii?Q?iopOgpf+rWmRDSR6YcBp/sJtAWKW+3RmNdKRoFHO0el7SA1w53+4Ps0Dmdhj?=
- =?us-ascii?Q?63NX5nfiShGZE4TvwzM=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 27d28af9-3c15-4a81-2b7a-08daa242d5c8
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2022 17:48:36.6440
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: X/A6oL0+MT/1ztscqHivnhcw43uJBeAPXgTRVzaYRA0/pPILcQdwrFy/fj9yCsMj
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4917
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
-        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-12.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When converting to directly create the vfio_device the mdev driver has to
-put a vfio_register_emulated_iommu_dev() in the probe() and a pairing
-vfio_unregister_group_dev() in the remove.
+In cases where swiotlb is enabled dma_max_mapping_size takes into
+account the min align mask for the device. Right now the mask is
+set after the max hw sectors are calculated which might result in
+a request size that overflows the swiotlb buffer.
+Set the min align mask for nvme driver before calling
+dma_max_mapping_size while calculating max hw sectors.
 
-This was missed for gvt, add it.
-
+Fixes: 7637de311bd2 ("nvme-pci: limit max_hw_sectors based on the DMA max mapping size")
 Cc: stable@vger.kernel.org
-Fixes: 978cf586ac35 ("drm/i915/gvt: convert to use vfio_register_emulated_iommu_dev")
-Reported-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Rishabh Bhatnagar <risbhat@amazon.com>
 ---
- drivers/gpu/drm/i915/gvt/kvmgt.c | 1 +
- 1 file changed, 1 insertion(+)
+ Changes in V2:
+ - Add Cc: <stable@vger.kernel.org> tag
+ - Improve the commit text
+ - Add patch version
 
-Should go through Alex's tree.
+ Changes in V1:
+ - Add fixes tag
 
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index 41bba40feef8f4..9003145adb5a93 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -1615,6 +1615,7 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
- 	if (WARN_ON_ONCE(vgpu->attached))
- 		return;
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 98864b853eef..30e71e41a0a2 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2834,6 +2834,8 @@ static void nvme_reset_work(struct work_struct *work)
+ 		nvme_start_admin_queue(&dev->ctrl);
+ 	}
  
-+	vfio_unregister_group_dev(&vgpu->vfio_device);
- 	vfio_put_device(&vgpu->vfio_device);
- }
++	dma_set_min_align_mask(dev->dev, NVME_CTRL_PAGE_SIZE - 1);
++
+ 	/*
+ 	 * Limit the max command size to prevent iod->sg allocations going
+ 	 * over a single page.
+@@ -2846,7 +2848,6 @@ static void nvme_reset_work(struct work_struct *work)
+ 	 * Don't limit the IOMMU merged segment size.
+ 	 */
+ 	dma_set_max_seg_size(dev->dev, 0xffffffff);
+-	dma_set_min_align_mask(dev->dev, NVME_CTRL_PAGE_SIZE - 1);
  
-
-base-commit: c72e0034e6d4c36322d958b997d11d2627c6056c
+ 	mutex_unlock(&dev->shutdown_lock);
+ 
 -- 
-2.37.3
+2.37.1
 
