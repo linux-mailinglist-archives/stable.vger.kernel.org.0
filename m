@@ -2,62 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D8525EF709
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 16:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64645EF710
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 16:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235009AbiI2OAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 10:00:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54136 "EHLO
+        id S235315AbiI2OCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 10:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234852AbiI2OAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 10:00:33 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D049EEF0A0
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 07:00:30 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id a10so1680709ljq.0
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 07:00:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=X4udh+F/jTTPAawHj+leYFUcEjOK0Up2+V5M2hR8VXE=;
-        b=VjCYChWjn6iy+G3yVQ6tZ5L5GrU7JMx6AFQ+ZIwJs9EqJdAQec1TweUcsCGbcL5zbN
-         IcYXCI9pbWIaq3GI3J98z7m8bU6Eg24TmmlRaBm3jWe2XdtHETo1oLcp8UAHlG2Ff7jY
-         0nNtDetj7dDIdFNbbL1Pu7gFgvUcjrHf5auaM7kzTnxn8WGUuCdjAUPu9CQEBbD5QQLl
-         EC91SUJqW/acBbe94NQt+/gD5IiMV6nwTx1Q+Hrr0rHdVRS9waYT7ZMQsRfHsPZwE92B
-         fq+roLKRMKkFs0p5Dp6D3rH9Pql0spk3ObhDvl+0pHJMAOKdEN2L63cgu49/aN6W/BR7
-         iThQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=X4udh+F/jTTPAawHj+leYFUcEjOK0Up2+V5M2hR8VXE=;
-        b=lqKY2CHWzuVSROKtx1Q1p3nDC8kQuVmzEP3MKE7gM3aaH7mSugaGyqEZ1SWKC9WfbQ
-         3DKbJo5qS8KK3BGmqZfMJ8ex7bvzRg7Zq+Y7m1ToXCz8OT7nCERgI5Cw1QMGQTT2P8lb
-         PwbcxeTIaIIK9tt1u8FXvp6ykTAV+t3/NqCuaD4wDckJ0YCwt0AHhREGEQ5HyRoG012g
-         yUvWpeGSQlhaMGI3ATLZ8w8vUseiwRpNLVdZkkwf2AzRW//cc11Yum5gy9u8UEBFvOrk
-         oKNp90pnGER6+8Ddft23zvnxgXCdvFloR4HbOBmP6dzmx6usVvRA/kyXruu+zLlJ9oHE
-         9Hiw==
-X-Gm-Message-State: ACrzQf09jsQKfgNHQHauV8nRJ316iS/ksYFQ5qtLIw8hM35Qxyp35NLD
-        WpTNbdxBjYhwDzhOgkGeuEWgcA==
-X-Google-Smtp-Source: AMsMyM7aoCdu9WHwG285Neg6d4thYouvRN6KfDb/QxWK+gc0PVmrUK/EJD+sPkftZalwKRWmRkCIdA==
-X-Received: by 2002:a2e:9cf:0:b0:26c:3973:ec1f with SMTP id 198-20020a2e09cf000000b0026c3973ec1fmr1321095ljj.322.1664460028783;
-        Thu, 29 Sep 2022 07:00:28 -0700 (PDT)
-Received: from [192.168.0.21] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id dt18-20020a0565122a9200b0049c86ca95bfsm794048lfb.52.2022.09.29.07.00.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Sep 2022 07:00:27 -0700 (PDT)
-Message-ID: <88035bdd-3aeb-640e-c001-8823013e5929@linaro.org>
-Date:   Thu, 29 Sep 2022 16:00:26 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH] ASoC: wcd-mbhc-v2: Revert "ASoC: wcd-mbhc-v2: use
- pm_runtime_resume_and_get()"
-Content-Language: en-US
-To:     Mark Brown <broonie@kernel.org>
+        with ESMTP id S235342AbiI2OB7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 10:01:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D2014F804;
+        Thu, 29 Sep 2022 07:01:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F43661357;
+        Thu, 29 Sep 2022 14:01:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D65C433D6;
+        Thu, 29 Sep 2022 14:01:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1664460117;
+        bh=NbQBK0K88I2R53On1jgQPc/QM3SMeQ/eMk4dHm80OcQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gmTbcvC1yEmw7F1GRoHapSzLYj+IdmomGJ9jUk7Jl8mdnbYj+Dm3ElgvlF0dA/jWb
+         Svrd/TMipM3+QYV7JkG62nFhywTSSJmdSz2fZmVlKMZwHM95FaFw/pARM+5J/b0LKw
+         MAGMKL+5ywEvTN4waqtEaf+3qJsNdBAbS5BswiOI/O7l8JizhSmMsRFgo3Le4V0wSt
+         0/Uct1OMyKAuIUo31E1sLbPdqyIGvDYKFXfR322owxrU83lW4fGVETV2CBXM0VA/t7
+         /7JdEZbyIZyui75PabnkE1VD21g+weqdYESr1JfN1KIpHXpi1CZM/eYyHZGFDQm0zO
+         Gp6A25qEFK/kg==
+Date:   Thu, 29 Sep 2022 15:01:51 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Banajit Goswami <bgoswami@quicinc.com>,
         Liam Girdwood <lgirdwood@gmail.com>,
@@ -70,14 +46,20 @@ Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Bard Liao <yung-chuan.liao@linux.intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         stable@vger.kernel.org
+Subject: Re: [PATCH] ASoC: wcd-mbhc-v2: Revert "ASoC: wcd-mbhc-v2: use
+ pm_runtime_resume_and_get()"
+Message-ID: <YzWlT11jj0ES0Alv@sirena.org.uk>
 References: <20220929131528.217502-1-krzysztof.kozlowski@linaro.org>
  <YzWgescSJMKzYTAo@sirena.org.uk>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <YzWgescSJMKzYTAo@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+ <88035bdd-3aeb-640e-c001-8823013e5929@linaro.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Ri3zr+BP8FJRoKsl"
+Content-Disposition: inline
+In-Reply-To: <88035bdd-3aeb-640e-c001-8823013e5929@linaro.org>
+X-Cookie: Last week's pet, this week's special.
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -85,16 +67,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/09/2022 15:41, Mark Brown wrote:
-> On Thu, Sep 29, 2022 at 03:15:28PM +0200, Krzysztof Kozlowski wrote:
-> 
->> Cc: <stable@vger.kernel.org>
->> Fixes: ddea4bbf287b ("ASoC: wcd-mbhc-v2: use pm_runtime_resume_and_get()")
-> 
-> That commit isn't in a released kernel.
 
-Oh, indeed, thanks. I'll send a v2 without it.
+--Ri3zr+BP8FJRoKsl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Krzysztof
+On Thu, Sep 29, 2022 at 04:00:26PM +0200, Krzysztof Kozlowski wrote:
+> On 29/09/2022 15:41, Mark Brown wrote:
+> > On Thu, Sep 29, 2022 at 03:15:28PM +0200, Krzysztof Kozlowski wrote:
+> >=20
+> >> Cc: <stable@vger.kernel.org>
+> >> Fixes: ddea4bbf287b ("ASoC: wcd-mbhc-v2: use pm_runtime_resume_and_get=
+()")
+> >=20
+> > That commit isn't in a released kernel.
+>=20
+> Oh, indeed, thanks. I'll send a v2 without it.
 
+It's fine.
+
+--Ri3zr+BP8FJRoKsl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmM1pU8ACgkQJNaLcl1U
+h9CMAAf9Fc6oFeIp3nEEwGKdOHM5vdwkRlxMVNCluVg7AYY64AweWItcTH5zClZA
+mBq8cw1B5aHq+4P8XPgXpfIxw32ITy2mHSIp2B71RAc6RU3mf3ZTFQWCf6WACEl5
+/CcBVxTBFthM2OGUWLjlut3BI6X0bC3V25KQCll3B285BYnE5hZdD52Eq8RO5/e4
+zJ/B7ltFz9EHIIFvtdYbJsz8JQLKlNGgwNQwAovvgT6JdW/P4QlPad8ZQEzA0hNk
+tLn0cC650U9ju/qb9nvVBhkdBt+Hfc+moyjp8obA6JJrC29Ce+hRserfZZlQaj+m
+UetNBjR8IsIrJhMffTaNUTPiJRJXaQ==
+=PNpT
+-----END PGP SIGNATURE-----
+
+--Ri3zr+BP8FJRoKsl--
