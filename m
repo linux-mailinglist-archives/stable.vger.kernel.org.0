@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C15075F0105
-	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 00:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5482B5F0106
+	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 00:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229528AbiI2Wz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 18:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47354 "EHLO
+        id S229783AbiI2Wz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 18:55:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiI2WzY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 18:55:24 -0400
+        with ESMTP id S229658AbiI2WzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 18:55:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21E4582D3B;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8BACBAED;
         Thu, 29 Sep 2022 15:55:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72E72621C1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D584D621DA;
         Thu, 29 Sep 2022 22:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9A57C433B5;
-        Thu, 29 Sep 2022 22:55:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FCEAC433C1;
+        Thu, 29 Sep 2022 22:55:22 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.96)
         (envelope-from <rostedt@goodmis.org>)
-        id 1oe2SJ-000cmX-2M;
-        Thu, 29 Sep 2022 18:56:35 -0400
-Message-ID: <20220929225635.339549783@goodmis.org>
+        id 1oe2SK-000cn7-0i;
+        Thu, 29 Sep 2022 18:56:36 -0400
+Message-ID: <20220929225635.826306562@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Thu, 29 Sep 2022 18:55:45 -0400
+Date:   Thu, 29 Sep 2022 18:55:46 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org
-Subject: [for-next][PATCH 03/15] ring-buffer: Have the shortest_full queue be the shortest not longest
+Subject: [for-next][PATCH 04/15] ring-buffer: Check pending waiters when doing wake ups as well
 References: <20220929225542.784716766@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,33 +48,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-The logic to know when the shortest waiters on the ring buffer should be
-woken up or not has uses a less than instead of a greater than compare,
-which causes the shortest_full to actually be the longest.
+The wake up waiters only checks the "wakeup_full" variable and not the
+"full_waiters_pending". The full_waiters_pending is set when a waiter is
+added to the wait queue. The wakeup_full is only set when an event is
+triggered, and it clears the full_waiters_pending to avoid multiple calls
+to irq_work_queue().
 
-Link: https://lkml.kernel.org/r/20220927231823.718039222@goodmis.org
+The irq_work callback really needs to check both wakeup_full as well as
+full_waiters_pending such that this code can be used to wake up waiters
+when a file is closed that represents the ring buffer and the waiters need
+to be woken up.
+
+Link: https://lkml.kernel.org/r/20220927231824.209460321@goodmis.org
 
 Cc: stable@vger.kernel.org
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 2c2b0a78b3739 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
+Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- kernel/trace/ring_buffer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 6b145d48dfd1..02db92c9eb1b 100644
+index 02db92c9eb1b..5a7d818ca3ea 100644
 --- a/kernel/trace/ring_buffer.c
 +++ b/kernel/trace/ring_buffer.c
-@@ -1011,7 +1011,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 			nr_pages = cpu_buffer->nr_pages;
- 			dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
- 			if (!cpu_buffer->shortest_full ||
--			    cpu_buffer->shortest_full < full)
-+			    cpu_buffer->shortest_full > full)
- 				cpu_buffer->shortest_full = full;
- 			raw_spin_unlock_irqrestore(&cpu_buffer->reader_lock, flags);
- 			if (!pagebusy &&
+@@ -917,8 +917,9 @@ static void rb_wake_up_waiters(struct irq_work *work)
+ 	struct rb_irq_work *rbwork = container_of(work, struct rb_irq_work, work);
+ 
+ 	wake_up_all(&rbwork->waiters);
+-	if (rbwork->wakeup_full) {
++	if (rbwork->full_waiters_pending || rbwork->wakeup_full) {
+ 		rbwork->wakeup_full = false;
++		rbwork->full_waiters_pending = false;
+ 		wake_up_all(&rbwork->full_waiters);
+ 	}
+ }
 -- 
 2.35.1
