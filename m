@@ -2,106 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B58165EF4B1
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 13:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 027FD5EF51A
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 14:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235104AbiI2LuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 07:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60584 "EHLO
+        id S235288AbiI2MSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 08:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235050AbiI2LuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 07:50:19 -0400
-Received: from mail-0301.mail-europe.com (mail-0301.mail-europe.com [188.165.51.139])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1C2AE222;
-        Thu, 29 Sep 2022 04:50:08 -0700 (PDT)
-Date:   Thu, 29 Sep 2022 11:49:56 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail3; t=1664452202; x=1664711402;
-        bh=WtH1XiJMuAo2t7Ag08kalVAzbnlWzm46SLxhU7NTyU4=;
-        h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-         Subject:Reply-To:Feedback-ID:Message-ID;
-        b=Mp2BmKbJWOuTGrcIJoPHC0MHj8lnJeeNTqljJjrOsuOCJ+Ez6hyCL4UtQwJjtsTXd
-         GHCEMsJF44x6y7o/G+wZmEDul2Vr+orSquypidICfFOc2IMgxFbF0H8neHs2bInJ5F
-         eXe7fHcQqlp3bzgS5K7qoID3/Hc5zme5zWlr92NxIvrD1YjXOn2w8MB0LeqkeEr53W
-         pRi/a4VzWQ3tyqOMPoIVPkV1JD0Xam6/PKC0tW/OPNyMH6iVEczKnIC7K19tqbBHCF
-         7TRx/ODy0XrvBhaZh4tV1OcKG8f4tdC7kN8hGk7iO0YS8qpJdvdnZX7spkEedd4QTL
-         dkPUjNfVseQkg==
-To:     linux-kernel@vger.kernel.org
-From:   Orlando Chamberlain <redecorating@protonmail.com>
-Cc:     jarkko@kernel.org, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        gargaditya08@live.com, linux-integrity@vger.kernel.org,
-        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        stable@vger.kernel.org, Samuel Jiang <chyishian.jiang@gmail.com>
-Subject: [PATCHv2 RESEND] efi: Correct Macmini DMI match in uefi cert quirk
-Message-ID: <20220929114906.85021-1-redecorating@protonmail.com>
-Feedback-ID: 28131841:user:proton
+        with ESMTP id S235307AbiI2MSt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 08:18:49 -0400
+Received: from smtp-1908.mail.infomaniak.ch (smtp-1908.mail.infomaniak.ch [IPv6:2001:1600:4:17::1908])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2647212969F;
+        Thu, 29 Sep 2022 05:18:47 -0700 (PDT)
+Received: from smtp-2-0000.mail.infomaniak.ch (unknown [10.5.36.107])
+        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4MdXTJ6ZzszMqJhl;
+        Thu, 29 Sep 2022 14:18:44 +0200 (CEST)
+Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
+        by smtp-2-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4MdXTJ1MvNzMpnPm;
+        Thu, 29 Sep 2022 14:18:44 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
+        s=20191114; t=1664453924;
+        bh=W7vslApTCphM95MlDuIkNlTGmBG0MHn06s5FtT+q6n4=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=J9t6XXTrSZ+jmXbM/e0FUaS26/80lkVy1/MDSHtzVr40GTEErjt8EmT4uN9Wo2Zty
+         fl4wEiUCBr5fa9by5a+vLpZyXPchrmawM6hzuUmHEy8FhdryxNBStPZjDs4BaH5tfC
+         i6+hIILR6z4dw3J5UeBXe9xWN/ZAqYWPzBEck+iU=
+Message-ID: <75d077ca-4f1d-50c4-10d2-0fb31fcd0c86@digikod.net>
+Date:   Thu, 29 Sep 2022 14:18:43 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: 
+Subject: Re: [PATCH v1] ksmbd: Fix user namespace mapping
+Content-Language: en-US
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Hyunchul Lee <hyc.lee@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <smfrench@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, linux-cifs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org
+References: <20220929100447.108468-1-mic@digikod.net>
+ <20220929113735.7k6fdu75oz4jvsvz@wittgenstein>
+From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+In-Reply-To: <20220929113735.7k6fdu75oz4jvsvz@wittgenstein>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
-is inconsistent with other model line names.
 
-Correct the capitalisation of Macmini in the quirk for skipping loading
-platform certs on T2 Macs.
+On 29/09/2022 13:37, Christian Brauner wrote:
+> On Thu, Sep 29, 2022 at 12:04:47PM +0200, Mickaël Salaün wrote:
+>> A kernel daemon should not rely on the current thread, which is unknown
+>> and might be malicious.  Before this security fix,
+>> ksmbd_override_fsids() didn't correctly override FS UID/GID which means
+>> that arbitrary user space threads could trick the kernel to impersonate
+>> arbitrary users or groups for file system access checks, leading to
+>> file system access bypass.
+>>
+>> This was found while investigating truncate support for Landlock:
+>> https://lore.kernel.org/r/CAKYAXd8fpMJ7guizOjHgxEyyjoUwPsx3jLOPZP=wPYcbhkVXqA@mail.gmail.com
+>>
+>> Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+>> Cc: Hyunchul Lee <hyc.lee@gmail.com>
+>> Cc: Namjae Jeon <linkinjeon@kernel.org>
+>> Cc: Steve French <smfrench@gmail.com>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Mickaël Salaün <mic@digikod.net>
+>> Link: https://lore.kernel.org/r/20220929100447.108468-1-mic@digikod.net
+>> ---
+> 
+> I think this is ok. The alternative would probably be to somehow use a
+> relevant userns when struct ksmbd_user is created when the session is
+> established. But these are deeper ksmbd design questions. The fix
+> proposed here itself seems good.
 
-Currently users get:
-
-------------[ cut here ]------------
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
-WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_grac=
-efully_on_page_fault+0x55/0xe0
-Modules linked in:
-CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3=
-fc40fd08edab32a509fbf4c9bc52d111e
-Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10=
-.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
-Workqueue: efi_rts_wq efi_call_rts
-...
----[ end trace 0000000000000000 ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-
-Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot=
- for T2 Macs")
-Cc: stable@vger.kernel.org
-Cc: Aditya Garg <gargaditya08@live.com>
-Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
-Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
----
-v1->v2: Clarified in commit message that this is for a dmi match string
- security/integrity/platform_certs/load_uefi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integ=
-rity/platform_certs/load_uefi.c
-index 093894a640dc..b78753d27d8e 100644
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -31,7 +31,7 @@ static const struct dmi_system_id uefi_skip_cert[] =3D {
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
--=09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+=09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
---=20
-2.37.1
-
-
+That would be better indeed. I guess ksmbd works whenever the netlink 
+peer is not in a user namespace with mapped UID/GID, but it should 
+result in obvious access bugs otherwise (which is already the case 
+anyway). It seems that the netlink peer must be trusted because it is 
+the source of truth for account/user mapping anyway. This change fixes 
+the more critical side of the issue and it should fit well for backports.
