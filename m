@@ -2,139 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D755EF750
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 16:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB4285EF825
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 16:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234858AbiI2OS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 10:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37896 "EHLO
+        id S235771AbiI2O6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 10:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234340AbiI2OS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 10:18:58 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD52A17A5FE;
-        Thu, 29 Sep 2022 07:18:57 -0700 (PDT)
-Date:   Thu, 29 Sep 2022 16:18:55 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1664461136;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8zj0w2Vgi49HfUr/IZs8+gOkOwPoTluB/6siD/jB8/k=;
-        b=lfO4rmZLV2Wi5LX2ZcCR9f5RLRCxPy1zaUwTPlXdl+hg+mYBx3MrzZLWWobgHsD98CGv7H
-        MOEw6ZantZNpc+vThhTT+nyFqPlB0DCu9b9Qx3egJo8RsLKYBXY0GCZd3Sxgbl6KcBkSKr
-        Rt4A+5+QyDooU3e+RDugj1cILWg/HJ00pe6KScvCm7vxv1JIRFS2k4nbTx7JuTQxrzhpPC
-        HAVFBvnUByyRAtDrbSMqfJNzD3gX1s3EhsvnafIVYwEjatH3jttJTG4E2dY4A5Ii+Av9lz
-        eGn9Fj1RNNgXMVJlvoXKmA2Bhva2+QAfDRfKhbE/KHwx861t34y4Ed718n0how==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1664461136;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8zj0w2Vgi49HfUr/IZs8+gOkOwPoTluB/6siD/jB8/k=;
-        b=0eZRfOeH9xxXlSrlwKeTWege4p8EQ4DpWyt/GbShjyrjyv77pQsbMUZqaIeMR3iHPK21dn
-        yht3X5Ve6H3MudCQ==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Sherry Yang <sherry.yang@oracle.com>,
-        Paul Webb <paul.x.webb@oracle.com>,
-        Phillip Goerl <phillip.goerl@oracle.com>,
-        Jack Vogel <jack.vogel@oracle.com>,
-        Nicky Veitch <nicky.veitch@oracle.com>,
-        Colm Harrington <colm.harrington@oracle.com>,
-        Ramanan Govindarajan <ramanan.govindarajan@oracle.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Tejun Heo <tj@kernel.org>,
-        Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3] random: use expired per-cpu timer rather than wq for
- mixing fast pool
-Message-ID: <YzWpT/NfDzhnsiTI@linutronix.de>
-References: <YzKy+bNedt2vu+a1@zx2c4.com>
- <20220927104233.1605507-1-Jason@zx2c4.com>
- <YzQ41ZhCojbyZq6L@linutronix.de>
- <YzRzMsORHpzFydO7@zx2c4.com>
+        with ESMTP id S235740AbiI2O6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 10:58:50 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28ED149786;
+        Thu, 29 Sep 2022 07:58:47 -0700 (PDT)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 28TEwT1O008324
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Sep 2022 10:58:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1664463511; bh=XdnqQwti8MU8K4U7XKcxgq3p/hXMwfXFEDlPznxZawg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=G9+cMlJeGYN9ep/h9QScFQAOrkK48RUrtpt2tnKdc1mNGoTEU1NbtKoBC/e5jmv3S
+         unEiy8+piDiF+wYwfqHhm/i1v7S+azIC0f84PaDGuEybl4k96+QrgxS+ZWLySgcK9q
+         RWCUWxGYnlxtws+AiPEy3JuocJEJCuWll7fwWApgOwxKXbKZQHt39L4nQIAaXrrPbS
+         C+MTn2fibXhWThZZxBcvacr0vf+ZbYLIccbW5AvJNwUt3UkBvd5orb2IvmW14vB71+
+         U+f+xTjfwD1Af1p9JQ9RdJDK9Af8wG5kUGtdPkXukw1IdUtJJ36BEwDqoeIeWUkCB3
+         BlTTIFfc9MRMQ==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 754E115C00C9; Thu, 29 Sep 2022 10:58:29 -0400 (EDT)
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     jack@suse.cz
+Cc:     "Theodore Ts'o" <tytso@mit.edu>, carnil@debian.org,
+        linux-ext4@vger.kernel.org, lczerner@redhat.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ext4: Fix check for block being out of directory size
+Date:   Thu, 29 Sep 2022 10:58:23 -0400
+Message-Id: <166446350048.149484.14790223647442624434.b4-ty@mit.edu>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20220822114832.1482-1-jack@suse.cz>
+References: <20220822114832.1482-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <YzRzMsORHpzFydO7@zx2c4.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-09-28 18:15:46 [+0200], Jason A. Donenfeld wrote:
-> Hi Sebastian,
-Hi Jason,
+On Mon, 22 Aug 2022 13:48:32 +0200, Jan Kara wrote:
+> The check in __ext4_read_dirblock() for block being outside of directory
+> size was wrong because it compared block number against directory size
+> in bytes. Fix it.
+> 
+> 
 
-> On Wed, Sep 28, 2022 at 02:06:45PM +0200, Sebastian Andrzej Siewior wrote:
-> > On 2022-09-27 12:42:33 [+0200], Jason A. Donenfeld wrote:
-> > =E2=80=A6
-> > > This is an ordinary pattern done all over the kernel. However, Sherry
-> > > noticed a 10% performance regression in qperf TCP over a 40gbps
-> > > InfiniBand card. Quoting her message:
-> > >=20
-> > > > MT27500 Family [ConnectX-3] cards:
-> > > > Infiniband device 'mlx4_0' port 1 status:
-> > =E2=80=A6
-> >=20
-> > While looking at the mlx4 driver, it looks like they don't use any NAPI
-> > handling in their interrupt handler which _might_ be the case that they
-> > handle more than 1k interrupts a second. I'm still curious to get that
-> > ACKed from Sherry's side.
->=20
-> Are you sure about that? So far as I can tell drivers/net/ethernet/
-> mellanox/mlx4 has plenty of napi_schedule/napi_enable and such. Or are
-> you looking at the infiniband driver instead? I don't really know how
-> these interact.
+Applied, thanks!
 
-I've been looking at mlx4_msi_x_interrupt() and it appears that it
-iterates over a ring buffer. I guess that mlx4_cq_completion() will
-invoke mlx4_en_rx_irq() which schedules NAPI.
+[1/1] ext4: Fix check for block being out of directory size
+      commit: 013c07e4705fb994e5e56530af0bc6272884b5c1
 
-> But yea, if we've got a driver not using NAPI at 40gbps that's obviously
-> going to be a problem.
-
-So I'm wondering if we get 1 worker a second which kills the performance
-or if we get more than 1k interrupts in less than second resulting in
-more wakeups within a second..
-
-> > Jason, from random's point of view: deferring until 1k interrupts + 1sec
-> > delay is not desired due to low entropy, right?
->=20
-> Definitely || is preferable to &&.
->=20
-> >=20
-> > > Rather than incur the scheduling latency from queue_work_on, we can
-> > > instead switch to running on the next timer tick, on the same core. T=
-his
-> > > also batches things a bit more -- once per jiffy -- which is okay now
-> > > that mix_interrupt_randomness() can credit multiple bits at once.
-> >=20
-> > Hmmm. Do you see higher contention on input_pool.lock? Just asking
-> > because if more than once CPUs invokes this timer callback aligned, then
-> > they block on the same lock.
->=20
-> I've been doing various experiments, sending mini patches to Oracle and
-> having them test this in their rig. So far, it looks like the cost of
-> the body of the worker itself doesn't matter much, but rather the cost
-> of the enqueueing function is key. Still investigating though.
->=20
-> It's a bit frustrating, as all I have to work with are results from the
-> tests, and no perf analysis. It'd be great if an engineer at Oracle was
-> capable of tackling this interactively, but at the moment it's just me
-> sending them patches. So we'll see. Getting closer though, albeit very
-> slowly.
-
-Oh boy. Okay.
-
-> Jason
-
-Sebastian
+Best regards,
+-- 
+Theodore Ts'o <tytso@mit.edu>
