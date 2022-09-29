@@ -2,109 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 544475EEF47
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 09:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D3A5EF000
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 10:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235305AbiI2HjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 03:39:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42926 "EHLO
+        id S235033AbiI2IHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 04:07:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235340AbiI2HjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 03:39:21 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A4F11397DA;
-        Thu, 29 Sep 2022 00:39:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-        s=42; h=Message-Id:Date:Cc:To:From;
-        bh=U/H6ER4Dmga5p7E3JSan/uaDdo40K/EZfBAvTEwfgfQ=; b=syp+BNk8rbhRWtP7Czw5/QckPH
-        HYYkYHRdZSDhzX6fciHx/jozpHETEGqs7cplZGrSUVqQXgxvXiDmuDJ2OphFaW/AFf1kPc8MDexRQ
-        +UPQV40zfWEfB8f0tUMxF+GeNsApmke5majbyk1C3IAz7E1l8R1D+2O5EI9MU/LUAxRBM7SvYgpf8
-        lVjnHDVmlujTCRgogx0BIKjUYPhOPUvyfXKBhHC1yTuYKS00KphToxwEpLJYhyr/6D6Dxula8K0SU
-        g0CeoeNyNWn+tGs7gOlNNI4GF9V2NIQ6niCEXlhk3hT/BavjMgW882HTiqHPep2FKNMF5pLVMIfIt
-        wW5cIQ1oVdvBuEsmzwjbTqLoKe1Q2ptdnop1zBL5MMJwopvuCoDXLfamixnu2/Hh9wx8I8E1QKuex
-        umrwtslYH+AexAH+vVftAsRyFeDF11EFB/da/im9deB2YN32OkE7D+ZG+rJ3EQlx3/9Y3Ke46UEDh
-        ZzEQ7/Urc2IzpgLwaJJATv3d;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
-        (Exim)
-        id 1odo8a-002L3g-PM; Thu, 29 Sep 2022 07:39:16 +0000
-From:   Stefan Metzmacher <metze@samba.org>
-To:     io-uring@vger.kernel.org, axboe@kernel.dk, asml.silence@gmail.com
-Cc:     Stefan Metzmacher <metze@samba.org>, stable@vger.kernel.org
-Subject: [PATCH 1/1] io_uring/net: fix fast_iov assignment in io_setup_async_msg()
-Date:   Thu, 29 Sep 2022 09:39:10 +0200
-Message-Id: <b2e7be246e2fb173520862b0c7098e55767567a2.1664436949.git.metze@samba.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1664436949.git.metze@samba.org>
-References: <cover.1664436949.git.metze@samba.org>
+        with ESMTP id S234985AbiI2IHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 04:07:12 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FEF17A756
+        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 01:07:10 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id x1-20020a17090ab00100b001fda21bbc90so5203113pjq.3
+        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 01:07:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date;
+        bh=0Jfzl2sNnfhcmOJ2w1p67/kZD3Vw/dvkwuexZ9m31YM=;
+        b=P87hvSDDuEWClVP5xzHvYmmh4LTLu551xTpJzaPDMe4LieY8KERFX8Ujs8zWUvrz98
+         sKa5I87UXH+5n827rMS1kwkkgnMtwMX/RACxh9QuHtK3d4B6XF1aJXV+2XA1AmWLsvh/
+         S+WtRHcrRei+OaTUo91sWFJpZtpfNO/ld1FhU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=0Jfzl2sNnfhcmOJ2w1p67/kZD3Vw/dvkwuexZ9m31YM=;
+        b=dFtfcMxJHD4d4tcGpt4Bx+5ssnDrAmFGYejj5RIx+43clqoGfuibvZOfm+ZZjXs3X+
+         N90rsBSl2u1Pg0mr/pjrqijk6YmsX0qnWR/HUBOoXfoAHk8Y0mR4uZ6n1udZGZgu8a1J
+         CcaA47a1HhpxBgDUPh6qLWNm2Btd84vFtz42C75ZtR0G8tUN/4/7aD8GZVIFr2AydbKv
+         2rNnkepo7YN3I22fjf2KIj1swLDzmMY1oHsa1cSbstyzgQ2NVYeDRMUpktwI40+Xm9dW
+         AHbIy4AJK4qKz20J5N+nWhFQH8Wt6L4puhveQIyJIXDVPSFcynNFSj8UARews77jof3v
+         jF3Q==
+X-Gm-Message-State: ACrzQf3NlvQ6WZtWTC7bfNkTPkvdASsJHQOY5V9uNWOMT9DCtZh6P5hb
+        XwYwJaUueD7UKMfKZR9/Jkhh5Q==
+X-Google-Smtp-Source: AMsMyM4+Mj2J8XHAWgYmKThY6/GgJaz8N5uLUtVAjrhrE54ehACWk51RbxkUw262Lb+XCP8GD1+8FQ==
+X-Received: by 2002:a17:90b:4b09:b0:202:ad77:9ee1 with SMTP id lx9-20020a17090b4b0900b00202ad779ee1mr2469916pjb.10.1664438829765;
+        Thu, 29 Sep 2022 01:07:09 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id d4-20020a170902654400b00176b84eb29asm5185479pln.301.2022.09.29.01.07.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Sep 2022 01:07:09 -0700 (PDT)
+Date:   Thu, 29 Sep 2022 01:07:08 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        patches@lists.linux.dev, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: gadget: uvc: Fix argument to sizeof() in
+ uvc_register_video()
+Message-ID: <202209290106.E6EFD95D4@keescook>
+References: <20220928201921.3152163-1-nathan@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220928201921.3152163-1-nathan@kernel.org>
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I hit a very bad problem during my tests of SENDMSG_ZC.
-BUG(); in first_iovec_segment() triggered very easily.
-The problem was io_setup_async_msg() in the partial retry case,
-which seems to happen more often with _ZC.
+On Wed, Sep 28, 2022 at 01:19:21PM -0700, Nathan Chancellor wrote:
+> When building s390 allmodconfig after commit 9b91a6523078 ("usb: gadget:
+> uvc: increase worker prio to WQ_HIGHPRI"), the following error occurs:
+> 
+>   In file included from ../include/linux/string.h:253,
+>                    from ../include/linux/bitmap.h:11,
+>                    from ../include/linux/cpumask.h:12,
+>                    from ../include/linux/smp.h:13,
+>                    from ../include/linux/lockdep.h:14,
+>                    from ../include/linux/rcupdate.h:29,
+>                    from ../include/linux/rculist.h:11,
+>                    from ../include/linux/pid.h:5,
+>                    from ../include/linux/sched.h:14,
+>                    from ../include/linux/ratelimit.h:6,
+>                    from ../include/linux/dev_printk.h:16,
+>                    from ../include/linux/device.h:15,
+>                    from ../drivers/usb/gadget/function/f_uvc.c:9:
+>   In function ‘fortify_memset_chk’,
+>       inlined from ‘uvc_register_video’ at ../drivers/usb/gadget/function/f_uvc.c:424:2:
+>   ../include/linux/fortify-string.h:301:25: error: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]
+>     301 |                         __write_overflow_field(p_size_field, size);
+>         |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> This points to the memset() in uvc_register_video(). It is clear that
+> the argument to sizeof() is incorrect, as uvc->vdev (a 'struct
+> video_device') is being zeroed out but the size of uvc->video (a 'struct
+> uvc_video') is being used as the third arugment to memset().
+> 
+> pahole shows that prior to commit 9b91a6523078 ("usb: gadget: uvc:
+> increase worker prio to WQ_HIGHPRI"), 'struct video_device' and
+> 'struct ucv_video' had the same size, meaning that the argument to
+> sizeof() is incorrect semantically but there is no visible issue:
+> 
+>   $ pahole -s build/drivers/usb/gadget/function/f_uvc.o | grep -E "(uvc_video|video_device)\s+"
+>   video_device    1400    4
+>   uvc_video       1400    3
+> 
+> After that change, uvc_video becomes slightly larger, meaning that the
+> memset() will overwrite by 8 bytes:
+> 
+>   $ pahole -s build/drivers/usb/gadget/function/f_uvc.o | grep -E "(uvc_video|video_device)\s+"
+>   video_device    1400    4
+>   uvc_video       1408    3
+> 
+> Fix the arugment to sizeof() so that there is no overwrite.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: e4ce9ed835bc ("usb: gadget: uvc: ensure the vdev is unset")
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
-iov_iter_iovec_advance() may change i->iov in order to have i->iov_offset
-being only relative to the first element.
+Thanks for tracking that down!
 
-Which means kmsg->msg.msg_iter.iov is no longer the
-same as kmsg->fast_iov.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-But this would rewind the copy to be the start of
-async_msg->fast_iov, which means the internal
-state of sync_msg->msg.msg_iter is inconsitent.
-
-I tested with 5 vectors with length like this 4, 0, 64, 20, 8388608
-and got a short writes with:
-- ret=2675244 min_ret=8388692 => remaining 5713448 sr->done_io=2675244
-- ret=-EAGAIN => io_uring_poll_arm
-- ret=4911225 min_ret=5713448 => remaining 802223  sr->done_io=7586469
-- ret=-EAGAIN => io_uring_poll_arm
-- ret=802223  min_ret=802223  => res=8388692
-
-While this was easily triggered with SENDMSG_ZC (queued for 6.1),
-it was a potential problem starting with 7ba89d2af17aa879dda30f5d5d3f152e587fc551
-in 5.18 for IORING_OP_RECVMSG.
-And also with 4c3c09439c08b03d9503df0ca4c7619c5842892e in 5.19
-for IORING_OP_SENDMSG.
-
-However 257e84a5377fbbc336ff563833a8712619acce56 introduced the critical
-code into io_setup_async_msg() in 5.11.
-
-Fixes: 7ba89d2af17aa ("io_uring: ensure recv and recvmsg handle MSG_WAITALL correctly")
-Fixes: 257e84a5377fb ("io_uring: refactor sendmsg/recvmsg iov managing")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
----
- io_uring/net.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/io_uring/net.c b/io_uring/net.c
-index 60e392f7f2dc..a81fccd38ae4 100644
---- a/io_uring/net.c
-+++ b/io_uring/net.c
-@@ -165,8 +165,10 @@ static int io_setup_async_msg(struct io_kiocb *req,
- 	memcpy(async_msg, kmsg, sizeof(*kmsg));
- 	async_msg->msg.msg_name = &async_msg->addr;
- 	/* if were using fast_iov, set it to the new one */
--	if (!async_msg->free_iov)
--		async_msg->msg.msg_iter.iov = async_msg->fast_iov;
-+	if (!kmsg->free_iov) {
-+		size_t fast_idx = kmsg->msg.msg_iter.iov - kmsg->fast_iov;
-+		async_msg->msg.msg_iter.iov = &async_msg->fast_iov[fast_idx];
-+	}
- 
- 	return -EAGAIN;
- }
 -- 
-2.34.1
-
+Kees Cook
