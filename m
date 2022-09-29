@@ -2,82 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AEDC5EF46D
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 13:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B58165EF4B1
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 13:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235327AbiI2Lhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 07:37:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58566 "EHLO
+        id S235104AbiI2LuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 07:50:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235278AbiI2Lhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 07:37:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FBFE14F8CD;
-        Thu, 29 Sep 2022 04:37:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9DC6B8245F;
-        Thu, 29 Sep 2022 11:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B99C433C1;
-        Thu, 29 Sep 2022 11:37:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664451461;
-        bh=uRl5cXPSzrgDgZEmBB96Z+bBbGLnVEN9hWoSXJsFsP4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r9VdoM7VBo44GyTZ/Doqk0R4z7lK2DOILIkhkvdDQC8Yg/p0GfPUKcHWiLnbgxTvW
-         AFQNfOyi8+DqJcoMBRrHREKi7r+4hJu27jdvbYeXPNmUC7zoq46TavZ2KvhjG9GXGX
-         TUkUnv9vDZfP5wMNkH9mE9cohPSc8GejiwQv7LyB4SUuISiL4cL41MbCDWY9co9/Qc
-         mQ3q/FuyII3Wqog9tNzaOg8ZaUHMtdTQeXT4Rapf2dB4arlLY4QBgPqAfqB1rtjJok
-         MxANMkKHy7aqUdwNtn1IILfiSy8VX6VCqST26eppRlmNvLNB7rvoqn2ePcXAe5VRmr
-         rstr/By0Jgbng==
-Date:   Thu, 29 Sep 2022 13:37:35 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-Cc:     Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <smfrench@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, linux-cifs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1] ksmbd: Fix user namespace mapping
-Message-ID: <20220929113735.7k6fdu75oz4jvsvz@wittgenstein>
-References: <20220929100447.108468-1-mic@digikod.net>
+        with ESMTP id S235050AbiI2LuT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 07:50:19 -0400
+Received: from mail-0301.mail-europe.com (mail-0301.mail-europe.com [188.165.51.139])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1C2AE222;
+        Thu, 29 Sep 2022 04:50:08 -0700 (PDT)
+Date:   Thu, 29 Sep 2022 11:49:56 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail3; t=1664452202; x=1664711402;
+        bh=WtH1XiJMuAo2t7Ag08kalVAzbnlWzm46SLxhU7NTyU4=;
+        h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+         Subject:Reply-To:Feedback-ID:Message-ID;
+        b=Mp2BmKbJWOuTGrcIJoPHC0MHj8lnJeeNTqljJjrOsuOCJ+Ez6hyCL4UtQwJjtsTXd
+         GHCEMsJF44x6y7o/G+wZmEDul2Vr+orSquypidICfFOc2IMgxFbF0H8neHs2bInJ5F
+         eXe7fHcQqlp3bzgS5K7qoID3/Hc5zme5zWlr92NxIvrD1YjXOn2w8MB0LeqkeEr53W
+         pRi/a4VzWQ3tyqOMPoIVPkV1JD0Xam6/PKC0tW/OPNyMH6iVEczKnIC7K19tqbBHCF
+         7TRx/ODy0XrvBhaZh4tV1OcKG8f4tdC7kN8hGk7iO0YS8qpJdvdnZX7spkEedd4QTL
+         dkPUjNfVseQkg==
+To:     linux-kernel@vger.kernel.org
+From:   Orlando Chamberlain <redecorating@protonmail.com>
+Cc:     jarkko@kernel.org, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        gargaditya08@live.com, linux-integrity@vger.kernel.org,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        stable@vger.kernel.org, Samuel Jiang <chyishian.jiang@gmail.com>
+Subject: [PATCHv2 RESEND] efi: Correct Macmini DMI match in uefi cert quirk
+Message-ID: <20220929114906.85021-1-redecorating@protonmail.com>
+Feedback-ID: 28131841:user:proton
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220929100447.108468-1-mic@digikod.net>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 29, 2022 at 12:04:47PM +0200, Mickaël Salaün wrote:
-> A kernel daemon should not rely on the current thread, which is unknown
-> and might be malicious.  Before this security fix,
-> ksmbd_override_fsids() didn't correctly override FS UID/GID which means
-> that arbitrary user space threads could trick the kernel to impersonate
-> arbitrary users or groups for file system access checks, leading to
-> file system access bypass.
-> 
-> This was found while investigating truncate support for Landlock:
-> https://lore.kernel.org/r/CAKYAXd8fpMJ7guizOjHgxEyyjoUwPsx3jLOPZP=wPYcbhkVXqA@mail.gmail.com
-> 
-> Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-> Cc: Hyunchul Lee <hyc.lee@gmail.com>
-> Cc: Namjae Jeon <linkinjeon@kernel.org>
-> Cc: Steve French <smfrench@gmail.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mickaël Salaün <mic@digikod.net>
-> Link: https://lore.kernel.org/r/20220929100447.108468-1-mic@digikod.net
-> ---
+It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
+is inconsistent with other model line names.
 
-I think this is ok. The alternative would probably be to somehow use a
-relevant userns when struct ksmbd_user is created when the session is
-established. But these are deeper ksmbd design questions. The fix
-proposed here itself seems good.
+Correct the capitalisation of Macmini in the quirk for skipping loading
+platform certs on T2 Macs.
+
+Currently users get:
+
+------------[ cut here ]------------
+[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
+WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_grac=
+efully_on_page_fault+0x55/0xe0
+Modules linked in:
+CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3=
+fc40fd08edab32a509fbf4c9bc52d111e
+Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10=
+.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
+Workqueue: efi_rts_wq efi_call_rts
+...
+---[ end trace 0000000000000000 ]---
+efi: Froze efi_rts_wq and disabled EFI Runtime Services
+integrity: Couldn't get size: 0x8000000000000015
+integrity: MODSIGN: Couldn't get UEFI db list
+efi: EFI Runtime Services are disabled!
+integrity: Couldn't get size: 0x8000000000000015
+integrity: Couldn't get UEFI dbx list
+
+Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot=
+ for T2 Macs")
+Cc: stable@vger.kernel.org
+Cc: Aditya Garg <gargaditya08@live.com>
+Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
+Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
+---
+v1->v2: Clarified in commit message that this is for a dmi match string
+ security/integrity/platform_certs/load_uefi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integ=
+rity/platform_certs/load_uefi.c
+index 093894a640dc..b78753d27d8e 100644
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -31,7 +31,7 @@ static const struct dmi_system_id uefi_skip_cert[] =3D {
+ =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
+ =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
+ =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
+-=09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
++=09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
+ =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
+ =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
+ =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
+--=20
+2.37.1
+
+
