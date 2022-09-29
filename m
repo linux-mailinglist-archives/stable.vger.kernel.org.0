@@ -2,130 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D3A5EF000
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 10:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7245C5EF0C6
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 10:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235033AbiI2IHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 04:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60506 "EHLO
+        id S234766AbiI2Irb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 04:47:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234985AbiI2IHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 04:07:12 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FEF17A756
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 01:07:10 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id x1-20020a17090ab00100b001fda21bbc90so5203113pjq.3
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 01:07:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date;
-        bh=0Jfzl2sNnfhcmOJ2w1p67/kZD3Vw/dvkwuexZ9m31YM=;
-        b=P87hvSDDuEWClVP5xzHvYmmh4LTLu551xTpJzaPDMe4LieY8KERFX8Ujs8zWUvrz98
-         sKa5I87UXH+5n827rMS1kwkkgnMtwMX/RACxh9QuHtK3d4B6XF1aJXV+2XA1AmWLsvh/
-         S+WtRHcrRei+OaTUo91sWFJpZtpfNO/ld1FhU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=0Jfzl2sNnfhcmOJ2w1p67/kZD3Vw/dvkwuexZ9m31YM=;
-        b=dFtfcMxJHD4d4tcGpt4Bx+5ssnDrAmFGYejj5RIx+43clqoGfuibvZOfm+ZZjXs3X+
-         N90rsBSl2u1Pg0mr/pjrqijk6YmsX0qnWR/HUBOoXfoAHk8Y0mR4uZ6n1udZGZgu8a1J
-         CcaA47a1HhpxBgDUPh6qLWNm2Btd84vFtz42C75ZtR0G8tUN/4/7aD8GZVIFr2AydbKv
-         2rNnkepo7YN3I22fjf2KIj1swLDzmMY1oHsa1cSbstyzgQ2NVYeDRMUpktwI40+Xm9dW
-         AHbIy4AJK4qKz20J5N+nWhFQH8Wt6L4puhveQIyJIXDVPSFcynNFSj8UARews77jof3v
-         jF3Q==
-X-Gm-Message-State: ACrzQf3NlvQ6WZtWTC7bfNkTPkvdASsJHQOY5V9uNWOMT9DCtZh6P5hb
-        XwYwJaUueD7UKMfKZR9/Jkhh5Q==
-X-Google-Smtp-Source: AMsMyM4+Mj2J8XHAWgYmKThY6/GgJaz8N5uLUtVAjrhrE54ehACWk51RbxkUw262Lb+XCP8GD1+8FQ==
-X-Received: by 2002:a17:90b:4b09:b0:202:ad77:9ee1 with SMTP id lx9-20020a17090b4b0900b00202ad779ee1mr2469916pjb.10.1664438829765;
-        Thu, 29 Sep 2022 01:07:09 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id d4-20020a170902654400b00176b84eb29asm5185479pln.301.2022.09.29.01.07.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Sep 2022 01:07:09 -0700 (PDT)
-Date:   Thu, 29 Sep 2022 01:07:08 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        patches@lists.linux.dev, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: gadget: uvc: Fix argument to sizeof() in
- uvc_register_video()
-Message-ID: <202209290106.E6EFD95D4@keescook>
-References: <20220928201921.3152163-1-nathan@kernel.org>
+        with ESMTP id S234218AbiI2Ira (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 04:47:30 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB0A12DEF1;
+        Thu, 29 Sep 2022 01:47:26 -0700 (PDT)
+X-UUID: 57d1a879de2e456c883ec01a9bed887e-20220929
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=WYHMETprlxCSlcsR6AUgF7th2hMnQkiMFVz9edPawAU=;
+        b=sje336XFuNVLHdoAVA7Uyta43RUR0DU1G/VEPRaLi4GGgP6QVBAKMqnnLOSd1CRzK1EGvPF6WKHZdog1YTK5pL0QR9Z5xhjQyyis/SKcMPH0A6x78lBzZ1aON4X62TXfYHmHyADMaSm87OpP+Wq/STdce3NkuqvlpCKxbEeuq9E=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.11,REQID:bb9a92e0-89bc-4ab8-ad00-fc3956a1c4e6,IP:0,U
+        RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+        release,TS:0
+X-CID-META: VersionHash:39a5ff1,CLOUDID:c1a87ba3-dc04-435c-b19b-71e131a5fc35,B
+        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:-3,IP:nil,U
+        RL:0,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
+X-UUID: 57d1a879de2e456c883ec01a9bed887e-20220929
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1136124860; Thu, 29 Sep 2022 16:47:21 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs11n1.mediatek.inc (172.21.101.185) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Thu, 29 Sep 2022 16:47:20 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 29 Sep 2022 16:47:20 +0800
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     Miles Chen <miles.chen@mediatek.com>,
+        Bear Wang <bear.wang@mediatek.com>,
+        Pablo Sun <pablo.sun@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Macpaul Lin <macpaul@gmail.com>, <linux-usb@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2] arm64: dts: mediatek: mt8195-demo: fix the memory size of node secmon
+Date:   Thu, 29 Sep 2022 16:47:14 +0800
+Message-ID: <20220929084714.15143-1-macpaul.lin@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20220922091648.2821-1-macpaul.lin@mediatek.com>
+References: <20220922091648.2821-1-macpaul.lin@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220928201921.3152163-1-nathan@kernel.org>
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+        SPF_PASS,UNPARSEABLE_RELAY autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 28, 2022 at 01:19:21PM -0700, Nathan Chancellor wrote:
-> When building s390 allmodconfig after commit 9b91a6523078 ("usb: gadget:
-> uvc: increase worker prio to WQ_HIGHPRI"), the following error occurs:
-> 
->   In file included from ../include/linux/string.h:253,
->                    from ../include/linux/bitmap.h:11,
->                    from ../include/linux/cpumask.h:12,
->                    from ../include/linux/smp.h:13,
->                    from ../include/linux/lockdep.h:14,
->                    from ../include/linux/rcupdate.h:29,
->                    from ../include/linux/rculist.h:11,
->                    from ../include/linux/pid.h:5,
->                    from ../include/linux/sched.h:14,
->                    from ../include/linux/ratelimit.h:6,
->                    from ../include/linux/dev_printk.h:16,
->                    from ../include/linux/device.h:15,
->                    from ../drivers/usb/gadget/function/f_uvc.c:9:
->   In function ‘fortify_memset_chk’,
->       inlined from ‘uvc_register_video’ at ../drivers/usb/gadget/function/f_uvc.c:424:2:
->   ../include/linux/fortify-string.h:301:25: error: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]
->     301 |                         __write_overflow_field(p_size_field, size);
->         |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> This points to the memset() in uvc_register_video(). It is clear that
-> the argument to sizeof() is incorrect, as uvc->vdev (a 'struct
-> video_device') is being zeroed out but the size of uvc->video (a 'struct
-> uvc_video') is being used as the third arugment to memset().
-> 
-> pahole shows that prior to commit 9b91a6523078 ("usb: gadget: uvc:
-> increase worker prio to WQ_HIGHPRI"), 'struct video_device' and
-> 'struct ucv_video' had the same size, meaning that the argument to
-> sizeof() is incorrect semantically but there is no visible issue:
-> 
->   $ pahole -s build/drivers/usb/gadget/function/f_uvc.o | grep -E "(uvc_video|video_device)\s+"
->   video_device    1400    4
->   uvc_video       1400    3
-> 
-> After that change, uvc_video becomes slightly larger, meaning that the
-> memset() will overwrite by 8 bytes:
-> 
->   $ pahole -s build/drivers/usb/gadget/function/f_uvc.o | grep -E "(uvc_video|video_device)\s+"
->   video_device    1400    4
->   uvc_video       1408    3
-> 
-> Fix the arugment to sizeof() so that there is no overwrite.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: e4ce9ed835bc ("usb: gadget: uvc: ensure the vdev is unset")
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+The size of device tree node secmon (bl31_secmon_reserved) was
+incorrect. It should be increased to 2MiB (0x200000).
 
-Thanks for tracking that down!
+The origin setting will cause some abnormal behavior due to
+trusted-firmware-a and related firmware didn't load correctly.
+The incorrect behavior may vary because of different software stacks.
+For example, it will cause build error in some Yocto project because
+it will check if there was enough memory to load trusted-firmware-a
+to the reserved memory.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+When mt8195-demo.dts sent to the upstream, at that time the size of
+BL31 was small. Because supported functions and modules in BL31 are
+basic sets when the board was under early development stage.
 
+Now BL31 includes more firmwares of coprocessors and maturer functions
+so the size has grown bigger in real applications. According to the value
+reported by customers, we think reserved 2MiB for BL31 might be enough
+for maybe the following 2 or 3 years.
+
+Cc: stable@vger.kernel.org      # v5.19
+Fixes: 6147314aeedc ("arm64: dts: mediatek: Add device-tree for MT8195 Demo board")
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+---
+Changes for v2
+ - Add more information about the size difference for BL31 in commit message.
+   Thanks for Miles's review.
+
+ arch/arm64/boot/dts/mediatek/mt8195-demo.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+index 4fbd99eb496a..dec85d254838 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+@@ -56,10 +56,10 @@
+ 		#size-cells = <2>;
+ 		ranges;
+ 
+-		/* 192 KiB reserved for ARM Trusted Firmware (BL31) */
++		/* 2 MiB reserved for ARM Trusted Firmware (BL31) */
+ 		bl31_secmon_reserved: secmon@54600000 {
+ 			no-map;
+-			reg = <0 0x54600000 0x0 0x30000>;
++			reg = <0 0x54600000 0x0 0x200000>;
+ 		};
+ 
+ 		/* 12 MiB reserved for OP-TEE (BL32)
 -- 
-Kees Cook
+2.18.0
+
