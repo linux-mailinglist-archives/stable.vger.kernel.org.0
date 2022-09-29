@@ -2,127 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 147CA5EFD0A
-	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 20:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A56EE5EFEC0
+	for <lists+stable@lfdr.de>; Thu, 29 Sep 2022 22:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235880AbiI2S2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Sep 2022 14:28:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52120 "EHLO
+        id S229561AbiI2Ujt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Sep 2022 16:39:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235847AbiI2S21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 14:28:27 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBD714D4BB
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 11:28:26 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id r62so2147312pgr.12
-        for <stable@vger.kernel.org>; Thu, 29 Sep 2022 11:28:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=kmkU5eKx3bCGNBgsrw/HiECPrMWFtDQ93OEAZ05I5Zw=;
-        b=OqOoGfkG5celZzk8DoeCB0Z415XFc+acvqmoX8nBDnRxJgZpg8tGcRuwUEs+9xxChk
-         1Hu9orSfm438RdiaqE5SXGX+unJnOXQ8fweCClM5aky1wIdO63k+1n67zorgWReLZRRz
-         XDDORlnnR5dIjX1/FUHYRduZZtQBcu2RjAxzT1PHhAJZ4xRuZQ0a+bNPlwbBGagY3V9E
-         hsBFGmqWCZ0HoO+Lw7VoOJlgTQHjLePudthZrRONzfmUPWyzXj8DD62qR3aZEB/Q9hD0
-         kSxdoiY5KvnClKNNNO+8uBUlqZ0RxOaJJasuZIG4SPX1mPDtIORUcCimKvhwMe8iSP/m
-         OkGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=kmkU5eKx3bCGNBgsrw/HiECPrMWFtDQ93OEAZ05I5Zw=;
-        b=WPTqhCLMv1p9VGkY0d3py1XQvLJbXQSPPYSznoD0kSzCLT6gAxPzKv8VnlA8OCgR6c
-         36big+Z3Z6WOyU8iR8+p4C19McmZ5GfDb1BjEmlQkhobFd6gYrSpUnWeSGqciTmRt+gd
-         3R5kw96bFcx4l/ItXjv/un0ngrItv39FC7gFfUUkZ5ZQpW5xV7KJ/29dDZeCVgl65Swq
-         vlBtU/zetAehC/ZiQQ7PBSTDASro/BFI4hVHbh/3VLYQKI+XPz/vvUEIpD8ZcqTw1L0z
-         7YT5MUy3+X4zFW3xj2j6FJQ9jo03bmpouNksAhJOc9ltPG5v9QefQfxF0ZNFIP+GRi+2
-         vTMQ==
-X-Gm-Message-State: ACrzQf3qGWbtK4TQ7nrNOgiqnbgGWIkajL5k6EQZxRqkXQ5nkK3dXT2h
-        Qi1hIDGhI1z3Ewcf3U5DRq2xYrwGPErWWVtSxgKaQQ==
-X-Google-Smtp-Source: AMsMyM6aYy/t89e8ZoJ8vAq/RDFkJ3JUmYiYBj+AqR8RM1wpoJNPrAqLhiGUBk3HkWio80GxowYRw1EQeeWp6uRum/4=
-X-Received: by 2002:a63:e709:0:b0:438:98e8:d1c with SMTP id
- b9-20020a63e709000000b0043898e80d1cmr4115018pgi.403.1664476105851; Thu, 29
- Sep 2022 11:28:25 -0700 (PDT)
+        with ESMTP id S229688AbiI2Ujq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Sep 2022 16:39:46 -0400
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam07on2106.outbound.protection.outlook.com [40.107.212.106])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B3123158;
+        Thu, 29 Sep 2022 13:39:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=D/SB3uZXdpEhotOoleW1DVFuvHvFPREz1u3qeLEPqSJPfanyjRxXEuB9bK4PSTGxzZRYJjnaU+d2aJy8+aIBiRkv+aRETHThnudhiF7J4GKU47Fppy88geBpVmN6/wc+lxv9r53uRr5wKsyU51uksh77/fTB9T8D6K1D4QzhzXUCo0g21+n4HW0IndT9gi6iaPqEgEFJS+9JUz+fwr7yf+LzNfe5BWKxP4o73yE/izX2XtgqiZw9j/Gi+4k/4c0Cd0Z524XJoWUfDTYe1Ox9dvd1kTz+sQCaAvH8apWkIuuG6INfr8KWNZalfdphB5Zb+QuhLZlQbRAzoAnGqCDodg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lSHRRed0nfv8oJm21tW+xtG9eLgyQwL3UR8PFSmMjAI=;
+ b=noR+F+wnJcziJ09MdYCXcf2c0UeB84TzQy7M4MUynmR2UTukxhJ58s7Hrqrcng+bb3Gesy4IlttqnN9wz6ilzhSQZGTvSlKjMEnyTAn3V3O0pVA8T1ozpgx2nES+DWskaipEyaEFJwysfm4QGSwtws/nrnd4qp+uyDwCCdHy4FX0zdyP5Z18Y1SBf8Bwj7rxQX+/9OjH35pUpr3Vc29TsCkZnZGyExjcaB1G8cGSOEVxL93Qrmg0Xg31hbTJkhzdYBWvDffVYO9xL0cdWxLpO2qN/vovhz1X4COGKei3imQ4QHYAWyMfLK5rtqOLWTQxOtjmOlprslduEeUFF5APHQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lSHRRed0nfv8oJm21tW+xtG9eLgyQwL3UR8PFSmMjAI=;
+ b=IUXADuB3lGnDFSIpFfTzyPavqMYjme2VknpHbW99g3Ini8dkbfYKrG4qdbVNv5cUlv34s/8slylHbR2q3MPdVP8bp4bKd5BStkwhfTDxcaDS/WTCrTCoIv6//f1zp7+sQWtRD/LhG+KxYrNFE2UbpJWXEf1BIeA7PST8WLcVNlo=
+Received: from BL1PR21MB3113.namprd21.prod.outlook.com (2603:10b6:208:391::14)
+ by DS7PR21MB3503.namprd21.prod.outlook.com (2603:10b6:8:90::6) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5709.1; Thu, 29 Sep 2022 20:39:42 +0000
+Received: from BL1PR21MB3113.namprd21.prod.outlook.com
+ ([fe80::e662:d0b7:93bf:619b]) by BL1PR21MB3113.namprd21.prod.outlook.com
+ ([fe80::e662:d0b7:93bf:619b%7]) with mapi id 15.20.5709.001; Thu, 29 Sep 2022
+ 20:39:42 +0000
+From:   Haiyang Zhang <haiyangz@microsoft.com>
+To:     Gaurav Kohli <gauravkohli@linux.microsoft.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        "wei.liu@kernel.org" <wei.liu@kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH net] hv_netvsc: Fix race between VF offering and VF
+ association message from host
+Thread-Topic: [PATCH net] hv_netvsc: Fix race between VF offering and VF
+ association message from host
+Thread-Index: AQHY00EEpavH7b+Xk0qDFQ72IrNakK3234qA
+Date:   Thu, 29 Sep 2022 20:39:42 +0000
+Message-ID: <BL1PR21MB3113EF290DA5CE84A350D6BDCA579@BL1PR21MB3113.namprd21.prod.outlook.com>
+References: <1664372913-26140-1-git-send-email-gauravkohli@linux.microsoft.com>
+In-Reply-To: <1664372913-26140-1-git-send-email-gauravkohli@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=1ac951a9-e996-447e-b217-58dd1163c49e;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-09-29T20:35:34Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BL1PR21MB3113:EE_|DS7PR21MB3503:EE_
+x-ms-office365-filtering-correlation-id: 9ebc8e95-ded6-4bda-ef46-08daa25abc8f
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: D9Whl9+omwzrrd9UiKqxQGlkE7gEN6gubRzzRfbecxxUvJf+n0B4cD37BgmOGCBwf1+YzvxNC3GiT96EF/uLk8YpsPNWXJuSJGfD17qYPmDDL/84+KW6oscnl7ar4VPdkImV+tTyfZGGsrb7tFemCaXj15Jpn46v1r6XuT9Iu96LteNSq+dhDlcLuO/YfQnxpQ7YiB7hl53kNj6GY3GKP47KO8qz/IB9Y+c42j1j4Bn0yJVUzgQ7Z8gPKk1Z2mPOOiEYU7EXGTceMCgb1IWcTXcz+ix3XQDLy/2M7/0xPl2oivsHQ2xH30UqPUDkSXdecQyVtgxD8DKNNu+5XBXKZipKKbQ6tCIcWkpSjZlr6z5Ea6gnPpjcpzX/ef2Ji8BMZuwHvTPRi5b2EDW2lpr3+Kw9fqEF/pC+kTg4S+CURehH/AQ7dymu0K2EicyiZiMObYKWdQXFJ+kuybCv3m0+HOhGEDMDZBOfnCqBg0cOz4M4S2bd9GCxmOfPe93jPaH6xpQcYRKwU+Temb7zB9RBTSadA5HHkGNH9rXITM66P0UBe7l7+AJQ8lFxJkwpXQ+wugBALQ7722jpnHxnLHcqM85ffiBc8RgpqVQz7yOE/1uljsPpUIizr3Y0oDjCcze5dXnol7C+trv3sJ++v8cdvaVCSIyYP99PFkx0HdprGNL3/RJXgDkc8i9E07FBiFyH6vq1mnZiI+jWbSJfeqsFQQDBzA6fmzqOUwmY58dkxko5LQ8nr4bMCvfpHWUvHKsWk9EvJxeb9o/PSd4C3hE1FAh2S2wbVufUd1q5stnPBZ97E4IwpWzZl+0KzQ+3nMnD
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR21MB3113.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(366004)(346002)(376002)(39860400002)(136003)(451199015)(4744005)(5660300002)(52536014)(8936002)(66899015)(83380400001)(66556008)(33656002)(76116006)(41300700001)(4326008)(66446008)(66946007)(2906002)(64756008)(66476007)(8676002)(110136005)(53546011)(316002)(186003)(15650500001)(8990500004)(10290500003)(26005)(9686003)(55016003)(6506007)(38070700005)(478600001)(71200400001)(86362001)(82960400001)(82950400001)(38100700002)(7696005)(122000001);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?FynKz9sfXB0jXwvWBB3tQc3lKzMWuM3VCVy2yOFlrRlxc0B8XkeBHL8KqAfc?=
+ =?us-ascii?Q?mqFpI+zXc8GI2KCmXrGQ+QuK/xn4NpIvjMoTRqMTbezDjgRjnSd7OQlT2XjT?=
+ =?us-ascii?Q?WW1UHHDFOUqy2nZGbT1uRQiC3YjwXw3qn63buKVBMm1MTthCg0Y1Tqbv6f6J?=
+ =?us-ascii?Q?mXTDUGLchft2qwPzfKhidMfej8DWXdqeOylLSwIRMc85GVPrS53pQTavrAM4?=
+ =?us-ascii?Q?kwjlrAMD22HlRwWwcYPf9hnzSpJYLeVom+0/2rg/TGoYrsCdY8RFhZnw6ICl?=
+ =?us-ascii?Q?pkzYHd8W2iwAdkDx5qXs2c1Q210GC0S0gTRBXh3j8hZdgZielgWt4tSuiUc6?=
+ =?us-ascii?Q?txA1RWdBJBlT8Se8WHEWVA7KIz3osfCIzb+pQ3oRfEoP5Iv7qm8qXg+YAWCH?=
+ =?us-ascii?Q?4pL2vEFyKH9ZamFdssrY1uikE5yQ1tfn6hBd2dYi9lcqFdFsLct8OhnHH55H?=
+ =?us-ascii?Q?KPh9f0kxEHiHY8rlPOJvwRftz/uQ2TYEB0LzjdjAiPnJKSz3NDmNOlZJxdhv?=
+ =?us-ascii?Q?Gyj4CHCohkQrZ//pz6HU12V8hl628cENq8IXmiKBHCqi7DabZrvlYkVhj2pn?=
+ =?us-ascii?Q?GqwP7Ld3GpKzlDw5R8gbfmZLIfUY9KdZCuhJ3KU/Mhv63akiGd8+hf490I+p?=
+ =?us-ascii?Q?eRLxMWoc7ccv7/FbKRokY8XhafEBeez/euGC4qIyoAx5CMcOoBBeiqpFqGrj?=
+ =?us-ascii?Q?W003M9+ZCRdAqOVSuL2LdniRq0aSSECAJDSK1VXtVzwMSJOhCuKE5gc4lEOg?=
+ =?us-ascii?Q?2txVptRWOASxTiKU+LCX+rpHl89SPap++Wt/hWUl4nx8+y8Nd/YQXAlt5nJB?=
+ =?us-ascii?Q?PZKlD4gStsjRcMDxPJa3xWe7tzfv2/Fy+Eue+vi5FQizfpde6t3TJ8HWymOf?=
+ =?us-ascii?Q?N/BSKgehXAK2U99WN83sGXbbREaGbfCgaFi2+3q8HAA0gUP7onm6pHk5/mMi?=
+ =?us-ascii?Q?ZEUq8meSiKeftdgGR9xQ/hFtcpH6Dayf9G/30yxBrcdm4XIuZbtRk1/9DQvh?=
+ =?us-ascii?Q?vrAdxBIghxFqeo3AgXdAyNpWfdFTLtRfvdYeFUPdZq+4UY+m7uJKiFO28UZi?=
+ =?us-ascii?Q?RjeCL0tN+6pYnyicaYd+1+VMGYdlvSEzmCmLcQW+JFL1am93cG4ThNDu/bCM?=
+ =?us-ascii?Q?zMJ+zl/Vy7Cjr2Gz91aTPx8LOFhSovhMcPc9rDY6nhgbXjr3Gy279Jr8VSLq?=
+ =?us-ascii?Q?Os2Z05OnKCSTYag9dFpr9w5qxrcU8vU8MaAGPFqk9pODD4ct7CiGlp/V6tuD?=
+ =?us-ascii?Q?Miauq0y+NWjYQJ7BfR3R5nu1iAVGNmCtasDYPUAGR0CAis6WZ8m+f50Espp7?=
+ =?us-ascii?Q?k3kC/1xT8srdkh62Xi6Uj1Ebozz8PgwVCPgAOgYsYZWZqiwKw0mBcxRnSxmM?=
+ =?us-ascii?Q?VU+wwn4J/Jq4tvHU2ptw7pl2gobGVn8Dn/rJMM1qkbVHc4QaP7qOJtoNFDCu?=
+ =?us-ascii?Q?b2smA4Wyw/Ppfxb7tuLVC53KBGtq1Axh6xFPqvVPhWXHrU3s1L8vGBxh35Xp?=
+ =?us-ascii?Q?hycKfFYqO0W20MeovfG16Gzov3xTRSAOhQjA1wmNDGtrK5/lGn2B0QeTTXTG?=
+ =?us-ascii?Q?RVmvUegp49S8pFQ+Y+HCr4Rv3+ObizWdFGZiloBn?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20220929152010.835906-1-nathan@kernel.org>
-In-Reply-To: <20220929152010.835906-1-nathan@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Thu, 29 Sep 2022 11:28:14 -0700
-Message-ID: <CAKwvOdn61SYD81r5opTN1N8MAWe5YObPJ8wELei1qOySsoxJyA@mail.gmail.com>
-Subject: Re: [PATCH] x86/Kconfig: Drop check for '-mabi=ms' for CONFIG_EFI_STUB
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Tom Rix <trix@redhat.com>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        patches@lists.linux.dev, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BL1PR21MB3113.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9ebc8e95-ded6-4bda-ef46-08daa25abc8f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Sep 2022 20:39:42.0183
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ltPRRNMGtOE4TfSrwU2ExJ8ctvZsAtHMJBDXjRg1G4fBmVS0zh2atuT7qXABElXuBvCV/lxLpSbu/NlmjSauLw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR21MB3503
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 29, 2022 at 8:20 AM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> A recent change in LLVM made CONFIG_EFI_STUB unselectable because it no
-> longer pretends to support '-mabi=ms', breaking the dependency in
-> Kconfig. Lack of CONFIG_EFI_STUB can prevent kernels from booting via
-> EFI in certain circumstances.
->
-> This check was added by commit 8f24f8c2fc82 ("efi/libstub: Annotate
-> firmware routines as __efiapi") to ensure that '__attribute__((ms_abi))'
-> was available, as '-mabi=ms' is not actually used in any cflags.
-> According to the GCC documentation, this attribute has been supported
-> since GCC 4.4.7. The kernel currently requires GCC 5.1 so this check is
-> not necessary; even when that change landed in 5.6, the kernel required
-> GCC 4.9 so it was unnecessary then as well.  Clang supports
-> '__attribute__((ms_abi))' for all versions that are supported for
-> building the kernel so no additional check is needed. Remove the
-> 'depends on' line altogether to allow CONFIG_EFI_STUB to be selected
-> when CONFIG_EFI is enabled, regardless of compiler.
->
+
+
+> -----Original Message-----
+> From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+> Sent: Wednesday, September 28, 2022 9:49 AM
+> To: KY Srinivasan <kys@microsoft.com>; Haiyang Zhang
+> <haiyangz@microsoft.com>; Stephen Hemminger
+> <sthemmin@microsoft.com>; wei.liu@kernel.org; Dexuan Cui
+> <decui@microsoft.com>; linux-hyperv@vger.kernel.org;
+> netdev@vger.kernel.org
+> Subject: [PATCH net] hv_netvsc: Fix race between VF offering and VF
+> association message from host
+>=20
+> During vm boot, there might be possibility that vf registration
+> call comes before the vf association from host to vm.
+>=20
+> And this might break netvsc vf path, To prevent the same block
+> vf registration until vf bind message comes from host.
+>=20
 > Cc: stable@vger.kernel.org
-> Fixes: 8f24f8c2fc82 ("efi/libstub: Annotate firmware routines as __efiapi")
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1725
-> Link: https://gcc.gnu.org/onlinedocs/gcc-4.4.7/gcc/Function-Attributes.html
-> Link: https://github.com/llvm/llvm-project/commit/d1ad006a8f64bdc17f618deffa9e7c91d82c444d
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
+> Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
 
-Thanks for the patch!
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 
-> ---
->  arch/x86/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index f9920f1341c8..81012154d9ed 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -1956,7 +1956,6 @@ config EFI
->  config EFI_STUB
->         bool "EFI stub support"
->         depends on EFI
-> -       depends on $(cc-option,-mabi=ms) || X86_32
->         select RELOCATABLE
->         help
->           This kernel feature allows a bzImage to be loaded directly
->
-> base-commit: f76349cf41451c5c42a99f18a9163377e4b364ff
-> --
-> 2.37.3
->
+By the way, did you use "git send-email"? I didn't see the stable@vger.kern=
+el.org cc-ed in your original email.
 
 
--- 
-Thanks,
-~Nick Desaulniers
