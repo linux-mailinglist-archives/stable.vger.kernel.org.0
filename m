@@ -2,105 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F4B45F0984
-	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 13:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A3875F0B01
+	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 13:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231509AbiI3LIH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Sep 2022 07:08:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60794 "EHLO
+        id S231400AbiI3Lua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Sep 2022 07:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231547AbiI3LHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 07:07:48 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A6C1BE795
-        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 03:44:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664534647; x=1696070647;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=F8hWaC73oX1yS8jXelp6A8nDbiqix1cqQiQB2VmQGfE=;
-  b=R6yUxJMNjQcBV1qa0x9d9zMyFEl5QrC1CKM0hjQLkmZeKG4Cb0w63lK1
-   Js0vQUIzTKOs2cxEPoVd70Gd+B5/wC6IFkg+BvmPOWGHrriw/deluLRrn
-   R0TDiA9444ozUgOOoLQNY6+fb93SorgsSs064eKDqHriHyscIM6qGyncY
-   n38JGHUVYfpFTdWqwkxWE+BpFDI6ic+Hdj8Na6Arqe4gpHm1J1kGuEiAF
-   u3oiiwtRDEAvUMP9cn/5ZefUk5Jca1pQDrR4ErfxWEcHb6UVfi7jGbAo9
-   zjtwo0BN+f38ydeCAvNR/n86xDhF3kwCUf/D8Rj0dCLKKSRUFrFTj6aDX
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10485"; a="328544074"
-X-IronPort-AV: E=Sophos;i="5.93,358,1654585200"; 
-   d="scan'208";a="328544074"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Sep 2022 03:43:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10485"; a="765092080"
-X-IronPort-AV: E=Sophos;i="5.93,358,1654585200"; 
-   d="scan'208";a="765092080"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by fmsmga001.fm.intel.com with SMTP; 30 Sep 2022 03:43:15 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 30 Sep 2022 13:43:14 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 4/5] drm/i915: Fix watermark calculations for DG2 CCS+CC modifier
-Date:   Fri, 30 Sep 2022 13:43:01 +0300
-Message-Id: <20220930104302.25836-5-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220930104302.25836-1-ville.syrjala@linux.intel.com>
-References: <20220930104302.25836-1-ville.syrjala@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S231408AbiI3LuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 07:50:00 -0400
+X-Greylist: delayed 2124 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 30 Sep 2022 04:46:46 PDT
+Received: from premium237-5.web-hosting.com (premium237-5.web-hosting.com [66.29.146.205])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6927E004
+        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 04:46:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sladewatkins.net; s=default; h=To:References:Message-Id:
+        Content-Transfer-Encoding:Cc:Date:In-Reply-To:From:Subject:Mime-Version:
+        Content-Type:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=wYwXLKxFel9OtBvaifGAntl+vidc0DAlwXQv8644GeQ=; b=jNPtDuS+sD/QqMTaKWqG71mATu
+        QkIZHjx2ncIrytdvMfWb9UvX0+XhuFgxlf3ocm0nfD9No4xaGjrP/gx3epVPb463TUoPelSCaFo+w
+        GVViad3g4gUITcqcbpwaSgbpP+CYnC7RQRtTgYrh+eZI6LlmfRIajE4Ab1kpVSvpMcHr+L2/kDuQh
+        6LUw5O1M8+ONJhYuHjV+HCMs1u7dZnTFwTyjN+p5886eRxsm2TuvO6ei0aDXXDjS9AgezN3QOBlnM
+        eCTqOfddoVm3aykFvc5gS0dUJuJ8HHqmxY4kJ5zX1YndmdEcN/KjLHxvkllL5PlL0+QmrTw++CELW
+        m+2L8txQ==;
+Received: from pool-108-4-135-94.albyny.fios.verizon.net ([108.4.135.94]:64771 helo=smtpclient.apple)
+        by premium237.web-hosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <srw@sladewatkins.net>)
+        id 1oeDvN-002WwY-W7;
+        Fri, 30 Sep 2022 07:11:22 -0400
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.120.41.1.1\))
+Subject: Re: Regression on 5.19.12, display flickering on Framework laptop
+From:   Slade Watkins <srw@sladewatkins.net>
+In-Reply-To: <YzaFq7fzw5TbrJyv@kroah.com>
+Date:   Fri, 30 Sep 2022 07:11:19 -0400
+Cc:     Jerry Ling <jiling@cern.ch>, stable@vger.kernel.org,
+        regressions@lists.linux.dev
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <03147889-B21C-449B-B110-7E504C8B0EF4@sladewatkins.net>
+References: <55905860-adf9-312c-69cc-491ac8ce1a8b@cern.ch>
+ <YzZynE2FAMNQKm2E@kroah.com> <YzaFq7fzw5TbrJyv@kroah.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+X-Mailer: Apple Mail (2.3696.120.41.1.1)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - premium237.web-hosting.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - sladewatkins.net
+X-Get-Message-Sender-Via: premium237.web-hosting.com: authenticated_id: srw@sladewatkins.net
+X-Authenticated-Sender: premium237.web-hosting.com: srw@sladewatkins.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-From-Rewrite: unmodified, already matched
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_PDS_OTHER_BAD_TLD autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Hey Greg,
 
-Take the DG2 CCS+CC modifier into account when calculating the
-watermarks. Othwerwise we'll calculate the watermarks thinking this
-tile-4 modifier is linear.
+> On Sep 30, 2022, at 1:59 AM, Greg KH <gregkh@linuxfoundation.org> =
+wrote:
+>=20
+> On Fri, Sep 30, 2022 at 06:37:48AM +0200, Greg KH wrote:
+>> On Thu, Sep 29, 2022 at 10:26:25PM -0400, Jerry Ling wrote:
+>>> Hi,
+>>>=20
+>>> It has been reported by multiple users across a handful of distros =
+that
+>>> there seems to be regression on Framework laptop (which presumably =
+is not
+>>> that special in terms of mobo and display)
+>>>=20
+>>> Ref: =
+https://community.frame.work/t/psa-dont-upgrade-to-linux-kernel-5-19-12-ar=
+ch1-1-on-arch-linux-gen-11-model/23171
+>>=20
+>> Can anyone do a 'git bisect' to find the offending commit?
+>=20
+> Also, this works for me on a gen 12 framework laptop:
+> 	$ uname -a
+> 	Linux frame 5.19.12 #68 SMP PREEMPT_DYNAMIC Fri Sep 30 07:02:33 =
+CEST 2022 x86_64 GNU/Linux
+>=20
+> so there's something odd with the older hardware?
+>=20
+> greg k-h
 
-The rc_surface part is actually a nop since that is not used
-for any glk+ platform.
+Could be. Running git bisect for 5.19.11 and 5.19.12 (as suggested by =
+the linked forum thread) returned nothing on gen 11 for me.
 
-Cc: stable@vger.kernel.org
-Fixes: 680025dcc400 ("drm/i915/dg2: Add support for DG2 clear color compression")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/skl_watermark.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/display/skl_watermark.c b/drivers/gpu/drm/i915/display/skl_watermark.c
-index a120d49b95ca..18178b01375e 100644
---- a/drivers/gpu/drm/i915/display/skl_watermark.c
-+++ b/drivers/gpu/drm/i915/display/skl_watermark.c
-@@ -1715,7 +1715,8 @@ skl_compute_wm_params(const struct intel_crtc_state *crtc_state,
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC ||
- 		      modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS ||
--		      modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS;
-+		      modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS ||
-+		      modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS_CC;
- 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
- 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
-@@ -1723,7 +1724,8 @@ skl_compute_wm_params(const struct intel_crtc_state *crtc_state,
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC ||
- 			 modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS ||
--			 modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS;
-+			 modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS ||
-+			 modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS_CC;
- 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
- 
- 	wp->width = width;
--- 
-2.35.1
-
+This is very odd,
+-srw=
