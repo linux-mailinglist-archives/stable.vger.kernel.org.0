@@ -2,111 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FB85F139B
-	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 22:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563C35F13B7
+	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 22:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231305AbiI3U0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Sep 2022 16:26:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43152 "EHLO
+        id S232291AbiI3UdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Sep 2022 16:33:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231254AbiI3U0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 16:26:03 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BD0169E48
-        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 13:26:01 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id x1-20020a17090ab00100b001fda21bbc90so10109009pjq.3
-        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 13:26:01 -0700 (PDT)
+        with ESMTP id S231408AbiI3UdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 16:33:19 -0400
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E32AB1D7BFC
+        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 13:33:16 -0700 (PDT)
+Received: by mail-pf1-x44a.google.com with SMTP id ay1-20020a056a00300100b0053e7e97696bso3347562pfb.3
+        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 13:33:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=YE0SZ4gBncQDeK9j3l04fLVzWw7p9nvQyXdyQahbHpU=;
-        b=MHuWmCgd4y4F8BHQakd4cyxU1e11wTMNHKWT5HVecIMb91/uknuOliHQyHF6xInjg4
-         Sh8r647iHiEAXt1VUR2TW8sU4fW5H++kG9eFIeh/bG/dPm/kOTzjgt9gKQb45f2ss51R
-         Z0Ud32t/dpzUpAmjITNzp6f6cIFkV2jSnwqhIehBt56431J5ZGvZwkW2WOtVtQiMp/TE
-         35UceN9gk4izAiscbq5emiwV8Wn/DPe/aBP9jAPuq0LBK35c51MlV2U3PCQel04EpvUE
-         o5zqEhq+9LPlNIdx1fy2Zmah67OPUm8TPHn/CVTpvzb5NUa1dBuw+q7ol+vX9tZGUtyn
-         9yNw==
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date;
+        bh=SMQsBtCCyLRrqpBDgN2Zoeao+ul/V+LJS6j1U8pzQAU=;
+        b=JVe8vVsAiLOpWL3/NzYtEi2BruvEjHVm4AEMgx5mc+Ak77rP8Jn9WKf6W8EyjFam2W
+         KfDCzI3KrvVgqbNhjxoez9qP5YEmbdUysYr9GoCP1FW6BXKAoMJg3z62g2AVRExvSItO
+         ST7N4OvdR10yDD31HpFVvaviiwtZXkcWkUHN4BUBKZ6kbWrOx9bHCUDM1hnbjh0OB/LZ
+         +4evEXvbMukJR3Z7UJPKMhEQvgUVk6VZoGsD4dxkiwBIDf5lgOZLoh6U9oNmPRixYW2z
+         InT4O0wyUrlRVLU87m+DiRzIw7QXhJZJDPnK6cg+xujAwI/HKnh7B0Qa97c09DHyCmIL
+         5A3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=YE0SZ4gBncQDeK9j3l04fLVzWw7p9nvQyXdyQahbHpU=;
-        b=49y+/o2YDZ5lkCFtt5KqIaJG9Du0hONwkTDdsWwqKQYS+C0YeIFPhLEXvuWdg+q8eC
-         EcDLuh/L6yOmMM7wnhUEiOinKJOWeesmkSQczORTobS3G0fqyuuLL06bJNTXaJ3mwwWy
-         ZFQFpZGmLiDU/Frsh0fjDS6olx0c5QhpINaSXnfVJOAs2tbMb1IqfrH1IPLbUKRmGD4l
-         90o+py1hW6LPBNtW+obHFkLbRtQkF+L1Xm5PR2a27u9Bbi3ARdOObYoEsyPLIjIw1fz5
-         oUZ4NQuTMEdMSn58hIM3mKCUng7GsJiNOTcEfzTKpIszxV/2UXsVYvTM8uU+ALy9YRzp
-         ijtg==
-X-Gm-Message-State: ACrzQf3lDTkNXVZE0qPm5EX82boVcKv8GeDfFDAnhVEUYF5P0QDpGj4f
-        TETz9ihoXMWwrDPj9a9x4J76yQ==
-X-Google-Smtp-Source: AMsMyM4kckeDXdDRB8vLlvF8nF4/llXkzukZDaKrRq5NNopR/Xxw1hp5Jbv+YJlNvL4dg2C+zRTvQQ==
-X-Received: by 2002:a17:902:dac4:b0:178:2a6f:bc7f with SMTP id q4-20020a170902dac400b001782a6fbc7fmr10891894plx.129.1664569561528;
-        Fri, 30 Sep 2022 13:26:01 -0700 (PDT)
-Received: from desktop.hsd1.or.comcast.net ([2601:1c0:4c81:c480:feaa:14ff:fe3a:b225])
-        by smtp.gmail.com with ESMTPSA id i7-20020a170902c94700b0016d9d6d05f7sm2342237pla.273.2022.09.30.13.26.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Sep 2022 13:26:00 -0700 (PDT)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     "Theodore Ts'o" <tytso@mit.edu>
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        "Andreas Dilger" <adilger.kernel@dilger.ca>,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+a22dc4b0744ac658ed9b@syzkaller.appspotmail.com
-Subject: [PATCH] ext4: Add extend check to prevent BUG() in ext4_es_end
-Date:   Fri, 30 Sep 2022 13:25:36 -0700
-Message-Id: <20220930202536.697396-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=SMQsBtCCyLRrqpBDgN2Zoeao+ul/V+LJS6j1U8pzQAU=;
+        b=BwPiplPZzfVZPDqFIDNxW01u+cE3ELqGmF8zRwXzSeOMIh2JMBxdA8jXf+qdDIIgaJ
+         WuTg5Gp5Tnyil1XLwLtwaO31duUCrtPNUi322eEoGk7wqhzTxS4n5HJMzyNCALtv07qm
+         LqYnd/gaJzKMv4oBy+Jty8z1HWgJxZxDbBAechquRgGfJyh4yqoA7pg9VjTOoj6+nhnH
+         OumhDu0yToaJjt2o7pFxTZPah/9OYAp9gFdpvnxWqt6eQxiAT71t9MjBUBQMksLf/8WX
+         Kos4KBc7DPMIsf40SF7L0TOvFwE1ERw3zhAUk965GWVS4hr0Vofb3RShUaO1H3AoWO/s
+         kc+w==
+X-Gm-Message-State: ACrzQf0r+JMMBPV4R//PxIAwYe0S6mT03joHZnxzJpUtvmPNe88k5/hY
+        QQ2di0T25mGh7HMLZo8XSLS96Nr+bObkH/pUQjM=
+X-Google-Smtp-Source: AMsMyM4eAqTCDUfydVdhf5U7mW3z+20dr+NzSt2BRmPuylTSU+w9kmiWK1I1Beyd2swmkxphq45pk8BzPKKFXP13glo=
+X-Received: from samitolvanen.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:4f92])
+ (user=samitolvanen job=sendgmr) by 2002:a17:90b:1b06:b0:20a:6d32:b05e with
+ SMTP id nu6-20020a17090b1b0600b0020a6d32b05emr35559pjb.103.1664569996339;
+ Fri, 30 Sep 2022 13:33:16 -0700 (PDT)
+Date:   Fri, 30 Sep 2022 20:33:10 +0000
+Mime-Version: 1.0
+X-Developer-Key: i=samitolvanen@google.com; a=openpgp; fpr=35CCFB63B283D6D3AEB783944CB5F6848BBC56EE
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1362; i=samitolvanen@google.com;
+ h=from:subject; bh=cb9uxuoR+cjTVhl0LEU/KRuB1nV8Tr++NRhDrxG0pH4=;
+ b=owEB7QES/pANAwAKAUy19oSLvFbuAcsmYgBjN1KGfuXEg/p2HFc8oG4zdl0hi2M0tCCEpmBR8vbU
+ mUEvbkOJAbMEAAEKAB0WIQQ1zPtjsoPW0663g5RMtfaEi7xW7gUCYzdShgAKCRBMtfaEi7xW7o3tC/
+ 4gIorPccJBNlneIDwxrzmurGTgMjEeX26RFRVwv1bFgkbufV7u5gYf1jZCrCRrckERcBv7s33gacaH
+ yEHS51srndw7V5ol/CX17484w4zcqhkH2nNeZP996dY9m6tYwJsHHSYgRv5N6gcwzUaFa6+rPqHFbb
+ 5yH2tr+5q4c6aN5Ra9Wj83rCOw6aaNCnvOG8nhhT69MHyX6esWf1sec64IIyd8q7v1d8aXKIdz2PJ4
+ Ae7bsBLZClrEcol4ijmrLF1iGizStoGTNj9xMwG9w5v/2b5mrtgqtq40qS0dW57Gp/QJjPuRcPYoMb
+ dD8q9EpQazoDLbScLb62qEOwX1G/H7GRmB1Q21KJGAmwCinxforNZFI9L4RyQXmkVzx+G6aeFH2vcl
+ tMleRf8wUgpPUQOHrLzwcC4hZwapkOsp2NYhpt6QjGO3nqowr769r+oK0/H5CN55y9+JJotNsKuaAg
+ 3ZRV9R/cRNiXFj9x7u3YnkUfAVkxpRQnoMA5t3T9cxrQs=
+X-Mailer: git-send-email 2.38.0.rc1.362.ged0d419d3c-goog
+Message-ID: <20220930203310.4010564-1-samitolvanen@google.com>
+Subject: [PATCH] Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
+From:   Sami Tolvanen <samitolvanen@google.com>
+To:     Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Tom Rix <trix@redhat.com>, linux-kbuild@vger.kernel.org,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+        Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot reported an issue with ext4 extents. The reproducer creates
-a corrupted ext4 fs image in memory, and mounts it as a loop device.
-It invokes the ext4_cache_extents() and ext4_find_extent(), which
-eventually triggers a BUG() in ext4_es_end() causing a kernel crash.
-It triggers on mainline, and every kernel version back to v4.14.
-Add a call ext4_ext_check_inode() in ext4_find_extent() to prevent
-the crash.
+We enable -Wcast-function-type globally in the kernel to warn about
+mismatching types in function pointer casts. Compilers currently
+warn only about ABI incompability with this flag, but Clang 16 will
+enable a stricter version of the check by default that checks for an
+exact type match. This will be very noisy in the kernel, so disable
+-Wcast-function-type-strict without W=1 until the new warnings have
+been addressed.
 
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: "Andreas Dilger" <adilger.kernel@dilger.ca>
-Cc: <linux-ext4@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-
-Link: https://syzkaller.appspot.com/bug?id=641e7a4b900015c5d7a729d6cc1fba7a928a88f9
-Reported-by: syzbot+a22dc4b0744ac658ed9b@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc: stable@vger.kernel.org
+Link: https://reviews.llvm.org/D134831
+Link: https://github.com/ClangBuiltLinux/linux/issues/1724
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
 ---
- fs/ext4/extents.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ scripts/Makefile.extrawarn | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index 5235974126bd..c7b5a11e1abc 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -897,6 +897,12 @@ ext4_find_extent(struct inode *inode, ext4_lblk_t block,
- 		goto err;
- 	}
+diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
+index 6ae482158bc4..52bd7df84fd6 100644
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -64,6 +64,7 @@ KBUILD_CFLAGS += -Wno-sign-compare
+ KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
+ KBUILD_CFLAGS += -Wno-tautological-constant-out-of-range-compare
+ KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
++KBUILD_CFLAGS += $(call cc-disable-warning, cast-function-type-strict)
+ endif
  
-+	ret = ext4_ext_check_inode(inode);
-+	if (ret) {
-+		EXT4_ERROR_INODE(inode, "inode has invalid extent");
-+		goto err;
-+	}
-+
- 	if (path) {
- 		ext4_ext_drop_refs(path);
- 		if (depth > path[0].p_maxdepth) {
+ endif
+
+base-commit: 7bc6e90d7aa4170039abe80b9f4e8c8e4eb35091
 -- 
-2.37.3
+2.38.0.rc1.362.ged0d419d3c-goog
 
