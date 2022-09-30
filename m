@@ -2,119 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BC85F1182
-	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 20:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B815F1191
+	for <lists+stable@lfdr.de>; Fri, 30 Sep 2022 20:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232254AbiI3SWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Sep 2022 14:22:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
+        id S231146AbiI3SZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Sep 2022 14:25:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232303AbiI3SWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 14:22:21 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7039511471D
-        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 11:22:20 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id c7so5606962ljm.12
-        for <stable@vger.kernel.org>; Fri, 30 Sep 2022 11:22:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=xucbshqtPxo9cvxwjd8q1MdIp+hMmj2ePAEJAVAWIxY=;
-        b=HdiW1OgHdfQkgeOkLCxD4ZMHkLEXW9XiOa3CBQjwFZrJvFftiMDEimMeUcNhs+6xth
-         0ATZAPIgjrhUvvhp0LaV7lfnxYENPWD7w+koUIlzMM5k3N7WyBLJ0n+Cdt6s2843wm/r
-         U0s9o8tiVlE8FL1WxztP+iXh251520hftFjAWN3bAsVgwty3dxUKhPLsbcT3G/wbJG/f
-         JnJbS068emnkGJL6h09509PINt1vfWnTBkD6hlWTk5IIYqKarFPCbBpxgZgeCi2M8IIo
-         s8QxRlUfzR7LrnpFhfj3oAJkXICrOnPRKWlHtAG1FMKwyZWFRvcCeF4+6iVptoWZKgJZ
-         M2Og==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=xucbshqtPxo9cvxwjd8q1MdIp+hMmj2ePAEJAVAWIxY=;
-        b=5jJEp0TRqYBmla/cuzBooJM6/9NOyKIHLqoG1M2lK0KeKeGhPphhsNzJJb4DgKOqXr
-         tVtZVqhKGZOIMurObfzU7Cj97JmzJ6EPBYoCzz57k7+Vx87l583hTFdI82IyVii5YTEL
-         NHzZ0iQRkG+6UiTcioCKAvtWVjipm8vbbS1Y9h02BF+C6uNMCm15MXXroHVmtPMciPU2
-         dvML5oUg1B6TB+gcHAroqwz6T5phbVFrZb1wu7hh+zcgO5z6qHiYeYqTcWBeD0+4GZTH
-         vSoziWab0JZeB70vc/yi3a+jc9k56F2TyCeb8zz4nV4/FGIxwTm/ruK7QZN0xwA/owTe
-         4usg==
-X-Gm-Message-State: ACrzQf1eZhmGZ723JSJRcHgKahTCYA+S9SB17LfuKds5w0r25ha52jEJ
-        /kRKX4E1dezdrHi0MC51+qfv9A==
-X-Google-Smtp-Source: AMsMyM62SIX8aVQpvtKUgiuFCYyzbcd0t/d72wKATfsgaZOjjTZi73+WQeTpib2BSMko2jrzn0Pfgw==
-X-Received: by 2002:a2e:b74f:0:b0:26c:426c:60fc with SMTP id k15-20020a2eb74f000000b0026c426c60fcmr3322993ljo.432.1664562138673;
-        Fri, 30 Sep 2022 11:22:18 -0700 (PDT)
-Received: from krzk-bin.. (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id x22-20020ac25dd6000000b00499b726508csm364006lfq.250.2022.09.30.11.22.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Sep 2022 11:22:18 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        with ESMTP id S229971AbiI3SZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 14:25:28 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960F34F1AD;
+        Fri, 30 Sep 2022 11:25:27 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28UH9lap002536;
+        Fri, 30 Sep 2022 18:25:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=bknH+dbcboDXEWTRzFi/K8Jjc4/8maT6NVgSJREjqvY=;
+ b=fw10nc8p6Rx4Qh29g3SuoH7w0qTrs3dgZHPRkhvccqSIYlZVQfvsMniniwdAprYwb+sb
+ YqhoZLJNgUYmQGVHabIUSnfvDhQ+9XxxFA6Fwuf8xTK756naywDPYnQ8OCLysi+nF3w2
+ gVWoXHbnR91sH9YJM6WrTZJX13HaWgXNzBtlyOQ5UaGwntWXbF1vQk0NIbS14FxAIl1P
+ EdPXsldiBZEPmMVUwrZ7gRZT2ZYtDUkZgL4ML14ehY0YHhUtG8E7SeERJkagqyj+Xu6e
+ OsZkxxGIcHKk3vCc4qvVDD+78qfhDtrKSRhphTJXwmy86JGkkagt58A9dUJ6LmeHw1/F sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jx4cca6wp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Sep 2022 18:25:14 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28UHoeXD023220;
+        Fri, 30 Sep 2022 18:25:14 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jx4cca6wa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Sep 2022 18:25:14 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28UIL0j9013539;
+        Fri, 30 Sep 2022 18:25:13 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma03wdc.us.ibm.com with ESMTP id 3jssha23mk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Sep 2022 18:25:13 +0000
+Received: from smtpav01.dal12v.mail.ibm.com ([9.208.128.133])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28UIPDRG46006616
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Sep 2022 18:25:13 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 169F958058;
+        Fri, 30 Sep 2022 18:25:12 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55CE25805D;
+        Fri, 30 Sep 2022 18:25:11 +0000 (GMT)
+Received: from sig-9-65-252-31.ibm.com (unknown [9.65.252.31])
+        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 30 Sep 2022 18:25:11 +0000 (GMT)
+Message-ID: <fbce35c31f543527d171dd9988b29248d740fb17.camel@linux.ibm.com>
+Subject: Re: [PATCHv2 RESEND] efi: Correct Macmini DMI match in uefi cert
+ quirk
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Orlando Chamberlain <redecorating@protonmail.com>,
         linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 3/3] arm64: dts: qcom: sdm845-cheza: fix AP suspend pin bias
-Date:   Fri, 30 Sep 2022 20:22:12 +0200
-Message-Id: <20220930182212.209804-3-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220930182212.209804-1-krzysztof.kozlowski@linaro.org>
-References: <20220930182212.209804-1-krzysztof.kozlowski@linaro.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Cc:     jarkko@kernel.org, dmitry.kasatkin@gmail.com, paul@paul-moore.com,
+        jmorris@namei.org, serge@hallyn.com, gargaditya08@live.com,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
+        Samuel Jiang <chyishian.jiang@gmail.com>
+Date:   Fri, 30 Sep 2022 14:24:32 -0400
+In-Reply-To: <20220929114906.85021-1-redecorating@protonmail.com>
+References: <20220929114906.85021-1-redecorating@protonmail.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 18Q1LshBfFbh_D6A_7OEMP3ptjxfwuII
+X-Proofpoint-GUID: C6t5GrmqtwZ5DyzMtwDQEyoEciFaE2g3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-30_04,2022-09-29_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 malwarescore=0 impostorscore=0 mlxlogscore=718 adultscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 spamscore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209300113
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is no "bias-no-pull" property.  Assume intentions were disabling
-bias.
+Hi Orlando,
 
-Fixes: 79e7739f7b87 ("arm64: dts: qcom: sdm845-cheza: add initial cheza dt")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+On Thu, 2022-09-29 at 11:49 +0000, Orlando Chamberlain wrote:
+> It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
+> is inconsistent with other model line names.
+> 
+> Correct the capitalisation of Macmini in the quirk for skipping loading
+> platform certs on T2 Macs.
+> 
+> Currently users get:
+> 
+> ------------[ cut here ]------------
+> [Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
+> WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x55/0xe0
+> Modules linked in:
+> CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3fc40fd08edab32a509fbf4c9bc52d111e
+> Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
+> Workqueue: efi_rts_wq efi_call_rts
+> ...
+> ---[ end trace 0000000000000000 ]---
+> efi: Froze efi_rts_wq and disabled EFI Runtime Services
+> integrity: Couldn't get size: 0x8000000000000015
+> integrity: MODSIGN: Couldn't get UEFI db list
+> efi: EFI Runtime Services are disabled!
+> integrity: Couldn't get size: 0x8000000000000015
+> integrity: Couldn't get UEFI dbx list
+> 
+> Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
+> Cc: stable@vger.kernel.org
+> Cc: Aditya Garg <gargaditya08@live.com>
+> Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
+> Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
 
----
+Thanks!  The patch is now queued in the next-integrity branch.
 
-Not tested on hardware.
----
- arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Mimi
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-index b5eb8f7eca1d..b5f11fbcc300 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-@@ -1436,7 +1436,7 @@ ap_suspend_l_assert: ap_suspend_l_assert {
- 		config {
- 			pins = "gpio126";
- 			function = "gpio";
--			bias-no-pull;
-+			bias-disable;
- 			drive-strength = <2>;
- 			output-low;
- 		};
-@@ -1446,7 +1446,7 @@ ap_suspend_l_deassert: ap_suspend_l_deassert {
- 		config {
- 			pins = "gpio126";
- 			function = "gpio";
--			bias-no-pull;
-+			bias-disable;
- 			drive-strength = <2>;
- 			output-high;
- 		};
--- 
-2.34.1
+
 
