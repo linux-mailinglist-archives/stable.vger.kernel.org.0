@@ -2,88 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC35E5F1657
-	for <lists+stable@lfdr.de>; Sat,  1 Oct 2022 00:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B991B5F187A
+	for <lists+stable@lfdr.de>; Sat,  1 Oct 2022 03:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbiI3Wxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Sep 2022 18:53:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37652 "EHLO
+        id S232050AbiJABr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Sep 2022 21:47:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230309AbiI3Wxr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 18:53:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F29A41A4083;
-        Fri, 30 Sep 2022 15:53:46 -0700 (PDT)
+        with ESMTP id S230291AbiJABrY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Sep 2022 21:47:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E8B1153A79;
+        Fri, 30 Sep 2022 18:47:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E5D3B82A74;
-        Fri, 30 Sep 2022 22:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F41C433D6;
-        Fri, 30 Sep 2022 22:53:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664578424;
-        bh=9EXgBqrR50Mngy3h5BZ5N6yyftKrfXoBYvd3zN2XaC8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=oiAvvtZoqckXC0j50I1AAJK9Sj52GZMnBzweqAFlDMwx8zRtiZI1ZM8biXckHsCAc
-         usYt8weLCpsJDAQ4sYRARnXCJZ2XdOia7MNwYc58+/0hRxTjg7AJY/pvXLRSqKsvoJ
-         zqARasueqVLVv+ez0nM3Q4pykRMLRKvePKM3sYhN6lLome/3AGsZWCdT/2SXcZL2Vp
-         8rvAKms+uXOpDJxGWu0yJfZbnXm+WjcucQuHUu/I511qM7R2zOHb88Dzp5kNgHEyYL
-         JWYGuZt9i9foVEsMyFfygCzhPWKP4QcIa4qpV4V7RBB28XL7rgaIMzNp6RHzIhLG27
-         k6ZUodc95znlQ==
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org,
-        Eunhee Rho <eunhee83.rho@samsung.com>
-Subject: [PATCH] f2fs: allow direct read for zoned device
-Date:   Fri, 30 Sep 2022 15:53:42 -0700
-Message-Id: <20220930225342.1057276-1-jaegeuk@kernel.org>
-X-Mailer: git-send-email 2.38.0.rc1.362.ged0d419d3c-goog
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D471862598;
+        Sat,  1 Oct 2022 01:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 327FDC433D7;
+        Sat,  1 Oct 2022 01:47:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1664588841;
+        bh=5sOXLC0h1AGWuzO2XrIRch5SPLJ4F2CvSDYpKKfdnnI=;
+        h=Date:To:From:Subject:From;
+        b=Q5rfvKaQGkH1IfnfoTVrIqhUPddVMthn7ACqnPk+CyTGpU6ST3zEnxKXwrerrqguL
+         AVsG9806gEqTZhxN6SMu9K+jsD7wga/JI8Y10Zb+6YUv3EcjNgHBAf6+H0USm8wZn+
+         Lo2v6ZaX4c7X00uTkM/tDZLfx4YP/8U5Iz4OgsdE=
+Date:   Fri, 30 Sep 2022 18:47:20 -0700
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, urezki@gmail.com,
+        stable@vger.kernel.org, micron10@gmail.com, mhocko@suse.com,
+        fw@strlen.de, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] mm-fix-bug-splat-with-kvmalloc-gfp_atomic.patch removed from -mm tree
+Message-Id: <20221001014721.327FDC433D7@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts dbf8e63f48af ("f2fs: remove device type check for direct IO"),
-and apply the below first version, since it contributed out-of-order DIO writes.
 
-For zoned devices, f2fs forbids direct IO and forces buffered IO
-to serialize write IOs. However, the constraint does not apply to
-read IOs.
+The quilt patch titled
+     Subject: mm: fix BUG splat with kvmalloc + GFP_ATOMIC
+has been removed from the -mm tree.  Its filename was
+     mm-fix-bug-splat-with-kvmalloc-gfp_atomic.patch
 
-Cc: stable@vger.kernel.org
-Fixes: dbf8e63f48af ("f2fs: remove device type check for direct IO")
-Signed-off-by: Eunhee Rho <eunhee83.rho@samsung.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+------------------------------------------------------
+From: Florian Westphal <fw@strlen.de>
+Subject: mm: fix BUG splat with kvmalloc + GFP_ATOMIC
+Date: Mon, 26 Sep 2022 17:16:50 +0200
+
+Martin Zaharinov reports BUG with 5.19.10 kernel:
+ kernel BUG at mm/vmalloc.c:2437!
+ invalid opcode: 0000 [#1] SMP
+ CPU: 28 PID: 0 Comm: swapper/28 Tainted: G        W  O      5.19.9 #1
+ [..]
+ RIP: 0010:__get_vm_area_node+0x120/0x130
+  __vmalloc_node_range+0x96/0x1e0
+  kvmalloc_node+0x92/0xb0
+  bucket_table_alloc.isra.0+0x47/0x140
+  rhashtable_try_insert+0x3a4/0x440
+  rhashtable_insert_slow+0x1b/0x30
+ [..]
+
+bucket_table_alloc uses kvzalloc(GPF_ATOMIC).  If kmalloc fails, this now
+falls through to vmalloc and hits code paths that assume GFP_KERNEL.
+
+Link: https://lkml.kernel.org/r/20220926151650.15293-1-fw@strlen.de
+Fixes: a421ef303008 ("mm: allow !GFP_KERNEL allocations for kvmalloc")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Link: https://lore.kernel.org/linux-mm/Yy3MS2uhSgjF47dy@pc636/T/#t
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Martin Zaharinov <micron10@gmail.com>
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- fs/f2fs/f2fs.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 2ed00111a399..a0b2c8626a75 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -4535,7 +4535,12 @@ static inline bool f2fs_force_buffered_io(struct inode *inode,
- 	/* disallow direct IO if any of devices has unaligned blksize */
- 	if (f2fs_is_multi_device(sbi) && !sbi->aligned_blksize)
- 		return true;
--
-+	/*
-+	 * for blkzoned device, fallback direct IO to buffered IO, so
-+	 * all IOs can be serialized by log-structured write.
-+	 */
-+	if (f2fs_sb_has_blkzoned(sbi) && (rw == WRITE))
-+		return true;
- 	if (f2fs_lfs_mode(sbi) && (rw == WRITE)) {
- 		if (block_unaligned_IO(inode, iocb, iter))
- 			return true;
--- 
-2.38.0.rc1.362.ged0d419d3c-goog
+ mm/util.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/mm/util.c~mm-fix-bug-splat-with-kvmalloc-gfp_atomic
++++ a/mm/util.c
+@@ -619,6 +619,10 @@ void *kvmalloc_node(size_t size, gfp_t f
+ 	if (ret || size <= PAGE_SIZE)
+ 		return ret;
+ 
++	/* non-sleeping allocations are not supported by vmalloc */
++	if (!gfpflags_allow_blocking(flags))
++		return NULL;
++
+ 	/* Don't even allow crazy sizes */
+ 	if (unlikely(size > INT_MAX)) {
+ 		WARN_ON_ONCE(!(flags & __GFP_NOWARN));
+_
+
+Patches currently in -mm which might be from fw@strlen.de are
+
 
