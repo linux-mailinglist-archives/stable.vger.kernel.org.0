@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F205F26DA
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7576D5F26C0
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbiJBXBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 19:01:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
+        id S230294AbiJBW7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230304AbiJBXAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 19:00:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E0D15A39;
-        Sun,  2 Oct 2022 15:57:33 -0700 (PDT)
+        with ESMTP id S231186AbiJBW6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:58:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC9141501;
+        Sun,  2 Oct 2022 15:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0AB660EF1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFBC260F36;
+        Sun,  2 Oct 2022 22:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2699C433D7;
         Sun,  2 Oct 2022 22:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E20CC433C1;
-        Sun,  2 Oct 2022 22:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751212;
-        bh=baATQorB7E7tji15g54jQol3I3flzO4pwiVl9pgM6Bk=;
+        s=k20201202; t=1664751214;
+        bh=aLpzcmGw+xh91LI5DF8GAuLQ5FcqslRiUykBg1d/GkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXSsbXHssZ6NT3JPBP/SSmuPuVn7ORgfA33hYtBlj6xs3162HrJmMrJtMVIOyhwll
-         HEwCbaoqmpSiArg8gFY4KGeMtV/MZxAPD25Bq7jnpPFomB/XnyahxZCgYx2EaUhdFv
-         Elo0I1gDf6v+XwOD4dCW8H1asoMoxBVdsDrYwa/iyW/1Oenuvf4+jv7+UMO+7cQ4tF
-         6I8Lsbh75+pl9QyxvyU6doAdeHDt6oTaXYXGjczFfvt90yn25QVnZ2xWkvxm4IgmCV
-         e59aonI0pmYfN3J+Qu2gDBm/Fd4UU+pilpdOLHm8GYzjSBSazbNinZSJhzcAR5HD25
-         zJcTKIUVWsJ+A==
+        b=BXJ9Rdinn1nFQgxAaOJiwm0HCx9Cth/V4+QkFhxWNqid0msOj7gFfTDPbeMRN0SNt
+         B/kmCQakl/+LxM63KXOIgbeCDcPZVgqHLqof0854JrSGK2NGAUUxSLbmV2L5lzy+Y8
+         wljP+bui5MaPrROsRDc4DFlk517kcGHUfulrLsm4rbTPTAQRT7ZjNHQ0Pkedj6kEC3
+         LbplpYFvJArFIrOGHwtSZfXN3tnBiTlSiRn6FXi4acojzMRtTeJoLcHHoJq/lfLuzU
+         RVeYlfvdLRpGW+t6XqGBZB4aOWhakfrxNnRpOATMBKYS5LV/oEdxPSU3y7deLj1WXY
+         87+fkDDhzKpew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergei Antonov <saproj@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-        Jonas Jensen <jonas.jensen@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, vkoul@kernel.org,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        dmaengine@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 3/6] ARM: dts: fix Moxa SDIO 'compatible', remove 'sdhci' misnomer
-Date:   Sun,  2 Oct 2022 18:53:18 -0400
-Message-Id: <20221002225323.240142-3-sashal@kernel.org>
+Cc:     Haimin Zhang <tcs.kernel@gmail.com>,
+        Haimin Zhang <tcs_kernel@tencent.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, alex.aring@gmail.com,
+        stefan@datenfreihafen.org, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 4/6] net/ieee802154: fix uninit value bug in dgram_sendmsg
+Date:   Sun,  2 Oct 2022 18:53:19 -0400
+Message-Id: <20221002225323.240142-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002225323.240142-1-sashal@kernel.org>
 References: <20221002225323.240142-1-sashal@kernel.org>
@@ -57,75 +59,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Antonov <saproj@gmail.com>
+From: Haimin Zhang <tcs.kernel@gmail.com>
 
-[ Upstream commit 02181e68275d28cab3c3f755852770367f1bc229 ]
+[ Upstream commit 94160108a70c8af17fa1484a37e05181c0e094af ]
 
-Driver moxart-mmc.c has .compatible = "moxa,moxart-mmc".
+There is uninit value bug in dgram_sendmsg function in
+net/ieee802154/socket.c when the length of valid data pointed by the
+msg->msg_name isn't verified.
 
-But moxart .dts/.dtsi and the documentation file moxa,moxart-dma.txt
-contain compatible = "moxa,moxart-sdhci".
+We introducing a helper function ieee802154_sockaddr_check_size to
+check namelen. First we check there is addr_type in ieee802154_addr_sa.
+Then, we check namelen according to addr_type.
 
-Change moxart .dts/.dtsi files and moxa,moxart-dma.txt to match the driver.
+Also fixed in raw_bind, dgram_bind, dgram_connect.
 
-Replace 'sdhci' with 'mmc' in names too, since SDHCI is a different
-controller from FTSDC010.
-
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Cc: Jonas Jensen <jonas.jensen@gmail.com>
-Link: https://lore.kernel.org/r/20220907175341.1477383-1-saproj@gmail.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt | 4 ++--
- arch/arm/boot/dts/moxart-uc7112lx.dts                     | 2 +-
- arch/arm/boot/dts/moxart.dtsi                             | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ include/net/ieee802154_netdev.h | 37 +++++++++++++++++++++++++++++
+ net/ieee802154/socket.c         | 42 ++++++++++++++++++---------------
+ 2 files changed, 60 insertions(+), 19 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt b/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
-index 8a9f3559335b..7e14e26676ec 100644
---- a/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
-+++ b/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
-@@ -34,8 +34,8 @@ Example:
- Use specific request line passing from dma
- For example, MMC request line is 5
+diff --git a/include/net/ieee802154_netdev.h b/include/net/ieee802154_netdev.h
+index c4b31601cd53..fd1665baa179 100644
+--- a/include/net/ieee802154_netdev.h
++++ b/include/net/ieee802154_netdev.h
+@@ -23,6 +23,22 @@
+ #ifndef IEEE802154_NETDEVICE_H
+ #define IEEE802154_NETDEVICE_H
  
--	sdhci: sdhci@98e00000 {
--		compatible = "moxa,moxart-sdhci";
-+	mmc: mmc@98e00000 {
-+		compatible = "moxa,moxart-mmc";
- 		reg = <0x98e00000 0x5C>;
- 		interrupts = <5 0>;
- 		clocks = <&clk_apb>;
-diff --git a/arch/arm/boot/dts/moxart-uc7112lx.dts b/arch/arm/boot/dts/moxart-uc7112lx.dts
-index 4a962a26482d..59d8775a3a93 100644
---- a/arch/arm/boot/dts/moxart-uc7112lx.dts
-+++ b/arch/arm/boot/dts/moxart-uc7112lx.dts
-@@ -80,7 +80,7 @@ &clk_pll {
- 	clocks = <&ref12>;
- };
++#define IEEE802154_REQUIRED_SIZE(struct_type, member) \
++	(offsetof(typeof(struct_type), member) + \
++	sizeof(((typeof(struct_type) *)(NULL))->member))
++
++#define IEEE802154_ADDR_OFFSET \
++	offsetof(typeof(struct sockaddr_ieee802154), addr)
++
++#define IEEE802154_MIN_NAMELEN (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, addr_type))
++
++#define IEEE802154_NAMELEN_SHORT (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, short_addr))
++
++#define IEEE802154_NAMELEN_LONG (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, hwaddr))
++
+ #include <net/af_ieee802154.h>
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
+@@ -173,6 +189,27 @@ static inline void ieee802154_devaddr_to_raw(void *raw, __le64 addr)
+ 	memcpy(raw, &temp, IEEE802154_ADDR_LEN);
+ }
  
--&sdhci {
-+&mmc {
- 	status = "okay";
- };
++static inline int
++ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
++{
++	struct ieee802154_addr_sa *sa;
++
++	sa = &daddr->addr;
++	if (len < IEEE802154_MIN_NAMELEN)
++		return -EINVAL;
++	switch (sa->addr_type) {
++	case IEEE802154_ADDR_SHORT:
++		if (len < IEEE802154_NAMELEN_SHORT)
++			return -EINVAL;
++		break;
++	case IEEE802154_ADDR_LONG:
++		if (len < IEEE802154_NAMELEN_LONG)
++			return -EINVAL;
++		break;
++	}
++	return 0;
++}
++
+ static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
+ 					   const struct ieee802154_addr_sa *sa)
+ {
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index 9d46d9462129..16bf114118c3 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -212,8 +212,9 @@ static int raw_bind(struct sock *sk, struct sockaddr *_uaddr, int len)
+ 	int err = 0;
+ 	struct net_device *dev = NULL;
  
-diff --git a/arch/arm/boot/dts/moxart.dtsi b/arch/arm/boot/dts/moxart.dtsi
-index da7b3237bfe9..804a2bc6ec82 100644
---- a/arch/arm/boot/dts/moxart.dtsi
-+++ b/arch/arm/boot/dts/moxart.dtsi
-@@ -93,8 +93,8 @@ watchdog: watchdog@98500000 {
- 			clock-names = "PCLK";
- 		};
+-	if (len < sizeof(*uaddr))
+-		return -EINVAL;
++	err = ieee802154_sockaddr_check_size(uaddr, len);
++	if (err < 0)
++		return err;
  
--		sdhci: sdhci@98e00000 {
--			compatible = "moxa,moxart-sdhci";
-+		mmc: mmc@98e00000 {
-+			compatible = "moxa,moxart-mmc";
- 			reg = <0x98e00000 0x5C>;
- 			interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&clk_apb>;
+ 	uaddr = (struct sockaddr_ieee802154 *)_uaddr;
+ 	if (uaddr->family != AF_IEEE802154)
+@@ -506,7 +507,8 @@ static int dgram_bind(struct sock *sk, struct sockaddr *uaddr, int len)
+ 
+ 	ro->bound = 0;
+ 
+-	if (len < sizeof(*addr))
++	err = ieee802154_sockaddr_check_size(addr, len);
++	if (err < 0)
+ 		goto out;
+ 
+ 	if (addr->family != AF_IEEE802154)
+@@ -577,8 +579,9 @@ static int dgram_connect(struct sock *sk, struct sockaddr *uaddr,
+ 	struct dgram_sock *ro = dgram_sk(sk);
+ 	int err = 0;
+ 
+-	if (len < sizeof(*addr))
+-		return -EINVAL;
++	err = ieee802154_sockaddr_check_size(addr, len);
++	if (err < 0)
++		return err;
+ 
+ 	if (addr->family != AF_IEEE802154)
+ 		return -EINVAL;
+@@ -617,6 +620,7 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 	struct ieee802154_mac_cb *cb;
+ 	struct dgram_sock *ro = dgram_sk(sk);
+ 	struct ieee802154_addr dst_addr;
++	DECLARE_SOCKADDR(struct sockaddr_ieee802154*, daddr, msg->msg_name);
+ 	int hlen, tlen;
+ 	int err;
+ 
+@@ -625,10 +629,20 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if (!ro->connected && !msg->msg_name)
+-		return -EDESTADDRREQ;
+-	else if (ro->connected && msg->msg_name)
+-		return -EISCONN;
++	if (msg->msg_name) {
++		if (ro->connected)
++			return -EISCONN;
++		if (msg->msg_namelen < IEEE802154_MIN_NAMELEN)
++			return -EINVAL;
++		err = ieee802154_sockaddr_check_size(daddr, msg->msg_namelen);
++		if (err < 0)
++			return err;
++		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
++	} else {
++		if (!ro->connected)
++			return -EDESTADDRREQ;
++		dst_addr = ro->dst_addr;
++	}
+ 
+ 	if (!ro->bound)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
+@@ -664,16 +678,6 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 	cb = mac_cb_init(skb);
+ 	cb->type = IEEE802154_FC_TYPE_DATA;
+ 	cb->ackreq = ro->want_ack;
+-
+-	if (msg->msg_name) {
+-		DECLARE_SOCKADDR(struct sockaddr_ieee802154*,
+-				 daddr, msg->msg_name);
+-
+-		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
+-	} else {
+-		dst_addr = ro->dst_addr;
+-	}
+-
+ 	cb->secen = ro->secen;
+ 	cb->secen_override = ro->secen_override;
+ 	cb->seclevel = ro->seclevel;
 -- 
 2.35.1
 
