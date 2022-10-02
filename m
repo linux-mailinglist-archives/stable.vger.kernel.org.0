@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DACB5F2289
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 790965F228B
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229682AbiJBKYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:24:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58844 "EHLO
+        id S229708AbiJBKY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:24:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbiJBKYn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:24:43 -0400
+        with ESMTP id S229688AbiJBKYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:24:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CA3C22
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:24:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71ED1AF0D
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:24:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85B1CB80D1E
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2155C433D6;
-        Sun,  2 Oct 2022 10:24:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4623EB80D1E
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE961C433D6;
+        Sun,  2 Oct 2022 10:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706279;
-        bh=YfcAJ8tGx1XiSJww9dWB/Ayahrb+pVTrSd9P2SaBbhY=;
+        s=korg; t=1664706290;
+        bh=sUsCjFPal2nNdNDEk2g3XpIRph0kVwUlGVIa7wbOjys=;
         h=Subject:To:Cc:From:Date:From;
-        b=Bt/FY53SQEqzBMXHsaqAaS3UxohgDkt0IGH2hK0i8ACaMAF5W83c+d9w5W6p7TlS6
-         Sozrl1ZP0WdYHS1tS07HI14s32OEYTgSofFtnYm4VnN3sdQ16uf3F5ddxWYbsoDjwg
-         kfMbzfXDbDao7PViUBxn2pphvwt38Bz88a/ch5aA=
-Subject: FAILED: patch "[PATCH] mm/migrate_device.c: add missing flush_cache_page()" failed to apply to 4.14-stable tree
+        b=WiSOtPWU0Wqz2yD9zq+fUec1Kw25/Fzq4cy0ToonRpdZIeeoaDA6X4bgNu0AOPiUk
+         fXo++WOpZXGvITxMPzi05BCBvTSG57kLler7WjBZjAGQBvrP8EvjxpCNSB4QCJXLsv
+         bHq4vTOmjUHnQi5NKdazgVf2KzRKZl2w3Ewtwwqk=
+Subject: FAILED: patch "[PATCH] mm/migrate_device.c: copy pte dirty bit to page" failed to apply to 5.15-stable tree
 To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
         akpm@linux-foundation.org, alex.sierra@amd.com, bskeggs@redhat.com,
         david@redhat.com, huang.ying.caritas@gmail.com, jgg@nvidia.com,
@@ -38,8 +38,8 @@ To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
         willy@infradead.org, ying.huang@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 12:25:03 +0200
-Message-ID: <1664706303161247@kroah.com>
+Date:   Sun, 02 Oct 2022 12:25:27 +0200
+Message-ID: <16647063277958@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,13 +53,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+fd35ca3d12cc ("mm/migrate_device.c: copy pte dirty bit to page")
 a3589e1d5fe3 ("mm/migrate_device.c: add missing flush_cache_page()")
 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
 6c54dc6c7437 ("mm/rmap: use page_move_anon_rmap() when reusing a mapped PageAnon() page exclusively")
@@ -81,24 +82,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a3589e1d5fe39c3d9fdd291b111524b93d08bc32 Mon Sep 17 00:00:00 2001
+From fd35ca3d12cc9922d7d9a35f934e72132dbc4853 Mon Sep 17 00:00:00 2001
 From: Alistair Popple <apopple@nvidia.com>
-Date: Fri, 2 Sep 2022 10:35:52 +1000
-Subject: [PATCH] mm/migrate_device.c: add missing flush_cache_page()
+Date: Fri, 2 Sep 2022 10:35:53 +1000
+Subject: [PATCH] mm/migrate_device.c: copy pte dirty bit to page
 
-Currently we only call flush_cache_page() for the anon_exclusive case,
-however in both cases we clear the pte so should flush the cache.
+migrate_vma_setup() has a fast path in migrate_vma_collect_pmd() that
+installs migration entries directly if it can lock the migrating page.
+When removing a dirty pte the dirty bit is supposed to be carried over to
+the underlying page to prevent it being lost.
 
-Link: https://lkml.kernel.org/r/5676f30436ab71d1a587ac73f835ed8bd2113ff5.1662078528.git-series.apopple@nvidia.com
+Currently migrate_vma_*() can only be used for private anonymous mappings.
+That means loss of the dirty bit usually doesn't result in data loss
+because these pages are typically not file-backed.  However pages may be
+backed by swap storage which can result in data loss if an attempt is made
+to migrate a dirty page that doesn't yet have the PageDirty flag set.
+
+In this case migration will fail due to unexpected references but the
+dirty pte bit will be lost.  If the page is subsequently reclaimed data
+won't be written back to swap storage as it is considered uptodate,
+resulting in data loss if the page is subsequently accessed.
+
+Prevent this by copying the dirty bit to the page when removing the pte to
+match what try_to_migrate_one() does.
+
+Link: https://lkml.kernel.org/r/dd48e4882ce859c295c1a77612f66d198b0403f9.1662078528.git-series.apopple@nvidia.com
 Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
 Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
 Acked-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Reported-by: "Huang, Ying" <ying.huang@intel.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 Cc: Alex Sierra <alex.sierra@amd.com>
 Cc: Ben Skeggs <bskeggs@redhat.com>
 Cc: Felix Kuehling <Felix.Kuehling@amd.com>
 Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
 Cc: Jason Gunthorpe <jgg@nvidia.com>
 Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Karol Herbst <kherbst@redhat.com>
@@ -112,18 +130,41 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
 diff --git a/mm/migrate_device.c b/mm/migrate_device.c
-index 6a5ef9f0da6a..4cc849c3b54c 100644
+index 4cc849c3b54c..dbf6c7a7a7c9 100644
 --- a/mm/migrate_device.c
 +++ b/mm/migrate_device.c
-@@ -193,9 +193,9 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
- 			bool anon_exclusive;
- 			pte_t swp_pte;
- 
-+			flush_cache_page(vma, addr, pte_pfn(*ptep));
+@@ -7,6 +7,7 @@
+ #include <linux/export.h>
+ #include <linux/memremap.h>
+ #include <linux/migrate.h>
++#include <linux/mm.h>
+ #include <linux/mm_inline.h>
+ #include <linux/mmu_notifier.h>
+ #include <linux/oom.h>
+@@ -196,7 +197,7 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
+ 			flush_cache_page(vma, addr, pte_pfn(*ptep));
  			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
  			if (anon_exclusive) {
--				flush_cache_page(vma, addr, pte_pfn(*ptep));
- 				ptep_clear_flush(vma, addr, ptep);
+-				ptep_clear_flush(vma, addr, ptep);
++				pte = ptep_clear_flush(vma, addr, ptep);
  
  				if (page_try_share_anon_rmap(page)) {
+ 					set_pte_at(mm, addr, ptep, pte);
+@@ -206,11 +207,15 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
+ 					goto next;
+ 				}
+ 			} else {
+-				ptep_get_and_clear(mm, addr, ptep);
++				pte = ptep_get_and_clear(mm, addr, ptep);
+ 			}
+ 
+ 			migrate->cpages++;
+ 
++			/* Set the dirty flag on the folio now the pte is gone. */
++			if (pte_dirty(pte))
++				folio_mark_dirty(page_folio(page));
++
+ 			/* Setup special migration page table entry */
+ 			if (mpfn & MIGRATE_PFN_WRITE)
+ 				entry = make_writable_migration_entry(
 
