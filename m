@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F675F2294
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 052D75F2295
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229705AbiJBK0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37888 "EHLO
+        id S229717AbiJBK0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:26:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbiJBK0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:26:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4669356E4
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:26:16 -0700 (PDT)
+        with ESMTP id S229648AbiJBK0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:26:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF4C2251E
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:26:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A60AB80D20
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8004C433C1;
-        Sun,  2 Oct 2022 10:26:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21212B80D20
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE5DC433D6;
+        Sun,  2 Oct 2022 10:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706374;
-        bh=1GZYiAC8tfY5kxI/E77P/zjWzT0nymW7+FkZQLHP7so=;
+        s=korg; t=1664706376;
+        bh=YPy2wWG0zeggavlbdECPJn3I1wvDawlEXqO8l7blKdk=;
         h=Subject:To:Cc:From:Date:From;
-        b=DL7L80U1jQ3XM8JWlq0+xEN7vK8CaZElWprqm4ECGzeqz8McyAeaF6g6yFJh4Iufn
-         Zjt67PliTHfXo3/afXvlwIMmrnjTQW1tixZ+C6eJ9o5cBPo3wZ4i/stHCv6Hr1Cmdl
-         HNL6TB38bgkMVW4oiZGBKGQt5AZ1omUrKKrszC1A=
-Subject: FAILED: patch "[PATCH] mm/huge_memory: use pfn_to_online_page() in" failed to apply to 5.15-stable tree
+        b=PE+C+ouMyIkSxs9gTMfP0vuEcTz0RHvvDFsHAm/cW57ZZmpz3z38R+oSN4Y5OBPRM
+         VNWJSs3aOAooPVPhv2AHK9ouj5wMjB7nhe+MuodtmDg5bIejOgFKnuK1M86vDfvERR
+         oeer6lZqoSIpXh0/VkgUUV4i1lEmi7uiFl+66GRY=
+Subject: FAILED: patch "[PATCH] mm/huge_memory: use pfn_to_online_page() in" failed to apply to 5.10-stable tree
 To:     naoya.horiguchi@nec.com, akpm@linux-foundation.org,
         david@redhat.com, kirill.shutemov@linux.intel.com,
         linmiaohe@huawei.com, mhocko@suse.com, osalvador@suse.de,
@@ -36,8 +36,8 @@ To:     naoya.horiguchi@nec.com, akpm@linux-foundation.org,
         stable@vger.kernel.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 12:26:43 +0200
-Message-ID: <1664706403793@kroah.com>
+Date:   Sun, 02 Oct 2022 12:26:45 +0200
+Message-ID: <16647064055051@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,6 +60,11 @@ Possible dependencies:
 
 2b7aa91ba0e8 ("mm/huge_memory: use pfn_to_online_page() in split_huge_pages_all()")
 a17206dac7b2 ("mm/huge_memory: minor cleanup for split_huge_pages_all")
+fa6c02315f74 ("mm: huge_memory: a new debugfs interface for splitting THP tests")
+f3a45709d2bb ("selftests/vm: hmm-tests: remove the libhugetlbfs dependency")
+f545605cc08e ("selftests/vm: minor cleanup: Makefile and gup_test.c")
+b9dcfdff8b4b ("selftests/vm: use a common gup_test.h")
+9c84f229268f ("mm/gup_benchmark: rename to mm/gup_test")
 
 thanks,
 
