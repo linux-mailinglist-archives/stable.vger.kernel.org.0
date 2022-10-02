@@ -2,57 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3545F26A3
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86EB5F26A7
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbiJBW4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
+        id S230118AbiJBW4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230385AbiJBWzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:55:41 -0400
+        with ESMTP id S230354AbiJBWzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:55:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FAA3EA4F;
-        Sun,  2 Oct 2022 15:52:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17253F1F9;
+        Sun,  2 Oct 2022 15:52:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A29560EFE;
-        Sun,  2 Oct 2022 22:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F7EC43470;
-        Sun,  2 Oct 2022 22:51:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9311C60EE8;
+        Sun,  2 Oct 2022 22:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45652C433D6;
+        Sun,  2 Oct 2022 22:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751115;
-        bh=78pDdmUUoG5H2aYN979n9Ka348bWLEmrB9jrOrOhNOE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lINN/qHApC2yQpBVFAIaPt9tggpm7W9lTuh6+xKnHyc5S2GEqPnq0KGyE2UuGRR6M
-         qsdk3kq30x4wpj8nvnIuSOBn8KngGfpBTHl4CVBixlQb01NFeETbL1f0SitHJHibie
-         vChD0w5Tgp7u2hZA5Vno9YqRXmXBlYIg613dODAbaCpTfn5yhf8Phwni6PrcO/KbiM
-         MD6HVAncFSb+XAbqkinevDTdzbMSBar4V8v20/b2kt75cUgbwgUpdtoecBweUiNfUE
-         b/Z5lGWUMRCawwz1x8peid+9FSur6kJmNaQqnBKRqw9Zwiarah+T1epUWpT7aYxIu5
-         g7fEYFShvraCA==
+        s=k20201202; t=1664751118;
+        bh=ze8Kwqc6HzjN8J0TweMqtxWJyDX3NdfE7J09Nyh4haE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=j2X0kdgPIzpRXfXxWPTOqMAGFfmwx/rz82t9kbRgl9q1rPtx9CrYeTau9S/A1AwWW
+         R/3tvmm3JZIAVP49sfRBKcune9z7JAeFCYLB/nfgTaBKykPOl/V9HSip0dY9T7dW9e
+         9QLY2AaNbUXcaBFEIXaz6yFiJmtX35awSwbt48Sn/Zfy5NcnrYkwwaRQIEC5IwzxzI
+         g2RmAwasP0kySuC5iQxbfdBKyyG9c6GSrx4y5FVw9dKFW+JUvGAzahO1lbZx3ERtXk
+         sO668CiSjulUDqTajO20+1pS9Pl5k2LRTP/G6TYEurnezImVExztothFV5Oe4fOR3g
+         21RruZ3aL7jhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhikzhai <zhikai.zhai@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, Zhan.Liu@amd.com, mario.limonciello@amd.com,
-        hanghong.ma@amd.com, meenakshikumar.somasundaram@amd.com,
-        Brandon.Syu@amd.com, Wesley.Chalmers@amd.com,
-        agustin.gutierrez@amd.com, Martin.Leung@amd.com,
-        wenjing.liu@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 20/20] drm/amd/display: skip audio setup when audio stream is enabled
-Date:   Sun,  2 Oct 2022 18:50:59 -0400
-Message-Id: <20221002225100.239217-20-sashal@kernel.org>
+Cc:     Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 01/14] firmware: arm_scmi: Add SCMI PM driver remove routine
+Date:   Sun,  2 Oct 2022 18:51:42 -0400
+Message-Id: <20221002225155.239480-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221002225100.239217-1-sashal@kernel.org>
-References: <20221002225100.239217-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -66,52 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhikzhai <zhikai.zhai@amd.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 65fbfb02c2734cacffec5e3f492e1b4f1dabcf98 ]
+[ Upstream commit dea796fcab0a219830831c070b8dc367d7e0f708 ]
 
-[why]
-We have minimal pipe split transition method to avoid pipe
-allocation outage.However, this method will invoke audio setup
-which cause audio output stuck once pipe reallocate.
+Currently, when removing the SCMI PM driver not all the resources
+registered with genpd subsystem are properly de-registered.
 
-[how]
-skip audio setup for pipelines which audio stream has been enabled
+As a side effect of this after a driver unload/load cycle you get a
+splat with a few warnings like this:
 
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: zhikzhai <zhikai.zhai@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+ | debugfs: Directory 'BIG_CPU0' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'BIG_CPU1' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU0' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU1' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU2' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU3' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'BIG_SSTOP' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_SSTOP' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'DBGSYS' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'GPUTOP' with parent 'pm_genpd' already present!
+
+Add a proper scmi_pm_domain_remove callback to the driver in order to
+take care of all the needed cleanups not handled by devres framework.
+
+Link: https://lore.kernel.org/r/20220817172731.1185305-7-cristian.marussi@arm.com
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/scmi_pm_domain.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-index 62d595ded866..46d7e75e4553 100644
---- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-@@ -2108,7 +2108,8 @@ static void dce110_setup_audio_dto(
- 			continue;
- 		if (pipe_ctx->stream->signal != SIGNAL_TYPE_HDMI_TYPE_A)
- 			continue;
--		if (pipe_ctx->stream_res.audio != NULL) {
-+		if (pipe_ctx->stream_res.audio != NULL &&
-+			pipe_ctx->stream_res.audio->enabled == false) {
- 			struct audio_output audio_output;
+diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+index a4e4aa9a3542..af74e521f89f 100644
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -106,9 +106,28 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 	scmi_pd_data->domains = domains;
+ 	scmi_pd_data->num_domains = num_domains;
  
- 			build_audio_output(context, pipe_ctx, &audio_output);
-@@ -2156,7 +2157,8 @@ static void dce110_setup_audio_dto(
- 			if (!dc_is_dp_signal(pipe_ctx->stream->signal))
- 				continue;
++	dev_set_drvdata(dev, scmi_pd_data);
++
+ 	return of_genpd_add_provider_onecell(np, scmi_pd_data);
+ }
  
--			if (pipe_ctx->stream_res.audio != NULL) {
-+			if (pipe_ctx->stream_res.audio != NULL &&
-+				pipe_ctx->stream_res.audio->enabled == false) {
- 				struct audio_output audio_output;
- 
- 				build_audio_output(context, pipe_ctx, &audio_output);
++static void scmi_pm_domain_remove(struct scmi_device *sdev)
++{
++	int i;
++	struct genpd_onecell_data *scmi_pd_data;
++	struct device *dev = &sdev->dev;
++	struct device_node *np = dev->of_node;
++
++	of_genpd_del_provider(np);
++
++	scmi_pd_data = dev_get_drvdata(dev);
++	for (i = 0; i < scmi_pd_data->num_domains; i++) {
++		if (!scmi_pd_data->domains[i])
++			continue;
++		pm_genpd_remove(scmi_pd_data->domains[i]);
++	}
++}
++
+ static const struct scmi_device_id scmi_id_table[] = {
+ 	{ SCMI_PROTOCOL_POWER, "genpd" },
+ 	{ },
+@@ -118,6 +137,7 @@ MODULE_DEVICE_TABLE(scmi, scmi_id_table);
+ static struct scmi_driver scmi_power_domain_driver = {
+ 	.name = "scmi-power-domain",
+ 	.probe = scmi_pm_domain_probe,
++	.remove = scmi_pm_domain_remove,
+ 	.id_table = scmi_id_table,
+ };
+ module_scmi_driver(scmi_power_domain_driver);
 -- 
 2.35.1
 
