@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD595F2288
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DACB5F2289
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229673AbiJBKYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58562 "EHLO
+        id S229682AbiJBKYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:24:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbiJBKYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:24:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9081A380
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:24:33 -0700 (PDT)
+        with ESMTP id S229611AbiJBKYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:24:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CA3C22
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:24:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A76CB80C98
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B6AAC433D6;
-        Sun,  2 Oct 2022 10:24:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85B1CB80D1E
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2155C433D6;
+        Sun,  2 Oct 2022 10:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706270;
-        bh=72J9t+wSK69z/LPQhKD21FbzqYC18tjN8bm0HcEDGiA=;
+        s=korg; t=1664706279;
+        bh=YfcAJ8tGx1XiSJww9dWB/Ayahrb+pVTrSd9P2SaBbhY=;
         h=Subject:To:Cc:From:Date:From;
-        b=F9CR+BzHU7SS2hplqx/hj8K9nDM5xPwh/riU8g8MCGRF3aVVjh+AG8z1H7Sq/Y7t4
-         iQzSO3MUVgpHhJ9LL8ZMskgGihK063HNONESns1+DUyi7uVhqo3bFWZ/I2omoUz81s
-         ePNcjxD+dO8sCL1oCF4s6Gxi3ZAUXGu4+0XI7Ois=
-Subject: FAILED: patch "[PATCH] mm/migrate_device.c: add missing flush_cache_page()" failed to apply to 4.19-stable tree
+        b=Bt/FY53SQEqzBMXHsaqAaS3UxohgDkt0IGH2hK0i8ACaMAF5W83c+d9w5W6p7TlS6
+         Sozrl1ZP0WdYHS1tS07HI14s32OEYTgSofFtnYm4VnN3sdQ16uf3F5ddxWYbsoDjwg
+         kfMbzfXDbDao7PViUBxn2pphvwt38Bz88a/ch5aA=
+Subject: FAILED: patch "[PATCH] mm/migrate_device.c: add missing flush_cache_page()" failed to apply to 4.14-stable tree
 To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
         akpm@linux-foundation.org, alex.sierra@amd.com, bskeggs@redhat.com,
         david@redhat.com, huang.ying.caritas@gmail.com, jgg@nvidia.com,
@@ -39,7 +39,7 @@ To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 02 Oct 2022 12:25:03 +0200
-Message-ID: <166470630311334@kroah.com>
+Message-ID: <1664706303161247@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
