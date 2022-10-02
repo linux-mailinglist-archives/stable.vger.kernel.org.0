@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F095F26CE
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40CA55F2722
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230428AbiJBW7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:59:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46522 "EHLO
+        id S230181AbiJBXMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 19:12:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbiJBW6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:58:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD48B40575;
-        Sun,  2 Oct 2022 15:55:43 -0700 (PDT)
+        with ESMTP id S230218AbiJBXMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 19:12:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CE44056A;
+        Sun,  2 Oct 2022 16:06:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 927D160F2C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22B45B80DAB;
+        Sun,  2 Oct 2022 22:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F39EC433D6;
         Sun,  2 Oct 2022 22:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B55BCC433C1;
-        Sun,  2 Oct 2022 22:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751169;
-        bh=3z4xjd6rC4Y+qNEmVpMFVeGkTQLZ9ph+XAsHLmwze58=;
+        s=k20201202; t=1664751170;
+        bh=cQxfJ3qsYjvYJ9DIUiqLsyT626Q05v8l6z9zEIm+TSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KN/vcRmTb3ppOCDK+8V5cFmGbN+bBrVlQXIn2eIubuAkvBm+hOMlefpYlZKbLCxzK
-         FjDm1IcUyKeuK5DAmXRf+8rfaMyGop/MjWJsD4Fu9nHklCt6jS61yjmL6PzY1DYyhO
-         vSgq7KHtwCFlpYDHdLZdGCF9LJnlz5V/FRylz0vw43D8ukjOhe0u/wbSYBxwpWwGyv
-         R43EY2mSjjE7eIsV3Lt+lHt8749Urt091o7LwRRLwugnx5hfzh4VgK6dcluix1m4rI
-         9uaxcZ1qCNdZ1FbOMGeqY8/Bf0YGntH4dF0PYfNONIHwzN8/g6OtdfjAB+4fPm1QRW
-         wOWq4EjBplCZA==
+        b=pLgaVMGcmu0yd5ZfHDZ3x740O7DDN4DUL4JeQfFk3nlENoXYVDpyDIQYmVF6zidSr
+         VGLWSz5/kncDpn5bex38aMAO12+mFxoNTgxaTn29iz4GUkzL8AdGhP1wfK9qQeTNtc
+         ZE0g5K0Nb4hpMeSjQ5oAXao8niBqUxh4qLIcI8ncjOdizaksAHukjzDrKjObX/P2rx
+         vtlxBOQpEgFYO/g+MsPQc45/AdfbOIa2vj3nni2dCVVpRJFSbVgM5wod8cXuxiMNOz
+         /Kklm7cxJhPwczWm7aRICP8nNVXLVN3gLkzuc2TPhf5laW6ENkOmufx67BKV5PE/bX
+         Ij4SPkQA6tkqQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Letu Ren <fantasquex@gmail.com>, Zheyu Ma <zheyuma97@gmail.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Wende Tan <twd2.me@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jhasan@marvell.com,
-        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 5/9] scsi: qedf: Fix a UAF bug in __qedf_probe()
-Date:   Sun,  2 Oct 2022 18:52:32 -0400
-Message-Id: <20221002225236.239675-5-sashal@kernel.org>
+Cc:     Haimin Zhang <tcs.kernel@gmail.com>,
+        Haimin Zhang <tcs_kernel@tencent.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, alex.aring@gmail.com,
+        stefan@datenfreihafen.org, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 6/9] net/ieee802154: fix uninit value bug in dgram_sendmsg
+Date:   Sun,  2 Oct 2022 18:52:33 -0400
+Message-Id: <20221002225236.239675-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002225236.239675-1-sashal@kernel.org>
 References: <20221002225236.239675-1-sashal@kernel.org>
@@ -59,74 +59,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Haimin Zhang <tcs.kernel@gmail.com>
 
-[ Upstream commit fbfe96869b782364caebae0445763969ddb6ea67 ]
+[ Upstream commit 94160108a70c8af17fa1484a37e05181c0e094af ]
 
-In __qedf_probe(), if qedf->cdev is NULL which means
-qed_ops->common->probe() failed, then the program will goto label err1, and
-scsi_host_put() will free lport->host pointer. Because the memory qedf
-points to is allocated by libfc_host_alloc(), it will be freed by
-scsi_host_put(). However, the if statement below label err0 only checks
-whether qedf is NULL but doesn't check whether the memory has been freed.
-So a UAF bug can occur.
+There is uninit value bug in dgram_sendmsg function in
+net/ieee802154/socket.c when the length of valid data pointed by the
+msg->msg_name isn't verified.
 
-There are two ways to reach the statements below err0. The first one is
-described as before, "qedf" should be set to NULL. The second one is goto
-"err0" directly. In the latter scenario qedf hasn't been changed and it has
-the initial value NULL. As a result the if statement is not reachable in
-any situation.
+We introducing a helper function ieee802154_sockaddr_check_size to
+check namelen. First we check there is addr_type in ieee802154_addr_sa.
+Then, we check namelen according to addr_type.
 
-The KASAN logs are as follows:
+Also fixed in raw_bind, dgram_bind, dgram_connect.
 
-[    2.312969] BUG: KASAN: use-after-free in __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]
-[    2.312969] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[    2.312969] Call Trace:
-[    2.312969]  dump_stack_lvl+0x59/0x7b
-[    2.312969]  print_address_description+0x7c/0x3b0
-[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]  __kasan_report+0x160/0x1c0
-[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]  kasan_report+0x4b/0x70
-[    2.312969]  ? kobject_put+0x25d/0x290
-[    2.312969]  kasan_check_range+0x2ca/0x310
-[    2.312969]  __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]  ? selinux_kernfs_init_security+0xdc/0x5f0
-[    2.312969]  ? trace_rpm_return_int_rcuidle+0x18/0x120
-[    2.312969]  ? rpm_resume+0xa5c/0x16e0
-[    2.312969]  ? qedf_get_generic_tlv_data+0x160/0x160
-[    2.312969]  local_pci_probe+0x13c/0x1f0
-[    2.312969]  pci_device_probe+0x37e/0x6c0
-
-Link: https://lore.kernel.org/r/20211112120641.16073-1-fantasquex@gmail.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Acked-by: Saurav Kashyap <skashyap@marvell.com>
-Co-developed-by: Wende Tan <twd2.me@gmail.com>
-Signed-off-by: Wende Tan <twd2.me@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 5 -----
- 1 file changed, 5 deletions(-)
+ include/net/ieee802154_netdev.h | 37 +++++++++++++++++++++++++++++
+ net/ieee802154/socket.c         | 42 ++++++++++++++++++---------------
+ 2 files changed, 60 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index c95e04cc6424..f864ef059d29 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -3544,11 +3544,6 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- err1:
- 	scsi_host_put(lport->host);
- err0:
--	if (qedf) {
--		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
--
--		clear_bit(QEDF_PROBING, &qedf->flags);
--	}
- 	return rc;
+diff --git a/include/net/ieee802154_netdev.h b/include/net/ieee802154_netdev.h
+index d0d188c3294b..a8994f307fc3 100644
+--- a/include/net/ieee802154_netdev.h
++++ b/include/net/ieee802154_netdev.h
+@@ -15,6 +15,22 @@
+ #ifndef IEEE802154_NETDEVICE_H
+ #define IEEE802154_NETDEVICE_H
+ 
++#define IEEE802154_REQUIRED_SIZE(struct_type, member) \
++	(offsetof(typeof(struct_type), member) + \
++	sizeof(((typeof(struct_type) *)(NULL))->member))
++
++#define IEEE802154_ADDR_OFFSET \
++	offsetof(typeof(struct sockaddr_ieee802154), addr)
++
++#define IEEE802154_MIN_NAMELEN (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, addr_type))
++
++#define IEEE802154_NAMELEN_SHORT (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, short_addr))
++
++#define IEEE802154_NAMELEN_LONG (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, hwaddr))
++
+ #include <net/af_ieee802154.h>
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
+@@ -165,6 +181,27 @@ static inline void ieee802154_devaddr_to_raw(void *raw, __le64 addr)
+ 	memcpy(raw, &temp, IEEE802154_ADDR_LEN);
  }
  
++static inline int
++ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
++{
++	struct ieee802154_addr_sa *sa;
++
++	sa = &daddr->addr;
++	if (len < IEEE802154_MIN_NAMELEN)
++		return -EINVAL;
++	switch (sa->addr_type) {
++	case IEEE802154_ADDR_SHORT:
++		if (len < IEEE802154_NAMELEN_SHORT)
++			return -EINVAL;
++		break;
++	case IEEE802154_ADDR_LONG:
++		if (len < IEEE802154_NAMELEN_LONG)
++			return -EINVAL;
++		break;
++	}
++	return 0;
++}
++
+ static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
+ 					   const struct ieee802154_addr_sa *sa)
+ {
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index 9a675ba0bf0a..a92b11999e5f 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -201,8 +201,9 @@ static int raw_bind(struct sock *sk, struct sockaddr *_uaddr, int len)
+ 	int err = 0;
+ 	struct net_device *dev = NULL;
+ 
+-	if (len < sizeof(*uaddr))
+-		return -EINVAL;
++	err = ieee802154_sockaddr_check_size(uaddr, len);
++	if (err < 0)
++		return err;
+ 
+ 	uaddr = (struct sockaddr_ieee802154 *)_uaddr;
+ 	if (uaddr->family != AF_IEEE802154)
+@@ -498,7 +499,8 @@ static int dgram_bind(struct sock *sk, struct sockaddr *uaddr, int len)
+ 
+ 	ro->bound = 0;
+ 
+-	if (len < sizeof(*addr))
++	err = ieee802154_sockaddr_check_size(addr, len);
++	if (err < 0)
+ 		goto out;
+ 
+ 	if (addr->family != AF_IEEE802154)
+@@ -569,8 +571,9 @@ static int dgram_connect(struct sock *sk, struct sockaddr *uaddr,
+ 	struct dgram_sock *ro = dgram_sk(sk);
+ 	int err = 0;
+ 
+-	if (len < sizeof(*addr))
+-		return -EINVAL;
++	err = ieee802154_sockaddr_check_size(addr, len);
++	if (err < 0)
++		return err;
+ 
+ 	if (addr->family != AF_IEEE802154)
+ 		return -EINVAL;
+@@ -609,6 +612,7 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 	struct ieee802154_mac_cb *cb;
+ 	struct dgram_sock *ro = dgram_sk(sk);
+ 	struct ieee802154_addr dst_addr;
++	DECLARE_SOCKADDR(struct sockaddr_ieee802154*, daddr, msg->msg_name);
+ 	int hlen, tlen;
+ 	int err;
+ 
+@@ -617,10 +621,20 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if (!ro->connected && !msg->msg_name)
+-		return -EDESTADDRREQ;
+-	else if (ro->connected && msg->msg_name)
+-		return -EISCONN;
++	if (msg->msg_name) {
++		if (ro->connected)
++			return -EISCONN;
++		if (msg->msg_namelen < IEEE802154_MIN_NAMELEN)
++			return -EINVAL;
++		err = ieee802154_sockaddr_check_size(daddr, msg->msg_namelen);
++		if (err < 0)
++			return err;
++		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
++	} else {
++		if (!ro->connected)
++			return -EDESTADDRREQ;
++		dst_addr = ro->dst_addr;
++	}
+ 
+ 	if (!ro->bound)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
+@@ -656,16 +670,6 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 	cb = mac_cb_init(skb);
+ 	cb->type = IEEE802154_FC_TYPE_DATA;
+ 	cb->ackreq = ro->want_ack;
+-
+-	if (msg->msg_name) {
+-		DECLARE_SOCKADDR(struct sockaddr_ieee802154*,
+-				 daddr, msg->msg_name);
+-
+-		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
+-	} else {
+-		dst_addr = ro->dst_addr;
+-	}
+-
+ 	cb->secen = ro->secen;
+ 	cb->secen_override = ro->secen_override;
+ 	cb->seclevel = ro->seclevel;
 -- 
 2.35.1
 
