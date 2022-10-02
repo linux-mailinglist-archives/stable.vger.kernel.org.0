@@ -2,126 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C415F26C7
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5111D5F26D4
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230367AbiJBW7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
+        id S229582AbiJBXAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 19:00:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbiJBW6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:58:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43D83ECC1;
-        Sun,  2 Oct 2022 15:56:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E34C60F43;
-        Sun,  2 Oct 2022 22:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85D9FC433D7;
-        Sun,  2 Oct 2022 22:53:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751236;
-        bh=FX9PiNDyjGyaqH8fteImXXQwO/zrtRRI/sMYSTvfFk8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNazlz/GK0+A85l1vencPHPGeVbsQlUEMxNl2U3xQZ3502gPE9iWlki2J0JVU2oXo
-         mZcUQZXRQeAfp6i9dOk2N3HBfT8zw7rTeJ+CoIQ3m4qlk38nYrDvwV8tLDzdH0iMb8
-         7EKWAvkIO8idT6xfUIFzvJN1i5TVt3PHVSuFHYDuXt7bIQz5lvH/Cx49HKyTF/0GUd
-         DaQKoUhRQS6zMAMlDzHjwDL47icUv66aaKY2bYZLQiukc0t9gPmAOmYwf9Fh7w3Tbs
-         J0Fp+8F429Lt4x2VdwYD39EJ5y778F4JuytDuy2qYCSak1Gqb+0UKH9ciwP+T8rktw
-         Ky58DJ9zB/fcw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Straub <lukasstraub2@web.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 6/6] um: Cleanup compiler warning in arch/x86/um/tls_32.c
-Date:   Sun,  2 Oct 2022 18:53:40 -0400
-Message-Id: <20221002225342.240258-6-sashal@kernel.org>
+        with ESMTP id S231390AbiJBW71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:59:27 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7336E3C15B
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 15:57:05 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id 70so8468478pjo.4
+        for <stable@vger.kernel.org>; Sun, 02 Oct 2022 15:57:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=b/cqXABwEkVImEJzZr0tX/Uc5PPjefuHaywOkawSlcY=;
+        b=e3IO949lN/8sVUNjQ+f64Hso5GFXmlyB0SjpN3tte03IMJnjrXpYn6C/otRd6N+yoz
+         kLupU+EtDt2MyMhd2hzAWVDyKRF0UfKV0FkvffC7P+c9sfirldy6/TUKJTIKVO1Qm5dP
+         5XivOUXdhYxW1Cd85uhVKCkDnFxNlSIu1kT7qsNdgyAwWtFuExbXtf1kde0pRj5GgEQu
+         REgTVX8nZSKd4FODAwVV99LnmdHD9eUgSf91YkWrih5Nr9qj6ZEDKWEcxXS+rRKRkGYL
+         StSnspO1mf+BZjp5hEpFCYPLfWVSuHk3f+yLbcHc9hJp3yH9lOER6aDp1Y/i5BAQ2CyO
+         1tow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=b/cqXABwEkVImEJzZr0tX/Uc5PPjefuHaywOkawSlcY=;
+        b=brql3WBt/kD1XhptLbwzQQ8E9Ew/q36F0GS3t33UNFmBf2/zoLu1Qon24sHoJytFhD
+         wPAbGswZQHS373a+tWXgFD7ouYyCU58soSX1lhy2TEomm52bzY0JD7igWuPxo07xUqKZ
+         dNoookFk+rw9iUHdYb3msR8mIhdGhvGcZSCMwKFHQdM5yLMPdIY29YbPLLsSLhDKi53q
+         BfOfnLlundhona3eQv387eCnOmDI4ED35/4+gM6UFYZHLQeiFgbJKkvWqwErcRa3PsMZ
+         RxvWBbrWWk28H9a/5JPu54rZ+ROlt9TetbDtPdpoCCUI+siXLAHMmSZIyocJNu7efvCR
+         ZnGw==
+X-Gm-Message-State: ACrzQf1eo1iXF95ll02RTKFH0iopMTYAn8f6u57BL81z+HesJt6EE8fA
+        Hj/UI1gLGsLm/ci36Gd4rPRGuDThOvdr0g==
+X-Google-Smtp-Source: AMsMyM4hRvMaReSshv6hmGDBn+Lt+0ll8ylRSELdGJqX1tqjcjkgEoHMUa4emdmB/MBQav7x0XZzpA==
+X-Received: by 2002:a17:90b:4c03:b0:20a:919d:44a3 with SMTP id na3-20020a17090b4c0300b0020a919d44a3mr4070665pjb.146.1664751323871;
+        Sun, 02 Oct 2022 15:55:23 -0700 (PDT)
+Received: from localhost.localdomain ([211.226.85.205])
+        by smtp.gmail.com with ESMTPSA id y2-20020a17090a86c200b001f5513f6fb9sm5297022pjv.14.2022.10.02.15.55.21
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 02 Oct 2022 15:55:23 -0700 (PDT)
+From:   Levi Yun <ppbuk5246@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sj@kernel.org,
+        akpm@linux-foundation.org, damon@lists.linux.dev,
+        linux-mm@kvack.org, Levi Yun <ppbuk5246@gmail.com>
+Subject: [PATCH for-stable-5.19.y] fix possible memleak on damon_sysfs_add_target
+Date:   Mon,  3 Oct 2022 07:54:45 +0900
+Message-Id: <20221002225444.70464-1-ppbuk5246@gmail.com>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221002225342.240258-1-sashal@kernel.org>
-References: <20221002225342.240258-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Straub <lukasstraub2@web.de>
+commit 1c8e2349f2d0 ("damon/sysfs: fix possible memleak on damon_sysfs_add_target") upstream.
 
-[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
+When damon_sysfs_add_target couldn't find proper task,
+New allocated damon_target structure isn't registered yet,
+So, it's impossible to free new allocated one by damon_sysfs_destroy_targets.
 
-arch.tls_array is statically allocated so checking for NULL doesn't
-make sense. This causes the compiler warning below.
+By calling damon_add_target as soon as allocating new target,
+Fix this possible memory leak.
 
-Remove the checks to silence these warnings.
-
-../arch/x86/um/tls_32.c: In function 'get_free_idx':
-../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-   68 |         if (!t->arch.tls_array)
-      |             ^
-In file included from ../arch/x86/um/asm/processor.h:10,
-                 from ../include/linux/rcupdate.h:30,
-                 from ../include/linux/rculist.h:11,
-                 from ../include/linux/pid.h:5,
-                 from ../include/linux/sched.h:14,
-                 from ../arch/x86/um/tls_32.c:7:
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-../arch/x86/um/tls_32.c: In function 'get_tls_entry':
-../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-  243 |         if (!t->arch.tls_array)
-      |             ^
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-
-Signed-off-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220926160611.48536-1-sj@kernel.org
+Fixes: a61ea561c871 ("mm/damon/sysfs: link DAMON for virtual address spaces monitoring")
+Signed-off-by: Levi Yun <ppbuk5246@gmail.com>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Reviewed-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.19.x
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/x86/um/tls_32.c | 6 ------
- 1 file changed, 6 deletions(-)
+ mm/damon/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
-index 48e38584d5c1..0a4dba5f0542 100644
---- a/arch/x86/um/tls_32.c
-+++ b/arch/x86/um/tls_32.c
-@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
- 	struct thread_struct *t = &task->thread;
- 	int idx;
- 
--	if (!t->arch.tls_array)
--		return GDT_ENTRY_TLS_MIN;
--
- 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
- 		if (!t->arch.tls_array[idx].present)
- 			return idx + GDT_ENTRY_TLS_MIN;
-@@ -242,9 +239,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
- {
- 	struct thread_struct *t = &task->thread;
- 
--	if (!t->arch.tls_array)
--		goto clear;
--
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
- 
--- 
+diff --git a/mm/damon/sysfs.c b/mm/damon/sysfs.c
+index 09f9e8ca3d1f..5b5ee3308d71 100644
+--- a/mm/damon/sysfs.c
++++ b/mm/damon/sysfs.c
+@@ -2181,13 +2181,13 @@ static int damon_sysfs_add_target(struct damon_sysfs_target *sys_target,
+
+ 	if (!t)
+ 		return -ENOMEM;
++	damon_add_target(ctx, t);
+ 	if (ctx->ops.id == DAMON_OPS_VADDR ||
+ 			ctx->ops.id == DAMON_OPS_FVADDR) {
+ 		t->pid = find_get_pid(sys_target->pid);
+ 		if (!t->pid)
+ 			goto destroy_targets_out;
+ 	}
+-	damon_add_target(ctx, t);
+ 	err = damon_sysfs_set_regions(t, sys_target->regions);
+ 	if (err)
+ 		goto destroy_targets_out;
+--
 2.35.1
-
