@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 537F85F228F
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9AA5F2290
 	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229773AbiJBKZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
+        id S229782AbiJBKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229729AbiJBKZF (ORCPT
+        with ESMTP id S229733AbiJBKZF (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:25:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4E322B15
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:24:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDEE205DA
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59FB8B80D20
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE489C433C1;
-        Sun,  2 Oct 2022 10:24:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA814B80C98
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2B7C433D6;
+        Sun,  2 Oct 2022 10:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706296;
-        bh=pbnr1zTMe8g5uz8OzFyR8vyN2BxIrsrOOnPiroxbwKk=;
+        s=korg; t=1664706299;
+        bh=BKzwc0TmOfVMdvYVJNa3NBMXMbaDDjEk4tXuc/yyA3o=;
         h=Subject:To:Cc:From:Date:From;
-        b=Nj4B40tGo1JaUylkvowklrzFHVJswmb+aRG33pMwPHT7Be2ljdht38Osr+bKjf2md
-         plGX1691SpWXKgMMZ40SZEJF24GyC2UmVk0BJ6RqWvSKtq7bVZ+p2xDSpn0l+PAF59
-         V3NxwJo0kL065WjCjmbXba2cMg/AIipuZGwK1cTE=
-Subject: FAILED: patch "[PATCH] mm/migrate_device.c: copy pte dirty bit to page" failed to apply to 5.4-stable tree
+        b=atuWd0R47AXaPZ6cz0hZU54ZuLi4elzupybkF19kDUq7BqePpovxgDTGBuZdJP23i
+         d8joQ/AAMjT0T3zvrnsyTSmw6c2Za7zPPy3InFDlB8xcEtuLhFGxgxUXGAaOlTgHpT
+         U+y2faUHHrAtK9dfmSqJv6fSZ1uon9N7+yLaEw6A=
+Subject: FAILED: patch "[PATCH] mm/migrate_device.c: copy pte dirty bit to page" failed to apply to 4.19-stable tree
 To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
         akpm@linux-foundation.org, alex.sierra@amd.com, bskeggs@redhat.com,
         david@redhat.com, huang.ying.caritas@gmail.com, jgg@nvidia.com,
@@ -38,8 +38,8 @@ To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
         willy@infradead.org, ying.huang@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 12:25:31 +0200
-Message-ID: <166470633121029@kroah.com>
+Date:   Sun, 02 Oct 2022 12:25:32 +0200
+Message-ID: <16647063323034@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
