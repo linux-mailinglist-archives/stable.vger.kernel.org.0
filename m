@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4995F26B0
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 937775F26B6
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbiJBW5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:57:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
+        id S230171AbiJBW5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:57:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbiJBW4p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:56:45 -0400
+        with ESMTP id S230214AbiJBW5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:57:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA7B186CA;
-        Sun,  2 Oct 2022 15:53:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1FCF3FD79;
+        Sun,  2 Oct 2022 15:54:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5CE5B80C81;
-        Sun,  2 Oct 2022 22:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B0EC433C1;
-        Sun,  2 Oct 2022 22:52:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB54CB80D9C;
+        Sun,  2 Oct 2022 22:52:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF60C43470;
+        Sun,  2 Oct 2022 22:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751139;
-        bh=Oo5dzfgUvi7RFuvhID2RTEtBjZh0y9xtz/tZcCFnyi8=;
+        s=k20201202; t=1664751141;
+        bh=FMtJbvUlcZMfZJsHs+zcMqbDLnAq+to6DJYsgnmO13c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhvfWQh3ZOwnQvYQqzSJUx8fyz0Y2AHSRTdkI+3AdQTECZ19pwRvNsHoGdbXvm9sM
-         TAMFZ83cAGrokZqwvPvZchi1hYsYJ2rUMVqTjjOPNp9Yis8VDCYBSzbhDyC3ptQm9B
-         qtduMZLpej+zySk4xM+9mHNShfO9kwjbNJTudzA+IEtj+67gCPGG8MXjj7ciLbu/Rf
-         H7JmZZ/jdfxcLn+Xbe3Yf2UIYtyE272w5u7GQ7YkWPwnySX012WCrJ+TZ9g4ekNob5
-         AvV6jFb+H1rA6sJKXmvHtvZ1mAU0wPrmtKMZq01PJbwUudEVB6Oa1oPQ1pNwxyN5tK
-         Qxc7QLut+HS1A==
+        b=HGZd8eRdy3QVZlX4Vaw2ahxvz1t8LS8ivBXF03lecASuEE+Y9e0QjGio0KPL/s+x6
+         9AGt6leuVd2VZGQcUjSV/3BnyH2wsiQdMDHk7Cf5gyV45w8SP5ckmu2NqH2McsxoAK
+         ae6GL9yl6Z1SPv5HxZrNSP5WZ//le+Hb0UNoXQwGyE00ph+h/YnZeH6KvzRXqh7viT
+         83NYfyn3Ca4CMIS4F1Uq6H29tcjdNVkqXQ6el4bHTb/8y0bprZdVvKjwUMrei3M0qs
+         RpH9j3MdRZ2MMfNPZFHfz0sora1Y0fcMw18WFyoYNPVzTdyNjqb8lbbW8e7l8rc+mj
+         atEzu+HHeF1Uw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Lukas Straub <lukasstraub2@web.de>,
@@ -41,9 +41,9 @@ Cc:     Lukas Straub <lukasstraub2@web.de>,
         tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         dave.hansen@linux.intel.com, x86@kernel.org,
         linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 09/14] um: Cleanup syscall_handler_t cast in syscalls_32.h
-Date:   Sun,  2 Oct 2022 18:51:50 -0400
-Message-Id: <20221002225155.239480-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 10/14] um: Cleanup compiler warning in arch/x86/um/tls_32.c
+Date:   Sun,  2 Oct 2022 18:51:51 -0400
+Message-Id: <20221002225155.239480-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002225155.239480-1-sashal@kernel.org>
 References: <20221002225155.239480-1-sashal@kernel.org>
@@ -62,37 +62,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Straub <lukasstraub2@web.de>
 
-[ Upstream commit 61670b4d270c71219def1fbc9441debc2ac2e6e9 ]
+[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
 
-Like in f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9
-"um: Cleanup syscall_handler_t definition/cast, fix warning",
-remove the cast to to fix the compiler warning.
+arch.tls_array is statically allocated so checking for NULL doesn't
+make sense. This causes the compiler warning below.
+
+Remove the checks to silence these warnings.
+
+../arch/x86/um/tls_32.c: In function 'get_free_idx':
+../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
+   68 |         if (!t->arch.tls_array)
+      |             ^
+In file included from ../arch/x86/um/asm/processor.h:10,
+                 from ../include/linux/rcupdate.h:30,
+                 from ../include/linux/rculist.h:11,
+                 from ../include/linux/pid.h:5,
+                 from ../include/linux/sched.h:14,
+                 from ../arch/x86/um/tls_32.c:7:
+../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
+   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+      |                               ^~~~~~~~~
+../arch/x86/um/tls_32.c: In function 'get_tls_entry':
+../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
+  243 |         if (!t->arch.tls_array)
+      |             ^
+../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
+   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+      |                               ^~~~~~~~~
 
 Signed-off-by: Lukas Straub <lukasstraub2@web.de>
 Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/shared/sysdep/syscalls_32.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/x86/um/tls_32.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/x86/um/shared/sysdep/syscalls_32.h b/arch/x86/um/shared/sysdep/syscalls_32.h
-index 68fd2cf526fd..f6e9f84397e7 100644
---- a/arch/x86/um/shared/sysdep/syscalls_32.h
-+++ b/arch/x86/um/shared/sysdep/syscalls_32.h
-@@ -6,10 +6,9 @@
- #include <asm/unistd.h>
- #include <sysdep/ptrace.h>
+diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
+index ac8eee093f9c..66162eafd8e8 100644
+--- a/arch/x86/um/tls_32.c
++++ b/arch/x86/um/tls_32.c
+@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
+ 	struct thread_struct *t = &task->thread;
+ 	int idx;
  
--typedef long syscall_handler_t(struct pt_regs);
-+typedef long syscall_handler_t(struct syscall_args);
+-	if (!t->arch.tls_array)
+-		return GDT_ENTRY_TLS_MIN;
+-
+ 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
+ 		if (!t->arch.tls_array[idx].present)
+ 			return idx + GDT_ENTRY_TLS_MIN;
+@@ -240,9 +237,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
+ {
+ 	struct thread_struct *t = &task->thread;
  
- extern syscall_handler_t *sys_call_table[];
+-	if (!t->arch.tls_array)
+-		goto clear;
+-
+ 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
+ 		return -EINVAL;
  
- #define EXECUTE_SYSCALL(syscall, regs) \
--	((long (*)(struct syscall_args)) \
--	 (*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
-+	((*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
 -- 
 2.35.1
 
