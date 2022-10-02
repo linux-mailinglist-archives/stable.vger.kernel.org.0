@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 631F25F2264
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 11:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98DA85F2265
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 11:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiJBJwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 05:52:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40148 "EHLO
+        id S229540AbiJBJwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 05:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbiJBJwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 05:52:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38464BD35
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 02:52:37 -0700 (PDT)
+        with ESMTP id S229552AbiJBJwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 05:52:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FB44BD35
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 02:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7036960EA3
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 09:52:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AFBFC433C1;
-        Sun,  2 Oct 2022 09:52:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2E157CE09B6
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 09:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22085C433D6;
+        Sun,  2 Oct 2022 09:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664704356;
-        bh=lAX0LAxgsv1u4qrdNzEdDyHimKRvGMoQdlKR7pgJNTc=;
+        s=korg; t=1664704359;
+        bh=3n6nZAgvXb+6Wjhgmn4ETtEe+VSU1NidZyh4pEow2W4=;
         h=Subject:To:Cc:From:Date:From;
-        b=d2FtnSEVW6rMAP9Ev38jVrnjWsV7mP9OtHxvEQJdPyBIQ40lV+X57rKf8VzDlYOoj
-         QgYJyg2vaBu1q7moaiobaVgbmf6Q2shT1CjrHSU/0M43pAPzC+uccVU2CV2vdq1C5l
-         v6m9uzemUKz9lzooWENn+BpL35xJNLi3d6yZ5KE8=
-Subject: FAILED: patch "[PATCH] mmc: core: Terminate infinite loop in SD-UHS voltage switch" failed to apply to 4.14-stable tree
+        b=waehP14CuZ8HUlukR2Oi6sdtxxho0iXbjM4rIhDo2xDx4an6RzFfFaNc5h5h0dXEL
+         OxmDa/QrzL6ExICX4IGfiRz+XPqHnyuMpWl2jQ7lZybn6zIs50A5FO5NgysOOBrINo
+         WeXmknFuR0+mRzlNYOecjMlUI/Ji+sV7MiEwBlC0=
+Subject: FAILED: patch "[PATCH] mmc: core: Terminate infinite loop in SD-UHS voltage switch" failed to apply to 4.9-stable tree
 To:     briannorris@chromium.org, linux@roeck-us.net,
         stable@vger.kernel.org, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 11:53:07 +0200
-Message-ID: <1664704387177104@kroah.com>
+Date:   Sun, 02 Oct 2022 11:53:08 +0200
+Message-ID: <1664704388776@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,7 @@ Possible dependencies:
 e9233917a7e5 ("mmc: core: Terminate infinite loop in SD-UHS voltage switch")
 e42726646082 ("mmc: core: Replace with already defined values for readability")
 09247e110b2e ("mmc: core: Allow UHS-I voltage switch for SDSC cards if supported")
+2ed573b603f7 ("mmc: core: Clarify usage of mmc_set_signal_voltage()")
 
 thanks,
 
