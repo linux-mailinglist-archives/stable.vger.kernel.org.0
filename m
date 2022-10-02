@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B375F26A1
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3545F26A3
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbiJBW4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:56:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55060 "EHLO
+        id S230267AbiJBW4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229506AbiJBWzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:55:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFB53ED43;
-        Sun,  2 Oct 2022 15:51:57 -0700 (PDT)
+        with ESMTP id S230385AbiJBWzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:55:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FAA3EA4F;
+        Sun,  2 Oct 2022 15:52:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70009B80DA8;
-        Sun,  2 Oct 2022 22:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AF04C43144;
-        Sun,  2 Oct 2022 22:51:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A29560EFE;
+        Sun,  2 Oct 2022 22:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F7EC43470;
+        Sun,  2 Oct 2022 22:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751110;
-        bh=CI2x29Kh96i4pZ8HOsJ5fJRoVt7QxvZwLaxm9zV61KA=;
+        s=k20201202; t=1664751115;
+        bh=78pDdmUUoG5H2aYN979n9Ka348bWLEmrB9jrOrOhNOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxNRlgxIh9mtscgnVqpTnRBWa1RAvFBhiBgQKn8eaKQmPMn7JaMSYLY2ZJIGIIcaR
-         PTD8+NgwWl4QG89msvBAG9GPTnaYBbMHDOs2/4le/CqN70WAs7YwISaAWkySFrHrRw
-         yZtV6NCLuYxnJlILwSu2N2YHGL5j3h1m/F5Mo9RJ/HuZGBkTnRZOhz3DAS5OrEfyjb
-         YJjSdFccK9QyhenWlqOnAVM96yk+y6wrW0njMR+3+fE8ziZvxwYGxGKuByv88myWbV
-         7vwEJxTTtzOABRmLFgGksgHKsnR7Tvj3Opp+i9wa79kfNtVzPhvAF0IVt5Ifa5v9KG
-         MBji1FQEgAiYg==
+        b=lINN/qHApC2yQpBVFAIaPt9tggpm7W9lTuh6+xKnHyc5S2GEqPnq0KGyE2UuGRR6M
+         qsdk3kq30x4wpj8nvnIuSOBn8KngGfpBTHl4CVBixlQb01NFeETbL1f0SitHJHibie
+         vChD0w5Tgp7u2hZA5Vno9YqRXmXBlYIg613dODAbaCpTfn5yhf8Phwni6PrcO/KbiM
+         MD6HVAncFSb+XAbqkinevDTdzbMSBar4V8v20/b2kt75cUgbwgUpdtoecBweUiNfUE
+         b/Z5lGWUMRCawwz1x8peid+9FSur6kJmNaQqnBKRqw9Zwiarah+T1epUWpT7aYxIu5
+         g7fEYFShvraCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hugo Hu <hugo.hu@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+Cc:     zhikzhai <zhikai.zhai@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
         Wayne Lin <wayne.lin@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, Jun.Lei@amd.com, Aric.Cyr@amd.com,
-        Nicholas.Kazlauskas@amd.com, Alvin.Lee2@amd.com,
-        wenjing.liu@amd.com, Yi-Ling.Chen2@amd.com, mwen@igalia.com,
-        duncan.ma@amd.com, aurabindo.pillai@amd.com,
-        jiapeng.chong@linux.alibaba.com, Sungjoon.Kim@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 19/20] drm/amd/display: update gamut remap if plane has changed
-Date:   Sun,  2 Oct 2022 18:50:58 -0400
-Message-Id: <20221002225100.239217-19-sashal@kernel.org>
+        daniel@ffwll.ch, Zhan.Liu@amd.com, mario.limonciello@amd.com,
+        hanghong.ma@amd.com, meenakshikumar.somasundaram@amd.com,
+        Brandon.Syu@amd.com, Wesley.Chalmers@amd.com,
+        agustin.gutierrez@amd.com, Martin.Leung@amd.com,
+        wenjing.liu@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 20/20] drm/amd/display: skip audio setup when audio stream is enabled
+Date:   Sun,  2 Oct 2022 18:50:59 -0400
+Message-Id: <20221002225100.239217-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002225100.239217-1-sashal@kernel.org>
 References: <20221002225100.239217-1-sashal@kernel.org>
@@ -66,41 +66,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugo Hu <hugo.hu@amd.com>
+From: zhikzhai <zhikai.zhai@amd.com>
 
-[ Upstream commit 52bb21499cf54fa65b56d97cd0d68579c90207dd ]
+[ Upstream commit 65fbfb02c2734cacffec5e3f492e1b4f1dabcf98 ]
 
-[Why]
-The desktop plane and full-screen game plane may have different
-gamut remap coefficients, if switching between desktop and
-full-screen game without updating the gamut remap will cause
-incorrect color.
+[why]
+We have minimal pipe split transition method to avoid pipe
+allocation outage.However, this method will invoke audio setup
+which cause audio output stuck once pipe reallocate.
 
-[How]
-Update gamut remap if planes change.
+[how]
+skip audio setup for pipelines which audio stream has been enabled
 
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
 Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Hugo Hu <hugo.hu@amd.com>
+Signed-off-by: zhikzhai <zhikai.zhai@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 9f8d7f92300b..0de1bbbabf9a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1513,6 +1513,7 @@ static void dcn20_update_dchubp_dpp(
- 	/* Any updates are handled in dc interface, just need
- 	 * to apply existing for plane enable / opp change */
- 	if (pipe_ctx->update_flags.bits.enable || pipe_ctx->update_flags.bits.opp_changed
-+			|| pipe_ctx->update_flags.bits.plane_changed
- 			|| pipe_ctx->stream->update_flags.bits.gamut_remap
- 			|| pipe_ctx->stream->update_flags.bits.out_csc) {
- 		/* dpp/cm gamut remap*/
+diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+index 62d595ded866..46d7e75e4553 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+@@ -2108,7 +2108,8 @@ static void dce110_setup_audio_dto(
+ 			continue;
+ 		if (pipe_ctx->stream->signal != SIGNAL_TYPE_HDMI_TYPE_A)
+ 			continue;
+-		if (pipe_ctx->stream_res.audio != NULL) {
++		if (pipe_ctx->stream_res.audio != NULL &&
++			pipe_ctx->stream_res.audio->enabled == false) {
+ 			struct audio_output audio_output;
+ 
+ 			build_audio_output(context, pipe_ctx, &audio_output);
+@@ -2156,7 +2157,8 @@ static void dce110_setup_audio_dto(
+ 			if (!dc_is_dp_signal(pipe_ctx->stream->signal))
+ 				continue;
+ 
+-			if (pipe_ctx->stream_res.audio != NULL) {
++			if (pipe_ctx->stream_res.audio != NULL &&
++				pipe_ctx->stream_res.audio->enabled == false) {
+ 				struct audio_output audio_output;
+ 
+ 				build_audio_output(context, pipe_ctx, &audio_output);
 -- 
 2.35.1
 
