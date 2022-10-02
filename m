@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B3C5F2280
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5BFE5F2284
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229623AbiJBKUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55390 "EHLO
+        id S229672AbiJBKY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbiJBKUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:20:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA092A956
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:20:40 -0700 (PDT)
+        with ESMTP id S229611AbiJBKY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:24:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A19C303C1
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C85C7B808BF
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E1DC433D6;
-        Sun,  2 Oct 2022 10:20:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC5A7B80C98
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E44AC433D6;
+        Sun,  2 Oct 2022 10:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706037;
-        bh=uvt+SISNnMS7VSoSrslCjVGSP6E4vFM1q/fPlAK48PI=;
+        s=korg; t=1664706262;
+        bh=3+fHTpyOZUyLbWcH8Fd6ovMVearMbZAxgQoxYUjS1IY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Qpl8SlG5IRmi5Hzw8QgRYuti38JCREEpst30yL9vznRS7r1JKhEDtr+qENwqxCooj
-         M9h6DaKJuGzH4FcLpTHnOd9RHFF3JR3d20UoH6szSmqbMCrNEJhoRnLkx/hIxi05IR
-         Lz3IzZomD5u/+UI0Tlm0nHaYvq1EyRok9MI4H6Kk=
-Subject: FAILED: patch "[PATCH] mm: gup: fix the fast GUP race against THP collapse" failed to apply to 4.9-stable tree
-To:     shy828301@gmail.com, akpm@linux-foundation.org,
-        aneesh.kumar@linux.ibm.com, christophe.leroy@csgroup.eu,
-        david@redhat.com, hughd@google.com, jgg@nvidia.com,
-        jhubbard@nvidia.com, kirill.shutemov@linux.intel.com,
-        mpe@ellerman.id.au, npiggin@gmail.com, peterx@redhat.com,
-        stable@vger.kernel.org
+        b=KK+3dFVbwswOJu76+cT6xCDNTDXVP2DFco1bL+8wgY7KY4Pf7K87kf1uFYCf0++G+
+         FBiW4HNMnhXUPBqmplwSUWYoaCH3Nc9iy2vdhFQxP+oK0XjXU8dFn9XTuTUCZKz4V/
+         BiZO0wWsyDiY5Zktz/EoO3n7yoVyybnhwFK8ncdQ=
+Subject: FAILED: patch "[PATCH] mm/migrate_device.c: add missing flush_cache_page()" failed to apply to 5.15-stable tree
+To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
+        akpm@linux-foundation.org, alex.sierra@amd.com, bskeggs@redhat.com,
+        david@redhat.com, huang.ying.caritas@gmail.com, jgg@nvidia.com,
+        jhubbard@nvidia.com, kherbst@redhat.com, logang@deltatee.com,
+        lyude@redhat.com, nadav.amit@gmail.com, paulus@ozlabs.org,
+        peterx@redhat.com, rcampbell@nvidia.com, stable@vger.kernel.org,
+        willy@infradead.org, ying.huang@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 12:21:09 +0200
-Message-ID: <166470606966242@kroah.com>
+Date:   Sun, 02 Oct 2022 12:25:00 +0200
+Message-ID: <16647063008361@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,20 +53,27 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-70cbc3cc78a9 ("mm: gup: fix the fast GUP race against THP collapse")
-b0496fe4effd ("mm/gup: Convert gup_pte_range() to use a folio")
-1507f51255c9 ("mm: introduce memfd_secret system call to create "secret" memory areas")
-43ca106fa8ec ("mm: cma: support sysfs")
-bbb269206f3c ("mm: vmstat: add cma statistics")
-1fbaf8fc12a0 ("mm: add a io_mapping_map_user helper")
-ac73e3dc8acd ("Merge branch 'akpm' (patches from Andrew)")
+a3589e1d5fe3 ("mm/migrate_device.c: add missing flush_cache_page()")
+6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
+6c54dc6c7437 ("mm/rmap: use page_move_anon_rmap() when reusing a mapped PageAnon() page exclusively")
+28c5209dfd5f ("mm/rmap: pass rmap flags to hugepage_add_anon_rmap()")
+f1e2db12e45b ("mm/rmap: remove do_page_add_anon_rmap()")
+14f9135d5470 ("mm/rmap: convert RMAP flags to a proper distinct rmap_t type")
+fb3d824d1a46 ("mm/rmap: split page_dup_rmap() into page_dup_file_rmap() and page_try_dup_anon_rmap()")
+b51ad4f8679e ("mm/memory: slightly simplify copy_present_pte()")
+623a1ddfeb23 ("mm/hugetlb: take src_mm->write_protect_seq in copy_hugetlb_page_range()")
+3bff7e3f1f16 ("mm/huge_memory: streamline COW logic in do_huge_pmd_wp_page()")
+c145e0b47c77 ("mm: streamline COW logic in do_swap_page()")
+84d60fdd3733 ("mm: slightly clarify KSM logic in do_swap_page()")
+53a05ad9f21d ("mm: optimize do_wp_page() for exclusive pages in the swapcache")
+9030fb0bb9d6 ("Merge tag 'folio-5.18c' of git://git.infradead.org/users/willy/pagecache")
 
 thanks,
 
@@ -73,144 +81,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 70cbc3cc78a997d8247b50389d37c4e1736019da Mon Sep 17 00:00:00 2001
-From: Yang Shi <shy828301@gmail.com>
-Date: Wed, 7 Sep 2022 11:01:43 -0700
-Subject: [PATCH] mm: gup: fix the fast GUP race against THP collapse
+From a3589e1d5fe39c3d9fdd291b111524b93d08bc32 Mon Sep 17 00:00:00 2001
+From: Alistair Popple <apopple@nvidia.com>
+Date: Fri, 2 Sep 2022 10:35:52 +1000
+Subject: [PATCH] mm/migrate_device.c: add missing flush_cache_page()
 
-Since general RCU GUP fast was introduced in commit 2667f50e8b81 ("mm:
-introduce a general RCU get_user_pages_fast()"), a TLB flush is no longer
-sufficient to handle concurrent GUP-fast in all cases, it only handles
-traditional IPI-based GUP-fast correctly.  On architectures that send an
-IPI broadcast on TLB flush, it works as expected.  But on the
-architectures that do not use IPI to broadcast TLB flush, it may have the
-below race:
+Currently we only call flush_cache_page() for the anon_exclusive case,
+however in both cases we clear the pte so should flush the cache.
 
-   CPU A                                          CPU B
-THP collapse                                     fast GUP
-                                              gup_pmd_range() <-- see valid pmd
-                                                  gup_pte_range() <-- work on pte
-pmdp_collapse_flush() <-- clear pmd and flush
-__collapse_huge_page_isolate()
-    check page pinned <-- before GUP bump refcount
-                                                      pin the page
-                                                      check PTE <-- no change
-__collapse_huge_page_copy()
-    copy data to huge page
-    ptep_clear()
-install huge pmd for the huge page
-                                                      return the stale page
-discard the stale page
-
-The race can be fixed by checking whether PMD is changed or not after
-taking the page pin in fast GUP, just like what it does for PTE.  If the
-PMD is changed it means there may be parallel THP collapse, so GUP should
-back off.
-
-Also update the stale comment about serializing against fast GUP in
-khugepaged.
-
-Link: https://lkml.kernel.org/r/20220907180144.555485-1-shy828301@gmail.com
-Fixes: 2667f50e8b81 ("mm: introduce a general RCU get_user_pages_fast()")
-Acked-by: David Hildenbrand <david@redhat.com>
+Link: https://lkml.kernel.org/r/5676f30436ab71d1a587ac73f835ed8bd2113ff5.1662078528.git-series.apopple@nvidia.com
+Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Acked-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Hugh Dickins <hughd@google.com>
+Cc: Alex Sierra <alex.sierra@amd.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Cc: "Huang, Ying" <ying.huang@intel.com>
 Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/mm/gup.c b/mm/gup.c
-index 5abdaf487460..00926abb4426 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2345,8 +2345,28 @@ static void __maybe_unused undo_dev_pagemap(int *nr, int nr_start,
- }
+diff --git a/mm/migrate_device.c b/mm/migrate_device.c
+index 6a5ef9f0da6a..4cc849c3b54c 100644
+--- a/mm/migrate_device.c
++++ b/mm/migrate_device.c
+@@ -193,9 +193,9 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
+ 			bool anon_exclusive;
+ 			pte_t swp_pte;
  
- #ifdef CONFIG_ARCH_HAS_PTE_SPECIAL
--static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
--			 unsigned int flags, struct page **pages, int *nr)
-+/*
-+ * Fast-gup relies on pte change detection to avoid concurrent pgtable
-+ * operations.
-+ *
-+ * To pin the page, fast-gup needs to do below in order:
-+ * (1) pin the page (by prefetching pte), then (2) check pte not changed.
-+ *
-+ * For the rest of pgtable operations where pgtable updates can be racy
-+ * with fast-gup, we need to do (1) clear pte, then (2) check whether page
-+ * is pinned.
-+ *
-+ * Above will work for all pte-level operations, including THP split.
-+ *
-+ * For THP collapse, it's a bit more complicated because fast-gup may be
-+ * walking a pgtable page that is being freed (pte is still valid but pmd
-+ * can be cleared already).  To avoid race in such condition, we need to
-+ * also check pmd here to make sure pmd doesn't change (corresponds to
-+ * pmdp_collapse_flush() in the THP collapse code path).
-+ */
-+static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
-+			 unsigned long end, unsigned int flags,
-+			 struct page **pages, int *nr)
- {
- 	struct dev_pagemap *pgmap = NULL;
- 	int nr_start = *nr, ret = 0;
-@@ -2392,7 +2412,8 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
- 			goto pte_unmap;
- 		}
++			flush_cache_page(vma, addr, pte_pfn(*ptep));
+ 			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
+ 			if (anon_exclusive) {
+-				flush_cache_page(vma, addr, pte_pfn(*ptep));
+ 				ptep_clear_flush(vma, addr, ptep);
  
--		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
-+		if (unlikely(pmd_val(pmd) != pmd_val(*pmdp)) ||
-+		    unlikely(pte_val(pte) != pte_val(*ptep))) {
- 			gup_put_folio(folio, 1, flags);
- 			goto pte_unmap;
- 		}
-@@ -2439,8 +2460,9 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
-  * get_user_pages_fast_only implementation that can pin pages. Thus it's still
-  * useful to have gup_huge_pmd even if we can't operate on ptes.
-  */
--static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
--			 unsigned int flags, struct page **pages, int *nr)
-+static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
-+			 unsigned long end, unsigned int flags,
-+			 struct page **pages, int *nr)
- {
- 	return 0;
- }
-@@ -2764,7 +2786,7 @@ static int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr, unsigned lo
- 			if (!gup_huge_pd(__hugepd(pmd_val(pmd)), addr,
- 					 PMD_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pte_range(pmd, addr, next, flags, pages, nr))
-+		} else if (!gup_pte_range(pmd, pmdp, addr, next, flags, pages, nr))
- 			return 0;
- 	} while (pmdp++, addr = next, addr != end);
- 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 01f71786d530..70b7ac66411c 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1083,10 +1083,12 @@ static void collapse_huge_page(struct mm_struct *mm,
- 
- 	pmd_ptl = pmd_lock(mm, pmd); /* probably unnecessary */
- 	/*
--	 * After this gup_fast can't run anymore. This also removes
--	 * any huge TLB entry from the CPU so we won't allow
--	 * huge and small TLB entries for the same virtual address
--	 * to avoid the risk of CPU bugs in that area.
-+	 * This removes any huge TLB entry from the CPU so we won't allow
-+	 * huge and small TLB entries for the same virtual address to
-+	 * avoid the risk of CPU bugs in that area.
-+	 *
-+	 * Parallel fast GUP is fine since fast GUP will back off when
-+	 * it detects PMD is changed.
- 	 */
- 	_pmd = pmdp_collapse_flush(vma, address, pmd);
- 	spin_unlock(pmd_ptl);
+ 				if (page_try_share_anon_rmap(page)) {
 
