@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9245F23AD
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 16:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1AB5F23DD
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 17:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbiJBOqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 10:46:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56028 "EHLO
+        id S229708AbiJBP3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 11:29:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbiJBOqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 10:46:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8ECB26573
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 07:46:39 -0700 (PDT)
+        with ESMTP id S229816AbiJBP3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 11:29:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD3110FF7;
+        Sun,  2 Oct 2022 08:29:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83FB560EDD
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 14:46:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC1FC433D6;
-        Sun,  2 Oct 2022 14:46:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3665260EDE;
+        Sun,  2 Oct 2022 15:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AF36C433C1;
+        Sun,  2 Oct 2022 15:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664721997;
-        bh=VGQwBmDpBYY8edgsPjIo9PNkaN0o+J+VbOjB4grWr98=;
-        h=Subject:To:Cc:From:Date:From;
-        b=KULYoxiAxSMItlVnMh7mDPGyyNFTr7Y2CJvaKg2aeexDxoX28kyRdwYbpj/EUQa4T
-         0mFFLcp11S3HHlsOudmngb0NdWjcBkqIIYwDGvDA1aWwnt+MyAvjIaZcxQxyuuVo2P
-         c13iWfNVgTww2k1WEpgVU2BLFAUCIWAvaBN0pCKo=
-Subject: FAILED: patch "[PATCH] media: dvb_vb2: fix possible out of bound access" failed to apply to 4.19-stable tree
-To:     hbh25y@gmail.com, hverkuil-cisco@xs4all.nl, mchehab@kernel.org,
-        senozhatsky@chromium.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 16:47:15 +0200
-Message-ID: <16647220356072@kroah.com>
+        s=korg; t=1664724583;
+        bh=ofutt5Q0qW9gogheXmlT5bUSqdw50QFhZCeand4aYZg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bq60aLknLfJOMOpNq7yUZVQ1Iw2pfJaGmsvAPJYouJ0grrjmlssOxFalefnC0dYgk
+         Xj1d/fLpnWXzMBtdYt+A3fAVpGEFCKZMv1DdM9dlwjUbrGjtKoJR/rllSHJzmbZwGL
+         fLCPG+EXf60l+leQyIePHZS2LDfgrG+33ZpNQSSk=
+Date:   Sun, 2 Oct 2022 17:30:20 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Rishabh Bhatnagar <risbhat@amazon.com>
+Cc:     stable@vger.kernel.org, sashal@kernel.org, tglx@linutronix.de,
+        mingo@redhat.com, linux-kernel@vger.kernel.org, benh@amazon.com,
+        mbacco@amazon.com
+Subject: Re: [PATCH 0/6] IRQ handling patches backport to 4.14 stable
+Message-ID: <YzmujBxtwUxHexem@kroah.com>
+References: <20220929210651.12308-1-risbhat@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220929210651.12308-1-risbhat@amazon.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -47,72 +50,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 29, 2022 at 09:06:45PM +0000, Rishabh Bhatnagar wrote:
+> This patch series backports a bunch of patches related IRQ handling
+> with respect to freeing the irq line while IRQ is in flight at CPU
+> or at the hardware level.
+> Recently we saw this issue in serial 8250 driver where the IRQ was being
+> freed while the irq was in flight or not yet delivered to the CPU. As a
+> result the irqchip was going into a wedged state and IRQ was not getting
+> delivered to the cpu. These patches helped fixed the issue in 4.14
+> kernel.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Why is the serial driver freeing an irq while the system is running?
+Ah, this could happen on a tty hangup, right?
 
-Possible dependencies:
+> Let us know if more patches need backporting.
 
-37238699073e ("media: dvb_vb2: fix possible out of bound access")
-fd89e0bb6ebf ("media: videobuf2-core: integrate with media requests")
-55028695c3bb ("media: vb2: drop VB2_BUF_STATE_PREPARED, use bool prepared/synced instead")
-db6e8d57e2cd ("media: vb2: store userspace data in vb2_v4l2_buffer")
-0af4e80bf24a ("media: videobuf2-v4l2: replace if by switch in __fill_vb2_buffer()")
-5f89ec80f1e0 ("media: videobuf2-v4l2: move __fill_v4l2_buffer() function")
+What hardware platform were these patches tested on to verify they work
+properly?  And why can't they move to 4.19 or newer if they really need
+this fix?  What's preventing that?
+
+As Amazon doesn't seem to be testing 4.14.y -rc releases, I find it odd
+that you all did this backport.  Is this a kernel that you all care
+about?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 37238699073e7e93f05517e529661151173cd458 Mon Sep 17 00:00:00 2001
-From: Hangyu Hua <hbh25y@gmail.com>
-Date: Thu, 19 May 2022 03:17:43 +0100
-Subject: [PATCH] media: dvb_vb2: fix possible out of bound access
-
-vb2_core_qbuf and vb2_core_querybuf don't check the range of b->index
-controlled by the user.
-
-Fix this by adding range checking code before using them.
-
-Fixes: 57868acc369a ("media: videobuf2: Add new uAPI for DVB streaming I/O")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-
-diff --git a/drivers/media/dvb-core/dvb_vb2.c b/drivers/media/dvb-core/dvb_vb2.c
-index a1bd6d9c9223..909df82fed33 100644
---- a/drivers/media/dvb-core/dvb_vb2.c
-+++ b/drivers/media/dvb-core/dvb_vb2.c
-@@ -354,6 +354,12 @@ int dvb_vb2_reqbufs(struct dvb_vb2_ctx *ctx, struct dmx_requestbuffers *req)
- 
- int dvb_vb2_querybuf(struct dvb_vb2_ctx *ctx, struct dmx_buffer *b)
- {
-+	struct vb2_queue *q = &ctx->vb_q;
-+
-+	if (b->index >= q->num_buffers) {
-+		dprintk(1, "[%s] buffer index out of range\n", ctx->name);
-+		return -EINVAL;
-+	}
- 	vb2_core_querybuf(&ctx->vb_q, b->index, b);
- 	dprintk(3, "[%s] index=%d\n", ctx->name, b->index);
- 	return 0;
-@@ -378,8 +384,13 @@ int dvb_vb2_expbuf(struct dvb_vb2_ctx *ctx, struct dmx_exportbuffer *exp)
- 
- int dvb_vb2_qbuf(struct dvb_vb2_ctx *ctx, struct dmx_buffer *b)
- {
-+	struct vb2_queue *q = &ctx->vb_q;
- 	int ret;
- 
-+	if (b->index >= q->num_buffers) {
-+		dprintk(1, "[%s] buffer index out of range\n", ctx->name);
-+		return -EINVAL;
-+	}
- 	ret = vb2_core_qbuf(&ctx->vb_q, b->index, b, NULL);
- 	if (ret) {
- 		dprintk(1, "[%s] index=%d errno=%d\n", ctx->name,
-
