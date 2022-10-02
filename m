@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D7FA5F26E8
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F2765F2705
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbiJBXE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 19:04:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34780 "EHLO
+        id S229536AbiJBXGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 19:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231303AbiJBXEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 19:04:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9798C248E7;
-        Sun,  2 Oct 2022 16:00:07 -0700 (PDT)
+        with ESMTP id S231147AbiJBXGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 19:06:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4273647B98;
+        Sun,  2 Oct 2022 16:01:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E3CFB80DA0;
-        Sun,  2 Oct 2022 22:53:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9578EC433C1;
-        Sun,  2 Oct 2022 22:53:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B49AB80DA2;
+        Sun,  2 Oct 2022 22:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146F6C43140;
+        Sun,  2 Oct 2022 22:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751183;
-        bh=clqMLo8si0W5e46evh3BggiIvOUCFs2EZmoLr7MDpF8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XidkL5/T3y9npwLEytkKuIlBFn3IcrvrPObTCQWi+m1ozAqChOEVBAUEa+sNg2OI/
-         pQpOPy6Nh5FumwhRRcE1eAnL2X4+HJE8o1KI/CBwRF1tZDFxsXAHgqfZR/Fy3p3sce
-         KhZbzApcwuRyy8iPgKguGv45uHsrhufOr1WMzs6mWJCVHcSF0X3ej3LElwUBg/n0VB
-         duw+IsWJ+zRkmvkw07JOBIOK9QrtKw4fUOmuUPY8ui/lPFtaJcKjtEyLwDpVPmMlso
-         JQrrTqqFVzRoIbqUwZGwjpM5TOpc8XDlOKcVdaH63TrC21qknuE68hn4aJKJjfOCPv
-         7ILMALsT8xtaw==
+        s=k20201202; t=1664751187;
+        bh=u5TzAJ+V988KQo6k184h+K2UMiphbxZiON4R8VGPRfA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hhgOawzIs6P6zktwdqsOZlQdpKkOKkctdMguPXo4Wc3zsS2j6Oc4IkVO7xnztnJS2
+         NPo4fcjvdpPX1Wt0/Fa8zEpXIyc5j6TLcrz18MLiGQh4dvbDqFG64F89NWUjDnH6wz
+         93xDVIIcAy+Rzrm2zSRyrXELoW36/o4ItpULOXhQVPiPFOAkT0kIo/vaGK7NKYd8sD
+         GbCayTXqiZlUIPXH5MqO9Up1N+Ta01KZEVejnJ16oBDx+wUS+qC6tN49BMJmy/JmZv
+         TOrxv6JVlpNIA/oJ/CoVB7QAVKLLEN0bOM0Ti7n3ll26bTRirxKM/n0pY1hbv3Wd/J
+         hE/HrG0rgHBuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Swati Agarwal <swati.agarwal@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        michal.simek@xilinx.com, radhey.shyam.pandey@xilinx.com,
+        lars@metafoo.de, adrianml@alumnos.upm.es,
+        shravya.kumbham@xilinx.com, dmaengine@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 1/8] firmware: arm_scmi: Add SCMI PM driver remove routine
-Date:   Sun,  2 Oct 2022 18:52:53 -0400
-Message-Id: <20221002225300.239982-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 2/8] dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
+Date:   Sun,  2 Oct 2022 18:52:54 -0400
+Message-Id: <20221002225300.239982-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221002225300.239982-1-sashal@kernel.org>
+References: <20221002225300.239982-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,79 +58,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit dea796fcab0a219830831c070b8dc367d7e0f708 ]
+[ Upstream commit 462bce790e6a7e68620a4ce260cc38f7ed0255d5 ]
 
-Currently, when removing the SCMI PM driver not all the resources
-registered with genpd subsystem are properly de-registered.
+Free the allocated resources for missing xlnx,num-fstores property.
 
-As a side effect of this after a driver unload/load cycle you get a
-splat with a few warnings like this:
-
- | debugfs: Directory 'BIG_CPU0' with parent 'pm_genpd' already present!
- | debugfs: Directory 'BIG_CPU1' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU0' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU1' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU2' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU3' with parent 'pm_genpd' already present!
- | debugfs: Directory 'BIG_SSTOP' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_SSTOP' with parent 'pm_genpd' already present!
- | debugfs: Directory 'DBGSYS' with parent 'pm_genpd' already present!
- | debugfs: Directory 'GPUTOP' with parent 'pm_genpd' already present!
-
-Add a proper scmi_pm_domain_remove callback to the driver in order to
-take care of all the needed cleanups not handled by devres framework.
-
-Link: https://lore.kernel.org/r/20220817172731.1185305-7-cristian.marussi@arm.com
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-3-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/scmi_pm_domain.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/dma/xilinx/xilinx_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-index 177874adccf0..b0c8962b9885 100644
---- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
-+++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-@@ -106,9 +106,28 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 	scmi_pd_data->domains = domains;
- 	scmi_pd_data->num_domains = num_domains;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 3f38df6b51f2..f72803587b8f 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2654,7 +2654,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		if (err < 0) {
+ 			dev_err(xdev->dev,
+ 				"missing xlnx,num-fstores property\n");
+-			return err;
++			goto disable_clks;
+ 		}
  
-+	dev_set_drvdata(dev, scmi_pd_data);
-+
- 	return of_genpd_add_provider_onecell(np, scmi_pd_data);
- }
- 
-+static void scmi_pm_domain_remove(struct scmi_device *sdev)
-+{
-+	int i;
-+	struct genpd_onecell_data *scmi_pd_data;
-+	struct device *dev = &sdev->dev;
-+	struct device_node *np = dev->of_node;
-+
-+	of_genpd_del_provider(np);
-+
-+	scmi_pd_data = dev_get_drvdata(dev);
-+	for (i = 0; i < scmi_pd_data->num_domains; i++) {
-+		if (!scmi_pd_data->domains[i])
-+			continue;
-+		pm_genpd_remove(scmi_pd_data->domains[i]);
-+	}
-+}
-+
- static const struct scmi_device_id scmi_id_table[] = {
- 	{ SCMI_PROTOCOL_POWER },
- 	{ },
-@@ -118,6 +137,7 @@ MODULE_DEVICE_TABLE(scmi, scmi_id_table);
- static struct scmi_driver scmi_power_domain_driver = {
- 	.name = "scmi-power-domain",
- 	.probe = scmi_pm_domain_probe,
-+	.remove = scmi_pm_domain_remove,
- 	.id_table = scmi_id_table,
- };
- module_scmi_driver(scmi_power_domain_driver);
+ 		err = of_property_read_u32(node, "xlnx,flush-fsync",
 -- 
 2.35.1
 
