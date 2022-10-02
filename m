@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 009EC5F260B
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3405F2609
 	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:49:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbiJBWtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51060 "EHLO
+        id S229812AbiJBWtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:49:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbiJBWta (ORCPT
+        with ESMTP id S229685AbiJBWta (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:49:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E09133E31;
-        Sun,  2 Oct 2022 15:49:30 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA0F22B02;
+        Sun,  2 Oct 2022 15:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC491B80D99;
-        Sun,  2 Oct 2022 22:49:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30AAC433C1;
-        Sun,  2 Oct 2022 22:49:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40C2F60F0C;
+        Sun,  2 Oct 2022 22:49:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D80C433B5;
+        Sun,  2 Oct 2022 22:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664750967;
-        bh=3U8+taxfW3TreG1faUr7vzxQduJVn6HmKDgTNecnz08=;
+        s=k20201202; t=1664750968;
+        bh=jNa3pV2947ZPoyhRr1Jkx2YtuVxadqOVOz3cexijJZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0FfG8oNEh8zR6RIN1MplTGgTo5RnQihJpPfoJ09KRkYSd+0gviykfV7TC7Q7oIds
-         1gmQ1LEtgw3BD6rFg0tcX6OlksKusPrFh9l1HTYfzbEcz8arEbQJacgmdTugV/elRS
-         QmjGZ0mtPO1GcYYeMUBVIS8abGIxQj651MTITdxZCCWoDJ14zsbx3bCLVUHJJvQgPN
-         KQOLI2YRwryuJAJ6JdTq+x5nJ2VLDEowvmjMlHxqn5/oQutfcyklwDux7brh8c0Egt
-         zguIsMWbqCh8a1be7u4FpQsiNccvNNkaDdbLI38MU2sDfSWhPCsnwwZkFWM1mtIK0V
-         gzWrcdkd3i71g==
+        b=bmesvZZ0Kx7653eA7Za1+dxy9NXinSFVxBk7hZ1stK1utJCWzuvVibHREb6hrq3dp
+         GPzLNH1juBKniD+05eZJ/AXWqLIcBR01JktaSlr6chIQGh5sffRBqYLyHshPY4Q4g0
+         jcVzVQvoWVMm5UmCT7mR8wFgJJwiKhCVL91FWW8S6en9u56iOqCISxtihefoiWkN/r
+         XpoU24E6N2he1B9vzfLOoa2w+m2FieWNLTp4DOHsaoLw4/WiSp9/MTV4Bv5c3GApqg
+         Z96ABhxzRnIF69GFdNaNuI3+IlMpg1x3/YqBi7dbeBxh9KoOGLn3cIJRs+xqG5cH/Z
+         G8eQhxo0CxgGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Cristian Marussi <cristian.marussi@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 03/29] firmware: arm_scmi: Harden accesses to the reset domains
-Date:   Sun,  2 Oct 2022 18:48:56 -0400
-Message-Id: <20221002224922.238837-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 04/29] firmware: arm_scmi: Add SCMI PM driver remove routine
+Date:   Sun,  2 Oct 2022 18:48:57 -0400
+Message-Id: <20221002224922.238837-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002224922.238837-1-sashal@kernel.org>
 References: <20221002224922.238837-1-sashal@kernel.org>
@@ -58,41 +58,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit e9076ffbcaed5da6c182b144ef9f6e24554af268 ]
+[ Upstream commit dea796fcab0a219830831c070b8dc367d7e0f708 ]
 
-Accessing reset domains descriptors by the index upon the SCMI drivers
-requests through the SCMI reset operations interface can potentially
-lead to out-of-bound violations if the SCMI driver misbehave.
+Currently, when removing the SCMI PM driver not all the resources
+registered with genpd subsystem are properly de-registered.
 
-Add an internal consistency check before any such domains descriptors
-accesses.
+As a side effect of this after a driver unload/load cycle you get a
+splat with a few warnings like this:
 
-Link: https://lore.kernel.org/r/20220817172731.1185305-5-cristian.marussi@arm.com
+ | debugfs: Directory 'BIG_CPU0' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'BIG_CPU1' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU0' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU1' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU2' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU3' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'BIG_SSTOP' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_SSTOP' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'DBGSYS' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'GPUTOP' with parent 'pm_genpd' already present!
+
+Add a proper scmi_pm_domain_remove callback to the driver in order to
+take care of all the needed cleanups not handled by devres framework.
+
+Link: https://lore.kernel.org/r/20220817172731.1185305-7-cristian.marussi@arm.com
 Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
 Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/reset.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/firmware/arm_scmi/scmi_pm_domain.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/firmware/arm_scmi/reset.c b/drivers/firmware/arm_scmi/reset.c
-index 673f3eb498f4..b0494165b1cb 100644
---- a/drivers/firmware/arm_scmi/reset.c
-+++ b/drivers/firmware/arm_scmi/reset.c
-@@ -166,8 +166,12 @@ static int scmi_domain_reset(const struct scmi_protocol_handle *ph, u32 domain,
- 	struct scmi_xfer *t;
- 	struct scmi_msg_reset_domain_reset *dom;
- 	struct scmi_reset_info *pi = ph->get_priv(ph);
--	struct reset_dom_info *rdom = pi->dom_info + domain;
-+	struct reset_dom_info *rdom;
+diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+index 581d34c95769..4e27c3d66a83 100644
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -138,9 +138,28 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 	scmi_pd_data->domains = domains;
+ 	scmi_pd_data->num_domains = num_domains;
  
-+	if (domain >= pi->num_domains)
-+		return -EINVAL;
++	dev_set_drvdata(dev, scmi_pd_data);
 +
-+	rdom = pi->dom_info + domain;
- 	if (rdom->async_reset)
- 		flags |= ASYNCHRONOUS_RESET;
+ 	return of_genpd_add_provider_onecell(np, scmi_pd_data);
+ }
  
++static void scmi_pm_domain_remove(struct scmi_device *sdev)
++{
++	int i;
++	struct genpd_onecell_data *scmi_pd_data;
++	struct device *dev = &sdev->dev;
++	struct device_node *np = dev->of_node;
++
++	of_genpd_del_provider(np);
++
++	scmi_pd_data = dev_get_drvdata(dev);
++	for (i = 0; i < scmi_pd_data->num_domains; i++) {
++		if (!scmi_pd_data->domains[i])
++			continue;
++		pm_genpd_remove(scmi_pd_data->domains[i]);
++	}
++}
++
+ static const struct scmi_device_id scmi_id_table[] = {
+ 	{ SCMI_PROTOCOL_POWER, "genpd" },
+ 	{ },
+@@ -150,6 +169,7 @@ MODULE_DEVICE_TABLE(scmi, scmi_id_table);
+ static struct scmi_driver scmi_power_domain_driver = {
+ 	.name = "scmi-power-domain",
+ 	.probe = scmi_pm_domain_probe,
++	.remove = scmi_pm_domain_remove,
+ 	.id_table = scmi_id_table,
+ };
+ module_scmi_driver(scmi_power_domain_driver);
 -- 
 2.35.1
 
