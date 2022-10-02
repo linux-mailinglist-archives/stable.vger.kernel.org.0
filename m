@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ED7C5F26B8
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF4995F26B0
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbiJBW5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:57:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
+        id S230379AbiJBW5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiJBW5L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:57:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B52A11152;
-        Sun,  2 Oct 2022 15:54:42 -0700 (PDT)
+        with ESMTP id S230380AbiJBW4p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:56:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA7B186CA;
+        Sun,  2 Oct 2022 15:53:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9D73B80D9A;
-        Sun,  2 Oct 2022 22:52:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25C1BC433C1;
-        Sun,  2 Oct 2022 22:52:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5CE5B80C81;
+        Sun,  2 Oct 2022 22:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B0EC433C1;
+        Sun,  2 Oct 2022 22:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751136;
-        bh=cP8iZQW+GANxcdQXd1eRU4DsQZikYhpQ9Lwu6Y6BBZA=;
+        s=k20201202; t=1664751139;
+        bh=Oo5dzfgUvi7RFuvhID2RTEtBjZh0y9xtz/tZcCFnyi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1cRNOMYXu9f9RndpmXW4fJcMlO5L/Vu7K6XyjiMHmGHJhMJEXlOPMX0pFwflbi1I
-         fE6B1Uz6xGcZmB31n0gDwfHjRElpcODnKTXa++7HwkAjEdzEOXi4LpdFYaz3utQEtN
-         vXL7Nj9bvz1nQyaXXWmZBLhMBraWbcfNYIC7lQ+4LP9JHufsxODzN/Z+plv8o2LL7o
-         FJk9Mv55d9NSaG7apWMje2ULrSfvE3GO9m7GWWW3l/M6AGKlNXQClA3GRieOSw0Kev
-         H8JZU6ySbdvtRR7vFwO/xlWeZI7uI3i8+I8GMS+w60x/zBX6vNLtmKuB63fFrh2BlW
-         V6BYHyHIo9gCg==
+        b=EhvfWQh3ZOwnQvYQqzSJUx8fyz0Y2AHSRTdkI+3AdQTECZ19pwRvNsHoGdbXvm9sM
+         TAMFZ83cAGrokZqwvPvZchi1hYsYJ2rUMVqTjjOPNp9Yis8VDCYBSzbhDyC3ptQm9B
+         qtduMZLpej+zySk4xM+9mHNShfO9kwjbNJTudzA+IEtj+67gCPGG8MXjj7ciLbu/Rf
+         H7JmZZ/jdfxcLn+Xbe3Yf2UIYtyE272w5u7GQ7YkWPwnySX012WCrJ+TZ9g4ekNob5
+         AvV6jFb+H1rA6sJKXmvHtvZ1mAU0wPrmtKMZq01PJbwUudEVB6Oa1oPQ1pNwxyN5tK
+         Qxc7QLut+HS1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaroslav Kysela <perex@perex.cz>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        tiwai@suse.com, mkumard@nvidia.com,
-        pierre-louis.bossart@linux.intel.com,
-        ville.syrjala@linux.intel.com, kai.heng.feng@canonical.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 08/14] ALSA: hda/hdmi: Fix the converter reuse for the silent stream
-Date:   Sun,  2 Oct 2022 18:51:49 -0400
-Message-Id: <20221002225155.239480-8-sashal@kernel.org>
+Cc:     Lukas Straub <lukasstraub2@web.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 09/14] um: Cleanup syscall_handler_t cast in syscalls_32.h
+Date:   Sun,  2 Oct 2022 18:51:50 -0400
+Message-Id: <20221002225155.239480-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002225155.239480-1-sashal@kernel.org>
 References: <20221002225155.239480-1-sashal@kernel.org>
@@ -59,40 +60,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Lukas Straub <lukasstraub2@web.de>
 
-[ Upstream commit 5f80d6bd2b01de4cafac3302f58456bf860322fc ]
+[ Upstream commit 61670b4d270c71219def1fbc9441debc2ac2e6e9 ]
 
-When the user space pcm stream uses the silent stream converter,
-it is no longer allocated for the silent stream. Clear the appropriate
-flag in the hdmi_pcm_open() function. The silent stream setup may
-be applied in hdmi_pcm_close() (and the error path - open fcn) again.
+Like in f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9
+"um: Cleanup syscall_handler_t definition/cast, fix warning",
+remove the cast to to fix the compiler warning.
 
-If the flag is not cleared, the reuse conditions for the silent
-stream converter in hdmi_choose_cvt() may improperly share
-this converter.
-
-Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220913070216.3233974-1-perex@perex.cz
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/um/shared/sysdep/syscalls_32.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 71e11481ba41..64f5192bcff8 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1257,6 +1257,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
- 	set_bit(pcm_idx, &spec->pcm_in_use);
- 	per_pin = get_pin(spec, pin_idx);
- 	per_pin->cvt_nid = per_cvt->cvt_nid;
-+	per_pin->silent_stream = false;
- 	hinfo->nid = per_cvt->cvt_nid;
+diff --git a/arch/x86/um/shared/sysdep/syscalls_32.h b/arch/x86/um/shared/sysdep/syscalls_32.h
+index 68fd2cf526fd..f6e9f84397e7 100644
+--- a/arch/x86/um/shared/sysdep/syscalls_32.h
++++ b/arch/x86/um/shared/sysdep/syscalls_32.h
+@@ -6,10 +6,9 @@
+ #include <asm/unistd.h>
+ #include <sysdep/ptrace.h>
  
- 	/* flip stripe flag for the assigned stream if supported */
+-typedef long syscall_handler_t(struct pt_regs);
++typedef long syscall_handler_t(struct syscall_args);
+ 
+ extern syscall_handler_t *sys_call_table[];
+ 
+ #define EXECUTE_SYSCALL(syscall, regs) \
+-	((long (*)(struct syscall_args)) \
+-	 (*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
++	((*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
 -- 
 2.35.1
 
