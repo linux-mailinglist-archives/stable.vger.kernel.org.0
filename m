@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 563435F225E
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 11:50:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B8F5F225F
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 11:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229500AbiJBJuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 05:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38208 "EHLO
+        id S229458AbiJBJwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 05:52:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbiJBJuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 05:50:39 -0400
+        with ESMTP id S229641AbiJBJw1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 05:52:27 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933CC41D19
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 02:50:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D11A4BD38
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 02:52:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 77176CE09F9
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 09:50:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECDC7C433C1;
-        Sun,  2 Oct 2022 09:50:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A6C7ACE09F8
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 09:52:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B55FBC433C1;
+        Sun,  2 Oct 2022 09:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664704234;
-        bh=Qb0coT/pIlLxX05fVJGzpCNe9uWqJz5ehrVy+znBHFM=;
+        s=korg; t=1664704343;
+        bh=qNo6r8/QouIgIbseiRvy0GE98qYC1SuPfzKi/JTCLyM=;
         h=Subject:To:Cc:From:Date:From;
-        b=lBkmkNDPrMunqqTLUyaWSKqO+4HKeTB4USfhjDCIBgzkhc5pC4io5+/17RhsOkJhb
-         bX07vgr6DPisQD6XfSRP5B6VHqN5cOOd0/yWFFedHzwmcCupzyrDO3DnRiuebVjxgo
-         D74BLhqDsxOWkJvkjBPtLLXlPCLO6p1uTZu9wapE=
-Subject: FAILED: patch "[PATCH] damon/sysfs: fix possible memleak on damon_sysfs_add_target" failed to apply to 5.19-stable tree
-To:     ppbuk5246@gmail.com, akpm@linux-foundation.org, sj@kernel.org,
-        stable@vger.kernel.org
+        b=ZtN6cSzMhGzLw2pV9Pq+v7Q2tR1aSZOaPgTv/YxEcSTCOj0GjY9uK7VNiq/LXgPiB
+         wNsHti7VREMnhJSotABBqD3SkdH8/1gQ/S7USlYTuAeIFLi0XpO45qBwvVkNZ5g9Ok
+         L+wm/zi1YLwW+x5CoY2sEVx/BoEbDTkyBaC8owwo=
+Subject: FAILED: patch "[PATCH] mmc: core: Terminate infinite loop in SD-UHS voltage switch" failed to apply to 5.19-stable tree
+To:     briannorris@chromium.org, linux@roeck-us.net,
+        stable@vger.kernel.org, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 11:51:11 +0200
-Message-ID: <166470427121860@kroah.com>
+Date:   Sun, 02 Oct 2022 11:53:00 +0200
+Message-ID: <16647043801297@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,8 +55,8 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1c8e2349f2d0 ("damon/sysfs: fix possible memleak on damon_sysfs_add_target")
-c9e124e0382d ("mm/damon/{dbgfs,sysfs}: move target_has_pid() from dbgfs to damon.h")
+e9233917a7e5 ("mmc: core: Terminate infinite loop in SD-UHS voltage switch")
+e42726646082 ("mmc: core: Replace with already defined values for readability")
 
 thanks,
 
@@ -64,42 +64,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1c8e2349f2d033f634d046063b704b2ca6c46972 Mon Sep 17 00:00:00 2001
-From: Levi Yun <ppbuk5246@gmail.com>
-Date: Mon, 26 Sep 2022 16:06:11 +0000
-Subject: [PATCH] damon/sysfs: fix possible memleak on damon_sysfs_add_target
+From e9233917a7e53980664efbc565888163c0a33c3f Mon Sep 17 00:00:00 2001
+From: Brian Norris <briannorris@chromium.org>
+Date: Tue, 13 Sep 2022 18:40:10 -0700
+Subject: [PATCH] mmc: core: Terminate infinite loop in SD-UHS voltage switch
 
-When damon_sysfs_add_target couldn't find proper task, New allocated
-damon_target structure isn't registered yet, So, it's impossible to free
-new allocated one by damon_sysfs_destroy_targets.
+This loop intends to retry a max of 10 times, with some implicit
+termination based on the SD_{R,}OCR_S18A bit. Unfortunately, the
+termination condition depends on the value reported by the SD card
+(*rocr), which may or may not correctly reflect what we asked it to do.
 
-By calling damon_add_target as soon as allocating new target, Fix this
-possible memory leak.
+Needless to say, it's not wise to rely on the card doing what we expect;
+we should at least terminate the loop regardless. So, check both the
+input and output values, so we ensure we will terminate regardless of
+the SD card behavior.
 
-Link: https://lkml.kernel.org/r/20220926160611.48536-1-sj@kernel.org
-Fixes: a61ea561c871 ("mm/damon/sysfs: link DAMON for virtual address spaces monitoring")
-Signed-off-by: Levi Yun <ppbuk5246@gmail.com>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Reviewed-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.17.x]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Note that SDIO learned a similar retry loop in commit 0797e5f1453b
+("mmc: core: Fixup signal voltage switch"), but that used the 'ocr'
+result, and so the current pre-terminating condition looks like:
 
-diff --git a/mm/damon/sysfs.c b/mm/damon/sysfs.c
-index 7488e27c87c3..bdef9682d0a0 100644
---- a/mm/damon/sysfs.c
-+++ b/mm/damon/sysfs.c
-@@ -2182,12 +2182,12 @@ static int damon_sysfs_add_target(struct damon_sysfs_target *sys_target,
- 
- 	if (!t)
- 		return -ENOMEM;
-+	damon_add_target(ctx, t);
- 	if (damon_target_has_pid(ctx)) {
- 		t->pid = find_get_pid(sys_target->pid);
- 		if (!t->pid)
- 			goto destroy_targets_out;
- 	}
--	damon_add_target(ctx, t);
- 	err = damon_sysfs_set_regions(t, sys_target->regions);
- 	if (err)
- 		goto destroy_targets_out;
+    rocr & ocr & R4_18V_PRESENT
+
+(i.e., it doesn't have the same bug.)
+
+This addresses a number of crash reports seen on ChromeOS that look
+like the following:
+
+    ... // lots of repeated: ...
+    <4>[13142.846061] mmc1: Skipping voltage switch
+    <4>[13143.406087] mmc1: Skipping voltage switch
+    <4>[13143.964724] mmc1: Skipping voltage switch
+    <4>[13144.526089] mmc1: Skipping voltage switch
+    <4>[13145.086088] mmc1: Skipping voltage switch
+    <4>[13145.645941] mmc1: Skipping voltage switch
+    <3>[13146.153969] INFO: task halt:30352 blocked for more than 122 seconds.
+    ...
+
+Fixes: f2119df6b764 ("mmc: sd: add support for signal voltage switch procedure")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220914014010.2076169-1-briannorris@chromium.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index 06aa62ce0ed1..3662bf5320ce 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -870,7 +870,8 @@ int mmc_sd_get_cid(struct mmc_host *host, u32 ocr, u32 *cid, u32 *rocr)
+ 	 * the CCS bit is set as well. We deliberately deviate from the spec in
+ 	 * regards to this, which allows UHS-I to be supported for SDSC cards.
+ 	 */
+-	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
++	if (!mmc_host_is_spi(host) && (ocr & SD_OCR_S18R) &&
++	    rocr && (*rocr & SD_ROCR_S18A)) {
+ 		err = mmc_set_uhs_voltage(host, pocr);
+ 		if (err == -EAGAIN) {
+ 			retries--;
 
