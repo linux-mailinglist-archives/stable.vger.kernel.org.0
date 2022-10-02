@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7241C5F266A
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DFA5F266D
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230228AbiJBWxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:53:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55504 "EHLO
+        id S230238AbiJBWxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230001AbiJBWwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:52:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 480793AE4A;
-        Sun,  2 Oct 2022 15:50:45 -0700 (PDT)
+        with ESMTP id S230173AbiJBWw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:52:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977E63CBC4;
+        Sun,  2 Oct 2022 15:51:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D36ED60F13;
-        Sun,  2 Oct 2022 22:50:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31251C433D6;
-        Sun,  2 Oct 2022 22:50:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 111ECB8058E;
+        Sun,  2 Oct 2022 22:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC9F2C433D6;
+        Sun,  2 Oct 2022 22:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751044;
-        bh=qBwQs3ScO9mSEiaUzW1hR+6DZafv70x1M0qGHdT/LRw=;
+        s=k20201202; t=1664751057;
+        bh=a9bbk+n0W6zEVK5wtX4ovn8t+np19o3n6a3wg1jiUlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+pXqSHwZsZCVCS+0zIYtUYg5YCsmhuT7hUmof8hC+/QwaJbGnD4/bBu+VosM99F+
-         5i76S9ldgJOD8EkOfKkE9wwS5DKarPJ90t98CPrOyl2UCnNFT1paWTTd1J2DVfnEsX
-         /6bJnimKTGLFDX2VT/uiYk9y+rFCNVKHR9aKv4aelkG3Gm3Hh3FguEzidgFIm78pTU
-         Rtegip1/08eI6Mwjhqep2XPHkMwNow0brXOKclm4Pij/i5DtJTgttougIAzpBKYVaV
-         TnKmUC9xSQUKqt0w31Yu7r41JPhqEYK5PvqvSivx8f99y3K9E6PwJDHDPwz5lZJXwU
-         DEJFZMX0+nzGA==
+        b=V7Cwj1gZZ2WgEcLo3u85hshXBWQRzfJOd3+2pSilJf3yWhNKu5VVbz4hAsycNIfcq
+         o5/3IbV6f9/oi6IrAJV9OyRCkYSZZ6Z0bDGELOquqk9sLUPnkjh8SPI4pGKdF6hrZT
+         SUSL2F3IEm4NyoMzt3puytgCRoDLUVp6APeGgNgvRGRcRrKUMzfvOy30qRicolKguR
+         BsaPhoyf26w94NIAvCkr2QPrpcpj355JHQJNHLSPlUllKCNXbX+h7SBGCYK+T6O0Oq
+         WPWAMaXThNWEWNqqRaJC7Bx1M4/h3KYBvAwG5wBTcTMDYOVMFiwDEhfd66sTMqOTyO
+         YjkGI9JkX9d8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cruise Hung <Cruise.Hung@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>,
+Cc:     Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>, Wayne Lin <wayne.lin@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, wenjing.liu@amd.com, george.shen@amd.com,
-        Jimmy.Kizito@amd.com, michael.strauss@amd.com,
-        mikita.lipski@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 27/29] drm/amd/display: Fix DP MST timeslot issue when fallback happened
-Date:   Sun,  2 Oct 2022 18:49:20 -0400
-Message-Id: <20221002224922.238837-27-sashal@kernel.org>
+        daniel@ffwll.ch, nicholas.kazlauskas@amd.com,
+        qingqing.zhuo@amd.com, nikola.cornij@amd.com, paul.hsieh@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 28/29] drm/amd/display: increase dcn315 pstate change latency
+Date:   Sun,  2 Oct 2022 18:49:21 -0400
+Message-Id: <20221002224922.238837-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002224922.238837-1-sashal@kernel.org>
 References: <20221002224922.238837-1-sashal@kernel.org>
@@ -63,50 +62,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cruise Hung <Cruise.Hung@amd.com>
+From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 
-[ Upstream commit 20c6168b3c8aadef7d2853c925d99eb546bd5e1c ]
+[ Upstream commit dcc2527df918edfe297c5074ccc1f05eae361ca6 ]
 
-[Why]
-When USB4 DP link training failed and fell back to lower link rate,
-the time slot calculation uses the verified_link_cap.
-And the verified_link_cap was not updated to the new one.
-It caused the wrong VC payload time-slot was allocated.
-
-[How]
-Updated verified_link_cap with the new one from cur_link_settings
-after the LT completes successfully.
+[Why & How]
+Update after new measurment came in
 
 Reviewed-by: Jun Lei <Jun.Lei@amd.com>
 Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Cruise Hung <Cruise.Hung@amd.com>
+Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ .../dc/clk_mgr/dcn315/dcn315_clk_mgr.c        | 22 ++++++++++++-------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index 0c52506b367d..b4203a812c4b 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2857,8 +2857,14 @@ bool perform_link_training_with_retries(
- 						skip_video_pattern);
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
+index f4381725b210..c3d7712e9fd0 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
+@@ -46,6 +46,9 @@
+ #define TO_CLK_MGR_DCN315(clk_mgr)\
+ 	container_of(clk_mgr, struct clk_mgr_dcn315, base)
  
- 				/* Transmit idle pattern once training successful. */
--				if (status == LINK_TRAINING_SUCCESS && !is_link_bw_low)
-+				if (status == LINK_TRAINING_SUCCESS && !is_link_bw_low) {
- 					dp_set_hw_test_pattern(link, &pipe_ctx->link_res, DP_TEST_PATTERN_VIDEO_MODE, NULL, 0);
-+					/* Update verified link settings to current one
-+					 * Because DPIA LT might fallback to lower link setting.
-+					 */
-+					link->verified_link_cap.link_rate = link->cur_link_settings.link_rate;
-+					link->verified_link_cap.lane_count = link->cur_link_settings.lane_count;
-+				}
- 			} else {
- 				status = dc_link_dp_perform_link_training(link,
- 						&pipe_ctx->link_res,
++#define UNSUPPORTED_DCFCLK 10000000
++#define MIN_DPP_DISP_CLK     100000
++
+ static int dcn315_get_active_display_cnt_wa(
+ 		struct dc *dc,
+ 		struct dc_state *context)
+@@ -146,6 +149,9 @@ static void dcn315_update_clocks(struct clk_mgr *clk_mgr_base,
+ 		}
+ 	}
+ 
++	/* Lock pstate by requesting unsupported dcfclk if change is unsupported */
++	if (!new_clocks->p_state_change_support)
++		new_clocks->dcfclk_khz = UNSUPPORTED_DCFCLK;
+ 	if (should_set_clock(safe_to_lower, new_clocks->dcfclk_khz, clk_mgr_base->clks.dcfclk_khz)) {
+ 		clk_mgr_base->clks.dcfclk_khz = new_clocks->dcfclk_khz;
+ 		dcn315_smu_set_hard_min_dcfclk(clk_mgr, clk_mgr_base->clks.dcfclk_khz);
+@@ -159,10 +165,10 @@ static void dcn315_update_clocks(struct clk_mgr *clk_mgr_base,
+ 
+ 	// workaround: Limit dppclk to 100Mhz to avoid lower eDP panel switch to plus 4K monitor underflow.
+ 	if (!IS_DIAG_DC(dc->ctx->dce_environment)) {
+-		if (new_clocks->dppclk_khz < 100000)
+-			new_clocks->dppclk_khz = 100000;
+-		if (new_clocks->dispclk_khz < 100000)
+-			new_clocks->dispclk_khz = 100000;
++		if (new_clocks->dppclk_khz < MIN_DPP_DISP_CLK)
++			new_clocks->dppclk_khz = MIN_DPP_DISP_CLK;
++		if (new_clocks->dispclk_khz < MIN_DPP_DISP_CLK)
++			new_clocks->dispclk_khz = MIN_DPP_DISP_CLK;
+ 	}
+ 
+ 	if (should_set_clock(safe_to_lower, new_clocks->dppclk_khz, clk_mgr->base.clks.dppclk_khz)) {
+@@ -272,7 +278,7 @@ static struct wm_table ddr5_wm_table = {
+ 		{
+ 			.wm_inst = WM_A,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+-			.pstate_latency_us = 64.0,
++			.pstate_latency_us = 129.0,
+ 			.sr_exit_time_us = 11.5,
+ 			.sr_enter_plus_exit_time_us = 14.5,
+ 			.valid = true,
+@@ -280,7 +286,7 @@ static struct wm_table ddr5_wm_table = {
+ 		{
+ 			.wm_inst = WM_B,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+-			.pstate_latency_us = 64.0,
++			.pstate_latency_us = 129.0,
+ 			.sr_exit_time_us = 11.5,
+ 			.sr_enter_plus_exit_time_us = 14.5,
+ 			.valid = true,
+@@ -288,7 +294,7 @@ static struct wm_table ddr5_wm_table = {
+ 		{
+ 			.wm_inst = WM_C,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+-			.pstate_latency_us = 64.0,
++			.pstate_latency_us = 129.0,
+ 			.sr_exit_time_us = 11.5,
+ 			.sr_enter_plus_exit_time_us = 14.5,
+ 			.valid = true,
+@@ -296,7 +302,7 @@ static struct wm_table ddr5_wm_table = {
+ 		{
+ 			.wm_inst = WM_D,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+-			.pstate_latency_us = 64.0,
++			.pstate_latency_us = 129.0,
+ 			.sr_exit_time_us = 11.5,
+ 			.sr_enter_plus_exit_time_us = 14.5,
+ 			.valid = true,
 -- 
 2.35.1
 
