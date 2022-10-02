@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44EB85F227B
+	by mail.lfdr.de (Postfix) with ESMTP id 8FD6D5F227C
 	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:20:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiJBKU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
+        id S229458AbiJBKUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229540AbiJBKU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:20:26 -0400
+        with ESMTP id S229635AbiJBKU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:20:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 789A1220E8
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:20:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D48E222BD
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:20:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14ED460DF1
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15962C433C1;
-        Sun,  2 Oct 2022 10:20:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2762F60DF1
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39FFAC433D6;
+        Sun,  2 Oct 2022 10:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706023;
-        bh=v4dUjpyL/oliEo2duqHwXI98QgRRYS0s9aiFNR4p7So=;
+        s=korg; t=1664706026;
+        bh=uc9MU+dLG+szD6PVF1PZnVYgxZH8NXXFHK8fSEs4zHI=;
         h=Subject:To:Cc:From:Date:From;
-        b=m3RN0LyP19QvOu132xtOUoqYEZulhLA3L1Dtep7HXfg2p65VcAfM/z2esrab9eGeM
-         aVzZlo/T4iSBiJA/995aLchEP7EbX0p4751T3M7JqKVm0b3S4Nkx8M+1Jc4XHhDZxR
-         qZ1NvRk9h66mDkVxIks9VSAKUcsLTOIwKQin4utg=
-Subject: FAILED: patch "[PATCH] mm: gup: fix the fast GUP race against THP collapse" failed to apply to 5.15-stable tree
+        b=WgbM8lIif8vde8zfO97LlbdqgHSt9E+XTiXULqM05z7HvPCJPc3cZGLSLxVkmKR3T
+         g3DvWHA5c0+LLY2iGknzWN5pUhJ7frlFfkzTf6aXS9/5KVKLwBzarktyUSLHJQOdRV
+         HY1/R9tXGBtl+dtu/Uuc1iP3GDCojmxwbBm0o1iw=
+Subject: FAILED: patch "[PATCH] mm: gup: fix the fast GUP race against THP collapse" failed to apply to 5.10-stable tree
 To:     shy828301@gmail.com, akpm@linux-foundation.org,
         aneesh.kumar@linux.ibm.com, christophe.leroy@csgroup.eu,
         david@redhat.com, hughd@google.com, jgg@nvidia.com,
@@ -37,8 +37,8 @@ To:     shy828301@gmail.com, akpm@linux-foundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 12:21:01 +0200
-Message-ID: <1664706061218173@kroah.com>
+Date:   Sun, 02 Oct 2022 12:21:02 +0200
+Message-ID: <1664706062127205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +52,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,11 @@ Possible dependencies:
 
 70cbc3cc78a9 ("mm: gup: fix the fast GUP race against THP collapse")
 b0496fe4effd ("mm/gup: Convert gup_pte_range() to use a folio")
+1507f51255c9 ("mm: introduce memfd_secret system call to create "secret" memory areas")
+43ca106fa8ec ("mm: cma: support sysfs")
+bbb269206f3c ("mm: vmstat: add cma statistics")
+1fbaf8fc12a0 ("mm: add a io_mapping_map_user helper")
+ac73e3dc8acd ("Merge branch 'akpm' (patches from Andrew)")
 
 thanks,
 
