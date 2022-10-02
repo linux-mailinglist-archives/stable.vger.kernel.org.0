@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F685F262D
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A9005F2626
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230020AbiJBWuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56602 "EHLO
+        id S229806AbiJBWut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:50:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiJBWuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:50:22 -0400
+        with ESMTP id S229981AbiJBWuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:50:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE2911474;
-        Sun,  2 Oct 2022 15:49:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AF7E12AA9;
+        Sun,  2 Oct 2022 15:49:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80B47B80DA0;
-        Sun,  2 Oct 2022 22:49:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3253AC4314C;
-        Sun,  2 Oct 2022 22:49:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8257DB80C81;
+        Sun,  2 Oct 2022 22:49:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1294C433D6;
+        Sun,  2 Oct 2022 22:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664750986;
-        bh=2eEzG9gMoeCDqrQE6PVnB7Na/A3URZNcMUiHeCsODx0=;
+        s=k20201202; t=1664750990;
+        bh=gpOnnvA5lUNI+eY1xaaT6VEeXv2MgeShuAunf5+0rGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uuKsNBf3s+7QewDOYu5Y2Aie7rtp5Nhhm2U8Jzg2BuqQ+AmcD6N60qZ1KyVjqn24H
-         CZXnuNeRPtSZwVbJgilMP0MFLYjQ+L1wXrBbTWnzsKsFxB3YH0qY8t3t0ZM9vt3cpV
-         MLaznyvfZUUj7E7B/yaY3duql1npihMuNxr4HftyD3nCkm05wozxBpZTeDXlHFhS/M
-         WKrMdy7MZ4hhuvxorDGzjKJLKTDlG5NFkSSO3Gha6/mPlKwjuCWMN/REXDFHEuwtfM
-         znqNRlK6i/zos+le+yXYLhiTbjaN0q+kWyKXsRaCI5aQCnsV3mvXPWEmm7u5Cf2PU9
-         RI2tmO5JtNCHA==
+        b=Qewm4/xqfEPtYHsGxPusWl6UpxkBCarRDCbyjPSr3IREhY3GnhoSCabYets85fkeS
+         halHqrygkAtqYagTY/CryDm5kbHi0FMj2lRRO1APMQy5dyEb1t8A0NdWpNBJ+V/hoD
+         d2MqgCEzzngc8oAtlpya2uYlf+M12E4ZtEuPupEVKPpmupnxNxTl0/jkwuG/lcAz5M
+         PLz31NORZCvwzxu+Ozv5vB9+RsTFedZ5T2Jenn7+70BcpseMlXpFRMeNmXu8hSjqsB
+         rbJUb9DgA2Vwmby+v6o5G2HZe1Lep7K2Wg+IjixfFbP20FOdmeYcLjDvwLShh0rcjW
+         r7RdaRxh5fHcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Swati Agarwal <swati.agarwal@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        michal.simek@xilinx.com, lars@metafoo.de,
-        shravya.kumbham@xilinx.com, adrianml@alumnos.upm.es,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 08/29] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
-Date:   Sun,  2 Oct 2022 18:49:01 -0400
-Message-Id: <20221002224922.238837-8-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        gregory.greenman@intel.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        luciano.coelho@intel.com, emmanuel.grumbach@intel.com,
+        miriam.rachel.korenblit@intel.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 09/29] wifi: iwlwifi: don't spam logs with NSS>2 messages
+Date:   Sun,  2 Oct 2022 18:49:02 -0400
+Message-Id: <20221002224922.238837-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002224922.238837-1-sashal@kernel.org>
 References: <20221002224922.238837-1-sashal@kernel.org>
@@ -58,44 +60,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swati Agarwal <swati.agarwal@xilinx.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
+[ Upstream commit 4d8421f2dd88583cc7a4d6c2a5532c35e816a52a ]
 
-The driver does not handle the failure case while calling
-dma_set_mask_and_coherent API.
+I get a log line like this every 4 seconds when connected to my AP:
 
-In case of failure, capture the return value of API and then report an
-error.
+[15650.221468] iwlwifi 0000:09:00.0: Got NSS = 4 - trimming to 2
 
-Addresses-coverity: Unchecked return value (CHECKED_RETURN)
+Looking at the code, this seems to be related to a hardware limitation,
+and there's nothing to be done. In an effort to keep my dmesg
+manageable, downgrade this error to "debug" rather than "info".
 
-Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220905172246.105383-1-Jason@zx2c4.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index f63ec9d862ff..7ce8bb160a59 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -3211,7 +3211,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		xdev->ext_addr = false;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index c5626ff83805..640e3786c244 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -1833,8 +1833,8 @@ static void iwl_mvm_parse_ppe(struct iwl_mvm *mvm,
+ 	* If nss < MAX: we can set zeros in other streams
+ 	*/
+ 	if (nss > MAX_HE_SUPP_NSS) {
+-		IWL_INFO(mvm, "Got NSS = %d - trimming to %d\n", nss,
+-			 MAX_HE_SUPP_NSS);
++		IWL_DEBUG_INFO(mvm, "Got NSS = %d - trimming to %d\n", nss,
++			       MAX_HE_SUPP_NSS);
+ 		nss = MAX_HE_SUPP_NSS;
+ 	}
  
- 	/* Set the dma mask bits */
--	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	if (err < 0) {
-+		dev_err(xdev->dev, "DMA mask error %d\n", err);
-+		goto disable_clks;
-+	}
- 
- 	/* Initialize the DMA engine */
- 	xdev->common.dev = &pdev->dev;
 -- 
 2.35.1
 
