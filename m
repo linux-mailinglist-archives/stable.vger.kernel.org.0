@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F685F26BA
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8953F5F2702
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 01:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbiJBW7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:59:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41956 "EHLO
+        id S229928AbiJBXGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 19:06:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbiJBW6c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:58:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5536B40E00;
-        Sun,  2 Oct 2022 15:55:50 -0700 (PDT)
+        with ESMTP id S230494AbiJBXGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 19:06:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD83112755;
+        Sun,  2 Oct 2022 16:01:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F9F760F24;
-        Sun,  2 Oct 2022 22:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94583C4347C;
-        Sun,  2 Oct 2022 22:53:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB0C2B80DD8;
+        Sun,  2 Oct 2022 22:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AB50C433D6;
+        Sun,  2 Oct 2022 22:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751201;
-        bh=H6SVqnoMJtqjUi9uRgeMH0tCUlsjckGSZG/7dl6Ssrk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3FQ0/c2AqLwGVkT7i4npWzYPQJgO6vQhsEKwitmIjm5CZdTWRwlE6CGAvIEknnaT
-         YdB74Ff2zr8Ve06eyp8ptEXn8sMl/sFpPQYCSIPPf2dkpZjY3AsI+MIQjiyCe9hT/6
-         /i/6Xbh4tSNsCUQfl8FjyK4U+ongKMuvd0luwNiuPAFrv6+NCmUTmWL4Tpe7ixXPOq
-         1H+x0tJaAMkSuiddia7xphsSD744kHDd4kOUe/PlzpDlzgOrRTgLDyabB8RBADR/Yd
-         ONYCc0+nVSqjFayU7lvAXANEsNM2Z6VPYVEcWL0/BqdnLW+XgEVJj5fCKS37A9RjyY
-         GLbxJfCWRXH/Q==
+        s=k20201202; t=1664751206;
+        bh=JMY2yHIJQoF20ytPxniJHlxxD17968IV8wAg1htep04=;
+        h=From:To:Cc:Subject:Date:From;
+        b=EoHnISVlomnkC1QjeI96DW2l20KGSCsnZ2jvQR7mnmVdM3pECVlR8ym0PRZsgXh+f
+         CHF+ZNY/K+4GRxAwxJfeKBRfKbMPtsmtl817flMZNWuN53jPJfc6eokokgs3Xq/xbU
+         apRG11EVpkQQqJOz5F62GPmuF2IuIPGKTKrpbYght+874IiktaDlMekYzSNFSKyJwL
+         tMpWd8LViuWQ6ko0j6QTCdvIyPKMP0giSQLFzQRxpwuaopfpeksw0tejokODKJpAUY
+         M8bnphcGpqkRCvh4hjVEpjfN0KlxcgPOsvthTTO5QyTBz6MOuSfoH597wwcdwBs7OA
+         j5Btkb+rYI1ow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Straub <lukasstraub2@web.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 8/8] um: Cleanup compiler warning in arch/x86/um/tls_32.c
-Date:   Sun,  2 Oct 2022 18:53:00 -0400
-Message-Id: <20221002225300.239982-8-sashal@kernel.org>
+Cc:     Swati Agarwal <swati.agarwal@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        michal.simek@xilinx.com, radhey.shyam.pandey@xilinx.com,
+        lars@metafoo.de, shravya.kumbham@xilinx.com,
+        adrianml@alumnos.upm.es, dmaengine@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 1/6] dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
+Date:   Sun,  2 Oct 2022 18:53:16 -0400
+Message-Id: <20221002225323.240142-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221002225300.239982-1-sashal@kernel.org>
-References: <20221002225300.239982-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,68 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Straub <lukasstraub2@web.de>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
+[ Upstream commit 462bce790e6a7e68620a4ce260cc38f7ed0255d5 ]
 
-arch.tls_array is statically allocated so checking for NULL doesn't
-make sense. This causes the compiler warning below.
+Free the allocated resources for missing xlnx,num-fstores property.
 
-Remove the checks to silence these warnings.
-
-../arch/x86/um/tls_32.c: In function 'get_free_idx':
-../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-   68 |         if (!t->arch.tls_array)
-      |             ^
-In file included from ../arch/x86/um/asm/processor.h:10,
-                 from ../include/linux/rcupdate.h:30,
-                 from ../include/linux/rculist.h:11,
-                 from ../include/linux/pid.h:5,
-                 from ../include/linux/sched.h:14,
-                 from ../arch/x86/um/tls_32.c:7:
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-../arch/x86/um/tls_32.c: In function 'get_tls_entry':
-../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-  243 |         if (!t->arch.tls_array)
-      |             ^
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-
-Signed-off-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-3-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/tls_32.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
-index 5bd949da7a4a..b69ab2409430 100644
---- a/arch/x86/um/tls_32.c
-+++ b/arch/x86/um/tls_32.c
-@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
- 	struct thread_struct *t = &task->thread;
- 	int idx;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 3c2084766a31..9319349e69d2 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2565,7 +2565,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		if (err < 0) {
+ 			dev_err(xdev->dev,
+ 				"missing xlnx,num-fstores property\n");
+-			return err;
++			goto disable_clks;
+ 		}
  
--	if (!t->arch.tls_array)
--		return GDT_ENTRY_TLS_MIN;
--
- 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
- 		if (!t->arch.tls_array[idx].present)
- 			return idx + GDT_ENTRY_TLS_MIN;
-@@ -242,9 +239,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
- {
- 	struct thread_struct *t = &task->thread;
- 
--	if (!t->arch.tls_array)
--		goto clear;
--
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
- 
+ 		err = of_property_read_u32(node, "xlnx,flush-fsync",
 -- 
 2.35.1
 
