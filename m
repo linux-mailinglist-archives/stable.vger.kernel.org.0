@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 535835F2292
-	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 102145F2293
+	for <lists+stable@lfdr.de>; Sun,  2 Oct 2022 12:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiJBKZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 06:25:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35626 "EHLO
+        id S229699AbiJBK0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 06:26:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229722AbiJBKZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:25:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647A134701
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:25:37 -0700 (PDT)
+        with ESMTP id S229717AbiJBK0J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 06:26:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B645236DFB
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 03:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F764B80D24
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DC7C433D7;
-        Sun,  2 Oct 2022 10:25:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4522EB80D20
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 10:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C0BC433D7;
+        Sun,  2 Oct 2022 10:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664706334;
-        bh=u5x4K6yKp9DuHCiSDv6/c5BbETLGFjocP8avscZpaBI=;
+        s=korg; t=1664706365;
+        bh=RhsbDUngoj77LH0nKwq1SuG7oz0ARC8JjrEDRiuC0fM=;
         h=Subject:To:Cc:From:Date:From;
-        b=gC5Aj4AI8naAyauz74XpkNmjIiYJTEYjHobKcuvAXk3HX2AR1INsRsfJyLcj6fuVl
-         s1y0whaMNNYaiYCCUsprCHbMIDi5njq5bHUmLu3OgKvCONVfw74T38pRECCWh46WPA
-         FOsTzFHrCKKOrf0Mt/E9acfU5BFZgcNG9PM+xNno=
-Subject: FAILED: patch "[PATCH] mm: bring back update_mmu_cache() to finish_fault()" failed to apply to 5.15-stable tree
-To:     saproj@gmail.com, akpm@linux-foundation.org,
-        kirill.shutemov@linux.intel.com, stable@vger.kernel.org,
-        will@kernel.org
+        b=jRZmqleKI156NxgeDikTHQhtUB7+CXtTtkRY2shF2B9TUUdCe/y9kRgCrMMHk0UDP
+         jIElnhIZQz1cqPY3RL7NjsIOAC/ENQ1bbPK2oqTdYUWzwU8I3Nqz+hvz/kNboU5Lqo
+         PEqZ5T+Y/qGaDT2664yxmb7I/NnFtksUOWLeYQ1E=
+Subject: FAILED: patch "[PATCH] mm/huge_memory: use pfn_to_online_page() in" failed to apply to 5.19-stable tree
+To:     naoya.horiguchi@nec.com, akpm@linux-foundation.org,
+        david@redhat.com, kirill.shutemov@linux.intel.com,
+        linmiaohe@huawei.com, mhocko@suse.com, osalvador@suse.de,
+        shy828301@gmail.com, songmuchun@bytedance.com,
+        stable@vger.kernel.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 02 Oct 2022 12:26:12 +0200
-Message-ID: <166470637251232@kroah.com>
+Date:   Sun, 02 Oct 2022 12:26:42 +0200
+Message-ID: <166470640292215@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,29 +51,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-70427f6e9ecf ("mm: bring back update_mmu_cache() to finish_fault()")
-f46f2adecdcc ("mm: check against orig_pte for finish_fault()")
-c89357e27f20 ("mm: support GUP-triggered unsharing of anonymous pages")
-6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
-6c54dc6c7437 ("mm/rmap: use page_move_anon_rmap() when reusing a mapped PageAnon() page exclusively")
-28c5209dfd5f ("mm/rmap: pass rmap flags to hugepage_add_anon_rmap()")
-f1e2db12e45b ("mm/rmap: remove do_page_add_anon_rmap()")
-14f9135d5470 ("mm/rmap: convert RMAP flags to a proper distinct rmap_t type")
-fb3d824d1a46 ("mm/rmap: split page_dup_rmap() into page_dup_file_rmap() and page_try_dup_anon_rmap()")
-b51ad4f8679e ("mm/memory: slightly simplify copy_present_pte()")
-623a1ddfeb23 ("mm/hugetlb: take src_mm->write_protect_seq in copy_hugetlb_page_range()")
-3bff7e3f1f16 ("mm/huge_memory: streamline COW logic in do_huge_pmd_wp_page()")
-c145e0b47c77 ("mm: streamline COW logic in do_swap_page()")
-84d60fdd3733 ("mm: slightly clarify KSM logic in do_swap_page()")
-53a05ad9f21d ("mm: optimize do_wp_page() for exclusive pages in the swapcache")
-9030fb0bb9d6 ("Merge tag 'folio-5.18c' of git://git.infradead.org/users/willy/pagecache")
+2b7aa91ba0e8 ("mm/huge_memory: use pfn_to_online_page() in split_huge_pages_all()")
+a17206dac7b2 ("mm/huge_memory: minor cleanup for split_huge_pages_all")
 
 thanks,
 
@@ -79,90 +67,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 70427f6e9ecfc8c5f977b21dd9f846b3bda02500 Mon Sep 17 00:00:00 2001
-From: Sergei Antonov <saproj@gmail.com>
-Date: Thu, 8 Sep 2022 23:48:09 +0300
-Subject: [PATCH] mm: bring back update_mmu_cache() to finish_fault()
+From 2b7aa91ba0e86b8643f5d3c83874c80599c731d7 Mon Sep 17 00:00:00 2001
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Date: Thu, 8 Sep 2022 13:11:50 +0900
+Subject: [PATCH] mm/huge_memory: use pfn_to_online_page() in
+ split_huge_pages_all()
 
-Running this test program on ARMv4 a few times (sometimes just once)
-reproduces the bug.
+NULL pointer dereference is triggered when calling thp split via debugfs
+on the system with offlined memory blocks.  With debug option enabled, the
+following kernel messages are printed out:
 
-int main()
-{
-        unsigned i;
-        char paragon[SIZE];
-        void* ptr;
+  page:00000000467f4890 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x121c000
+  flags: 0x17fffc00000000(node=0|zone=2|lastcpupid=0x1ffff)
+  raw: 0017fffc00000000 0000000000000000 dead000000000122 0000000000000000
+  raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+  page dumped because: unmovable page
+  page:000000007d7ab72e is uninitialized and poisoned
+  page dumped because: VM_BUG_ON_PAGE(PagePoisoned(p))
+  ------------[ cut here ]------------
+  kernel BUG at include/linux/mm.h:1248!
+  invalid opcode: 0000 [#1] PREEMPT SMP PTI
+  CPU: 16 PID: 20964 Comm: bash Tainted: G          I        6.0.0-rc3-foll-numa+ #41
+  ...
+  RIP: 0010:split_huge_pages_write+0xcf4/0xe30
 
-        memset(paragon, 0xAA, SIZE);
-        ptr = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-                   MAP_ANON | MAP_SHARED, -1, 0);
-        if (ptr == MAP_FAILED) return 1;
-        printf("ptr = %p\n", ptr);
-        for (i=0;i<10000;i++){
-                memset(ptr, 0xAA, SIZE);
-                if (memcmp(ptr, paragon, SIZE)) {
-                        printf("Unexpected bytes on iteration %u!!!\n", i);
-                        break;
-                }
-        }
-        munmap(ptr, SIZE);
-}
+This shows that page_to_nid() in page_zone() is unexpectedly called for an
+offlined memmap.
 
-In the "ptr" buffer there appear runs of zero bytes which are aligned
-by 16 and their lengths are multiple of 16.
+Use pfn_to_online_page() to get struct page in PFN walker.
 
-Linux v5.11 does not have the bug, "git bisect" finds the first bad commit:
-f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-
-Before the commit update_mmu_cache() was called during a call to
-filemap_map_pages() as well as finish_fault(). After the commit
-finish_fault() lacks it.
-
-Bring back update_mmu_cache() to finish_fault() to fix the bug.
-Also call update_mmu_tlb() only when returning VM_FAULT_NOPAGE to more
-closely reproduce the code of alloc_set_pte() function that existed before
-the commit.
-
-On many platforms update_mmu_cache() is nop:
- x86, see arch/x86/include/asm/pgtable
- ARMv6+, see arch/arm/include/asm/tlbflush.h
-So, it seems, few users ran into this bug.
-
-Link: https://lkml.kernel.org/r/20220908204809.2012451-1-saproj@gmail.com
-Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Link: https://lkml.kernel.org/r/20220908041150.3430269-1-naoya.horiguchi@linux.dev
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")      [visible after d0dc12e86b319]
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Co-developed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>	[5.10+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/mm/memory.c b/mm/memory.c
-index 4ba73f5aa8bb..a78814413ac0 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4386,14 +4386,20 @@ vm_fault_t finish_fault(struct vm_fault *vmf)
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index e9414ee57c5b..f42bb51e023a 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2894,11 +2894,9 @@ static void split_huge_pages_all(void)
+ 		max_zone_pfn = zone_end_pfn(zone);
+ 		for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++) {
+ 			int nr_pages;
+-			if (!pfn_valid(pfn))
+-				continue;
  
- 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
- 				      vmf->address, &vmf->ptl);
--	ret = 0;
-+
- 	/* Re-check under ptl */
--	if (likely(!vmf_pte_changed(vmf)))
-+	if (likely(!vmf_pte_changed(vmf))) {
- 		do_set_pte(vmf, page, vmf->address);
--	else
-+
-+		/* no need to invalidate: a not-present page won't be cached */
-+		update_mmu_cache(vma, vmf->address, vmf->pte);
-+
-+		ret = 0;
-+	} else {
-+		update_mmu_tlb(vma, vmf->address, vmf->pte);
- 		ret = VM_FAULT_NOPAGE;
-+	}
+-			page = pfn_to_page(pfn);
+-			if (!get_page_unless_zero(page))
++			page = pfn_to_online_page(pfn);
++			if (!page || !get_page_unless_zero(page))
+ 				continue;
  
--	update_mmu_tlb(vma, vmf->address, vmf->pte);
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
- 	return ret;
- }
+ 			if (zone != page_zone(page))
 
