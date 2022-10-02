@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 190E45F26A5
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58C25F26AE
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 00:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230396AbiJBW4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 18:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
+        id S230235AbiJBW4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Oct 2022 18:56:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230398AbiJBWzr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:55:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E8C73F1FC;
-        Sun,  2 Oct 2022 15:52:22 -0700 (PDT)
+        with ESMTP id S230144AbiJBW4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 18:56:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B383C14A;
+        Sun,  2 Oct 2022 15:53:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9B4060F0C;
-        Sun,  2 Oct 2022 22:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BF5C433D7;
-        Sun,  2 Oct 2022 22:51:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 218B060F1A;
+        Sun,  2 Oct 2022 22:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E687C433D6;
+        Sun,  2 Oct 2022 22:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664751121;
-        bh=2s3E6s8by+Vv9fTcW1YuFronNVxsWvYo20qEG3TetXk=;
+        s=k20201202; t=1664751124;
+        bh=bSK8ZLYy+3u6JLqW9iOz9EUzVwbUhBOsfS28rF2cRs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brBfflCdq98ThQ8QylhLvj5MdS0Ks0g1kijhh7EFVOqsZwXRyUVlQ4dOxocPDX6EK
-         vSwPfbHIy++9l2k851Nf9E/Fb3bP4IdelsIBcMW3STP+AiRgR5VjWFTonDXMmnv3o0
-         paUXy3jEf84k4RrWI1fxmSxpfxCm59VNC4OG1yItH6k34X+WYKF4ROUfssBBrXGkg0
-         9cJtAlI2VpnxJOVRdz7THe+/516D8gDBjXp+XMiDxUjcyOb4fIIwG4c/yrvuFnyLiB
-         CkhuBfaSqDPxvd+peMBDF9G0SizvQnyafO2HY/4JUHZxwfxbWLWnNhVDsxgB/znEGu
-         fkzTBZbVT3vfg==
+        b=WYYLEMItX98duyQ5tEyb7EF6iwkFyori3dSRyFqVo8hAN/gRFkpQXr2ZFLzkfB9rX
+         fliR+uUQNjupbjdpF029GLisqjjmnBiMBK+/DUiH35GnTphMwQaLgGGd2TZKNQ1QKH
+         RmH/UDs52QGFGHN+E2XSn/Q5CZ6sTLOK2IrgKi63vQrkf0Q28IMpqWq8X/y4Bzjgto
+         MKP3yGWqZxk6zSbN129S30rIf91A3PXtNCw5Io+Uf3reUaCfx/P0OXfg+2pbs/BFbU
+         MaVopKCYINWhAhm1YTiboqx3ASTfyMe6sZq0aeD/EgBTdZVG+nd+n9fkBDo3JqHBVD
+         WR0KjLJCV7BFQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Swati Agarwal <swati.agarwal@xilinx.com>,
@@ -39,9 +39,9 @@ Cc:     Swati Agarwal <swati.agarwal@xilinx.com>,
         lars@metafoo.de, adrianml@alumnos.upm.es,
         shravya.kumbham@xilinx.com, dmaengine@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 02/14] dmaengine: xilinx_dma: Fix devm_platform_ioremap_resource error handling
-Date:   Sun,  2 Oct 2022 18:51:43 -0400
-Message-Id: <20221002225155.239480-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 03/14] dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
+Date:   Sun,  2 Oct 2022 18:51:44 -0400
+Message-Id: <20221002225155.239480-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221002225155.239480-1-sashal@kernel.org>
 References: <20221002225155.239480-1-sashal@kernel.org>
@@ -60,62 +60,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit 91df7751eb890e970afc08f50b8f0fa5ea39e03d ]
+[ Upstream commit 462bce790e6a7e68620a4ce260cc38f7ed0255d5 ]
 
-Add missing cleanup in devm_platform_ioremap_resource().
-When probe fails remove dma channel resources and disable clocks in
-accordance with the order of resources allocated .
+Free the allocated resources for missing xlnx,num-fstores property.
 
 Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-2-swati.agarwal@xilinx.com
+Link: https://lore.kernel.org/r/20220817061125.4720-3-swati.agarwal@xilinx.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index cab4719e4cf9..36801126312e 100644
+index 36801126312e..b91378fb891c 100644
 --- a/drivers/dma/xilinx/xilinx_dma.c
 +++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -3020,9 +3020,10 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+@@ -3051,7 +3051,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		if (err < 0) {
+ 			dev_err(xdev->dev,
+ 				"missing xlnx,num-fstores property\n");
+-			return err;
++			goto disable_clks;
+ 		}
  
- 	/* Request and map I/O memory */
- 	xdev->regs = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(xdev->regs))
--		return PTR_ERR(xdev->regs);
--
-+	if (IS_ERR(xdev->regs)) {
-+		err = PTR_ERR(xdev->regs);
-+		goto disable_clks;
-+	}
- 	/* Retrieve the DMA engine properties from the device tree */
- 	xdev->max_buffer_len = GENMASK(XILINX_DMA_MAX_TRANS_LEN_MAX - 1, 0);
- 	xdev->s2mm_chan_id = xdev->dma_config->max_channels / 2;
-@@ -3115,7 +3116,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 	for_each_child_of_node(node, child) {
- 		err = xilinx_dma_child_probe(xdev, child);
- 		if (err < 0)
--			goto disable_clks;
-+			goto error;
- 	}
- 
- 	if (xdev->dma_config->dmatype == XDMA_TYPE_VDMA) {
-@@ -3150,12 +3151,12 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--disable_clks:
--	xdma_disable_allclks(xdev);
- error:
- 	for (i = 0; i < xdev->dma_config->max_channels; i++)
- 		if (xdev->chan[i])
- 			xilinx_dma_chan_remove(xdev->chan[i]);
-+disable_clks:
-+	xdma_disable_allclks(xdev);
- 
- 	return err;
- }
+ 		err = of_property_read_u32(node, "xlnx,flush-fsync",
 -- 
 2.35.1
 
