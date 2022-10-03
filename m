@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 757645F2A95
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D6C5F2B2F
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbiJCHiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
+        id S232161AbiJCHvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:51:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231415AbiJCHgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:36:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B7853032;
-        Mon,  3 Oct 2022 00:22:39 -0700 (PDT)
+        with ESMTP id S232168AbiJCHvB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:51:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1051B4D274;
+        Mon,  3 Oct 2022 00:29:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72502B80E95;
-        Mon,  3 Oct 2022 07:21:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AB56C433C1;
-        Mon,  3 Oct 2022 07:21:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 404E860F08;
+        Mon,  3 Oct 2022 07:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AAEFC433D6;
+        Mon,  3 Oct 2022 07:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781664;
-        bh=QK+ufwlRBWl6ehYKJV4TG8Q8jxr+5/srJj3QzUt1L9s=;
+        s=korg; t=1664781669;
+        bh=CXEbBTnR8AgKq3AZKykNF/J/yDkcEAUyJcKoYOeiXWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fc2YUU11NoBiGB85BzorckrdjI+TRxtbzu3LwR2DoCm3M2MY5tPMVJ8g0teuEQFsH
-         /VKJgvi9Oun7oxvJnWM5V9iqKycEQHK0YpqlgnkZ2SzquwQmTEihaPk7M4CkENXave
-         d7K4mBSpago9/49/2i9zU/EwXJKEOeogv03ddE3k=
+        b=K2I3nJGGSgR691SvwWa1yHs5igHCJKgv22+/vzgMtLeg+y0XE7O8Gyvb4Ln51JmDn
+         HE53h1Ww3Vu1joR8P9jKTCFvUM9pS7zD5luMqbVvPVLejxneu9cinmuFWAtJikL+V6
+         spR5ySQcydwIxiJrcJVNDWfbOaMEk9myQA1Im0pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Hugh Dickins <hughd@google.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 19/52] powerpc/64s/radix: dont need to broadcast IPI for radix pmd collapse flush
-Date:   Mon,  3 Oct 2022 09:11:26 +0200
-Message-Id: <20221003070719.298059739@linuxfoundation.org>
+        Jaap Berkhout <j.j.berkhout@staalenberk.nl>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.10 20/52] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
+Date:   Mon,  3 Oct 2022 09:11:27 +0200
+Message-Id: <20221003070719.328481285@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
 References: <20221003070718.687440096@linuxfoundation.org>
@@ -63,55 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-commit bedf03416913d88c796288f9dca109a53608c745 upstream.
+commit ea08aec7e77bfd6599489ec430f9f859ab84575a upstream.
 
-The IPI broadcast is used to serialize against fast-GUP, but fast-GUP will
-move to use RCU instead of disabling local interrupts in fast-GUP.  Using
-an IPI is the old-styled way of serializing against fast-GUP although it
-still works as expected now.
+Commit 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as
+board_ahci_mobile") added an explicit entry for AMD Green Sardine
+AHCI controller using the board_ahci_mobile configuration (this
+configuration has later been renamed to board_ahci_low_power).
 
-And fast-GUP now fixed the potential race with THP collapse by checking
-whether PMD is changed or not.  So IPI broadcast in radix pmd collapse
-flush is not necessary anymore.  But it is still needed for hash TLB.
+The board_ahci_low_power configuration enables support for low power
+modes.
 
-Link: https://lkml.kernel.org/r/20220907180144.555485-2-shy828301@gmail.com
-Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+This explicit entry takes precedence over the generic AHCI controller
+entry, which does not enable support for low power modes.
+
+Therefore, when commit 1527f69204fe ("ata: ahci: Add Green Sardine
+vendor ID as board_ahci_mobile") was backported to stable kernels,
+it make some Pioneer optical drives, which was working perfectly fine
+before the commit was backported, stop working.
+
+The real problem is that the Pioneer optical drives do not handle low
+power modes correctly. If these optical drives would have been tested
+on another AHCI controller using the board_ahci_low_power configuration,
+this issue would have been detected earlier.
+
+Unfortunately, the board_ahci_low_power configuration is only used in
+less than 15% of the total AHCI controller entries, so many devices
+have never been tested with an AHCI controller with low power modes.
+
+Fixes: 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile")
+Cc: stable@vger.kernel.org
+Reported-by: Jaap Berkhout <j.j.berkhout@staalenberk.nl>
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/book3s64/radix_pgtable.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/ata/libata-core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -997,15 +997,6 @@ pmd_t radix__pmdp_collapse_flush(struct
- 	pmd = *pmdp;
- 	pmd_clear(pmdp);
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -3936,6 +3936,10 @@ static const struct ata_blacklist_entry
+ 	{ "PIONEER DVD-RW  DVR-212D",	NULL,	ATA_HORKAGE_NOSETXFER },
+ 	{ "PIONEER DVD-RW  DVR-216D",	NULL,	ATA_HORKAGE_NOSETXFER },
  
--	/*
--	 * pmdp collapse_flush need to ensure that there are no parallel gup
--	 * walk after this call. This is needed so that we can have stable
--	 * page ref count when collapsing a page. We don't allow a collapse page
--	 * if we have gup taken on the page. We can ensure that by sending IPI
--	 * because gup walk happens with IRQ disabled.
--	 */
--	serialize_against_pte_lookup(vma->vm_mm);
--
- 	radix__flush_tlb_collapsed_pmd(vma->vm_mm, address);
++	/* These specific Pioneer models have LPM issues */
++	{ "PIONEER BD-RW   BDR-207M",	NULL,	ATA_HORKAGE_NOLPM },
++	{ "PIONEER BD-RW   BDR-205",	NULL,	ATA_HORKAGE_NOLPM },
++
+ 	/* Crucial BX100 SSD 500GB has broken LPM support */
+ 	{ "CT500BX100SSD1",		NULL,	ATA_HORKAGE_NOLPM },
  
- 	return pmd;
 
 
