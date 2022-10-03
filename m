@@ -2,67 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1982A5F27D9
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 05:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ACC15F288B
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 08:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229459AbiJCDbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Oct 2022 23:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52178 "EHLO
+        id S229459AbiJCGUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 02:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiJCDbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Oct 2022 23:31:24 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5BB2356D1
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 20:31:22 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id qx23so1420738ejb.11
-        for <stable@vger.kernel.org>; Sun, 02 Oct 2022 20:31:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date;
-        bh=ABloi6KR4f1h19xF9pqW5xZu3d3NhgUwnMOhFcfII30=;
-        b=fEjRjDGjZxv5gC5yefZ+Eag2SfZs5tUly7Vh0S5QgErK3uwVN/11JPn5n3nRv4PWG/
-         zmBLuKh9dO3vMaSs5Vi+kwGSZ4j20uneWJEPPMGY82qy9NMKQ+tpcvaPp20furI4gWWW
-         CR2u41aIzFjQNBSSot48ak3cWx8CFx4Owfvh68f++UNHh7fFZgMkyKBOEUUQm4i0UhKE
-         kETluQu30Yi0OFuQuQSnV8U9H3yozIqMg5LjtWXAmBcCbDn2CAXDXw9fjuYrGnGa+hDN
-         vayTIsiD8zrB97Sytf84Q2jc/sNMr63KmxbmmShh1i/HTfFxJnqsUmbEJC5Ckb8Y1PqK
-         7zyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=ABloi6KR4f1h19xF9pqW5xZu3d3NhgUwnMOhFcfII30=;
-        b=7qs39K+4JTJvWbUlpeT0HyJjIQWaLHxUeLhPVtlH2PTT7iop7QyuAPj5nubRTWcVDg
-         bHI1Y/eog4aI5aq/aAYND7uX+ngyEI5P7fBIn7Ao9cHlW4+9qP9qeEfwlKDZ60F+BksA
-         8Zcx4ymEseuu+67UN9cxLk16LT6T8NknZOQArK4/EHsy1VDwsXGeUhaPLVL7HCkyHODn
-         /m5aOpEnreysEUcvwChloyx86GSyE/hVRRJ+4/CrsksbhuZ9mkHjVedxVMiJHrNluSMl
-         UqdlGUIdzlvF2g9fKZCFXgKp7ijDOrzUlY/W/7x6Tf1GAc6o94Fwifo/jzxrra1yTN8S
-         9aXA==
-X-Gm-Message-State: ACrzQf00ywnLi3M9C9IXX/a0v9IpFxMN6O7sFUzb4FBUM8PRYYviOsgF
-        l0fQD1gl5UuxwB5AiC7vdfP4kR6oUCe2MB7SOz0=
-X-Google-Smtp-Source: AMsMyM6uQ+8lNWXoG6V15Vumk6nLQYRu6ivFm7aCY2AG5kqhzA4dFJ2bW8LRRvNeMhhEHVbh9GNVcEtkw45dy4XxOyI=
-X-Received: by 2002:a17:906:5a5a:b0:78c:9b55:2693 with SMTP id
- my26-20020a1709065a5a00b0078c9b552693mr60884ejc.199.1664767881338; Sun, 02
- Oct 2022 20:31:21 -0700 (PDT)
+        with ESMTP id S229559AbiJCGT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 02:19:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FB73E016
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 23:19:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B056BB80DBD
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 06:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC76C433C1;
+        Mon,  3 Oct 2022 06:19:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664777994;
+        bh=BP+hnxX/Jx5ShxfvBS2zhwpBDmIoqYz0xLqfre41Mjg=;
+        h=Subject:To:Cc:From:Date:From;
+        b=tAclRTcR4Txj9KXDAa5/tOaq+OyL4C0GO7wYb0ZWq5ZOwVw/XuOFyKN7VkYRsMUTQ
+         uMPAaZGAQxT4NVi9lmFVfJyDLBjCuuRe6q5ya22ssCLtKvblTgVKNtj2FWBasdj+qE
+         RKoh/q473tUd/EQFkVkTBNe6YrjyXgFMtIkKvASs=
+Subject: FAILED: patch "[PATCH] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant" failed to apply to 5.15-stable tree
+To:     bp@suse.de, ssengar@linux.microsoft.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 03 Oct 2022 08:20:27 +0200
+Message-ID: <166477802792157@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a50:794f:0:b0:1de:a0a9:6f60 with HTTP; Sun, 2 Oct 2022
- 20:31:20 -0700 (PDT)
-Reply-To: kaylajones612@consultant.com
-From:   Kayla Jones <nayeadjayi@gmail.com>
-Date:   Mon, 3 Oct 2022 03:31:20 +0000
-Message-ID: <CAMicTEP6DeU7ZqSOufXjUaTDynTi_0YC6OT+yYiwuR1k7=jM+Q@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings, please check and reply the previous emails I sent to you.
+
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+df5b035b5683 ("x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant")
+66558b730f25 ("sched: Add cluster scheduler level for x86")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From df5b035b5683d6a25f077af889fb88e09827f8bc Mon Sep 17 00:00:00 2001
+From: Borislav Petkov <bp@suse.de>
+Date: Fri, 19 Aug 2022 19:47:44 +0200
+Subject: [PATCH] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant
+
+On a CONFIG_SMP=n kernel, the LLC shared mask is 0, which prevents
+__cache_amd_cpumap_setup() from doing the L3 masks setup, and more
+specifically from setting up the shared_cpu_map and shared_cpu_list
+files in sysfs, leading to lscpu from util-linux getting confused and
+segfaulting.
+
+Add a cpu_llc_shared_mask() UP variant which returns a mask with a
+single bit set, i.e., for CPU0.
+
+Fixes: 2b83809a5e6d ("x86/cpu/amd: Derive L3 shared_cpu_map from cpu_llc_shared_mask")
+Reported-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1660148115-302-1-git-send-email-ssengar@linux.microsoft.com
+
+diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
+index 81a0211a372d..a73bced40e24 100644
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -21,16 +21,6 @@ DECLARE_PER_CPU_READ_MOSTLY(u16, cpu_llc_id);
+ DECLARE_PER_CPU_READ_MOSTLY(u16, cpu_l2c_id);
+ DECLARE_PER_CPU_READ_MOSTLY(int, cpu_number);
+ 
+-static inline struct cpumask *cpu_llc_shared_mask(int cpu)
+-{
+-	return per_cpu(cpu_llc_shared_map, cpu);
+-}
+-
+-static inline struct cpumask *cpu_l2c_shared_mask(int cpu)
+-{
+-	return per_cpu(cpu_l2c_shared_map, cpu);
+-}
+-
+ DECLARE_EARLY_PER_CPU_READ_MOSTLY(u16, x86_cpu_to_apicid);
+ DECLARE_EARLY_PER_CPU_READ_MOSTLY(u32, x86_cpu_to_acpiid);
+ DECLARE_EARLY_PER_CPU_READ_MOSTLY(u16, x86_bios_cpu_apicid);
+@@ -172,6 +162,16 @@ extern int safe_smp_processor_id(void);
+ # define safe_smp_processor_id()	smp_processor_id()
+ #endif
+ 
++static inline struct cpumask *cpu_llc_shared_mask(int cpu)
++{
++	return per_cpu(cpu_llc_shared_map, cpu);
++}
++
++static inline struct cpumask *cpu_l2c_shared_mask(int cpu)
++{
++	return per_cpu(cpu_l2c_shared_map, cpu);
++}
++
+ #else /* !CONFIG_SMP */
+ #define wbinvd_on_cpu(cpu)     wbinvd()
+ static inline int wbinvd_on_all_cpus(void)
+@@ -179,6 +179,11 @@ static inline int wbinvd_on_all_cpus(void)
+ 	wbinvd();
+ 	return 0;
+ }
++
++static inline struct cpumask *cpu_llc_shared_mask(int cpu)
++{
++	return (struct cpumask *)cpumask_of(0);
++}
+ #endif /* CONFIG_SMP */
+ 
+ extern unsigned disabled_cpus;
+
