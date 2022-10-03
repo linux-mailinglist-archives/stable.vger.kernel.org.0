@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2856D5F2AB1
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BED05F299B
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231685AbiJCHjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:39:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
+        id S230311AbiJCHW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:22:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231912AbiJCHih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:38:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 009D342AFC;
-        Mon,  3 Oct 2022 00:23:43 -0700 (PDT)
+        with ESMTP id S230381AbiJCHVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:21:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD4C7248EC;
+        Mon,  3 Oct 2022 00:16:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2FD960FA6;
-        Mon,  3 Oct 2022 07:21:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6008C433C1;
-        Mon,  3 Oct 2022 07:21:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86C25B80E6C;
+        Mon,  3 Oct 2022 07:16:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D88CCC433D6;
+        Mon,  3 Oct 2022 07:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781686;
-        bh=yw7+OtI94m8hyHcJFdaLU/JamZCCm/vObY8mWVjErGY=;
+        s=korg; t=1664781373;
+        bh=41Tuw7nhCIGbtroJKi9dP0cAM8JSkWdQwzKeupAZ33M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1dKgExOoer5bYO71hx40va/jMYeP8YlqRH87t0XtGMd7UwnVef+h/n/NMWqW/XEv
-         JMPhbAYOQ/J1AhdcCjxQtb7ncXZAHItxFO6+MOMRj35dW9TcokwfDUOXhXXZoci0ZY
-         zNJp9qrDH4bdOfT1/I1HGv+lAw5st9SHiPBhsPcY=
+        b=vBhEX4IC5k1mPFwNorWM9kq+D/Afrh+nzN0gMPh2GaAWD6EZ5RMGV0PAcQHdlFpJQ
+         jNGcqjb/d4gxvU4RnBvUU3FhfCxiCe/sS2BNWmAXzagiMnGMRtJoQkCe2Xfzo9O+5Q
+         FcXQnERaFNPlCEgYKHjUJpQMw3Hj4sfGPDAGH1ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
-        =?UTF-8?q?=E9=9F=A9=E5=A4=A9=C3=A7`=C2=95?= <hantianshuo@iie.ac.cn>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 26/52] mm: fix madivse_pageout mishandling on non-LRU page
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 097/101] perf tests record: Fail the test if the errs counter is not zero
 Date:   Mon,  3 Oct 2022 09:11:33 +0200
-Message-Id: <20221003070719.508539234@linuxfoundation.org>
+Message-Id: <20221003070726.844526673@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 58d426a7ba92870d489686dfdb9d06b66815a2ab upstream.
+[ Upstream commit 25c5e67cdf744cbb93fd06647611d3036218debe ]
 
-MADV_PAGEOUT tries to isolate non-LRU pages and gets a warning from
-isolate_lru_page below.
+We were just checking for the 'err' variable, when we should really see
+if there was some of the many checked errors that don't stop the test
+right away.
 
-Fix it by checking PageLRU in advance.
+Detected with clang 15.0.0:
 
-------------[ cut here ]------------
-trying to isolate tail page
-WARNING: CPU: 0 PID: 6175 at mm/folio-compat.c:158 isolate_lru_page+0x130/0x140
-Modules linked in:
-CPU: 0 PID: 6175 Comm: syz-executor.0 Not tainted 5.18.12 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:isolate_lru_page+0x130/0x140
+  44    75.23 fedora:37       : FAIL clang version 15.0.0 (Fedora 15.0.0-2.fc37)
 
-Link: https://lore.kernel.org/linux-mm/485f8c33.2471b.182d5726afb.Coremail.hantianshuo@iie.ac.cn/
-Link: https://lkml.kernel.org/r/20220908151204.762596-1-minchan@kernel.org
-Fixes: 1a4e58cce84e ("mm: introduce MADV_PAGEOUT")
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-Reported-by: 韩天ç` <hantianshuo@iie.ac.cn>
-Suggested-by: Yang Shi <shy828301@gmail.com>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    tests/perf-record.c:68:16: error: variable 'errs' set but not used [-Werror,-Wunused-but-set-variable]
+            int err = -1, errs = 0, i, wakeups = 0;
+                          ^
+    1 error generated.
+
+The patch introducing this 'perf test' entry had that check:
+
+  +       return (err < 0 || errs > 0) ? -1 : 0;
+
+But at some point we lost that:
+
+  -	  return (err < 0 || errs > 0) ? -1 : 0;
+  +	  if (err == -EACCES)
+  +               return TEST_SKIP;
+  +	  if (err < 0)
+  +               return TEST_FAIL;
+  +	  return TEST_OK
+
+Put it back.
+
+Fixes: 2cf88f4614c996e5 ("perf test: Use skip in PERF_RECORD_*")
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/lkml/YzR0n5QhsH9VyYB0@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/madvise.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/perf/tests/perf-record.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -434,8 +434,11 @@ regular_page:
- 			continue;
- 		}
- 
--		/* Do not interfere with other mappings of this page */
--		if (page_mapcount(page) != 1)
-+		/*
-+		 * Do not interfere with other mappings of this page and
-+		 * non-LRU page.
-+		 */
-+		if (!PageLRU(page) || page_mapcount(page) != 1)
- 			continue;
- 
- 		VM_BUG_ON_PAGE(PageTransCompound(page), page);
+diff --git a/tools/perf/tests/perf-record.c b/tools/perf/tests/perf-record.c
+index 6a001fcfed68..4952abe716f3 100644
+--- a/tools/perf/tests/perf-record.c
++++ b/tools/perf/tests/perf-record.c
+@@ -332,7 +332,7 @@ static int test__PERF_RECORD(struct test_suite *test __maybe_unused, int subtest
+ out:
+ 	if (err == -EACCES)
+ 		return TEST_SKIP;
+-	if (err < 0)
++	if (err < 0 || errs != 0)
+ 		return TEST_FAIL;
+ 	return TEST_OK;
+ }
+-- 
+2.35.1
+
 
 
