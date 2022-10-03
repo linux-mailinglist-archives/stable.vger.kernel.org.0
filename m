@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E369F5F29CB
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4332A5F2A40
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbiJCHZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:25:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
+        id S231538AbiJCHdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:33:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231244AbiJCHYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:24:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8624BD3E;
-        Mon,  3 Oct 2022 00:18:19 -0700 (PDT)
+        with ESMTP id S231461AbiJCHcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:32:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B4C25298;
+        Mon,  3 Oct 2022 00:21:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92FFE60FA9;
-        Mon,  3 Oct 2022 07:16:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70308C433D6;
-        Mon,  3 Oct 2022 07:16:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97426B80E94;
+        Mon,  3 Oct 2022 07:19:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0074DC433D6;
+        Mon,  3 Oct 2022 07:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781368;
-        bh=dybPGXdcqcvWSfFoE1rkJVjWUx2hSoQdde7i7X3AEoY=;
+        s=korg; t=1664781567;
+        bh=tfBx23GHH+xKpCPewZ/4fGyE9B3qjYdkoAWuEz5Cfwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFt7xxTmE0w/hLtVRzqe6NwneYM9FPuOxNy3g2WA4jfdausv2cxyrg7NxvCp/bYdR
-         QjvytDlHegiIPRFTdMbn1kw5ISrQVboZ6H55QlvHDq5oZI4jTgg3or/47X2/3NcJOX
-         FlrpecMk2DidXHrfiI5EpOpfThvrAjG3U5rA/YC0=
+        b=y3g9NWyRNgifvFYKztx7L9v0llVDkbXoHIG79wLwzRfsxWbOgYbglrJVgB8hsrkYB
+         BlgfBEqEgQG+8y7Njwth7LrIcTS6DLAO7j4vmIMr9WpMtgwO7Y3h4Bw+XEyAVSYkqH
+         FHLMVgwsarpzs5mESp3HYCx7827AcgTTgtmiJvNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 096/101] perf test: Fix test case 87 ("perf record tests") for hybrid systems
+Subject: [PATCH 5.15 67/83] dont use __kernel_write() on kmap_local_page()
 Date:   Mon,  3 Oct 2022 09:11:32 +0200
-Message-Id: <20221003070726.820259923@linuxfoundation.org>
+Message-Id: <20221003070723.675440372@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,54 +52,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 457c8b60267054869513ab1fb5513abb0a566dd0 ]
+[ Upstream commit 06bbaa6dc53cb72040db952053432541acb9adc7 ]
 
-The test case 87 ("perf record tests") failed on hybrid systems,the event
-"cpu/br_inst_retired.near_call/p" is only for non-hybrid system. Correct
-the test event to support both non-hybrid and hybrid systems.
+passing kmap_local_page() result to __kernel_write() is unsafe -
+random ->write_iter() might (and 9p one does) get unhappy when
+passed ITER_KVEC with pointer that came from kmap_local_page().
 
-Before:
+Fix by providing a variant of __kernel_write() that takes an iov_iter
+from caller (__kernel_write() becomes a trivial wrapper) and adding
+dump_emit_page() that parallels dump_emit(), except that instead of
+__kernel_write() it uses __kernel_write_iter() with ITER_BVEC source.
 
-  # ./perf test 87
-  87: perf record tests                                   : FAILED!
-
-After:
-
-  # ./perf test 87
-  87: perf record tests                                   : Ok
-
-Fixes: 24f378e66021f559 ("perf test: Add basic perf record tests")
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220927051513.3768717-1-zhengjun.xing@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 3159ed57792b "fs/coredump: use kmap_local_page()"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/shell/record.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/coredump.c   | 38 +++++++++++++++++++++++++++++++++-----
+ fs/internal.h   |  3 +++
+ fs/read_write.c | 22 ++++++++++++++--------
+ 3 files changed, 50 insertions(+), 13 deletions(-)
 
-diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
-index 00c7285ce1ac..301f95427159 100755
---- a/tools/perf/tests/shell/record.sh
-+++ b/tools/perf/tests/shell/record.sh
-@@ -61,7 +61,7 @@ test_register_capture() {
-     echo "Register capture test [Skipped missing registers]"
-     return
-   fi
--  if ! perf record -o - --intr-regs=di,r8,dx,cx -e cpu/br_inst_retired.near_call/p \
-+  if ! perf record -o - --intr-regs=di,r8,dx,cx -e br_inst_retired.near_call:p \
-     -c 1000 --per-thread true 2> /dev/null \
-     | perf script -F ip,sym,iregs -i - 2> /dev/null \
-     | egrep -q "DI:"
+diff --git a/fs/coredump.c b/fs/coredump.c
+index 26eb5a095832..43fdd82f82ab 100644
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -902,6 +902,38 @@ static int __dump_skip(struct coredump_params *cprm, size_t nr)
+ 	}
+ }
+ 
++static int dump_emit_page(struct coredump_params *cprm, struct page *page)
++{
++	struct bio_vec bvec = {
++		.bv_page	= page,
++		.bv_offset	= 0,
++		.bv_len		= PAGE_SIZE,
++	};
++	struct iov_iter iter;
++	struct file *file = cprm->file;
++	loff_t pos = file->f_pos;
++	ssize_t n;
++
++	if (cprm->to_skip) {
++		if (!__dump_skip(cprm, cprm->to_skip))
++			return 0;
++		cprm->to_skip = 0;
++	}
++	if (cprm->written + PAGE_SIZE > cprm->limit)
++		return 0;
++	if (dump_interrupted())
++		return 0;
++	iov_iter_bvec(&iter, WRITE, &bvec, 1, PAGE_SIZE);
++	n = __kernel_write_iter(cprm->file, &iter, &pos);
++	if (n != PAGE_SIZE)
++		return 0;
++	file->f_pos = pos;
++	cprm->written += PAGE_SIZE;
++	cprm->pos += PAGE_SIZE;
++
++	return 1;
++}
++
+ int dump_emit(struct coredump_params *cprm, const void *addr, int nr)
+ {
+ 	if (cprm->to_skip) {
+@@ -933,7 +965,6 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
+ 
+ 	for (addr = start; addr < start + len; addr += PAGE_SIZE) {
+ 		struct page *page;
+-		int stop;
+ 
+ 		/*
+ 		 * To avoid having to allocate page tables for virtual address
+@@ -944,10 +975,7 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
+ 		 */
+ 		page = get_dump_page(addr);
+ 		if (page) {
+-			void *kaddr = kmap_local_page(page);
+-
+-			stop = !dump_emit(cprm, kaddr, PAGE_SIZE);
+-			kunmap_local(kaddr);
++			int stop = !dump_emit_page(cprm, page);
+ 			put_page(page);
+ 			if (stop)
+ 				return 0;
+diff --git a/fs/internal.h b/fs/internal.h
+index 4f1fe6d08866..69b64136ae4c 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -16,6 +16,7 @@ struct shrink_control;
+ struct fs_context;
+ struct user_namespace;
+ struct pipe_inode_info;
++struct iov_iter;
+ 
+ /*
+  * block/bdev.c
+@@ -219,3 +220,5 @@ struct xattr_ctx {
+ int setxattr_copy(const char __user *name, struct xattr_ctx *ctx);
+ int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+ 		struct xattr_ctx *ctx);
++
++ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos);
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 8d3ec975514d..08299a8f3e05 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -512,14 +512,9 @@ static ssize_t new_sync_write(struct file *filp, const char __user *buf, size_t
+ }
+ 
+ /* caller is responsible for file_start_write/file_end_write */
+-ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
++ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos)
+ {
+-	struct kvec iov = {
+-		.iov_base	= (void *)buf,
+-		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
+-	};
+ 	struct kiocb kiocb;
+-	struct iov_iter iter;
+ 	ssize_t ret;
+ 
+ 	if (WARN_ON_ONCE(!(file->f_mode & FMODE_WRITE)))
+@@ -535,8 +530,7 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
+ 
+ 	init_sync_kiocb(&kiocb, file);
+ 	kiocb.ki_pos = pos ? *pos : 0;
+-	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
+-	ret = file->f_op->write_iter(&kiocb, &iter);
++	ret = file->f_op->write_iter(&kiocb, from);
+ 	if (ret > 0) {
+ 		if (pos)
+ 			*pos = kiocb.ki_pos;
+@@ -546,6 +540,18 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
+ 	inc_syscw(current);
+ 	return ret;
+ }
++
++/* caller is responsible for file_start_write/file_end_write */
++ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
++{
++	struct kvec iov = {
++		.iov_base	= (void *)buf,
++		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
++	};
++	struct iov_iter iter;
++	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
++	return __kernel_write_iter(file, &iter, pos);
++}
+ /*
+  * This "EXPORT_SYMBOL_GPL()" is more of a "EXPORT_SYMBOL_DONTUSE()",
+  * but autofs is one of the few internal kernel users that actually
 -- 
 2.35.1
 
