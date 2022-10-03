@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41BB15F2989
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AFEF5F2A02
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbiJCHVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:21:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37232 "EHLO
+        id S231209AbiJCH31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:29:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230272AbiJCHUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:20:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D30474F3;
-        Mon,  3 Oct 2022 00:15:37 -0700 (PDT)
+        with ESMTP id S231224AbiJCH2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3859310;
+        Mon,  3 Oct 2022 00:19:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DCB360FA7;
-        Mon,  3 Oct 2022 07:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F137C433C1;
-        Mon,  3 Oct 2022 07:14:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43E5A60FC1;
+        Mon,  3 Oct 2022 07:17:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56466C433C1;
+        Mon,  3 Oct 2022 07:17:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781291;
-        bh=eMVD5vPmyzguqMoRJC/4QF+/CMCuXrg6Wt+trtOEB+I=;
+        s=korg; t=1664781442;
+        bh=vV6J72lgCKZaW1qd9qddBQY27IkQVHpqMFO4vnJKAs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=akf6TT1v6/a5PaB4fJF98cfEpzVxVtdgQNpWlAtx88AKwQL/RBknePy25uk8jKyWc
-         7P8tFxeaR2BIIeb9tK7jrUYNV3U8Fvee3X2zkIEP8SVeH6CaIA/24CNa6P8A8cWD2M
-         QLxUVO8MyJ2z1Ni6qyyZDR3+2ksjqqk9rVaAEixw=
+        b=RbNAxzqm3xKZzuwvBJ+MlRWuBlyTFzaoOYhP6Uipg7iaQmhTu409haxEMkKQ53nu+
+         cV4rKXttLmhMn4WNKsENOctfjJiKNiuiVOO88ald14SB9WUq2C2khSMQfWRt48gSIu
+         ygkcB4u+7Dl70uDuMgX7hSXZDLJ6ohi6jz5adD1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        syzbot+ff18193ff05f3f87f226@syzkaller.appspotmail.com,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.19 050/101] media: v4l2-compat-ioctl32.c: zero buffer passed to v4l2_compat_get_array_args()
+        stable@vger.kernel.org, Nicolas Pitre <npitre@baylibre.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Peng Fan <peng.fan@nxp.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.15 21/83] Revert "firmware: arm_scmi: Add clock management to the SCMI power domain"
 Date:   Mon,  3 Oct 2022 09:10:46 +0200
-Message-Id: <20221003070725.704303593@linuxfoundation.org>
+Message-Id: <20221003070722.518396983@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 4e768c8e34e639cff66a0f175bc4aebf472e4305 upstream.
+commit 3c6656337852e9f1a4079d172f3fddfbf00868f9 upstream.
 
-The v4l2_compat_get_array_args() function can leave uninitialized memory in the
-buffer it is passed. So zero it before copying array elements from userspace
-into the buffer.
+This reverts commit a3b884cef873 ("firmware: arm_scmi: Add clock management
+to the SCMI power domain").
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: syzbot+ff18193ff05f3f87f226@syzkaller.appspotmail.com
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Using the GENPD_FLAG_PM_CLK tells genpd to gate/ungate the consumer
+device's clock(s) during runtime suspend/resume through the PM clock API.
+More precisely, in genpd_runtime_resume() the clock(s) for the consumer
+device would become ungated prior to the driver-level ->runtime_resume()
+callbacks gets invoked.
+
+This behaviour isn't a good fit for all platforms/drivers. For example, a
+driver may need to make some preparations of its device in its
+->runtime_resume() callback, like calling clk_set_rate() before the
+clock(s) should be ungated. In these cases, it's easier to let the clock(s)
+to be managed solely by the driver, rather than at the PM domain level.
+
+For these reasons, let's drop the use GENPD_FLAG_PM_CLK for the SCMI PM
+domain, as to enable it to be more easily adopted across ARM platforms.
+
+Fixes: a3b884cef873 ("firmware: arm_scmi: Add clock management to the SCMI power domain")
+Cc: Nicolas Pitre <npitre@baylibre.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Tested-by: Peng Fan <peng.fan@nxp.com>
+Acked-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20220919122033.86126-1-ulf.hansson@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/v4l2-core/v4l2-compat-ioctl32.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/firmware/arm_scmi/scmi_pm_domain.c |   26 --------------------------
+ 1 file changed, 26 deletions(-)
 
---- a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-+++ b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-@@ -1040,6 +1040,8 @@ int v4l2_compat_get_array_args(struct fi
- {
- 	int err = 0;
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -8,7 +8,6 @@
+ #include <linux/err.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
+-#include <linux/pm_clock.h>
+ #include <linux/pm_domain.h>
+ #include <linux/scmi_protocol.h>
  
-+	memset(mbuf, 0, array_size);
-+
- 	switch (cmd) {
- 	case VIDIOC_G_FMT32:
- 	case VIDIOC_S_FMT32:
+@@ -53,27 +52,6 @@ static int scmi_pd_power_off(struct gene
+ 	return scmi_pd_power(domain, false);
+ }
+ 
+-static int scmi_pd_attach_dev(struct generic_pm_domain *pd, struct device *dev)
+-{
+-	int ret;
+-
+-	ret = pm_clk_create(dev);
+-	if (ret)
+-		return ret;
+-
+-	ret = of_pm_clk_add_clks(dev);
+-	if (ret >= 0)
+-		return 0;
+-
+-	pm_clk_destroy(dev);
+-	return ret;
+-}
+-
+-static void scmi_pd_detach_dev(struct generic_pm_domain *pd, struct device *dev)
+-{
+-	pm_clk_destroy(dev);
+-}
+-
+ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ {
+ 	int num_domains, i;
+@@ -124,10 +102,6 @@ static int scmi_pm_domain_probe(struct s
+ 		scmi_pd->genpd.name = scmi_pd->name;
+ 		scmi_pd->genpd.power_off = scmi_pd_power_off;
+ 		scmi_pd->genpd.power_on = scmi_pd_power_on;
+-		scmi_pd->genpd.attach_dev = scmi_pd_attach_dev;
+-		scmi_pd->genpd.detach_dev = scmi_pd_detach_dev;
+-		scmi_pd->genpd.flags = GENPD_FLAG_PM_CLK |
+-				       GENPD_FLAG_ACTIVE_WAKEUP;
+ 
+ 		pm_genpd_init(&scmi_pd->genpd, NULL,
+ 			      state == SCMI_POWER_STATE_GENERIC_OFF);
 
 
