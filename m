@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 850A55F2A82
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 469855F2ABB
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbiJCHhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33604 "EHLO
+        id S231833AbiJCHkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:40:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231603AbiJCHfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:35:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 764D752E5B;
-        Mon,  3 Oct 2022 00:22:36 -0700 (PDT)
+        with ESMTP id S232114AbiJCHjM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:39:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B196D4AD4B;
+        Mon,  3 Oct 2022 00:23:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A49B6B80E97;
-        Mon,  3 Oct 2022 07:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 226BEC433C1;
-        Mon,  3 Oct 2022 07:22:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD20660F82;
+        Mon,  3 Oct 2022 07:23:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1951C433D6;
+        Mon,  3 Oct 2022 07:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781727;
-        bh=plVRTJ6RQB2Y+VJW/WUnX3V2f6K3wgn9NwlsUDQ9SzU=;
+        s=korg; t=1664781833;
+        bh=GMND+JiP6FfH47il0s75PdswpseBf98pFHTC8n6weQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkSwmDdA3UUzIunDS0rbKHJ5U8TGEQH0NUQOjHf8plZOpPzKr2hr1WxhP95evXCIh
-         4MsI6cw7vPlzE4ymnxXFU1lLBfLQZJDND3cEDndV0RPn2KtE5Vu0IiXQ3elaQtj29K
-         wxkwsaAvtt3EcjY2ikEMTtKYWAz3y3bptV15NDao=
+        b=YiDvTgcAl4a3jQysI6EVYjB0a6mJOpo9Jn0OEFt7GTU0TzDLOaKsJ+OQUy/FbCVvx
+         DJY5lDkt/07tClRIsYYIiMvAOJrvZrzbE9pkfSsBnLy24zy80XwVqDm2aom6mXxLij
+         gQGUXmpuBqMttzEuCTSK67WbUWVKY2hieleqG3IA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/52] net: sched: act_ct: fix possible refcount leak in tcf_ct_init()
-Date:   Mon,  3 Oct 2022 09:11:49 +0200
-Message-Id: <20221003070719.987992168@linuxfoundation.org>
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>, stable@kernel.org,
+        Russell King <linux@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 08/30] Revert "net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()"
+Date:   Mon,  3 Oct 2022 09:11:50 +0200
+Message-Id: <20221003070716.514054987@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
+References: <20221003070716.269502440@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Sasha Levin <sashal@kernel.org>
 
-[ Upstream commit 6e23ec0ba92d426c77a73a9ccab16346e5e0ef49 ]
+commit 6052a4c11fd893234e085edf7bf2e00a33a79d4e upstream.
 
-nf_ct_put need to be called to put the refcount got by tcf_ct_fill_params
-to avoid possible refcount leak when tcf_ct_flow_table_get fails.
+This reverts commit fe2c9c61f668cde28dac2b188028c5299cedcc1e.
 
-Fixes: c34b961a2492 ("net/sched: act_ct: Create nf flow table per zone")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220923020046.8021-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+On Tue, Sep 13, 2022 at 05:48:58PM +0100, Russell King (Oracle) wrote:
+>What happens if this is built as a module, and the module is loaded,
+>binds (and creates the directory), then is removed, and then re-
+>inserted?  Nothing removes the old directory, so doesn't
+>debugfs_create_dir() fail, resulting in subsequent failure to add
+>any subsequent debugfs entries?
+>
+>I don't think this patch should be backported to stable trees until
+>this point is addressed.
+
+Revert until a proper fix is available as the original behavior was
+better.
+
+Cc: Marcin Wojtas <mw@semihalf.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: stable@kernel.org
+Reported-by: Russell King <linux@armlinux.org.uk>
+Fixes: fe2c9c61f668 ("net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220923234736.657413-1-sashal@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_ct.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 825b3e9b55f7..f7e88d7466c3 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -1293,7 +1293,7 @@ static int tcf_ct_init(struct net *net, struct nlattr *nla,
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
+@@ -700,10 +700,10 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *p
  
- 	err = tcf_ct_flow_table_get(params);
- 	if (err)
--		goto cleanup;
-+		goto cleanup_params;
+ void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
+ {
+-	static struct dentry *mvpp2_root;
+-	struct dentry *mvpp2_dir;
++	struct dentry *mvpp2_dir, *mvpp2_root;
+ 	int ret, i;
  
- 	spin_lock_bh(&c->tcf_lock);
- 	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
-@@ -1308,6 +1308,9 @@ static int tcf_ct_init(struct net *net, struct nlattr *nla,
++	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
+ 	if (!mvpp2_root)
+ 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
  
- 	return res;
- 
-+cleanup_params:
-+	if (params->tmpl)
-+		nf_ct_put(params->tmpl);
- cleanup:
- 	if (goto_ch)
- 		tcf_chain_put_by_act(goto_ch);
--- 
-2.35.1
-
 
 
