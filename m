@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C38A55F2BC0
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E125F2C5E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbiJCI2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
+        id S230360AbiJCIts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:49:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229973AbiJCI1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:27:49 -0400
+        with ESMTP id S229588AbiJCIta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:49:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AA8631C7;
-        Mon,  3 Oct 2022 01:01:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D215B07F;
+        Mon,  3 Oct 2022 01:30:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3C44B80E72;
-        Mon,  3 Oct 2022 07:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC47C433D6;
-        Mon,  3 Oct 2022 07:22:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 568F4B80E69;
+        Mon,  3 Oct 2022 07:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF636C433D6;
+        Mon,  3 Oct 2022 07:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781768;
-        bh=cpCVBfEEkJqs7QBRYgWzX3T+LcvjhTXGSX8iyTgbex8=;
+        s=korg; t=1664781825;
+        bh=ZpKjv/MqU+BVENNAyJSrumUBGjzF0RDQDNmlN6qablY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFLy9pPnHUsJwzsiBHKRvPaPnNQXU9F+a37lG9phxn7eCBSPLJve5iQvPN7pcvFhV
-         UbKOazaZFwaQ31QbFTc5hwFfQgjsOuaFfoV1KvueZapoOHsgc7oAaJaTtK8UoQ70ND
-         q+9jOtGGJzH9/9B7poxk/ELZUof6EosLIDIcOnqs=
+        b=fjdRARYjUU9+spMegTLL4rmpFzZEq4X0nqRdbNTLeA4npx5hE0fIi/gPUYu5RS3Kd
+         3//d/BjniIdBKDkmP51XjkXhBSix3hklUucryq0qBXntlkcefcdxYnrzzjFmKt/ECq
+         rCWAEWYBV/+rAu6n/CMl2qoRQCPjPIYWjGM08fZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/52] soc: sunxi: sram: Actually claim SRAM regions
-Date:   Mon,  3 Oct 2022 09:11:40 +0200
-Message-Id: <20221003070719.716633061@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 05/30] clk: ingenic-tcu: Properly enable registers before accessing timers
+Date:   Mon,  3 Oct 2022 09:11:47 +0200
+Message-Id: <20221003070716.426598715@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
+References: <20221003070716.269502440@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 
-[ Upstream commit fd362baad2e659ef0fb5652f023a606b248f1781 ]
+commit 6726d552a6912e88cf63fe2bda87b2efa0efc7d0 upstream.
 
-sunxi_sram_claim() checks the sram_desc->claimed flag before updating
-the register, with the intent that only one device can claim a region.
-However, this was ineffective because the flag was never set.
+Access to registers is guarded by ingenic_tcu_{enable,disable}_regs()
+so the stop bit can be cleared before accessing a timer channel, but
+those functions did not clear the stop bit on SoCs with a global TCU
+clock gate.
 
-Fixes: 4af34b572a85 ("drivers: soc: sunxi: Introduce SoC driver to map SRAMs")
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220815041248.53268-4-samuel@sholland.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Testing on the X1000 has revealed that the stop bits must be cleared
+_and_ the global TCU clock must be ungated to access timer registers.
+This appears to be the norm on Ingenic SoCs, and is specified in the
+documentation for the X1000 and numerous JZ47xx SoCs.
+
+If the stop bit isn't cleared, register writes don't take effect and
+the system can be left in a broken state, eg. the watchdog timer may
+not run.
+
+The bug probably went unnoticed because stop bits are zeroed when
+the SoC is reset, and the kernel does not set them unless a timer
+gets disabled at runtime. However, it is possible that a bootloader
+or a previous kernel (if using kexec) leaves the stop bits set and
+we should not rely on them being cleared.
+
+Fixing this is easy: have ingenic_tcu_{enable,disable}_regs() always
+clear the stop bit, regardless of the presence of a global TCU gate.
+
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: 4f89e4b8f121 ("clk: ingenic: Add driver for the TCU clocks")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+Link: https://lore.kernel.org/r/20220617122254.738900-1-aidanmacdonald.0x0@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sunxi/sunxi_sram.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/ingenic/tcu.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/soc/sunxi/sunxi_sram.c b/drivers/soc/sunxi/sunxi_sram.c
-index d4c7bd59429e..5d1305483542 100644
---- a/drivers/soc/sunxi/sunxi_sram.c
-+++ b/drivers/soc/sunxi/sunxi_sram.c
-@@ -254,6 +254,7 @@ int sunxi_sram_claim(struct device *dev)
- 	writel(val | ((device << sram_data->offset) & mask),
- 	       base + sram_data->reg);
+--- a/drivers/clk/ingenic/tcu.c
++++ b/drivers/clk/ingenic/tcu.c
+@@ -100,15 +100,11 @@ static bool ingenic_tcu_enable_regs(stru
+ 	bool enabled = false;
  
-+	sram_desc->claimed = true;
- 	spin_unlock(&sram_lock);
+ 	/*
+-	 * If the SoC has no global TCU clock, we must ungate the channel's
+-	 * clock to be able to access its registers.
+-	 * If we have a TCU clock, it will be enabled automatically as it has
+-	 * been attached to the regmap.
++	 * According to the programming manual, a timer channel's registers can
++	 * only be accessed when the channel's stop bit is clear.
+ 	 */
+-	if (!tcu->clk) {
+-		enabled = !!ingenic_tcu_is_enabled(hw);
+-		regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
+-	}
++	enabled = !!ingenic_tcu_is_enabled(hw);
++	regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
  
- 	return 0;
--- 
-2.35.1
-
+ 	return enabled;
+ }
+@@ -119,8 +115,7 @@ static void ingenic_tcu_disable_regs(str
+ 	const struct ingenic_tcu_clk_info *info = tcu_clk->info;
+ 	struct ingenic_tcu *tcu = tcu_clk->tcu;
+ 
+-	if (!tcu->clk)
+-		regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
++	regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
+ }
+ 
+ static u8 ingenic_tcu_get_parent(struct clk_hw *hw)
 
 
