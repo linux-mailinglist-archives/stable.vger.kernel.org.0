@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C14C45F29FB
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2E55F2988
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230516AbiJCH3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44086 "EHLO
+        id S230361AbiJCHVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:21:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231293AbiJCH2m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808756558;
-        Mon,  3 Oct 2022 00:19:42 -0700 (PDT)
+        with ESMTP id S230271AbiJCHUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:20:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736A74360F;
+        Mon,  3 Oct 2022 00:15:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6406B80E83;
-        Mon,  3 Oct 2022 07:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1697AC433C1;
-        Mon,  3 Oct 2022 07:18:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA1E960F99;
+        Mon,  3 Oct 2022 07:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B92C433D6;
+        Mon,  3 Oct 2022 07:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781491;
-        bh=q4QHpmaaAtyn9aGU+5Hj6gU92GcrlTjqLaYaAGTdoRs=;
+        s=korg; t=1664781297;
+        bh=aQkC18YX8ieVc7dyMexU5cFq2VZtUWkJcX6Z3IBJ8GA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9yPgHoXkzR1EIPKAEoG0xd8EhY5qQFZaLsFg3RGbgj3RfsRfixQh3GmHIKoSpOEP
-         XmZYqQKz/PxofSxppZyySpgHL+pnpChRz/Z2XZKDaMNi5Ly2pcmGEB7kWyE4wEw6KJ
-         UjZqI9VRD7GNVKnPbEqXnD9bdf8misBwKgW3b62U=
+        b=V8RjS6YqZb3lBzpwe1C3bG140zS04eTzFI+lneWb3AEz7211t88bewTmdIY+oxYr+
+         kXA/p1Lkn9K4kGCch4LmIt1eoQzubKa5v/VozBHuGr2BdbBHAA1ERo2cFXeJ6oduIW
+         27YBXCXGIBFRlKAAvIhsJjdUxEh37SKoQSoQMd0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Zhu <hongxing.zhu@nxp.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Marek Vasut <marex@denx.de>,
-        Richard Leitner <richard.leitner@skidata.com>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 40/83] reset: imx7: Fix the iMX8MP PCIe PHY PERST support
+Subject: [PATCH 5.19 069/101] gpio: mvebu: Fix check for pwm support on non-A8K platforms
 Date:   Mon,  3 Oct 2022 09:11:05 +0200
-Message-Id: <20221003070723.003755296@linuxfoundation.org>
+Message-Id: <20221003070726.187680370@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Zhu <hongxing.zhu@nxp.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 051d9eb403887bb11852b7a4f744728a6a4b1b58 ]
+[ Upstream commit 4335417da2b8d6d9b2d4411b5f9e248e5bb2d380 ]
 
-On i.MX7/iMX8MM/iMX8MQ, the initialized default value of PERST bit(BIT3)
-of SRC_PCIEPHY_RCR is 1b'1.
-But i.MX8MP has one inversed default value 1b'0 of PERST bit.
+pwm support incompatible with Armada 80x0/70x0 API is not only in
+Armada 370, but also in Armada XP, 38x and 39x. So basically every non-A8K
+platform. Fix check for pwm support appropriately.
 
-And the PERST bit should be kept 1b'1 after power and clocks are stable.
-So fix the i.MX8MP PCIe PHY PERST support here.
-
-Fixes: e08672c03981 ("reset: imx7: Add support for i.MX8MP SoC")
-Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Marek Vasut <marex@denx.de>
-Tested-by: Richard Leitner <richard.leitner@skidata.com>
-Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/1661845564-11373-5-git-send-email-hongxing.zhu@nxp.com
+Fixes: 85b7d8abfec7 ("gpio: mvebu: add pwm support for Armada 8K/7K")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-imx7.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpio-mvebu.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/reset/reset-imx7.c b/drivers/reset/reset-imx7.c
-index 185a333df66c..d2408725eb2c 100644
---- a/drivers/reset/reset-imx7.c
-+++ b/drivers/reset/reset-imx7.c
-@@ -329,6 +329,7 @@ static int imx8mp_reset_set(struct reset_controller_dev *rcdev,
- 		break;
+diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
+index 2db19cd640a4..de1e7a1a76f2 100644
+--- a/drivers/gpio/gpio-mvebu.c
++++ b/drivers/gpio/gpio-mvebu.c
+@@ -793,8 +793,12 @@ static int mvebu_pwm_probe(struct platform_device *pdev,
+ 	u32 offset;
+ 	u32 set;
  
- 	case IMX8MP_RESET_PCIE_CTRL_APPS_EN:
-+	case IMX8MP_RESET_PCIEPHY_PERST:
- 		value = assert ? 0 : bit;
- 		break;
+-	if (of_device_is_compatible(mvchip->chip.of_node,
+-				    "marvell,armada-370-gpio")) {
++	if (mvchip->soc_variant == MVEBU_GPIO_SOC_VARIANT_A8K) {
++		int ret = of_property_read_u32(dev->of_node,
++					       "marvell,pwm-offset", &offset);
++		if (ret < 0)
++			return 0;
++	} else {
+ 		/*
+ 		 * There are only two sets of PWM configuration registers for
+ 		 * all the GPIO lines on those SoCs which this driver reserves
+@@ -804,13 +808,6 @@ static int mvebu_pwm_probe(struct platform_device *pdev,
+ 		if (!platform_get_resource_byname(pdev, IORESOURCE_MEM, "pwm"))
+ 			return 0;
+ 		offset = 0;
+-	} else if (mvchip->soc_variant == MVEBU_GPIO_SOC_VARIANT_A8K) {
+-		int ret = of_property_read_u32(dev->of_node,
+-					       "marvell,pwm-offset", &offset);
+-		if (ret < 0)
+-			return 0;
+-	} else {
+-		return 0;
  	}
+ 
+ 	if (IS_ERR(mvchip->clk))
 -- 
 2.35.1
 
