@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA185F2910
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76AE55F2914
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbiJCHM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47120 "EHLO
+        id S229849AbiJCHNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbiJCHMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D8EF3ECD4;
-        Mon,  3 Oct 2022 00:12:31 -0700 (PDT)
+        with ESMTP id S229851AbiJCHMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E33A83ED51;
+        Mon,  3 Oct 2022 00:12:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33DF2B80E6A;
-        Mon,  3 Oct 2022 07:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AB8FC433D6;
-        Mon,  3 Oct 2022 07:12:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD0DDB80E65;
+        Mon,  3 Oct 2022 07:12:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C2AC433D6;
+        Mon,  3 Oct 2022 07:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781147;
-        bh=O78QZj8Ieb5nrjcDXaWFVlxMIPOKNh/0qd969ar7LEM=;
+        s=korg; t=1664781150;
+        bh=bAsZibJ+SV/6sKdKx+eVm7gzU6Hj6eFDQbdIssBdeA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqDYZJCZOsBPbqsHPoJTXVpK5bvF0ZOJBDREEo0BoemBmYROuckh9+yLPNZBcuRfn
-         nbw3/1Ba4BcwIy54hhXSypz5RiquYgJ2MJ7W2SEhEH+bNn2qwipxUwffF+sKg2aLsO
-         gNdUulvhK9mrw0shJ+WpGH4ocUoKlb4VJNvEBWJw=
+        b=SJKXsziGOQOt2UfnzokKEuQMkSe+/h8uyj98Ix6iTzi5wyohiWEq2Y7ehByLiOAN3
+         pk4pMN4Pqnfy3frwIj8KK7y7hahJ5V8W7BtCLu6lbUywB65+IHrsSAdxczU+37g5cn
+         pQy+rfMpoU7R24Iv9fpD8tIECB17ZsCv8vOsxYsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.19 015/101] clk: ingenic-tcu: Properly enable registers before accessing timers
-Date:   Mon,  3 Oct 2022 09:10:11 +0200
-Message-Id: <20221003070724.882002128@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.19 016/101] wifi: mac80211: ensure vif queues are operational after start
+Date:   Mon,  3 Oct 2022 09:10:12 +0200
+Message-Id: <20221003070724.905319582@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -53,76 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-commit 6726d552a6912e88cf63fe2bda87b2efa0efc7d0 upstream.
+commit 527008e5e87600a389feb8a57042c928ecca195d upstream.
 
-Access to registers is guarded by ingenic_tcu_{enable,disable}_regs()
-so the stop bit can be cleared before accessing a timer channel, but
-those functions did not clear the stop bit on SoCs with a global TCU
-clock gate.
+Make sure local->queue_stop_reasons and vif.txqs_stopped stay in sync.
 
-Testing on the X1000 has revealed that the stop bits must be cleared
-_and_ the global TCU clock must be ungated to access timer registers.
-This appears to be the norm on Ingenic SoCs, and is specified in the
-documentation for the X1000 and numerous JZ47xx SoCs.
+When a new vif is created the queues may end up in an inconsistent state
+and be inoperable:
+Communication not using iTXQ will work, allowing to e.g. complete the
+association. But the 4-way handshake will time out. The sta will not
+send out any skbs queued in iTXQs.
 
-If the stop bit isn't cleared, register writes don't take effect and
-the system can be left in a broken state, eg. the watchdog timer may
-not run.
+All normal attempts to start the queues will fail when reaching this
+state.
+local->queue_stop_reasons will have marked all queues as operational but
+vif.txqs_stopped will still be set, creating an inconsistent internal
+state.
 
-The bug probably went unnoticed because stop bits are zeroed when
-the SoC is reset, and the kernel does not set them unless a timer
-gets disabled at runtime. However, it is possible that a bootloader
-or a previous kernel (if using kexec) leaves the stop bits set and
-we should not rely on them being cleared.
+In reality this seems to be race between the mac80211 function
+ieee80211_do_open() setting SDATA_STATE_RUNNING and the wake_txqs_tasklet:
+Depending on the driver and the timing the queues may end up to be
+operational or not.
 
-Fixing this is easy: have ingenic_tcu_{enable,disable}_regs() always
-clear the stop bit, regardless of the presence of a global TCU gate.
-
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
-Fixes: 4f89e4b8f121 ("clk: ingenic: Add driver for the TCU clocks")
 Cc: stable@vger.kernel.org
-Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-Link: https://lore.kernel.org/r/20220617122254.738900-1-aidanmacdonald.0x0@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: f856373e2f31 ("wifi: mac80211: do not wake queues on a vif that is being stopped")
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Acked-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20220915130946.302803-1-alexander@wetzel-home.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/ingenic/tcu.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ net/mac80211/util.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/ingenic/tcu.c
-+++ b/drivers/clk/ingenic/tcu.c
-@@ -101,15 +101,11 @@ static bool ingenic_tcu_enable_regs(stru
- 	bool enabled = false;
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 53826c663723..efcefb2dd882 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -301,14 +301,14 @@ static void __ieee80211_wake_txqs(struct ieee80211_sub_if_data *sdata, int ac)
+ 	local_bh_disable();
+ 	spin_lock(&fq->lock);
  
- 	/*
--	 * If the SoC has no global TCU clock, we must ungate the channel's
--	 * clock to be able to access its registers.
--	 * If we have a TCU clock, it will be enabled automatically as it has
--	 * been attached to the regmap.
-+	 * According to the programming manual, a timer channel's registers can
-+	 * only be accessed when the channel's stop bit is clear.
- 	 */
--	if (!tcu->clk) {
--		enabled = !!ingenic_tcu_is_enabled(hw);
--		regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
--	}
-+	enabled = !!ingenic_tcu_is_enabled(hw);
-+	regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
++	sdata->vif.txqs_stopped[ac] = false;
++
+ 	if (!test_bit(SDATA_STATE_RUNNING, &sdata->state))
+ 		goto out;
  
- 	return enabled;
- }
-@@ -120,8 +116,7 @@ static void ingenic_tcu_disable_regs(str
- 	const struct ingenic_tcu_clk_info *info = tcu_clk->info;
- 	struct ingenic_tcu *tcu = tcu_clk->tcu;
+ 	if (sdata->vif.type == NL80211_IFTYPE_AP)
+ 		ps = &sdata->bss->ps;
  
--	if (!tcu->clk)
--		regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
-+	regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
- }
- 
- static u8 ingenic_tcu_get_parent(struct clk_hw *hw)
+-	sdata->vif.txqs_stopped[ac] = false;
+-
+ 	list_for_each_entry_rcu(sta, &local->sta_list, list) {
+ 		if (sdata != sta->sdata)
+ 			continue;
+-- 
+2.37.3
+
 
 
