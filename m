@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E45F5F2952
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E17B5F2953
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230130AbiJCHRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58112 "EHLO
+        id S230134AbiJCHRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbiJCHQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:16:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36ED146602;
-        Mon,  3 Oct 2022 00:13:52 -0700 (PDT)
+        with ESMTP id S230011AbiJCHQq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:16:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CCDA46604;
+        Mon,  3 Oct 2022 00:13:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1484B80E6B;
-        Mon,  3 Oct 2022 07:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59BD9C433C1;
-        Mon,  3 Oct 2022 07:13:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF1F660F9C;
+        Mon,  3 Oct 2022 07:13:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0167CC433C1;
+        Mon,  3 Oct 2022 07:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781229;
-        bh=X1Hz+u9FsRDHqr1BOnIwNn2OeuPOmZB0yb2KcNknYag=;
+        s=korg; t=1664781232;
+        bh=WH8xXGMb++7ru7vAHuHr8eK/naEzy0QN+TcJ34WR0qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLPblokSRcXIAQUS3uyFOW5IyMUoSpYhbUk7FjSKj/A07iSPqqg+0miWdSMsVYHhn
-         WV6UYzJiVjajSYi/0My1FobfraaWtoo+f5ZqO5WBLszZmBX/1hak/dBZ+H9KNlKPHH
-         LjW1FKOTWymYPyIKiidKB/PReQvzUeQJ3G9fg1UE=
+        b=JMWfcZYh23t+vT5K/IkC3vGLJkXNJscPk1GdCzW2kLFifPynFaRhe/5GP+oiS1lJl
+         jvn+FF+MQcbIUEb/cB5kMEQQK5pPk050YnXJ0GYA6W8E8ulbUz+JJVAxqqFxkRDRoy
+         e3QVb8cdK06Ra2gR3FtuFBnsUy8B5mB21vVl0R8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Muchun Song <songmuchun@bytedance.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 044/101] mm: bring back update_mmu_cache() to finish_fault()
-Date:   Mon,  3 Oct 2022 09:10:40 +0200
-Message-Id: <20221003070725.558888398@linuxfoundation.org>
+Subject: [PATCH 5.19 045/101] mm/hugetlb: correct demote page offset logic
+Date:   Mon,  3 Oct 2022 09:10:41 +0200
+Message-Id: <20221003070725.581159438@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -54,92 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Antonov <saproj@gmail.com>
+From: Doug Berger <opendmb@gmail.com>
 
-commit 70427f6e9ecfc8c5f977b21dd9f846b3bda02500 upstream.
+commit 317314527d173e1f139ceaf8cb87cb1746abf240 upstream.
 
-Running this test program on ARMv4 a few times (sometimes just once)
-reproduces the bug.
+With gigantic pages it may not be true that struct page structures are
+contiguous across the entire gigantic page.  The nth_page macro is used
+here in place of direct pointer arithmetic to correct for this.
 
-int main()
-{
-        unsigned i;
-        char paragon[SIZE];
-        void* ptr;
+Mike said:
 
-        memset(paragon, 0xAA, SIZE);
-        ptr = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-                   MAP_ANON | MAP_SHARED, -1, 0);
-        if (ptr == MAP_FAILED) return 1;
-        printf("ptr = %p\n", ptr);
-        for (i=0;i<10000;i++){
-                memset(ptr, 0xAA, SIZE);
-                if (memcmp(ptr, paragon, SIZE)) {
-                        printf("Unexpected bytes on iteration %u!!!\n", i);
-                        break;
-                }
-        }
-        munmap(ptr, SIZE);
-}
+: This error could cause addressing exceptions.  However, this is only
+: possible in configurations where CONFIG_SPARSEMEM &&
+: !CONFIG_SPARSEMEM_VMEMMAP.  Such a configuration option is rare and
+: unknown to be the default anywhere.
 
-In the "ptr" buffer there appear runs of zero bytes which are aligned
-by 16 and their lengths are multiple of 16.
-
-Linux v5.11 does not have the bug, "git bisect" finds the first bad commit:
-f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-
-Before the commit update_mmu_cache() was called during a call to
-filemap_map_pages() as well as finish_fault(). After the commit
-finish_fault() lacks it.
-
-Bring back update_mmu_cache() to finish_fault() to fix the bug.
-Also call update_mmu_tlb() only when returning VM_FAULT_NOPAGE to more
-closely reproduce the code of alloc_set_pte() function that existed before
-the commit.
-
-On many platforms update_mmu_cache() is nop:
- x86, see arch/x86/include/asm/pgtable
- ARMv6+, see arch/arm/include/asm/tlbflush.h
-So, it seems, few users ran into this bug.
-
-Link: https://lkml.kernel.org/r/20220908204809.2012451-1-saproj@gmail.com
-Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Will Deacon <will@kernel.org>
+Link: https://lkml.kernel.org/r/20220914190917.3517663-1-opendmb@gmail.com
+Fixes: 8531fc6f52f5 ("hugetlb: add hugetlb demote page support")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ mm/hugetlb.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4378,14 +4378,20 @@ vm_fault_t finish_fault(struct vm_fault
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3418,6 +3418,7 @@ static int demote_free_huge_page(struct
+ {
+ 	int i, nid = page_to_nid(page);
+ 	struct hstate *target_hstate;
++	struct page *subpage;
+ 	int rc = 0;
  
- 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
- 				      vmf->address, &vmf->ptl);
--	ret = 0;
-+
- 	/* Re-check under ptl */
--	if (likely(!vmf_pte_changed(vmf)))
-+	if (likely(!vmf_pte_changed(vmf))) {
- 		do_set_pte(vmf, page, vmf->address);
--	else
-+
-+		/* no need to invalidate: a not-present page won't be cached */
-+		update_mmu_cache(vma, vmf->address, vmf->pte);
-+
-+		ret = 0;
-+	} else {
-+		update_mmu_tlb(vma, vmf->address, vmf->pte);
- 		ret = VM_FAULT_NOPAGE;
-+	}
+ 	target_hstate = size_to_hstate(PAGE_SIZE << h->demote_order);
+@@ -3451,15 +3452,16 @@ static int demote_free_huge_page(struct
+ 	mutex_lock(&target_hstate->resize_lock);
+ 	for (i = 0; i < pages_per_huge_page(h);
+ 				i += pages_per_huge_page(target_hstate)) {
++		subpage = nth_page(page, i);
+ 		if (hstate_is_gigantic(target_hstate))
+-			prep_compound_gigantic_page_for_demote(page + i,
++			prep_compound_gigantic_page_for_demote(subpage,
+ 							target_hstate->order);
+ 		else
+-			prep_compound_page(page + i, target_hstate->order);
+-		set_page_private(page + i, 0);
+-		set_page_refcounted(page + i);
+-		prep_new_huge_page(target_hstate, page + i, nid);
+-		put_page(page + i);
++			prep_compound_page(subpage, target_hstate->order);
++		set_page_private(subpage, 0);
++		set_page_refcounted(subpage);
++		prep_new_huge_page(target_hstate, subpage, nid);
++		put_page(subpage);
+ 	}
+ 	mutex_unlock(&target_hstate->resize_lock);
  
--	update_mmu_tlb(vma, vmf->address, vmf->pte);
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
- 	return ret;
- }
 
 
