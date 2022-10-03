@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6B75F29AF
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 309135F2A6C
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbiJCHX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:23:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53006 "EHLO
+        id S231694AbiJCHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:36:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiJCHWe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:22:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF6A42ACB;
-        Mon,  3 Oct 2022 00:16:44 -0700 (PDT)
+        with ESMTP id S231874AbiJCHes (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A424A12E;
+        Mon,  3 Oct 2022 00:22:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EE62B80E81;
-        Mon,  3 Oct 2022 07:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE87C43147;
-        Mon,  3 Oct 2022 07:16:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C453B80E6B;
+        Mon,  3 Oct 2022 07:20:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3BA5C433C1;
+        Mon,  3 Oct 2022 07:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781402;
-        bh=5P0xPnBni2NMZ7vC4rX45isOsYP7Y3Sw/60Evz320Gs=;
+        s=korg; t=1664781653;
+        bh=ZpKjv/MqU+BVENNAyJSrumUBGjzF0RDQDNmlN6qablY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yud/V1ByErvgBhwzOuaFtg5w+V75tR8hss4kyyqcN8Si40EsIuBc/8ZQNyCiL+ab
-         XX45eX3b7r1/Xq01ehQFbIQtBYrkADHeKuWZ9nCMX/QzUPJsigifBKhlYS8jCb3Txg
-         rCv1Wtc+YVEYJPrfPPn8ihHkTdUsaTzRGit7iieE=
+        b=ss063P/ExmHm9E/ZbawBhNbgISKhPYs65rRbU51uak7TkPEjxui9kkduSMeJccZxK
+         9x6F/Ycaz51zd8GQoCeetsfxNOrcLkBjr389uUyTkkvBPaXoUZX0OnvLpOAB2ck3Z/
+         a2B4Cw9UV4ViedxfyqJt4FFLarH7jVTfHzAPzUGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Angus Chen <angus.chen@jaguarmicro.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Zhu Lingshan <lingshan.zhu@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 086/101] vdpa/ifcvf: fix the calculation of queuepair
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.10 15/52] clk: ingenic-tcu: Properly enable registers before accessing timers
 Date:   Mon,  3 Oct 2022 09:11:22 +0200
-Message-Id: <20221003070726.587974474@linuxfoundation.org>
+Message-Id: <20221003070719.179858559@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Chen <angus.chen@jaguarmicro.com>
+From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 
-[ Upstream commit db5db1a00d0816207be3a0166fcb4f523eaf3b52 ]
+commit 6726d552a6912e88cf63fe2bda87b2efa0efc7d0 upstream.
 
-The q_pair_id to address a queue pair in the lm bar should be
-calculated by queue_id / 2 rather than queue_id / nr_vring.
+Access to registers is guarded by ingenic_tcu_{enable,disable}_regs()
+so the stop bit can be cleared before accessing a timer channel, but
+those functions did not clear the stop bit on SoCs with a global TCU
+clock gate.
 
-Fixes: 2ddae773c93b ("vDPA/ifcvf: detect and use the onboard number of queues directly")
-Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-Reviewed-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Message-Id: <20220923091013.191-1-angus.chen@jaguarmicro.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Testing on the X1000 has revealed that the stop bits must be cleared
+_and_ the global TCU clock must be ungated to access timer registers.
+This appears to be the norm on Ingenic SoCs, and is specified in the
+documentation for the X1000 and numerous JZ47xx SoCs.
+
+If the stop bit isn't cleared, register writes don't take effect and
+the system can be left in a broken state, eg. the watchdog timer may
+not run.
+
+The bug probably went unnoticed because stop bits are zeroed when
+the SoC is reset, and the kernel does not set them unless a timer
+gets disabled at runtime. However, it is possible that a bootloader
+or a previous kernel (if using kexec) leaves the stop bits set and
+we should not rely on them being cleared.
+
+Fixing this is easy: have ingenic_tcu_{enable,disable}_regs() always
+clear the stop bit, regardless of the presence of a global TCU gate.
+
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: 4f89e4b8f121 ("clk: ingenic: Add driver for the TCU clocks")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+Link: https://lore.kernel.org/r/20220617122254.738900-1-aidanmacdonald.0x0@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_base.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/ingenic/tcu.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-index 48c4dadb0c7c..a4c1b985f79a 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-@@ -315,7 +315,7 @@ u16 ifcvf_get_vq_state(struct ifcvf_hw *hw, u16 qid)
- 	u32 q_pair_id;
+--- a/drivers/clk/ingenic/tcu.c
++++ b/drivers/clk/ingenic/tcu.c
+@@ -100,15 +100,11 @@ static bool ingenic_tcu_enable_regs(stru
+ 	bool enabled = false;
  
- 	ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
--	q_pair_id = qid / hw->nr_vring;
-+	q_pair_id = qid / 2;
- 	avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
- 	last_avail_idx = vp_ioread16(avail_idx_addr);
+ 	/*
+-	 * If the SoC has no global TCU clock, we must ungate the channel's
+-	 * clock to be able to access its registers.
+-	 * If we have a TCU clock, it will be enabled automatically as it has
+-	 * been attached to the regmap.
++	 * According to the programming manual, a timer channel's registers can
++	 * only be accessed when the channel's stop bit is clear.
+ 	 */
+-	if (!tcu->clk) {
+-		enabled = !!ingenic_tcu_is_enabled(hw);
+-		regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
+-	}
++	enabled = !!ingenic_tcu_is_enabled(hw);
++	regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
  
-@@ -329,7 +329,7 @@ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num)
- 	u32 q_pair_id;
+ 	return enabled;
+ }
+@@ -119,8 +115,7 @@ static void ingenic_tcu_disable_regs(str
+ 	const struct ingenic_tcu_clk_info *info = tcu_clk->info;
+ 	struct ingenic_tcu *tcu = tcu_clk->tcu;
  
- 	ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
--	q_pair_id = qid / hw->nr_vring;
-+	q_pair_id = qid / 2;
- 	avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
- 	hw->vring[qid].last_avail_idx = num;
- 	vp_iowrite16(num, avail_idx_addr);
--- 
-2.35.1
-
+-	if (!tcu->clk)
+-		regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
++	regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
+ }
+ 
+ static u8 ingenic_tcu_get_parent(struct clk_hw *hw)
 
 
