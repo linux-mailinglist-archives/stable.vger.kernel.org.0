@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2283D5F29FC
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0F85F2ACF
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbiJCH3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:29:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55608 "EHLO
+        id S231971AbiJCHl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:41:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230515AbiJCH2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:03 -0400
+        with ESMTP id S231978AbiJCHlW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:41:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D036AEE39;
-        Mon,  3 Oct 2022 00:19:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB3E4AD45;
+        Mon,  3 Oct 2022 00:24:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90FBA60FA6;
-        Mon,  3 Oct 2022 07:19:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D1DC433D6;
-        Mon,  3 Oct 2022 07:19:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D6E660FA0;
+        Mon,  3 Oct 2022 07:23:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4032FC433C1;
+        Mon,  3 Oct 2022 07:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781570;
-        bh=88y6V89ZhIC2mAYvMvB8/89AVze1JwN4vvrzk+RVBGw=;
+        s=korg; t=1664781779;
+        bh=C3YAV3lrI8QAUFa6ta1NH/nFMDR6H6EJh8SGAbeV0q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7B3yMshQ3UDwSmjtGghGQkLC+szmeaWdE8x4pi2cyhyBipCz967QRsqPThQ7wjeF
-         YvPVUiYZCSGqN606xg49kgg1nkUBdqFXp85+U3m/NRJVJRRB8DaNyWoVYsRjQl95ms
-         jdtMEN8vintE5A3PRW3Ov5uGuq7OQr/d6jP6M+38=
+        b=uuJ5NyDGxK0XvAzdIkP04WVtM0hup/24n84H+KEkAG+zcR9uF8u4+QMDkQfI2il+E
+         71YHAl/P/VDK63Y4CkW2Bo8NLNWYCSVcZO/kzRc2XDQcO5KYyF9D1zSdRDpw/C/X7Z
+         M73C6t0iLsQeUPoseUdAV9K1aYpD1w4025t/6IWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Han Xu <han.xu@nxp.com>,
-        Fabio Estevam <festevam@denx.de>,
-        Abel Vesa <abel.vesa@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 68/83] clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
-Date:   Mon,  3 Oct 2022 09:11:33 +0200
-Message-Id: <20221003070723.699047440@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.10 27/52] media: dvb_vb2: fix possible out of bound access
+Date:   Mon,  3 Oct 2022 09:11:34 +0200
+Message-Id: <20221003070719.537199276@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Han Xu <han.xu@nxp.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit b1ff1bfe81e763420afd5f3f25f0b3cbfd97055c ]
+commit 37238699073e7e93f05517e529661151173cd458 upstream.
 
-There is no dedicate parent clock for QSPI so SET_RATE_PARENT flag
-should not be used. For instance, the default parent clock for QSPI is
-pll2_bus, which is also the parent clock for quite a few modules, such
-as MMDC, once GPMI NAND set clock rate for EDO5 mode can cause system
-hang due to pll2_bus rate changed.
+vb2_core_qbuf and vb2_core_querybuf don't check the range of b->index
+controlled by the user.
 
-Fixes: f1541e15e38e ("clk: imx6sx: Switch to clk_hw based API")
-Signed-off-by: Han Xu <han.xu@nxp.com>
-Link: https://lore.kernel.org/r/20220915150959.3646702-1-han.xu@nxp.com
-Tested-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by adding range checking code before using them.
+
+Fixes: 57868acc369a ("media: videobuf2: Add new uAPI for DVB streaming I/O")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/imx/clk-imx6sx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/dvb-core/dvb_vb2.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/clk/imx/clk-imx6sx.c b/drivers/clk/imx/clk-imx6sx.c
-index fc1bd23d4583..598f3cf4eba4 100644
---- a/drivers/clk/imx/clk-imx6sx.c
-+++ b/drivers/clk/imx/clk-imx6sx.c
-@@ -280,13 +280,13 @@ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6SX_CLK_SSI3_SEL]           = imx_clk_hw_mux("ssi3_sel",         base + 0x1c,  14,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
- 	hws[IMX6SX_CLK_SSI2_SEL]           = imx_clk_hw_mux("ssi2_sel",         base + 0x1c,  12,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
- 	hws[IMX6SX_CLK_SSI1_SEL]           = imx_clk_hw_mux("ssi1_sel",         base + 0x1c,  10,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
--	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux_flags("qspi1_sel", base + 0x1c,  7, 3, qspi1_sels, ARRAY_SIZE(qspi1_sels), CLK_SET_RATE_PARENT);
-+	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux("qspi1_sel",        base + 0x1c,  7,      3,      qspi1_sels,        ARRAY_SIZE(qspi1_sels));
- 	hws[IMX6SX_CLK_PERCLK_SEL]         = imx_clk_hw_mux("perclk_sel",       base + 0x1c,  6,      1,      perclk_sels,       ARRAY_SIZE(perclk_sels));
- 	hws[IMX6SX_CLK_VID_SEL]            = imx_clk_hw_mux("vid_sel",          base + 0x20,  21,     3,      vid_sels,          ARRAY_SIZE(vid_sels));
- 	hws[IMX6SX_CLK_ESAI_SEL]           = imx_clk_hw_mux("esai_sel",         base + 0x20,  19,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_CAN_SEL]            = imx_clk_hw_mux("can_sel",          base + 0x20,  8,      2,      can_sels,          ARRAY_SIZE(can_sels));
- 	hws[IMX6SX_CLK_UART_SEL]           = imx_clk_hw_mux("uart_sel",         base + 0x24,  6,      1,      uart_sels,         ARRAY_SIZE(uart_sels));
--	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux_flags("qspi2_sel", base + 0x2c, 15, 3, qspi2_sels, ARRAY_SIZE(qspi2_sels), CLK_SET_RATE_PARENT);
-+	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux("qspi2_sel",        base + 0x2c,  15,     3,      qspi2_sels,        ARRAY_SIZE(qspi2_sels));
- 	hws[IMX6SX_CLK_SPDIF_SEL]          = imx_clk_hw_mux("spdif_sel",        base + 0x30,  20,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_AUDIO_SEL]          = imx_clk_hw_mux("audio_sel",        base + 0x30,  7,      2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_ENET_PRE_SEL]       = imx_clk_hw_mux("enet_pre_sel",     base + 0x34,  15,     3,      enet_pre_sels,     ARRAY_SIZE(enet_pre_sels));
--- 
-2.35.1
-
+--- a/drivers/media/dvb-core/dvb_vb2.c
++++ b/drivers/media/dvb-core/dvb_vb2.c
+@@ -358,6 +358,12 @@ int dvb_vb2_reqbufs(struct dvb_vb2_ctx *
+ 
+ int dvb_vb2_querybuf(struct dvb_vb2_ctx *ctx, struct dmx_buffer *b)
+ {
++	struct vb2_queue *q = &ctx->vb_q;
++
++	if (b->index >= q->num_buffers) {
++		dprintk(1, "[%s] buffer index out of range\n", ctx->name);
++		return -EINVAL;
++	}
+ 	vb2_core_querybuf(&ctx->vb_q, b->index, b);
+ 	dprintk(3, "[%s] index=%d\n", ctx->name, b->index);
+ 	return 0;
+@@ -382,8 +388,13 @@ int dvb_vb2_expbuf(struct dvb_vb2_ctx *c
+ 
+ int dvb_vb2_qbuf(struct dvb_vb2_ctx *ctx, struct dmx_buffer *b)
+ {
++	struct vb2_queue *q = &ctx->vb_q;
+ 	int ret;
+ 
++	if (b->index >= q->num_buffers) {
++		dprintk(1, "[%s] buffer index out of range\n", ctx->name);
++		return -EINVAL;
++	}
+ 	ret = vb2_core_qbuf(&ctx->vb_q, b->index, b, NULL);
+ 	if (ret) {
+ 		dprintk(1, "[%s] index=%d errno=%d\n", ctx->name,
 
 
