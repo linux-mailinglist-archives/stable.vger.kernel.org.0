@@ -2,127 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3265F2938
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0925F29BC
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230028AbiJCHQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:16:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53742 "EHLO
+        id S230232AbiJCHYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:24:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229987AbiJCHPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:15:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C3742AF4;
-        Mon,  3 Oct 2022 00:13:18 -0700 (PDT)
+        with ESMTP id S230513AbiJCHXu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:23:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D441342ACF;
+        Mon,  3 Oct 2022 00:17:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 065FD60F9E;
-        Mon,  3 Oct 2022 07:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F76C433C1;
-        Mon,  3 Oct 2022 07:13:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1694B80E81;
+        Mon,  3 Oct 2022 07:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40A1FC433D7;
+        Mon,  3 Oct 2022 07:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781197;
-        bh=XlEsKmMwMZ0trT6yuKAC/k9dEZb/s+PDZV0Hw2+rCEc=;
+        s=korg; t=1664781461;
+        bh=5dWP7lw1Qow/y37RCWa0fod+8ef29E1Bg24Jjgp5cyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vK09H3mUGSIONW3HRhMo/4aqSqk/WwPXIj5zzPep5s7UZ5ZJpC2T1JU8vJ2PhVuNR
-         qENnkW8k7+px5MG7hJ84d2t56bsqvuRFRw8ccjZevggsn3vohKfuBM/02HwnQi+LL0
-         ZhXVFIxxmr1hZyC5hJLLwLIf02DOpQx8eb6UQJxU=
+        b=fJRlikeDHG/gGUhNaMVMfhHtQB5ozEXZVMnTkyJETtk7gTtQZkPkRdqPMbeJULMgf
+         rky4YaylMiSkZM2KdQThmIp3hn9MC7S6IwBPoz5/Pqy5Ut2TjOro+t43gG6UbXN0ig
+         F/ovOYnQSXHs5IkwnENJujFQro64AWuDkXWP0PAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
-        Jonas Jensen <jonas.jensen@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 033/101] mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
+        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 04/83] ALSA: hda/realtek: fix speakers and micmute on HP 855 G8
 Date:   Mon,  3 Oct 2022 09:10:29 +0200
-Message-Id: <20221003070725.292524007@linuxfoundation.org>
+Message-Id: <20221003070722.090573944@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_SBL_A autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Antonov <saproj@gmail.com>
+From: Alexander Sergeyev <sergeev917@gmail.com>
 
-commit 35ca91d1338ae158f6dcc0de5d1e86197924ffda upstream.
+[ Upstream commit 91502a9a0b0d5252cf3f32ebd898823c2f5aadab ]
 
-According to the datasheet [1] at page 377, 4-bit bus width is turned on by
-bit 2 of the Bus Width Register. Thus the current bitmask is wrong: define
-BUS_WIDTH_4 BIT(1)
+There are several PCI ids associated with HP EliteBook 855 G8 Notebook
+PC. Commit 0e68c4b11f1e6 ("ALSA: hda/realtek: fix mute/micmute LEDs for
+HP 855 G8") covers 0x103c:0x8896, while this commit covers 0x103c:0x8895
+which needs some additional work on top of the quirk from 0e68c4b11f1e6.
 
-BIT(1) does not work but BIT(2) works. This has been verified on real MOXA
-hardware with FTSDC010 controller revision 1_6_0.
+Note that the device can boot up with working speakers and micmute LED
+without this patch, but the success rate would be quite low (order of
+16 working boots across 709 boots) at least for the built-in drivers
+scenario. This also means that there are some timing issues during early
+boot and this patch is a workaround.
 
-The corrected value of BUS_WIDTH_4 mask collides with: define BUS_WIDTH_8
-BIT(2). Additionally, 8-bit bus width mode isn't supported according to the
-datasheet, so let's remove the corresponding code.
+With this patch applied speakers and headphones are consistenly working,
+as well as mute/micmute LEDs and the internal microphone.
 
-[1]
-https://bitbucket.org/Kasreyn/mkrom-uc7112lx/src/master/documents/FIC8120_DS_v1.2.pdf
-
-Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Cc: Jonas Jensen <jonas.jensen@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220907205753.1577434-1-saproj@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexander Sergeyev <sergeev917@gmail.com>
+Link: https://lore.kernel.org/r/20220114165050.ouw2nknuspclynro@localhost.localdomain
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Stable-dep-of: 496322302bf1 ("ALSA: hda/realtek: Add a quirk for HP OMEN 16 (8902) mute LED")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/moxart-mmc.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ sound/pci/hda/patch_realtek.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/mmc/host/moxart-mmc.c
-+++ b/drivers/mmc/host/moxart-mmc.c
-@@ -111,8 +111,8 @@
- #define CLK_DIV_MASK		0x7f
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index c4b3f2d3c7e3..f7b6a516439d 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6939,6 +6939,7 @@ enum {
+ 	ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME,
+ 	ALC285_FIXUP_LEGION_Y9000X_SPEAKERS,
+ 	ALC285_FIXUP_LEGION_Y9000X_AUTOMUTE,
++	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
+ };
  
- /* REG_BUS_WIDTH */
--#define BUS_WIDTH_8		BIT(2)
--#define BUS_WIDTH_4		BIT(1)
-+#define BUS_WIDTH_4_SUPPORT	BIT(3)
-+#define BUS_WIDTH_4		BIT(2)
- #define BUS_WIDTH_1		BIT(0)
+ /* A special fixup for Lenovo C940 and Yoga Duet 7;
+@@ -8753,6 +8754,16 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
++	[ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x19 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x8e11 },
++			 { }
++		},
++		.chained = true,
++		.chain_id = ALC285_FIXUP_HP_MUTE_LED,
++	},
+ };
  
- #define MMC_VDD_360		23
-@@ -524,9 +524,6 @@ static void moxart_set_ios(struct mmc_ho
- 	case MMC_BUS_WIDTH_4:
- 		writel(BUS_WIDTH_4, host->base + REG_BUS_WIDTH);
- 		break;
--	case MMC_BUS_WIDTH_8:
--		writel(BUS_WIDTH_8, host->base + REG_BUS_WIDTH);
--		break;
- 	default:
- 		writel(BUS_WIDTH_1, host->base + REG_BUS_WIDTH);
- 		break;
-@@ -651,16 +648,8 @@ static int moxart_probe(struct platform_
- 		dmaengine_slave_config(host->dma_chan_rx, &cfg);
- 	}
- 
--	switch ((readl(host->base + REG_BUS_WIDTH) >> 3) & 3) {
--	case 1:
-+	if (readl(host->base + REG_BUS_WIDTH) & BUS_WIDTH_4_SUPPORT)
- 		mmc->caps |= MMC_CAP_4_BIT_DATA;
--		break;
--	case 2:
--		mmc->caps |= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA;
--		break;
--	default:
--		break;
--	}
- 
- 	writel(0, host->base + REG_INTERRUPT_MASK);
- 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8976,6 +8987,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x888d, "HP ZBook Power 15.6 inch G8 Mobile Workstation PC", ALC236_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8895, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8898, "HP EliteBook 845 G8 Notebook PC", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
+-- 
+2.35.1
+
 
 
