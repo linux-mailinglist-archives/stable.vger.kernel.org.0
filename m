@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C405F2A2D
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB825F2986
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:21:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231462AbiJCHcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
+        id S230096AbiJCHVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:21:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbiJCHbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:31:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8AEB39B9A;
-        Mon,  3 Oct 2022 00:20:26 -0700 (PDT)
+        with ESMTP id S230175AbiJCHTf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:19:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41F1836085;
+        Mon,  3 Oct 2022 00:15:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96411B80E8F;
-        Mon,  3 Oct 2022 07:19:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5EA5C433C1;
-        Mon,  3 Oct 2022 07:19:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D63460F9C;
+        Mon,  3 Oct 2022 07:14:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29991C433D6;
+        Mon,  3 Oct 2022 07:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781556;
-        bh=C3YAV3lrI8QAUFa6ta1NH/nFMDR6H6EJh8SGAbeV0q0=;
+        s=korg; t=1664781283;
+        bh=Qe5853b8q3StE752n98hzL/qO1smAiykNgi21DIQF0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkCosw6mUqs17qtqur8Gk7O5j+bitWPu/xBPKe0lSz8g8f2AhY5ZrJrVJ6rcia1R7
-         JrU/GQj7D8wHJNerBaR0GiTRKfO80rgEzE1b8jWFwPNLqmDG+KVxuFdHTbCrmvW6S4
-         I1EGNaw7uH31fHwUUfP0tyZFyncvKiyhQIT5470A=
+        b=PTsCdMqqmcICrp7bGZJf4ncnjqVYWYgAaMPzJpOfrU/jnUjjULQRV7bXeuXDQrAOC
+         +AYTlNrbDDLMqyJR3zaT/m1fu+vH8CjMFl0bVoifW4RJPhNt+C94nStMR9r2F3LfpB
+         QSEkwO/5+0yVWz8VRNxkYfc4yjBfHZRw/zCqUthE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.15 35/83] media: dvb_vb2: fix possible out of bound access
-Date:   Mon,  3 Oct 2022 09:11:00 +0200
-Message-Id: <20221003070722.877315558@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 065/101] drm/bridge: lt8912b: fix corrupted image output
+Date:   Mon,  3 Oct 2022 09:11:01 +0200
+Message-Id: <20221003070726.086890033@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-commit 37238699073e7e93f05517e529661151173cd458 upstream.
+[ Upstream commit 051ad2788d35ca07aec8402542e5d38429f2426a ]
 
-vb2_core_qbuf and vb2_core_querybuf don't check the range of b->index
-controlled by the user.
+Correct I2C address for the register list in lt8912_write_lvds_config(),
+these registers are on the first I2C address (0x48), the current
+function is just writing garbage to the wrong registers and this creates
+multiple issues (artifacts and output completely corrupted) on some HDMI
+displays.
 
-Fix this by adding range checking code before using them.
+Correct I2C address comes from Lontium documentation and it is the one
+used on other out-of-tree LT8912B drivers [1].
 
-Fixes: 57868acc369a ("media: videobuf2: Add new uAPI for DVB streaming I/O")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://github.com/boundarydevices/linux/blob/boundary-imx_5.10.x_2.0.0/drivers/video/lt8912.c#L296
+
+Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Acked-by: Adrien Grassein <adrien.grassein@gmail.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220922124306.34729-4-dev@pschenker.ch
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvb_vb2.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/bridge/lontium-lt8912b.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/dvb-core/dvb_vb2.c
-+++ b/drivers/media/dvb-core/dvb_vb2.c
-@@ -358,6 +358,12 @@ int dvb_vb2_reqbufs(struct dvb_vb2_ctx *
+diff --git a/drivers/gpu/drm/bridge/lontium-lt8912b.c b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+index bab3772c8407..167cd7d85dbb 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
++++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+@@ -186,7 +186,7 @@ static int lt8912_write_lvds_config(struct lt8912 *lt)
+ 		{0x03, 0xff},
+ 	};
  
- int dvb_vb2_querybuf(struct dvb_vb2_ctx *ctx, struct dmx_buffer *b)
- {
-+	struct vb2_queue *q = &ctx->vb_q;
-+
-+	if (b->index >= q->num_buffers) {
-+		dprintk(1, "[%s] buffer index out of range\n", ctx->name);
-+		return -EINVAL;
-+	}
- 	vb2_core_querybuf(&ctx->vb_q, b->index, b);
- 	dprintk(3, "[%s] index=%d\n", ctx->name, b->index);
- 	return 0;
-@@ -382,8 +388,13 @@ int dvb_vb2_expbuf(struct dvb_vb2_ctx *c
+-	return regmap_multi_reg_write(lt->regmap[I2C_CEC_DSI], seq, ARRAY_SIZE(seq));
++	return regmap_multi_reg_write(lt->regmap[I2C_MAIN], seq, ARRAY_SIZE(seq));
+ };
  
- int dvb_vb2_qbuf(struct dvb_vb2_ctx *ctx, struct dmx_buffer *b)
- {
-+	struct vb2_queue *q = &ctx->vb_q;
- 	int ret;
- 
-+	if (b->index >= q->num_buffers) {
-+		dprintk(1, "[%s] buffer index out of range\n", ctx->name);
-+		return -EINVAL;
-+	}
- 	ret = vb2_core_qbuf(&ctx->vb_q, b->index, b, NULL);
- 	if (ret) {
- 		dprintk(1, "[%s] index=%d errno=%d\n", ctx->name,
+ static inline struct lt8912 *bridge_to_lt8912(struct drm_bridge *b)
+-- 
+2.35.1
+
 
 
