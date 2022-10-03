@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F825F29ED
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7C735F2934
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbiJCH2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
+        id S229924AbiJCHPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:15:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231167AbiJCH1T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:27:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8B843618;
-        Mon,  3 Oct 2022 00:19:00 -0700 (PDT)
+        with ESMTP id S229797AbiJCHPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:15:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFBE4456D;
+        Mon,  3 Oct 2022 00:13:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C94CB80E89;
-        Mon,  3 Oct 2022 07:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA046C43148;
-        Mon,  3 Oct 2022 07:16:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84E6C60F9D;
+        Mon,  3 Oct 2022 07:13:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95928C433C1;
+        Mon,  3 Oct 2022 07:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781408;
-        bh=r9SMDNYMlc+TY4sI5YWGS0MJ2SeqlzjB8zbPnpwEWPs=;
+        s=korg; t=1664781192;
+        bh=oI7WoSRs0qWoU3rqb4Lgv2/KUIFnQrRNqyd6f56F2ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYxFM0nGOKW38lnV0uzovxXsdCCtLwMiyD/L7mLn16GopMdcA2WzWOkBBD5N7syGG
-         sp4ER4frzJ7hSR4/OR+gwzBeSYZOv0v7D6ZipLYl6iawRWvtqpemvOZ/aoPfX6TR6E
-         PndQClD+Sz7bJnE553N6j/nKRUxXWf6E2g4w3iGo=
+        b=oZkzG+JIWEDQliKN1FtSslAc8U7Vlal6xodrsct6PL71uLn3sQhLKeYWNkkLyaA5c
+         EaBlTVRyL3A4wSOXk30sYX9xfdf6v2qRVWiDP1c+/UUbymqlGjXivK4E9fimA2uF1Z
+         50WAJItwoc353pe9X7QND3aFzsLcH2JRbNCkDkvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 01/83] ALSA: hda: Do disconnect jacks at codec unbind
-Date:   Mon,  3 Oct 2022 09:10:26 +0200
-Message-Id: <20221003070722.010820864@linuxfoundation.org>
+        stable@vger.kernel.org, Jiang Biao <benbjiang@tencent.com>,
+        Mengen Sun <mengensun@tencent.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 031/101] mptcp: factor out __mptcp_close() without socket lock
+Date:   Mon,  3 Oct 2022 09:10:27 +0200
+Message-Id: <20221003070725.245896745@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,85 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Menglong Dong <imagedong@tencent.com>
 
-[ Upstream commit 37c4fd0db7c961145d9d1909ecab386fdf703c26 ]
+commit 26d3e21ce1aab6cb19069c510fac8e7474445b18 upstream.
 
-The HD-audio codec driver remove may happen also at dynamically
-unbinding during operation, hence it needs manual triggers of
-snd_device_disconnect() calls, while it's missing for the jack objects
-that are associated with the codec.
+Factor out __mptcp_close() from mptcp_close(). The caller of
+__mptcp_close() should hold the socket lock, and cancel mptcp work when
+__mptcp_close() returns true.
 
-This patch adds the manual disconnection call for jacks when the
-remove happens without card->shutdown (i.e. not under the full
-removal).
+This function will be used in the next commit.
 
-Link: https://lore.kernel.org/r/20211117133040.20272-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: ead3d3c5b54f ("ALSA: hda: Fix hang at HD-audio codec unbinding due to refcount saturation")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f296234c98a8 ("mptcp: Add handling of incoming MP_JOIN requests")
+Fixes: 6aeed9045071 ("mptcp: fix race on unaccepted mptcp sockets")
+Cc: stable@vger.kernel.org
+Reviewed-by: Jiang Biao <benbjiang@tencent.com>
+Reviewed-by: Mengen Sun <mengensun@tencent.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Menglong Dong <imagedong@tencent.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_bind.c |  2 ++
- sound/pci/hda/hda_jack.c | 11 +++++++++++
- sound/pci/hda/hda_jack.h |  1 +
- 3 files changed, 14 insertions(+)
+ net/mptcp/protocol.c |   14 ++++++++++++--
+ net/mptcp/protocol.h |    1 +
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
-index 7153bd53e189..c572fb5886d5 100644
---- a/sound/pci/hda/hda_bind.c
-+++ b/sound/pci/hda/hda_bind.c
-@@ -14,6 +14,7 @@
- #include <sound/core.h>
- #include <sound/hda_codec.h>
- #include "hda_local.h"
-+#include "hda_jack.h"
- 
- /*
-  * find a matching codec id
-@@ -158,6 +159,7 @@ static int hda_codec_driver_remove(struct device *dev)
- 
- 	refcount_dec(&codec->pcm_ref);
- 	snd_hda_codec_disconnect_pcms(codec);
-+	snd_hda_jack_tbl_disconnect(codec);
- 	wait_event(codec->remove_sleep, !refcount_read(&codec->pcm_ref));
- 	snd_power_sync_ref(codec->bus->card);
- 
-diff --git a/sound/pci/hda/hda_jack.c b/sound/pci/hda/hda_jack.c
-index f29975e3e98d..7d7786df60ea 100644
---- a/sound/pci/hda/hda_jack.c
-+++ b/sound/pci/hda/hda_jack.c
-@@ -158,6 +158,17 @@ snd_hda_jack_tbl_new(struct hda_codec *codec, hda_nid_t nid, int dev_id)
- 	return jack;
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2832,13 +2832,12 @@ static void __mptcp_destroy_sock(struct
+ 	sock_put(sk);
  }
  
-+void snd_hda_jack_tbl_disconnect(struct hda_codec *codec)
-+{
-+	struct hda_jack_tbl *jack = codec->jacktbl.list;
-+	int i;
+-static void mptcp_close(struct sock *sk, long timeout)
++bool __mptcp_close(struct sock *sk, long timeout)
+ {
+ 	struct mptcp_subflow_context *subflow;
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 	bool do_cancel_work = false;
+ 
+-	lock_sock(sk);
+ 	sk->sk_shutdown = SHUTDOWN_MASK;
+ 
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE)) {
+@@ -2880,6 +2879,17 @@ cleanup:
+ 	} else {
+ 		mptcp_reset_timeout(msk, 0);
+ 	}
 +
-+	for (i = 0; i < codec->jacktbl.used; i++, jack++) {
-+		if (!codec->bus->shutdown && jack->jack)
-+			snd_device_disconnect(codec->card, jack->jack);
-+	}
++	return do_cancel_work;
 +}
 +
- void snd_hda_jack_tbl_clear(struct hda_codec *codec)
- {
- 	struct hda_jack_tbl *jack = codec->jacktbl.list;
-diff --git a/sound/pci/hda/hda_jack.h b/sound/pci/hda/hda_jack.h
-index 2abf7aac243a..ff7d289c034b 100644
---- a/sound/pci/hda/hda_jack.h
-+++ b/sound/pci/hda/hda_jack.h
-@@ -69,6 +69,7 @@ struct hda_jack_tbl *
- snd_hda_jack_tbl_get_from_tag(struct hda_codec *codec,
- 			      unsigned char tag, int dev_id);
++static void mptcp_close(struct sock *sk, long timeout)
++{
++	bool do_cancel_work;
++
++	lock_sock(sk);
++
++	do_cancel_work = __mptcp_close(sk, timeout);
+ 	release_sock(sk);
+ 	if (do_cancel_work)
+ 		mptcp_cancel_work(sk);
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -613,6 +613,7 @@ void mptcp_subflow_reset(struct sock *ss
+ void mptcp_subflow_queue_clean(struct sock *ssk);
+ void mptcp_sock_graft(struct sock *sk, struct socket *parent);
+ struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
++bool __mptcp_close(struct sock *sk, long timeout);
  
-+void snd_hda_jack_tbl_disconnect(struct hda_codec *codec);
- void snd_hda_jack_tbl_clear(struct hda_codec *codec);
- 
- void snd_hda_jack_set_dirty_all(struct hda_codec *codec);
--- 
-2.35.1
-
+ bool mptcp_addresses_equal(const struct mptcp_addr_info *a,
+ 			   const struct mptcp_addr_info *b, bool use_port);
 
 
