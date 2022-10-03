@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B655F2B1C
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6185F2AE5
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232319AbiJCHrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:47:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
+        id S229897AbiJCHo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229549AbiJCHrJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:47:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D895258DCF;
-        Mon,  3 Oct 2022 00:26:50 -0700 (PDT)
+        with ESMTP id S232199AbiJCHnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:43:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BC4F7F;
+        Mon,  3 Oct 2022 00:25:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5627760FD1;
-        Mon,  3 Oct 2022 07:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B435C433C1;
-        Mon,  3 Oct 2022 07:25:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD45AB80E85;
+        Mon,  3 Oct 2022 07:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1191DC43470;
+        Mon,  3 Oct 2022 07:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781927;
-        bh=HzWNp5YyPkS2fPfnmk/Ug6wOXveeiRA34eO/DWm4nXw=;
+        s=korg; t=1664781930;
+        bh=7QuY/R7TUa6IcLI0yP2FjJ56tqDnwMl1fXfia1kTBLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRCgYBrSpdO+19aNJXjttuTxlosBZW3z0yNZA9XmVc8JYCH/ZOoD+J428UuPBvUGj
-         tri2xA/lu7IOIwRrFP2y+yU8s2VEh/JlilRKenE0EaWBRCfQGRw9Fl9i/Nf8/Jd6BE
-         yTVmXeF0aN7jPTzlYjKAXjcTQXZTaAs43o91gz4A=
+        b=pXHOsFF/kvhMQG0nsjyOf74hrGSj+cffL2zwck3BPaybs5xUTPwaUMww8TnxjSWdm
+         e9yPUfm6Z4BK/l+BOXnLz9jfRicPzC6FLvjhB8LdcFEqVx1lYgnRJnYqCtaX48Kjxs
+         Mz+OtC8L9I1ThZQPEC5nxoFChlc5MV0u+emdVn3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/25] selftests: Fix the if conditions of in test_extra_filter()
-Date:   Mon,  3 Oct 2022 09:12:27 +0200
-Message-Id: <20221003070716.119830172@linuxfoundation.org>
+Subject: [PATCH 4.19 25/25] clk: iproc: Do not rely on node name for correct PLL setup
+Date:   Mon,  3 Oct 2022 09:12:28 +0200
+Message-Id: <20221003070716.149633667@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
 References: <20221003070715.406550966@linuxfoundation.org>
@@ -53,35 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit bc7a319844891746135dc1f34ab9df78d636a3ac ]
+[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
 
-The socket 2 bind the addr in use, bind should fail with EADDRINUSE. So
-if bind success or errno != EADDRINUSE, testcase should be failed.
+After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
+description") a warning from clk-iproc-pll.c was generated due to a
+duplicate PLL name as well as the console stopped working. Upon closer
+inspection it became clear that iproc_pll_clk_setup() used the Device
+Tree node unit name as an unique identifier as well as a parent name to
+parent all clocks under the PLL.
 
-Fixes: 3ca8e4029969 ("soreuseport: BPF selection functional test")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1663916557-10730-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+BCM5301X was the first platform on which that got noticed because of the
+DT node unit name renaming but the same assumptions hold true for any
+user of the iproc_pll_clk_setup() function.
+
+The first 'clock-output-names' property is always guaranteed to be
+unique as well as providing the actual desired PLL clock name, so we
+utilize that to register the PLL and as a parent name of all children
+clock.
+
+Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/reuseport_bpf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/net/reuseport_bpf.c b/tools/testing/selftests/net/reuseport_bpf.c
-index b5277106df1f..b0cc082fbb84 100644
---- a/tools/testing/selftests/net/reuseport_bpf.c
-+++ b/tools/testing/selftests/net/reuseport_bpf.c
-@@ -330,7 +330,7 @@ static void test_extra_filter(const struct test_params p)
- 	if (bind(fd1, addr, sockaddr_size()))
- 		error(1, errno, "failed to bind recv socket 1");
+diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
+index 274441e2ddb2..8f0619f362e3 100644
+--- a/drivers/clk/bcm/clk-iproc-pll.c
++++ b/drivers/clk/bcm/clk-iproc-pll.c
+@@ -736,6 +736,7 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	const char *parent_name;
+ 	struct iproc_clk *iclk_array;
+ 	struct clk_hw_onecell_data *clk_data;
++	const char *clk_name;
  
--	if (!bind(fd2, addr, sockaddr_size()) && errno != EADDRINUSE)
-+	if (!bind(fd2, addr, sockaddr_size()) || errno != EADDRINUSE)
- 		error(1, errno, "bind socket 2 should fail with EADDRINUSE");
+ 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
+ 		return;
+@@ -783,7 +784,12 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	iclk = &iclk_array[0];
+ 	iclk->pll = pll;
  
- 	free(addr);
+-	init.name = node->name;
++	ret = of_property_read_string_index(node, "clock-output-names",
++					    0, &clk_name);
++	if (WARN_ON(ret))
++		goto err_pll_register;
++
++	init.name = clk_name;
+ 	init.ops = &iproc_pll_ops;
+ 	init.flags = 0;
+ 	parent_name = of_clk_get_parent_name(node, 0);
+@@ -803,13 +809,11 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 		goto err_pll_register;
+ 
+ 	clk_data->hws[0] = &iclk->hw;
++	parent_name = clk_name;
+ 
+ 	/* now initialize and register all leaf clocks */
+ 	for (i = 1; i < num_clks; i++) {
+-		const char *clk_name;
+-
+ 		memset(&init, 0, sizeof(init));
+-		parent_name = node->name;
+ 
+ 		ret = of_property_read_string_index(node, "clock-output-names",
+ 						    i, &clk_name);
 -- 
 2.35.1
 
