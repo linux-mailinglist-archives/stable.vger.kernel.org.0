@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB825F2986
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 514E95F2A3B
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbiJCHVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:21:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
+        id S231363AbiJCHdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:33:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbiJCHTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:19:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41F1836085;
-        Mon,  3 Oct 2022 00:15:13 -0700 (PDT)
+        with ESMTP id S231501AbiJCHcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:32:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451E24DF38;
+        Mon,  3 Oct 2022 00:21:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D63460F9C;
-        Mon,  3 Oct 2022 07:14:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29991C433D6;
-        Mon,  3 Oct 2022 07:14:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38E6DB80E90;
+        Mon,  3 Oct 2022 07:19:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D040C433C1;
+        Mon,  3 Oct 2022 07:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781283;
-        bh=Qe5853b8q3StE752n98hzL/qO1smAiykNgi21DIQF0E=;
+        s=korg; t=1664781558;
+        bh=bLvLAYpSrTFfe7GvDq+4us9MRoQncBYlB1SEYr38dPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTsCdMqqmcICrp7bGZJf4ncnjqVYWYgAaMPzJpOfrU/jnUjjULQRV7bXeuXDQrAOC
-         +AYTlNrbDDLMqyJR3zaT/m1fu+vH8CjMFl0bVoifW4RJPhNt+C94nStMR9r2F3LfpB
-         QSEkwO/5+0yVWz8VRNxkYfc4yjBfHZRw/zCqUthE=
+        b=BZwIlliDb0ifwulFXDOeGPWCQMZv1aZVh/HGeUdNFU8ixPucTf8tyGozsN2FWGJjz
+         xQJSKen1tLHiuKB/ARyWuTww4ANUqWm4YALgTRcI0L2CguHCPZ2UBu0dHpK8sopqiL
+         dRP/lQZjs6XaR7WOka8A8AgCTAJoWO9/0c4Znr6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Philippe Schenker <philippe.schenker@toradex.com>,
-        Adrien Grassein <adrien.grassein@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 065/101] drm/bridge: lt8912b: fix corrupted image output
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 36/83] media: rkvdec: Disable H.264 error detection
 Date:   Mon,  3 Oct 2022 09:11:01 +0200
-Message-Id: <20221003070726.086890033@linuxfoundation.org>
+Message-Id: <20221003070722.901877992@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit 051ad2788d35ca07aec8402542e5d38429f2426a ]
+commit 3a99c4474112f49a5459933d8758614002ca0ddc upstream.
 
-Correct I2C address for the register list in lt8912_write_lvds_config(),
-these registers are on the first I2C address (0x48), the current
-function is just writing garbage to the wrong registers and this creates
-multiple issues (artifacts and output completely corrupted) on some HDMI
-displays.
+Quite often, the HW get stuck in error condition if a stream error
+was detected. As documented, the HW should stop immediately and self
+reset. There is likely a problem or a miss-understanding of the self
+reset mechanism, as unless we make a long pause, the next command
+will then report an error even if there is no error in it.
 
-Correct I2C address comes from Lontium documentation and it is the one
-used on other out-of-tree LT8912B drivers [1].
+Disabling error detection fixes the issue, and let the decoder continue
+after an error. This patch is safe for backport into older kernels.
 
-[1] https://github.com/boundarydevices/linux/blob/boundary-imx_5.10.x_2.0.0/drivers/video/lt8912.c#L296
-
-Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-Acked-by: Adrien Grassein <adrien.grassein@gmail.com>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220922124306.34729-4-dev@pschenker.ch
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Tested-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt8912b.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/rkvdec/rkvdec-h264.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt8912b.c b/drivers/gpu/drm/bridge/lontium-lt8912b.c
-index bab3772c8407..167cd7d85dbb 100644
---- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
-@@ -186,7 +186,7 @@ static int lt8912_write_lvds_config(struct lt8912 *lt)
- 		{0x03, 0xff},
- 	};
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -1124,8 +1124,8 @@ static int rkvdec_h264_run(struct rkvdec
  
--	return regmap_multi_reg_write(lt->regmap[I2C_CEC_DSI], seq, ARRAY_SIZE(seq));
-+	return regmap_multi_reg_write(lt->regmap[I2C_MAIN], seq, ARRAY_SIZE(seq));
- };
+ 	schedule_delayed_work(&rkvdec->watchdog_work, msecs_to_jiffies(2000));
  
- static inline struct lt8912 *bridge_to_lt8912(struct drm_bridge *b)
--- 
-2.35.1
-
+-	writel(0xffffffff, rkvdec->regs + RKVDEC_REG_STRMD_ERR_EN);
+-	writel(0xffffffff, rkvdec->regs + RKVDEC_REG_H264_ERR_E);
++	writel(0, rkvdec->regs + RKVDEC_REG_STRMD_ERR_EN);
++	writel(0, rkvdec->regs + RKVDEC_REG_H264_ERR_E);
+ 	writel(1, rkvdec->regs + RKVDEC_REG_PREF_LUMA_CACHE_COMMAND);
+ 	writel(1, rkvdec->regs + RKVDEC_REG_PREF_CHR_CACHE_COMMAND);
+ 
 
 
