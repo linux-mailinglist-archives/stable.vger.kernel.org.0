@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF375F2906
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D2E5F2908
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbiJCHMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47078 "EHLO
+        id S229757AbiJCHM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229773AbiJCHMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F52537193;
-        Mon,  3 Oct 2022 00:12:15 -0700 (PDT)
+        with ESMTP id S229780AbiJCHMW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90A33F1F4;
+        Mon,  3 Oct 2022 00:12:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D398060F9C;
-        Mon,  3 Oct 2022 07:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6290C433C1;
-        Mon,  3 Oct 2022 07:12:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8139860F9A;
+        Mon,  3 Oct 2022 07:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94015C433D6;
+        Mon,  3 Oct 2022 07:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781134;
-        bh=au0Hli03x+hD2RTJxEq0cDrYZzeJVBLQh548M23Y5B4=;
+        s=korg; t=1664781137;
+        bh=BgZzQqLPqIirT3vR3QB0OlreZGbOrUkEFdJUep8FaqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q07wUe/N+lJUxTHcJo6P/UFvSuUtodDyk93BIuYsBNRYFc099NSlzoAEWSJTG8S7f
-         wv7NM/qRgSeP/Oc0Ye9r65L27ei4typHclNlwDP2sKnBgvc/4kGUyEAS0aLDvF0q0O
-         PD2BkaMTP4b5YuIAt2vMBqoKP2akD3gHvsup3q/k=
+        b=mzksTy28ayoE1usI3I3F+IoeHc5ufDI5nwp8SqvbLXKBo0D6fgSDNwBuNe/24Hoz5
+         3PG4dspifhaX6Se1+iKbj7Bgr9y2lWiRGnA5/LIY/KpZk98vlOGE1aeFqU8VQmgRGO
+         0ED27qqiQQoalG+B9VV2M9qje1MX3FGxtcv9I50I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.19 010/101] usb: typec: ucsi: Remove incorrect warning
-Date:   Mon,  3 Oct 2022 09:10:06 +0200
-Message-Id: <20221003070724.762495136@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.19 011/101] thunderbolt: Explicitly reset plug events delay back to USB4 spec value
+Date:   Mon,  3 Oct 2022 09:10:07 +0200
+Message-Id: <20221003070724.785501424@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -52,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 415ba26cb73f7d22a892043301b91b57ae54db02 upstream.
+commit 31f87f705b3c1635345d8e8a493697099b43e508 upstream.
 
-Sink only devices do not have any source capabilities, so
-the driver should not warn about that. Also DRP (Dual Role
-Power) capable devices, such as USB Type-C docking stations,
-do not return any source capabilities unless they are
-plugged to a power supply themselves.
+If any software has interacted with the USB4 registers before the Linux
+USB4 CM runs, it may have modified the plug events delay. It has been
+observed that if this value too large, it's possible that hotplugged
+devices will negotiate a fallback mode instead in Linux.
 
-Fixes: 1f4642b72be7 ("usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220922145924.80667-1-heikki.krogerus@linux.intel.com
+To prevent this, explicitly align the plug events delay with the USB4
+spec value of 10ms.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/thunderbolt/switch.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -588,8 +588,6 @@ static int ucsi_get_pdos(struct ucsi_con
- 				num_pdos * sizeof(u32));
- 	if (ret < 0 && ret != -ETIMEDOUT)
- 		dev_err(ucsi->dev, "UCSI_GET_PDOS failed (%d)\n", ret);
--	if (ret == 0 && offset == 0)
--		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2413,6 +2413,7 @@ int tb_switch_configure(struct tb_switch
+ 		 * additional capabilities.
+ 		 */
+ 		sw->config.cmuv = USB4_VERSION_1_0;
++		sw->config.plug_events_delay = 0xa;
  
- 	return ret;
- }
+ 		/* Enumerate the switch */
+ 		ret = tb_sw_write(sw, (u32 *)&sw->config + 1, TB_CFG_SWITCH,
 
 
