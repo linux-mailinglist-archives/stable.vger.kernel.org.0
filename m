@@ -2,102 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740A75F2B10
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0C65F2B1E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiJCHrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39162 "EHLO
+        id S232389AbiJCHsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbiJCHqJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:46:09 -0400
+        with ESMTP id S232443AbiJCHrT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:47:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4291257898;
-        Mon,  3 Oct 2022 00:26:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD5FA5A142;
+        Mon,  3 Oct 2022 00:27:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84F90B80E8A;
-        Mon,  3 Oct 2022 07:24:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F13FAC433C1;
-        Mon,  3 Oct 2022 07:24:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1309DB80E93;
+        Mon,  3 Oct 2022 07:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC89C433D6;
+        Mon,  3 Oct 2022 07:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781858;
-        bh=nEPUAbfHDk3Ds0Bnt35UOmsG5zBVTuDwelKgWgAvUMg=;
+        s=korg; t=1664781900;
+        bh=q0My1NRdS5ALMXpoYH2Fi1xX8qrY9UD0s3A2OdbcL/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1fIXqHJBaLOt89wj+Jg043wWQWlkwj7YENc5tTRyCF+Y2NmuUCUgCTZadKCrHAQE
-         EcUYiXmyozJfCZpITLxciII71+RVeRAkaTfkSXqubSVlcQJBccIQRicTB5Jl09a0P2
-         MKGuqTCDWzfXn/1zvtn7c/Mw5zIeB1exX4uu0QMw=
+        b=p4iLJjZzOTQBRBcBn7nVTQEf6lr+GlVK+8bDxiNJ+tyQWofxRiwLFoLTG71C+Df+F
+         wFkFEyrDfnJ67JUidtyKID1OK0OKBVNcttpPzvfOuzJ3XvzQiPUanBfJLw4Twj6brB
+         wcInTr5tIGqXjoK8gXLSVowBqZT7skW++B+TeaZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Han Xu <han.xu@nxp.com>,
-        Fabio Estevam <festevam@denx.de>,
-        Abel Vesa <abel.vesa@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/30] clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
+        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
+        Jonas Jensen <jonas.jensen@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 08/25] mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
 Date:   Mon,  3 Oct 2022 09:12:11 +0200
-Message-Id: <20221003070717.191567259@linuxfoundation.org>
+Message-Id: <20221003070715.652543170@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
-References: <20221003070716.269502440@linuxfoundation.org>
+In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
+References: <20221003070715.406550966@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_SBL_A autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Han Xu <han.xu@nxp.com>
+From: Sergei Antonov <saproj@gmail.com>
 
-[ Upstream commit b1ff1bfe81e763420afd5f3f25f0b3cbfd97055c ]
+commit 35ca91d1338ae158f6dcc0de5d1e86197924ffda upstream.
 
-There is no dedicate parent clock for QSPI so SET_RATE_PARENT flag
-should not be used. For instance, the default parent clock for QSPI is
-pll2_bus, which is also the parent clock for quite a few modules, such
-as MMDC, once GPMI NAND set clock rate for EDO5 mode can cause system
-hang due to pll2_bus rate changed.
+According to the datasheet [1] at page 377, 4-bit bus width is turned on by
+bit 2 of the Bus Width Register. Thus the current bitmask is wrong: define
+BUS_WIDTH_4 BIT(1)
 
-Fixes: f1541e15e38e ("clk: imx6sx: Switch to clk_hw based API")
-Signed-off-by: Han Xu <han.xu@nxp.com>
-Link: https://lore.kernel.org/r/20220915150959.3646702-1-han.xu@nxp.com
-Tested-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BIT(1) does not work but BIT(2) works. This has been verified on real MOXA
+hardware with FTSDC010 controller revision 1_6_0.
+
+The corrected value of BUS_WIDTH_4 mask collides with: define BUS_WIDTH_8
+BIT(2). Additionally, 8-bit bus width mode isn't supported according to the
+datasheet, so let's remove the corresponding code.
+
+[1]
+https://bitbucket.org/Kasreyn/mkrom-uc7112lx/src/master/documents/FIC8120_DS_v1.2.pdf
+
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Cc: Jonas Jensen <jonas.jensen@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220907205753.1577434-1-saproj@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/imx/clk-imx6sx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/moxart-mmc.c |   17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx6sx.c b/drivers/clk/imx/clk-imx6sx.c
-index c4685c01929a..579b638b09b8 100644
---- a/drivers/clk/imx/clk-imx6sx.c
-+++ b/drivers/clk/imx/clk-imx6sx.c
-@@ -287,13 +287,13 @@ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6SX_CLK_SSI3_SEL]           = imx_clk_hw_mux("ssi3_sel",         base + 0x1c,  14,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
- 	hws[IMX6SX_CLK_SSI2_SEL]           = imx_clk_hw_mux("ssi2_sel",         base + 0x1c,  12,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
- 	hws[IMX6SX_CLK_SSI1_SEL]           = imx_clk_hw_mux("ssi1_sel",         base + 0x1c,  10,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
--	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux_flags("qspi1_sel", base + 0x1c,  7, 3, qspi1_sels, ARRAY_SIZE(qspi1_sels), CLK_SET_RATE_PARENT);
-+	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux("qspi1_sel",        base + 0x1c,  7,      3,      qspi1_sels,        ARRAY_SIZE(qspi1_sels));
- 	hws[IMX6SX_CLK_PERCLK_SEL]         = imx_clk_hw_mux("perclk_sel",       base + 0x1c,  6,      1,      perclk_sels,       ARRAY_SIZE(perclk_sels));
- 	hws[IMX6SX_CLK_VID_SEL]            = imx_clk_hw_mux("vid_sel",          base + 0x20,  21,     3,      vid_sels,          ARRAY_SIZE(vid_sels));
- 	hws[IMX6SX_CLK_ESAI_SEL]           = imx_clk_hw_mux("esai_sel",         base + 0x20,  19,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_CAN_SEL]            = imx_clk_hw_mux("can_sel",          base + 0x20,  8,      2,      can_sels,          ARRAY_SIZE(can_sels));
- 	hws[IMX6SX_CLK_UART_SEL]           = imx_clk_hw_mux("uart_sel",         base + 0x24,  6,      1,      uart_sels,         ARRAY_SIZE(uart_sels));
--	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux_flags("qspi2_sel", base + 0x2c, 15, 3, qspi2_sels, ARRAY_SIZE(qspi2_sels), CLK_SET_RATE_PARENT);
-+	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux("qspi2_sel",        base + 0x2c,  15,     3,      qspi2_sels,        ARRAY_SIZE(qspi2_sels));
- 	hws[IMX6SX_CLK_SPDIF_SEL]          = imx_clk_hw_mux("spdif_sel",        base + 0x30,  20,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_AUDIO_SEL]          = imx_clk_hw_mux("audio_sel",        base + 0x30,  7,      2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_ENET_PRE_SEL]       = imx_clk_hw_mux("enet_pre_sel",     base + 0x34,  15,     3,      enet_pre_sels,     ARRAY_SIZE(enet_pre_sels));
--- 
-2.35.1
-
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -111,8 +111,8 @@
+ #define CLK_DIV_MASK		0x7f
+ 
+ /* REG_BUS_WIDTH */
+-#define BUS_WIDTH_8		BIT(2)
+-#define BUS_WIDTH_4		BIT(1)
++#define BUS_WIDTH_4_SUPPORT	BIT(3)
++#define BUS_WIDTH_4		BIT(2)
+ #define BUS_WIDTH_1		BIT(0)
+ 
+ #define MMC_VDD_360		23
+@@ -527,9 +527,6 @@ static void moxart_set_ios(struct mmc_ho
+ 	case MMC_BUS_WIDTH_4:
+ 		writel(BUS_WIDTH_4, host->base + REG_BUS_WIDTH);
+ 		break;
+-	case MMC_BUS_WIDTH_8:
+-		writel(BUS_WIDTH_8, host->base + REG_BUS_WIDTH);
+-		break;
+ 	default:
+ 		writel(BUS_WIDTH_1, host->base + REG_BUS_WIDTH);
+ 		break;
+@@ -646,16 +643,8 @@ static int moxart_probe(struct platform_
+ 		dmaengine_slave_config(host->dma_chan_rx, &cfg);
+ 	}
+ 
+-	switch ((readl(host->base + REG_BUS_WIDTH) >> 3) & 3) {
+-	case 1:
++	if (readl(host->base + REG_BUS_WIDTH) & BUS_WIDTH_4_SUPPORT)
+ 		mmc->caps |= MMC_CAP_4_BIT_DATA;
+-		break;
+-	case 2:
+-		mmc->caps |= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA;
+-		break;
+-	default:
+-		break;
+-	}
+ 
+ 	writel(0, host->base + REG_INTERRUPT_MASK);
+ 
 
 
