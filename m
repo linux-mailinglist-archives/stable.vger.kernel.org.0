@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 588E25F293F
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA8015F2A03
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229918AbiJCHQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:16:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47890 "EHLO
+        id S231213AbiJCH33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229828AbiJCHPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:15:46 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98F5F42ACB;
-        Mon,  3 Oct 2022 00:13:29 -0700 (PDT)
+        with ESMTP id S231376AbiJCH2x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11272117A;
+        Mon,  3 Oct 2022 00:19:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 71762CE0B17;
-        Mon,  3 Oct 2022 07:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 337E6C433C1;
-        Mon,  3 Oct 2022 07:13:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 811DEB80E6B;
+        Mon,  3 Oct 2022 07:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE25EC43143;
+        Mon,  3 Oct 2022 07:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781205;
-        bh=yQd7L1bE3vogpj8UQLY+zukKpPigSc5eoQakXOiVIcs=;
+        s=korg; t=1664781472;
+        bh=gcoji+IwOaxVnG3o+SYR8ObBzpQCYYfcz8oCmzRPUrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Vzklh9tCmSKEJWjm3wgyQN9iLdfd+njppT3q6zRnhZpCY+Y43TJUPgigxysAbe0J
-         VgZILgDyhXRwCadVz0L03e3khQzUarM/RoIORmcnudl0SAKmIx15xK/n77j8ZIL9VW
-         yc9frZr5yDnMOUk1Wj5waNMTWa1WbJgmMin6ELM8=
+        b=V3NhSt66005xK6oys9/mGlFTmkD7wvayPEJvm1Vomeg6v75kSmD3yz1q+4DEbkHfu
+         uF0BwuH2Qjlllt9S1rOr8qk2XiAs6XPbxMQMIaJxZ3H0kaMJs+2SJOjZXZEdl9F8Yt
+         hVuG+uHq+mx+AgBYynGkQzO6eSi2Qz/JcwB7a/cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
-        Patrick Daly <quic_pdaly@quicinc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 036/101] mm/page_alloc: fix race condition between build_all_zonelists and page allocation
-Date:   Mon,  3 Oct 2022 09:10:32 +0200
-Message-Id: <20221003070725.371328077@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        stable <stable@kernel.org>,
+        Hongling Zeng <zenghongling@kylinos.cn>
+Subject: [PATCH 5.15 08/83] usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS
+Date:   Mon,  3 Oct 2022 09:10:33 +0200
+Message-Id: <20221003070722.195722863@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,179 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Hongling Zeng <zenghongling@kylinos.cn>
 
-commit 3d36424b3b5850bd92f3e89b953a430d7cfc88ef upstream.
+commit e00b488e813f0f1ad9f778e771b7cd2fe2877023 upstream.
 
-Patrick Daly reported the following problem;
+The UAS mode of Hiksemi USB_HDD is reported to fail to work on several
+platforms with the following error message, then after re-connecting the
+device will be offlined and not working at all.
 
-	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - before offline operation
-	[0] - ZONE_MOVABLE
-	[1] - ZONE_NORMAL
-	[2] - NULL
+[  592.518442][ 2] sd 8:0:0:0: [sda] tag#17 uas_eh_abort_handler 0 uas-tag 18
+                   inflight: CMD
+[  592.527575][ 2] sd 8:0:0:0: [sda] tag#17 CDB: Write(10) 2a 00 03 6f 88 00 00
+                   04 00 00
+[  592.536330][ 2] sd 8:0:0:0: [sda] tag#0 uas_eh_abort_handler 0 uas-tag 1
+                   inflight: CMD
+[  592.545266][ 2] sd 8:0:0:0: [sda] tag#0 CDB: Write(10) 2a 00 07 44 1a 88 00
+                   00 08 00
 
-	For a GFP_KERNEL allocation, alloc_pages_slowpath() will save the
-	offset of ZONE_NORMAL in ac->preferred_zoneref. If a concurrent
-	memory_offline operation removes the last page from ZONE_MOVABLE,
-	build_all_zonelists() & build_zonerefs_node() will update
-	node_zonelists as shown below. Only populated zones are added.
+These disks have a broken uas implementation, the tag field of the status
+iu-s is not set properly,so we need to fall-back to usb-storage.
 
-	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - after offline operation
-	[0] - ZONE_NORMAL
-	[1] - NULL
-	[2] - NULL
-
-The race is simple -- page allocation could be in progress when a memory
-hot-remove operation triggers a zonelist rebuild that removes zones.  The
-allocation request will still have a valid ac->preferred_zoneref that is
-now pointing to NULL and triggers an OOM kill.
-
-This problem probably always existed but may be slightly easier to trigger
-due to 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones
-with pages managed by the buddy allocator") which distinguishes between
-zones that are completely unpopulated versus zones that have valid pages
-not managed by the buddy allocator (e.g.  reserved, memblock, ballooning
-etc).  Memory hotplug had multiple stages with timing considerations
-around managed/present page updates, the zonelist rebuild and the zone
-span updates.  As David Hildenbrand puts it
-
-	memory offlining adjusts managed+present pages of the zone
-	essentially in one go. If after the adjustments, the zone is no
-	longer populated (present==0), we rebuild the zone lists.
-
-	Once that's done, we try shrinking the zone (start+spanned
-	pages) -- which results in zone_start_pfn == 0 if there are no
-	more pages. That happens *after* rebuilding the zonelists via
-	remove_pfn_range_from_zone().
-
-The only requirement to fix the race is that a page allocation request
-identifies when a zonelist rebuild has happened since the allocation
-request started and no page has yet been allocated.  Use a seqlock_t to
-track zonelist updates with a lockless read-side of the zonelist and
-protecting the rebuild and update of the counter with a spinlock.
-
-[akpm@linux-foundation.org: make zonelist_update_seq static]
-Link: https://lkml.kernel.org/r/20220824110900.vh674ltxmzb3proq@techsingularity.net
-Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reported-by: Patrick Daly <quic_pdaly@quicinc.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>	[4.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Hongling Zeng <zenghongling@kylinos.cn>
+Link: https://lore.kernel.org/r/1663901185-21067-1-git-send-email-zenghongling@kylinos.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |   53 +++++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4623,6 +4623,30 @@ void fs_reclaim_release(gfp_t gfp_mask)
- EXPORT_SYMBOL_GPL(fs_reclaim_release);
- #endif
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -83,6 +83,13 @@ UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_LUNS),
  
-+/*
-+ * Zonelists may change due to hotplug during allocation. Detect when zonelists
-+ * have been rebuilt so allocation retries. Reader side does not lock and
-+ * retries the allocation if zonelist changes. Writer side is protected by the
-+ * embedded spin_lock.
-+ */
-+static DEFINE_SEQLOCK(zonelist_update_seq);
++/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
++UNUSUAL_DEV(0x0bda, 0x9210, 0x0000, 0x9999,
++		"Hiksemi",
++		"External HDD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_UAS),
 +
-+static unsigned int zonelist_iter_begin(void)
-+{
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
-+		return read_seqbegin(&zonelist_update_seq);
-+
-+	return 0;
-+}
-+
-+static unsigned int check_retry_zonelist(unsigned int seq)
-+{
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
-+		return read_seqretry(&zonelist_update_seq, seq);
-+
-+	return seq;
-+}
-+
- /* Perform direct synchronous page reclaim */
- static unsigned long
- __perform_reclaim(gfp_t gfp_mask, unsigned int order,
-@@ -4916,6 +4940,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
- 	int compaction_retries;
- 	int no_progress_loops;
- 	unsigned int cpuset_mems_cookie;
-+	unsigned int zonelist_iter_cookie;
- 	int reserve_flags;
- 
- 	/*
-@@ -4926,11 +4951,12 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
- 				(__GFP_ATOMIC|__GFP_DIRECT_RECLAIM)))
- 		gfp_mask &= ~__GFP_ATOMIC;
- 
--retry_cpuset:
-+restart:
- 	compaction_retries = 0;
- 	no_progress_loops = 0;
- 	compact_priority = DEF_COMPACT_PRIORITY;
- 	cpuset_mems_cookie = read_mems_allowed_begin();
-+	zonelist_iter_cookie = zonelist_iter_begin();
- 
- 	/*
- 	 * The fast path uses conservative alloc_flags to succeed only until
-@@ -5102,9 +5128,13 @@ retry:
- 		goto retry;
- 
- 
--	/* Deal with possible cpuset update races before we start OOM killing */
--	if (check_retry_cpuset(cpuset_mems_cookie, ac))
--		goto retry_cpuset;
-+	/*
-+	 * Deal with possible cpuset update races or zonelist updates to avoid
-+	 * a unnecessary OOM kill.
-+	 */
-+	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
-+	    check_retry_zonelist(zonelist_iter_cookie))
-+		goto restart;
- 
- 	/* Reclaim has failed us, start killing things */
- 	page = __alloc_pages_may_oom(gfp_mask, order, ac, &did_some_progress);
-@@ -5124,9 +5154,13 @@ retry:
- 	}
- 
- nopage:
--	/* Deal with possible cpuset update races before we fail */
--	if (check_retry_cpuset(cpuset_mems_cookie, ac))
--		goto retry_cpuset;
-+	/*
-+	 * Deal with possible cpuset update races or zonelist updates to avoid
-+	 * a unnecessary OOM kill.
-+	 */
-+	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
-+	    check_retry_zonelist(zonelist_iter_cookie))
-+		goto restart;
- 
- 	/*
- 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
-@@ -6421,9 +6455,8 @@ static void __build_all_zonelists(void *
- 	int nid;
- 	int __maybe_unused cpu;
- 	pg_data_t *self = data;
--	static DEFINE_SPINLOCK(lock);
- 
--	spin_lock(&lock);
-+	write_seqlock(&zonelist_update_seq);
- 
- #ifdef CONFIG_NUMA
- 	memset(node_load, 0, sizeof(node_load));
-@@ -6460,7 +6493,7 @@ static void __build_all_zonelists(void *
- #endif
- 	}
- 
--	spin_unlock(&lock);
-+	write_sequnlock(&zonelist_update_seq);
- }
- 
- static noinline void __init
+ /* Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com> */
+ UNUSUAL_DEV(0x13fd, 0x3940, 0x0000, 0x9999,
+ 		"Initio Corporation",
 
 
