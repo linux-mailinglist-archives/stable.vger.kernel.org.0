@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 912BF5F30B9
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 15:11:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0C75F30BB
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 15:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbiJCNLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 09:11:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58914 "EHLO
+        id S229990AbiJCNLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 09:11:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229954AbiJCNLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 09:11:17 -0400
+        with ESMTP id S229954AbiJCNLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 09:11:23 -0400
 Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFB444DB39;
-        Mon,  3 Oct 2022 06:11:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7E9C4DB08;
+        Mon,  3 Oct 2022 06:11:12 -0700 (PDT)
 Received: from quatroqueijos.. (unknown [179.93.174.77])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id D5D1642FB5;
-        Mon,  3 Oct 2022 13:11:05 +0000 (UTC)
+        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 3E30642FB6;
+        Mon,  3 Oct 2022 13:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1664802668;
-        bh=NcWtzCGR68+ig3ZpuHn0vrTyGTEsrNPt7T8apUj1qjg=;
+        s=20210705; t=1664802671;
+        bh=bzu7/X+cDuRnyjMjrYjHWM7GUgEdhXAF4pqayfMoV0w=;
         h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version;
-        b=Rp4eumjE9PhYi1rFQaphe/yGNyfgdXdgEK1m8Qw2rVxqg2cxXNq4OSzhW0fU/Ja5D
-         We8yFq18HrSbi+QXZyrg8nfTUmNIqbgAJoNGExj/nzJOFFn8Co3PWhVuml3nmv51ae
-         uCInNS65RoI0JUi6AyvYMLeFRFHa6doq/Po6ReWyJz4B/nlZyLeudwX96mh4Xsl/LG
-         9vDFjXlLU6sa28DfFRngcIpaaqxcGjYAtPcb30gvhgdVs7TX9WE/ddxxWgY+NgyIAV
-         XY3+xnD4VvvPQrTsF4WSakoMgPtkndwyqJQMFED90lqcOEq8TpbanPRF7fXJqfyoiQ
-         lUTv6cZasSebA==
+        b=XwCqjZmlPRckUTehmLlx/XcmpS2IHZZRYqp5Nvk69UCqFLMf66Ro6TGTni2trV5do
+         qdIbdhX6yu1DvHWaJg40vONOBIjvYyiEbporshjS7fYMdv9aFkLeEiRFrhxBTqdiDe
+         qfUFXxvt0mZjepMZ2lNP/FLISpQQyYy/fTVqW19D980rw6C2s8PQZc6L82OP18jle+
+         bRKWyCfaKCNOpBXwGoksTYZyovzV60AjdzN9JnDuqQZeGWJVPcyw6grecjzruFgyk6
+         c77nMI/BXm+R1ovP5C1993mNqC0HvF5CKXFTSV+KilY7cW1d8WcJXXsc9bDUUGNSIH
+         bpcXU9GH07SfQ==
 From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 To:     stable@vger.kernel.org
 Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
         pbonzini@redhat.com, peterz@infradead.org, jpoimboe@kernel.org
-Subject: [PATCH 5.4 03/37] x86/devicetable: Move x86 specific macro out of generic code
-Date:   Mon,  3 Oct 2022 10:10:04 -0300
-Message-Id: <20221003131038.12645-4-cascardo@canonical.com>
+Subject: [PATCH 5.4 04/37] x86/cpu: Add consistent CPU match macros
+Date:   Mon,  3 Oct 2022 10:10:05 -0300
+Message-Id: <20221003131038.12645-5-cascardo@canonical.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221003131038.12645-1-cascardo@canonical.com>
 References: <20221003131038.12645-1-cascardo@canonical.com>
@@ -54,114 +54,254 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit ba5bade4cc0d2013cdf5634dae554693c968a090 upstream.
+commit 20d437447c0089cda46c683db219d3b4e2cde40e upstream.
 
-There is no reason that this gunk is in a generic header file. The wildcard
-defines need to stay as they are required by file2alias.
+Finding all places which build x86_cpu_id match tables is tedious and the
+logic is hidden in lots of differently named macro wrappers.
+
+Most of these initializer macros use plain C89 initializers which rely on
+the ordering of the struct members. So new members could only be added at
+the end of the struct, but that's ugly as hell and C99 initializers are
+really the right thing to use.
+
+Provide a set of macros which:
+
+  - Have a proper naming scheme, starting with X86_MATCH_
+
+  - Use C99 initializers
+
+The set of provided macros are all subsets of the base macro
+
+    X86_MATCH_VENDOR_FAM_MODEL_FEATURE()
+
+which allows to supply all possible selection criteria:
+
+      vendor, family, model, feature
+
+The other macros shorten this to avoid typing all arguments when they are
+not needed and would require one of the _ANY constants. They have been
+created due to the requirements of the existing usage sites.
+
+Also add a few model constants for Centaur CPUs and QUARK.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lkml.kernel.org/r/20200320131508.736205164@linutronix.de
+Link: https://lkml.kernel.org/r/20200320131508.826011988@linutronix.de
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 ---
- arch/x86/include/asm/cpu_device_id.h   | 13 ++++++++++++-
- arch/x86/kvm/svm.c                     |  1 +
- arch/x86/kvm/vmx/vmx.c                 |  1 +
- drivers/cpufreq/acpi-cpufreq.c         |  1 +
- drivers/cpufreq/amd_freq_sensitivity.c |  1 +
- include/linux/mod_devicetable.h        |  4 +---
- 6 files changed, 17 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/cpu_device_id.h | 140 +++++++++++++++++++++++++--
+ arch/x86/include/asm/intel-family.h  |   6 ++
+ arch/x86/kernel/cpu/match.c          |  13 ++-
+ 3 files changed, 146 insertions(+), 13 deletions(-)
 
 diff --git a/arch/x86/include/asm/cpu_device_id.h b/arch/x86/include/asm/cpu_device_id.h
-index 31c379c1da41..a28dc6ba5be1 100644
+index a28dc6ba5be1..f11770fac73a 100644
 --- a/arch/x86/include/asm/cpu_device_id.h
 +++ b/arch/x86/include/asm/cpu_device_id.h
-@@ -6,9 +6,20 @@
+@@ -5,21 +5,143 @@
+ /*
   * Declare drivers belonging to specific x86 CPUs
   * Similar in spirit to pci_device_id and related PCI functions
-  */
+- */
+-#include <linux/mod_devicetable.h>
 -
- #include <linux/mod_devicetable.h>
+-/*
++ *
+  * The wildcard initializers are in mod_devicetable.h because
+  * file2alias needs them. Sigh.
+  */
++#include <linux/mod_devicetable.h>
++/* Get the INTEL_FAM* model defines */
++#include <asm/intel-family.h>
++/* And the X86_VENDOR_* ones */
++#include <asm/processor.h>
  
-+/*
-+ * The wildcard initializers are in mod_devicetable.h because
-+ * file2alias needs them. Sigh.
-+ */
+-#define X86_FEATURE_MATCH(x) {			\
+-	.vendor		= X86_VENDOR_ANY,	\
+-	.family		= X86_FAMILY_ANY,	\
+-	.model		= X86_MODEL_ANY,	\
+-	.feature	= x,			\
++/* Centaur FAM6 models */
++#define X86_CENTAUR_FAM6_C7_A		0xa
++#define X86_CENTAUR_FAM6_C7_D		0xd
++#define X86_CENTAUR_FAM6_NANO		0xf
 +
-+#define X86_FEATURE_MATCH(x) {			\
-+	.vendor		= X86_VENDOR_ANY,	\
-+	.family		= X86_FAMILY_ANY,	\
-+	.model		= X86_MODEL_ANY,	\
-+	.feature	= x,			\
-+}
++/**
++ * X86_MATCH_VENDOR_FAM_MODEL_FEATURE - Base macro for CPU matching
++ * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@_vendor
++ * @_family:	The family number or X86_FAMILY_ANY
++ * @_model:	The model number, model constant or X86_MODEL_ANY
++ * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
++ * @_data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * Use only if you need all selectors. Otherwise use one of the shorter
++ * macros of the X86_MATCH_* family. If there is no matching shorthand
++ * macro, consider to add one. If you really need to wrap one of the macros
++ * into another macro at the usage site for good reasons, then please
++ * start this local macro with X86_MATCH to allow easy grepping.
++ */
++#define X86_MATCH_VENDOR_FAM_MODEL_FEATURE(_vendor, _family, _model,	\
++					   _feature, _data) {		\
++	.vendor		= X86_VENDOR_##_vendor,				\
++	.family		= _family,					\
++	.model		= _model,					\
++	.feature	= _feature,					\
++	.driver_data	= (unsigned long) _data				\
+ }
+ 
++/**
++ * X86_MATCH_VENDOR_FAM_FEATURE - Macro for matching vendor, family and CPU feature
++ * @vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@vendor
++ * @family:	The family number or X86_FAMILY_ANY
++ * @feature:	A X86_FEATURE bit
++ * @data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * All other missing arguments of X86_MATCH_VENDOR_FAM_MODEL_FEATURE() are
++ * set to wildcards.
++ */
++#define X86_MATCH_VENDOR_FAM_FEATURE(vendor, family, feature, data)	\
++	X86_MATCH_VENDOR_FAM_MODEL_FEATURE(vendor, family,		\
++					   X86_MODEL_ANY, feature, data)
++
++/**
++ * X86_MATCH_VENDOR_FEATURE - Macro for matching vendor and CPU feature
++ * @vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@vendor
++ * @feature:	A X86_FEATURE bit
++ * @data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * All other missing arguments of X86_MATCH_VENDOR_FAM_MODEL_FEATURE() are
++ * set to wildcards.
++ */
++#define X86_MATCH_VENDOR_FEATURE(vendor, feature, data)			\
++	X86_MATCH_VENDOR_FAM_FEATURE(vendor, X86_FAMILY_ANY, feature, data)
++
++/**
++ * X86_MATCH_FEATURE - Macro for matching a CPU feature
++ * @feature:	A X86_FEATURE bit
++ * @data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * All other missing arguments of X86_MATCH_VENDOR_FAM_MODEL_FEATURE() are
++ * set to wildcards.
++ */
++#define X86_MATCH_FEATURE(feature, data)				\
++	X86_MATCH_VENDOR_FEATURE(ANY, feature, data)
++
++/* Transitional to keep the existing code working */
++#define X86_FEATURE_MATCH(feature)	X86_MATCH_FEATURE(feature, NULL)
++
++/**
++ * X86_MATCH_VENDOR_FAM_MODEL - Match vendor, family and model
++ * @vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@vendor
++ * @family:	The family number or X86_FAMILY_ANY
++ * @model:	The model number, model constant or X86_MODEL_ANY
++ * @data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * All other missing arguments of X86_MATCH_VENDOR_FAM_MODEL_FEATURE() are
++ * set to wildcards.
++ */
++#define X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, data)		\
++	X86_MATCH_VENDOR_FAM_MODEL_FEATURE(vendor, family, model,	\
++					   X86_FEATURE_ANY, data)
++
++/**
++ * X86_MATCH_VENDOR_FAM - Match vendor and family
++ * @vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@vendor
++ * @family:	The family number or X86_FAMILY_ANY
++ * @data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * All other missing arguments to X86_MATCH_VENDOR_FAM_MODEL_FEATURE() are
++ * set of wildcards.
++ */
++#define X86_MATCH_VENDOR_FAM(vendor, family, data)			\
++	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, X86_MODEL_ANY, data)
++
++/**
++ * X86_MATCH_INTEL_FAM6_MODEL - Match vendor INTEL, family 6 and model
++ * @model:	The model name without the INTEL_FAM6_ prefix or ANY
++ *		The model name is expanded to INTEL_FAM6_@model internally
++ * @data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * The vendor is set to INTEL, the family to 6 and all other missing
++ * arguments of X86_MATCH_VENDOR_FAM_MODEL_FEATURE() are set to wildcards.
++ *
++ * See X86_MATCH_VENDOR_FAM_MODEL_FEATURE() for further information.
++ */
++#define X86_MATCH_INTEL_FAM6_MODEL(model, data)				\
++	X86_MATCH_VENDOR_FAM_MODEL(INTEL, 6, INTEL_FAM6_##model, data)
 +
  /*
   * Match specific microcode revisions.
   *
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 1efcc7d4bc88..3db407e3c416 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -47,6 +47,7 @@
- #include <asm/kvm_para.h>
- #include <asm/irq_remapping.h>
- #include <asm/spec-ctrl.h>
-+#include <asm/cpu_device_id.h>
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index 5b07573c3bc8..c1d6d8bbb7da 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -35,6 +35,9 @@
+  * The #define line may optionally include a comment including platform names.
+  */
  
- #include <asm/virtext.h>
- #include "trace.h"
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 4bd1bf6214ee..766612a339af 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -31,6 +31,7 @@
- #include <asm/apic.h>
- #include <asm/asm.h>
- #include <asm/cpu.h>
-+#include <asm/cpu_device_id.h>
- #include <asm/debugreg.h>
- #include <asm/desc.h>
- #include <asm/fpu/internal.h>
-diff --git a/drivers/cpufreq/acpi-cpufreq.c b/drivers/cpufreq/acpi-cpufreq.c
-index 4195834a4591..cf7ebe3bd1ad 100644
---- a/drivers/cpufreq/acpi-cpufreq.c
-+++ b/drivers/cpufreq/acpi-cpufreq.c
-@@ -30,6 +30,7 @@
- #include <asm/msr.h>
- #include <asm/processor.h>
- #include <asm/cpufeature.h>
-+#include <asm/cpu_device_id.h>
++/* Wildcard match for FAM6 so X86_MATCH_INTEL_FAM6_MODEL(ANY) works */
++#define INTEL_FAM6_ANY			X86_MODEL_ANY
++
+ #define INTEL_FAM6_CORE_YONAH		0x0E
  
- MODULE_AUTHOR("Paul Diefenbaugh, Dominik Brodowski");
- MODULE_DESCRIPTION("ACPI Processor P-States Driver");
-diff --git a/drivers/cpufreq/amd_freq_sensitivity.c b/drivers/cpufreq/amd_freq_sensitivity.c
-index e2df9d112106..5107cbe2d64d 100644
---- a/drivers/cpufreq/amd_freq_sensitivity.c
-+++ b/drivers/cpufreq/amd_freq_sensitivity.c
-@@ -18,6 +18,7 @@
+ #define INTEL_FAM6_CORE2_MEROM		0x0F
+@@ -126,6 +129,9 @@
+ #define INTEL_FAM6_XEON_PHI_KNL		0x57 /* Knights Landing */
+ #define INTEL_FAM6_XEON_PHI_KNM		0x85 /* Knights Mill */
  
- #include <asm/msr.h>
- #include <asm/cpufeature.h>
-+#include <asm/cpu_device_id.h>
- 
- #include "cpufreq_ondemand.h"
- 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 04a19e30b168..d82048680e59 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -667,9 +667,7 @@ struct x86_cpu_id {
- 	kernel_ulong_t driver_data;
- };
- 
--#define X86_FEATURE_MATCH(x) \
--	{ X86_VENDOR_ANY, X86_FAMILY_ANY, X86_MODEL_ANY, x }
--
-+/* Wild cards for x86_cpu_id::vendor, family, model and feature */
- #define X86_VENDOR_ANY 0xffff
- #define X86_FAMILY_ANY 0
- #define X86_MODEL_ANY  0
++/* Family 5 */
++#define INTEL_FAM5_QUARK_X1000		0x09 /* Quark X1000 SoC */
++
+ /* Useful macros */
+ #define INTEL_CPU_FAM_ANY(_family, _model, _driver_data)	\
+ {								\
+diff --git a/arch/x86/kernel/cpu/match.c b/arch/x86/kernel/cpu/match.c
+index 6dd78d8235e4..d3482eb43ff3 100644
+--- a/arch/x86/kernel/cpu/match.c
++++ b/arch/x86/kernel/cpu/match.c
+@@ -16,12 +16,17 @@
+  * respective wildcard entries.
+  *
+  * A typical table entry would be to match a specific CPU
+- * { X86_VENDOR_INTEL, 6, 0x12 }
+- * or to match a specific CPU feature
+- * { X86_FEATURE_MATCH(X86_FEATURE_FOOBAR) }
++ *
++ * X86_MATCH_VENDOR_FAM_MODEL_FEATURE(INTEL, 6, INTEL_FAM6_BROADWELL,
++ *				      X86_FEATURE_ANY, NULL);
+  *
+  * Fields can be wildcarded with %X86_VENDOR_ANY, %X86_FAMILY_ANY,
+- * %X86_MODEL_ANY, %X86_FEATURE_ANY or 0 (except for vendor)
++ * %X86_MODEL_ANY, %X86_FEATURE_ANY (except for vendor)
++ *
++ * asm/cpu_device_id.h contains a set of useful macros which are shortcuts
++ * for various common selections. The above can be shortened to:
++ *
++ * X86_MATCH_INTEL_FAM6_MODEL(BROADWELL, NULL);
+  *
+  * Arrays used to match for this should also be declared using
+  * MODULE_DEVICE_TABLE(x86cpu, ...)
 -- 
 2.34.1
 
