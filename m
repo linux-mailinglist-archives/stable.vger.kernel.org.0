@@ -2,122 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6435F3762
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 22:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F22965F378A
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 23:17:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbiJCU6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 16:58:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37546 "EHLO
+        id S230104AbiJCVRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 17:17:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbiJCU55 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 16:57:57 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9BA4B48E
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 13:57:55 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id 70so10903577pjo.4
-        for <stable@vger.kernel.org>; Mon, 03 Oct 2022 13:57:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=ku6V0uIMACEoIGbJ5aRjuUpzl2e0iFbWX6RQH44sWX0=;
-        b=P4qZU0rxjthTT1WyI1k5fzDz6fUkOmv0yf4SjPl8Dz6WsrcZfuYXAZ4zKn8b2mEllU
-         6MvuK60tViVQN4OGOd0kzNlRFcd8Xt+jO+LeIR95c9Th9d86j6q3BML6q7RQ3Ari/Q4I
-         RZm1SVelMLTBf7LFMZf5BpXatRLMaV6LFBnQ8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=ku6V0uIMACEoIGbJ5aRjuUpzl2e0iFbWX6RQH44sWX0=;
-        b=ZcZzpDxg5k1HZTnDoEYrHN+vyjzP/+FFaGT/9RDsuXsM8P0lGn2LJ4+SKtGttvaE+5
-         Fw++MbU/aov4sDO76qowY1J5suYw7zhJzS/OAZAw7SOeG++7n3xxh5NRlhYRZL6a9CkP
-         2F8sZnrgvkLZ1+NsvOjaMOOw63QMz0jes7wg0bn7TgrNHCHfAkwwUwLc+qvS0aKL0Zk6
-         ahbMcD4znJnf3DeHYSdyBdDChK8niCOX9zo+lTVDkzW/ME5qRYljB+huzveR5Rree41A
-         jmMB+fmSJ1e7vgh2nc6AM40hl9nu92HSlc0HErKG3WKr1ae7XlxKtp2Y2DijgNLi8SyH
-         l0mQ==
-X-Gm-Message-State: ACrzQf3TEijkrrF671yOl4FfmgZ0HD+SN2HfJCfdjJoxqGQvILkRLMcg
-        i5iu9voZsAb8hi5kU+WB1n6U9Q==
-X-Google-Smtp-Source: AMsMyM4mJRybC6nqfHNqmr0/NlnExJovhirAQBcmovq5U1cGY5pmsKlLbbrllGAlzfcxIpgHGgV5fQ==
-X-Received: by 2002:a17:90b:254a:b0:200:53f:891d with SMTP id nw10-20020a17090b254a00b00200053f891dmr14196360pjb.168.1664830674759;
-        Mon, 03 Oct 2022 13:57:54 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id m10-20020a17090a668a00b00203ab277966sm10527636pjj.7.2022.10.03.13.57.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Oct 2022 13:57:54 -0700 (PDT)
-Date:   Mon, 3 Oct 2022 13:57:53 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] hardening: Remove Clang's enable flag for
- -ftrivial-auto-var-init=zero
-Message-ID: <202210031356.C32F69B6@keescook>
-References: <20220930060624.2411883-1-keescook@chromium.org>
- <YzsQr/DqrNzJILkr@dev-arch.thelio-3990X>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YzsQr/DqrNzJILkr@dev-arch.thelio-3990X>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229736AbiJCVPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 17:15:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD2E51F9FA;
+        Mon,  3 Oct 2022 14:09:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A616B81123;
+        Mon,  3 Oct 2022 21:09:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF815C433D6;
+        Mon,  3 Oct 2022 21:09:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1664831393;
+        bh=vvsnzXf7Aogp7xfFS9H9C6/DsJJAGbsz3okrFxMwuZo=;
+        h=Date:To:From:Subject:From;
+        b=W+IZQvLBMY29xfOtYO0qjb/YoIm6MMtGnxZaT6Jj1D1jax2eo7jq4q3VwZTQwz0m5
+         7YBFYvsJ/f4luDQJCWpzZKL5K40SKNqewqlIUpb0/LCDZEdeo/6VhgHUs0utHxhU4E
+         6RZ2XusmaNlBnZ0yJMdilWt0l0QDA98Ar/NrkMk8=
+Date:   Mon, 03 Oct 2022 14:09:53 -0700
+To:     mm-commits@vger.kernel.org, wangkefeng.wang@huawei.com,
+        stable@vger.kernel.org, songmuchun@bytedance.com,
+        sidhartha.kumar@oracle.com, mike.kravetz@oracle.com,
+        liuzixian4@huawei.com, jhubbard@nvidia.com, david@redhat.com,
+        liushixin2@huawei.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-stable] mm-hugetlb-fix-uaf-in-hugetlb_handle_userfault.patch removed from -mm tree
+Message-Id: <20221003210953.BF815C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 03, 2022 at 09:41:19AM -0700, Nathan Chancellor wrote:
-> On Thu, Sep 29, 2022 at 11:06:24PM -0700, Kees Cook wrote:
-> > Now that Clang's -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
-> > option is no longer required, remove it from the command line. Clang 16
-> > and later will warn when it is used, which will cause Kconfig to think
-> > it can't use -ftrivial-auto-var-init=zero at all. Check for whether it
-> > is required and only use it when so.
-> > 
-> > Cc: Nathan Chancellor <nathan@kernel.org>
-> > Cc: Masahiro Yamada <masahiroy@kernel.org>
-> > Cc: Nick Desaulniers <ndesaulniers@google.com>
-> > Cc: linux-kbuild@vger.kernel.org
-> > Cc: llvm@lists.linux.dev
-> > Cc: stable@vger.kernel.org
-> > Fixes: f02003c860d9 ("hardening: Avoid harmless Clang option under CONFIG_INIT_STACK_ALL_ZERO")
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> 
-> Thanks for sending this change!
-> 
-> Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-> Tested-by: Nathan Chancellor <nathan@kernel.org>
 
-Thanks!
+The quilt patch titled
+     Subject: mm: hugetlb: fix UAF in hugetlb_handle_userfault
+has been removed from the -mm tree.  Its filename was
+     mm-hugetlb-fix-uaf-in-hugetlb_handle_userfault.patch
 
-> 
-> Please consider getting this to Linus ASAP so that this can start
-> filtering into stable now that the LLVM change has landed, as I lost the
-> ability to use CONFIG_INIT_STACK_ALL_ZERO after upgrading my toolchain
-> over the weekend :)
+This patch was dropped because it was merged into the mm-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-Yup -- it's in my PR for the hardening tree sent on Saturday.
+------------------------------------------------------
+From: Liu Shixin <liushixin2@huawei.com>
+Subject: mm: hugetlb: fix UAF in hugetlb_handle_userfault
+Date: Fri, 23 Sep 2022 12:21:13 +0800
 
-> Additionally, I am not sure the fixes tag is going to ensure that this
-> change automatically makes it back to 5.15 and 5.10, which have
-> commit f0fe00d4972a ("security: allow using Clang's zero initialization
-> for stack variables") but not commit f02003c860d9 ("hardening: Avoid
-> harmless Clang option under CONFIG_INIT_STACK_ALL_ZERO"). I guess if I
-> am reading the stable documentation right, we could do something like:
-> 
-> Cc: stable@vger.kernel.org # dcb7c0b9461c + f02003c860d9
-> Fixes: f0fe00d4972a ("security: allow using Clang's zero initialization for stack variables")
-> 
-> but I am not sure. I guess we can always just send manual backports
-> once it is merged.
+The vma_lock and hugetlb_fault_mutex are dropped before handling userfault
+and reacquire them again after handle_userfault(), but reacquire the
+vma_lock could lead to UAF[1,2] due to the following race,
 
-Ah, good point. Yeah, probably just do backports of f02003c860d9 and
-this one.
+hugetlb_fault
+  hugetlb_no_page
+    /*unlock vma_lock */
+    hugetlb_handle_userfault
+      handle_userfault
+        /* unlock mm->mmap_lock*/
+                                           vm_mmap_pgoff
+                                             do_mmap
+                                               mmap_region
+                                                 munmap_vma_range
+                                                   /* clean old vma */
+        /* lock vma_lock again  <--- UAF */
+    /* unlock vma_lock */
 
--- 
-Kees Cook
+Since the vma_lock will unlock immediately after
+hugetlb_handle_userfault(), let's drop the unneeded lock and unlock in
+hugetlb_handle_userfault() to fix the issue.
+
+[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
+[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
+Link: https://lkml.kernel.org/r/20220923042113.137273-1-liushixin2@huawei.com
+Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
+Reported-by: Liu Zixian <liuzixian4@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/hugetlb.c |   37 +++++++++++++++++--------------------
+ 1 file changed, 17 insertions(+), 20 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-fix-uaf-in-hugetlb_handle_userfault
++++ a/mm/hugetlb.c
+@@ -5489,7 +5489,6 @@ static inline vm_fault_t hugetlb_handle_
+ 						  unsigned long addr,
+ 						  unsigned long reason)
+ {
+-	vm_fault_t ret;
+ 	u32 hash;
+ 	struct vm_fault vmf = {
+ 		.vma = vma,
+@@ -5507,18 +5506,14 @@ static inline vm_fault_t hugetlb_handle_
+ 	};
+ 
+ 	/*
+-	 * vma_lock and hugetlb_fault_mutex must be
+-	 * dropped before handling userfault.  Reacquire
+-	 * after handling fault to make calling code simpler.
++	 * vma_lock and hugetlb_fault_mutex must be dropped before handling
++	 * userfault. Also mmap_lock could be dropped due to handling
++	 * userfault, any vma operation should be careful from here.
+ 	 */
+ 	hugetlb_vma_unlock_read(vma);
+ 	hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+-	ret = handle_userfault(&vmf, reason);
+-	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+-	hugetlb_vma_lock_read(vma);
+-
+-	return ret;
++	return handle_userfault(&vmf, reason);
+ }
+ 
+ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+@@ -5536,6 +5531,7 @@ static vm_fault_t hugetlb_no_page(struct
+ 	spinlock_t *ptl;
+ 	unsigned long haddr = address & huge_page_mask(h);
+ 	bool new_page, new_pagecache_page = false;
++	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 
+ 	/*
+ 	 * Currently, we are forced to kill the process in the event the
+@@ -5546,7 +5542,7 @@ static vm_fault_t hugetlb_no_page(struct
+ 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
+ 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
+ 			   current->pid);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -5560,12 +5556,10 @@ static vm_fault_t hugetlb_no_page(struct
+ 		if (idx >= size)
+ 			goto out;
+ 		/* Check for page in userfault range */
+-		if (userfaultfd_missing(vma)) {
+-			ret = hugetlb_handle_userfault(vma, mapping, idx,
++		if (userfaultfd_missing(vma))
++			return hugetlb_handle_userfault(vma, mapping, idx,
+ 						       flags, haddr, address,
+ 						       VM_UFFD_MISSING);
+-			goto out;
+-		}
+ 
+ 		page = alloc_huge_page(vma, haddr, 0);
+ 		if (IS_ERR(page)) {
+@@ -5631,10 +5625,9 @@ static vm_fault_t hugetlb_no_page(struct
+ 		if (userfaultfd_minor(vma)) {
+ 			unlock_page(page);
+ 			put_page(page);
+-			ret = hugetlb_handle_userfault(vma, mapping, idx,
++			return hugetlb_handle_userfault(vma, mapping, idx,
+ 						       flags, haddr, address,
+ 						       VM_UFFD_MINOR);
+-			goto out;
+ 		}
+ 	}
+ 
+@@ -5692,6 +5685,8 @@ static vm_fault_t hugetlb_no_page(struct
+ 
+ 	unlock_page(page);
+ out:
++	hugetlb_vma_unlock_read(vma);
++	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 	return ret;
+ 
+ backout:
+@@ -5789,11 +5784,13 @@ vm_fault_t hugetlb_fault(struct mm_struc
+ 
+ 	entry = huge_ptep_get(ptep);
+ 	/* PTE markers should be handled the same way as none pte */
+-	if (huge_pte_none_mostly(entry)) {
+-		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
++	if (huge_pte_none_mostly(entry))
++		/*
++		 * hugetlb_no_page will drop vma lock and hugetlb fault
++		 * mutex internally, which make us return immediately.
++		 */
++		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
+ 				      entry, flags);
+-		goto out_mutex;
+-	}
+ 
+ 	ret = 0;
+ 
+_
+
+Patches currently in -mm which might be from liushixin2@huawei.com are
+
+
