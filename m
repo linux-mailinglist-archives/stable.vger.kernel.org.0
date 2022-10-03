@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35D9C5F3057
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 14:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A1F25F3058
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 14:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229542AbiJCMbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 08:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52010 "EHLO
+        id S229611AbiJCMcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 08:32:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbiJCMbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 08:31:47 -0400
+        with ESMTP id S229572AbiJCMcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 08:32:01 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94A64361F
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 05:31:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADC204361F
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 05:32:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1664800305;
+        s=mimecast20190719; t=1664800319;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=bLn0Wx/L9VsvIoBWDz6eSq5e5ZE2dF59TACopB2UODE=;
-        b=FdD15mNtUMtMdNTu8zLt6hUYOWpfgxkfL1sRBv29DyL8C83bYD9VLELI1Cee5iv17jARgC
-        cknDBDZehoOKANODIZB0xFZPBbBXep0aL9QgM0hCRuALhFO3pqw1zeXwonV6DTnRInuiKq
-        DkBKlIYAfKXBPByMM3Lkc0l6XSiksBQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=1HBin20myElh09UoeuXhs7OsBC++O/OhAEdJbMKxl04=;
+        b=OFpPF26eg4op6zXzXEZnzIgULY+HLOwrgreIGyEvAp8HZQi4N0rJvbwG+mp36GRIgxh9wO
+        +fRq7V6TpJux0MSXTogNK/tLQ0NH65n+EnWWU5oLrpQqUEXhh+4QQHHbu7Lz0dn3GZuIYU
+        /i++OhXdRnob/WzZg5opyO4Zagnge3g=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-17-HjTmp4YfNE6JlcHvE_T2qA-1; Mon, 03 Oct 2022 08:31:44 -0400
-X-MC-Unique: HjTmp4YfNE6JlcHvE_T2qA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+ us-mta-597-9_Q0fe8jMfGSMXZJLZUE_w-1; Mon, 03 Oct 2022 08:31:59 -0400
+X-MC-Unique: 9_Q0fe8jMfGSMXZJLZUE_w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B66F81C07587;
-        Mon,  3 Oct 2022 12:31:43 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9FA1580206D;
+        Mon,  3 Oct 2022 12:31:58 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B17CDC15BA4;
-        Mon,  3 Oct 2022 12:31:43 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9B44E40C6EC2;
+        Mon,  3 Oct 2022 12:31:58 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 293CVhOw009920;
-        Mon, 3 Oct 2022 08:31:43 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 293CVwll009932;
+        Mon, 3 Oct 2022 08:31:58 -0400
 Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 293CVhxe009916;
-        Mon, 3 Oct 2022 08:31:43 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 293CVwGG009928;
+        Mon, 3 Oct 2022 08:31:58 -0400
 X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Mon, 3 Oct 2022 08:31:43 -0400 (EDT)
+Date:   Mon, 3 Oct 2022 08:31:58 -0400 (EDT)
 From:   Mikulas Patocka <mpatocka@redhat.com>
 X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
 To:     Greg KH <gregkh@linuxfoundation.org>
@@ -51,12 +51,12 @@ cc:     stable@vger.kernel.org
 Subject: [PATCH] provide arch_test_bit_acquire for architectures that define
  test_bit
 In-Reply-To: <alpine.LRH.2.02.2210030459050.10514@file01.intranet.prod.int.rdu2.redhat.com>
-Message-ID: <alpine.LRH.2.02.2210030831330.10514@file01.intranet.prod.int.rdu2.redhat.com>
+Message-ID: <alpine.LRH.2.02.2210030831470.10514@file01.intranet.prod.int.rdu2.redhat.com>
 References: <alpine.LRH.2.02.2209301128030.23900@file01.intranet.prod.int.rdu2.redhat.com> <YzflXQMdGLsjPb70@kroah.com> <alpine.LRH.2.02.2210030459050.10514@file01.intranet.prod.int.rdu2.redhat.com>
 User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
@@ -67,7 +67,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is backport of the upstream patch d6ffe6067a54972564552ea45d320fb98db1ac5e
-for the stable branch 4.19
+for the stable branch 4.14
 
 provide arch_test_bit_acquire for architectures that define test_bit
 
