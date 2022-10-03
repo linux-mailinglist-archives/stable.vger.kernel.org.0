@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAEED5F2A28
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BCCF5F2AFF
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231367AbiJCHbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:31:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
+        id S232151AbiJCHp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231363AbiJCHaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:30:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0BBD193D3;
-        Mon,  3 Oct 2022 00:20:16 -0700 (PDT)
+        with ESMTP id S232329AbiJCHoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:44:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE1757563;
+        Mon,  3 Oct 2022 00:25:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54B6060FB7;
-        Mon,  3 Oct 2022 07:19:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8B5C433D6;
-        Mon,  3 Oct 2022 07:19:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAF4FB80E7F;
+        Mon,  3 Oct 2022 07:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ABD1C433D6;
+        Mon,  3 Oct 2022 07:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781550;
-        bh=C9ZvWw+UenKB9jO9q1WUvMGaXfgYM2xRDf+wTZN8t4w=;
+        s=korg; t=1664781553;
+        bh=HSFhtvXCo+irCMXGqTF2j6qoYuSJB/k0Y30uNtW1jEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGmgsxXoCLRSr3K1UZXWMb2DKH3XhsN3etI31ROu0fT7elrjx0Ig9E3UaIy7FTETd
-         wl1quaqvSUvdpfMKxEX3vt1qEUGa/7pRvpUnHzeewNRyFoRjS/s9dLWXtR5cWB9ly1
-         v9dTU+4as3IShn8JsJks9Nxkfwxlriei8PcBvdD0=
+        b=dcojaH9TaM9P8ZtldWYB4gQqkA3hnKX6Tme6U4biQI0px7hPASXyOg2OY6B6RG6TJ
+         V3CXU56+wzgOc2WXL6yj/7jYYj9QR+KtEVWVjmWEcm1OiNb8rEOnYxcaKupjP3Em6l
+         YvkIGp+GiGCPCX+56IZKTgGSMKazcaZDXfUNqybQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
-        =?UTF-8?q?=E9=9F=A9=E5=A4=A9=C3=A7`=C2=95?= <hantianshuo@iie.ac.cn>,
-        Yang Shi <shy828301@gmail.com>,
+        stable@vger.kernel.org, Shuai Xue <xueshuai@linux.alibaba.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Bixuan Cui <cuibixuan@linux.alibaba.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 33/83] mm: fix madivse_pageout mishandling on non-LRU page
-Date:   Mon,  3 Oct 2022 09:10:58 +0200
-Message-Id: <20221003070722.828061114@linuxfoundation.org>
+Subject: [PATCH 5.15 34/83] mm,hwpoison: check mm when killing accessing process
+Date:   Mon,  3 Oct 2022 09:10:59 +0200
+Message-Id: <20221003070722.852051421@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
 References: <20221003070721.971297651@linuxfoundation.org>
@@ -54,52 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+From: Shuai Xue <xueshuai@linux.alibaba.com>
 
-commit 58d426a7ba92870d489686dfdb9d06b66815a2ab upstream.
+commit 77677cdbc2aa4b5d5d839562793d3d126201d18d upstream.
 
-MADV_PAGEOUT tries to isolate non-LRU pages and gets a warning from
-isolate_lru_page below.
+The GHES code calls memory_failure_queue() from IRQ context to queue work
+into workqueue and schedule it on the current CPU.  Then the work is
+processed in memory_failure_work_func() by kworker and calls
+memory_failure().
 
-Fix it by checking PageLRU in advance.
+When a page is already poisoned, commit a3f5d80ea401 ("mm,hwpoison: send
+SIGBUS with error virutal address") make memory_failure() call
+kill_accessing_process() that:
 
-------------[ cut here ]------------
-trying to isolate tail page
-WARNING: CPU: 0 PID: 6175 at mm/folio-compat.c:158 isolate_lru_page+0x130/0x140
-Modules linked in:
-CPU: 0 PID: 6175 Comm: syz-executor.0 Not tainted 5.18.12 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:isolate_lru_page+0x130/0x140
+    - holds mmap locking of current->mm
+    - does pagetable walk to find the error virtual address
+    - and sends SIGBUS to the current process with error info.
 
-Link: https://lore.kernel.org/linux-mm/485f8c33.2471b.182d5726afb.Coremail.hantianshuo@iie.ac.cn/
-Link: https://lkml.kernel.org/r/20220908151204.762596-1-minchan@kernel.org
-Fixes: 1a4e58cce84e ("mm: introduce MADV_PAGEOUT")
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-Reported-by: 韩天ç` <hantianshuo@iie.ac.cn>
-Suggested-by: Yang Shi <shy828301@gmail.com>
-Acked-by: Yang Shi <shy828301@gmail.com>
+However, the mm of kworker is not valid, resulting in a null-pointer
+dereference.  So check mm when killing the accessing process.
+
+[akpm@linux-foundation.org: remove unrelated whitespace alteration]
+Link: https://lkml.kernel.org/r/20220914064935.7851-1-xueshuai@linux.alibaba.com
+Fixes: a3f5d80ea401 ("mm,hwpoison: send SIGBUS with error virutal address")
+Signed-off-by: Shuai Xue <xueshuai@linux.alibaba.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: Bixuan Cui <cuibixuan@linux.alibaba.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/madvise.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ mm/memory-failure.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -436,8 +436,11 @@ regular_page:
- 			continue;
- 		}
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -700,6 +700,9 @@ static int kill_accessing_process(struct
+ 	};
+ 	priv.tk.tsk = p;
  
--		/* Do not interfere with other mappings of this page */
--		if (page_mapcount(page) != 1)
-+		/*
-+		 * Do not interfere with other mappings of this page and
-+		 * non-LRU page.
-+		 */
-+		if (!PageLRU(page) || page_mapcount(page) != 1)
- 			continue;
- 
- 		VM_BUG_ON_PAGE(PageTransCompound(page), page);
++	if (!p->mm)
++		return -EFAULT;
++
+ 	mmap_read_lock(p->mm);
+ 	ret = walk_page_range(p->mm, 0, TASK_SIZE, &hwp_walk_ops,
+ 			      (void *)&priv);
 
 
