@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EEE55F2A70
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5F145F29A6
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbiJCHgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S230175AbiJCHXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:23:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231311AbiJCHew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0212152FE9;
-        Mon,  3 Oct 2022 00:22:24 -0700 (PDT)
+        with ESMTP id S230198AbiJCHWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:22:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3BD3719B;
+        Mon,  3 Oct 2022 00:16:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1CE8B80E94;
-        Mon,  3 Oct 2022 07:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156A7C433D6;
-        Mon,  3 Oct 2022 07:21:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4283160FA2;
+        Mon,  3 Oct 2022 07:15:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22FEAC433C1;
+        Mon,  3 Oct 2022 07:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781707;
-        bh=3oAEM6Lq1EgZbx0mIW6cd0cUzqfsLxMyDRxpLxaod6E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=opYYClWjmNBSlUAbVlxTBU4LRy2sQF4BASO4bpBA9UmKswjakJbot81mt9y0ytqor
-         +N1LhniLFFLFwGFx9sfg2r2FzgdWuyvpaXpHNLcBETZj8RVMjqRkztvjiqqfpO3Oa5
-         dePXJKG42mxc1Pncak67RzKy7jSSLhKUg0YW8JOs=
+        s=korg; t=1664781305;
+        bh=D9GUw/I8M0RpPlgzTGnaHM/QY41l6Py1J4baPAW2qN0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Yh5OmXW7zijpSvYC9zy6Iee+VRhcQrnNyeVoXiDtgN1QDNLNdkPilawHAnj30GX/E
+         6Ctcd3OpchJNggt/vXVDP5+mXIehNh+2WPqADtAqxSx1Z9YjThTzWCA9OoJhcdfSt9
+         Odqp6SJ21BG1E7UxPorB5IQwK5TknGOngLXw3SyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Subject: [PATCH 5.10 00/52] 5.10.147-rc1 review
-Date:   Mon,  3 Oct 2022 09:11:07 +0200
-Message-Id: <20221003070718.687440096@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Ammy <ammy.yi@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 072/101] perf parse-events: Remove "not supported" hybrid cache events
+Date:   Mon,  3 Oct 2022 09:11:08 +0200
+Message-Id: <20221003070726.258674812@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.147-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.147-rc1
-X-KernelTest-Deadline: 2022-10-05T07:07+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -61,233 +63,236 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.147 release.
-There are 52 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-Responses should be made by Wed, 05 Oct 2022 07:07:06 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 71c86cda750b001100e0d6dc04a88449b7381a59 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.147-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+By default, we create two hybrid cache events, one is for cpu_core, and
+another is for cpu_atom. But Some hybrid hardware cache events are only
+available on one CPU PMU. For example, the 'L1-dcache-load-misses' is only
+available on cpu_core, while the 'L1-icache-loads' is only available on
+cpu_atom. We need to remove "not supported" hybrid cache events. By
+extending is_event_supported() to global API and using it to check if the
+hybrid cache events are supported before being created, we can remove the
+"not supported" hybrid cache events.
 
-thanks,
+Before:
 
-greg k-h
+ # ./perf stat -e L1-dcache-load-misses,L1-icache-loads -a sleep 1
 
--------------
-Pseudo-Shortlog of commits:
+ Performance counter stats for 'system wide':
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.147-rc1
+            52,570      cpu_core/L1-dcache-load-misses/
+   <not supported>      cpu_atom/L1-dcache-load-misses/
+   <not supported>      cpu_core/L1-icache-loads/
+         1,471,817      cpu_atom/L1-icache-loads/
 
-Kai Vehmanen <kai.vehmanen@linux.intel.com>
-    ALSA: hda/hdmi: fix warning about PCM count when used with SOF
+       1.004915229 seconds time elapsed
 
-Nadav Amit <namit@vmware.com>
-    x86/alternative: Fix race in try_get_desc()
+After:
 
-Jim Mattson <jmattson@google.com>
-    KVM: x86: Hide IA32_PLATFORM_DCA_CAP[31:0] from the guest
+ # ./perf stat -e L1-dcache-load-misses,L1-icache-loads -a sleep 1
 
-Florian Fainelli <f.fainelli@gmail.com>
-    clk: iproc: Do not rely on node name for correct PLL setup
+ Performance counter stats for 'system wide':
 
-Han Xu <han.xu@nxp.com>
-    clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
+            54,510      cpu_core/L1-dcache-load-misses/
+         1,441,286      cpu_atom/L1-icache-loads/
 
-Wang Yufen <wangyufen@huawei.com>
-    selftests: Fix the if conditions of in test_extra_filter()
+       1.005114281 seconds time elapsed
 
-Junxiao Chang <junxiao.chang@intel.com>
-    net: stmmac: power up/down serdes in stmmac_open/release
+Fixes: 30def61f64bac5f5 ("perf parse-events: Create two hybrid cache events")
+Reported-by: Yi Ammy <ammy.yi@intel.com>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220923030013.3726410-2-zhengjun.xing@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ tools/perf/util/parse-events-hybrid.c | 21 ++++++++++++---
+ tools/perf/util/parse-events.c        | 39 +++++++++++++++++++++++++++
+ tools/perf/util/parse-events.h        |  1 +
+ tools/perf/util/print-events.c        | 39 ---------------------------
+ 4 files changed, 57 insertions(+), 43 deletions(-)
 
-Michael Kelley <mikelley@microsoft.com>
-    nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
+diff --git a/tools/perf/util/parse-events-hybrid.c b/tools/perf/util/parse-events-hybrid.c
+index 284f8eabd3b9..7c9f9150bad5 100644
+--- a/tools/perf/util/parse-events-hybrid.c
++++ b/tools/perf/util/parse-events-hybrid.c
+@@ -33,7 +33,8 @@ static void config_hybrid_attr(struct perf_event_attr *attr,
+ 	 * If the PMU type ID is 0, the PERF_TYPE_RAW will be applied.
+ 	 */
+ 	attr->type = type;
+-	attr->config = attr->config | ((__u64)pmu_type << PERF_PMU_TYPE_SHIFT);
++	attr->config = (attr->config & PERF_HW_EVENT_MASK) |
++			((__u64)pmu_type << PERF_PMU_TYPE_SHIFT);
+ }
+ 
+ static int create_event_hybrid(__u32 config_type, int *idx,
+@@ -48,13 +49,25 @@ static int create_event_hybrid(__u32 config_type, int *idx,
+ 	__u64 config = attr->config;
+ 
+ 	config_hybrid_attr(attr, config_type, pmu->type);
++
++	/*
++	 * Some hybrid hardware cache events are only available on one CPU
++	 * PMU. For example, the 'L1-dcache-load-misses' is only available
++	 * on cpu_core, while the 'L1-icache-loads' is only available on
++	 * cpu_atom. We need to remove "not supported" hybrid cache events.
++	 */
++	if (attr->type == PERF_TYPE_HW_CACHE
++	    && !is_event_supported(attr->type, attr->config))
++		return 0;
++
+ 	evsel = parse_events__add_event_hybrid(list, idx, attr, name, metric_id,
+ 					       pmu, config_terms);
+-	if (evsel)
++	if (evsel) {
+ 		evsel->pmu_name = strdup(pmu->name);
+-	else
++		if (!evsel->pmu_name)
++			return -ENOMEM;
++	} else
+ 		return -ENOMEM;
+-
+ 	attr->type = type;
+ 	attr->config = config;
+ 	return 0;
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 3acf7452572c..b51c646c212e 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -29,6 +29,7 @@
+ #include "util/parse-events-hybrid.h"
+ #include "util/pmu-hybrid.h"
+ #include "tracepoint.h"
++#include "thread_map.h"
+ 
+ #define MAX_NAME_LEN 100
+ 
+@@ -158,6 +159,44 @@ struct event_symbol event_symbols_sw[PERF_COUNT_SW_MAX] = {
+ #define PERF_EVENT_TYPE(config)		__PERF_EVENT_FIELD(config, TYPE)
+ #define PERF_EVENT_ID(config)		__PERF_EVENT_FIELD(config, EVENT)
+ 
++bool is_event_supported(u8 type, u64 config)
++{
++	bool ret = true;
++	int open_return;
++	struct evsel *evsel;
++	struct perf_event_attr attr = {
++		.type = type,
++		.config = config,
++		.disabled = 1,
++	};
++	struct perf_thread_map *tmap = thread_map__new_by_tid(0);
++
++	if (tmap == NULL)
++		return false;
++
++	evsel = evsel__new(&attr);
++	if (evsel) {
++		open_return = evsel__open(evsel, NULL, tmap);
++		ret = open_return >= 0;
++
++		if (open_return == -EACCES) {
++			/*
++			 * This happens if the paranoid value
++			 * /proc/sys/kernel/perf_event_paranoid is set to 2
++			 * Re-run with exclude_kernel set; we don't do that
++			 * by default as some ARM machines do not support it.
++			 *
++			 */
++			evsel->core.attr.exclude_kernel = 1;
++			ret = evsel__open(evsel, NULL, tmap) >= 0;
++		}
++		evsel__delete(evsel);
++	}
++
++	perf_thread_map__put(tmap);
++	return ret;
++}
++
+ const char *event_type(int type)
+ {
+ 	switch (type) {
+diff --git a/tools/perf/util/parse-events.h b/tools/perf/util/parse-events.h
+index ba9fa3ddaf6e..fd97bb74559e 100644
+--- a/tools/perf/util/parse-events.h
++++ b/tools/perf/util/parse-events.h
+@@ -19,6 +19,7 @@ struct option;
+ struct perf_pmu;
+ 
+ bool have_tracepoints(struct list_head *evlist);
++bool is_event_supported(u8 type, u64 config);
+ 
+ const char *event_type(int type);
+ 
+diff --git a/tools/perf/util/print-events.c b/tools/perf/util/print-events.c
+index 04050d4f6db8..c4d5d87fae2f 100644
+--- a/tools/perf/util/print-events.c
++++ b/tools/perf/util/print-events.c
+@@ -22,7 +22,6 @@
+ #include "probe-file.h"
+ #include "string2.h"
+ #include "strlist.h"
+-#include "thread_map.h"
+ #include "tracepoint.h"
+ #include "pfm.h"
+ #include "pmu-hybrid.h"
+@@ -239,44 +238,6 @@ void print_sdt_events(const char *subsys_glob, const char *event_glob,
+ 	strlist__delete(sdtlist);
+ }
+ 
+-static bool is_event_supported(u8 type, u64 config)
+-{
+-	bool ret = true;
+-	int open_return;
+-	struct evsel *evsel;
+-	struct perf_event_attr attr = {
+-		.type = type,
+-		.config = config,
+-		.disabled = 1,
+-	};
+-	struct perf_thread_map *tmap = thread_map__new_by_tid(0);
+-
+-	if (tmap == NULL)
+-		return false;
+-
+-	evsel = evsel__new(&attr);
+-	if (evsel) {
+-		open_return = evsel__open(evsel, NULL, tmap);
+-		ret = open_return >= 0;
+-
+-		if (open_return == -EACCES) {
+-			/*
+-			 * This happens if the paranoid value
+-			 * /proc/sys/kernel/perf_event_paranoid is set to 2
+-			 * Re-run with exclude_kernel set; we don't do that
+-			 * by default as some ARM machines do not support it.
+-			 *
+-			 */
+-			evsel->core.attr.exclude_kernel = 1;
+-			ret = evsel__open(evsel, NULL, tmap) >= 0;
+-		}
+-		evsel__delete(evsel);
+-	}
+-
+-	perf_thread_map__put(tmap);
+-	return ret;
+-}
+-
+ int print_hwcache_events(const char *event_glob, bool name_only)
+ {
+ 	unsigned int type, op, i, evt_i = 0, evt_num = 0, npmus = 0;
+-- 
+2.35.1
 
-Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-    nvme: add new line after variable declatation
-
-Rafael Mendonca <rafaelmendsr@gmail.com>
-    cxgb4: fix missing unlock on ETHOFLD desc collect fail path
-
-Hangyu Hua <hbh25y@gmail.com>
-    net: sched: act_ct: fix possible refcount leak in tcf_ct_init()
-
-Peilin Ye <peilin.ye@bytedance.com>
-    usbnet: Fix memory leak in usbnet_disconnect()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    Input: melfas_mip4 - fix return value check in mip4_probe()
-
-Brian Norris <briannorris@chromium.org>
-    Revert "drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time"
-
-Martin Povišer <povik+lin@cutebit.org>
-    ASoC: tas2770: Reinit regcache on reset
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Fix debugfs info for A64 SRAM C
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Fix probe function ordering issues
-
-Cai Huoqing <caihuoqing@baidu.com>
-    soc: sunxi_sram: Make use of the helper function devm_platform_ioremap_resource()
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Prevent the driver from being unbound
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Actually claim SRAM regions
-
-Richard Zhu <hongxing.zhu@nxp.com>
-    reset: imx7: Fix the iMX8MP PCIe PHY PERST support
-
-YuTong Chang <mtwget@gmail.com>
-    ARM: dts: am33xx: Fix MMCHS0 dma properties
-
-Yu Kuai <yukuai3@huawei.com>
-    scsi: hisi_sas: Revert "scsi: hisi_sas: Limit max hw sectors for v3 HW"
-
-Tianyu Lan <Tianyu.Lan@microsoft.com>
-    swiotlb: max mapping size takes min align mask into account
-
-Nicolas Dufresne <nicolas.dufresne@collabora.com>
-    media: rkvdec: Disable H.264 error detection
-
-Hangyu Hua <hbh25y@gmail.com>
-    media: dvb_vb2: fix possible out of bound access
-
-Minchan Kim <minchan@kernel.org>
-    mm: fix madivse_pageout mishandling on non-LRU page
-
-Alistair Popple <apopple@nvidia.com>
-    mm/migrate_device.c: flush TLB while holding PTL
-
-Maurizio Lombardi <mlombard@redhat.com>
-    mm: prevent page_frag_alloc() from corrupting the memory
-
-Mel Gorman <mgorman@techsingularity.net>
-    mm/page_alloc: fix race condition between build_all_zonelists and page allocation
-
-Wenchao Chen <wenchao.chen@unisoc.com>
-    mmc: hsq: Fix data stomping during mmc recovery
-
-Sergei Antonov <saproj@gmail.com>
-    mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
-
-Niklas Cassel <niklas.cassel@wdc.com>
-    libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
-
-Yang Shi <shy828301@gmail.com>
-    powerpc/64s/radix: don't need to broadcast IPI for radix pmd collapse flush
-
-Alexander Couzens <lynxis@fe80.eu>
-    net: mt7531: only do PLL once after the reset
-
-ChenXiaoSong <chenxiaosong2@huawei.com>
-    ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
-
-Linus Walleij <linus.walleij@linaro.org>
-    ARM: dts: integrator: Tag PCI host with device_type
-
-Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-    clk: ingenic-tcu: Properly enable registers before accessing timers
-
-Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-    Input: snvs_pwrkey - fix SNVS_HPVIDR1 register address
-
-Frank Wunderlich <frank-w@public-files.de>
-    net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
-
-Mario Limonciello <mario.limonciello@amd.com>
-    thunderbolt: Explicitly reset plug events delay back to USB4 spec value
-
-Heikki Krogerus <heikki.krogerus@linux.intel.com>
-    usb: typec: ucsi: Remove incorrect warning
-
-Hongling Zeng <zenghongling@kylinos.cn>
-    uas: ignore UAS for Thinkplus chips
-
-Hongling Zeng <zenghongling@kylinos.cn>
-    usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS
-
-Hongling Zeng <zenghongling@kylinos.cn>
-    uas: add no-uas quirk for Hiksemi usb_disk
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix hang during unmount when stopping a space reclaim worker
-
-Mohan Kumar <mkumard@nvidia.com>
-    ALSA: hda: Fix Nvidia dp infoframe
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically
-
-Dmitry Osipenko <digetx@gmail.com>
-    ALSA: hda/tegra: Reset hardware
-
-Dmitry Osipenko <digetx@gmail.com>
-    ALSA: hda/tegra: Use clk_bulk helpers
-
-Gil Fine <gil.fine@intel.com>
-    thunderbolt: Add support for Intel Maple Ridge single port controller
-
-Mika Westerberg <mika.westerberg@linux.intel.com>
-    thunderbolt: Add support for Intel Maple Ridge
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/am33xx-l4.dtsi                   |  3 +-
- arch/arm/boot/dts/integratorap.dts                 |  1 +
- arch/powerpc/mm/book3s64/radix_pgtable.c           |  9 ---
- arch/x86/kernel/alternative.c                      | 45 +++++------
- arch/x86/kvm/cpuid.c                               |  2 -
- drivers/ata/libata-core.c                          |  4 +
- drivers/clk/bcm/clk-iproc-pll.c                    | 12 ++-
- drivers/clk/imx/clk-imx6sx.c                       |  4 +-
- drivers/clk/ingenic/tcu.c                          | 15 ++--
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 ----
- drivers/input/keyboard/snvs_pwrkey.c               |  2 +-
- drivers/input/touchscreen/melfas_mip4.c            |  2 +-
- drivers/media/dvb-core/dvb_vb2.c                   | 11 +++
- drivers/mmc/host/mmc_hsq.c                         |  2 +-
- drivers/mmc/host/moxart-mmc.c                      | 17 +----
- drivers/net/dsa/mt7530.c                           | 15 ++--
- drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c     | 28 ++++---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  | 23 +++---
- drivers/net/usb/qmi_wwan.c                         |  1 +
- drivers/net/usb/usbnet.c                           |  7 +-
- drivers/nvme/host/core.c                           |  9 ++-
- drivers/reset/reset-imx7.c                         |  1 +
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c             |  7 --
- drivers/soc/sunxi/sunxi_sram.c                     | 27 +++----
- drivers/staging/media/rkvdec/rkvdec-h264.c         |  4 +-
- drivers/thunderbolt/icm.c                          | 12 +++
- drivers/thunderbolt/nhi.h                          |  2 +
- drivers/thunderbolt/switch.c                       |  1 +
- drivers/usb/storage/unusual_uas.h                  | 21 ++++++
- drivers/usb/typec/ucsi/ucsi.c                      |  2 -
- fs/btrfs/disk-io.c                                 | 25 ++++++
- fs/ntfs/super.c                                    |  3 +-
- kernel/dma/swiotlb.c                               | 13 +++-
- mm/madvise.c                                       |  7 +-
- mm/migrate.c                                       |  5 +-
- mm/page_alloc.c                                    | 65 +++++++++++++---
- net/sched/act_ct.c                                 |  5 +-
- sound/pci/hda/hda_tegra.c                          | 88 +++++++---------------
- sound/pci/hda/patch_hdmi.c                         | 47 ++++++++++--
- sound/soc/codecs/tas2770.c                         |  3 +
- tools/testing/selftests/net/reuseport_bpf.c        |  2 +-
- 42 files changed, 346 insertions(+), 223 deletions(-)
 
 
