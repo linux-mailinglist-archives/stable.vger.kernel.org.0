@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 263F95F2A06
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C99A5F29DB
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbiJCH3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:29:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44728 "EHLO
+        id S230203AbiJCH0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:26:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbiJCH26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFDE01018;
-        Mon,  3 Oct 2022 00:19:48 -0700 (PDT)
+        with ESMTP id S230198AbiJCHYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:24:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E438637192;
+        Mon,  3 Oct 2022 00:18:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72313B80E95;
-        Mon,  3 Oct 2022 07:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E10FBC433C1;
-        Mon,  3 Oct 2022 07:19:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AE6860F08;
+        Mon,  3 Oct 2022 07:16:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A8D1C433D7;
+        Mon,  3 Oct 2022 07:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781575;
-        bh=2BT/09rp4C8+jPg12InhUK6xH/uesRF7DABT2lfDI7Q=;
+        s=korg; t=1664781378;
+        bh=1IZBZDt+Wlcs3Xkk1ok1GE/KHjIXbz2z7WjYvzPlrRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPLs8XKM4ghCj14lUX1mYlotuIccE5ytTvSf6zauVzxqR/LRE4koZA22YeT6QFsSi
-         d5WeknLjILIh+qLLWS3fAZXBtd3+2wsoA1+B95cDMRSIAoyis75xTYVIgFaQFjuDfS
-         b54v/ZftiB6+V3YIO7p+ovkFZPOGLsWz9nKKZ/mE=
+        b=X9JYh6eM3+IjCCe96Jo9zQzFTTS0eCEIWptItosWvde9fHbcW2KhJI3oECUrzYxwM
+         kvGj611ZDdMZ+0XgWQAmgQShjA29WyA2wkpXth4uFYvIHfwMw0ITewyLvyZzihZ09/
+         w4HIaEzfG1k6TMLRzgxUECiqSCL5Ssysr6te3gp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 70/83] KVM: x86: Hide IA32_PLATFORM_DCA_CAP[31:0] from the guest
+        stable@vger.kernel.org,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.19 099/101] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant
 Date:   Mon,  3 Oct 2022 09:11:35 +0200
-Message-Id: <20221003070723.747928220@linuxfoundation.org>
+Message-Id: <20221003070726.891304655@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit aae2e72229cdb21f90df2dbe4244c977e5d3265b ]
+commit df5b035b5683d6a25f077af889fb88e09827f8bc upstream.
 
-The only thing reported by CPUID.9 is the value of
-IA32_PLATFORM_DCA_CAP[31:0] in EAX. This MSR doesn't even exist in the
-guest, since CPUID.1:ECX.DCA[bit 18] is clear in the guest.
+On a CONFIG_SMP=n kernel, the LLC shared mask is 0, which prevents
+__cache_amd_cpumap_setup() from doing the L3 masks setup, and more
+specifically from setting up the shared_cpu_map and shared_cpu_list
+files in sysfs, leading to lscpu from util-linux getting confused and
+segfaulting.
 
-Clear CPUID.9 in KVM_GET_SUPPORTED_CPUID.
+Add a cpu_llc_shared_mask() UP variant which returns a mask with a
+single bit set, i.e., for CPU0.
 
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220922231854.249383-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2b83809a5e6d ("x86/cpu/amd: Derive L3 shared_cpu_map from cpu_llc_shared_mask")
+Reported-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1660148115-302-1-git-send-email-ssengar@linux.microsoft.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/include/asm/smp.h |   25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index b17c9b00669e..d85a0808a446 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -718,8 +718,6 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
- 			entry->edx = 0;
- 		}
- 		break;
--	case 9:
--		break;
- 	case 0xa: { /* Architectural Performance Monitoring */
- 		struct x86_pmu_capability cap;
- 		union cpuid10_eax eax;
--- 
-2.35.1
-
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -21,16 +21,6 @@ DECLARE_PER_CPU_READ_MOSTLY(u16, cpu_llc
+ DECLARE_PER_CPU_READ_MOSTLY(u16, cpu_l2c_id);
+ DECLARE_PER_CPU_READ_MOSTLY(int, cpu_number);
+ 
+-static inline struct cpumask *cpu_llc_shared_mask(int cpu)
+-{
+-	return per_cpu(cpu_llc_shared_map, cpu);
+-}
+-
+-static inline struct cpumask *cpu_l2c_shared_mask(int cpu)
+-{
+-	return per_cpu(cpu_l2c_shared_map, cpu);
+-}
+-
+ DECLARE_EARLY_PER_CPU_READ_MOSTLY(u16, x86_cpu_to_apicid);
+ DECLARE_EARLY_PER_CPU_READ_MOSTLY(u32, x86_cpu_to_acpiid);
+ DECLARE_EARLY_PER_CPU_READ_MOSTLY(u16, x86_bios_cpu_apicid);
+@@ -172,6 +162,16 @@ extern int safe_smp_processor_id(void);
+ # define safe_smp_processor_id()	smp_processor_id()
+ #endif
+ 
++static inline struct cpumask *cpu_llc_shared_mask(int cpu)
++{
++	return per_cpu(cpu_llc_shared_map, cpu);
++}
++
++static inline struct cpumask *cpu_l2c_shared_mask(int cpu)
++{
++	return per_cpu(cpu_l2c_shared_map, cpu);
++}
++
+ #else /* !CONFIG_SMP */
+ #define wbinvd_on_cpu(cpu)     wbinvd()
+ static inline int wbinvd_on_all_cpus(void)
+@@ -179,6 +179,11 @@ static inline int wbinvd_on_all_cpus(voi
+ 	wbinvd();
+ 	return 0;
+ }
++
++static inline struct cpumask *cpu_llc_shared_mask(int cpu)
++{
++	return (struct cpumask *)cpumask_of(0);
++}
+ #endif /* CONFIG_SMP */
+ 
+ extern unsigned disabled_cpus;
 
 
