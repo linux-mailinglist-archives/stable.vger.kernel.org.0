@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D54F65F2919
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:13:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30CD05F291A
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229883AbiJCHNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:13:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47842 "EHLO
+        id S229897AbiJCHNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:13:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbiJCHMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B34402E7;
-        Mon,  3 Oct 2022 00:12:39 -0700 (PDT)
+        with ESMTP id S229797AbiJCHM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BF53A4BC;
+        Mon,  3 Oct 2022 00:12:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D3F2B80E67;
-        Mon,  3 Oct 2022 07:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6087C433C1;
-        Mon,  3 Oct 2022 07:12:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 499A6B80E6B;
+        Mon,  3 Oct 2022 07:12:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A14EFC433C1;
+        Mon,  3 Oct 2022 07:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781156;
-        bh=k7V3V4Hsxr6o2tHSNWJzPqBi2nn7WhKBYo9GdwPlTpE=;
+        s=korg; t=1664781159;
+        bh=B6Ct1dz8v8oZkert7QrNcltIhwbgLcAbbGDlHJYJWms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZoFPb/ZvrcHTFtC3FqUhy9xII1oDGLScdZA8/96h6famgMTXybywLw8XpU6u6x6/K
-         mMbLpTGiwrQeoFCH3QaY5Rf9H0lhhwFbmTjM1L4MciIY4/jInQaS4gyTfdl372HpAx
-         0OlI1omhv+Vhg20X3TPu8LGGexw8fA/MhWW7Efa4=
+        b=TgGv9ada1YFbY3te/7DGGkH+c3hOQJf+UYQ5woxWiLAjp2+E5o3WtjshyHALzJZAP
+         derHkpX4AtmPdgyKLAAH0+xpZr1N5PJFtbevt4Zz6DUxTM2WbQF1iJYHL+lSpY5G51
+         GYuOw/T+GTbVelxUu5SYv+2lPxIxZKB5tLvSrjeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 002/101] tools/perf: Fix out of bound access to cpu mask array
-Date:   Mon,  3 Oct 2022 09:09:58 +0200
-Message-Id: <20221003070724.557522335@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 003/101] perf record: Fix cpu mask bit setting for mixed mmaps
+Date:   Mon,  3 Oct 2022 09:09:59 +0200
+Message-Id: <20221003070724.583961037@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -58,137 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit cbd7bfc7fd99acdde58ec2b0bce990158fba1654 ]
+[ Upstream commit ca76d7d2812b46124291f99c9b50aaf63a936f23 ]
 
-The cpu mask init code in "record__mmap_cpu_mask_init" function access
-"bits" array part of "struct mmap_cpu_mask".  The size of this array is
-the value from cpu__max_cpu().cpu.  This array is used to contain the
-cpumask value for each cpu. While setting bit for each cpu, it calls
-"set_bit" function which access index in "bits" array.
+With mixed per-thread and (system-wide) per-cpu maps, the "any cpu" value
+ -1 must be skipped when setting CPU mask bits.
 
-If we provide a command line option to -C which is greater than the
-number of CPU's present in the system, the set_bit could access an array
-member which is out-of the array size. This is because currently, there
-is no boundary check for the CPU. This will result in seg fault:
+Prior to commit cbd7bfc7fd99acdd ("tools/perf: Fix out of bound access
+to cpu mask array") the invalid setting went unnoticed, but since then
+it causes perf record to fail with an error.
 
-<<>>
-  ./perf record -C 12341234 ls
-  Perf can support 2048 CPUs. Consider raising MAX_NR_CPUS
-  Segmentation fault (core dumped)
-<<>>
+Example:
 
-Debugging with gdb, points to function flow as below:
+ Before:
 
-<<>>
-  set_bit
-  record__mmap_cpu_mask_init
-  record__init_thread_default_masks
-  record__init_thread_masks
-  cmd_record
-<<>>
+   $ perf record -e intel_pt// --per-thread uname
+   Failed to initialize parallel data streaming masks
 
-Fix this by adding boundary check for the array.
+ After:
 
-After the patch:
+   $ perf record -e intel_pt// --per-thread uname
+   Linux
+   [ perf record: Woken up 1 times to write data ]
+   [ perf record: Captured and wrote 0.068 MB perf.data ]
 
-<<>>
-./perf record -C 12341234 ls
-  Perf can support 2048 CPUs. Consider raising MAX_NR_CPUS
-  Failed to initialize parallel data streaming masks
-<<>>
-
-With this fix, if -C is given a non-exsiting CPU, perf
-record will fail with:
-
-<<>>
-  ./perf record -C 50 ls
-  Failed to initialize parallel data streaming masks
-<<>>
-
-Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Signed-off-by: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Fixes: ae4f8ae16a078964 ("libperf evlist: Allow mixing per-thread and per-cpu mmaps")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Cc: Ian Rogers <irogers@google.com>
 Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kajol Jain <kjain@linux.ibm.com>
-Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: https://lore.kernel.org/r/20220905141929.7171-2-atrajeev@linux.vnet.ibm.com
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220915122612.81738-2-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Stable-dep-of: ca76d7d2812b ("perf record: Fix cpu mask bit setting for mixed mmaps")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-record.c | 26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ tools/perf/builtin-record.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
-index 68c878b4e5e4..708880a1c83c 100644
+index 708880a1c83c..7fbc85c1da81 100644
 --- a/tools/perf/builtin-record.c
 +++ b/tools/perf/builtin-record.c
-@@ -3335,16 +3335,22 @@ static struct option __record_options[] = {
+@@ -3344,6 +3344,8 @@ static int record__mmap_cpu_mask_init(struct mmap_cpu_mask *mask, struct perf_cp
+ 		return 0;
  
- struct option *record_options = __record_options;
- 
--static void record__mmap_cpu_mask_init(struct mmap_cpu_mask *mask, struct perf_cpu_map *cpus)
-+static int record__mmap_cpu_mask_init(struct mmap_cpu_mask *mask, struct perf_cpu_map *cpus)
- {
- 	struct perf_cpu cpu;
- 	int idx;
- 
- 	if (cpu_map__is_dummy(cpus))
--		return;
-+		return 0;
- 
--	perf_cpu_map__for_each_cpu(cpu, idx, cpus)
-+	perf_cpu_map__for_each_cpu(cpu, idx, cpus) {
-+		/* Return ENODEV is input cpu is greater than max cpu */
-+		if ((unsigned long)cpu.cpu > mask->nbits)
-+			return -ENODEV;
- 		set_bit(cpu.cpu, mask->bits);
-+	}
-+
-+	return 0;
- }
- 
- static int record__mmap_cpu_mask_init_spec(struct mmap_cpu_mask *mask, const char *mask_spec)
-@@ -3356,7 +3362,9 @@ static int record__mmap_cpu_mask_init_spec(struct mmap_cpu_mask *mask, const cha
- 		return -ENOMEM;
- 
- 	bitmap_zero(mask->bits, mask->nbits);
--	record__mmap_cpu_mask_init(mask, cpus);
-+	if (record__mmap_cpu_mask_init(mask, cpus))
-+		return -ENODEV;
-+
- 	perf_cpu_map__put(cpus);
- 
- 	return 0;
-@@ -3438,7 +3446,12 @@ static int record__init_thread_masks_spec(struct record *rec, struct perf_cpu_ma
- 		pr_err("Failed to allocate CPUs mask\n");
- 		return ret;
- 	}
--	record__mmap_cpu_mask_init(&cpus_mask, cpus);
-+
-+	ret = record__mmap_cpu_mask_init(&cpus_mask, cpus);
-+	if (ret) {
-+		pr_err("Failed to init cpu mask\n");
-+		goto out_free_cpu_mask;
-+	}
- 
- 	ret = record__thread_mask_alloc(&full_mask, cpu__max_cpu().cpu);
- 	if (ret) {
-@@ -3679,7 +3692,8 @@ static int record__init_thread_default_masks(struct record *rec, struct perf_cpu
- 	if (ret)
- 		return ret;
- 
--	record__mmap_cpu_mask_init(&rec->thread_masks->maps, cpus);
-+	if (record__mmap_cpu_mask_init(&rec->thread_masks->maps, cpus))
-+		return -ENODEV;
- 
- 	rec->nr_threads = 1;
- 
+ 	perf_cpu_map__for_each_cpu(cpu, idx, cpus) {
++		if (cpu.cpu == -1)
++			continue;
+ 		/* Return ENODEV is input cpu is greater than max cpu */
+ 		if ((unsigned long)cpu.cpu > mask->nbits)
+ 			return -ENODEV;
 -- 
 2.35.1
 
