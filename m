@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3C75F2916
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:13:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A1305F2968
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229868AbiJCHN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:13:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S230054AbiJCHSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:18:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229872AbiJCHMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F373C422DE;
-        Mon,  3 Oct 2022 00:12:36 -0700 (PDT)
+        with ESMTP id S230051AbiJCHRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31EA81F2E4;
+        Mon,  3 Oct 2022 00:14:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9C0DB80E66;
-        Mon,  3 Oct 2022 07:12:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26661C433D7;
-        Mon,  3 Oct 2022 07:12:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC0D460F9C;
+        Mon,  3 Oct 2022 07:14:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E948AC433C1;
+        Mon,  3 Oct 2022 07:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781153;
-        bh=HEpb4eCnReJMMkUUurl5+sAXCcIdPcGKHFpFJgHUXuE=;
+        s=korg; t=1664781259;
+        bh=nBpY/1f++0ipZ8qC0WjHnambSVMNnvhuoHI1mrT04qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7VHn6wJuzbHIT0fLPq5DsRK09sUehxYm9eB7yK1y8flFqm3SpQxkgBA9voukNghG
-         Wr1I8jgv8fdp/iZ84rTKw5BDFlEOBLe2N0X4m8k30ErzRyu6rz3K5ZczMdTx/tK0sw
-         kqsfwXFNulLLQwLpUT2bu/TGWcvqUig+3QgAYGKw=
+        b=zcOfjI6WZWKNsPDPUn7V7eG3/OF3G8/RBL9SYhW2tj0b0kXhO7uObnmqCAdooJYwb
+         +MFA6yYb//MsJQaUBnrD/76rEpvjtAlRWTo7agulcUphZ5PDGb4YlZQaNHkfp+mW3c
+         GGd9kztQFcTk4NgHHZ3GK7wewIE2x0xLgluwGYps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 5.19 017/101] x86/sgx: Do not fail on incomplete sanitization on premature stop of ksgxd
-Date:   Mon,  3 Oct 2022 09:10:13 +0200
-Message-Id: <20221003070724.928405585@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Liu Shixin <liushixin2@huawei.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 018/101] frontswap: dont call ->init if no ops are registered
+Date:   Mon,  3 Oct 2022 09:10:14 +0200
+Message-Id: <20221003070724.951846385@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -54,89 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 133e049a3f8c91b175029fb6a59b6039d5e79cba upstream.
+commit 37dcc673d065d9823576cd9f2484a72531e1cba6 upstream.
 
-Unsanitized pages trigger WARN_ON() unconditionally, which can panic the
-whole computer, if /proc/sys/kernel/panic_on_warn is set.
+If no frontswap module (i.e.  zswap) was registered, frontswap_ops will be
+NULL.  In such situation, swapon crashes with the following stack trace:
 
-In sgx_init(), if misc_register() fails or misc_register() succeeds but
-neither sgx_drv_init() nor sgx_vepc_init() succeeds, then ksgxd will be
-prematurely stopped. This may leave unsanitized pages, which will result a
-false warning.
+  Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+  Mem abort info:
+    ESR = 0x0000000096000004
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+    FSC = 0x04: level 0 translation fault
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  user pgtable: 4k pages, 48-bit VAs, pgdp=00000020a4fab000
+  [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+  Internal error: Oops: 96000004 [#1] SMP
+  Modules linked in: zram fsl_dpaa2_eth pcs_lynx phylink ahci_qoriq crct10dif_ce ghash_ce sbsa_gwdt fsl_mc_dpio nvme lm90 nvme_core at803x xhci_plat_hcd rtc_fsl_ftm_alarm xgmac_mdio ahci_platform i2c_imx ip6_tables ip_tables fuse
+  Unloaded tainted modules: cppc_cpufreq():1
+  CPU: 10 PID: 761 Comm: swapon Not tainted 6.0.0-rc2-00454-g22100432cf14 #1
+  Hardware name: SolidRun Ltd. SolidRun CEX7 Platform, BIOS EDK II Jun 21 2022
+  pstate: 00400005 (nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  pc : frontswap_init+0x38/0x60
+  lr : __do_sys_swapon+0x8a8/0x9f4
+  sp : ffff80000969bcf0
+  x29: ffff80000969bcf0 x28: ffff37bee0d8fc00 x27: ffff80000a7f5000
+  x26: fffffcdefb971e80 x25: ffffaba797453b90 x24: 0000000000000064
+  x23: ffff37c1f209d1a8 x22: ffff37bee880e000 x21: ffffaba797748560
+  x20: ffff37bee0d8fce4 x19: ffffaba797748488 x18: 0000000000000014
+  x17: 0000000030ec029a x16: ffffaba795a479b0 x15: 0000000000000000
+  x14: 0000000000000000 x13: 0000000000000030 x12: 0000000000000001
+  x11: ffff37c63c0aba18 x10: 0000000000000000 x9 : ffffaba7956b8c88
+  x8 : ffff80000969bcd0 x7 : 0000000000000000 x6 : 0000000000000000
+  x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffffaba79730f000
+  x2 : ffff37bee0d8fc00 x1 : 0000000000000000 x0 : 0000000000000000
+  Call trace:
+  frontswap_init+0x38/0x60
+  __do_sys_swapon+0x8a8/0x9f4
+  __arm64_sys_swapon+0x28/0x3c
+  invoke_syscall+0x78/0x100
+  el0_svc_common.constprop.0+0xd4/0xf4
+  do_el0_svc+0x38/0x4c
+  el0_svc+0x34/0x10c
+  el0t_64_sync_handler+0x11c/0x150
+  el0t_64_sync+0x190/0x194
+  Code: d000e283 910003fd f9006c41 f946d461 (f9400021)
+  ---[ end trace 0000000000000000 ]---
 
-Refine __sgx_sanitize_pages() to return:
-
-1. Zero when the sanitization process is complete or ksgxd has been
-   requested to stop.
-2. The number of unsanitized pages otherwise.
-
-Fixes: 51ab30eb2ad4 ("x86/sgx: Replace section->init_laundry_list with sgx_dirty_page_list")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-sgx/20220825051827.246698-1-jarkko@kernel.org/T/#u
-Link: https://lkml.kernel.org/r/20220906000221.34286-2-jarkko@kernel.org
+Link: https://lkml.kernel.org/r/20220909130829.3262926-1-hch@lst.de
+Fixes: 1da0d94a3ec8 ("frontswap: remove support for multiple ops")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/sgx/main.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ mm/frontswap.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -49,9 +49,13 @@ static LIST_HEAD(sgx_dirty_page_list);
-  * Reset post-kexec EPC pages to the uninitialized state. The pages are removed
-  * from the input list, and made available for the page allocator. SECS pages
-  * prepending their children in the input list are left intact.
-+ *
-+ * Return 0 when sanitization was successful or kthread was stopped, and the
-+ * number of unsanitized pages otherwise.
-  */
--static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
-+static unsigned long __sgx_sanitize_pages(struct list_head *dirty_page_list)
- {
-+	unsigned long left_dirty = 0;
- 	struct sgx_epc_page *page;
- 	LIST_HEAD(dirty);
- 	int ret;
-@@ -59,7 +63,7 @@ static void __sgx_sanitize_pages(struct
- 	/* dirty_page_list is thread-local, no need for a lock: */
- 	while (!list_empty(dirty_page_list)) {
- 		if (kthread_should_stop())
--			return;
-+			return 0;
- 
- 		page = list_first_entry(dirty_page_list, struct sgx_epc_page, list);
- 
-@@ -92,12 +96,14 @@ static void __sgx_sanitize_pages(struct
- 		} else {
- 			/* The page is not yet clean - move to the dirty list. */
- 			list_move_tail(&page->list, &dirty);
-+			left_dirty++;
- 		}
- 
- 		cond_resched();
- 	}
- 
- 	list_splice(&dirty, dirty_page_list);
-+	return left_dirty;
+--- a/mm/frontswap.c
++++ b/mm/frontswap.c
+@@ -125,6 +125,9 @@ void frontswap_init(unsigned type, unsig
+ 	 * p->frontswap set to something valid to work properly.
+ 	 */
+ 	frontswap_map_set(sis, map);
++
++	if (!frontswap_enabled())
++		return;
+ 	frontswap_ops->init(type);
  }
  
- static bool sgx_reclaimer_age(struct sgx_epc_page *epc_page)
-@@ -440,10 +446,7 @@ static int ksgxd(void *p)
- 	 * required for SECS pages, whose child pages blocked EREMOVE.
- 	 */
- 	__sgx_sanitize_pages(&sgx_dirty_page_list);
--	__sgx_sanitize_pages(&sgx_dirty_page_list);
--
--	/* sanity check: */
--	WARN_ON(!list_empty(&sgx_dirty_page_list));
-+	WARN_ON(__sgx_sanitize_pages(&sgx_dirty_page_list));
- 
- 	while (!kthread_should_stop()) {
- 		if (try_to_freeze())
 
 
