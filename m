@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5155F2A8F
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3875F29E4
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231634AbiJCHht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:37:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46410 "EHLO
+        id S229797AbiJCH1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:27:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231702AbiJCHgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:36:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647F651A38;
-        Mon,  3 Oct 2022 00:22:46 -0700 (PDT)
+        with ESMTP id S229678AbiJCH00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:26:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6064BD1C;
+        Mon,  3 Oct 2022 00:18:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96B8AB80E83;
-        Mon,  3 Oct 2022 07:20:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09BE6C433C1;
-        Mon,  3 Oct 2022 07:20:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EB4060F08;
+        Mon,  3 Oct 2022 07:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587CCC433C1;
+        Mon,  3 Oct 2022 07:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781639;
-        bh=6pZ6UQlxPLXtJOJyXlnGRVygfTHsLZc0+Seg8suUn4s=;
+        s=korg; t=1664781528;
+        bh=v7g4F4OSPeaZNOBmVwP/wUNFNVZYgcHERgCo9de8d90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Su54NdFDKqB7jeDhKAjEt5JQV/lNI0TElTgeNjAJDcaeFX7IbmT/E5vVqvMqYenFU
-         63GF7aETMNWbeqHP1rEQEHipiGPo0c/3F/gOA9dYUJzBV3SqbV1jLEBcnQoR77jSKq
-         pqzUa70ci0aRKmIZsmrdPbf3worV6s1S5Fmn3Mow=
+        b=WpQcoaUxjWFJubczK4ryFwuQqSEGR6K+FVagBi8bq+01PWFU47iJC39bdneghUIkD
+         pypE23fap4+oBWzrsZzQgRz09xzO9relst+GquLoBrb03xHc2RqxNU/TIswevuzjyh
+         ep2ecP5P0flTrd8ED9c5fiCLF/jmsKIClxFAgF3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Hongling Zeng <zenghongling@kylinos.cn>
-Subject: [PATCH 5.10 10/52] uas: ignore UAS for Thinkplus chips
+        stable@vger.kernel.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 52/83] drm/bridge: lt8912b: fix corrupted image output
 Date:   Mon,  3 Oct 2022 09:11:17 +0200
-Message-Id: <20221003070719.028107446@linuxfoundation.org>
+Message-Id: <20221003070723.305982375@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongling Zeng <zenghongling@kylinos.cn>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-commit 0fb9703a3eade0bb84c635705d9c795345e55053 upstream.
+[ Upstream commit 051ad2788d35ca07aec8402542e5d38429f2426a ]
 
-The UAS mode of Thinkplus(0x17ef, 0x3899) is reported to influence
-performance and trigger kernel panic on several platforms with the
-following error message:
+Correct I2C address for the register list in lt8912_write_lvds_config(),
+these registers are on the first I2C address (0x48), the current
+function is just writing garbage to the wrong registers and this creates
+multiple issues (artifacts and output completely corrupted) on some HDMI
+displays.
 
-[   39.702439] xhci_hcd 0000:0c:00.3: ERROR Transfer event for disabled
-               endpoint or incorrect stream ring
-[   39.702442] xhci_hcd 0000:0c:00.3: @000000026c61f810 00000000 00000000
-               1b000000 05038000
+Correct I2C address comes from Lontium documentation and it is the one
+used on other out-of-tree LT8912B drivers [1].
 
-[  720.545894][13] Workqueue: usb_hub_wq hub_event
-[  720.550971][13]  ffff88026c143c38 0000000000016300 ffff8802755bb900 ffff880
-                    26cb80000
-[  720.559673][13]  ffff88026c144000 ffff88026ca88100 0000000000000000 ffff880
-                    26cb80000
-[  720.568374][13]  ffff88026cb80000 ffff88026c143c50 ffffffff8186ae25 ffff880
-                    26ca880f8
-[  720.577076][13] Call Trace:
-[  720.580201][13]  [<ffffffff8186ae25>] schedule+0x35/0x80
-[  720.586137][13]  [<ffffffff8186b0ce>] schedule_preempt_disabled+0xe/0x10
-[  720.593623][13]  [<ffffffff8186cb94>] __mutex_lock_slowpath+0x164/0x1e0
-[  720.601012][13]  [<ffffffff8186cc3f>] mutex_lock+0x2f/0x40
-[  720.607141][13]  [<ffffffff8162b8e9>] usb_disconnect+0x59/0x290
+[1] https://github.com/boundarydevices/linux/blob/boundary-imx_5.10.x_2.0.0/drivers/video/lt8912.c#L296
 
-Falling back to USB mass storage can solve this problem, so ignore UAS
-function of this chip.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Hongling Zeng <zenghongling@kylinos.cn>
-Link: https://lore.kernel.org/r/1663902249837086.19.seg@mailgw
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Acked-by: Adrien Grassein <adrien.grassein@gmail.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220922124306.34729-4-dev@pschenker.ch
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/bridge/lontium-lt8912b.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -132,6 +132,13 @@ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_ATA_1X),
+diff --git a/drivers/gpu/drm/bridge/lontium-lt8912b.c b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+index 6e04d51b4636..82169b6bfca1 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
++++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+@@ -186,7 +186,7 @@ static int lt8912_write_lvds_config(struct lt8912 *lt)
+ 		{0x03, 0xff},
+ 	};
  
-+/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
-+UNUSUAL_DEV(0x17ef, 0x3899, 0x0000, 0x9999,
-+		"Thinkplus",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
- 		"VIA",
+-	return regmap_multi_reg_write(lt->regmap[I2C_CEC_DSI], seq, ARRAY_SIZE(seq));
++	return regmap_multi_reg_write(lt->regmap[I2C_MAIN], seq, ARRAY_SIZE(seq));
+ };
+ 
+ static inline struct lt8912 *bridge_to_lt8912(struct drm_bridge *b)
+-- 
+2.35.1
+
 
 
