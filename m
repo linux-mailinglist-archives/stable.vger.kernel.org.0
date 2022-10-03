@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C665F2AA6
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08FAF5F2A75
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbiJCHje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:39:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
+        id S231516AbiJCHgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:36:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231830AbiJCHiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:38:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 254A45464A;
-        Mon,  3 Oct 2022 00:23:12 -0700 (PDT)
+        with ESMTP id S231495AbiJCHfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:35:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A8F53037;
+        Mon,  3 Oct 2022 00:22:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82300B80E68;
-        Mon,  3 Oct 2022 07:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D43EBC433D7;
-        Mon,  3 Oct 2022 07:23:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBD40B80E9B;
+        Mon,  3 Oct 2022 07:22:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265D7C433C1;
+        Mon,  3 Oct 2022 07:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781790;
-        bh=KL3dXndxbBjHZDXFnd0Fkzsk9qlZNG4oOe0oIUPllSo=;
+        s=korg; t=1664781743;
+        bh=HzWNp5YyPkS2fPfnmk/Ug6wOXveeiRA34eO/DWm4nXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OY/luvFP/uM3sJoilmptuxRGAkYoootqHCC/pqPwiNthOGdMELsTY+P78+yd/0Dzf
-         oz+Gd44ELApC+FRZFsExbjHCktVOQ8hkZDTSd8qU5ZoTDgFdrn9jtCcUbCxAV1pUj3
-         8XqHuPOht4Zp3f8KI9bwo48zIpwKKs4H2MmZYuZc=
+        b=N4HBTwJWCocohKeXiYw6Bmz28iZJ68UWWw6MH11oG9OqPPS51Ac0sNccgiKMsVPsK
+         IjC8BFPTzHy6pnZ75uLlN19ZJRllaijN8zfsDwJWdR7XBEPGcIwvQrdlDI4uWVb/ln
+         ++ZSZPgIHX6QkTNRBBxc3abUHfE2iWVQBCLdoGPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Chen Lin <chen45464546@163.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 12/30] mm: prevent page_frag_alloc() from corrupting the memory
+        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 47/52] selftests: Fix the if conditions of in test_extra_filter()
 Date:   Mon,  3 Oct 2022 09:11:54 +0200
-Message-Id: <20221003070716.648085562@linuxfoundation.org>
+Message-Id: <20221003070720.127941600@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
-References: <20221003070716.269502440@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-commit dac22531bbd4af2426c4e29e05594415ccfa365d upstream.
+[ Upstream commit bc7a319844891746135dc1f34ab9df78d636a3ac ]
 
-A number of drivers call page_frag_alloc() with a fragment's size >
-PAGE_SIZE.
+The socket 2 bind the addr in use, bind should fail with EADDRINUSE. So
+if bind success or errno != EADDRINUSE, testcase should be failed.
 
-In low memory conditions, __page_frag_cache_refill() may fail the order
-3 cache allocation and fall back to order 0; In this case, the cache
-will be smaller than the fragment, causing memory corruptions.
-
-Prevent this from happening by checking if the newly allocated cache is
-large enough for the fragment; if not, the allocation will fail and
-page_frag_alloc() will return NULL.
-
-Link: https://lkml.kernel.org/r/20220715125013.247085-1-mlombard@redhat.com
-Fixes: b63ae8ca096d ("mm/net: Rename and move page fragment handling from net/ to mm/")
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Cc: Chen Lin <chen45464546@163.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3ca8e4029969 ("soreuseport: BPF selection functional test")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1663916557-10730-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ tools/testing/selftests/net/reuseport_bpf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4979,6 +4979,18 @@ refill:
- 		/* reset page count bias and offset to start of new frag */
- 		nc->pagecnt_bias = PAGE_FRAG_CACHE_MAX_SIZE + 1;
- 		offset = size - fragsz;
-+		if (unlikely(offset < 0)) {
-+			/*
-+			 * The caller is trying to allocate a fragment
-+			 * with fragsz > PAGE_SIZE but the cache isn't big
-+			 * enough to satisfy the request, this may
-+			 * happen in low memory conditions.
-+			 * We don't release the cache page because
-+			 * it could make memory pressure worse
-+			 * so we simply return NULL here.
-+			 */
-+			return NULL;
-+		}
- 	}
+diff --git a/tools/testing/selftests/net/reuseport_bpf.c b/tools/testing/selftests/net/reuseport_bpf.c
+index b5277106df1f..b0cc082fbb84 100644
+--- a/tools/testing/selftests/net/reuseport_bpf.c
++++ b/tools/testing/selftests/net/reuseport_bpf.c
+@@ -330,7 +330,7 @@ static void test_extra_filter(const struct test_params p)
+ 	if (bind(fd1, addr, sockaddr_size()))
+ 		error(1, errno, "failed to bind recv socket 1");
  
- 	nc->pagecnt_bias--;
+-	if (!bind(fd2, addr, sockaddr_size()) && errno != EADDRINUSE)
++	if (!bind(fd2, addr, sockaddr_size()) || errno != EADDRINUSE)
+ 		error(1, errno, "bind socket 2 should fail with EADDRINUSE");
+ 
+ 	free(addr);
+-- 
+2.35.1
+
 
 
