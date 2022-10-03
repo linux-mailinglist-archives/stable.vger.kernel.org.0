@@ -2,155 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F47B5F355C
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 20:12:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB435F3565
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 20:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbiJCSMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 14:12:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
+        id S229738AbiJCSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 14:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230010AbiJCSMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 14:12:38 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044473743A
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 11:12:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664820756; x=1696356756;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=/pXCfP6FdVNBhKTPRNvFzyvMpsR1lB5zHpZEUGiHdqs=;
-  b=Myi4IxkQ1diuvGyAttPDX0rWvOxtGJX9LV5RJVhECQBLBkWVmZxdiKJC
-   NIQllD3wO32JMVSyJ8CFdAxMS2dokVkrM9/+Z+tPXuh1Aez38wsmsuFKn
-   /b2PSBzdvArStwD9wivXRxrCYxwKT/5L4EBLCHstxFGBjKkYNT8/RtubY
-   QfR+ccDqDAidpqjR8v7EdegRgBZEMJga4ez+Gt1n+biZShuziq9Xpwjb1
-   5fc227b/9dn1yl8rLJV9hM/j25/DKZlT/DvmtKLPG4036EBB8BFsH+TsY
-   JFaUmUMvnOWNaDpabT4r35AziN0cl4crMlIz2ZrpyhSEJbWil1ksfZBmp
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10489"; a="285891991"
-X-IronPort-AV: E=Sophos;i="5.93,366,1654585200"; 
-   d="scan'208";a="285891991"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Oct 2022 10:48:46 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10489"; a="766020930"
-X-IronPort-AV: E=Sophos;i="5.93,366,1654585200"; 
-   d="scan'208";a="766020930"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by fmsmga001.fm.intel.com with SMTP; 03 Oct 2022 10:48:42 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 03 Oct 2022 20:48:41 +0300
-Date:   Mon, 3 Oct 2022 20:48:41 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Slade Watkins <srw@sladewatkins.net>,
-        Jerry Ling <jiling@cern.ch>, intel-gfx@lists.freedesktop.org
-Subject: Re: Regression on 5.19.12, display flickering on Framework laptop
-Message-ID: <YzsgeXOK6JeVQGHF@intel.com>
-References: <55905860-adf9-312c-69cc-491ac8ce1a8b@cern.ch>
- <YzZynE2FAMNQKm2E@kroah.com>
- <YzaFq7fzw5TbrJyv@kroah.com>
- <03147889-B21C-449B-B110-7E504C8B0EF4@sladewatkins.net>
- <aa8b9724-50c6-ae2e-062d-3791144ac97e@cern.ch>
- <e3e2915d-1411-a758-3991-48d6c2688a1e@leemhuis.info>
- <YzsfrkJcwqKOO+E/@intel.com>
+        with ESMTP id S229940AbiJCSOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 14:14:53 -0400
+Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9890B101D;
+        Mon,  3 Oct 2022 11:14:49 -0700 (PDT)
+Received: by mail-qk1-x736.google.com with SMTP id k12so7039094qkj.8;
+        Mon, 03 Oct 2022 11:14:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=+hsPUimDYDiwuT0nRdu8wXIodqSgvz856Uo3Q87+AUA=;
+        b=nHVp9OvjX1fqor1+Rs/a2wW+zSZSv5lC+/7lkbcZD9dXqDnji79+FiPTvEOcr2p16M
+         RjQFxfrnEFgK1BCX40kRZM+Vm9JhWHdOsWPRFPCJ3zMs+qwewNtX7WlMwuI3scIdz4RS
+         +BYvFkpyOjPd38Gen1HkObCxpGqBhjsPlD0hvqcNNLyGm9XmDW6nXHiOxyEcnmfje9tl
+         CAVkQI3IjWdjS7vF1K4u5fipMGZVwj25tSaB4OMIQ1w2+EAQTCRsZ2ZFb64rkH2DVYOl
+         +/KKmL0hn4XIKwklm26nt7JiyMspvgogenpLXt0EcmPKyGDaqjUorG76aBuVCXgHs53X
+         nxUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=+hsPUimDYDiwuT0nRdu8wXIodqSgvz856Uo3Q87+AUA=;
+        b=ULWv96zjut5+4HmwH6y3YB7snmcFb/uyEKNQ+LSkraqtUtUPPnEwerm28ubHGnfhfD
+         qyfGWKiJ9JL/8WAeANWw9N5N8PEgOapLcPDwQSFdm6twqU1ZizdKXwa+Ww2SOwuz6Y4d
+         YeyJdc8TkRxJdNJvs+5fO2XDYxUT3bp8s2psF2FVVrWUbf3xJv3zNPWFQIHy4au9wf8E
+         8mcVGPqFAPIZ8Vogy57lfuGALvdEtmQ8Z4FJoZYo/EB1Gs+GPI2MnJ2d5I1GgbJEu/Z3
+         oICFjUfWAOeVUYfHKmpbhxzxLtohYBri0l2ncfF92bpm2a2M1tvVjyz0XyTIkijIlr9s
+         rMQA==
+X-Gm-Message-State: ACrzQf3nVsvokFj0Wzp7iQZF0Gi/N7L+md1zDv/SsFiHyaui4sqjqhaK
+        +u9c5ww6WMEO/j3WY/WXyTU=
+X-Google-Smtp-Source: AMsMyM7h3ubkLOrH90jeol8OgDHxaKq4Ei2ZnEpbMRqs/JM9XfmYjzqzJ5GeAaoNAQdzTCAvptyYmQ==
+X-Received: by 2002:a05:620a:28c1:b0:6ce:b23c:dcac with SMTP id l1-20020a05620a28c100b006ceb23cdcacmr14547985qkp.123.1664820888460;
+        Mon, 03 Oct 2022 11:14:48 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id 16-20020ac84e90000000b0035d4b13363fsm10757759qtp.48.2022.10.03.11.14.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Oct 2022 11:14:47 -0700 (PDT)
+Message-ID: <0ce768eb-fa74-d387-20f5-e28aba521ea0@gmail.com>
+Date:   Mon, 3 Oct 2022 11:14:44 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YzsfrkJcwqKOO+E/@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        T_PDS_OTHER_BAD_TLD autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 5.10 00/52] 5.10.147-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+References: <20221003070718.687440096@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 03, 2022 at 08:45:18PM +0300, Ville Syrjälä wrote:
-> On Sat, Oct 01, 2022 at 12:07:39PM +0200, Thorsten Leemhuis wrote:
-> > On 30.09.22 14:26, Jerry Ling wrote:
-> > > 
-> > > looks like someone has done it:
-> > > https://bbs.archlinux.org/viewtopic.php?pid=2059823#p2059823
-> > > 
-> > > and the bisect points to:
-> > > 
-> > > |# first bad commit: [fc6aff984b1c63d6b9e54f5eff9cc5ac5840bc8c]
-> > > drm/i915/bios: Split VBT data into per-panel vs. global parts Best, Jerry |
-> > 
-> > FWIW, that's 3cf050762534 in mainline. Adding Ville, its author to the
-> > list of recipients.
+On 10/3/22 00:11, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.147 release.
+> There are 52 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I definitely had no plans to backport any of that stuff,
-> but I guess the automagics did it anyway.
+> Responses should be made by Wed, 05 Oct 2022 07:07:06 +0000.
+> Anything received after that time might be too late.
 > 
-> Looks like stable is at least missing this pile of stuff:
-> 50759c13735d drm/i915/pps: Keep VDD enabled during eDP probe
-> 67090801489d drm/i915/pps: Reinit PPS delays after VBT has been fully parsed
-> 8e75e8f573e1 drm/i915/pps: Split PPS init+sanitize in two
-> 586294c3c186 drm/i915/pps: Stash away original BIOS programmed PPS delays
-> 89fcdf430599 drm/i915/pps: Don't apply quirks/etc. to the VBT PPS delays if they haven't been initialized
-> 60b02a09598f drm/i915/pps: Introduce pps_delays_valid()
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.147-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
-> But dunno if even that is enough.
+> thanks,
 > 
-> This bug report is probably the same thing:
-> https://gitlab.freedesktop.org/drm/intel/-/issues/7013
+> greg k-h
 
-Also cc intel-gfx...
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-> 
-> > 
-> > Did anyone check if a revert on top of 5.19.12 works easily and solves
-> > the problem?
-> > 
-> > And does anybody known if mainline affected, too?
-> > 
-> > Ciao, Thorsten
-> > 
-> > 
-> > > On 9/30/22 07:11, Slade Watkins wrote:
-> > >> Hey Greg,
-> > >>
-> > >>> On Sep 30, 2022, at 1:59 AM, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >>>
-> > >>> On Fri, Sep 30, 2022 at 06:37:48AM +0200, Greg KH wrote:
-> > >>>> On Thu, Sep 29, 2022 at 10:26:25PM -0400, Jerry Ling wrote:
-> > >>>>> Hi,
-> > >>>>>
-> > >>>>> It has been reported by multiple users across a handful of distros
-> > >>>>> that
-> > >>>>> there seems to be regression on Framework laptop (which presumably
-> > >>>>> is not
-> > >>>>> that special in terms of mobo and display)
-> > >>>>>
-> > >>>>> Ref:
-> > >>>>> https://community.frame.work/t/psa-dont-upgrade-to-linux-kernel-5-19-12-arch1-1-on-arch-linux-gen-11-model/23171
-> > >>>> Can anyone do a 'git bisect' to find the offending commit?
-> > >>> Also, this works for me on a gen 12 framework laptop:
-> > >>>     $ uname -a
-> > >>>     Linux frame 5.19.12 #68 SMP PREEMPT_DYNAMIC Fri Sep 30 07:02:33
-> > >>> CEST 2022 x86_64 GNU/Linux
-> > >>>
-> > >>> so there's something odd with the older hardware?
-> > >>>
-> > >>> greg k-h
-> > >> Could be. Running git bisect for 5.19.11 and 5.19.12 (as suggested by
-> > >> the linked forum thread) returned nothing on gen 11 for me.
-> > >>
-> > >> This is very odd,
-> > >> -srw
-> > > 
-> > > 
-> 
-> -- 
-> Ville Syrjälä
-> Intel
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Ville Syrjälä
-Intel
+Florian
