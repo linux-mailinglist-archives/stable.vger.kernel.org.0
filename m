@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1815F2AD4
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73F195F2B46
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231976AbiJCHmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:42:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34864 "EHLO
+        id S231234AbiJCH4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232004AbiJCHl0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:41:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF1A4AD42;
-        Mon,  3 Oct 2022 00:24:19 -0700 (PDT)
+        with ESMTP id S231327AbiJCHzm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:55:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E1D4E613;
+        Mon,  3 Oct 2022 00:32:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC60A60FBE;
-        Mon,  3 Oct 2022 07:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE085C433D6;
-        Mon,  3 Oct 2022 07:22:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CD8960FA4;
+        Mon,  3 Oct 2022 07:22:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC3DC433C1;
+        Mon,  3 Oct 2022 07:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781747;
-        bh=88y6V89ZhIC2mAYvMvB8/89AVze1JwN4vvrzk+RVBGw=;
+        s=korg; t=1664781749;
+        bh=7QuY/R7TUa6IcLI0yP2FjJ56tqDnwMl1fXfia1kTBLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wI7ibNRnrd3HGl4ubiTTOEtenztsiUpqOhk2WytpXuz+RNB/XmO5o7caulSjtaWH+
-         vTztRO0QMExGllRkC/L6FhnINyM0wDtiFeSDVO/87ScILXBvcgkXYWJ2FF9cO4tsqD
-         9sQ5m/WEgWXZRUYd/yQOn2m0iPeY2W04af9yw8F0=
+        b=oFE5llWgf0ZNbccBBPWu9vsbcJijP13tgQW7jum9uerG0Tmw8VK9/udZ85bgpUvg5
+         ATDZ/bJTQmAx73nPx2kb0powCrm1Q9bSbdG9jXLXy3RSre3AyVv4oNXH6WmNWEdXYH
+         WbCrI3XNwDsFrwSRTv3ZJvbg85gUtFQ4hwvjYbv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Han Xu <han.xu@nxp.com>,
-        Fabio Estevam <festevam@denx.de>,
-        Abel Vesa <abel.vesa@linaro.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 48/52] clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
-Date:   Mon,  3 Oct 2022 09:11:55 +0200
-Message-Id: <20221003070720.157123818@linuxfoundation.org>
+Subject: [PATCH 5.10 49/52] clk: iproc: Do not rely on node name for correct PLL setup
+Date:   Mon,  3 Oct 2022 09:11:56 +0200
+Message-Id: <20221003070720.182352110@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
 References: <20221003070718.687440096@linuxfoundation.org>
@@ -55,47 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Han Xu <han.xu@nxp.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit b1ff1bfe81e763420afd5f3f25f0b3cbfd97055c ]
+[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
 
-There is no dedicate parent clock for QSPI so SET_RATE_PARENT flag
-should not be used. For instance, the default parent clock for QSPI is
-pll2_bus, which is also the parent clock for quite a few modules, such
-as MMDC, once GPMI NAND set clock rate for EDO5 mode can cause system
-hang due to pll2_bus rate changed.
+After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
+description") a warning from clk-iproc-pll.c was generated due to a
+duplicate PLL name as well as the console stopped working. Upon closer
+inspection it became clear that iproc_pll_clk_setup() used the Device
+Tree node unit name as an unique identifier as well as a parent name to
+parent all clocks under the PLL.
 
-Fixes: f1541e15e38e ("clk: imx6sx: Switch to clk_hw based API")
-Signed-off-by: Han Xu <han.xu@nxp.com>
-Link: https://lore.kernel.org/r/20220915150959.3646702-1-han.xu@nxp.com
-Tested-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+BCM5301X was the first platform on which that got noticed because of the
+DT node unit name renaming but the same assumptions hold true for any
+user of the iproc_pll_clk_setup() function.
+
+The first 'clock-output-names' property is always guaranteed to be
+unique as well as providing the actual desired PLL clock name, so we
+utilize that to register the PLL and as a parent name of all children
+clock.
+
+Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx6sx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx6sx.c b/drivers/clk/imx/clk-imx6sx.c
-index fc1bd23d4583..598f3cf4eba4 100644
---- a/drivers/clk/imx/clk-imx6sx.c
-+++ b/drivers/clk/imx/clk-imx6sx.c
-@@ -280,13 +280,13 @@ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6SX_CLK_SSI3_SEL]           = imx_clk_hw_mux("ssi3_sel",         base + 0x1c,  14,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
- 	hws[IMX6SX_CLK_SSI2_SEL]           = imx_clk_hw_mux("ssi2_sel",         base + 0x1c,  12,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
- 	hws[IMX6SX_CLK_SSI1_SEL]           = imx_clk_hw_mux("ssi1_sel",         base + 0x1c,  10,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
--	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux_flags("qspi1_sel", base + 0x1c,  7, 3, qspi1_sels, ARRAY_SIZE(qspi1_sels), CLK_SET_RATE_PARENT);
-+	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux("qspi1_sel",        base + 0x1c,  7,      3,      qspi1_sels,        ARRAY_SIZE(qspi1_sels));
- 	hws[IMX6SX_CLK_PERCLK_SEL]         = imx_clk_hw_mux("perclk_sel",       base + 0x1c,  6,      1,      perclk_sels,       ARRAY_SIZE(perclk_sels));
- 	hws[IMX6SX_CLK_VID_SEL]            = imx_clk_hw_mux("vid_sel",          base + 0x20,  21,     3,      vid_sels,          ARRAY_SIZE(vid_sels));
- 	hws[IMX6SX_CLK_ESAI_SEL]           = imx_clk_hw_mux("esai_sel",         base + 0x20,  19,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_CAN_SEL]            = imx_clk_hw_mux("can_sel",          base + 0x20,  8,      2,      can_sels,          ARRAY_SIZE(can_sels));
- 	hws[IMX6SX_CLK_UART_SEL]           = imx_clk_hw_mux("uart_sel",         base + 0x24,  6,      1,      uart_sels,         ARRAY_SIZE(uart_sels));
--	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux_flags("qspi2_sel", base + 0x2c, 15, 3, qspi2_sels, ARRAY_SIZE(qspi2_sels), CLK_SET_RATE_PARENT);
-+	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux("qspi2_sel",        base + 0x2c,  15,     3,      qspi2_sels,        ARRAY_SIZE(qspi2_sels));
- 	hws[IMX6SX_CLK_SPDIF_SEL]          = imx_clk_hw_mux("spdif_sel",        base + 0x30,  20,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_AUDIO_SEL]          = imx_clk_hw_mux("audio_sel",        base + 0x30,  7,      2,      audio_sels,        ARRAY_SIZE(audio_sels));
- 	hws[IMX6SX_CLK_ENET_PRE_SEL]       = imx_clk_hw_mux("enet_pre_sel",     base + 0x34,  15,     3,      enet_pre_sels,     ARRAY_SIZE(enet_pre_sels));
+diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
+index 274441e2ddb2..8f0619f362e3 100644
+--- a/drivers/clk/bcm/clk-iproc-pll.c
++++ b/drivers/clk/bcm/clk-iproc-pll.c
+@@ -736,6 +736,7 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	const char *parent_name;
+ 	struct iproc_clk *iclk_array;
+ 	struct clk_hw_onecell_data *clk_data;
++	const char *clk_name;
+ 
+ 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
+ 		return;
+@@ -783,7 +784,12 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	iclk = &iclk_array[0];
+ 	iclk->pll = pll;
+ 
+-	init.name = node->name;
++	ret = of_property_read_string_index(node, "clock-output-names",
++					    0, &clk_name);
++	if (WARN_ON(ret))
++		goto err_pll_register;
++
++	init.name = clk_name;
+ 	init.ops = &iproc_pll_ops;
+ 	init.flags = 0;
+ 	parent_name = of_clk_get_parent_name(node, 0);
+@@ -803,13 +809,11 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 		goto err_pll_register;
+ 
+ 	clk_data->hws[0] = &iclk->hw;
++	parent_name = clk_name;
+ 
+ 	/* now initialize and register all leaf clocks */
+ 	for (i = 1; i < num_clks; i++) {
+-		const char *clk_name;
+-
+ 		memset(&init, 0, sizeof(init));
+-		parent_name = node->name;
+ 
+ 		ret = of_property_read_string_index(node, "clock-output-names",
+ 						    i, &clk_name);
 -- 
 2.35.1
 
