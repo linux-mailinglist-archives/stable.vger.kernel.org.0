@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 837355F2B14
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3515F2AD8
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231990AbiJCHr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:47:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44670 "EHLO
+        id S231818AbiJCHm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230311AbiJCHqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:46:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4596D58526;
-        Mon,  3 Oct 2022 00:26:29 -0700 (PDT)
+        with ESMTP id S231817AbiJCHll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:41:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2492E637B;
+        Mon,  3 Oct 2022 00:24:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8823CB80E89;
-        Mon,  3 Oct 2022 07:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F020DC433D7;
-        Mon,  3 Oct 2022 07:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31A9B60F63;
+        Mon,  3 Oct 2022 07:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F74EC433C1;
+        Mon,  3 Oct 2022 07:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781874;
-        bh=lfT5Sb/B3uL8Vk29p+EkIcR/HdZXKH5A9Ykqm1Y9UAM=;
+        s=korg; t=1664781879;
+        bh=xM5y8YomQJngbkbV7wJV9nosQk9T+fU4DmNA9kCnYnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/kslXZdKPsIn1Th4BAnee+n4e/CYdHw1eE8bAfAHfsXZhPHMGVlV3LtSTryFD5Zw
-         LnRLHyU7PPOYS3aBrKBqrefh/j7YrBu2JxRIPsSUxRgG228OZmtcoXIXCfbG64G1xq
-         deTWxbdyExkP1qCRBijYAOGMZNuxa6/hgH8kp9Fg=
+        b=VHPFTcdsSAlf7oAstyTGuUF3z7wvwkjJxunqjgMgzTN7bbwmLdt1ENGZwGIl5E8Y2
+         vmwbGYjEv0t3b12/8JJxznSy7tnBiaHfp5Z34ajBJkFeXUiJkI+rexyO8Pzh7sJAT/
+         SdgGClU8MBBCCkqd8KA44jU4uPVzy+x/nvxIr+QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Janne Karhunen <janne.karhunen@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
         Mimi Zohar <zohar@linux.ibm.com>,
         Gou Hao <gouhao@uniontech.com>
-Subject: [PATCH 4.19 12/25] ima: Have the LSM free its audit rule
-Date:   Mon,  3 Oct 2022 09:12:15 +0200
-Message-Id: <20221003070715.772124468@linuxfoundation.org>
+Subject: [PATCH 4.19 14/25] ima: Free the entire rule if it fails to parse
+Date:   Mon,  3 Oct 2022 09:12:17 +0200
+Message-Id: <20221003070715.827351832@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
 References: <20221003070715.406550966@linuxfoundation.org>
@@ -57,60 +55,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit 9ff8a616dfab96a4fa0ddd36190907dc68886d9b upstream.
+commit 2bdd737c5687d6dec30e205953146ede8a87dbdd upstream.
 
-Ask the LSM to free its audit rule rather than directly calling kfree().
-Both AppArmor and SELinux do additional work in their audit_rule_free()
-hooks. Fix memory leaks by allowing the LSMs to perform necessary work.
+Use ima_free_rule() to fix memory leaks of allocated ima_rule_entry
+members, such as .fsname and .keyrings, when an error is encountered
+during rule parsing.
 
-Fixes: b16942455193 ("ima: use the lsm policy update notifier")
+Set the args_p pointer to NULL after freeing it in the error path of
+ima_lsm_rule_init() so that it isn't freed twice.
+
+This fixes a memory leak seen when loading an rule that contains an
+additional piece of allocated memory, such as an fsname, followed by an
+invalid conditional:
+
+ # echo "measure fsname=tmpfs bad=cond" > /sys/kernel/security/ima/policy
+ -bash: echo: write error: Invalid argument
+ # echo scan > /sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+ unreferenced object 0xffff98e7e4ece6c0 (size 8):
+   comm "bash", pid 672, jiffies 4294791843 (age 21.855s)
+   hex dump (first 8 bytes):
+     74 6d 70 66 73 00 6b a5                          tmpfs.k.
+   backtrace:
+     [<00000000abab7413>] kstrdup+0x2e/0x60
+     [<00000000f11ede32>] ima_parse_add_rule+0x7d4/0x1020
+     [<00000000f883dd7a>] ima_write_policy+0xab/0x1d0
+     [<00000000b17cf753>] vfs_write+0xde/0x1d0
+     [<00000000b8ddfdea>] ksys_write+0x68/0xe0
+     [<00000000b8e21e87>] do_syscall_64+0x56/0xa0
+     [<0000000089ea7b98>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: f1b08bbcbdaf ("ima: define a new policy condition based on the filesystem name")
+Fixes: 2b60c0ecedf8 ("IMA: Read keyrings= option from the IMA policy")
 Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Cc: Janne Karhunen <janne.karhunen@gmail.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Cc: <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Gou Hao <gouhao@uniontech.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima.h        |    5 +++++
- security/integrity/ima/ima_policy.c |    4 +++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ security/integrity/ima/ima_policy.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -298,6 +298,7 @@ static inline int ima_read_xattr(struct
- #ifdef CONFIG_IMA_LSM_RULES
- 
- #define security_filter_rule_init security_audit_rule_init
-+#define security_filter_rule_free security_audit_rule_free
- #define security_filter_rule_match security_audit_rule_match
- 
- #else
-@@ -308,6 +309,10 @@ static inline int security_filter_rule_i
- 	return -EINVAL;
- }
- 
-+static inline void security_filter_rule_free(void *lsmrule)
-+{
-+}
-+
- static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
- 					     void *lsmrule,
- 					     struct audit_context *actx)
 --- a/security/integrity/ima/ima_policy.c
 +++ b/security/integrity/ima/ima_policy.c
-@@ -1044,8 +1044,10 @@ void ima_delete_rules(void)
+@@ -662,6 +662,7 @@ static int ima_lsm_rule_init(struct ima_
+ 					   &entry->lsm[lsm_rule].rule);
+ 	if (!entry->lsm[lsm_rule].rule) {
+ 		kfree(entry->lsm[lsm_rule].args_p);
++		entry->lsm[lsm_rule].args_p = NULL;
+ 		return -EINVAL;
+ 	}
  
- 	temp_ima_appraise = 0;
- 	list_for_each_entry_safe(entry, tmp, &ima_temp_rules, list) {
--		for (i = 0; i < MAX_LSM_RULES; i++)
-+		for (i = 0; i < MAX_LSM_RULES; i++) {
-+			security_filter_rule_free(entry->lsm[i].rule);
- 			kfree(entry->lsm[i].args_p);
-+		}
+@@ -1034,7 +1035,7 @@ ssize_t ima_parse_add_rule(char *rule)
  
- 		list_del(&entry->list);
- 		kfree(entry);
+ 	result = ima_parse_rule(p, entry);
+ 	if (result) {
+-		kfree(entry);
++		ima_free_rule(entry);
+ 		integrity_audit_msg(AUDIT_INTEGRITY_STATUS, NULL,
+ 				    NULL, op, "invalid-policy", result,
+ 				    audit_info);
 
 
