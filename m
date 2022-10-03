@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3085F2AAF
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 968775F2A52
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231660AbiJCHjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34434 "EHLO
+        id S231443AbiJCHe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:34:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231994AbiJCHis (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:38:48 -0400
+        with ESMTP id S231536AbiJCHdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:33:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFD95465E;
-        Mon,  3 Oct 2022 00:23:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FFB551A3B;
+        Mon,  3 Oct 2022 00:21:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6B5660FAA;
-        Mon,  3 Oct 2022 07:21:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D27C433D7;
-        Mon,  3 Oct 2022 07:21:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00B6F60FAF;
+        Mon,  3 Oct 2022 07:20:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095B5C433C1;
+        Mon,  3 Oct 2022 07:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781718;
-        bh=NrqS59QxcFFbjdlZSFp4aFivbygjdCCj3EejTGW7nmM=;
+        s=korg; t=1664781607;
+        bh=5MeWdv7QEq5qwHIqdXd8S1KtB/BKNxNsG/oQQXbg1Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqU0i+r/aI5QUaHW0aRfoNeaW4eTXfkdKSWQ5Wa0xgosZ1nMRfrwKgDeM+i0J0biI
-         F+gKyyTGjQEjDfmmFQRXW6OPfroZTyUbeCZIcXLkrRoAd1qenpxUk8g1RkkeGCwV2r
-         m5tBOA+2QrcBtjhiQ4fp2xn0zqRtrrM6+x9QQaQQ=
+        b=Uyk3sWN1ooNBsxO/HQuNvr+zQOtvo9kSI7py9A8A/oev2rLnFnRrW+wzhheAYP2c8
+         +Z/TyHMolJEPWxLWuqmh1+N+ErOh7IdhB0i12Egt+fpVoDZscurGDh89Asi//5FmH6
+         kkXSsfm7GGD9jRTWetK+xfz4k76PUNIShZGgykjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/52] Revert "drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time"
+        stable@vger.kernel.org, Mark Janes <mark.janes@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.15 81/83] drm/i915/gem: Really move i915_gem_context.link under ref protection
 Date:   Mon,  3 Oct 2022 09:11:46 +0200
-Message-Id: <20221003070719.899055122@linuxfoundation.org>
+Message-Id: <20221003070724.033607469@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +56,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit cc62d98bd56d45de4531844ca23913a15136c05b ]
+commit d119888b09bd567e07c6b93a07f175df88857e02 upstream.
 
-This reverts commit 211f276ed3d96e964d2d1106a198c7f4a4b3f4c0.
+i915_perf assumes that it can use the i915_gem_context reference to
+protect its i915->gem.contexts.list iteration. However, this requires
+that we do not remove the context from the list until after we drop the
+final reference and release the struct. If, as currently, we remove the
+context from the list during context_close(), the link.next pointer may
+be poisoned while we are holding the context reference and cause a GPF:
 
-For quite some time, core DRM helpers already ensure that any relevant
-connectors/CRTCs/etc. are disabled, as well as their associated
-components (e.g., bridges) when suspending the system. Thus,
-analogix_dp_bridge_{enable,disable}() already get called, which in turn
-call drm_panel_{prepare,unprepare}(). This makes these drm_panel_*()
-calls redundant.
+[ 4070.573157] i915 0000:00:02.0: [drm:i915_perf_open_ioctl [i915]] filtering on ctx_id=0x1fffff ctx_id_mask=0x1fffff
+[ 4070.574881] general protection fault, probably for non-canonical address 0xdead000000000100: 0000 [#1] PREEMPT SMP
+[ 4070.574897] CPU: 1 PID: 284392 Comm: amd_performance Tainted: G            E     5.17.9 #180
+[ 4070.574903] Hardware name: Intel Corporation NUC7i5BNK/NUC7i5BNB, BIOS BNKBL357.86A.0052.2017.0918.1346 09/18/2017
+[ 4070.574907] RIP: 0010:oa_configure_all_contexts.isra.0+0x222/0x350 [i915]
+[ 4070.574982] Code: 08 e8 32 6e 10 e1 4d 8b 6d 50 b8 ff ff ff ff 49 83 ed 50 f0 41 0f c1 04 24 83 f8 01 0f 84 e3 00 00 00 85 c0 0f 8e fa 00 00 00 <49> 8b 45 50 48 8d 70 b0 49 8d 45 50 48 39 44 24 10 0f 85 34 fe ff
+[ 4070.574990] RSP: 0018:ffffc90002077b78 EFLAGS: 00010202
+[ 4070.574995] RAX: 0000000000000002 RBX: 0000000000000002 RCX: 0000000000000000
+[ 4070.575000] RDX: 0000000000000001 RSI: ffffc90002077b20 RDI: ffff88810ddc7c68
+[ 4070.575004] RBP: 0000000000000001 R08: ffff888103242648 R09: fffffffffffffffc
+[ 4070.575008] R10: ffffffff82c50bc0 R11: 0000000000025c80 R12: ffff888101bf1860
+[ 4070.575012] R13: dead0000000000b0 R14: ffffc90002077c04 R15: ffff88810be5cabc
+[ 4070.575016] FS:  00007f1ed50c0780(0000) GS:ffff88885ec80000(0000) knlGS:0000000000000000
+[ 4070.575021] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 4070.575025] CR2: 00007f1ed5590280 CR3: 000000010ef6f005 CR4: 00000000003706e0
+[ 4070.575029] Call Trace:
+[ 4070.575033]  <TASK>
+[ 4070.575037]  lrc_configure_all_contexts+0x13e/0x150 [i915]
+[ 4070.575103]  gen8_enable_metric_set+0x4d/0x90 [i915]
+[ 4070.575164]  i915_perf_open_ioctl+0xbc0/0x1500 [i915]
+[ 4070.575224]  ? asm_common_interrupt+0x1e/0x40
+[ 4070.575232]  ? i915_oa_init_reg_state+0x110/0x110 [i915]
+[ 4070.575290]  drm_ioctl_kernel+0x85/0x110
+[ 4070.575296]  ? update_load_avg+0x5f/0x5e0
+[ 4070.575302]  drm_ioctl+0x1d3/0x370
+[ 4070.575307]  ? i915_oa_init_reg_state+0x110/0x110 [i915]
+[ 4070.575382]  ? gen8_gt_irq_handler+0x46/0x130 [i915]
+[ 4070.575445]  __x64_sys_ioctl+0x3c4/0x8d0
+[ 4070.575451]  ? __do_softirq+0xaa/0x1d2
+[ 4070.575456]  do_syscall_64+0x35/0x80
+[ 4070.575461]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 4070.575467] RIP: 0033:0x7f1ed5c10397
+[ 4070.575471] Code: 3c 1c e8 1c ff ff ff 85 c0 79 87 49 c7 c4 ff ff ff ff 5b 5d 4c 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a9 da 0d 00 f7 d8 64 89 01 48
+[ 4070.575478] RSP: 002b:00007ffd65c8d7a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[ 4070.575484] RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 00007f1ed5c10397
+[ 4070.575488] RDX: 00007ffd65c8d7c0 RSI: 0000000040106476 RDI: 0000000000000006
+[ 4070.575492] RBP: 00005620972f9c60 R08: 000000000000000a R09: 0000000000000005
+[ 4070.575496] R10: 000000000000000d R11: 0000000000000246 R12: 000000000000000a
+[ 4070.575500] R13: 000000000000000d R14: 0000000000000000 R15: 00007ffd65c8d7c0
+[ 4070.575505]  </TASK>
+[ 4070.575507] Modules linked in: nls_ascii(E) nls_cp437(E) vfat(E) fat(E) i915(E) x86_pkg_temp_thermal(E) intel_powerclamp(E) crct10dif_pclmul(E) crc32_pclmul(E) crc32c_intel(E) aesni_intel(E) crypto_simd(E) intel_gtt(E) cryptd(E) ttm(E) rapl(E) intel_cstate(E) drm_kms_helper(E) cfbfillrect(E) syscopyarea(E) cfbimgblt(E) intel_uncore(E) sysfillrect(E) mei_me(E) sysimgblt(E) i2c_i801(E) fb_sys_fops(E) mei(E) intel_pch_thermal(E) i2c_smbus(E) cfbcopyarea(E) video(E) button(E) efivarfs(E) autofs4(E)
+[ 4070.575549] ---[ end trace 0000000000000000 ]---
 
-Besides redundancy, there are a few problems with this handling:
+v3: fix incorrect syntax of spin_lock() replacing spin_lock_irqsave()
 
-(1) drm_panel_{prepare,unprepare}() are *not* reference-counted APIs and
-are not in general designed to be handled by multiple callers --
-although some panel drivers have a coarse 'prepared' flag that mitigates
-some damage, at least. So at a minimum this is redundant and confusing,
-but in some cases, this could be actively harmful.
+v2: irqsave not required in a worker, neither conversion to irq safe
+    elsewhere (Tvrtko),
+  - perf: it's safe to call gen8_configure_context() even if context has
+    been closed, no need to check,
+  - drop unrelated cleanup (Andi, Tvrtko)
 
-(2) The error-handling is a bit non-standard. We ignored errors in
-suspend(), but handled errors in resume(). And recently, people noticed
-that the clk handling is unbalanced in error paths, and getting *that*
-right is not actually trivial, given the current way errors are mostly
-ignored.
-
-(3) In the particular way analogix_dp_{suspend,resume}() get used (e.g.,
-in rockchip_dp_*(), as a late/early callback), we don't necessarily have
-a proper PM relationship between the DP/bridge device and the panel
-device. So while the DP bridge gets resumed, the panel's parent device
-(e.g., platform_device) may still be suspended, and so any prepare()
-calls may fail.
-
-So remove the superfluous, possibly-harmful suspend()/resume() handling
-of panel state.
-
-Fixes: 211f276ed3d9 ("drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time")
-Link: https://lore.kernel.org/all/Yv2CPBD3Picg%2FgVe@google.com/
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220822180729.1.I8ac5abe3a4c1c6fd5c061686c6e883c22f69022c@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Mark Janes <mark.janes@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/6222
+Fixes: f8246cf4d9a9 ("drm/i915/gem: Drop free_work for GEM contexts")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.12+
+Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220916092403.201355-3-janusz.krzysztofik@linux.intel.com
+(cherry picked from commit ad3aa7c31efa5a09b0dba42e66cfdf77e0db7dc2)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[janusz: backport]
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_context.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index a7bcb429c02b..e8baa07450b7 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1865,12 +1865,6 @@ EXPORT_SYMBOL_GPL(analogix_dp_remove);
- int analogix_dp_suspend(struct analogix_dp_device *dp)
- {
- 	clk_disable_unprepare(dp->clock);
--
--	if (dp->plat_data->panel) {
--		if (drm_panel_unprepare(dp->plat_data->panel))
--			DRM_ERROR("failed to turnoff the panel\n");
--	}
--
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(analogix_dp_suspend);
-@@ -1885,13 +1879,6 @@ int analogix_dp_resume(struct analogix_dp_device *dp)
- 		return ret;
- 	}
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -997,6 +997,10 @@ void i915_gem_context_release(struct kre
+ 	trace_i915_context_free(ctx);
+ 	GEM_BUG_ON(!i915_gem_context_is_closed(ctx));
  
--	if (dp->plat_data->panel) {
--		if (drm_panel_prepare(dp->plat_data->panel)) {
--			DRM_ERROR("failed to setup the panel\n");
--			return -EBUSY;
--		}
--	}
++	spin_lock(&ctx->i915->gem.contexts.lock);
++	list_del(&ctx->link);
++	spin_unlock(&ctx->i915->gem.contexts.lock);
++
+ 	if (ctx->syncobj)
+ 		drm_syncobj_put(ctx->syncobj);
+ 
+@@ -1228,10 +1232,6 @@ static void context_close(struct i915_ge
+ 	 */
+ 	lut_close(ctx);
+ 
+-	spin_lock(&ctx->i915->gem.contexts.lock);
+-	list_del(&ctx->link);
+-	spin_unlock(&ctx->i915->gem.contexts.lock);
 -
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(analogix_dp_resume);
--- 
-2.35.1
-
+ 	mutex_unlock(&ctx->mutex);
+ 
+ 	/*
 
 
