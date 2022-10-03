@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2024F5F2AE9
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CD55F2B0B
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbiJCHob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:44:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52432 "EHLO
+        id S232341AbiJCHq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232235AbiJCHny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:43:54 -0400
+        with ESMTP id S231994AbiJCHok (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:44:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABE5550B3;
-        Mon,  3 Oct 2022 00:25:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8F24AD53;
+        Mon,  3 Oct 2022 00:25:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC296B80E88;
-        Mon,  3 Oct 2022 07:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ED5FC433D6;
-        Mon,  3 Oct 2022 07:18:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45CEBB80E70;
+        Mon,  3 Oct 2022 07:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A606DC433C1;
+        Mon,  3 Oct 2022 07:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781531;
-        bh=49gBinqoVc/qTG2GDt0F5u3SWhgWgk8u5qAoNFo608U=;
+        s=korg; t=1664781392;
+        bh=9GHz39Vw2ZDGh+vvOpOkYfaybB4vERsm7/BJqAdzA8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9Cg0h3iQZhqF5QyeDPChcWIyaDIoTikkJ65eCTE4efQlQZMaKTHND+3z8OMKOTL7
-         tuB9BwzqnLrU4DLqKIqQhNrUfBiCwTq0MP1gP9nWIuitRlSFqVBpNyHfYI4hLo4NyN
-         rRyxJ46hsuV9WpzdRJcxM1XE64Gy9RymMAfZ+C4k=
+        b=C/+BBxVYcP8WGajMR/lBq7b/j1IVLS1dxVVRN0mnhrSLaO3HxLCrtQsujEzvQMGui
+         Gkhny88YAq3mywsfrkORDT2Zx5MbkQsoBdDopDj7sHNbYbwX0c/SmpJQxlvJUT+X1w
+         gYUZtxVoPcKEIf/CMysdnPCQMPj+HIGnGNvXjS3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 53/83] Revert "drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time"
+Subject: [PATCH 5.19 082/101] net: phy: Dont WARN for PHY_UP state in mdio_bus_phy_resume()
 Date:   Mon,  3 Oct 2022 09:11:18 +0200
-Message-Id: <20221003070723.331868597@linuxfoundation.org>
+Message-Id: <20221003070726.492865819@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit cc62d98bd56d45de4531844ca23913a15136c05b ]
+[ Upstream commit ea64cdfad124922c931633e39287c5a31a9b14a1 ]
 
-This reverts commit 211f276ed3d96e964d2d1106a198c7f4a4b3f4c0.
+Commit 744d23c71af3 ("net: phy: Warn about incorrect mdio_bus_phy_resume()
+state") introduced a WARN() on resume from system sleep if a PHY is not
+in PHY_HALTED state.
 
-For quite some time, core DRM helpers already ensure that any relevant
-connectors/CRTCs/etc. are disabled, as well as their associated
-components (e.g., bridges) when suspending the system. Thus,
-analogix_dp_bridge_{enable,disable}() already get called, which in turn
-call drm_panel_{prepare,unprepare}(). This makes these drm_panel_*()
-calls redundant.
+Commit 6dbe852c379f ("net: phy: Don't WARN for PHY_READY state in
+mdio_bus_phy_resume()") added an exemption for PHY_READY state from
+the WARN().
 
-Besides redundancy, there are a few problems with this handling:
+It turns out PHY_UP state needs to be exempted as well because the
+following may happen on suspend:
 
-(1) drm_panel_{prepare,unprepare}() are *not* reference-counted APIs and
-are not in general designed to be handled by multiple callers --
-although some panel drivers have a coarse 'prepared' flag that mitigates
-some damage, at least. So at a minimum this is redundant and confusing,
-but in some cases, this could be actively harmful.
+  mdio_bus_phy_suspend()
+    phy_stop_machine()
+      phydev->state = PHY_UP  #  if (phydev->state >= PHY_UP)
 
-(2) The error-handling is a bit non-standard. We ignored errors in
-suspend(), but handled errors in resume(). And recently, people noticed
-that the clk handling is unbalanced in error paths, and getting *that*
-right is not actually trivial, given the current way errors are mostly
-ignored.
-
-(3) In the particular way analogix_dp_{suspend,resume}() get used (e.g.,
-in rockchip_dp_*(), as a late/early callback), we don't necessarily have
-a proper PM relationship between the DP/bridge device and the panel
-device. So while the DP bridge gets resumed, the panel's parent device
-(e.g., platform_device) may still be suspended, and so any prepare()
-calls may fail.
-
-So remove the superfluous, possibly-harmful suspend()/resume() handling
-of panel state.
-
-Fixes: 211f276ed3d9 ("drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time")
-Link: https://lore.kernel.org/all/Yv2CPBD3Picg%2FgVe@google.com/
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220822180729.1.I8ac5abe3a4c1c6fd5c061686c6e883c22f69022c@changeid
+Fixes: 744d23c71af3 ("net: phy: Warn about incorrect mdio_bus_phy_resume() state")
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/netdev/2b1a1588-505e-dff3-301d-bfc1fb14d685@samsung.com/
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Xiaolei Wang <xiaolei.wang@windriver.com>
+Link: https://lore.kernel.org/r/8128fdb51eeebc9efbf3776a4097363a1317aaf1.1663905575.git.lukas@wunner.de
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/net/phy/phy_device.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index 873cf6882bd3..f0305f833b6c 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1860,12 +1860,6 @@ EXPORT_SYMBOL_GPL(analogix_dp_remove);
- int analogix_dp_suspend(struct analogix_dp_device *dp)
- {
- 	clk_disable_unprepare(dp->clock);
--
--	if (dp->plat_data->panel) {
--		if (drm_panel_unprepare(dp->plat_data->panel))
--			DRM_ERROR("failed to turnoff the panel\n");
--	}
--
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(analogix_dp_suspend);
-@@ -1880,13 +1874,6 @@ int analogix_dp_resume(struct analogix_dp_device *dp)
- 		return ret;
- 	}
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index f90a21781d8d..adc9d97cbb88 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -316,11 +316,13 @@ static __maybe_unused int mdio_bus_phy_resume(struct device *dev)
  
--	if (dp->plat_data->panel) {
--		if (drm_panel_prepare(dp->plat_data->panel)) {
--			DRM_ERROR("failed to setup the panel\n");
--			return -EBUSY;
--		}
--	}
--
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(analogix_dp_resume);
+ 	phydev->suspended_by_mdio_bus = 0;
+ 
+-	/* If we manged to get here with the PHY state machine in a state neither
+-	 * PHY_HALTED nor PHY_READY this is an indication that something went wrong
+-	 * and we should most likely be using MAC managed PM and we are not.
++	/* If we managed to get here with the PHY state machine in a state
++	 * neither PHY_HALTED, PHY_READY nor PHY_UP, this is an indication
++	 * that something went wrong and we should most likely be using
++	 * MAC managed PM, but we are not.
+ 	 */
+-	WARN_ON(phydev->state != PHY_HALTED && phydev->state != PHY_READY);
++	WARN_ON(phydev->state != PHY_HALTED && phydev->state != PHY_READY &&
++		phydev->state != PHY_UP);
+ 
+ 	ret = phy_init_hw(phydev);
+ 	if (ret < 0)
 -- 
 2.35.1
 
