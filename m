@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C5B5F288D
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 08:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB2735F288C
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 08:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229569AbiJCGUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 02:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
+        id S229566AbiJCGUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 02:20:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229548AbiJCGUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 02:20:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F16601581A
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 23:20:13 -0700 (PDT)
+        with ESMTP id S229548AbiJCGUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 02:20:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DBFD140F0
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 23:20:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A73D8B80D89
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 06:20:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ABDAC433C1;
-        Mon,  3 Oct 2022 06:20:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4F5360F45
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 06:20:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B00A6C433D6;
+        Mon,  3 Oct 2022 06:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664778011;
-        bh=TnajTBbvJF3TpEZrBDHONBO8JR8/3vW1LhZp6H1+WRw=;
+        s=korg; t=1664778008;
+        bh=PZcGn3lXpU2x7pw26FrLZJzSfO02Sqdb0tsaIFktiV8=;
         h=Subject:To:Cc:From:Date:From;
-        b=l68SauuzU7FTJMzZk0i6vxW1HMB1hrfGHD3lcm5Oyx2gNLELYM+dVVOuu6xYw24Fo
-         MFC38uw8+QN21z8RF7wHaa8fPXVve6+ez+JAodF3Kk2dZAhD2GnIHjpq+KMUFgqfwJ
-         3pQKYw2P50EpSX+yyFoi5qCgEdKuF5TNzfxpxNhQ=
-Subject: FAILED: patch "[PATCH] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant" failed to apply to 5.10-stable tree
+        b=p7Mb7/ngMfxDMQUT2ECJ5r514dIGtb2EkD0SIjS8OnjfOiN7NQBLRMCNMx9HZeB0j
+         Pvi30efB/Z634kpR/lyUkfd5cAK3i6DoDIgpAju/yKS9bZlaKjP0jn9GR05C6WkzPs
+         6arhlPNgKpDdMgz9pmNIl84AqkUDpHLwOQagqyJE=
+Subject: FAILED: patch "[PATCH] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant" failed to apply to 5.4-stable tree
 To:     bp@suse.de, ssengar@linux.microsoft.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 03 Oct 2022 08:20:33 +0200
-Message-ID: <166477803339104@kroah.com>
+Message-ID: <1664778033103148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,8 @@ df5b035b5683 ("x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant")
 66558b730f25 ("sched: Add cluster scheduler level for x86")
 9164d9493a79 ("x86/cpu: Add get_llc_id() helper function")
 2c88d45edbb8 ("x86, sched: Treat Intel SNC topology as default, COD as exception")
+adefe55e7258 ("x86/kernel: Convert to new CPU match macros")
+45fc24e89b7c ("x86/mpx: remove MPX from arch/x86")
 
 thanks,
 
