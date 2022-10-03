@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9E65F2AEA
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6195F29B7
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbiJCHod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:44:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52590 "EHLO
+        id S230208AbiJCHYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:24:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232265AbiJCHoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:44:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16664B9AF;
-        Mon,  3 Oct 2022 00:25:42 -0700 (PDT)
+        with ESMTP id S230190AbiJCHXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:23:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5FE4B4B9;
+        Mon,  3 Oct 2022 00:17:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75299B80E71;
-        Mon,  3 Oct 2022 07:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D95C8C433C1;
-        Mon,  3 Oct 2022 07:17:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B239360F9C;
+        Mon,  3 Oct 2022 07:15:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF31EC433C1;
+        Mon,  3 Oct 2022 07:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781456;
-        bh=Oddoo6UBftHoWQju6iQajBFBoQjhODuWFDBcjMPDH08=;
+        s=korg; t=1664781330;
+        bh=0JjE4JfedVKsYbHauMW5vCGAELVd6/OmUJmQnFxRKQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsW/gc7w5Ds+jS5ag1nMEzzZ4/q6woRS5wnJj3dCTUo8P9OA+cC6uovS55iANdEbr
-         8DWbE6HngL+AyXKBi65jyB1z8xJmJ5TWvJ/A+dt49v3JHmtdNzyYODel3CD3wuxg/4
-         3IZpLtKP6E8uR/gJ5ln+YUZt5YwnpZxVRni12vhY=
+        b=a8vdrW5TwaiEy8FYggV6wngQ4c+1KrOSc4B/Nj+gf+BVeJN7lrskiI1Osu1InPYlF
+         ormdfNjakWeS2aFsHE8mVNoyYra0On5RaZN2/DI5udxiA9u2NYuUmL6fa3xAW34HyZ
+         It2b+FSyrgNbkiSMpYpdXYL08xuOHezuWUTQ0lQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jaap Berkhout <j.j.berkhout@staalenberk.nl>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.15 26/83] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 055/101] soc: sunxi: sram: Prevent the driver from being unbound
 Date:   Mon,  3 Oct 2022 09:10:51 +0200
-Message-Id: <20221003070722.651594151@linuxfoundation.org>
+Message-Id: <20221003070725.831395859@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit ea08aec7e77bfd6599489ec430f9f859ab84575a upstream.
+[ Upstream commit 90e10a1fcd9b24b4ba8c0d35136127473dcd829e ]
 
-Commit 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as
-board_ahci_mobile") added an explicit entry for AMD Green Sardine
-AHCI controller using the board_ahci_mobile configuration (this
-configuration has later been renamed to board_ahci_low_power).
+This driver exports a regmap tied to the platform device (as opposed to
+a syscon, which exports a regmap tied to the OF node). Because of this,
+the driver can never be unbound, as that would destroy the regmap. Use
+builtin_platform_driver_probe() to enforce this limitation.
 
-The board_ahci_low_power configuration enables support for low power
-modes.
-
-This explicit entry takes precedence over the generic AHCI controller
-entry, which does not enable support for low power modes.
-
-Therefore, when commit 1527f69204fe ("ata: ahci: Add Green Sardine
-vendor ID as board_ahci_mobile") was backported to stable kernels,
-it make some Pioneer optical drives, which was working perfectly fine
-before the commit was backported, stop working.
-
-The real problem is that the Pioneer optical drives do not handle low
-power modes correctly. If these optical drives would have been tested
-on another AHCI controller using the board_ahci_low_power configuration,
-this issue would have been detected earlier.
-
-Unfortunately, the board_ahci_low_power configuration is only used in
-less than 15% of the total AHCI controller entries, so many devices
-have never been tested with an AHCI controller with low power modes.
-
-Fixes: 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile")
-Cc: stable@vger.kernel.org
-Reported-by: Jaap Berkhout <j.j.berkhout@staalenberk.nl>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5828729bebbb ("soc: sunxi: export a regmap for EMAC clock reg on A64")
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220815041248.53268-5-samuel@sholland.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/soc/sunxi/sunxi_sram.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3961,6 +3961,10 @@ static const struct ata_blacklist_entry
- 	{ "PIONEER DVD-RW  DVR-212D",	NULL,	ATA_HORKAGE_NOSETXFER },
- 	{ "PIONEER DVD-RW  DVR-216D",	NULL,	ATA_HORKAGE_NOSETXFER },
+diff --git a/drivers/soc/sunxi/sunxi_sram.c b/drivers/soc/sunxi/sunxi_sram.c
+index f3d3f9259df9..a858a37fcdd4 100644
+--- a/drivers/soc/sunxi/sunxi_sram.c
++++ b/drivers/soc/sunxi/sunxi_sram.c
+@@ -330,7 +330,7 @@ static struct regmap_config sunxi_sram_emac_clock_regmap = {
+ 	.writeable_reg	= sunxi_sram_regmap_accessible_reg,
+ };
  
-+	/* These specific Pioneer models have LPM issues */
-+	{ "PIONEER BD-RW   BDR-207M",	NULL,	ATA_HORKAGE_NOLPM },
-+	{ "PIONEER BD-RW   BDR-205",	NULL,	ATA_HORKAGE_NOLPM },
-+
- 	/* Crucial BX100 SSD 500GB has broken LPM support */
- 	{ "CT500BX100SSD1",		NULL,	ATA_HORKAGE_NOLPM },
+-static int sunxi_sram_probe(struct platform_device *pdev)
++static int __init sunxi_sram_probe(struct platform_device *pdev)
+ {
+ 	struct dentry *d;
+ 	struct regmap *emac_clock;
+@@ -410,9 +410,8 @@ static struct platform_driver sunxi_sram_driver = {
+ 		.name		= "sunxi-sram",
+ 		.of_match_table	= sunxi_sram_dt_match,
+ 	},
+-	.probe	= sunxi_sram_probe,
+ };
+-module_platform_driver(sunxi_sram_driver);
++builtin_platform_driver_probe(sunxi_sram_driver, sunxi_sram_probe);
  
+ MODULE_AUTHOR("Maxime Ripard <maxime.ripard@free-electrons.com>");
+ MODULE_DESCRIPTION("Allwinner sunXi SRAM Controller Driver");
+-- 
+2.35.1
+
 
 
