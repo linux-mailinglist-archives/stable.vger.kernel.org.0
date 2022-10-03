@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E26865F2A7B
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E72965F299E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231748AbiJCHhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33504 "EHLO
+        id S229948AbiJCHWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:22:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231586AbiJCHfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:35:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB61C49B40;
-        Mon,  3 Oct 2022 00:22:34 -0700 (PDT)
+        with ESMTP id S229960AbiJCHVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:21:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208C6491F9;
+        Mon,  3 Oct 2022 00:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CF9760FC6;
-        Mon,  3 Oct 2022 07:20:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D529C433C1;
-        Mon,  3 Oct 2022 07:20:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFB9460FA6;
+        Mon,  3 Oct 2022 07:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB100C433C1;
+        Mon,  3 Oct 2022 07:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781631;
-        bh=7Jn0dhn1JoLUX5Vmcge7lUk1T51dy732xLlwJZxSwdM=;
+        s=korg; t=1664781365;
+        bh=xRgycX1bdiD+Sa4ok5E1KEC3e5KRtZ1KznvcL7hwnVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neAs0Jx+k3vuAW6DRb/BXUATIjxfo7sXK3zZy/gIS5GFG2v2uMjizZ4x25SNSUjuV
-         ftouWHSXJEh/Rx2z58k9uXDaYy6NPoo2Py24qLevHP9K+gO6fZ/oiBd4i7HkNvxc6m
-         tj0ou6HWTM5nOv5Ngow5sc2ep5RyLXKtX1Y8Uumg=
+        b=Jbb4B2TZYQDs2KQI1MeC2nfhismuh0tMRY5tDNa91g5KSrZxTGws52nfIBOYjU3TM
+         C0XZrOOz23bueCEUSj/9iNkQRz9nxoLpVT46Yz+yGqIEHUv/Eh+FLbTM9lFo8/y3kl
+         b8v5NN47piLe3MTVv4hswDHdGJKyUSgeSFWRt8fY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Roesch <shr@fb.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 66/83] fs: split off setxattr_copy and do_setxattr function from setxattr
+        stable@vger.kernel.org, Chen Minqiang <ptpt52@gmail.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 095/101] net: ethernet: mtk_eth_soc: fix mask of RX_DMA_GET_SPORT{,_V2}
 Date:   Mon,  3 Oct 2022 09:11:31 +0200
-Message-Id: <20221003070723.651284725@linuxfoundation.org>
+Message-Id: <20221003070726.797595336@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,175 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Roesch <shr@fb.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 1a91794ce8481a293c5ef432feb440aee1455619 ]
+[ Upstream commit c9da02bfb1112461e048d3b736afb1873f6f4ccf ]
 
-This splits of the setup part of the function setxattr in its own
-dedicated function called setxattr_copy. In addition it also exposes a new
-function called do_setxattr for making the setxattr call.
+The bitmasks applied in RX_DMA_GET_SPORT and RX_DMA_GET_SPORT_V2 macros
+were swapped. Fix that.
 
-This makes it possible to call these two functions from io_uring in the
-processing of an xattr request.
-
-Signed-off-by: Stefan Roesch <shr@fb.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20220323154420.3301504-2-shr@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 06bbaa6dc53c ("[coredump] don't use __kernel_write() on kmap_local_page()")
+Reported-by: Chen Minqiang <ptpt52@gmail.com>
+Fixes: 160d3a9b192985 ("net: ethernet: mtk_eth_soc: introduce MTK_NETSYS_V2 support")
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Link: https://lore.kernel.org/r/YzMW+mg9UsaCdKRQ@makrotopia.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/internal.h | 24 +++++++++++++++
- fs/xattr.c    | 84 ++++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 83 insertions(+), 25 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/internal.h b/fs/internal.h
-index cdd83d4899bb..4f1fe6d08866 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -195,3 +195,27 @@ long splice_file_to_pipe(struct file *in,
- 			 struct pipe_inode_info *opipe,
- 			 loff_t *offset,
- 			 size_t len, unsigned int flags);
-+
-+/*
-+ * fs/xattr.c:
-+ */
-+struct xattr_name {
-+	char name[XATTR_NAME_MAX + 1];
-+};
-+
-+struct xattr_ctx {
-+	/* Value of attribute */
-+	union {
-+		const void __user *cvalue;
-+		void __user *value;
-+	};
-+	void *kvalue;
-+	size_t size;
-+	/* Attribute name */
-+	struct xattr_name *kname;
-+	unsigned int flags;
-+};
-+
-+int setxattr_copy(const char __user *name, struct xattr_ctx *ctx);
-+int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
-+		struct xattr_ctx *ctx);
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 998045165916..7117cb253864 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -25,6 +25,8 @@
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 98d6a6d047e3..c1fe1a2cb746 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -312,8 +312,8 @@
+ #define MTK_RXD5_PPE_CPU_REASON	GENMASK(22, 18)
+ #define MTK_RXD5_SRC_PORT	GENMASK(29, 26)
  
- #include <linux/uaccess.h>
+-#define RX_DMA_GET_SPORT(x)	(((x) >> 19) & 0xf)
+-#define RX_DMA_GET_SPORT_V2(x)	(((x) >> 26) & 0x7)
++#define RX_DMA_GET_SPORT(x)	(((x) >> 19) & 0x7)
++#define RX_DMA_GET_SPORT_V2(x)	(((x) >> 26) & 0xf)
  
-+#include "internal.h"
-+
- static const char *
- strcmp_prefix(const char *a, const char *a_prefix)
- {
-@@ -539,44 +541,76 @@ EXPORT_SYMBOL_GPL(vfs_removexattr);
- /*
-  * Extended attribute SET operations
-  */
--static long
--setxattr(struct user_namespace *mnt_userns, struct dentry *d,
--	 const char __user *name, const void __user *value, size_t size,
--	 int flags)
-+
-+int setxattr_copy(const char __user *name, struct xattr_ctx *ctx)
- {
- 	int error;
--	void *kvalue = NULL;
--	char kname[XATTR_NAME_MAX + 1];
- 
--	if (flags & ~(XATTR_CREATE|XATTR_REPLACE))
-+	if (ctx->flags & ~(XATTR_CREATE|XATTR_REPLACE))
- 		return -EINVAL;
- 
--	error = strncpy_from_user(kname, name, sizeof(kname));
--	if (error == 0 || error == sizeof(kname))
--		error = -ERANGE;
-+	error = strncpy_from_user(ctx->kname->name, name,
-+				sizeof(ctx->kname->name));
-+	if (error == 0 || error == sizeof(ctx->kname->name))
-+		return  -ERANGE;
- 	if (error < 0)
- 		return error;
- 
--	if (size) {
--		if (size > XATTR_SIZE_MAX)
-+	error = 0;
-+	if (ctx->size) {
-+		if (ctx->size > XATTR_SIZE_MAX)
- 			return -E2BIG;
--		kvalue = kvmalloc(size, GFP_KERNEL);
--		if (!kvalue)
--			return -ENOMEM;
--		if (copy_from_user(kvalue, value, size)) {
--			error = -EFAULT;
--			goto out;
-+
-+		ctx->kvalue = vmemdup_user(ctx->cvalue, ctx->size);
-+		if (IS_ERR(ctx->kvalue)) {
-+			error = PTR_ERR(ctx->kvalue);
-+			ctx->kvalue = NULL;
- 		}
--		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_from_user(mnt_userns, d_inode(d),
--						      kvalue, size);
- 	}
- 
--	error = vfs_setxattr(mnt_userns, d, kname, kvalue, size, flags);
--out:
--	kvfree(kvalue);
-+	return error;
-+}
-+
-+static void setxattr_convert(struct user_namespace *mnt_userns,
-+			     struct dentry *d, struct xattr_ctx *ctx)
-+{
-+	if (ctx->size &&
-+		((strcmp(ctx->kname->name, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
-+		(strcmp(ctx->kname->name, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)))
-+		posix_acl_fix_xattr_from_user(mnt_userns, d_inode(d),
-+						ctx->kvalue, ctx->size);
-+}
-+
-+int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
-+		struct xattr_ctx *ctx)
-+{
-+	setxattr_convert(mnt_userns, dentry, ctx);
-+	return vfs_setxattr(mnt_userns, dentry, ctx->kname->name,
-+			ctx->kvalue, ctx->size, ctx->flags);
-+}
-+
-+static long
-+setxattr(struct user_namespace *mnt_userns, struct dentry *d,
-+	const char __user *name, const void __user *value, size_t size,
-+	int flags)
-+{
-+	struct xattr_name kname;
-+	struct xattr_ctx ctx = {
-+		.cvalue   = value,
-+		.kvalue   = NULL,
-+		.size     = size,
-+		.kname    = &kname,
-+		.flags    = flags,
-+	};
-+	int error;
-+
-+	error = setxattr_copy(name, &ctx);
-+	if (error)
-+		return error;
-+
-+	error = do_setxattr(mnt_userns, d, &ctx);
- 
-+	kvfree(ctx.kvalue);
- 	return error;
- }
- 
+ /* PDMA V2 descriptor rxd3 */
+ #define RX_DMA_VTAG_V2		BIT(0)
 -- 
 2.35.1
 
