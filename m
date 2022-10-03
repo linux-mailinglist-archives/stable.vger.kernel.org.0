@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F4A5F2A8C
+	by mail.lfdr.de (Postfix) with ESMTP id 788265F2A8B
 	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbiJCHhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:37:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35298 "EHLO
+        id S231799AbiJCHhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:37:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231691AbiJCHgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:36:25 -0400
+        with ESMTP id S231686AbiJCHgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:36:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18BE53031;
-        Mon,  3 Oct 2022 00:22:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B23953D07;
+        Mon,  3 Oct 2022 00:22:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65218B808BF;
-        Mon,  3 Oct 2022 07:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8947C433D6;
-        Mon,  3 Oct 2022 07:22:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B3A5B80E6B;
+        Mon,  3 Oct 2022 07:22:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9EBC433C1;
+        Mon,  3 Oct 2022 07:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781755;
-        bh=1z2IDQSNlAHkcaOCrXLMtK7LjHh8gcIkopUvryicfQM=;
+        s=korg; t=1664781757;
+        bh=QubCXVO1eZHduPQuQf/ZUdZM76o2tK99OXXVagDZDhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s75ko5H684/HGo8d9gicp15DRoMPymB8imfmhrc9g5K82xMiGGkka96PrdJqtO1Vk
-         E6JWJun5qO2wSSf1ajOEb3RylcUV+LdmNIl3gbVkDx1g9X4SaHfOcbcXiujE5LLBEs
-         CDxJIl5r0cDbPp16FB1NkSN7wft3gscJu9hZPlKk=
+        b=jMfhG1kfCGUaV3eadt7moQvKOLKvCCaD2e8gTdfL2fglCq3EsvabqLlWgO+uq2iqu
+         d5LHtmCP+y898k/CypcEl0hA9YC1p11BzdczAxFhlUfTjbpfHF0Fqb3bIbVJQRmXuE
+         Lpyw3bVsauAnVqdHhfiMFz94ZovFQ6tP1DKM0NoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.10 51/52] x86/alternative: Fix race in try_get_desc()
-Date:   Mon,  3 Oct 2022 09:11:58 +0200
-Message-Id: <20221003070720.238567508@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 52/52] ALSA: hda/hdmi: fix warning about PCM count when used with SOF
+Date:   Mon,  3 Oct 2022 09:11:59 +0200
+Message-Id: <20221003070720.265653019@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
 References: <20221003070718.687440096@linuxfoundation.org>
@@ -52,167 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit efd608fa7403ba106412b437f873929e2c862e28 upstream.
+commit c74193787b2f683751a67603fb5f15c7584f355f upstream.
 
-I encountered some occasional crashes of poke_int3_handler() when
-kprobes are set, while accessing desc->vec.
+With commit 13046370c4d1 ("ALSA: hda/hdmi: let new platforms assign the
+pcm slot dynamically"), old behaviour to consider the HDA pin number,
+when choosing PCM to assign, was dropped.
 
-The text poke mechanism claims to have an RCU-like behavior, but it
-does not appear that there is any quiescent state to ensure that
-nobody holds reference to desc. As a result, the following race
-appears to be possible, which can lead to memory corruption.
+Build on this change and limit the number of PCMs created to number of
+converters (= maximum number of concurrent display/receivers) when
+"mst_no_extra_pcms" and "dyn_pcm_no_legacy" quirks are both set.
 
-  CPU0					CPU1
-  ----					----
-  text_poke_bp_batch()
-  -> smp_store_release(&bp_desc, &desc)
+Fix the check in hdmi_find_pcm_slot() to ensure only spec->pcm_used
+entries are considered in the search. Elsewhere in the driver
+spec->pcm_used is already checked properly.
 
-  [ notice that desc is on
-    the stack			]
+Doing this avoids following warning at SOF driver probe for multiple
+machine drivers:
 
-					poke_int3_handler()
+[  112.425297] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
+PCM in topology for HDMI converter 4
+[  112.425298] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
+PCM in topology for HDMI converter 5
+[  112.425299] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
+PCM in topology for HDMI converter 6
 
-					[ int3 might be kprobe's
-					  so sync events are do not
-					  help ]
-
-					-> try_get_desc(descp=&bp_desc)
-					   desc = __READ_ONCE(bp_desc)
-
-					   if (!desc) [false, success]
-  WRITE_ONCE(bp_desc, NULL);
-  atomic_dec_and_test(&desc.refs)
-
-  [ success, desc space on the stack
-    is being reused and might have
-    non-zero value. ]
-					arch_atomic_inc_not_zero(&desc->refs)
-
-					[ might succeed since desc points to
-					  stack memory that was freed and might
-					  be reused. ]
-
-Fix this issue with small backportable patch. Instead of trying to
-make RCU-like behavior for bp_desc, just eliminate the unnecessary
-level of indirection of bp_desc, and hold the whole descriptor as a
-global.  Anyhow, there is only a single descriptor at any given
-moment.
-
-Fixes: 1f676247f36a4 ("x86/alternatives: Implement a better poke_int3_handler() completion scheme")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@kernel.org
-Link: https://lkml.kernel.org/r/20220920224743.3089-1-namit@vmware.com
+Fixes: 13046370c4d1 ("ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically")
+BugLink: https://github.com/thesofproject/linux/issues/2573
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220414150516.3638283-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |   45 +++++++++++++++++++++---------------------
- 1 file changed, 23 insertions(+), 22 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -1330,22 +1330,23 @@ struct bp_patching_desc {
- 	atomic_t refs;
- };
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1397,7 +1397,7 @@ static int hdmi_find_pcm_slot(struct hdm
  
--static struct bp_patching_desc *bp_desc;
-+static struct bp_patching_desc bp_desc;
- 
- static __always_inline
--struct bp_patching_desc *try_get_desc(struct bp_patching_desc **descp)
-+struct bp_patching_desc *try_get_desc(void)
- {
--	/* rcu_dereference */
--	struct bp_patching_desc *desc = __READ_ONCE(*descp);
-+	struct bp_patching_desc *desc = &bp_desc;
- 
--	if (!desc || !arch_atomic_inc_not_zero(&desc->refs))
-+	if (!arch_atomic_inc_not_zero(&desc->refs))
- 		return NULL;
- 
- 	return desc;
- }
- 
--static __always_inline void put_desc(struct bp_patching_desc *desc)
-+static __always_inline void put_desc(void)
- {
-+	struct bp_patching_desc *desc = &bp_desc;
-+
- 	smp_mb__before_atomic();
- 	arch_atomic_dec(&desc->refs);
- }
-@@ -1378,15 +1379,15 @@ noinstr int poke_int3_handler(struct pt_
- 
- 	/*
- 	 * Having observed our INT3 instruction, we now must observe
--	 * bp_desc:
-+	 * bp_desc with non-zero refcount:
- 	 *
--	 *	bp_desc = desc			INT3
-+	 *	bp_desc.refs = 1		INT3
- 	 *	WMB				RMB
--	 *	write INT3			if (desc)
-+	 *	write INT3			if (bp_desc.refs != 0)
+  last_try:
+ 	/* the last try; check the empty slots in pins */
+-	for (i = 0; i < spec->num_nids; i++) {
++	for (i = 0; i < spec->pcm_used; i++) {
+ 		if (!test_bit(i, &spec->pcm_bitmap))
+ 			return i;
+ 	}
+@@ -2273,7 +2273,9 @@ static int generic_hdmi_build_pcms(struc
+ 	 * dev_num is the device entry number in a pin
  	 */
- 	smp_rmb();
  
--	desc = try_get_desc(&bp_desc);
-+	desc = try_get_desc();
- 	if (!desc)
- 		return 0;
- 
-@@ -1440,7 +1441,7 @@ noinstr int poke_int3_handler(struct pt_
- 	ret = 1;
- 
- out_put:
--	put_desc(desc);
-+	put_desc();
- 	return ret;
- }
- 
-@@ -1471,18 +1472,20 @@ static int tp_vec_nr;
-  */
- static void text_poke_bp_batch(struct text_poke_loc *tp, unsigned int nr_entries)
- {
--	struct bp_patching_desc desc = {
--		.vec = tp,
--		.nr_entries = nr_entries,
--		.refs = ATOMIC_INIT(1),
--	};
- 	unsigned char int3 = INT3_INSN_OPCODE;
- 	unsigned int i;
- 	int do_sync;
- 
- 	lockdep_assert_held(&text_mutex);
- 
--	smp_store_release(&bp_desc, &desc); /* rcu_assign_pointer */
-+	bp_desc.vec = tp;
-+	bp_desc.nr_entries = nr_entries;
-+
-+	/*
-+	 * Corresponds to the implicit memory barrier in try_get_desc() to
-+	 * ensure reading a non-zero refcount provides up to date bp_desc data.
-+	 */
-+	atomic_set_release(&bp_desc.refs, 1);
- 
- 	/*
- 	 * Corresponding read barrier in int3 notifier for making sure the
-@@ -1570,12 +1573,10 @@ static void text_poke_bp_batch(struct te
- 		text_poke_sync();
- 
- 	/*
--	 * Remove and synchronize_rcu(), except we have a very primitive
--	 * refcount based completion.
-+	 * Remove and wait for refs to be zero.
- 	 */
--	WRITE_ONCE(bp_desc, NULL); /* RCU_INIT_POINTER */
--	if (!atomic_dec_and_test(&desc.refs))
--		atomic_cond_read_acquire(&desc.refs, !VAL);
-+	if (!atomic_dec_and_test(&bp_desc.refs))
-+		atomic_cond_read_acquire(&bp_desc.refs, !VAL);
- }
- 
- static void text_poke_loc_init(struct text_poke_loc *tp, void *addr,
+-	if (codec->mst_no_extra_pcms)
++	if (spec->dyn_pcm_no_legacy && codec->mst_no_extra_pcms)
++		pcm_num = spec->num_cvts;
++	else if (codec->mst_no_extra_pcms)
+ 		pcm_num = spec->num_nids;
+ 	else
+ 		pcm_num = spec->num_nids + spec->dev_num - 1;
 
 
