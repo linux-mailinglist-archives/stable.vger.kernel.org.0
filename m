@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D98DA5F2958
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3375F295A
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230093AbiJCHRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:17:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S229991AbiJCHSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:18:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229949AbiJCHRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB7A546872;
-        Mon,  3 Oct 2022 00:14:05 -0700 (PDT)
+        with ESMTP id S230040AbiJCHRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905AE46D83;
+        Mon,  3 Oct 2022 00:14:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C3A1B80E69;
-        Mon,  3 Oct 2022 07:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A945EC433D6;
-        Mon,  3 Oct 2022 07:14:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CDBE60F97;
+        Mon,  3 Oct 2022 07:14:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42B7BC433D6;
+        Mon,  3 Oct 2022 07:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781243;
-        bh=+Rg7jiz/BdLa2YuHZAziCH9S3XwBEVJjdLlinQYrA/k=;
+        s=korg; t=1664781245;
+        bh=7+Jc4ZKn4Sy68ymBcsJNg4ogzEvTSBNXTpWktOodtSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lijNi25JxUHd3a1WO4yOo+JlgdiG9ZQkdbcfiybQyvs3m8eiN/CCjP5sBwGRm2UPj
-         J1AHrbhpUAyrHg3tsO/Tyd0sS2XU01VSqFbQ2TBRCW1OBMwBPyj+RbnlmidTjWlu4s
-         41oOp2tm2ZR2/zexgzbawsz0ZXL0AV1027PRslwI=
+        b=IHYV2Uc4Dv5u7kV5aB3ABdhFcrmR5/atO+KAJP/icJLaPXtQThLLMIhUeap9NBeEM
+         FsjktNft25nDvqmLu0UMzoh7bwrUhDyEiVpc+YlYSjNK7Mz61Efth+uR6NyITviPB/
+         D0N09lARXv8OEIVCQVM4ObsgpwyfZ5CXdqYcmEMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 022/101] mm/damon/dbgfs: fix memory leak when using debugfs_lookup()
-Date:   Mon,  3 Oct 2022 09:10:18 +0200
-Message-Id: <20221003070725.042551819@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Couzens <lynxis@fe80.eu>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 023/101] net: mt7531: only do PLL once after the reset
+Date:   Mon,  3 Oct 2022 09:10:19 +0200
+Message-Id: <20221003070725.065678312@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -52,70 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Alexander Couzens <lynxis@fe80.eu>
 
-commit 1552fd3ef7dbe07208b8ae84a0a6566adf7dfc9d upstream.
+commit 42bc4fafe359ed6b73602b7a2dba0dd99588f8ce upstream.
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  Fix this up by properly calling
-dput().
+Move the PLL init of the switch out of the pad configuration of the port
+6 (usally cpu port).
 
-Link: https://lkml.kernel.org/r/20220902191149.112434-1-sj@kernel.org
-Fixes: 75c1c2b53c78b ("mm/damon/dbgfs: support multiple contexts")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fix a unidirectional 100 mbit limitation on 1 gbit or 2.5 gbit links for
+outbound traffic on port 5 or port 6.
+
+Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/damon/dbgfs.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/net/dsa/mt7530.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/mm/damon/dbgfs.c
-+++ b/mm/damon/dbgfs.c
-@@ -853,6 +853,7 @@ static int dbgfs_rm_context(char *name)
- 	struct dentry *root, *dir, **new_dirs;
- 	struct damon_ctx **new_ctxs;
- 	int i, j;
-+	int ret = 0;
- 
- 	if (damon_nr_running_ctxs())
- 		return -EBUSY;
-@@ -867,14 +868,16 @@ static int dbgfs_rm_context(char *name)
- 
- 	new_dirs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_dirs),
- 			GFP_KERNEL);
--	if (!new_dirs)
--		return -ENOMEM;
-+	if (!new_dirs) {
-+		ret = -ENOMEM;
-+		goto out_dput;
-+	}
- 
- 	new_ctxs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_ctxs),
- 			GFP_KERNEL);
- 	if (!new_ctxs) {
--		kfree(new_dirs);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out_new_dirs;
- 	}
- 
- 	for (i = 0, j = 0; i < dbgfs_nr_ctxs; i++) {
-@@ -894,7 +897,13 @@ static int dbgfs_rm_context(char *name)
- 	dbgfs_ctxs = new_ctxs;
- 	dbgfs_nr_ctxs--;
- 
--	return 0;
-+	goto out_dput;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -506,14 +506,19 @@ static bool mt7531_dual_sgmii_supported(
+ static int
+ mt7531_pad_setup(struct dsa_switch *ds, phy_interface_t interface)
+ {
+-	struct mt7530_priv *priv = ds->priv;
++	return 0;
++}
 +
-+out_new_dirs:
-+	kfree(new_dirs);
-+out_dput:
-+	dput(dir);
-+	return ret;
++static void
++mt7531_pll_setup(struct mt7530_priv *priv)
++{
+ 	u32 top_sig;
+ 	u32 hwstrap;
+ 	u32 xtal;
+ 	u32 val;
+ 
+ 	if (mt7531_dual_sgmii_supported(priv))
+-		return 0;
++		return;
+ 
+ 	val = mt7530_read(priv, MT7531_CREV);
+ 	top_sig = mt7530_read(priv, MT7531_TOP_SIG_SR);
+@@ -592,8 +597,6 @@ mt7531_pad_setup(struct dsa_switch *ds,
+ 	val |= EN_COREPLL;
+ 	mt7530_write(priv, MT7531_PLLGP_EN, val);
+ 	usleep_range(25, 35);
+-
+-	return 0;
  }
  
- static ssize_t dbgfs_rm_context_write(struct file *file,
+ static void
+@@ -2310,6 +2313,8 @@ mt7531_setup(struct dsa_switch *ds)
+ 		     SYS_CTRL_PHY_RST | SYS_CTRL_SW_RST |
+ 		     SYS_CTRL_REG_RST);
+ 
++	mt7531_pll_setup(priv);
++
+ 	if (mt7531_dual_sgmii_supported(priv)) {
+ 		priv->p5_intf_sel = P5_INTF_SEL_GMAC5_SGMII;
+ 
+@@ -2863,8 +2868,6 @@ mt7531_cpu_port_config(struct dsa_switch
+ 	case 6:
+ 		interface = PHY_INTERFACE_MODE_2500BASEX;
+ 
+-		mt7531_pad_setup(ds, interface);
+-
+ 		priv->p6_interface = interface;
+ 		break;
+ 	default:
 
 
