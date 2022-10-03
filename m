@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6185F2AE5
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66A05F2C64
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbiJCHo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:44:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56592 "EHLO
+        id S229763AbiJCIuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:50:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232199AbiJCHnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:43:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BC4F7F;
-        Mon,  3 Oct 2022 00:25:32 -0700 (PDT)
+        with ESMTP id S229755AbiJCIty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:49:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E18B101D0;
+        Mon,  3 Oct 2022 01:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD45AB80E85;
-        Mon,  3 Oct 2022 07:25:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1191DC43470;
-        Mon,  3 Oct 2022 07:25:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D1460FA5;
+        Mon,  3 Oct 2022 07:16:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9ED1C433C1;
+        Mon,  3 Oct 2022 07:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781930;
-        bh=7QuY/R7TUa6IcLI0yP2FjJ56tqDnwMl1fXfia1kTBLs=;
+        s=korg; t=1664781416;
+        bh=h/e78F1BrRuBse28yetjYCGwSca6i4dfXzNsCn67ybA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXHOsFF/kvhMQG0nsjyOf74hrGSj+cffL2zwck3BPaybs5xUTPwaUMww8TnxjSWdm
-         e9yPUfm6Z4BK/l+BOXnLz9jfRicPzC6FLvjhB8LdcFEqVx1lYgnRJnYqCtaX48Kjxs
-         Mz+OtC8L9I1ThZQPEC5nxoFChlc5MV0u+emdVn3Q=
+        b=RMq3bXrFitdL8cfFUFxDU9Ea6gDfrqhgsqDB4MKznCeVismF5iRkDLZKNHZjNcZ4x
+         zN4ukp6PW+5B9ODAFRE+UkKAz2mU7F9iVuVhWF4t4SICj81KkOQXNVQWHfYvSJgtC4
+         GXLgSRxdL7MvoI59++CE4obWlYt6CxS9GNSbZmgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/25] clk: iproc: Do not rely on node name for correct PLL setup
-Date:   Mon,  3 Oct 2022 09:12:28 +0200
-Message-Id: <20221003070716.149633667@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 12/83] net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
+Date:   Mon,  3 Oct 2022 09:10:37 +0200
+Message-Id: <20221003070722.292858506@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
-References: <20221003070715.406550966@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
+commit 797666cd5af041ffb66642fff62f7389f08566a2 upstream.
 
-After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
-description") a warning from clk-iproc-pll.c was generated due to a
-duplicate PLL name as well as the console stopped working. Upon closer
-inspection it became clear that iproc_pll_clk_setup() used the Device
-Tree node unit name as an unique identifier as well as a parent name to
-parent all clocks under the PLL.
+Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
 
-BCM5301X was the first platform on which that got noticed because of the
-DT node unit name renaming but the same assumptions hold true for any
-user of the iproc_pll_clk_setup() function.
-
-The first 'clock-output-names' property is always guaranteed to be
-unique as well as providing the actual desired PLL clock name, so we
-utilize that to register the PLL and as a parent name of all children
-clock.
-
-Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Rafał Miłecki <rafal@milecki.pl>
-Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Cc: stable@vger.kernel.org
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20220926150740.6684-3-linux@fw-web.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
-index 274441e2ddb2..8f0619f362e3 100644
---- a/drivers/clk/bcm/clk-iproc-pll.c
-+++ b/drivers/clk/bcm/clk-iproc-pll.c
-@@ -736,6 +736,7 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	const char *parent_name;
- 	struct iproc_clk *iclk_array;
- 	struct clk_hw_onecell_data *clk_data;
-+	const char *clk_name;
- 
- 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
- 		return;
-@@ -783,7 +784,12 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	iclk = &iclk_array[0];
- 	iclk->pll = pll;
- 
--	init.name = node->name;
-+	ret = of_property_read_string_index(node, "clock-output-names",
-+					    0, &clk_name);
-+	if (WARN_ON(ret))
-+		goto err_pll_register;
-+
-+	init.name = clk_name;
- 	init.ops = &iproc_pll_ops;
- 	init.flags = 0;
- 	parent_name = of_clk_get_parent_name(node, 0);
-@@ -803,13 +809,11 @@ void iproc_pll_clk_setup(struct device_node *node,
- 		goto err_pll_register;
- 
- 	clk_data->hws[0] = &iclk->hw;
-+	parent_name = clk_name;
- 
- 	/* now initialize and register all leaf clocks */
- 	for (i = 1; i < num_clks; i++) {
--		const char *clk_name;
--
- 		memset(&init, 0, sizeof(init));
--		parent_name = node->name;
- 
- 		ret = of_property_read_string_index(node, "clock-output-names",
- 						    i, &clk_name);
--- 
-2.35.1
-
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1393,6 +1393,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
++	{QMI_FIXED_INTF(0x413c, 0x81c2, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
 
 
