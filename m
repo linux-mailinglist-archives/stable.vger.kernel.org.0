@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E125F2C5E
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:49:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9725A5F2BC4
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230360AbiJCIts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:49:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53590 "EHLO
+        id S230286AbiJCI22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229588AbiJCIta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:49:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D215B07F;
-        Mon,  3 Oct 2022 01:30:43 -0700 (PDT)
+        with ESMTP id S229918AbiJCI2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:28:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38FE7D78D;
+        Mon,  3 Oct 2022 01:01:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 568F4B80E69;
-        Mon,  3 Oct 2022 07:23:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF636C433D6;
-        Mon,  3 Oct 2022 07:23:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1585B80E68;
+        Mon,  3 Oct 2022 07:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56949C433C1;
+        Mon,  3 Oct 2022 07:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781825;
-        bh=ZpKjv/MqU+BVENNAyJSrumUBGjzF0RDQDNmlN6qablY=;
+        s=korg; t=1664781830;
+        bh=kXF99wYI2vw+gjdXMYA9FTirKzz+ImYzxc+lgH9a35I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjdRARYjUU9+spMegTLL4rmpFzZEq4X0nqRdbNTLeA4npx5hE0fIi/gPUYu5RS3Kd
-         3//d/BjniIdBKDkmP51XjkXhBSix3hklUucryq0qBXntlkcefcdxYnrzzjFmKt/ECq
-         rCWAEWYBV/+rAu6n/CMl2qoRQCPjPIYWjGM08fZM=
+        b=cZ8y9rhfqQrRDHtn9lCTpmukZMOBhvL8AkkWYpM5OCjCmanhjZl491HTqdayUMF3X
+         QkjLLnjd49cumzq3+FLoRbDhTgF0lXJPYSpJTQ7RaSLjNVeOFxbeL4AYUxIRwKQINv
+         Ph/vgK7d0k2DOu+c1/NXlQ7PG/mXu81SU9jKcSPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 05/30] clk: ingenic-tcu: Properly enable registers before accessing timers
-Date:   Mon,  3 Oct 2022 09:11:47 +0200
-Message-Id: <20221003070716.426598715@linuxfoundation.org>
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 07/30] ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
+Date:   Mon,  3 Oct 2022 09:11:49 +0200
+Message-Id: <20221003070716.485654730@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
 References: <20221003070716.269502440@linuxfoundation.org>
@@ -53,76 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit 6726d552a6912e88cf63fe2bda87b2efa0efc7d0 upstream.
+commit 1b513f613731e2afc05550e8070d79fac80c661e upstream.
 
-Access to registers is guarded by ingenic_tcu_{enable,disable}_regs()
-so the stop bit can be cleared before accessing a timer channel, but
-those functions did not clear the stop bit on SoCs with a global TCU
-clock gate.
+Syzkaller reported BUG_ON as follows:
 
-Testing on the X1000 has revealed that the stop bits must be cleared
-_and_ the global TCU clock must be ungated to access timer registers.
-This appears to be the norm on Ingenic SoCs, and is specified in the
-documentation for the X1000 and numerous JZ47xx SoCs.
+------------[ cut here ]------------
+kernel BUG at fs/ntfs/dir.c:86!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 3 PID: 758 Comm: a.out Not tainted 5.19.0-next-20220808 #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+RIP: 0010:ntfs_lookup_inode_by_name+0xd11/0x2d10
+Code: ff e9 b9 01 00 00 e8 1e fe d6 fe 48 8b 7d 98 49 8d 5d 07 e8 91 85 29 ff 48 c7 45 98 00 00 00 00 e9 5a fb ff ff e8 ff fd d6 fe <0f> 0b e8 f8 fd d6 fe 0f 0b e8 f1 fd d6 fe 48 8b b5 50 ff ff ff 4c
+RSP: 0018:ffff888079607978 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000008000 RCX: 0000000000000000
+RDX: ffff88807cf10000 RSI: ffffffff82a4a081 RDI: 0000000000000003
+RBP: ffff888079607a70 R08: 0000000000000001 R09: ffff88807a6d01d7
+R10: ffffed100f4da03a R11: 0000000000000000 R12: ffff88800f0fb110
+R13: ffff88800f0ee000 R14: ffff88800f0fb000 R15: 0000000000000001
+FS:  00007f33b63c7540(0000) GS:ffff888108580000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f33b635c090 CR3: 000000000f39e005 CR4: 0000000000770ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ load_system_files+0x1f7f/0x3620
+ ntfs_fill_super+0xa01/0x1be0
+ mount_bdev+0x36a/0x440
+ ntfs_mount+0x3a/0x50
+ legacy_get_tree+0xfb/0x210
+ vfs_get_tree+0x8f/0x2f0
+ do_new_mount+0x30a/0x760
+ path_mount+0x4de/0x1880
+ __x64_sys_mount+0x2b3/0x340
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f33b62ff9ea
+Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffd0c471aa8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f33b62ff9ea
+RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffd0c471be0
+RBP: 00007ffd0c471c60 R08: 00007ffd0c471ae0 R09: 00007ffd0c471c24
+R10: 0000000000000000 R11: 0000000000000202 R12: 000055bac5afc160
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
 
-If the stop bit isn't cleared, register writes don't take effect and
-the system can be left in a broken state, eg. the watchdog timer may
-not run.
+Fix this by adding sanity check on extended system files' directory inode
+to ensure that it is directory, just like ntfs_extend_init() when mounting
+ntfs3.
 
-The bug probably went unnoticed because stop bits are zeroed when
-the SoC is reset, and the kernel does not set them unless a timer
-gets disabled at runtime. However, it is possible that a bootloader
-or a previous kernel (if using kexec) leaves the stop bits set and
-we should not rely on them being cleared.
-
-Fixing this is easy: have ingenic_tcu_{enable,disable}_regs() always
-clear the stop bit, regardless of the presence of a global TCU gate.
-
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
-Fixes: 4f89e4b8f121 ("clk: ingenic: Add driver for the TCU clocks")
-Cc: stable@vger.kernel.org
-Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-Link: https://lore.kernel.org/r/20220617122254.738900-1-aidanmacdonald.0x0@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20220809064730.2316892-1-chenxiaosong2@huawei.com
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/ingenic/tcu.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ fs/ntfs/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/ingenic/tcu.c
-+++ b/drivers/clk/ingenic/tcu.c
-@@ -100,15 +100,11 @@ static bool ingenic_tcu_enable_regs(stru
- 	bool enabled = false;
- 
- 	/*
--	 * If the SoC has no global TCU clock, we must ungate the channel's
--	 * clock to be able to access its registers.
--	 * If we have a TCU clock, it will be enabled automatically as it has
--	 * been attached to the regmap.
-+	 * According to the programming manual, a timer channel's registers can
-+	 * only be accessed when the channel's stop bit is clear.
- 	 */
--	if (!tcu->clk) {
--		enabled = !!ingenic_tcu_is_enabled(hw);
--		regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
--	}
-+	enabled = !!ingenic_tcu_is_enabled(hw);
-+	regmap_write(tcu->map, TCU_REG_TSCR, BIT(info->gate_bit));
- 
- 	return enabled;
- }
-@@ -119,8 +115,7 @@ static void ingenic_tcu_disable_regs(str
- 	const struct ingenic_tcu_clk_info *info = tcu_clk->info;
- 	struct ingenic_tcu *tcu = tcu_clk->tcu;
- 
--	if (!tcu->clk)
--		regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
-+	regmap_write(tcu->map, TCU_REG_TSSR, BIT(info->gate_bit));
- }
- 
- static u8 ingenic_tcu_get_parent(struct clk_hw *hw)
+--- a/fs/ntfs/super.c
++++ b/fs/ntfs/super.c
+@@ -2092,7 +2092,8 @@ get_ctx_vol_failed:
+ 	// TODO: Initialize security.
+ 	/* Get the extended system files' directory inode. */
+ 	vol->extend_ino = ntfs_iget(sb, FILE_Extend);
+-	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino)) {
++	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino) ||
++	    !S_ISDIR(vol->extend_ino->i_mode)) {
+ 		if (!IS_ERR(vol->extend_ino))
+ 			iput(vol->extend_ino);
+ 		ntfs_error(sb, "Failed to load $Extend.");
 
 
