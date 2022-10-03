@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDF15F2B97
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A74D95F2C4D
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230117AbiJCIWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50426 "EHLO
+        id S229594AbiJCIsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230134AbiJCIVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:21:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8827A778;
-        Mon,  3 Oct 2022 00:56:22 -0700 (PDT)
+        with ESMTP id S230331AbiJCIro (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:47:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE08C30F48;
+        Mon,  3 Oct 2022 01:27:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BCD5B80E80;
-        Mon,  3 Oct 2022 07:20:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC60C433D6;
-        Mon,  3 Oct 2022 07:20:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30DE160FA7;
+        Mon,  3 Oct 2022 07:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E78CC433D6;
+        Mon,  3 Oct 2022 07:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781650;
-        bh=iiHvL8xuvSgYPTGIvbygeHeLLXH/8zJ7cHYbq0fxa4s=;
+        s=korg; t=1664781564;
+        bh=g8ezt+zIuqYm6KOhw3hbjL5xc69Nj8LJANjkzGatBMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcN1nMPS8V90EpjK1JOyw+1ZTpVDcc+b+lxr8T12hC31imFXwaLMej7nRYNTKCd91
-         NsR9j6EW7CgWTjbiOBiD/EgXwy7y1K3iGMFbX3AtzlKVg/3WdktbW+GUfkGMZ8Y6r2
-         j9REKl7S74ChgSqv1zzsxFlAzDD9Ir+j3UHyNOLw=
+        b=j2biDZd25OoyOH+3A6DtDK9d+xy9YBDq6/xFeWi/2caF+yB0TgrEnMAvknaRY46sw
+         CJvJkFcbl8y7gC6z75OXmjc8ewQglHnaecUv/iJwpHNuRLEz6pBLxCoHpsFw96CRAp
+         y8e6xtd7IlHUIhNyFn0by+nXpY4eQYP5b111TFk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 14/52] Input: snvs_pwrkey - fix SNVS_HPVIDR1 register address
-Date:   Mon,  3 Oct 2022 09:11:21 +0200
-Message-Id: <20221003070719.151392239@linuxfoundation.org>
+        stable@vger.kernel.org, Rafael Mendonca <rafaelmendsr@gmail.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 58/83] cxgb4: fix missing unlock on ETHOFLD desc collect fail path
+Date:   Mon,  3 Oct 2022 09:11:23 +0200
+Message-Id: <20221003070723.457565834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-commit e62563db857f81d75c5726a35bc0180bed6d1540 upstream.
+[ Upstream commit c635ebe8d911a93bd849a9419b01a58783de76f1 ]
 
-Both i.MX6 and i.MX8 reference manuals list 0xBF8 as SNVS_HPVIDR1
-(chapters 57.9 and 6.4.5 respectively).
+The label passed to the QDESC_GET for the ETHOFLD TXQ, RXQ, and FLQ, is the
+'out' one, which skips the 'out_unlock' label, and thus doesn't unlock the
+'uld_mutex' before returning. Additionally, since commit 5148e5950c67
+("cxgb4: add EOTID tracking and software context dump"), the access to
+these ETHOFLD hardware queues should be protected by the 'mqprio_mutex'
+instead.
 
-Without this, trying to read the revision number results in 0 on
-all revisions, causing the i.MX6 quirk to apply on all platforms,
-which in turn causes the driver to synthesise power button release
-events instead of passing the real one as they happen even on
-platforms like i.MX8 where that's not wanted.
-
-Fixes: 1a26c920717a ("Input: snvs_pwrkey - send key events for i.MX6 S, DL and Q")
-Tested-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4599101.ElGaqSPkdT@pliszka
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d0cb84dd973 ("cxgb4: add ETHOFLD hardware queue support")
+Fixes: 5148e5950c67 ("cxgb4: add EOTID tracking and software context dump")
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Reviewed-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Link: https://lore.kernel.org/r/20220922175109.764898-1-rafaelmendsr@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/snvs_pwrkey.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 28 +++++++++++++------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/drivers/input/keyboard/snvs_pwrkey.c
-+++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -20,7 +20,7 @@
- #include <linux/mfd/syscon.h>
- #include <linux/regmap.h>
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+index a7f291c89702..557c591a6ce3 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -14,6 +14,7 @@
+ #include "cudbg_entity.h"
+ #include "cudbg_lib.h"
+ #include "cudbg_zlib.h"
++#include "cxgb4_tc_mqprio.h"
  
--#define SNVS_HPVIDR1_REG	0xF8
-+#define SNVS_HPVIDR1_REG	0xBF8
- #define SNVS_LPSR_REG		0x4C	/* LP Status Register */
- #define SNVS_LPCR_REG		0x38	/* LP Control Register */
- #define SNVS_HPSR_REG		0x14
+ static const u32 t6_tp_pio_array[][IREG_NUM_ELEM] = {
+ 	{0x7e40, 0x7e44, 0x020, 28}, /* t6_tp_pio_regs_20_to_3b */
+@@ -3458,7 +3459,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < utxq->ntxq; i++)
+ 				QDESC_GET_TXQ(&utxq->uldtxq[i].q,
+ 					      cudbg_uld_txq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 	}
+ 
+@@ -3475,7 +3476,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < urxq->nrxq; i++)
+ 				QDESC_GET_RXQ(&urxq->uldrxq[i].rspq,
+ 					      cudbg_uld_rxq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 
+ 		/* ULD FLQ */
+@@ -3487,7 +3488,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < urxq->nrxq; i++)
+ 				QDESC_GET_FLQ(&urxq->uldrxq[i].fl,
+ 					      cudbg_uld_flq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 
+ 		/* ULD CIQ */
+@@ -3500,29 +3501,34 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < urxq->nciq; i++)
+ 				QDESC_GET_RXQ(&urxq->uldrxq[base + i].rspq,
+ 					      cudbg_uld_ciq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 	}
++	mutex_unlock(&uld_mutex);
++
++	if (!padap->tc_mqprio)
++		goto out;
+ 
++	mutex_lock(&padap->tc_mqprio->mqprio_mutex);
+ 	/* ETHOFLD TXQ */
+ 	if (s->eohw_txq)
+ 		for (i = 0; i < s->eoqsets; i++)
+ 			QDESC_GET_TXQ(&s->eohw_txq[i].q,
+-				      CUDBG_QTYPE_ETHOFLD_TXQ, out);
++				      CUDBG_QTYPE_ETHOFLD_TXQ, out_unlock_mqprio);
+ 
+ 	/* ETHOFLD RXQ and FLQ */
+ 	if (s->eohw_rxq) {
+ 		for (i = 0; i < s->eoqsets; i++)
+ 			QDESC_GET_RXQ(&s->eohw_rxq[i].rspq,
+-				      CUDBG_QTYPE_ETHOFLD_RXQ, out);
++				      CUDBG_QTYPE_ETHOFLD_RXQ, out_unlock_mqprio);
+ 
+ 		for (i = 0; i < s->eoqsets; i++)
+ 			QDESC_GET_FLQ(&s->eohw_rxq[i].fl,
+-				      CUDBG_QTYPE_ETHOFLD_FLQ, out);
++				      CUDBG_QTYPE_ETHOFLD_FLQ, out_unlock_mqprio);
+ 	}
+ 
+-out_unlock:
+-	mutex_unlock(&uld_mutex);
++out_unlock_mqprio:
++	mutex_unlock(&padap->tc_mqprio->mqprio_mutex);
+ 
+ out:
+ 	qdesc_info->qdesc_entry_size = sizeof(*qdesc_entry);
+@@ -3559,6 +3565,10 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ #undef QDESC_GET
+ 
+ 	return rc;
++
++out_unlock_uld:
++	mutex_unlock(&uld_mutex);
++	goto out;
+ }
+ 
+ int cudbg_collect_flash(struct cudbg_init *pdbg_init,
+-- 
+2.35.1
+
 
 
