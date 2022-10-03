@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6C45F2A55
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:35:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C80065F2993
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231546AbiJCHfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34808 "EHLO
+        id S229807AbiJCHV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231809AbiJCHec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A0C52E5E;
-        Mon,  3 Oct 2022 00:22:11 -0700 (PDT)
+        with ESMTP id S230167AbiJCHVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:21:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F9C148C87;
+        Mon,  3 Oct 2022 00:15:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63261B80E68;
-        Mon,  3 Oct 2022 07:20:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA9C1C433D6;
-        Mon,  3 Oct 2022 07:20:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 405F960FA5;
+        Mon,  3 Oct 2022 07:15:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E68C433C1;
+        Mon,  3 Oct 2022 07:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781618;
-        bh=SXP9nyNk5NtHD1ho0EXPJBi6RxYXVxyFXz9k3y7vsU0=;
+        s=korg; t=1664781351;
+        bh=88y6V89ZhIC2mAYvMvB8/89AVze1JwN4vvrzk+RVBGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zE5XH6OlMIWNJBbSlfeTQfb1HN7bNNmH5rYEKLn4jeSSpoPKEtjplOd8NhGnV22On
-         x2BScNvD3Q3IiXZgT/lWkCG1EwSwNOsfZhS1MURzGRJ+heXntvpUaw76BUlhZxQKhP
-         roOySSxw5cHPPDi4uwl7tCGTT2nsuswzW7248lyM=
+        b=vsoG1nYBudrUAtc3X2PGMxzMUM4siOtgyvU2QZVqGqPHQChAE5i5K3HeFASt8I6KG
+         xg34XtRmOWhNApv0NupgkHD+gVJN+4yz7uc6iG0HQqDwb3IV23kBsgjYCNmkP50M3o
+         aJMVaLlSmYpl+2qJSQWtnr6dTCDtFq6/d0rpRJEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Han Xu <han.xu@nxp.com>,
+        Fabio Estevam <festevam@denx.de>,
+        Abel Vesa <abel.vesa@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 61/83] wifi: mac80211: fix regression with non-QoS drivers
+Subject: [PATCH 5.19 090/101] clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
 Date:   Mon,  3 Oct 2022 09:11:26 +0200
-Message-Id: <20221003070723.529470949@linuxfoundation.org>
+Message-Id: <20221003070726.681219152@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Han Xu <han.xu@nxp.com>
 
-[ Upstream commit d873697ef2b7e1b6fdd8e9d449d9354bd5d29a4a ]
+[ Upstream commit b1ff1bfe81e763420afd5f3f25f0b3cbfd97055c ]
 
-Commit 10cb8e617560 ("mac80211: enable QoS support for nl80211 ctrl port")
-changed ieee80211_tx_control_port() to aways call
-__ieee80211_select_queue() without checking local->hw.queues.
+There is no dedicate parent clock for QSPI so SET_RATE_PARENT flag
+should not be used. For instance, the default parent clock for QSPI is
+pll2_bus, which is also the parent clock for quite a few modules, such
+as MMDC, once GPMI NAND set clock rate for EDO5 mode can cause system
+hang due to pll2_bus rate changed.
 
-__ieee80211_select_queue() returns a queue-id between 0 and 3, which means
-that now ieee80211_tx_control_port() may end up setting the queue-mapping
-for a skb to a value higher then local->hw.queues if local->hw.queues
-is less then 4.
-
-Specifically this is a problem for ralink rt2500-pci cards where
-local->hw.queues is 2. There this causes rt2x00queue_get_tx_queue() to
-return NULL and the following error to be logged: "ieee80211 phy0:
-rt2x00mac_tx: Error - Attempt to send packet over invalid queue 2",
-after which association with the AP fails.
-
-Other callers of __ieee80211_select_queue() skip calling it when
-local->hw.queues < IEEE80211_NUM_ACS, add the same check to
-ieee80211_tx_control_port(). This fixes ralink rt2500-pci and
-similar cards when less then 4 tx-queues no longer working.
-
-Fixes: 10cb8e617560 ("mac80211: enable QoS support for nl80211 ctrl port")
-Cc: Markus Theil <markus.theil@tu-ilmenau.de>
-Suggested-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220918192052.443529-1-hdegoede@redhat.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: f1541e15e38e ("clk: imx6sx: Switch to clk_hw based API")
+Signed-off-by: Han Xu <han.xu@nxp.com>
+Link: https://lore.kernel.org/r/20220915150959.3646702-1-han.xu@nxp.com
+Tested-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clk/imx/clk-imx6sx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index a499b07fee33..8f8dc2625d53 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -5719,6 +5719,9 @@ int ieee80211_tx_control_port(struct wiphy *wiphy, struct net_device *dev,
- 	skb_reset_network_header(skb);
- 	skb_reset_mac_header(skb);
- 
-+	if (local->hw.queues < IEEE80211_NUM_ACS)
-+		goto start_xmit;
-+
- 	/* update QoS header to prioritize control port frames if possible,
- 	 * priorization also happens for control port frames send over
- 	 * AF_PACKET
-@@ -5734,6 +5737,7 @@ int ieee80211_tx_control_port(struct wiphy *wiphy, struct net_device *dev,
- 
- 	rcu_read_unlock();
- 
-+start_xmit:
- 	/* mutex lock is only needed for incrementing the cookie counter */
- 	mutex_lock(&local->mtx);
- 
+diff --git a/drivers/clk/imx/clk-imx6sx.c b/drivers/clk/imx/clk-imx6sx.c
+index fc1bd23d4583..598f3cf4eba4 100644
+--- a/drivers/clk/imx/clk-imx6sx.c
++++ b/drivers/clk/imx/clk-imx6sx.c
+@@ -280,13 +280,13 @@ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
+ 	hws[IMX6SX_CLK_SSI3_SEL]           = imx_clk_hw_mux("ssi3_sel",         base + 0x1c,  14,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
+ 	hws[IMX6SX_CLK_SSI2_SEL]           = imx_clk_hw_mux("ssi2_sel",         base + 0x1c,  12,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
+ 	hws[IMX6SX_CLK_SSI1_SEL]           = imx_clk_hw_mux("ssi1_sel",         base + 0x1c,  10,     2,      ssi_sels,          ARRAY_SIZE(ssi_sels));
+-	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux_flags("qspi1_sel", base + 0x1c,  7, 3, qspi1_sels, ARRAY_SIZE(qspi1_sels), CLK_SET_RATE_PARENT);
++	hws[IMX6SX_CLK_QSPI1_SEL]          = imx_clk_hw_mux("qspi1_sel",        base + 0x1c,  7,      3,      qspi1_sels,        ARRAY_SIZE(qspi1_sels));
+ 	hws[IMX6SX_CLK_PERCLK_SEL]         = imx_clk_hw_mux("perclk_sel",       base + 0x1c,  6,      1,      perclk_sels,       ARRAY_SIZE(perclk_sels));
+ 	hws[IMX6SX_CLK_VID_SEL]            = imx_clk_hw_mux("vid_sel",          base + 0x20,  21,     3,      vid_sels,          ARRAY_SIZE(vid_sels));
+ 	hws[IMX6SX_CLK_ESAI_SEL]           = imx_clk_hw_mux("esai_sel",         base + 0x20,  19,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
+ 	hws[IMX6SX_CLK_CAN_SEL]            = imx_clk_hw_mux("can_sel",          base + 0x20,  8,      2,      can_sels,          ARRAY_SIZE(can_sels));
+ 	hws[IMX6SX_CLK_UART_SEL]           = imx_clk_hw_mux("uart_sel",         base + 0x24,  6,      1,      uart_sels,         ARRAY_SIZE(uart_sels));
+-	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux_flags("qspi2_sel", base + 0x2c, 15, 3, qspi2_sels, ARRAY_SIZE(qspi2_sels), CLK_SET_RATE_PARENT);
++	hws[IMX6SX_CLK_QSPI2_SEL]          = imx_clk_hw_mux("qspi2_sel",        base + 0x2c,  15,     3,      qspi2_sels,        ARRAY_SIZE(qspi2_sels));
+ 	hws[IMX6SX_CLK_SPDIF_SEL]          = imx_clk_hw_mux("spdif_sel",        base + 0x30,  20,     2,      audio_sels,        ARRAY_SIZE(audio_sels));
+ 	hws[IMX6SX_CLK_AUDIO_SEL]          = imx_clk_hw_mux("audio_sel",        base + 0x30,  7,      2,      audio_sels,        ARRAY_SIZE(audio_sels));
+ 	hws[IMX6SX_CLK_ENET_PRE_SEL]       = imx_clk_hw_mux("enet_pre_sel",     base + 0x34,  15,     3,      enet_pre_sels,     ARRAY_SIZE(enet_pre_sels));
 -- 
 2.35.1
 
