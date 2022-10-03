@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC0D5F2955
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D98DA5F2958
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbiJCHRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:17:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48024 "EHLO
+        id S230093AbiJCHRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:17:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229986AbiJCHRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554524686D;
-        Mon,  3 Oct 2022 00:14:01 -0700 (PDT)
+        with ESMTP id S229949AbiJCHRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB7A546872;
+        Mon,  3 Oct 2022 00:14:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4AF160F9B;
-        Mon,  3 Oct 2022 07:14:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E88CCC433C1;
-        Mon,  3 Oct 2022 07:13:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C3A1B80E69;
+        Mon,  3 Oct 2022 07:14:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A945EC433D6;
+        Mon,  3 Oct 2022 07:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781240;
-        bh=oKI7NKRGrfksCR9P5ES2xz6H45saQiR1p4Qbpz+75vI=;
+        s=korg; t=1664781243;
+        bh=+Rg7jiz/BdLa2YuHZAziCH9S3XwBEVJjdLlinQYrA/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18KUM+xOYNNDD2kax8P2vT2JH4BteYNlNoPCyafiBbOaDf5mQ4muDMqK1OOvnZnQF
-         eSW+E9rd8XEMQ5JfJzVO0x2FbGM6DcUssVeOHMTO/sdBvjNaNVGZfggaAdfLgelk4M
-         +E/ZBEwpuCV9/zMoEVwx7boJbfgeP1Cz80TBfZNo=
+        b=lijNi25JxUHd3a1WO4yOo+JlgdiG9ZQkdbcfiybQyvs3m8eiN/CCjP5sBwGRm2UPj
+         J1AHrbhpUAyrHg3tsO/Tyd0sS2XU01VSqFbQ2TBRCW1OBMwBPyj+RbnlmidTjWlu4s
+         41oOp2tm2ZR2/zexgzbawsz0ZXL0AV1027PRslwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Yu Zhao <yuzhao@google.com>, Florian Lehner <dev@der-flo.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 5.19 021/101] x86/uaccess: avoid check_object_size() in copy_from_user_nmi()
-Date:   Mon,  3 Oct 2022 09:10:17 +0200
-Message-Id: <20221003070725.020436093@linuxfoundation.org>
+        stable@vger.kernel.org, SeongJae Park <sj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 022/101] mm/damon/dbgfs: fix memory leak when using debugfs_lookup()
+Date:   Mon,  3 Oct 2022 09:10:18 +0200
+Message-Id: <20221003070725.042551819@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -57,65 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 59298997df89e19aad426d4ae0a7e5037074da5a upstream.
+commit 1552fd3ef7dbe07208b8ae84a0a6566adf7dfc9d upstream.
 
-The check_object_size() helper under CONFIG_HARDENED_USERCOPY is designed
-to skip any checks where the length is known at compile time as a
-reasonable heuristic to avoid "likely known-good" cases.  However, it can
-only do this when the copy_*_user() helpers are, themselves, inline too.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  Fix this up by properly calling
+dput().
 
-Using find_vmap_area() requires taking a spinlock.  The
-check_object_size() helper can call find_vmap_area() when the destination
-is in vmap memory.  If show_regs() is called in interrupt context, it will
-attempt a call to copy_from_user_nmi(), which may call check_object_size()
-and then find_vmap_area().  If something in normal context happens to be
-in the middle of calling find_vmap_area() (with the spinlock held), the
-interrupt handler will hang forever.
-
-The copy_from_user_nmi() call is actually being called with a fixed-size
-length, so check_object_size() should never have been called in the first
-place.  Given the narrow constraints, just replace the
-__copy_from_user_inatomic() call with an open-coded version that calls
-only into the sanitizers and not check_object_size(), followed by a call
-to raw_copy_from_user().
-
-[akpm@linux-foundation.org: no instrument_copy_from_user() in my tree...]
-Link: https://lkml.kernel.org/r/20220919201648.2250764-1-keescook@chromium.org
-Link: https://lore.kernel.org/all/CAOUHufaPshtKrTWOz7T7QFYUNVGFm0JBjvM700Nhf9qEL9b3EQ@mail.gmail.com
-Fixes: 0aef499f3172 ("mm/usercopy: Detect vmalloc overruns")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reported-by: Yu Zhao <yuzhao@google.com>
-Reported-by: Florian Lehner <dev@der-flo.net>
-Suggested-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Florian Lehner <dev@der-flo.net>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/20220902191149.112434-1-sj@kernel.org
+Fixes: 75c1c2b53c78b ("mm/damon/dbgfs: support multiple contexts")
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: SeongJae Park <sj@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/lib/usercopy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/damon/dbgfs.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/lib/usercopy.c b/arch/x86/lib/usercopy.c
-index ad0139d25401..f1bb18617156 100644
---- a/arch/x86/lib/usercopy.c
-+++ b/arch/x86/lib/usercopy.c
-@@ -44,7 +44,7 @@ copy_from_user_nmi(void *to, const void __user *from, unsigned long n)
- 	 * called from other contexts.
- 	 */
- 	pagefault_disable();
--	ret = __copy_from_user_inatomic(to, from, n);
-+	ret = raw_copy_from_user(to, from, n);
- 	pagefault_enable();
+--- a/mm/damon/dbgfs.c
++++ b/mm/damon/dbgfs.c
+@@ -853,6 +853,7 @@ static int dbgfs_rm_context(char *name)
+ 	struct dentry *root, *dir, **new_dirs;
+ 	struct damon_ctx **new_ctxs;
+ 	int i, j;
++	int ret = 0;
  
- 	return ret;
--- 
-2.37.3
-
+ 	if (damon_nr_running_ctxs())
+ 		return -EBUSY;
+@@ -867,14 +868,16 @@ static int dbgfs_rm_context(char *name)
+ 
+ 	new_dirs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_dirs),
+ 			GFP_KERNEL);
+-	if (!new_dirs)
+-		return -ENOMEM;
++	if (!new_dirs) {
++		ret = -ENOMEM;
++		goto out_dput;
++	}
+ 
+ 	new_ctxs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_ctxs),
+ 			GFP_KERNEL);
+ 	if (!new_ctxs) {
+-		kfree(new_dirs);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out_new_dirs;
+ 	}
+ 
+ 	for (i = 0, j = 0; i < dbgfs_nr_ctxs; i++) {
+@@ -894,7 +897,13 @@ static int dbgfs_rm_context(char *name)
+ 	dbgfs_ctxs = new_ctxs;
+ 	dbgfs_nr_ctxs--;
+ 
+-	return 0;
++	goto out_dput;
++
++out_new_dirs:
++	kfree(new_dirs);
++out_dput:
++	dput(dir);
++	return ret;
+ }
+ 
+ static ssize_t dbgfs_rm_context_write(struct file *file,
 
 
