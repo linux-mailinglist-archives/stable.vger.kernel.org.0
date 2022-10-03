@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2195F2A64
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6B75F29AF
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:23:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231639AbiJCHgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33640 "EHLO
+        id S230319AbiJCHX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:23:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231840AbiJCHel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B556145989;
-        Mon,  3 Oct 2022 00:22:17 -0700 (PDT)
+        with ESMTP id S230323AbiJCHWe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:22:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF6A42ACB;
+        Mon,  3 Oct 2022 00:16:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F739B80E72;
-        Mon,  3 Oct 2022 07:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABAACC433D6;
-        Mon,  3 Oct 2022 07:20:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EE62B80E81;
+        Mon,  3 Oct 2022 07:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE87C43147;
+        Mon,  3 Oct 2022 07:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781634;
-        bh=cDa5aTyxPYuYr2/Oz0HIB/2RvObzGfKBYzBTaVPzchs=;
+        s=korg; t=1664781402;
+        bh=5P0xPnBni2NMZ7vC4rX45isOsYP7Y3Sw/60Evz320Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcGSlxozDoaFJ7IaXrXt/Np3BJDKgtgCXvY8h5OA40Fj//OdNGOy3T5+HCaYjKIzk
-         KL6Ry6h4xVaMGbiiRn6tmgC7Bq6MjsfU9Tq/FI6igFT0pHYpImMPE9+okap6nFyuKc
-         VhYEZhMC64TW8ey227RJzDdeFH/Qpqq1wVjMyylQ=
+        b=1yud/V1ByErvgBhwzOuaFtg5w+V75tR8hss4kyyqcN8Si40EsIuBc/8ZQNyCiL+ab
+         XX45eX3b7r1/Xq01ehQFbIQtBYrkADHeKuWZ9nCMX/QzUPJsigifBKhlYS8jCb3Txg
+         rCv1Wtc+YVEYJPrfPPn8ihHkTdUsaTzRGit7iieE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Angus Chen <angus.chen@jaguarmicro.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Zhu Lingshan <lingshan.zhu@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 57/83] net: sched: act_ct: fix possible refcount leak in tcf_ct_init()
+Subject: [PATCH 5.19 086/101] vdpa/ifcvf: fix the calculation of queuepair
 Date:   Mon,  3 Oct 2022 09:11:22 +0200
-Message-Id: <20221003070723.433246341@linuxfoundation.org>
+Message-Id: <20221003070726.587974474@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Angus Chen <angus.chen@jaguarmicro.com>
 
-[ Upstream commit 6e23ec0ba92d426c77a73a9ccab16346e5e0ef49 ]
+[ Upstream commit db5db1a00d0816207be3a0166fcb4f523eaf3b52 ]
 
-nf_ct_put need to be called to put the refcount got by tcf_ct_fill_params
-to avoid possible refcount leak when tcf_ct_flow_table_get fails.
+The q_pair_id to address a queue pair in the lm bar should be
+calculated by queue_id / 2 rather than queue_id / nr_vring.
 
-Fixes: c34b961a2492 ("net/sched: act_ct: Create nf flow table per zone")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220923020046.8021-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2ddae773c93b ("vDPA/ifcvf: detect and use the onboard number of queues directly")
+Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+Reviewed-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Message-Id: <20220923091013.191-1-angus.chen@jaguarmicro.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_ct.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/vdpa/ifcvf/ifcvf_base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index f4fd584fba08..d85fdefe5730 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -1306,7 +1306,7 @@ static int tcf_ct_init(struct net *net, struct nlattr *nla,
+diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+index 48c4dadb0c7c..a4c1b985f79a 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_base.c
++++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+@@ -315,7 +315,7 @@ u16 ifcvf_get_vq_state(struct ifcvf_hw *hw, u16 qid)
+ 	u32 q_pair_id;
  
- 	err = tcf_ct_flow_table_get(params);
- 	if (err)
--		goto cleanup;
-+		goto cleanup_params;
+ 	ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+-	q_pair_id = qid / hw->nr_vring;
++	q_pair_id = qid / 2;
+ 	avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+ 	last_avail_idx = vp_ioread16(avail_idx_addr);
  
- 	spin_lock_bh(&c->tcf_lock);
- 	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
-@@ -1321,6 +1321,9 @@ static int tcf_ct_init(struct net *net, struct nlattr *nla,
+@@ -329,7 +329,7 @@ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num)
+ 	u32 q_pair_id;
  
- 	return res;
- 
-+cleanup_params:
-+	if (params->tmpl)
-+		nf_ct_put(params->tmpl);
- cleanup:
- 	if (goto_ch)
- 		tcf_chain_put_by_act(goto_ch);
+ 	ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+-	q_pair_id = qid / hw->nr_vring;
++	q_pair_id = qid / 2;
+ 	avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+ 	hw->vring[qid].last_avail_idx = num;
+ 	vp_iowrite16(num, avail_idx_addr);
 -- 
 2.35.1
 
