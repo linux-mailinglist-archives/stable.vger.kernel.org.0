@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED17B5F2A4F
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCF85F2984
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbiJCHfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:35:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34486 "EHLO
+        id S229976AbiJCHUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:20:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231778AbiJCHe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4EAC52DFC;
-        Mon,  3 Oct 2022 00:22:05 -0700 (PDT)
+        with ESMTP id S229979AbiJCHTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:19:05 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420E136094;
+        Mon,  3 Oct 2022 00:15:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E07C1CE0B19;
-        Mon,  3 Oct 2022 07:18:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2581C433C1;
-        Mon,  3 Oct 2022 07:18:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 26DC3CE0AF2;
+        Mon,  3 Oct 2022 07:14:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A56C433D6;
+        Mon,  3 Oct 2022 07:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781483;
-        bh=V38LlX0q8zKlpeuuZ8af615SwKazMoTeMAv5NP354dE=;
+        s=korg; t=1664781286;
+        bh=BDGFTzj7X2dKvLVLsWyErQjs+PtoFcPQrpCwZNusabE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvKew4cJ+tK3rkbqstBDJNsdc2a4jAsqPPIuFYBCqoRIEOn/bbTBbbN8bsg4wYR8C
-         AOauNAb6SvBKDa5OA2knGzSJA5dJ2ebMZ/FmhrJvOufd6j85mxeNjgtkD/3kVXs0TD
-         y5inYD4JQprBHxtc69ayzb5q1+riX3l/RP0ovRe8=
+        b=vylEvwH18PVyXPDkZaDy1nzmlAxYVZ4P/Bli2iYBbjR0TjtRmm3HJRzV7n7xGM20t
+         e3ee4kZ4uuMo6Taa/ab+FRpvtr23bm/SQkf1QyZeSjxqB/p2bCxq1YjTAoV8ysDam5
+         5ZVMgWn052qOMZm/OAjiIA+sVle7YVlNWh/ycW6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        syzbot+ff18193ff05f3f87f226@syzkaller.appspotmail.com,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.15 37/83] media: v4l2-compat-ioctl32.c: zero buffer passed to v4l2_compat_get_array_args()
+        stable@vger.kernel.org,
+        Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 066/101] net: macb: Fix ZynqMP SGMII non-wakeup source resume failure
 Date:   Mon,  3 Oct 2022 09:11:02 +0200
-Message-Id: <20221003070722.926248909@linuxfoundation.org>
+Message-Id: <20221003070726.112181367@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
 
-commit 4e768c8e34e639cff66a0f175bc4aebf472e4305 upstream.
+[ Upstream commit f22bd29ba19a43e758b192429613e04aa7abb70d ]
 
-The v4l2_compat_get_array_args() function can leave uninitialized memory in the
-buffer it is passed. So zero it before copying array elements from userspace
-into the buffer.
+When GEM is in SGMII mode and disabled as a wakeup source, the power
+management controller can power down the entire full power domain(FPD)
+if none of the FPD devices are in use.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: syzbot+ff18193ff05f3f87f226@syzkaller.appspotmail.com
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Incase of FPD off, there are below ethernet link up issues on non-wakeup
+suspend/resume. To fix it add phy_exit() in suspend and phy_init() in the
+resume path which reinitializes PS GTR SGMII lanes.
+
+$ echo +20 > /sys/class/rtc/rtc0/wakealarm
+$ echo mem > /sys/power/state
+
+After resume:
+
+$ ifconfig eth0 up
+xilinx-psgtr fd400000.phy: lane 0 (type 10, protocol 5): PLL lock timeout
+phy phy-fd400000.phy.0: phy poweron failed --> -110
+xilinx-psgtr fd400000.phy: lane 0 (type 10, protocol 5): PLL lock timeout
+SIOCSIFFLAGS: Connection timed out
+phy phy-fd400000.phy.0: phy poweron failed --> -110
+
+Fixes: 8b73fa3ae02b ("net: macb: Added ZynqMP-specific initialization")
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-compat-ioctl32.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-+++ b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-@@ -1033,6 +1033,8 @@ int v4l2_compat_get_array_args(struct fi
- {
- 	int err = 0;
- 
-+	memset(mbuf, 0, array_size);
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index d89098f4ede8..e9aa41949a4b 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -5092,6 +5092,7 @@ static int __maybe_unused macb_suspend(struct device *dev)
+ 	if (!(bp->wol & MACB_WOL_ENABLED)) {
+ 		rtnl_lock();
+ 		phylink_stop(bp->phylink);
++		phy_exit(bp->sgmii_phy);
+ 		rtnl_unlock();
+ 		spin_lock_irqsave(&bp->lock, flags);
+ 		macb_reset_hw(bp);
+@@ -5181,6 +5182,9 @@ static int __maybe_unused macb_resume(struct device *dev)
+ 	macb_set_rx_mode(netdev);
+ 	macb_restore_features(bp);
+ 	rtnl_lock();
++	if (!device_may_wakeup(&bp->dev->dev))
++		phy_init(bp->sgmii_phy);
 +
- 	switch (cmd) {
- 	case VIDIOC_G_FMT32:
- 	case VIDIOC_S_FMT32:
+ 	phylink_start(bp->phylink);
+ 	rtnl_unlock();
+ 
+-- 
+2.35.1
+
 
 
