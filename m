@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 519935F2A48
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1ED65F2B24
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbiJCHew (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:34:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
+        id S229507AbiJCHtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:49:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231712AbiJCHeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:16 -0400
+        with ESMTP id S232437AbiJCHsi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:48:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502FA52DD1;
-        Mon,  3 Oct 2022 00:21:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2D3FE7;
+        Mon,  3 Oct 2022 00:27:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CF5AB80E97;
-        Mon,  3 Oct 2022 07:21:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB8ECC433D6;
-        Mon,  3 Oct 2022 07:21:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6EC0B80E6C;
+        Mon,  3 Oct 2022 07:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20896C43144;
+        Mon,  3 Oct 2022 07:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781694;
-        bh=SnZkNAAap/Esf6QKxUhI0fy+mo0YZ4Nsu80pdvM0q08=;
+        s=korg; t=1664781405;
+        bh=+U+Ga5hQnijwqZqWQUookyMbcHRjXH8QxCTKWBR81FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3GF7RD3E4B2iz3eidxve0jvY7nt5N7YEA2wyyXAKo8K9cPSKYSSyumTFkAQ9ToyH
-         nk7wmsXuPxojwAouzU4ZAr2g8Op5AWZVlO8RCAH54rtkuW55eDGL4lWuhlEY5cn6cp
-         8nF4YEs6PzfyS7nse+B/QnhLCIa4SaeXNh4/oO1E=
+        b=kKfH3v6AxzETsGtdq0+LYtYoOBN76v/fqs39+Wi57/hwolqFlNUi3yKTT7DANU9/f
+         uLD0aly9U2IWyplTd4cpCjPTYAiTB36vmNubmcfGP/yKnqo0H16tRdK3gw915CWo5C
+         8QUE9WGs1FVZIxR4Og5eIffguXr8RWy+1tUIMdDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Subject: [PATCH 5.10 05/52] ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically
-Date:   Mon,  3 Oct 2022 09:11:12 +0200
-Message-Id: <20221003070718.869196074@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 077/101] nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
+Date:   Mon,  3 Oct 2022 09:11:13 +0200
+Message-Id: <20221003070726.374456384@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit 13046370c4d143b629adc1a51659a8a6497fbbe6 ]
+[ Upstream commit c292a337d0e45a292c301e3cd51c35aa0ae91e95 ]
 
-If the platform set the dyn_pcm_assign to true, it will call
-hdmi_find_pcm_slot() to find a pcm slot when hdmi/dp monitor is
-connected and need to create a pcm.
+The IOC_PR_CLEAR and IOC_PR_RELEASE ioctls are
+non-functional on NVMe devices because the nvme_pr_clear()
+and nvme_pr_release() functions set the IEKEY field incorrectly.
+The IEKEY field should be set only when the key is zero (i.e,
+not specified).  The current code does it backwards.
 
-So far only intel_hsw_common_init() and patch_nvhdmi() set the
-dyn_pcm_assign to true, here we let tgl platforms assign the pcm slot
-dynamically first, if the driver runs for a period of time and there
-is no regression reported, we could set no_fixed_assgin to true in
-the intel_hsw_common_init(), and then set it to true in the
-patch_nvhdmi().
+Furthermore, the NVMe spec describes the persistent
+reservation "clear" function as an option on the reservation
+release command. The current implementation of nvme_pr_clear()
+erroneously uses the reservation register command.
 
-This change comes from the discussion between Takashi and
-Kai Vehmanen. Please refer to:
-https://github.com/alsa-project/alsa-lib/pull/118
+Fix these errors. Note that NVMe version 1.3 and later specify
+that setting the IEKEY field will return an error of Invalid
+Field in Command.  The fix will set IEKEY when the key is zero,
+which is appropriate as these ioctls consider a zero key to
+be "unspecified", and the intention of the spec change is
+to require a valid key.
 
-Suggested-and-reviewed-by: Takashi Iwai <tiwai@suse.de>
-Suggested-and-reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210301111202.2684-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: f89e409402e2 ("ALSA: hda: Fix Nvidia dp infoframe")
+Tested on a version 1.4 PCI NVMe device in an Azure VM.
+
+Fixes: 1673f1f08c88 ("nvme: move block_device_operations and ns/ctrl freeing to common code")
+Fixes: 1d277a637a71 ("NVMe: Add persistent reservation ops")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 7551cdf3b452..6110370f874d 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -157,6 +157,7 @@ struct hdmi_spec {
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 6d76fc608b74..326ad33537ed 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2069,14 +2069,14 @@ static int nvme_pr_preempt(struct block_device *bdev, u64 old, u64 new,
  
- 	bool dyn_pin_out;
- 	bool dyn_pcm_assign;
-+	bool dyn_pcm_no_legacy;
- 	bool intel_hsw_fixup;	/* apply Intel platform-specific fixups */
- 	/*
- 	 * Non-generic VIA/NVIDIA specific
-@@ -1348,6 +1349,12 @@ static int hdmi_find_pcm_slot(struct hdmi_spec *spec,
+ static int nvme_pr_clear(struct block_device *bdev, u64 key)
  {
- 	int i;
+-	u32 cdw10 = 1 | (key ? 1 << 3 : 0);
++	u32 cdw10 = 1 | (key ? 0 : 1 << 3);
  
-+	/* on the new machines, try to assign the pcm slot dynamically,
-+	 * not use the preferred fixed map (legacy way) anymore.
-+	 */
-+	if (spec->dyn_pcm_no_legacy)
-+		goto last_try;
-+
- 	/*
- 	 * generic_hdmi_build_pcms() may allocate extra PCMs on some
- 	 * platforms (with maximum of 'num_nids + dev_num - 1')
-@@ -1377,6 +1384,7 @@ static int hdmi_find_pcm_slot(struct hdmi_spec *spec,
- 			return i;
- 	}
- 
-+ last_try:
- 	/* the last try; check the empty slots in pins */
- 	for (i = 0; i < spec->num_nids; i++) {
- 		if (!test_bit(i, &spec->pcm_bitmap))
-@@ -3010,8 +3018,16 @@ static int patch_i915_tgl_hdmi(struct hda_codec *codec)
- 	 * the index indicate the port number.
- 	 */
- 	static const int map[] = {0x4, 0x6, 0x8, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-+	int ret;
- 
--	return intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map));
-+	ret = intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map));
-+	if (!ret) {
-+		struct hdmi_spec *spec = codec->spec;
-+
-+		spec->dyn_pcm_no_legacy = true;
-+	}
-+
-+	return ret;
+-	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_register);
++	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
  }
  
- /* Intel Baytrail and Braswell; with eld notifier */
+ static int nvme_pr_release(struct block_device *bdev, u64 key, enum pr_type type)
+ {
+-	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 1 << 3 : 0);
++	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 0 : 1 << 3);
+ 
+ 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
+ }
 -- 
 2.35.1
 
