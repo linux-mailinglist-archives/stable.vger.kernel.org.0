@@ -2,41 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D75DC5F2B86
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:18:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FAFB5F2C43
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbiJCIR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:17:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38288 "EHLO
+        id S230117AbiJCIoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229741AbiJCIRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:17:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9A35C34E;
-        Mon,  3 Oct 2022 00:52:38 -0700 (PDT)
+        with ESMTP id S230157AbiJCIoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:44:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202B9255B1;
+        Mon,  3 Oct 2022 01:22:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F1FDB80E8F;
-        Mon,  3 Oct 2022 07:24:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0650C433C1;
-        Mon,  3 Oct 2022 07:24:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C33060FCE;
+        Mon,  3 Oct 2022 07:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB3CC433C1;
+        Mon,  3 Oct 2022 07:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781890;
-        bh=8yICmdEnzrq6TvhtPNCViW6kELiGyg/XlVB3lpIgWsY=;
+        s=korg; t=1664781871;
+        bh=4EQt3gJL7vdLpZkM2VX2fkNa6c6Mdv3DxSB71+wkw9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rl/O77T4/49gpDFUwaqp0yYNL3SQ2Xqjfw6dlqLrz8BQFMUqOLsVQ70idRwF59M/c
-         8ne1kVUDMC0INzGBL6bxV6pLI7KPLYFjYVsbqADUXu8CQFlr2fS+MMn2rFDZO2nCue
-         DZ5R3WbC98o69Ir5zk4cGfS75KT/EIShUe0ekETY=
+        b=pFFCeKEtQaktZ0Rbv9CHS19i6ZDmL9IbBNogZR2e9UcIySBgwYBoCVdtN43E+2h42
+         /UWjtz2F/XBLU9RDBi+6CMZBWNOgwvihkHZx7SlSF9fOSIJGfDeAzPP0BayAcnTJxn
+         vT9IputnkTstoieFJ2oE75a6sTW1SVoF+5zOeA3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 04/25] net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
-Date:   Mon,  3 Oct 2022 09:12:07 +0200
-Message-Id: <20221003070715.539356263@linuxfoundation.org>
+        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Alex Sierra <alex.sierra@amd.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 11/25] mm/migrate_device.c: flush TLB while holding PTL
+Date:   Mon,  3 Oct 2022 09:12:14 +0200
+Message-Id: <20221003070715.743561818@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
 References: <20221003070715.406550966@linuxfoundation.org>
@@ -53,31 +68,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Alistair Popple <apopple@nvidia.com>
 
-commit 797666cd5af041ffb66642fff62f7389f08566a2 upstream.
+commit 60bae73708963de4a17231077285bd9ff2f41c44 upstream.
 
-Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
+When clearing a PTE the TLB should be flushed whilst still holding the PTL
+to avoid a potential race with madvise/munmap/etc.  For example consider
+the following sequence:
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Cc: stable@vger.kernel.org
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20220926150740.6684-3-linux@fw-web.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  CPU0                          CPU1
+  ----                          ----
+
+  migrate_vma_collect_pmd()
+  pte_unmap_unlock()
+                                madvise(MADV_DONTNEED)
+                                -> zap_pte_range()
+                                pte_offset_map_lock()
+                                [ PTE not present, TLB not flushed ]
+                                pte_unmap_unlock()
+                                [ page is still accessible via stale TLB ]
+  flush_tlb_range()
+
+In this case the page may still be accessed via the stale TLB entry after
+madvise returns.  Fix this by flushing the TLB while holding the PTL.
+
+Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
+Link: https://lkml.kernel.org/r/9f801e9d8d830408f2ca27821f606e09aa856899.1662078528.git-series.apopple@nvidia.com
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reported-by: Nadav Amit <nadav.amit@gmail.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Alex Sierra <alex.sierra@amd.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/migrate.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1357,6 +1357,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
-+	{QMI_FIXED_INTF(0x413c, 0x81c2, 8)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -2359,13 +2359,14 @@ next:
+ 		migrate->dst[migrate->npages] = 0;
+ 		migrate->src[migrate->npages++] = mpfn;
+ 	}
+-	arch_leave_lazy_mmu_mode();
+-	pte_unmap_unlock(ptep - 1, ptl);
+ 
+ 	/* Only flush the TLB if we actually modified any entries */
+ 	if (unmapped)
+ 		flush_tlb_range(walk->vma, start, end);
+ 
++	arch_leave_lazy_mmu_mode();
++	pte_unmap_unlock(ptep - 1, ptl);
++
+ 	return 0;
+ }
+ 
 
 
