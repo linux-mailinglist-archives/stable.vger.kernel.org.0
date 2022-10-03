@@ -2,59 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD555F2949
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6BD5F29EB
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbiJCHRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:17:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48106 "EHLO
+        id S231243AbiJCH1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:27:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229907AbiJCHQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:16:24 -0400
+        with ESMTP id S231209AbiJCH1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:27:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B717546236;
-        Mon,  3 Oct 2022 00:13:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8C14D254;
+        Mon,  3 Oct 2022 00:19:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C0C560F9B;
-        Mon,  3 Oct 2022 07:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 688C2C433D6;
-        Mon,  3 Oct 2022 07:13:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34BF960FA7;
+        Mon,  3 Oct 2022 07:16:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420B2C433D6;
+        Mon,  3 Oct 2022 07:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781218;
-        bh=QBY0gO4T5Cnxvtxpzk3yL4FGs5zO0Hc1hWtnO6/Truc=;
+        s=korg; t=1664781413;
+        bh=J9P75/5S0RATD9l47s7hFoGzMQDgVknonjFIUC+Vo2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNve9ThnjpsivZM5Pvp4rHFxCX4T1ciReo0/msJ33J54eatRSBHBJ9fPlJZwK0F9V
-         R3PhtUKYLJF29i3W6oXRsrzskc6EfInrzpPJJ12dDAkAZRcQoUoesJ08ZDogcoSktA
-         JIQ+1Zxt4TG7Erd6fC0eDRqTbQGqwFRIrZYcuwm4=
+        b=m2SOj6FmIVIYYuiF4NRMrJtxtTdZz981cNznAP6Vv+iy3e1RSJ5Fe4YWhj1+HkFv5
+         X+/kPN3fO4zMUXFAiBzCiDsGjl1J3EvC5dPUFa4KLFHcaMTM7sY3eIcCPi85tPCo3k
+         E8j6RVfydvRv0RemEzYe8Ixg0QmtAolM09UOP3o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Alex Sierra <alex.sierra@amd.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 040/101] mm/migrate_device.c: flush TLB while holding PTL
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.15 11/83] thunderbolt: Explicitly reset plug events delay back to USB4 spec value
 Date:   Mon,  3 Oct 2022 09:10:36 +0200
-Message-Id: <20221003070725.465821005@linuxfoundation.org>
+Message-Id: <20221003070722.268664803@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,74 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Popple <apopple@nvidia.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 60bae73708963de4a17231077285bd9ff2f41c44 upstream.
+commit 31f87f705b3c1635345d8e8a493697099b43e508 upstream.
 
-When clearing a PTE the TLB should be flushed whilst still holding the PTL
-to avoid a potential race with madvise/munmap/etc.  For example consider
-the following sequence:
+If any software has interacted with the USB4 registers before the Linux
+USB4 CM runs, it may have modified the plug events delay. It has been
+observed that if this value too large, it's possible that hotplugged
+devices will negotiate a fallback mode instead in Linux.
 
-  CPU0                          CPU1
-  ----                          ----
+To prevent this, explicitly align the plug events delay with the USB4
+spec value of 10ms.
 
-  migrate_vma_collect_pmd()
-  pte_unmap_unlock()
-                                madvise(MADV_DONTNEED)
-                                -> zap_pte_range()
-                                pte_offset_map_lock()
-                                [ PTE not present, TLB not flushed ]
-                                pte_unmap_unlock()
-                                [ page is still accessible via stale TLB ]
-  flush_tlb_range()
-
-In this case the page may still be accessed via the stale TLB entry after
-madvise returns.  Fix this by flushing the TLB while holding the PTL.
-
-Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
-Link: https://lkml.kernel.org/r/9f801e9d8d830408f2ca27821f606e09aa856899.1662078528.git-series.apopple@nvidia.com
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Reported-by: Nadav Amit <nadav.amit@gmail.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Alex Sierra <alex.sierra@amd.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/migrate_device.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/thunderbolt/switch.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/migrate_device.c
-+++ b/mm/migrate_device.c
-@@ -248,13 +248,14 @@ next:
- 		migrate->dst[migrate->npages] = 0;
- 		migrate->src[migrate->npages++] = mpfn;
- 	}
--	arch_leave_lazy_mmu_mode();
--	pte_unmap_unlock(ptep - 1, ptl);
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2281,6 +2281,7 @@ int tb_switch_configure(struct tb_switch
+ 		 * additional capabilities.
+ 		 */
+ 		sw->config.cmuv = USB4_VERSION_1_0;
++		sw->config.plug_events_delay = 0xa;
  
- 	/* Only flush the TLB if we actually modified any entries */
- 	if (unmapped)
- 		flush_tlb_range(walk->vma, start, end);
- 
-+	arch_leave_lazy_mmu_mode();
-+	pte_unmap_unlock(ptep - 1, ptl);
-+
- 	return 0;
- }
- 
+ 		/* Enumerate the switch */
+ 		ret = tb_sw_write(sw, (u32 *)&sw->config + 1, TB_CFG_SWITCH,
 
 
