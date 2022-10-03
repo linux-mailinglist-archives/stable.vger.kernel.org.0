@@ -2,56 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FAFB5F2C43
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3635F2BB0
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230117AbiJCIoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:44:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46354 "EHLO
+        id S230232AbiJCIY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:24:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230157AbiJCIoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:44:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202B9255B1;
-        Mon,  3 Oct 2022 01:22:12 -0700 (PDT)
+        with ESMTP id S229605AbiJCIYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:24:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6367824F11;
+        Mon,  3 Oct 2022 00:58:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C33060FCE;
-        Mon,  3 Oct 2022 07:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB3CC433C1;
-        Mon,  3 Oct 2022 07:24:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24CCBB80E90;
+        Mon,  3 Oct 2022 07:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C7B4C433C1;
+        Mon,  3 Oct 2022 07:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781871;
-        bh=4EQt3gJL7vdLpZkM2VX2fkNa6c6Mdv3DxSB71+wkw9Y=;
+        s=korg; t=1664781876;
+        bh=CQa9aHIsHJ/Fq5xcdiiAk9NAQbh+vDgkS4lNrFPfjtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFFCeKEtQaktZ0Rbv9CHS19i6ZDmL9IbBNogZR2e9UcIySBgwYBoCVdtN43E+2h42
-         /UWjtz2F/XBLU9RDBi+6CMZBWNOgwvihkHZx7SlSF9fOSIJGfDeAzPP0BayAcnTJxn
-         vT9IputnkTstoieFJ2oE75a6sTW1SVoF+5zOeA3Q=
+        b=SJlSpQBp1JDg/nO+HXSpHgxLixBYsYFC254YEG2jdlcrX9ctSlu64tTGGa1UzbtKf
+         Wf2tMZfQoHC0cTUWSdiUM3sir4ldIE4eaVGF77cLKpPZ7ml2subsIaqu/aZC/pQphc
+         j9+KFeN/kbgKVaXE1IwbQK/SAEGFb3lmjITLMjlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Alex Sierra <alex.sierra@amd.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 11/25] mm/migrate_device.c: flush TLB while holding PTL
-Date:   Mon,  3 Oct 2022 09:12:14 +0200
-Message-Id: <20221003070715.743561818@linuxfoundation.org>
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Gou Hao <gouhao@uniontech.com>
+Subject: [PATCH 4.19 13/25] ima: Free the entire rule when deleting a list of rules
+Date:   Mon,  3 Oct 2022 09:12:16 +0200
+Message-Id: <20221003070715.800430612@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
 References: <20221003070715.406550966@linuxfoundation.org>
@@ -68,73 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Popple <apopple@nvidia.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit 60bae73708963de4a17231077285bd9ff2f41c44 upstream.
+commit 465aee77aae857b5fcde56ee192b33dc369fba04 upstream.
 
-When clearing a PTE the TLB should be flushed whilst still holding the PTL
-to avoid a potential race with madvise/munmap/etc.  For example consider
-the following sequence:
+Create a function, ima_free_rule(), to free all memory associated with
+an ima_rule_entry. Use the new function to fix memory leaks of allocated
+ima_rule_entry members, such as .fsname and .keyrings, when deleting a
+list of rules.
 
-  CPU0                          CPU1
-  ----                          ----
+Make the existing ima_lsm_free_rule() function specific to the LSM
+audit rule array of an ima_rule_entry and require that callers make an
+additional call to kfree to free the ima_rule_entry itself.
 
-  migrate_vma_collect_pmd()
-  pte_unmap_unlock()
-                                madvise(MADV_DONTNEED)
-                                -> zap_pte_range()
-                                pte_offset_map_lock()
-                                [ PTE not present, TLB not flushed ]
-                                pte_unmap_unlock()
-                                [ page is still accessible via stale TLB ]
-  flush_tlb_range()
+This fixes a memory leak seen when loading by a valid rule that contains
+an additional piece of allocated memory, such as an fsname, followed by
+an invalid rule that triggers a policy load failure:
 
-In this case the page may still be accessed via the stale TLB entry after
-madvise returns.  Fix this by flushing the TLB while holding the PTL.
+ # echo -e "dont_measure fsname=securityfs\nbad syntax" > \
+    /sys/kernel/security/ima/policy
+ -bash: echo: write error: Invalid argument
+ # echo scan > /sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+ unreferenced object 0xffff9bab67ca12c0 (size 16):
+   comm "bash", pid 684, jiffies 4295212803 (age 252.344s)
+   hex dump (first 16 bytes):
+     73 65 63 75 72 69 74 79 66 73 00 6b 6b 6b 6b a5  securityfs.kkkk.
+   backtrace:
+     [<00000000adc80b1b>] kstrdup+0x2e/0x60
+     [<00000000d504cb0d>] ima_parse_add_rule+0x7d4/0x1020
+     [<00000000444825ac>] ima_write_policy+0xab/0x1d0
+     [<000000002b7f0d6c>] vfs_write+0xde/0x1d0
+     [<0000000096feedcf>] ksys_write+0x68/0xe0
+     [<0000000052b544a2>] do_syscall_64+0x56/0xa0
+     [<000000007ead1ba7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
-Link: https://lkml.kernel.org/r/9f801e9d8d830408f2ca27821f606e09aa856899.1662078528.git-series.apopple@nvidia.com
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Reported-by: Nadav Amit <nadav.amit@gmail.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Alex Sierra <alex.sierra@amd.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: f1b08bbcbdaf ("ima: define a new policy condition based on the filesystem name")
+Fixes: 2b60c0ecedf8 ("IMA: Read keyrings= option from the IMA policy")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gou Hao <gouhao@uniontech.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/migrate.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ security/integrity/ima/ima_policy.c |   23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -2359,13 +2359,14 @@ next:
- 		migrate->dst[migrate->npages] = 0;
- 		migrate->src[migrate->npages++] = mpfn;
- 	}
--	arch_leave_lazy_mmu_mode();
--	pte_unmap_unlock(ptep - 1, ptl);
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -241,6 +241,21 @@ static int __init default_appraise_polic
+ }
+ __setup("ima_appraise_tcb", default_appraise_policy_setup);
  
- 	/* Only flush the TLB if we actually modified any entries */
- 	if (unmapped)
- 		flush_tlb_range(walk->vma, start, end);
- 
-+	arch_leave_lazy_mmu_mode();
-+	pte_unmap_unlock(ptep - 1, ptl);
++static void ima_free_rule(struct ima_rule_entry *entry)
++{
++	int i;
 +
- 	return 0;
++	if (!entry)
++		return;
++
++	kfree(entry->fsname);
++	for (i = 0; i < MAX_LSM_RULES; i++) {
++		security_filter_rule_free(entry->lsm[i].rule);
++		kfree(entry->lsm[i].args_p);
++	}
++	kfree(entry);
++}
++
+ /*
+  * The LSM policy can be reloaded, leaving the IMA LSM based rules referring
+  * to the old, stale LSM policy.  Update the IMA LSM based rules to reflect
+@@ -1040,17 +1055,11 @@ ssize_t ima_parse_add_rule(char *rule)
+ void ima_delete_rules(void)
+ {
+ 	struct ima_rule_entry *entry, *tmp;
+-	int i;
+ 
+ 	temp_ima_appraise = 0;
+ 	list_for_each_entry_safe(entry, tmp, &ima_temp_rules, list) {
+-		for (i = 0; i < MAX_LSM_RULES; i++) {
+-			security_filter_rule_free(entry->lsm[i].rule);
+-			kfree(entry->lsm[i].args_p);
+-		}
+-
+ 		list_del(&entry->list);
+-		kfree(entry);
++		ima_free_rule(entry);
+ 	}
  }
  
 
