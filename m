@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BCCF5F2AFF
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071E15F297A
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbiJCHp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38404 "EHLO
+        id S230219AbiJCHUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:20:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232329AbiJCHoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:44:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE1757563;
-        Mon,  3 Oct 2022 00:25:52 -0700 (PDT)
+        with ESMTP id S230254AbiJCHSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:18:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FA810548;
+        Mon,  3 Oct 2022 00:14:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAF4FB80E7F;
-        Mon,  3 Oct 2022 07:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ABD1C433D6;
-        Mon,  3 Oct 2022 07:19:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63579B80E6E;
+        Mon,  3 Oct 2022 07:14:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0FDFC433D6;
+        Mon,  3 Oct 2022 07:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781553;
-        bh=HSFhtvXCo+irCMXGqTF2j6qoYuSJB/k0Y30uNtW1jEU=;
+        s=korg; t=1664781278;
+        bh=bk2Tc2mP+BAlCfMSQovB6aEbXeo1uiMDHMwvfhvanAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcojaH9TaM9P8ZtldWYB4gQqkA3hnKX6Tme6U4biQI0px7hPASXyOg2OY6B6RG6TJ
-         V3CXU56+wzgOc2WXL6yj/7jYYj9QR+KtEVWVjmWEcm1OiNb8rEOnYxcaKupjP3Em6l
-         YvkIGp+GiGCPCX+56IZKTgGSMKazcaZDXfUNqybQ=
+        b=sgu/tV0Rg54zubojGsou+inayjuc2bRxBTRBjGgcqSQWrHh6i4XBYkMRwYYk1QZiU
+         shpp9qUCe+Gszv6g4xa1iR8GsqPzjH43uBYsLC7AMiEf3uYzN8FNOtSi3svBb8w4tc
+         W2Rxvp2Mz/SyA87v7K4uITCDd3Tun7UNBGKuMBsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuai Xue <xueshuai@linux.alibaba.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 34/83] mm,hwpoison: check mm when killing accessing process
+        stable@vger.kernel.org,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 063/101] drm/bridge: lt8912b: add vsync hsync
 Date:   Mon,  3 Oct 2022 09:10:59 +0200
-Message-Id: <20221003070722.852051421@linuxfoundation.org>
+Message-Id: <20221003070726.035240170@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuai Xue <xueshuai@linux.alibaba.com>
+From: Philippe Schenker <philippe.schenker@toradex.com>
 
-commit 77677cdbc2aa4b5d5d839562793d3d126201d18d upstream.
+[ Upstream commit da73a94fa282f78d485bd0aab36c8ac15b6f792c ]
 
-The GHES code calls memory_failure_queue() from IRQ context to queue work
-into workqueue and schedule it on the current CPU.  Then the work is
-processed in memory_failure_work_func() by kworker and calls
-memory_failure().
+Currently the bridge driver does not take care whether or not the display
+needs positive/negative vertical/horizontal syncs. Pass these two flags
+to the bridge from the EDID that was read out from the display.
 
-When a page is already poisoned, commit a3f5d80ea401 ("mm,hwpoison: send
-SIGBUS with error virutal address") make memory_failure() call
-kill_accessing_process() that:
-
-    - holds mmap locking of current->mm
-    - does pagetable walk to find the error virtual address
-    - and sends SIGBUS to the current process with error info.
-
-However, the mm of kworker is not valid, resulting in a null-pointer
-dereference.  So check mm when killing the accessing process.
-
-[akpm@linux-foundation.org: remove unrelated whitespace alteration]
-Link: https://lkml.kernel.org/r/20220914064935.7851-1-xueshuai@linux.alibaba.com
-Fixes: a3f5d80ea401 ("mm,hwpoison: send SIGBUS with error virutal address")
-Signed-off-by: Shuai Xue <xueshuai@linux.alibaba.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
+Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Acked-by: Adrien Grassein <adrien.grassein@gmail.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220922124306.34729-2-dev@pschenker.ch
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory-failure.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/bridge/lontium-lt8912b.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -700,6 +700,9 @@ static int kill_accessing_process(struct
- 	};
- 	priv.tk.tsk = p;
+diff --git a/drivers/gpu/drm/bridge/lontium-lt8912b.c b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+index c642d1e02b2f..e011a2763621 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
++++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+@@ -266,7 +266,7 @@ static int lt8912_video_setup(struct lt8912 *lt)
+ 	u32 hactive, h_total, hpw, hfp, hbp;
+ 	u32 vactive, v_total, vpw, vfp, vbp;
+ 	u8 settle = 0x08;
+-	int ret;
++	int ret, hsync_activehigh, vsync_activehigh;
  
-+	if (!p->mm)
-+		return -EFAULT;
+ 	if (!lt)
+ 		return -EINVAL;
+@@ -276,12 +276,14 @@ static int lt8912_video_setup(struct lt8912 *lt)
+ 	hpw = lt->mode.hsync_len;
+ 	hbp = lt->mode.hback_porch;
+ 	h_total = hactive + hfp + hpw + hbp;
++	hsync_activehigh = lt->mode.flags & DISPLAY_FLAGS_HSYNC_HIGH;
+ 
+ 	vactive = lt->mode.vactive;
+ 	vfp = lt->mode.vfront_porch;
+ 	vpw = lt->mode.vsync_len;
+ 	vbp = lt->mode.vback_porch;
+ 	v_total = vactive + vfp + vpw + vbp;
++	vsync_activehigh = lt->mode.flags & DISPLAY_FLAGS_VSYNC_HIGH;
+ 
+ 	if (vactive <= 600)
+ 		settle = 0x04;
+@@ -315,6 +317,11 @@ static int lt8912_video_setup(struct lt8912 *lt)
+ 	ret |= regmap_write(lt->regmap[I2C_CEC_DSI], 0x3e, hfp & 0xff);
+ 	ret |= regmap_write(lt->regmap[I2C_CEC_DSI], 0x3f, hfp >> 8);
+ 
++	ret |= regmap_update_bits(lt->regmap[I2C_MAIN], 0xab, BIT(0),
++				  vsync_activehigh ? BIT(0) : 0);
++	ret |= regmap_update_bits(lt->regmap[I2C_MAIN], 0xab, BIT(1),
++				  hsync_activehigh ? BIT(1) : 0);
 +
- 	mmap_read_lock(p->mm);
- 	ret = walk_page_range(p->mm, 0, TASK_SIZE, &hwp_walk_ops,
- 			      (void *)&priv);
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
+
 
 
