@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6F05F2AED
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4855E5F2B25
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbiJCHoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:44:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52904 "EHLO
+        id S229705AbiJCHtc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:49:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232174AbiJCHnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:43:45 -0400
+        with ESMTP id S232504AbiJCHsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:48:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8402980E;
-        Mon,  3 Oct 2022 00:25:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E474CA2D;
+        Mon,  3 Oct 2022 00:27:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38C19B80E9D;
-        Mon,  3 Oct 2022 07:25:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87716C433C1;
-        Mon,  3 Oct 2022 07:25:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A9A2B80E95;
+        Mon,  3 Oct 2022 07:25:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68CBAC433C1;
+        Mon,  3 Oct 2022 07:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781908;
-        bh=bH8tmTDyX6oq9H2j2RQ6weiKAgLRb0hcdLrWON/XEuw=;
+        s=korg; t=1664781911;
+        bh=HF3Bai1FuaDExbJPKkn3jxEmi1N1I4dUecZ7Yor5B1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRls+2ez4H1UDwosMEYnhFeyeogJ/akNGCgh6OfYG+f/t3rQs6xda0dLUJSzbzwY4
-         JKgt9/UVrVqQvOvpB10PcCgykob0u5HEfAtWOEvMMhK5lUnpsEBtLaMoeJeXnl2i9m
-         AtINPggdhmyFOFlhsjbvDFF+3UdgK2zXi7BE/s0U=
+        b=s7KDtKZcICe4qlJacQZMFOFURkIBEQhdbgczEV22zN+blNdkR/c4xFk2PSu23kvVB
+         VlRM23XCsvqMx2yIfpR7jcBy2Au3B3Pn5ZJNI9L+jsUHcAvXxGN+mcMRFraZ0ee2fW
+         2uQhZaDCAqamTQx1f9UyT2ASJeF8a7trqrJ/3dcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
         Samuel Holland <samuel@sholland.org>,
-        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/25] soc: sunxi: sram: Fix probe function ordering issues
-Date:   Mon,  3 Oct 2022 09:12:20 +0200
-Message-Id: <20221003070715.921132977@linuxfoundation.org>
+Subject: [PATCH 4.19 18/25] soc: sunxi: sram: Fix debugfs info for A64 SRAM C
+Date:   Mon,  3 Oct 2022 09:12:21 +0200
+Message-Id: <20221003070715.951863669@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070715.406550966@linuxfoundation.org>
 References: <20221003070715.406550966@linuxfoundation.org>
@@ -56,70 +55,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 49fad91a7b8941979c3e9a35f9894ac45bc5d3d6 ]
+[ Upstream commit e3c95edb1bd8b9c2cb0caa6ae382fc8080f6a0ed ]
 
-Errors from debugfs are intended to be non-fatal, and should not prevent
-the driver from probing.
+The labels were backward with respect to the register values. The SRAM
+is mapped to the CPU when the register value is 1.
 
-Since debugfs file creation is treated as infallible, move it below the
-parts of the probe function that can fail. This prevents an error
-elsewhere in the probe function from causing the file to leak. Do the
-same for the call to of_platform_populate().
-
-Finally, checkpatch suggests an octal literal for the file permissions.
-
-Fixes: 4af34b572a85 ("drivers: soc: sunxi: Introduce SoC driver to map SRAMs")
-Fixes: 5828729bebbb ("soc: sunxi: export a regmap for EMAC clock reg on A64")
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Fixes: 5e4fb6429761 ("drivers: soc: sunxi: add support for A64 and its SRAM C")
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Samuel Holland <samuel@sholland.org>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220815041248.53268-6-samuel@sholland.org
+Link: https://lore.kernel.org/r/20220815041248.53268-7-samuel@sholland.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/sunxi/sunxi_sram.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/soc/sunxi/sunxi_sram.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/soc/sunxi/sunxi_sram.c b/drivers/soc/sunxi/sunxi_sram.c
-index 17ac818622fe..98a4d4548a23 100644
+index 98a4d4548a23..2c1672f9aac9 100644
 --- a/drivers/soc/sunxi/sunxi_sram.c
 +++ b/drivers/soc/sunxi/sunxi_sram.c
-@@ -328,9 +328,9 @@ static struct regmap_config sunxi_sram_emac_clock_regmap = {
- static int __init sunxi_sram_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
--	struct dentry *d;
- 	struct regmap *emac_clock;
- 	const struct sunxi_sramc_variant *variant;
-+	struct device *dev = &pdev->dev;
+@@ -78,8 +78,8 @@ static struct sunxi_sram_desc sun4i_a10_sram_d = {
  
- 	sram_dev = &pdev->dev;
+ static struct sunxi_sram_desc sun50i_a64_sram_c = {
+ 	.data	= SUNXI_SRAM_DATA("C", 0x4, 24, 1,
+-				  SUNXI_SRAM_MAP(0, 1, "cpu"),
+-				  SUNXI_SRAM_MAP(1, 0, "de2")),
++				  SUNXI_SRAM_MAP(1, 0, "cpu"),
++				  SUNXI_SRAM_MAP(0, 1, "de2")),
+ };
  
-@@ -343,13 +343,6 @@ static int __init sunxi_sram_probe(struct platform_device *pdev)
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
- 
--	of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
--
--	d = debugfs_create_file("sram", S_IRUGO, NULL, NULL,
--				&sunxi_sram_fops);
--	if (!d)
--		return -ENOMEM;
--
- 	if (variant->has_emac_clock) {
- 		emac_clock = devm_regmap_init_mmio(&pdev->dev, base,
- 						   &sunxi_sram_emac_clock_regmap);
-@@ -358,6 +351,10 @@ static int __init sunxi_sram_probe(struct platform_device *pdev)
- 			return PTR_ERR(emac_clock);
- 	}
- 
-+	of_platform_populate(dev->of_node, NULL, NULL, dev);
-+
-+	debugfs_create_file("sram", 0444, NULL, NULL, &sunxi_sram_fops);
-+
- 	return 0;
- }
- 
+ static const struct of_device_id sunxi_sram_dt_ids[] = {
 -- 
 2.35.1
 
