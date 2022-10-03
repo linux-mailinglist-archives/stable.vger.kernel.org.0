@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5635F2AA9
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E26865F2A7B
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231611AbiJCHjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:39:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34998 "EHLO
+        id S231748AbiJCHhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231597AbiJCHhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:37:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2CE54655;
-        Mon,  3 Oct 2022 00:23:12 -0700 (PDT)
+        with ESMTP id S231586AbiJCHfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:35:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB61C49B40;
+        Mon,  3 Oct 2022 00:22:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76EF160F82;
-        Mon,  3 Oct 2022 07:21:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8289DC433C1;
-        Mon,  3 Oct 2022 07:21:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CF9760FC6;
+        Mon,  3 Oct 2022 07:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D529C433C1;
+        Mon,  3 Oct 2022 07:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781677;
-        bh=OmRg33BZPE01IcexMAF2XGVrZGHaaZd3tnensqZd520=;
+        s=korg; t=1664781631;
+        bh=7Jn0dhn1JoLUX5Vmcge7lUk1T51dy732xLlwJZxSwdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBPU1cwsrUcAnUyD3GcEQJO8GtOjALBLilwg3nzPn/oyrlOOOnJgyKRgDXMHKfL6l
-         J5cMrQWtXjumk/VRK9nGSEWWtM67jw/i4B7NcF/+vUmvamyV2n2mvM/e1wlf80dke9
-         r4njx23nFVhnAnFiRGq1m7KBFcphabIKjfVgqsRg=
+        b=neAs0Jx+k3vuAW6DRb/BXUATIjxfo7sXK3zZy/gIS5GFG2v2uMjizZ4x25SNSUjuV
+         ftouWHSXJEh/Rx2z58k9uXDaYy6NPoo2Py24qLevHP9K+gO6fZ/oiBd4i7HkNvxc6m
+         tj0ou6HWTM5nOv5Ngow5sc2ep5RyLXKtX1Y8Uumg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
-        Patrick Daly <quic_pdaly@quicinc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 23/52] mm/page_alloc: fix race condition between build_all_zonelists and page allocation
-Date:   Mon,  3 Oct 2022 09:11:30 +0200
-Message-Id: <20221003070719.417199242@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Roesch <shr@fb.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 66/83] fs: split off setxattr_copy and do_setxattr function from setxattr
+Date:   Mon,  3 Oct 2022 09:11:31 +0200
+Message-Id: <20221003070723.651284725@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,179 +53,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Stefan Roesch <shr@fb.com>
 
-commit 3d36424b3b5850bd92f3e89b953a430d7cfc88ef upstream.
+[ Upstream commit 1a91794ce8481a293c5ef432feb440aee1455619 ]
 
-Patrick Daly reported the following problem;
+This splits of the setup part of the function setxattr in its own
+dedicated function called setxattr_copy. In addition it also exposes a new
+function called do_setxattr for making the setxattr call.
 
-	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - before offline operation
-	[0] - ZONE_MOVABLE
-	[1] - ZONE_NORMAL
-	[2] - NULL
+This makes it possible to call these two functions from io_uring in the
+processing of an xattr request.
 
-	For a GFP_KERNEL allocation, alloc_pages_slowpath() will save the
-	offset of ZONE_NORMAL in ac->preferred_zoneref. If a concurrent
-	memory_offline operation removes the last page from ZONE_MOVABLE,
-	build_all_zonelists() & build_zonerefs_node() will update
-	node_zonelists as shown below. Only populated zones are added.
-
-	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - after offline operation
-	[0] - ZONE_NORMAL
-	[1] - NULL
-	[2] - NULL
-
-The race is simple -- page allocation could be in progress when a memory
-hot-remove operation triggers a zonelist rebuild that removes zones.  The
-allocation request will still have a valid ac->preferred_zoneref that is
-now pointing to NULL and triggers an OOM kill.
-
-This problem probably always existed but may be slightly easier to trigger
-due to 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones
-with pages managed by the buddy allocator") which distinguishes between
-zones that are completely unpopulated versus zones that have valid pages
-not managed by the buddy allocator (e.g.  reserved, memblock, ballooning
-etc).  Memory hotplug had multiple stages with timing considerations
-around managed/present page updates, the zonelist rebuild and the zone
-span updates.  As David Hildenbrand puts it
-
-	memory offlining adjusts managed+present pages of the zone
-	essentially in one go. If after the adjustments, the zone is no
-	longer populated (present==0), we rebuild the zone lists.
-
-	Once that's done, we try shrinking the zone (start+spanned
-	pages) -- which results in zone_start_pfn == 0 if there are no
-	more pages. That happens *after* rebuilding the zonelists via
-	remove_pfn_range_from_zone().
-
-The only requirement to fix the race is that a page allocation request
-identifies when a zonelist rebuild has happened since the allocation
-request started and no page has yet been allocated.  Use a seqlock_t to
-track zonelist updates with a lockless read-side of the zonelist and
-protecting the rebuild and update of the counter with a spinlock.
-
-[akpm@linux-foundation.org: make zonelist_update_seq static]
-Link: https://lkml.kernel.org/r/20220824110900.vh674ltxmzb3proq@techsingularity.net
-Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reported-by: Patrick Daly <quic_pdaly@quicinc.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>	[4.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Stefan Roesch <shr@fb.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Link: https://lore.kernel.org/r/20220323154420.3301504-2-shr@fb.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 06bbaa6dc53c ("[coredump] don't use __kernel_write() on kmap_local_page()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |   53 +++++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+ fs/internal.h | 24 +++++++++++++++
+ fs/xattr.c    | 84 ++++++++++++++++++++++++++++++++++++---------------
+ 2 files changed, 83 insertions(+), 25 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4322,6 +4322,30 @@ void fs_reclaim_release(gfp_t gfp_mask)
- EXPORT_SYMBOL_GPL(fs_reclaim_release);
- #endif
- 
+diff --git a/fs/internal.h b/fs/internal.h
+index cdd83d4899bb..4f1fe6d08866 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -195,3 +195,27 @@ long splice_file_to_pipe(struct file *in,
+ 			 struct pipe_inode_info *opipe,
+ 			 loff_t *offset,
+ 			 size_t len, unsigned int flags);
++
 +/*
-+ * Zonelists may change due to hotplug during allocation. Detect when zonelists
-+ * have been rebuilt so allocation retries. Reader side does not lock and
-+ * retries the allocation if zonelist changes. Writer side is protected by the
-+ * embedded spin_lock.
++ * fs/xattr.c:
 + */
-+static DEFINE_SEQLOCK(zonelist_update_seq);
++struct xattr_name {
++	char name[XATTR_NAME_MAX + 1];
++};
 +
-+static unsigned int zonelist_iter_begin(void)
-+{
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
-+		return read_seqbegin(&zonelist_update_seq);
++struct xattr_ctx {
++	/* Value of attribute */
++	union {
++		const void __user *cvalue;
++		void __user *value;
++	};
++	void *kvalue;
++	size_t size;
++	/* Attribute name */
++	struct xattr_name *kname;
++	unsigned int flags;
++};
 +
-+	return 0;
-+}
++int setxattr_copy(const char __user *name, struct xattr_ctx *ctx);
++int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
++		struct xattr_ctx *ctx);
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 998045165916..7117cb253864 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -25,6 +25,8 @@
+ 
+ #include <linux/uaccess.h>
+ 
++#include "internal.h"
 +
-+static unsigned int check_retry_zonelist(unsigned int seq)
-+{
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
-+		return read_seqretry(&zonelist_update_seq, seq);
+ static const char *
+ strcmp_prefix(const char *a, const char *a_prefix)
+ {
+@@ -539,44 +541,76 @@ EXPORT_SYMBOL_GPL(vfs_removexattr);
+ /*
+  * Extended attribute SET operations
+  */
+-static long
+-setxattr(struct user_namespace *mnt_userns, struct dentry *d,
+-	 const char __user *name, const void __user *value, size_t size,
+-	 int flags)
 +
-+	return seq;
-+}
++int setxattr_copy(const char __user *name, struct xattr_ctx *ctx)
+ {
+ 	int error;
+-	void *kvalue = NULL;
+-	char kname[XATTR_NAME_MAX + 1];
+ 
+-	if (flags & ~(XATTR_CREATE|XATTR_REPLACE))
++	if (ctx->flags & ~(XATTR_CREATE|XATTR_REPLACE))
+ 		return -EINVAL;
+ 
+-	error = strncpy_from_user(kname, name, sizeof(kname));
+-	if (error == 0 || error == sizeof(kname))
+-		error = -ERANGE;
++	error = strncpy_from_user(ctx->kname->name, name,
++				sizeof(ctx->kname->name));
++	if (error == 0 || error == sizeof(ctx->kname->name))
++		return  -ERANGE;
+ 	if (error < 0)
+ 		return error;
+ 
+-	if (size) {
+-		if (size > XATTR_SIZE_MAX)
++	error = 0;
++	if (ctx->size) {
++		if (ctx->size > XATTR_SIZE_MAX)
+ 			return -E2BIG;
+-		kvalue = kvmalloc(size, GFP_KERNEL);
+-		if (!kvalue)
+-			return -ENOMEM;
+-		if (copy_from_user(kvalue, value, size)) {
+-			error = -EFAULT;
+-			goto out;
 +
- /* Perform direct synchronous page reclaim */
- static unsigned long
- __perform_reclaim(gfp_t gfp_mask, unsigned int order,
-@@ -4629,6 +4653,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
- 	int compaction_retries;
- 	int no_progress_loops;
- 	unsigned int cpuset_mems_cookie;
-+	unsigned int zonelist_iter_cookie;
- 	int reserve_flags;
- 
- 	/*
-@@ -4639,11 +4664,12 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
- 				(__GFP_ATOMIC|__GFP_DIRECT_RECLAIM)))
- 		gfp_mask &= ~__GFP_ATOMIC;
- 
--retry_cpuset:
-+restart:
- 	compaction_retries = 0;
- 	no_progress_loops = 0;
- 	compact_priority = DEF_COMPACT_PRIORITY;
- 	cpuset_mems_cookie = read_mems_allowed_begin();
-+	zonelist_iter_cookie = zonelist_iter_begin();
- 
- 	/*
- 	 * The fast path uses conservative alloc_flags to succeed only until
-@@ -4802,9 +4828,13 @@ retry:
- 		goto retry;
- 
- 
--	/* Deal with possible cpuset update races before we start OOM killing */
--	if (check_retry_cpuset(cpuset_mems_cookie, ac))
--		goto retry_cpuset;
-+	/*
-+	 * Deal with possible cpuset update races or zonelist updates to avoid
-+	 * a unnecessary OOM kill.
-+	 */
-+	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
-+	    check_retry_zonelist(zonelist_iter_cookie))
-+		goto restart;
- 
- 	/* Reclaim has failed us, start killing things */
- 	page = __alloc_pages_may_oom(gfp_mask, order, ac, &did_some_progress);
-@@ -4824,9 +4854,13 @@ retry:
++		ctx->kvalue = vmemdup_user(ctx->cvalue, ctx->size);
++		if (IS_ERR(ctx->kvalue)) {
++			error = PTR_ERR(ctx->kvalue);
++			ctx->kvalue = NULL;
+ 		}
+-		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
+-		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
+-			posix_acl_fix_xattr_from_user(mnt_userns, d_inode(d),
+-						      kvalue, size);
  	}
  
- nopage:
--	/* Deal with possible cpuset update races before we fail */
--	if (check_retry_cpuset(cpuset_mems_cookie, ac))
--		goto retry_cpuset;
-+	/*
-+	 * Deal with possible cpuset update races or zonelist updates to avoid
-+	 * a unnecessary OOM kill.
-+	 */
-+	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
-+	    check_retry_zonelist(zonelist_iter_cookie))
-+		goto restart;
+-	error = vfs_setxattr(mnt_userns, d, kname, kvalue, size, flags);
+-out:
+-	kvfree(kvalue);
++	return error;
++}
++
++static void setxattr_convert(struct user_namespace *mnt_userns,
++			     struct dentry *d, struct xattr_ctx *ctx)
++{
++	if (ctx->size &&
++		((strcmp(ctx->kname->name, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
++		(strcmp(ctx->kname->name, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)))
++		posix_acl_fix_xattr_from_user(mnt_userns, d_inode(d),
++						ctx->kvalue, ctx->size);
++}
++
++int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
++		struct xattr_ctx *ctx)
++{
++	setxattr_convert(mnt_userns, dentry, ctx);
++	return vfs_setxattr(mnt_userns, dentry, ctx->kname->name,
++			ctx->kvalue, ctx->size, ctx->flags);
++}
++
++static long
++setxattr(struct user_namespace *mnt_userns, struct dentry *d,
++	const char __user *name, const void __user *value, size_t size,
++	int flags)
++{
++	struct xattr_name kname;
++	struct xattr_ctx ctx = {
++		.cvalue   = value,
++		.kvalue   = NULL,
++		.size     = size,
++		.kname    = &kname,
++		.flags    = flags,
++	};
++	int error;
++
++	error = setxattr_copy(name, &ctx);
++	if (error)
++		return error;
++
++	error = do_setxattr(mnt_userns, d, &ctx);
  
- 	/*
- 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
-@@ -5924,9 +5958,8 @@ static void __build_all_zonelists(void *
- 	int nid;
- 	int __maybe_unused cpu;
- 	pg_data_t *self = data;
--	static DEFINE_SPINLOCK(lock);
- 
--	spin_lock(&lock);
-+	write_seqlock(&zonelist_update_seq);
- 
- #ifdef CONFIG_NUMA
- 	memset(node_load, 0, sizeof(node_load));
-@@ -5959,7 +5992,7 @@ static void __build_all_zonelists(void *
- #endif
- 	}
- 
--	spin_unlock(&lock);
-+	write_sequnlock(&zonelist_update_seq);
++	kvfree(ctx.kvalue);
+ 	return error;
  }
  
- static noinline void __init
+-- 
+2.35.1
+
 
 
