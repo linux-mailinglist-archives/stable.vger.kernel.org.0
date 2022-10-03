@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2E55F2988
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03B315F29FE
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230361AbiJCHVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
+        id S231177AbiJCH3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:29:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230271AbiJCHUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:20:15 -0400
+        with ESMTP id S231351AbiJCH2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736A74360F;
-        Mon,  3 Oct 2022 00:15:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311B514000;
+        Mon,  3 Oct 2022 00:19:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA1E960F99;
-        Mon,  3 Oct 2022 07:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B92C433D6;
-        Mon,  3 Oct 2022 07:14:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9604360FAF;
+        Mon,  3 Oct 2022 07:18:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE27C433C1;
+        Mon,  3 Oct 2022 07:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781297;
-        bh=aQkC18YX8ieVc7dyMexU5cFq2VZtUWkJcX6Z3IBJ8GA=;
+        s=korg; t=1664781494;
+        bh=UJ1ZSCsoX9pendbzzQIvsRKKNW92EBDO2PZe5B4PXY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8RjS6YqZb3lBzpwe1C3bG140zS04eTzFI+lneWb3AEz7211t88bewTmdIY+oxYr+
-         kXA/p1Lkn9K4kGCch4LmIt1eoQzubKa5v/VozBHuGr2BdbBHAA1ERo2cFXeJ6oduIW
-         27YBXCXGIBFRlKAAvIhsJjdUxEh37SKoQSoQMd0o=
+        b=rLRVpwsLErwgF7zWIn0Qvm7EBC3zSawAVjsKT03hRB0G7Vi/UHOoTN5Hg3GhLZifB
+         909gG+11aaOZcfmr2Pf04tEpP9pbsufi3ogDYXP3dR7zVdDza00tS5+buAxF+fC+Il
+         xE5zdhHp0h6UiRNJzoDx2qhSR7ofCnMZxiwEAxSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Romain Naour <romain.naour@skf.com>,
+        Romain Naour <romain.naour@smile.fr>,
+        Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 069/101] gpio: mvebu: Fix check for pwm support on non-A8K platforms
-Date:   Mon,  3 Oct 2022 09:11:05 +0200
-Message-Id: <20221003070726.187680370@linuxfoundation.org>
+Subject: [PATCH 5.15 41/83] ARM: dts: am5748: keep usb4_tm disabled
+Date:   Mon,  3 Oct 2022 09:11:06 +0200
+Message-Id: <20221003070723.027993607@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Romain Naour <romain.naour@skf.com>
 
-[ Upstream commit 4335417da2b8d6d9b2d4411b5f9e248e5bb2d380 ]
+[ Upstream commit 6a6d9ecff14a2a46c1deeffa3eb3825349639bdd ]
 
-pwm support incompatible with Armada 80x0/70x0 API is not only in
-Armada 370, but also in Armada XP, 38x and 39x. So basically every non-A8K
-platform. Fix check for pwm support appropriately.
+Commit bcbb63b80284 ("ARM: dts: dra7: Separate AM57 dtsi files")
+disabled usb4_tm for am5748 devices since USB4 IP is not present
+in this SoC.
 
-Fixes: 85b7d8abfec7 ("gpio: mvebu: add pwm support for Armada 8K/7K")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+The commit log explained the difference between AM5 and DRA7 families:
+
+AM5 and DRA7 SoC families have different set of modules in them so the
+SoC sepecific dtsi files need to be separated.
+
+e.g. Some of the major differences between AM576 and DRA76
+
+		DRA76x	AM576x
+
+USB3		x
+USB4		x
+ATL		x
+VCP		x
+MLB		x
+ISS		x
+PRU-ICSS1		x
+PRU-ICSS2		x
+
+Then commit 176f26bcd41a ("ARM: dts: Add support for dra762 abz
+package") removed usb4_tm part from am5748.dtsi and introcuded new
+ti-sysc errors in dmesg:
+
+ti-sysc 48940000.target-module: clock get error for fck: -2
+ti-sysc: probe of 48940000.target-module failed with error -2
+
+Fixes: 176f26bcd41a ("ARM: dts: Add support for dra762 abz package")
+
+Signed-off-by: Romain Naour <romain.naour@skf.com>
+Signed-off-by: Romain Naour <romain.naour@smile.fr>
+Message-Id: <20220823072742.351368-1-romain.naour@smile.fr>
+Reviewed-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mvebu.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/am5748.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
-index 2db19cd640a4..de1e7a1a76f2 100644
---- a/drivers/gpio/gpio-mvebu.c
-+++ b/drivers/gpio/gpio-mvebu.c
-@@ -793,8 +793,12 @@ static int mvebu_pwm_probe(struct platform_device *pdev,
- 	u32 offset;
- 	u32 set;
+diff --git a/arch/arm/boot/dts/am5748.dtsi b/arch/arm/boot/dts/am5748.dtsi
+index c260aa1a85bd..a1f029e9d1f3 100644
+--- a/arch/arm/boot/dts/am5748.dtsi
++++ b/arch/arm/boot/dts/am5748.dtsi
+@@ -25,6 +25,10 @@
+ 	status = "disabled";
+ };
  
--	if (of_device_is_compatible(mvchip->chip.of_node,
--				    "marvell,armada-370-gpio")) {
-+	if (mvchip->soc_variant == MVEBU_GPIO_SOC_VARIANT_A8K) {
-+		int ret = of_property_read_u32(dev->of_node,
-+					       "marvell,pwm-offset", &offset);
-+		if (ret < 0)
-+			return 0;
-+	} else {
- 		/*
- 		 * There are only two sets of PWM configuration registers for
- 		 * all the GPIO lines on those SoCs which this driver reserves
-@@ -804,13 +808,6 @@ static int mvebu_pwm_probe(struct platform_device *pdev,
- 		if (!platform_get_resource_byname(pdev, IORESOURCE_MEM, "pwm"))
- 			return 0;
- 		offset = 0;
--	} else if (mvchip->soc_variant == MVEBU_GPIO_SOC_VARIANT_A8K) {
--		int ret = of_property_read_u32(dev->of_node,
--					       "marvell,pwm-offset", &offset);
--		if (ret < 0)
--			return 0;
--	} else {
--		return 0;
- 	}
- 
- 	if (IS_ERR(mvchip->clk))
++&usb4_tm {
++	status = "disabled";
++};
++
+ &atl_tm {
+ 	status = "disabled";
+ };
 -- 
 2.35.1
 
