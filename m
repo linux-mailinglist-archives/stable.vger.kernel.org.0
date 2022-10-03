@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3D65F2928
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF375F2906
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiJCHOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:14:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47272 "EHLO
+        id S229687AbiJCHMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:12:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229880AbiJCHNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:13:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7BEB4363D;
-        Mon,  3 Oct 2022 00:12:57 -0700 (PDT)
+        with ESMTP id S229773AbiJCHMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:12:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F52537193;
+        Mon,  3 Oct 2022 00:12:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3546C60F99;
-        Mon,  3 Oct 2022 07:12:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F4FC433C1;
-        Mon,  3 Oct 2022 07:12:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D398060F9C;
+        Mon,  3 Oct 2022 07:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6290C433C1;
+        Mon,  3 Oct 2022 07:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781175;
-        bh=6pZ6UQlxPLXtJOJyXlnGRVygfTHsLZc0+Seg8suUn4s=;
+        s=korg; t=1664781134;
+        bh=au0Hli03x+hD2RTJxEq0cDrYZzeJVBLQh548M23Y5B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syVQUkJmwC2qfRF2/mDoAtF4Qlmis7eiKjuzzssbvM4ten1Cy0mIP+o7MF75t28+W
-         DuXUmNvmeZhRGPB3XpJqu52DgXmQivxaQllro0ZMPEsnoW7RtsFEtS+HNz4gE1TdMM
-         FXc42HjarAeammEDF99lAKA4QsW96bhwnawpkBbA=
+        b=Q07wUe/N+lJUxTHcJo6P/UFvSuUtodDyk93BIuYsBNRYFc099NSlzoAEWSJTG8S7f
+         wv7NM/qRgSeP/Oc0Ye9r65L27ei4typHclNlwDP2sKnBgvc/4kGUyEAS0aLDvF0q0O
+         PD2BkaMTP4b5YuIAt2vMBqoKP2akD3gHvsup3q/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Hongling Zeng <zenghongling@kylinos.cn>
-Subject: [PATCH 5.19 009/101] uas: ignore UAS for Thinkplus chips
-Date:   Mon,  3 Oct 2022 09:10:05 +0200
-Message-Id: <20221003070724.739004515@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.19 010/101] usb: typec: ucsi: Remove incorrect warning
+Date:   Mon,  3 Oct 2022 09:10:06 +0200
+Message-Id: <20221003070724.762495136@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -53,60 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongling Zeng <zenghongling@kylinos.cn>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit 0fb9703a3eade0bb84c635705d9c795345e55053 upstream.
+commit 415ba26cb73f7d22a892043301b91b57ae54db02 upstream.
 
-The UAS mode of Thinkplus(0x17ef, 0x3899) is reported to influence
-performance and trigger kernel panic on several platforms with the
-following error message:
+Sink only devices do not have any source capabilities, so
+the driver should not warn about that. Also DRP (Dual Role
+Power) capable devices, such as USB Type-C docking stations,
+do not return any source capabilities unless they are
+plugged to a power supply themselves.
 
-[   39.702439] xhci_hcd 0000:0c:00.3: ERROR Transfer event for disabled
-               endpoint or incorrect stream ring
-[   39.702442] xhci_hcd 0000:0c:00.3: @000000026c61f810 00000000 00000000
-               1b000000 05038000
-
-[  720.545894][13] Workqueue: usb_hub_wq hub_event
-[  720.550971][13]  ffff88026c143c38 0000000000016300 ffff8802755bb900 ffff880
-                    26cb80000
-[  720.559673][13]  ffff88026c144000 ffff88026ca88100 0000000000000000 ffff880
-                    26cb80000
-[  720.568374][13]  ffff88026cb80000 ffff88026c143c50 ffffffff8186ae25 ffff880
-                    26ca880f8
-[  720.577076][13] Call Trace:
-[  720.580201][13]  [<ffffffff8186ae25>] schedule+0x35/0x80
-[  720.586137][13]  [<ffffffff8186b0ce>] schedule_preempt_disabled+0xe/0x10
-[  720.593623][13]  [<ffffffff8186cb94>] __mutex_lock_slowpath+0x164/0x1e0
-[  720.601012][13]  [<ffffffff8186cc3f>] mutex_lock+0x2f/0x40
-[  720.607141][13]  [<ffffffff8162b8e9>] usb_disconnect+0x59/0x290
-
-Falling back to USB mass storage can solve this problem, so ignore UAS
-function of this chip.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Hongling Zeng <zenghongling@kylinos.cn>
-Link: https://lore.kernel.org/r/1663902249837086.19.seg@mailgw
+Fixes: 1f4642b72be7 ("usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20220922145924.80667-1-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/typec/ucsi/ucsi.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -132,6 +132,13 @@ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_ATA_1X),
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -588,8 +588,6 @@ static int ucsi_get_pdos(struct ucsi_con
+ 				num_pdos * sizeof(u32));
+ 	if (ret < 0 && ret != -ETIMEDOUT)
+ 		dev_err(ucsi->dev, "UCSI_GET_PDOS failed (%d)\n", ret);
+-	if (ret == 0 && offset == 0)
+-		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
  
-+/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
-+UNUSUAL_DEV(0x17ef, 0x3899, 0x0000, 0x9999,
-+		"Thinkplus",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
- 		"VIA",
+ 	return ret;
+ }
 
 
