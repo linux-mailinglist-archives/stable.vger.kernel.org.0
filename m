@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9725A5F2BC4
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644B85F2B5E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230286AbiJCI22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:28:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        id S231911AbiJCIEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229918AbiJCI2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:28:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38FE7D78D;
-        Mon,  3 Oct 2022 01:01:37 -0700 (PDT)
+        with ESMTP id S232404AbiJCIDv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:03:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2F21B7;
+        Mon,  3 Oct 2022 00:39:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1585B80E68;
-        Mon,  3 Oct 2022 07:23:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56949C433C1;
-        Mon,  3 Oct 2022 07:23:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7D7460FBC;
+        Mon,  3 Oct 2022 07:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8DD2C433C1;
+        Mon,  3 Oct 2022 07:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781830;
-        bh=kXF99wYI2vw+gjdXMYA9FTirKzz+ImYzxc+lgH9a35I=;
+        s=korg; t=1664781738;
+        bh=GlaPCZVQrXTEt/KI8PDuoGJXRW0/VV/MOz6qgE32tKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZ8y9rhfqQrRDHtn9lCTpmukZMOBhvL8AkkWYpM5OCjCmanhjZl491HTqdayUMF3X
-         QkjLLnjd49cumzq3+FLoRbDhTgF0lXJPYSpJTQ7RaSLjNVeOFxbeL4AYUxIRwKQINv
-         Ph/vgK7d0k2DOu+c1/NXlQ7PG/mXu81SU9jKcSPc=
+        b=aCRTtBu0aqB+e65ydLkYWZEjD4Eei5VMG7T4tw449RCqa2iRKImoWys7SZD0nJBW2
+         l2BlnDiWjoU/5gx+ZNeL1hze4qqDbmsKrAzsepaXoJXk+wFlhgUdb5KMFFJIEQ8UxG
+         TmNk1/BoCy63xnvavCBPviJB0ZJUnhMhyxl4cJXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 07/30] ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
-Date:   Mon,  3 Oct 2022 09:11:49 +0200
-Message-Id: <20221003070716.485654730@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Chang <junxiao.chang@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Jimmy JS Chen <jimmyjs.chen@adlinktech.com>,
+        "Looi, Hong Aun" <hong.aun.looi@intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Looi@vger.kernel.org
+Subject: [PATCH 5.10 46/52] net: stmmac: power up/down serdes in stmmac_open/release
+Date:   Mon,  3 Oct 2022 09:11:53 +0200
+Message-Id: <20221003070720.101874721@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
-References: <20221003070716.269502440@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +56,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Junxiao Chang <junxiao.chang@intel.com>
 
-commit 1b513f613731e2afc05550e8070d79fac80c661e upstream.
+[ Upstream commit 49725ffc15fc4e9fae68c55b691fd25168cbe5c1 ]
 
-Syzkaller reported BUG_ON as follows:
+This commit fixes DMA engine reset timeout issue in suspend/resume
+with ADLink I-Pi SMARC Plus board which dmesg shows:
+...
+[   54.678271] PM: suspend exit
+[   54.754066] intel-eth-pci 0000:00:1d.2 enp0s29f2: PHY [stmmac-3:01] driver [Maxlinear Ethernet GPY215B] (irq=POLL)
+[   54.755808] intel-eth-pci 0000:00:1d.2 enp0s29f2: Register MEM_TYPE_PAGE_POOL RxQ-0
+...
+[   54.780482] intel-eth-pci 0000:00:1d.2 enp0s29f2: Register MEM_TYPE_PAGE_POOL RxQ-7
+[   55.784098] intel-eth-pci 0000:00:1d.2: Failed to reset the dma
+[   55.784111] intel-eth-pci 0000:00:1d.2 enp0s29f2: stmmac_hw_setup: DMA engine initialization failed
+[   55.784115] intel-eth-pci 0000:00:1d.2 enp0s29f2: stmmac_open: Hw setup failed
+...
 
-------------[ cut here ]------------
-kernel BUG at fs/ntfs/dir.c:86!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 3 PID: 758 Comm: a.out Not tainted 5.19.0-next-20220808 #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-RIP: 0010:ntfs_lookup_inode_by_name+0xd11/0x2d10
-Code: ff e9 b9 01 00 00 e8 1e fe d6 fe 48 8b 7d 98 49 8d 5d 07 e8 91 85 29 ff 48 c7 45 98 00 00 00 00 e9 5a fb ff ff e8 ff fd d6 fe <0f> 0b e8 f8 fd d6 fe 0f 0b e8 f1 fd d6 fe 48 8b b5 50 ff ff ff 4c
-RSP: 0018:ffff888079607978 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000008000 RCX: 0000000000000000
-RDX: ffff88807cf10000 RSI: ffffffff82a4a081 RDI: 0000000000000003
-RBP: ffff888079607a70 R08: 0000000000000001 R09: ffff88807a6d01d7
-R10: ffffed100f4da03a R11: 0000000000000000 R12: ffff88800f0fb110
-R13: ffff88800f0ee000 R14: ffff88800f0fb000 R15: 0000000000000001
-FS:  00007f33b63c7540(0000) GS:ffff888108580000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f33b635c090 CR3: 000000000f39e005 CR4: 0000000000770ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- <TASK>
- load_system_files+0x1f7f/0x3620
- ntfs_fill_super+0xa01/0x1be0
- mount_bdev+0x36a/0x440
- ntfs_mount+0x3a/0x50
- legacy_get_tree+0xfb/0x210
- vfs_get_tree+0x8f/0x2f0
- do_new_mount+0x30a/0x760
- path_mount+0x4de/0x1880
- __x64_sys_mount+0x2b3/0x340
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f33b62ff9ea
-Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffd0c471aa8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f33b62ff9ea
-RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffd0c471be0
-RBP: 00007ffd0c471c60 R08: 00007ffd0c471ae0 R09: 00007ffd0c471c24
-R10: 0000000000000000 R11: 0000000000000202 R12: 000055bac5afc160
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
+The issue is related with serdes which impacts clock.  There is
+serdes in ADLink I-Pi SMARC board ethernet controller. Please refer to
+commit b9663b7ca6ff78 ("net: stmmac: Enable SERDES power up/down sequence")
+for detial. When issue is reproduced, DMA engine clock is not ready
+because serdes is not powered up.
 
-Fix this by adding sanity check on extended system files' directory inode
-to ensure that it is directory, just like ntfs_extend_init() when mounting
-ntfs3.
+To reproduce DMA engine reset timeout issue with hardware which has
+serdes in GBE controller, install Ubuntu. In Ubuntu GUI, click
+"Power Off/Log Out" -> "Suspend" menu, it disables network interface,
+then goes to sleep mode. When it wakes up, it enables network
+interface again. Stmmac driver is called in this way:
 
-Link: https://lkml.kernel.org/r/20220809064730.2316892-1-chenxiaosong2@huawei.com
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1. stmmac_release: Stop network interface. In this function, it
+   disables DMA engine and network interface;
+2. stmmac_suspend: It is called in kernel suspend flow. But because
+   network interface has been disabled(netif_running(ndev) is
+   false), it does nothing and returns directly;
+3. System goes into S3 or S0ix state. Some time later, system is
+   waken up by keyboard or mouse;
+4. stmmac_resume: It does nothing because network interface has
+   been disabled;
+5. stmmac_open: It is called to enable network interace again. DMA
+   engine is initialized in this API, but serdes is not power on so
+   there will be DMA engine reset timeout issue.
+
+Similarly, serdes powerdown should be added in stmmac_release.
+Network interface might be disabled by cmd "ifconfig eth0 down",
+DMA engine, phy and mac have been disabled in ndo_stop callback,
+serdes should be powered down as well. It doesn't make sense that
+serdes is on while other components have been turned off.
+
+If ethernet interface is in enabled state(netif_running(ndev) is true)
+before suspend/resume, the issue couldn't be reproduced  because serdes
+could be powered up in stmmac_resume.
+
+Because serdes_powerup is added in stmmac_open, it doesn't need to be
+called in probe function.
+
+Fixes: b9663b7ca6ff78 ("net: stmmac: Enable SERDES power up/down sequence")
+Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
+Reviewed-by: Voon Weifeng <weifeng.voon@intel.com>
+Tested-by: Jimmy JS Chen <jimmyjs.chen@adlinktech.com>
+Tested-by: Looi, Hong Aun <hong.aun.looi@intel.com>
+Link: https://lore.kernel.org/r/20220923050448.1220250-1-junxiao.chang@intel.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/super.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 23 +++++++++++--------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/fs/ntfs/super.c
-+++ b/fs/ntfs/super.c
-@@ -2092,7 +2092,8 @@ get_ctx_vol_failed:
- 	// TODO: Initialize security.
- 	/* Get the extended system files' directory inode. */
- 	vol->extend_ino = ntfs_iget(sb, FILE_Extend);
--	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino)) {
-+	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino) ||
-+	    !S_ISDIR(vol->extend_ino->i_mode)) {
- 		if (!IS_ERR(vol->extend_ino))
- 			iput(vol->extend_ino);
- 		ntfs_error(sb, "Failed to load $Extend.");
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 27b7bb64a028..41e71a26b1ad 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2907,6 +2907,15 @@ static int stmmac_open(struct net_device *dev)
+ 		goto init_error;
+ 	}
+ 
++	if (priv->plat->serdes_powerup) {
++		ret = priv->plat->serdes_powerup(dev, priv->plat->bsp_priv);
++		if (ret < 0) {
++			netdev_err(priv->dev, "%s: Serdes powerup failed\n",
++				   __func__);
++			goto init_error;
++		}
++	}
++
+ 	ret = stmmac_hw_setup(dev, true);
+ 	if (ret < 0) {
+ 		netdev_err(priv->dev, "%s: Hw setup failed\n", __func__);
+@@ -3022,6 +3031,10 @@ static int stmmac_release(struct net_device *dev)
+ 	/* Disable the MAC Rx/Tx */
+ 	stmmac_mac_set(priv, priv->ioaddr, false);
+ 
++	/* Powerdown Serdes if there is */
++	if (priv->plat->serdes_powerdown)
++		priv->plat->serdes_powerdown(dev, priv->plat->bsp_priv);
++
+ 	netif_carrier_off(dev);
+ 
+ 	stmmac_release_ptp(priv);
+@@ -5178,14 +5191,6 @@ int stmmac_dvr_probe(struct device *device,
+ 		goto error_netdev_register;
+ 	}
+ 
+-	if (priv->plat->serdes_powerup) {
+-		ret = priv->plat->serdes_powerup(ndev,
+-						 priv->plat->bsp_priv);
+-
+-		if (ret < 0)
+-			goto error_serdes_powerup;
+-	}
+-
+ #ifdef CONFIG_DEBUG_FS
+ 	stmmac_init_fs(ndev);
+ #endif
+@@ -5197,8 +5202,6 @@ int stmmac_dvr_probe(struct device *device,
+ 
+ 	return ret;
+ 
+-error_serdes_powerup:
+-	unregister_netdev(ndev);
+ error_netdev_register:
+ 	phylink_destroy(priv->phylink);
+ error_phy_setup:
+-- 
+2.35.1
+
 
 
