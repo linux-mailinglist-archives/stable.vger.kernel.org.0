@@ -2,54 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D175F2AB8
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 398A25F2B4B
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231783AbiJCHjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52106 "EHLO
+        id S229623AbiJCH4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232106AbiJCHjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:39:10 -0400
+        with ESMTP id S229592AbiJCHz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:55:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD394623C;
-        Mon,  3 Oct 2022 00:24:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB85A5140A;
+        Mon,  3 Oct 2022 00:33:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59B8260FA6;
-        Mon,  3 Oct 2022 07:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E10C433C1;
-        Mon,  3 Oct 2022 07:23:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8127560FAB;
+        Mon,  3 Oct 2022 07:22:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 942FDC433C1;
+        Mon,  3 Oct 2022 07:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781838;
-        bh=4kHP4fzJTaNpiHoYAxliLR6aZ0e/YvPzyL70B1OkrpQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=c7ebP9d2hKUmmyBCk2AdbPZYc7ooC2sVxZwzDpoEfPCsXxI+uzg7CdBMoyCidcC5e
-         zJ52XbL41zTtOzKHNblxSWZj0TCg0fV/zha3yDQqR3KN3u2SqwbeLdUp4S1+D7hZ6D
-         ZSwhMP/s+eTfCMArswbeLFagxLZh/DnFKdenaTk4=
+        s=korg; t=1664781776;
+        bh=pkiKzZqM6+JbgCqQ2ob2gtDePEoLK5AGKIv58CA9PUA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=D1pD8NYFuprBAI0o9yjzkZ/YoxXBKO5uUTg9L9IeNHaawWZMCLTbnDoSO7I08HiZk
+         tw7A1+4WTK1dTWEYF3/vbKq4fPqcKObYQDy72NysaIeT6fUgr8e01El3DtypJTLwV6
+         3zemOxONyNqeum8w1nZ0aKmLyBGYCEGDf9azCSX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Subject: [PATCH 5.4 00/30] 5.4.216-rc1 review
-Date:   Mon,  3 Oct 2022 09:11:42 +0200
-Message-Id: <20221003070716.269502440@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 36/52] soc: sunxi: sram: Fix probe function ordering issues
+Date:   Mon,  3 Oct 2022 09:11:43 +0200
+Message-Id: <20221003070719.812591046@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.216-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.216-rc1
-X-KernelTest-Deadline: 2022-10-05T07:07+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,165 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.216 release.
-There are 30 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Samuel Holland <samuel@sholland.org>
 
-Responses should be made by Wed, 05 Oct 2022 07:07:06 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 49fad91a7b8941979c3e9a35f9894ac45bc5d3d6 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.216-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+Errors from debugfs are intended to be non-fatal, and should not prevent
+the driver from probing.
 
-thanks,
+Since debugfs file creation is treated as infallible, move it below the
+parts of the probe function that can fail. This prevents an error
+elsewhere in the probe function from causing the file to leak. Do the
+same for the call to of_platform_populate().
 
-greg k-h
+Finally, checkpatch suggests an octal literal for the file permissions.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 4af34b572a85 ("drivers: soc: sunxi: Introduce SoC driver to map SRAMs")
+Fixes: 5828729bebbb ("soc: sunxi: export a regmap for EMAC clock reg on A64")
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220815041248.53268-6-samuel@sholland.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/soc/sunxi/sunxi_sram.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.216-rc1
+diff --git a/drivers/soc/sunxi/sunxi_sram.c b/drivers/soc/sunxi/sunxi_sram.c
+index ba05727b2614..ef1620ea4bdb 100644
+--- a/drivers/soc/sunxi/sunxi_sram.c
++++ b/drivers/soc/sunxi/sunxi_sram.c
+@@ -321,9 +321,9 @@ static struct regmap_config sunxi_sram_emac_clock_regmap = {
+ 
+ static int __init sunxi_sram_probe(struct platform_device *pdev)
+ {
+-	struct dentry *d;
+ 	struct regmap *emac_clock;
+ 	const struct sunxi_sramc_variant *variant;
++	struct device *dev = &pdev->dev;
+ 
+ 	sram_dev = &pdev->dev;
+ 
+@@ -335,13 +335,6 @@ static int __init sunxi_sram_probe(struct platform_device *pdev)
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+ 
+-	of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
+-
+-	d = debugfs_create_file("sram", S_IRUGO, NULL, NULL,
+-				&sunxi_sram_fops);
+-	if (!d)
+-		return -ENOMEM;
+-
+ 	if (variant->has_emac_clock) {
+ 		emac_clock = devm_regmap_init_mmio(&pdev->dev, base,
+ 						   &sunxi_sram_emac_clock_regmap);
+@@ -350,6 +343,10 @@ static int __init sunxi_sram_probe(struct platform_device *pdev)
+ 			return PTR_ERR(emac_clock);
+ 	}
+ 
++	of_platform_populate(dev->of_node, NULL, NULL, dev);
++
++	debugfs_create_file("sram", 0444, NULL, NULL, &sunxi_sram_fops);
++
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
 
-Florian Fainelli <f.fainelli@gmail.com>
-    clk: iproc: Do not rely on node name for correct PLL setup
-
-Han Xu <han.xu@nxp.com>
-    clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
-
-Wang Yufen <wangyufen@huawei.com>
-    selftests: Fix the if conditions of in test_extra_filter()
-
-Michael Kelley <mikelley@microsoft.com>
-    nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
-
-Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-    nvme: add new line after variable declatation
-
-Peilin Ye <peilin.ye@bytedance.com>
-    usbnet: Fix memory leak in usbnet_disconnect()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    Input: melfas_mip4 - fix return value check in mip4_probe()
-
-Brian Norris <briannorris@chromium.org>
-    Revert "drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time"
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Fix debugfs info for A64 SRAM C
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Fix probe function ordering issues
-
-Cai Huoqing <caihuoqing@baidu.com>
-    soc: sunxi_sram: Make use of the helper function devm_platform_ioremap_resource()
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Prevent the driver from being unbound
-
-Samuel Holland <samuel@sholland.org>
-    soc: sunxi: sram: Actually claim SRAM regions
-
-YuTong Chang <mtwget@gmail.com>
-    ARM: dts: am33xx: Fix MMCHS0 dma properties
-
-Faiz Abbas <faiz_abbas@ti.com>
-    ARM: dts: Move am33xx and am43xx mmc nodes to sdhci-omap driver
-
-Hangyu Hua <hbh25y@gmail.com>
-    media: dvb_vb2: fix possible out of bound access
-
-Minchan Kim <minchan@kernel.org>
-    mm: fix madivse_pageout mishandling on non-LRU page
-
-Alistair Popple <apopple@nvidia.com>
-    mm/migrate_device.c: flush TLB while holding PTL
-
-Maurizio Lombardi <mlombard@redhat.com>
-    mm: prevent page_frag_alloc() from corrupting the memory
-
-Mel Gorman <mgorman@techsingularity.net>
-    mm/page_alloc: fix race condition between build_all_zonelists and page allocation
-
-Sergei Antonov <saproj@gmail.com>
-    mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
-
-Niklas Cassel <niklas.cassel@wdc.com>
-    libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
-
-Sasha Levin <sashal@kernel.org>
-    Revert "net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()"
-
-ChenXiaoSong <chenxiaosong2@huawei.com>
-    ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
-
-Linus Walleij <linus.walleij@linaro.org>
-    ARM: dts: integrator: Tag PCI host with device_type
-
-Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-    clk: ingenic-tcu: Properly enable registers before accessing timers
-
-Frank Wunderlich <frank-w@public-files.de>
-    net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
-
-Hongling Zeng <zenghongling@kylinos.cn>
-    uas: ignore UAS for Thinkplus chips
-
-Hongling Zeng <zenghongling@kylinos.cn>
-    usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS
-
-Hongling Zeng <zenghongling@kylinos.cn>
-    uas: add no-uas quirk for Hiksemi usb_disk
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/am335x-baltos.dtsi               |  2 +-
- arch/arm/boot/dts/am335x-boneblack-common.dtsi     |  1 +
- arch/arm/boot/dts/am335x-boneblack-wireless.dts    |  1 -
- arch/arm/boot/dts/am335x-boneblue.dts              |  1 -
- arch/arm/boot/dts/am335x-bonegreen-wireless.dts    |  1 -
- arch/arm/boot/dts/am335x-evm.dts                   |  3 +-
- arch/arm/boot/dts/am335x-evmsk.dts                 |  2 +-
- arch/arm/boot/dts/am335x-lxm.dts                   |  2 +-
- arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi  |  2 +-
- arch/arm/boot/dts/am335x-moxa-uc-8100-me-t.dts     |  2 +-
- arch/arm/boot/dts/am335x-pepper.dts                |  4 +-
- arch/arm/boot/dts/am335x-phycore-som.dtsi          |  2 +-
- arch/arm/boot/dts/am33xx-l4.dtsi                   |  9 +--
- arch/arm/boot/dts/am33xx.dtsi                      |  3 +-
- arch/arm/boot/dts/am4372.dtsi                      |  3 +-
- arch/arm/boot/dts/am437x-cm-t43.dts                |  2 +-
- arch/arm/boot/dts/am437x-gp-evm.dts                |  4 +-
- arch/arm/boot/dts/am437x-l4.dtsi                   |  5 +-
- arch/arm/boot/dts/am437x-sk-evm.dts                |  2 +-
- arch/arm/boot/dts/integratorap.dts                 |  1 +
- drivers/ata/libata-core.c                          |  4 ++
- drivers/clk/bcm/clk-iproc-pll.c                    | 12 ++--
- drivers/clk/imx/clk-imx6sx.c                       |  4 +-
- drivers/clk/ingenic/tcu.c                          | 15 ++---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 -----
- drivers/input/touchscreen/melfas_mip4.c            |  2 +-
- drivers/media/dvb-core/dvb_vb2.c                   | 11 ++++
- drivers/mmc/host/moxart-mmc.c                      | 17 +-----
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c |  4 +-
- drivers/net/usb/qmi_wwan.c                         |  1 +
- drivers/net/usb/usbnet.c                           |  7 ++-
- drivers/nvme/host/core.c                           |  9 ++-
- drivers/soc/sunxi/sunxi_sram.c                     | 27 ++++-----
- drivers/usb/storage/unusual_uas.h                  | 21 +++++++
- fs/ntfs/super.c                                    |  3 +-
- mm/madvise.c                                       |  7 ++-
- mm/migrate.c                                       |  5 +-
- mm/page_alloc.c                                    | 65 ++++++++++++++++++----
- tools/testing/selftests/net/reuseport_bpf.c        |  2 +-
- 40 files changed, 173 insertions(+), 112 deletions(-)
 
 
