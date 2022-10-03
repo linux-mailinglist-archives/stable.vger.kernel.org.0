@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BEA65F3047
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 14:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD5F5F3048
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 14:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiJCM3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 08:29:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45068 "EHLO
+        id S229674AbiJCM37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 08:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229709AbiJCM3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 08:29:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6295DF5
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 05:29:37 -0700 (PDT)
+        with ESMTP id S229641AbiJCM36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 08:29:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F153167ED
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 05:29:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1664800177;
+        s=mimecast20190719; t=1664800195;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=od0mBsIwWpfaTVjXdGi+5e6SK/UA1JGabAYNDOWCVng=;
-        b=gy7r3TTGviiz8YY+uxFXtMKVQqspmnvMfSctXc4NOAZbO9pUZUC/JSUwtMrCkirqquJ2My
-        E0r7Z0IOdyl3OPmcENDVfXw9pI9IBfrD1/rL3JVWGeYbsLa96q8Oliaz20ouEUYUNiMfBo
-        xtdkl2PPSOm1a5PBDUdrLAmeb/kgTF0=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=AlxByAaqGAMhl93pzzEAapyDcFBPAXsLc3ce9VpyCW0=;
+        b=VEqlblT2cq7vy7YKsS5QMxpMvSeCtnDyyxDeU/KhDZVMrkq93y/vy3cq4Qa3h3mZEb6hfn
+        KPBenXeqXxeo2M96VICPso2px9eK9URvEW/Ryn5hh4MENUO/x5ccA1/jmbhZtU1754nDgd
+        xbIQkT/UwrxzBZDxOLcuZWY1TgoiKUs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-610-7Xu8ohcmNwC_rd-ldlScIQ-1; Mon, 03 Oct 2022 08:29:35 -0400
-X-MC-Unique: 7Xu8ohcmNwC_rd-ldlScIQ-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+ us-mta-629-o5lPJSFbPF64YMC2KyppgA-1; Mon, 03 Oct 2022 08:29:54 -0400
+X-MC-Unique: o5lPJSFbPF64YMC2KyppgA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 785B31C08966;
-        Mon,  3 Oct 2022 12:29:35 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D618E101A528;
+        Mon,  3 Oct 2022 12:29:53 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 73843492CA4;
-        Mon,  3 Oct 2022 12:29:35 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D1DDD1121314;
+        Mon,  3 Oct 2022 12:29:53 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 293CTZPO009634;
-        Mon, 3 Oct 2022 08:29:35 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 293CTrQd009647;
+        Mon, 3 Oct 2022 08:29:53 -0400
 Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 293CTZf6009630;
-        Mon, 3 Oct 2022 08:29:35 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 293CTrcC009643;
+        Mon, 3 Oct 2022 08:29:53 -0400
 X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Mon, 3 Oct 2022 08:29:35 -0400 (EDT)
+Date:   Mon, 3 Oct 2022 08:29:53 -0400 (EDT)
 From:   Mikulas Patocka <mpatocka@redhat.com>
 X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
 To:     Greg KH <gregkh@linuxfoundation.org>
 cc:     stable@vger.kernel.org
 Subject: [PATCH] wait_on_bit: add an acquire memory barrier
 In-Reply-To: <alpine.LRH.2.02.2210030459050.10514@file01.intranet.prod.int.rdu2.redhat.com>
-Message-ID: <alpine.LRH.2.02.2210030829090.10514@file01.intranet.prod.int.rdu2.redhat.com>
+Message-ID: <alpine.LRH.2.02.2210030829400.10514@file01.intranet.prod.int.rdu2.redhat.com>
 References: <alpine.LRH.2.02.2209301128030.23900@file01.intranet.prod.int.rdu2.redhat.com> <YzflXQMdGLsjPb70@kroah.com> <alpine.LRH.2.02.2210030459050.10514@file01.intranet.prod.int.rdu2.redhat.com>
 User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,7 +66,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is backport of the upstream patch 8238b4579866b7c1bb99883cfe102a43db5506ff
-for the stable branch 4.19
+for the stable branch 4.14
 
 wait_on_bit: add an acquire memory barrier
 
@@ -95,9 +95,9 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
 Index: linux-stable/arch/x86/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/x86/include/asm/bitops.h	2022-09-30 15:44:48.000000000 +0200
-+++ linux-stable/arch/x86/include/asm/bitops.h	2022-09-30 15:46:38.000000000 +0200
-@@ -317,6 +317,20 @@ static __always_inline bool constant_tes
+--- linux-stable.orig/arch/x86/include/asm/bitops.h	2022-09-30 15:55:01.000000000 +0200
++++ linux-stable/arch/x86/include/asm/bitops.h	2022-09-30 15:55:01.000000000 +0200
+@@ -328,6 +328,20 @@ static __always_inline bool constant_tes
  		(addr[nr >> _BITOPS_LONG_SHIFT])) != 0;
  }
  
@@ -118,7 +118,7 @@ Index: linux-stable/arch/x86/include/asm/bitops.h
  static __always_inline bool variable_test_bit(long nr, volatile const unsigned long *addr)
  {
  	bool oldbit;
-@@ -343,6 +357,13 @@ static bool test_bit(int nr, const volat
+@@ -354,6 +368,13 @@ static bool test_bit(int nr, const volat
  	 ? constant_test_bit((nr), (addr))	\
  	 : variable_test_bit((nr), (addr)))
  
@@ -134,8 +134,8 @@ Index: linux-stable/arch/x86/include/asm/bitops.h
   * @word: The word to search
 Index: linux-stable/include/asm-generic/bitops/non-atomic.h
 ===================================================================
---- linux-stable.orig/include/asm-generic/bitops/non-atomic.h	2022-09-30 15:44:48.000000000 +0200
-+++ linux-stable/include/asm-generic/bitops/non-atomic.h	2022-09-30 15:44:48.000000000 +0200
+--- linux-stable.orig/include/asm-generic/bitops/non-atomic.h	2022-09-30 15:55:01.000000000 +0200
++++ linux-stable/include/asm-generic/bitops/non-atomic.h	2022-09-30 15:55:01.000000000 +0200
 @@ -3,6 +3,7 @@
  #define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
  
@@ -164,9 +164,9 @@ Index: linux-stable/include/asm-generic/bitops/non-atomic.h
  #endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
 Index: linux-stable/include/linux/buffer_head.h
 ===================================================================
---- linux-stable.orig/include/linux/buffer_head.h	2022-09-30 15:44:48.000000000 +0200
-+++ linux-stable/include/linux/buffer_head.h	2022-09-30 15:44:48.000000000 +0200
-@@ -166,7 +166,7 @@ static __always_inline int buffer_uptoda
+--- linux-stable.orig/include/linux/buffer_head.h	2022-09-30 15:55:01.000000000 +0200
++++ linux-stable/include/linux/buffer_head.h	2022-09-30 15:55:01.000000000 +0200
+@@ -163,7 +163,7 @@ static __always_inline int buffer_uptoda
  	 * make it consistent with folio_test_uptodate
  	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
  	 */
@@ -177,9 +177,9 @@ Index: linux-stable/include/linux/buffer_head.h
  #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
 Index: linux-stable/include/linux/wait_bit.h
 ===================================================================
---- linux-stable.orig/include/linux/wait_bit.h	2022-09-30 15:44:48.000000000 +0200
-+++ linux-stable/include/linux/wait_bit.h	2022-09-30 15:44:48.000000000 +0200
-@@ -71,7 +71,7 @@ static inline int
+--- linux-stable.orig/include/linux/wait_bit.h	2022-09-30 15:55:01.000000000 +0200
++++ linux-stable/include/linux/wait_bit.h	2022-09-30 15:55:01.000000000 +0200
+@@ -76,7 +76,7 @@ static inline int
  wait_on_bit(unsigned long *word, int bit, unsigned mode)
  {
  	might_sleep();
@@ -188,7 +188,7 @@ Index: linux-stable/include/linux/wait_bit.h
  		return 0;
  	return out_of_line_wait_on_bit(word, bit,
  				       bit_wait,
-@@ -96,7 +96,7 @@ static inline int
+@@ -101,7 +101,7 @@ static inline int
  wait_on_bit_io(unsigned long *word, int bit, unsigned mode)
  {
  	might_sleep();
@@ -197,7 +197,7 @@ Index: linux-stable/include/linux/wait_bit.h
  		return 0;
  	return out_of_line_wait_on_bit(word, bit,
  				       bit_wait_io,
-@@ -123,7 +123,7 @@ wait_on_bit_timeout(unsigned long *word,
+@@ -128,7 +128,7 @@ wait_on_bit_timeout(unsigned long *word,
  		    unsigned long timeout)
  {
  	might_sleep();
@@ -206,7 +206,7 @@ Index: linux-stable/include/linux/wait_bit.h
  		return 0;
  	return out_of_line_wait_on_bit_timeout(word, bit,
  					       bit_wait_timeout,
-@@ -151,7 +151,7 @@ wait_on_bit_action(unsigned long *word,
+@@ -156,7 +156,7 @@ wait_on_bit_action(unsigned long *word,
  		   unsigned mode)
  {
  	might_sleep();
@@ -217,15 +217,15 @@ Index: linux-stable/include/linux/wait_bit.h
  }
 Index: linux-stable/kernel/sched/wait_bit.c
 ===================================================================
---- linux-stable.orig/kernel/sched/wait_bit.c	2022-09-30 15:44:48.000000000 +0200
-+++ linux-stable/kernel/sched/wait_bit.c	2022-09-30 15:44:48.000000000 +0200
-@@ -46,7 +46,7 @@ __wait_on_bit(struct wait_queue_head *wq
+--- linux-stable.orig/kernel/sched/wait_bit.c	2022-09-30 15:55:01.000000000 +0200
++++ linux-stable/kernel/sched/wait_bit.c	2022-09-30 15:55:55.000000000 +0200
+@@ -49,7 +49,7 @@ __wait_on_bit(struct wait_queue_head *wq
  		prepare_to_wait(wq_head, &wbq_entry->wq_entry, mode);
  		if (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags))
  			ret = (*action)(&wbq_entry->key, mode);
 -	} while (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
 +	} while (test_bit_acquire(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
- 
  	finish_wait(wq_head, &wbq_entry->wq_entry);
- 
+ 	return ret;
+ }
 
