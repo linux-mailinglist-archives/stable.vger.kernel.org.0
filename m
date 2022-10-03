@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F195F2B46
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75A25F2AAD
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231234AbiJCH4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
+        id S231658AbiJCHjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:39:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231327AbiJCHzm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:55:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E1D4E613;
-        Mon,  3 Oct 2022 00:32:42 -0700 (PDT)
+        with ESMTP id S231329AbiJCHh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:37:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9879C53009;
+        Mon,  3 Oct 2022 00:23:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CD8960FA4;
-        Mon,  3 Oct 2022 07:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC3DC433C1;
-        Mon,  3 Oct 2022 07:22:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0954960FC0;
+        Mon,  3 Oct 2022 07:23:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BBABC433C1;
+        Mon,  3 Oct 2022 07:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781749;
-        bh=7QuY/R7TUa6IcLI0yP2FjJ56tqDnwMl1fXfia1kTBLs=;
+        s=korg; t=1664781795;
+        bh=2Ff4PcVpS4oo3+k0KV077w94fpO6uefqdZyBAi3bHyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFE5llWgf0ZNbccBBPWu9vsbcJijP13tgQW7jum9uerG0Tmw8VK9/udZ85bgpUvg5
-         ATDZ/bJTQmAx73nPx2kb0powCrm1Q9bSbdG9jXLXy3RSre3AyVv4oNXH6WmNWEdXYH
-         WbCrI3XNwDsFrwSRTv3ZJvbg85gUtFQ4hwvjYbv4=
+        b=Yb4/bzCi0B7rprcHN3jyqXixRnTeWiDUIJkyLxVOCxUzpG4fj/DQrd8Bv/bHjzTD6
+         GZ5e85Zt3NE12S9Z30vegSEpLIaCgokRd9B+4jlDuR9DJ4G1ibw+v+g7I9O7j2FTlQ
+         1iDmpeUC/V+AzZ35EjBIjGpnWTtRSaeFGoM8lZ/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/52] clk: iproc: Do not rely on node name for correct PLL setup
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        =?UTF-8?q?=E9=9F=A9=E5=A4=A9=C3=A7`=C2=95?= <hantianshuo@iie.ac.cn>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 14/30] mm: fix madivse_pageout mishandling on non-LRU page
 Date:   Mon,  3 Oct 2022 09:11:56 +0200
-Message-Id: <20221003070720.182352110@linuxfoundation.org>
+Message-Id: <20221003070716.708941254@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
+References: <20221003070716.269502440@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Minchan Kim <minchan@kernel.org>
 
-[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
+commit 58d426a7ba92870d489686dfdb9d06b66815a2ab upstream.
 
-After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
-description") a warning from clk-iproc-pll.c was generated due to a
-duplicate PLL name as well as the console stopped working. Upon closer
-inspection it became clear that iproc_pll_clk_setup() used the Device
-Tree node unit name as an unique identifier as well as a parent name to
-parent all clocks under the PLL.
+MADV_PAGEOUT tries to isolate non-LRU pages and gets a warning from
+isolate_lru_page below.
 
-BCM5301X was the first platform on which that got noticed because of the
-DT node unit name renaming but the same assumptions hold true for any
-user of the iproc_pll_clk_setup() function.
+Fix it by checking PageLRU in advance.
 
-The first 'clock-output-names' property is always guaranteed to be
-unique as well as providing the actual desired PLL clock name, so we
-utilize that to register the PLL and as a parent name of all children
-clock.
+------------[ cut here ]------------
+trying to isolate tail page
+WARNING: CPU: 0 PID: 6175 at mm/folio-compat.c:158 isolate_lru_page+0x130/0x140
+Modules linked in:
+CPU: 0 PID: 6175 Comm: syz-executor.0 Not tainted 5.18.12 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:isolate_lru_page+0x130/0x140
 
-Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Rafał Miłecki <rafal@milecki.pl>
-Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-mm/485f8c33.2471b.182d5726afb.Coremail.hantianshuo@iie.ac.cn/
+Link: https://lkml.kernel.org/r/20220908151204.762596-1-minchan@kernel.org
+Fixes: 1a4e58cce84e ("mm: introduce MADV_PAGEOUT")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Reported-by: 韩天ç` <hantianshuo@iie.ac.cn>
+Suggested-by: Yang Shi <shy828301@gmail.com>
+Acked-by: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ mm/madvise.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
-index 274441e2ddb2..8f0619f362e3 100644
---- a/drivers/clk/bcm/clk-iproc-pll.c
-+++ b/drivers/clk/bcm/clk-iproc-pll.c
-@@ -736,6 +736,7 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	const char *parent_name;
- 	struct iproc_clk *iclk_array;
- 	struct clk_hw_onecell_data *clk_data;
-+	const char *clk_name;
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -428,8 +428,11 @@ regular_page:
+ 			continue;
+ 		}
  
- 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
- 		return;
-@@ -783,7 +784,12 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	iclk = &iclk_array[0];
- 	iclk->pll = pll;
+-		/* Do not interfere with other mappings of this page */
+-		if (page_mapcount(page) != 1)
++		/*
++		 * Do not interfere with other mappings of this page and
++		 * non-LRU page.
++		 */
++		if (!PageLRU(page) || page_mapcount(page) != 1)
+ 			continue;
  
--	init.name = node->name;
-+	ret = of_property_read_string_index(node, "clock-output-names",
-+					    0, &clk_name);
-+	if (WARN_ON(ret))
-+		goto err_pll_register;
-+
-+	init.name = clk_name;
- 	init.ops = &iproc_pll_ops;
- 	init.flags = 0;
- 	parent_name = of_clk_get_parent_name(node, 0);
-@@ -803,13 +809,11 @@ void iproc_pll_clk_setup(struct device_node *node,
- 		goto err_pll_register;
- 
- 	clk_data->hws[0] = &iclk->hw;
-+	parent_name = clk_name;
- 
- 	/* now initialize and register all leaf clocks */
- 	for (i = 1; i < num_clks; i++) {
--		const char *clk_name;
--
- 		memset(&init, 0, sizeof(init));
--		parent_name = node->name;
- 
- 		ret = of_property_read_string_index(node, "clock-output-names",
- 						    i, &clk_name);
--- 
-2.35.1
-
+ 		VM_BUG_ON_PAGE(PageTransCompound(page), page);
 
 
