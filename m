@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B0E5F29DE
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C905F2AA8
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbiJCH0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:26:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55802 "EHLO
+        id S231530AbiJCHja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:39:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230314AbiJCHYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:24:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB54E3FD64;
-        Mon,  3 Oct 2022 00:18:08 -0700 (PDT)
+        with ESMTP id S231793AbiJCHhm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:37:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0920154649;
+        Mon,  3 Oct 2022 00:23:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4463BB80E76;
-        Mon,  3 Oct 2022 07:15:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB8E6C433D6;
-        Mon,  3 Oct 2022 07:15:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37BAAB80E85;
+        Mon,  3 Oct 2022 07:21:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A10E4C433C1;
+        Mon,  3 Oct 2022 07:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781349;
-        bh=YoajUM20gTB4qwbFyiuAFKO4hfeAyGhn+vIsU9/vtJA=;
+        s=korg; t=1664781661;
+        bh=SXCxvVuaMeRLrHxiHT/NZ3sj9W/iwTfupDt23uSko7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqTXHR5BCfSR4bH7RAqaeqgUaV/tUMriG9EGo+9YRC0Da0qQuGiluu4cYY1aR9pL+
-         YFKErMmzWr+y0KDXZ0PrpZR7/UZuWbUj9+L1Gm2F7d/wzoT2CQVaMFK4Zn0aacIpBV
-         puwcK7qLzaSURm84vnhd8zVYT+plRUxKMnuRqjrI=
+        b=uVyDSnE7WE8qEZc54N3XTQCb5uXUcLFtHesBAdKmQgOVUE9RCl5u6ZaTyUn09r227
+         Aocuym1ZvgicJB4M7fLqI5OjsOeebwK7HZSOVce0d3EGy/H+gvOSKeX4H9xNFgARgw
+         TbPl9IlLzb9rbCmN3hmfcOjmuK1Ap5vYmW+IENTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 089/101] dont use __kernel_write() on kmap_local_page()
+        stable@vger.kernel.org, Alexander Couzens <lynxis@fe80.eu>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 18/52] net: mt7531: only do PLL once after the reset
 Date:   Mon,  3 Oct 2022 09:11:25 +0200
-Message-Id: <20221003070726.658463729@linuxfoundation.org>
+Message-Id: <20221003070719.267908476@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,160 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Alexander Couzens <lynxis@fe80.eu>
 
-[ Upstream commit 06bbaa6dc53cb72040db952053432541acb9adc7 ]
+commit 42bc4fafe359ed6b73602b7a2dba0dd99588f8ce upstream.
 
-passing kmap_local_page() result to __kernel_write() is unsafe -
-random ->write_iter() might (and 9p one does) get unhappy when
-passed ITER_KVEC with pointer that came from kmap_local_page().
+Move the PLL init of the switch out of the pad configuration of the port
+6 (usally cpu port).
 
-Fix by providing a variant of __kernel_write() that takes an iov_iter
-from caller (__kernel_write() becomes a trivial wrapper) and adding
-dump_emit_page() that parallels dump_emit(), except that instead of
-__kernel_write() it uses __kernel_write_iter() with ITER_BVEC source.
+Fix a unidirectional 100 mbit limitation on 1 gbit or 2.5 gbit links for
+outbound traffic on port 5 or port 6.
 
-Fixes: 3159ed57792b "fs/coredump: use kmap_local_page()"
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/coredump.c   | 38 +++++++++++++++++++++++++++++++++-----
- fs/internal.h   |  3 +++
- fs/read_write.c | 22 ++++++++++++++--------
- 3 files changed, 50 insertions(+), 13 deletions(-)
+ drivers/net/dsa/mt7530.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/fs/coredump.c b/fs/coredump.c
-index ebc43f960b64..f1355e52614a 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -832,6 +832,38 @@ static int __dump_skip(struct coredump_params *cprm, size_t nr)
- 	}
- }
- 
-+static int dump_emit_page(struct coredump_params *cprm, struct page *page)
-+{
-+	struct bio_vec bvec = {
-+		.bv_page	= page,
-+		.bv_offset	= 0,
-+		.bv_len		= PAGE_SIZE,
-+	};
-+	struct iov_iter iter;
-+	struct file *file = cprm->file;
-+	loff_t pos = file->f_pos;
-+	ssize_t n;
-+
-+	if (cprm->to_skip) {
-+		if (!__dump_skip(cprm, cprm->to_skip))
-+			return 0;
-+		cprm->to_skip = 0;
-+	}
-+	if (cprm->written + PAGE_SIZE > cprm->limit)
-+		return 0;
-+	if (dump_interrupted())
-+		return 0;
-+	iov_iter_bvec(&iter, WRITE, &bvec, 1, PAGE_SIZE);
-+	n = __kernel_write_iter(cprm->file, &iter, &pos);
-+	if (n != PAGE_SIZE)
-+		return 0;
-+	file->f_pos = pos;
-+	cprm->written += PAGE_SIZE;
-+	cprm->pos += PAGE_SIZE;
-+
-+	return 1;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -502,14 +502,19 @@ static bool mt7531_dual_sgmii_supported(
+ static int
+ mt7531_pad_setup(struct dsa_switch *ds, phy_interface_t interface)
+ {
+-	struct mt7530_priv *priv = ds->priv;
++	return 0;
 +}
 +
- int dump_emit(struct coredump_params *cprm, const void *addr, int nr)
- {
- 	if (cprm->to_skip) {
-@@ -863,7 +895,6 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
++static void
++mt7531_pll_setup(struct mt7530_priv *priv)
++{
+ 	u32 top_sig;
+ 	u32 hwstrap;
+ 	u32 xtal;
+ 	u32 val;
  
- 	for (addr = start; addr < start + len; addr += PAGE_SIZE) {
- 		struct page *page;
--		int stop;
+ 	if (mt7531_dual_sgmii_supported(priv))
+-		return 0;
++		return;
  
- 		/*
- 		 * To avoid having to allocate page tables for virtual address
-@@ -874,10 +905,7 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
- 		 */
- 		page = get_dump_page(addr);
- 		if (page) {
--			void *kaddr = kmap_local_page(page);
+ 	val = mt7530_read(priv, MT7531_CREV);
+ 	top_sig = mt7530_read(priv, MT7531_TOP_SIG_SR);
+@@ -588,8 +593,6 @@ mt7531_pad_setup(struct dsa_switch *ds,
+ 	val |= EN_COREPLL;
+ 	mt7530_write(priv, MT7531_PLLGP_EN, val);
+ 	usleep_range(25, 35);
 -
--			stop = !dump_emit(cprm, kaddr, PAGE_SIZE);
--			kunmap_local(kaddr);
-+			int stop = !dump_emit_page(cprm, page);
- 			put_page(page);
- 			if (stop)
- 				return 0;
-diff --git a/fs/internal.h b/fs/internal.h
-index 87e96b9024ce..3e206d3e317c 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -16,6 +16,7 @@ struct shrink_control;
- struct fs_context;
- struct user_namespace;
- struct pipe_inode_info;
-+struct iov_iter;
- 
- /*
-  * block/bdev.c
-@@ -221,3 +222,5 @@ ssize_t do_getxattr(struct user_namespace *mnt_userns,
- int setxattr_copy(const char __user *name, struct xattr_ctx *ctx);
- int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
- 		struct xattr_ctx *ctx);
-+
-+ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos);
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 397da0236607..a0a3d35e2c0f 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -509,14 +509,9 @@ static ssize_t new_sync_write(struct file *filp, const char __user *buf, size_t
+-	return 0;
  }
  
- /* caller is responsible for file_start_write/file_end_write */
--ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
-+ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos)
- {
--	struct kvec iov = {
--		.iov_base	= (void *)buf,
--		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
--	};
- 	struct kiocb kiocb;
--	struct iov_iter iter;
- 	ssize_t ret;
+ static void
+@@ -1731,6 +1734,8 @@ mt7531_setup(struct dsa_switch *ds)
+ 		     SYS_CTRL_PHY_RST | SYS_CTRL_SW_RST |
+ 		     SYS_CTRL_REG_RST);
  
- 	if (WARN_ON_ONCE(!(file->f_mode & FMODE_WRITE)))
-@@ -532,8 +527,7 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
- 
- 	init_sync_kiocb(&kiocb, file);
- 	kiocb.ki_pos = pos ? *pos : 0;
--	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
--	ret = file->f_op->write_iter(&kiocb, &iter);
-+	ret = file->f_op->write_iter(&kiocb, from);
- 	if (ret > 0) {
- 		if (pos)
- 			*pos = kiocb.ki_pos;
-@@ -543,6 +537,18 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
- 	inc_syscw(current);
- 	return ret;
- }
++	mt7531_pll_setup(priv);
 +
-+/* caller is responsible for file_start_write/file_end_write */
-+ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
-+{
-+	struct kvec iov = {
-+		.iov_base	= (void *)buf,
-+		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
-+	};
-+	struct iov_iter iter;
-+	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
-+	return __kernel_write_iter(file, &iter, pos);
-+}
- /*
-  * This "EXPORT_SYMBOL_GPL()" is more of a "EXPORT_SYMBOL_DONTUSE()",
-  * but autofs is one of the few internal kernel users that actually
--- 
-2.35.1
-
+ 	if (mt7531_dual_sgmii_supported(priv)) {
+ 		priv->p5_intf_sel = P5_INTF_SEL_GMAC5_SGMII;
+ 
+@@ -2281,8 +2286,6 @@ mt7531_cpu_port_config(struct dsa_switch
+ 	case 6:
+ 		interface = PHY_INTERFACE_MODE_2500BASEX;
+ 
+-		mt7531_pad_setup(ds, interface);
+-
+ 		priv->p6_interface = interface;
+ 		break;
+ 	default:
 
 
