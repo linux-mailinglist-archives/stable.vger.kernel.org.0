@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE52F5F2ADD
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8E05F2A20
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232002AbiJCHnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51654 "EHLO
+        id S231339AbiJCHbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232004AbiJCHmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:42:14 -0400
+        with ESMTP id S231162AbiJCH3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:29:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9DF81EC57;
-        Mon,  3 Oct 2022 00:25:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9571D192A8;
+        Mon,  3 Oct 2022 00:20:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48C2460FB7;
-        Mon,  3 Oct 2022 07:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E416C433D6;
-        Mon,  3 Oct 2022 07:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 368B360FA2;
+        Mon,  3 Oct 2022 07:20:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4502FC433D6;
+        Mon,  3 Oct 2022 07:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781819;
-        bh=6pZ6UQlxPLXtJOJyXlnGRVygfTHsLZc0+Seg8suUn4s=;
+        s=korg; t=1664781604;
+        bh=ltonZA8UZoNCsAd5zA4FMw/ErDxEugLoPZ/GEw1M94M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKhuRgX7aOoIFN8Dq10irqpZGzDi3YqLGJ++NW4AxjQo2LUW5/rXIF8Xt/gf/HOfr
-         ZQ1cGkt6lxObMvQRNO4tTREWrQgYYrFlcjS3B0+K2gJ+W5gbwhBOMVdNEHVhVXGOir
-         0XkOgvVhbWpMWfYnGL7DFzgw7XITFz7Hdf+UP7L8=
+        b=EYl2tKvB4i5v8REc5lPzRX5MqLFW2Mh8ZKim2uFRU2IvdpkR0KGY9Ftz0K/A2g+Dy
+         cHkM9ZYkdctPkjRA4kNA7ihyDGiri4pRXYUIW2Ec5cz+R3iEYPhmmSMe7EpHxF3oEg
+         THWRfESLaZQv+aFWYTLeEl2Uj6dTcq9KjQ5yCCPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Hongling Zeng <zenghongling@kylinos.cn>
-Subject: [PATCH 5.4 03/30] uas: ignore UAS for Thinkplus chips
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 5.15 80/83] x86/alternative: Fix race in try_get_desc()
 Date:   Mon,  3 Oct 2022 09:11:45 +0200
-Message-Id: <20221003070716.371992645@linuxfoundation.org>
+Message-Id: <20221003070724.006942646@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
-References: <20221003070716.269502440@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +52,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongling Zeng <zenghongling@kylinos.cn>
+From: Nadav Amit <namit@vmware.com>
 
-commit 0fb9703a3eade0bb84c635705d9c795345e55053 upstream.
+commit efd608fa7403ba106412b437f873929e2c862e28 upstream.
 
-The UAS mode of Thinkplus(0x17ef, 0x3899) is reported to influence
-performance and trigger kernel panic on several platforms with the
-following error message:
+I encountered some occasional crashes of poke_int3_handler() when
+kprobes are set, while accessing desc->vec.
 
-[   39.702439] xhci_hcd 0000:0c:00.3: ERROR Transfer event for disabled
-               endpoint or incorrect stream ring
-[   39.702442] xhci_hcd 0000:0c:00.3: @000000026c61f810 00000000 00000000
-               1b000000 05038000
+The text poke mechanism claims to have an RCU-like behavior, but it
+does not appear that there is any quiescent state to ensure that
+nobody holds reference to desc. As a result, the following race
+appears to be possible, which can lead to memory corruption.
 
-[  720.545894][13] Workqueue: usb_hub_wq hub_event
-[  720.550971][13]  ffff88026c143c38 0000000000016300 ffff8802755bb900 ffff880
-                    26cb80000
-[  720.559673][13]  ffff88026c144000 ffff88026ca88100 0000000000000000 ffff880
-                    26cb80000
-[  720.568374][13]  ffff88026cb80000 ffff88026c143c50 ffffffff8186ae25 ffff880
-                    26ca880f8
-[  720.577076][13] Call Trace:
-[  720.580201][13]  [<ffffffff8186ae25>] schedule+0x35/0x80
-[  720.586137][13]  [<ffffffff8186b0ce>] schedule_preempt_disabled+0xe/0x10
-[  720.593623][13]  [<ffffffff8186cb94>] __mutex_lock_slowpath+0x164/0x1e0
-[  720.601012][13]  [<ffffffff8186cc3f>] mutex_lock+0x2f/0x40
-[  720.607141][13]  [<ffffffff8162b8e9>] usb_disconnect+0x59/0x290
+  CPU0					CPU1
+  ----					----
+  text_poke_bp_batch()
+  -> smp_store_release(&bp_desc, &desc)
 
-Falling back to USB mass storage can solve this problem, so ignore UAS
-function of this chip.
+  [ notice that desc is on
+    the stack			]
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Hongling Zeng <zenghongling@kylinos.cn>
-Link: https://lore.kernel.org/r/1663902249837086.19.seg@mailgw
+					poke_int3_handler()
+
+					[ int3 might be kprobe's
+					  so sync events are do not
+					  help ]
+
+					-> try_get_desc(descp=&bp_desc)
+					   desc = __READ_ONCE(bp_desc)
+
+					   if (!desc) [false, success]
+  WRITE_ONCE(bp_desc, NULL);
+  atomic_dec_and_test(&desc.refs)
+
+  [ success, desc space on the stack
+    is being reused and might have
+    non-zero value. ]
+					arch_atomic_inc_not_zero(&desc->refs)
+
+					[ might succeed since desc points to
+					  stack memory that was freed and might
+					  be reused. ]
+
+Fix this issue with small backportable patch. Instead of trying to
+make RCU-like behavior for bp_desc, just eliminate the unnecessary
+level of indirection of bp_desc, and hold the whole descriptor as a
+global.  Anyhow, there is only a single descriptor at any given
+moment.
+
+Fixes: 1f676247f36a4 ("x86/alternatives: Implement a better poke_int3_handler() completion scheme")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
+Link: https://lkml.kernel.org/r/20220920224743.3089-1-namit@vmware.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kernel/alternative.c |   45 +++++++++++++++++++++---------------------
+ 1 file changed, 23 insertions(+), 22 deletions(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -132,6 +132,13 @@ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_ATA_1X),
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -1200,22 +1200,23 @@ struct bp_patching_desc {
+ 	atomic_t refs;
+ };
  
-+/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
-+UNUSUAL_DEV(0x17ef, 0x3899, 0x0000, 0x9999,
-+		"Thinkplus",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
+-static struct bp_patching_desc *bp_desc;
++static struct bp_patching_desc bp_desc;
+ 
+ static __always_inline
+-struct bp_patching_desc *try_get_desc(struct bp_patching_desc **descp)
++struct bp_patching_desc *try_get_desc(void)
+ {
+-	/* rcu_dereference */
+-	struct bp_patching_desc *desc = __READ_ONCE(*descp);
++	struct bp_patching_desc *desc = &bp_desc;
+ 
+-	if (!desc || !arch_atomic_inc_not_zero(&desc->refs))
++	if (!arch_atomic_inc_not_zero(&desc->refs))
+ 		return NULL;
+ 
+ 	return desc;
+ }
+ 
+-static __always_inline void put_desc(struct bp_patching_desc *desc)
++static __always_inline void put_desc(void)
+ {
++	struct bp_patching_desc *desc = &bp_desc;
 +
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
- 		"VIA",
+ 	smp_mb__before_atomic();
+ 	arch_atomic_dec(&desc->refs);
+ }
+@@ -1248,15 +1249,15 @@ noinstr int poke_int3_handler(struct pt_
+ 
+ 	/*
+ 	 * Having observed our INT3 instruction, we now must observe
+-	 * bp_desc:
++	 * bp_desc with non-zero refcount:
+ 	 *
+-	 *	bp_desc = desc			INT3
++	 *	bp_desc.refs = 1		INT3
+ 	 *	WMB				RMB
+-	 *	write INT3			if (desc)
++	 *	write INT3			if (bp_desc.refs != 0)
+ 	 */
+ 	smp_rmb();
+ 
+-	desc = try_get_desc(&bp_desc);
++	desc = try_get_desc();
+ 	if (!desc)
+ 		return 0;
+ 
+@@ -1310,7 +1311,7 @@ noinstr int poke_int3_handler(struct pt_
+ 	ret = 1;
+ 
+ out_put:
+-	put_desc(desc);
++	put_desc();
+ 	return ret;
+ }
+ 
+@@ -1341,18 +1342,20 @@ static int tp_vec_nr;
+  */
+ static void text_poke_bp_batch(struct text_poke_loc *tp, unsigned int nr_entries)
+ {
+-	struct bp_patching_desc desc = {
+-		.vec = tp,
+-		.nr_entries = nr_entries,
+-		.refs = ATOMIC_INIT(1),
+-	};
+ 	unsigned char int3 = INT3_INSN_OPCODE;
+ 	unsigned int i;
+ 	int do_sync;
+ 
+ 	lockdep_assert_held(&text_mutex);
+ 
+-	smp_store_release(&bp_desc, &desc); /* rcu_assign_pointer */
++	bp_desc.vec = tp;
++	bp_desc.nr_entries = nr_entries;
++
++	/*
++	 * Corresponds to the implicit memory barrier in try_get_desc() to
++	 * ensure reading a non-zero refcount provides up to date bp_desc data.
++	 */
++	atomic_set_release(&bp_desc.refs, 1);
+ 
+ 	/*
+ 	 * Corresponding read barrier in int3 notifier for making sure the
+@@ -1440,12 +1443,10 @@ static void text_poke_bp_batch(struct te
+ 		text_poke_sync();
+ 
+ 	/*
+-	 * Remove and synchronize_rcu(), except we have a very primitive
+-	 * refcount based completion.
++	 * Remove and wait for refs to be zero.
+ 	 */
+-	WRITE_ONCE(bp_desc, NULL); /* RCU_INIT_POINTER */
+-	if (!atomic_dec_and_test(&desc.refs))
+-		atomic_cond_read_acquire(&desc.refs, !VAL);
++	if (!atomic_dec_and_test(&bp_desc.refs))
++		atomic_cond_read_acquire(&bp_desc.refs, !VAL);
+ }
+ 
+ static void text_poke_loc_init(struct text_poke_loc *tp, void *addr,
 
 
