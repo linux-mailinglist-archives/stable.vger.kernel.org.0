@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BAB85F293A
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF67F5F2A05
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiJCHQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:16:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S231215AbiJCH33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbiJCHPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:15:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0C941D17;
-        Mon,  3 Oct 2022 00:13:21 -0700 (PDT)
+        with ESMTP id S231398AbiJCH3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:29:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30C6CC4;
+        Mon,  3 Oct 2022 00:19:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41F98B80C81;
-        Mon,  3 Oct 2022 07:13:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08B6C433C1;
-        Mon,  3 Oct 2022 07:13:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C402860F9E;
+        Mon,  3 Oct 2022 07:17:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D997BC433C1;
+        Mon,  3 Oct 2022 07:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781200;
-        bh=2UHdbvEr9lqpstgtuyNn+47IaQkePd+H6y1WP7Yv+1o=;
+        s=korg; t=1664781464;
+        bh=7jf8lxbFWIJq9EwMInVoh7BkFcPx5cCsy/iCviXCE0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hahpGKJSTSg14ioBr/YrV0/JnrGgUn8c3u5Z5Ao2rEcl7Nk45VTSm1Q7dtHUljBgr
-         YdFsoKZrmgolLrpd7l5YGlpM9hetay288pLC21R5EgN58P+6wVyCUIaTc23krjSqpm
-         u49otTHG51bHqoVRSD2M3z4qcyt7STfrMqkLHjXk=
+        b=iXz6tf2p2/qmRY400k9f6fmbsCwG8c+Rv/M7DWXd8Qm6eRCTnYD7rdLArosClJyuG
+         lGWBXXUpG5TnRe1d2q0dYJfXyG3gwHjy4kQWc8kaKRllwZCKqj8v6nAGSxmOhHdqBa
+         MA3hN0J7ONTILYoDQkhM8Vxj6efsU1/mhHhYXxFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 034/101] mmc: hsq: Fix data stomping during mmc recovery
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 05/83] cgroup: reduce dependency on cgroup_mutex
 Date:   Mon,  3 Oct 2022 09:10:30 +0200
-Message-Id: <20221003070725.318915546@linuxfoundation.org>
+Message-Id: <20221003070722.118445218@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +52,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-commit e7afa79a3b35a27a046a2139f8b20bd6b98155c2 upstream.
+[ Upstream commit be288169712f3dea0bc6b50c00b3ab53d85f1435 ]
 
-The block device uses multiple queues to access emmc. There will be up to 3
-requests in the hsq of the host. The current code will check whether there
-is a request doing recovery before entering the queue, but it will not check
-whether there is a request when the lock is issued. The request is in recovery
-mode. If there is a request in recovery, then a read and write request is
-initiated at this time, and the conflict between the request and the recovery
-request will cause the data to be trampled.
+Currently cgroup_get_from_path() and cgroup_get_from_id() grab
+cgroup_mutex before traversing the default hierarchy to find the
+kernfs_node corresponding to the path/id and then extract the linked
+cgroup. Since cgroup_mutex is still held, it is guaranteed that the
+cgroup will be alive and the reference can be taken on it.
 
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Fixes: 511ce378e16f ("mmc: Add MMC host software queue support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220916090506.10662-1-wenchao.chen666@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However similar guarantee can be provided without depending on the
+cgroup_mutex and potentially reducing avenues of cgroup_mutex contentions.
+The kernfs_node's priv pointer is RCU protected pointer and with just
+rcu read lock we can grab the reference on the cgroup without
+cgroup_mutex. So, remove cgroup_mutex from them.
+
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Stable-dep-of: df02452f3df0 ("cgroup: cgroup_get_from_id() must check the looked-up kn is a directory")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmc_hsq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup.c | 51 ++++++++++++++++++++++++------------------
+ 1 file changed, 29 insertions(+), 22 deletions(-)
 
---- a/drivers/mmc/host/mmc_hsq.c
-+++ b/drivers/mmc/host/mmc_hsq.c
-@@ -34,7 +34,7 @@ static void mmc_hsq_pump_requests(struct
- 	spin_lock_irqsave(&hsq->lock, flags);
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 75c3881af078..97282d6b5d18 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -6021,17 +6021,20 @@ struct cgroup *cgroup_get_from_id(u64 id)
+ 	struct kernfs_node *kn;
+ 	struct cgroup *cgrp = NULL;
  
- 	/* Make sure we are not already running a request now */
--	if (hsq->mrq) {
-+	if (hsq->mrq || hsq->recovery_halt) {
- 		spin_unlock_irqrestore(&hsq->lock, flags);
- 		return;
+-	mutex_lock(&cgroup_mutex);
+ 	kn = kernfs_find_and_get_node_by_id(cgrp_dfl_root.kf_root, id);
+ 	if (!kn)
+-		goto out_unlock;
++		goto out;
++
++	rcu_read_lock();
+ 
+-	cgrp = kn->priv;
+-	if (cgroup_is_dead(cgrp) || !cgroup_tryget(cgrp))
++	cgrp = rcu_dereference(*(void __rcu __force **)&kn->priv);
++	if (cgrp && !cgroup_tryget(cgrp))
+ 		cgrp = NULL;
++
++	rcu_read_unlock();
++
+ 	kernfs_put(kn);
+-out_unlock:
+-	mutex_unlock(&cgroup_mutex);
++out:
+ 	return cgrp;
+ }
+ EXPORT_SYMBOL_GPL(cgroup_get_from_id);
+@@ -6585,30 +6588,34 @@ struct cgroup_subsys_state *css_from_id(int id, struct cgroup_subsys *ss)
+  *
+  * Find the cgroup at @path on the default hierarchy, increment its
+  * reference count and return it.  Returns pointer to the found cgroup on
+- * success, ERR_PTR(-ENOENT) if @path doesn't exist and ERR_PTR(-ENOTDIR)
+- * if @path points to a non-directory.
++ * success, ERR_PTR(-ENOENT) if @path doesn't exist or if the cgroup has already
++ * been released and ERR_PTR(-ENOTDIR) if @path points to a non-directory.
+  */
+ struct cgroup *cgroup_get_from_path(const char *path)
+ {
+ 	struct kernfs_node *kn;
+-	struct cgroup *cgrp;
+-
+-	mutex_lock(&cgroup_mutex);
++	struct cgroup *cgrp = ERR_PTR(-ENOENT);
+ 
+ 	kn = kernfs_walk_and_get(cgrp_dfl_root.cgrp.kn, path);
+-	if (kn) {
+-		if (kernfs_type(kn) == KERNFS_DIR) {
+-			cgrp = kn->priv;
+-			cgroup_get_live(cgrp);
+-		} else {
+-			cgrp = ERR_PTR(-ENOTDIR);
+-		}
+-		kernfs_put(kn);
+-	} else {
+-		cgrp = ERR_PTR(-ENOENT);
++	if (!kn)
++		goto out;
++
++	if (kernfs_type(kn) != KERNFS_DIR) {
++		cgrp = ERR_PTR(-ENOTDIR);
++		goto out_kernfs;
  	}
+ 
+-	mutex_unlock(&cgroup_mutex);
++	rcu_read_lock();
++
++	cgrp = rcu_dereference(*(void __rcu __force **)&kn->priv);
++	if (!cgrp || !cgroup_tryget(cgrp))
++		cgrp = ERR_PTR(-ENOENT);
++
++	rcu_read_unlock();
++
++out_kernfs:
++	kernfs_put(kn);
++out:
+ 	return cgrp;
+ }
+ EXPORT_SYMBOL_GPL(cgroup_get_from_path);
+-- 
+2.35.1
+
 
 
