@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 469855F2ABB
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7464A5F2AB2
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231833AbiJCHkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:40:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35296 "EHLO
+        id S231708AbiJCHjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232114AbiJCHjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:39:12 -0400
+        with ESMTP id S232076AbiJCHi6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:38:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B196D4AD4B;
-        Mon,  3 Oct 2022 00:23:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DCC054652;
+        Mon,  3 Oct 2022 00:24:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD20660F82;
-        Mon,  3 Oct 2022 07:23:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1951C433D6;
-        Mon,  3 Oct 2022 07:23:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A686A60FB6;
+        Mon,  3 Oct 2022 07:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2BE9C433C1;
+        Mon,  3 Oct 2022 07:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781833;
-        bh=GMND+JiP6FfH47il0s75PdswpseBf98pFHTC8n6weQ8=;
+        s=korg; t=1664781730;
+        bh=7Ee1OiwnARdS34yyfr/is4CY2iTSUYSNsSorZjOpbA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YiDvTgcAl4a3jQysI6EVYjB0a6mJOpo9Jn0OEFt7GTU0TzDLOaKsJ+OQUy/FbCVvx
-         DJY5lDkt/07tClRIsYYIiMvAOJrvZrzbE9pkfSsBnLy24zy80XwVqDm2aom6mXxLij
-         gQGUXmpuBqMttzEuCTSK67WbUWVKY2hieleqG3IA=
+        b=FLIqePXzhGRMH+9P14yybffMzrRUWL+/N+EliaFPZLEEijDQm4qn9qVRXjfH5YQDT
+         YC42LwM1cKsAKdAcUnChlxB5f0EX/XEm2Tlc9TR8kaCZFhftMr08br4XPHM5UiRLO3
+         56QAbRSol+48u1n6Sp3TfPCitGSsWof/5w0fzG18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, stable@kernel.org,
-        Russell King <linux@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 08/30] Revert "net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()"
+        stable@vger.kernel.org, Rafael Mendonca <rafaelmendsr@gmail.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 43/52] cxgb4: fix missing unlock on ETHOFLD desc collect fail path
 Date:   Mon,  3 Oct 2022 09:11:50 +0200
-Message-Id: <20221003070716.514054987@linuxfoundation.org>
+Message-Id: <20221003070720.016459549@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
-References: <20221003070716.269502440@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Levin <sashal@kernel.org>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-commit 6052a4c11fd893234e085edf7bf2e00a33a79d4e upstream.
+[ Upstream commit c635ebe8d911a93bd849a9419b01a58783de76f1 ]
 
-This reverts commit fe2c9c61f668cde28dac2b188028c5299cedcc1e.
+The label passed to the QDESC_GET for the ETHOFLD TXQ, RXQ, and FLQ, is the
+'out' one, which skips the 'out_unlock' label, and thus doesn't unlock the
+'uld_mutex' before returning. Additionally, since commit 5148e5950c67
+("cxgb4: add EOTID tracking and software context dump"), the access to
+these ETHOFLD hardware queues should be protected by the 'mqprio_mutex'
+instead.
 
-On Tue, Sep 13, 2022 at 05:48:58PM +0100, Russell King (Oracle) wrote:
->What happens if this is built as a module, and the module is loaded,
->binds (and creates the directory), then is removed, and then re-
->inserted?  Nothing removes the old directory, so doesn't
->debugfs_create_dir() fail, resulting in subsequent failure to add
->any subsequent debugfs entries?
->
->I don't think this patch should be backported to stable trees until
->this point is addressed.
-
-Revert until a proper fix is available as the original behavior was
-better.
-
-Cc: Marcin Wojtas <mw@semihalf.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: stable@kernel.org
-Reported-by: Russell King <linux@armlinux.org.uk>
-Fixes: fe2c9c61f668 ("net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220923234736.657413-1-sashal@kernel.org
+Fixes: 2d0cb84dd973 ("cxgb4: add ETHOFLD hardware queue support")
+Fixes: 5148e5950c67 ("cxgb4: add EOTID tracking and software context dump")
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Reviewed-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Link: https://lore.kernel.org/r/20220922175109.764898-1-rafaelmendsr@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 28 +++++++++++++------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-@@ -700,10 +700,10 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *p
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+index c5b0e725b238..2169351b6afc 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -14,6 +14,7 @@
+ #include "cudbg_entity.h"
+ #include "cudbg_lib.h"
+ #include "cudbg_zlib.h"
++#include "cxgb4_tc_mqprio.h"
  
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
- {
--	static struct dentry *mvpp2_root;
--	struct dentry *mvpp2_dir;
-+	struct dentry *mvpp2_dir, *mvpp2_root;
- 	int ret, i;
+ static const u32 t6_tp_pio_array[][IREG_NUM_ELEM] = {
+ 	{0x7e40, 0x7e44, 0x020, 28}, /* t6_tp_pio_regs_20_to_3b */
+@@ -3476,7 +3477,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < utxq->ntxq; i++)
+ 				QDESC_GET_TXQ(&utxq->uldtxq[i].q,
+ 					      cudbg_uld_txq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 	}
  
-+	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
- 	if (!mvpp2_root)
- 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
+@@ -3493,7 +3494,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < urxq->nrxq; i++)
+ 				QDESC_GET_RXQ(&urxq->uldrxq[i].rspq,
+ 					      cudbg_uld_rxq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
  
+ 		/* ULD FLQ */
+@@ -3505,7 +3506,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < urxq->nrxq; i++)
+ 				QDESC_GET_FLQ(&urxq->uldrxq[i].fl,
+ 					      cudbg_uld_flq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 
+ 		/* ULD CIQ */
+@@ -3518,29 +3519,34 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ 			for (i = 0; i < urxq->nciq; i++)
+ 				QDESC_GET_RXQ(&urxq->uldrxq[base + i].rspq,
+ 					      cudbg_uld_ciq_to_qtype(j),
+-					      out_unlock);
++					      out_unlock_uld);
+ 		}
+ 	}
++	mutex_unlock(&uld_mutex);
++
++	if (!padap->tc_mqprio)
++		goto out;
+ 
++	mutex_lock(&padap->tc_mqprio->mqprio_mutex);
+ 	/* ETHOFLD TXQ */
+ 	if (s->eohw_txq)
+ 		for (i = 0; i < s->eoqsets; i++)
+ 			QDESC_GET_TXQ(&s->eohw_txq[i].q,
+-				      CUDBG_QTYPE_ETHOFLD_TXQ, out);
++				      CUDBG_QTYPE_ETHOFLD_TXQ, out_unlock_mqprio);
+ 
+ 	/* ETHOFLD RXQ and FLQ */
+ 	if (s->eohw_rxq) {
+ 		for (i = 0; i < s->eoqsets; i++)
+ 			QDESC_GET_RXQ(&s->eohw_rxq[i].rspq,
+-				      CUDBG_QTYPE_ETHOFLD_RXQ, out);
++				      CUDBG_QTYPE_ETHOFLD_RXQ, out_unlock_mqprio);
+ 
+ 		for (i = 0; i < s->eoqsets; i++)
+ 			QDESC_GET_FLQ(&s->eohw_rxq[i].fl,
+-				      CUDBG_QTYPE_ETHOFLD_FLQ, out);
++				      CUDBG_QTYPE_ETHOFLD_FLQ, out_unlock_mqprio);
+ 	}
+ 
+-out_unlock:
+-	mutex_unlock(&uld_mutex);
++out_unlock_mqprio:
++	mutex_unlock(&padap->tc_mqprio->mqprio_mutex);
+ 
+ out:
+ 	qdesc_info->qdesc_entry_size = sizeof(*qdesc_entry);
+@@ -3578,6 +3584,10 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
+ #undef QDESC_GET
+ 
+ 	return rc;
++
++out_unlock_uld:
++	mutex_unlock(&uld_mutex);
++	goto out;
+ }
+ 
+ int cudbg_collect_flash(struct cudbg_init *pdbg_init,
+-- 
+2.35.1
+
 
 
