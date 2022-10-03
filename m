@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC9DE5F2A74
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09D25F2AAB
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231723AbiJCHgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:36:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
+        id S231474AbiJCHjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:39:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231314AbiJCHez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0AF52E48;
-        Mon,  3 Oct 2022 00:22:28 -0700 (PDT)
+        with ESMTP id S231979AbiJCHip (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:38:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925AE3A4BC;
+        Mon,  3 Oct 2022 00:23:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C994AB80E99;
-        Mon,  3 Oct 2022 07:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40DCEC433D7;
-        Mon,  3 Oct 2022 07:21:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFBFD60FCA;
+        Mon,  3 Oct 2022 07:23:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9A1C433C1;
+        Mon,  3 Oct 2022 07:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781715;
-        bh=wV6w/5yjSXng0Df1vDN/QOCW81kAq0odOT+BHUZvNjg=;
+        s=korg; t=1664781822;
+        bh=Qv0zthRDoHBTXa4i3mC4d5D0vHolC2D3KK07oVXS+pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPFI+NuRjMCPwWWCH3QaJBxMMNijhBfHLOPeyqISJ18s3ppZDPrFxoO8DcjII1w1T
-         YFvd90O0AfR/SVL3Tp8y4cbZbrrsNU/lmPT89g+o2LSpTvcEKZbGFrMIm+ybvwA4tj
-         20LtWbhUBuHVFwxTvP9UtRy877KOVRUZ4r+7nFrs=
+        b=XOatTA7re9x0TN6UWnIMddBGu9lNg65r4+JwLt3M3FSsP1SaL/0c5048+Ik//pi5P
+         YLkzUdEQtKmEtcilcYvNHhxvZhFRFO5MhVRUxdTBP7em6Xig4A0ljv8qywbdUTSZch
+         YKV0vfj+fRXtfZkehShSLPif8h2ApRHimNaaWYF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/52] ASoC: tas2770: Reinit regcache on reset
-Date:   Mon,  3 Oct 2022 09:11:45 +0200
-Message-Id: <20221003070719.871312679@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 04/30] net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
+Date:   Mon,  3 Oct 2022 09:11:46 +0200
+Message-Id: <20221003070716.399236779@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070716.269502440@linuxfoundation.org>
+References: <20221003070716.269502440@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit 0a0342ede303fc420f3a388e1ae82da3ae8ff6bd ]
+commit 797666cd5af041ffb66642fff62f7389f08566a2 upstream.
 
-On probe of the ASoC component, the device is reset but the regcache is
-retained. This means the regcache gets out of sync if the codec is
-rebound to a sound card for a second time. Fix it by reinitializing the
-regcache to defaults after the device is reset.
+Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
 
-Fixes: b0bcbe615756 ("ASoC: tas2770: Fix calling reset in probe")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220919173453.84292-1-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Cc: stable@vger.kernel.org
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20220926150740.6684-3-linux@fw-web.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2770.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/tas2770.c b/sound/soc/codecs/tas2770.c
-index 024ec68e8d35..171bbcc919d5 100644
---- a/sound/soc/codecs/tas2770.c
-+++ b/sound/soc/codecs/tas2770.c
-@@ -495,6 +495,8 @@ static struct snd_soc_dai_driver tas2770_dai_driver[] = {
- 	},
- };
- 
-+static const struct regmap_config tas2770_i2c_regmap;
-+
- static int tas2770_codec_probe(struct snd_soc_component *component)
- {
- 	struct tas2770_priv *tas2770 =
-@@ -508,6 +510,7 @@ static int tas2770_codec_probe(struct snd_soc_component *component)
- 	}
- 
- 	tas2770_reset(tas2770);
-+	regmap_reinit_cache(tas2770->regmap, &tas2770_i2c_regmap);
- 
- 	return 0;
- }
--- 
-2.35.1
-
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1354,6 +1354,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
++	{QMI_FIXED_INTF(0x413c, 0x81c2, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
 
 
