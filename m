@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4275F2A16
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E5D5F296E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbiJCHai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:30:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42692 "EHLO
+        id S229947AbiJCHTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:19:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231462AbiJCH3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:29:11 -0400
+        with ESMTP id S230140AbiJCHRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BC7B7C9;
-        Mon,  3 Oct 2022 00:20:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C20025C49;
+        Mon,  3 Oct 2022 00:14:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7602B80E72;
-        Mon,  3 Oct 2022 07:19:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25580C433D7;
-        Mon,  3 Oct 2022 07:19:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3ADF5B80E6F;
+        Mon,  3 Oct 2022 07:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E45FC433C1;
+        Mon,  3 Oct 2022 07:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781545;
-        bh=lpaqM68iF2A+dnBUkjIFdA/gEKCDcJqoCeNWy5/CwWo=;
+        s=korg; t=1664781270;
+        bh=29oDXYaJ1/GH0QpTSB639aYmU/+EHMMw4wqlP1bTBgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPcOsksckQOzxq7xW473yun18FxjQnN34R48fpoQFyTZdJ7h5+jHvTzJ+wNiLQI56
-         mXg2pltLnyyKZOBtDx3++6G+Z3Y1N0uS+03h4gpAHmYD3EFSNHshG9DEK1lx/E/eN8
-         eSAl8wTfZ4Aa81OYNEEh6QLNILdt1JIPiNqn9bSw=
+        b=EE1d97Gt21JT1j/ufEczIlQSXviqhqWYyYSrMYwe5+wpwXYfGVl/M93nAmSGRQdRH
+         JhDdk/aw60xjJffQnd3vfHL0UbWOXPX4X7inPcYrO8djqoOYzsmp35aKC78uEcHpDe
+         SIJ9yapMV2sn2mpxAucBk+5vT/H3DYVlZR8haZr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Binyi Han <dantengknight@gmail.com>,
-        Andrew Morton <akpm@linux-foudation.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Hagen Paul Pfeifer <hagen@jauu.net>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 31/83] mm: fix dereferencing possible ERR_PTR
+        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 060/101] clk: microchip: mpfs: make the rtcs ahb clock critical
 Date:   Mon,  3 Oct 2022 09:10:56 +0200
-Message-Id: <20221003070722.780081220@linuxfoundation.org>
+Message-Id: <20221003070725.961091761@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Binyi Han <dantengknight@gmail.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit 4eb5bbde3ccb710d3b85bfb13466612e56393369 upstream.
+[ Upstream commit 05d27090b6dc88bce71a608d1271536e582b73d1 ]
 
-Smatch checker complains that 'secretmem_mnt' dereferencing possible
-ERR_PTR().  Let the function return if 'secretmem_mnt' is ERR_PTR, to
-avoid deferencing it.
+The onboard RTC's AHB bus clock must be kept running as the RTC will
+stop & lose track of time if the AHB interface clock is disabled.
 
-Link: https://lkml.kernel.org/r/20220904074647.GA64291@cloud-MacBookPro
-Fixes: 1507f51255c9f ("mm: introduce memfd_secret system call to create "secret" memory areas")
-Signed-off-by: Binyi Han <dantengknight@gmail.com>
-Reviewed-by: Andrew Morton <akpm@linux-foudation.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Cc: Hagen Paul Pfeifer <hagen@jauu.net>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 635e5e73370e ("clk: microchip: Add driver for Microchip PolarFire SoC")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220909123123.2699583-3-conor.dooley@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/secretmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/microchip/clk-mpfs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/secretmem.c
-+++ b/mm/secretmem.c
-@@ -283,7 +283,7 @@ static int secretmem_init(void)
- 
- 	secretmem_mnt = kern_mount(&secretmem_fs);
- 	if (IS_ERR(secretmem_mnt))
--		ret = PTR_ERR(secretmem_mnt);
-+		return PTR_ERR(secretmem_mnt);
- 
- 	/* prevent secretmem mappings from ever getting PROT_EXEC */
- 	secretmem_mnt->mnt_flags |= MNT_NOEXEC;
+diff --git a/drivers/clk/microchip/clk-mpfs.c b/drivers/clk/microchip/clk-mpfs.c
+index f0f9c9a1cc48..b6b89413e090 100644
+--- a/drivers/clk/microchip/clk-mpfs.c
++++ b/drivers/clk/microchip/clk-mpfs.c
+@@ -375,6 +375,8 @@ static const struct clk_ops mpfs_periph_clk_ops = {
+  *   trap handler
+  * - CLK_MMUART0: reserved by the hss
+  * - CLK_DDRC: provides clock to the ddr subsystem
++ * - CLK_RTC: the onboard RTC's AHB bus clock must be kept running as the rtc will stop
++ *   if the AHB interface clock is disabled
+  * - CLK_FICx: these provide the processor side clocks to the "FIC" (Fabric InterConnect)
+  *   clock domain crossers which provide the interface to the FPGA fabric. Disabling them
+  *   causes the FPGA fabric to go into reset.
+@@ -399,7 +401,7 @@ static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
+ 	CLK_PERIPH(CLK_CAN0, "clk_periph_can0", PARENT_CLK(AHB), 14, 0),
+ 	CLK_PERIPH(CLK_CAN1, "clk_periph_can1", PARENT_CLK(AHB), 15, 0),
+ 	CLK_PERIPH(CLK_USB, "clk_periph_usb", PARENT_CLK(AHB), 16, 0),
+-	CLK_PERIPH(CLK_RTC, "clk_periph_rtc", PARENT_CLK(AHB), 18, 0),
++	CLK_PERIPH(CLK_RTC, "clk_periph_rtc", PARENT_CLK(AHB), 18, CLK_IS_CRITICAL),
+ 	CLK_PERIPH(CLK_QSPI, "clk_periph_qspi", PARENT_CLK(AHB), 19, 0),
+ 	CLK_PERIPH(CLK_GPIO0, "clk_periph_gpio0", PARENT_CLK(AHB), 20, 0),
+ 	CLK_PERIPH(CLK_GPIO1, "clk_periph_gpio1", PARENT_CLK(AHB), 21, 0),
+-- 
+2.35.1
+
 
 
