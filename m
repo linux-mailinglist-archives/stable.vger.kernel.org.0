@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A74D95F2C4D
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41BA45F2BD1
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 10:30:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiJCIsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 04:48:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58480 "EHLO
+        id S230009AbiJCIaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 04:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230331AbiJCIro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:47:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE08C30F48;
-        Mon,  3 Oct 2022 01:27:11 -0700 (PDT)
+        with ESMTP id S229775AbiJCI36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 04:29:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB126613B;
+        Mon,  3 Oct 2022 01:03:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30DE160FA7;
-        Mon,  3 Oct 2022 07:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E78CC433D6;
-        Mon,  3 Oct 2022 07:19:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA3CD60F9F;
+        Mon,  3 Oct 2022 07:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B31BC433D6;
+        Mon,  3 Oct 2022 07:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781564;
-        bh=g8ezt+zIuqYm6KOhw3hbjL5xc69Nj8LJANjkzGatBMU=;
+        s=korg; t=1664781346;
+        bh=yRBQe6PMJ2ERLuGkK9OKR07cUYELkHgG6mBeiC+z6fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2biDZd25OoyOH+3A6DtDK9d+xy9YBDq6/xFeWi/2caF+yB0TgrEnMAvknaRY46sw
-         CJvJkFcbl8y7gC6z75OXmjc8ewQglHnaecUv/iJwpHNuRLEz6pBLxCoHpsFw96CRAp
-         y8e6xtd7IlHUIhNyFn0by+nXpY4eQYP5b111TFk4=
+        b=f3qUD4nsLDwFokZ0BC72jEGtrklI9V8NTBqCtjhyRZAnWibOH8Eqf2cGhiLvxU1n/
+         paC6pGfvGk+6wADZdrVhxTcbvl4mBPasxi38rOgcbtDLrSBGFsjQ1xHVqvkyDvma/P
+         s5Yt3PSvkgYt+QIsx5NZHLh2vpmhbIgb7fklUiKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 58/83] cxgb4: fix missing unlock on ETHOFLD desc collect fail path
-Date:   Mon,  3 Oct 2022 09:11:23 +0200
-Message-Id: <20221003070723.457565834@linuxfoundation.org>
+Subject: [PATCH 5.19 088/101] vdpa/mlx5: Fix MQ to support non power of two num queues
+Date:   Mon,  3 Oct 2022 09:11:24 +0200
+Message-Id: <20221003070726.634609733@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +53,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit c635ebe8d911a93bd849a9419b01a58783de76f1 ]
+[ Upstream commit a43ae8057cc154fd26a3a23c0e8643bef104d995 ]
 
-The label passed to the QDESC_GET for the ETHOFLD TXQ, RXQ, and FLQ, is the
-'out' one, which skips the 'out_unlock' label, and thus doesn't unlock the
-'uld_mutex' before returning. Additionally, since commit 5148e5950c67
-("cxgb4: add EOTID tracking and software context dump"), the access to
-these ETHOFLD hardware queues should be protected by the 'mqprio_mutex'
-instead.
+RQT objects require that a power of two value be configured for both
+rqt_max_size and rqt_actual size.
 
-Fixes: 2d0cb84dd973 ("cxgb4: add ETHOFLD hardware queue support")
-Fixes: 5148e5950c67 ("cxgb4: add EOTID tracking and software context dump")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Link: https://lore.kernel.org/r/20220922175109.764898-1-rafaelmendsr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For create_rqt, make sure to round up to the power of two the value of
+given by the user who created the vdpa device and given by
+ndev->rqt_size. The actual size is also rounded up to the power of two
+using the current number of VQs given by ndev->cur_num_vqs.
+
+Same goes with modify_rqt where we need to make sure act size is power
+of two based on the new number of QPs.
+
+Without this patch, attempt to create a device with non power of two QPs
+would result in error from firmware.
+
+Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Message-Id: <20220912125019.833708-1-elic@nvidia.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 28 +++++++++++++------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-index a7f291c89702..557c591a6ce3 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-@@ -14,6 +14,7 @@
- #include "cudbg_entity.h"
- #include "cudbg_lib.h"
- #include "cudbg_zlib.h"
-+#include "cxgb4_tc_mqprio.h"
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index e85c1d71f4ed..f527cbeb1169 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1297,6 +1297,8 @@ static void teardown_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *
  
- static const u32 t6_tp_pio_array[][IREG_NUM_ELEM] = {
- 	{0x7e40, 0x7e44, 0x020, 28}, /* t6_tp_pio_regs_20_to_3b */
-@@ -3458,7 +3459,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
- 			for (i = 0; i < utxq->ntxq; i++)
- 				QDESC_GET_TXQ(&utxq->uldtxq[i].q,
- 					      cudbg_uld_txq_to_qtype(j),
--					      out_unlock);
-+					      out_unlock_uld);
- 		}
- 	}
+ static int create_rqt(struct mlx5_vdpa_net *ndev)
+ {
++	int rqt_table_size = roundup_pow_of_two(ndev->rqt_size);
++	int act_sz = roundup_pow_of_two(ndev->cur_num_vqs / 2);
+ 	__be32 *list;
+ 	void *rqtc;
+ 	int inlen;
+@@ -1304,7 +1306,7 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
+ 	int i, j;
+ 	int err;
  
-@@ -3475,7 +3476,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
- 			for (i = 0; i < urxq->nrxq; i++)
- 				QDESC_GET_RXQ(&urxq->uldrxq[i].rspq,
- 					      cudbg_uld_rxq_to_qtype(j),
--					      out_unlock);
-+					      out_unlock_uld);
- 		}
+-	inlen = MLX5_ST_SZ_BYTES(create_rqt_in) + ndev->rqt_size * MLX5_ST_SZ_BYTES(rq_num);
++	inlen = MLX5_ST_SZ_BYTES(create_rqt_in) + rqt_table_size * MLX5_ST_SZ_BYTES(rq_num);
+ 	in = kzalloc(inlen, GFP_KERNEL);
+ 	if (!in)
+ 		return -ENOMEM;
+@@ -1313,12 +1315,12 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
+ 	rqtc = MLX5_ADDR_OF(create_rqt_in, in, rqt_context);
  
- 		/* ULD FLQ */
-@@ -3487,7 +3488,7 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
- 			for (i = 0; i < urxq->nrxq; i++)
- 				QDESC_GET_FLQ(&urxq->uldrxq[i].fl,
- 					      cudbg_uld_flq_to_qtype(j),
--					      out_unlock);
-+					      out_unlock_uld);
- 		}
+ 	MLX5_SET(rqtc, rqtc, list_q_type, MLX5_RQTC_LIST_Q_TYPE_VIRTIO_NET_Q);
+-	MLX5_SET(rqtc, rqtc, rqt_max_size, ndev->rqt_size);
++	MLX5_SET(rqtc, rqtc, rqt_max_size, rqt_table_size);
+ 	list = MLX5_ADDR_OF(rqtc, rqtc, rq_num[0]);
+-	for (i = 0, j = 0; i < ndev->rqt_size; i++, j += 2)
++	for (i = 0, j = 0; i < act_sz; i++, j += 2)
+ 		list[i] = cpu_to_be32(ndev->vqs[j % ndev->cur_num_vqs].virtq_id);
  
- 		/* ULD CIQ */
-@@ -3500,29 +3501,34 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
- 			for (i = 0; i < urxq->nciq; i++)
- 				QDESC_GET_RXQ(&urxq->uldrxq[base + i].rspq,
- 					      cudbg_uld_ciq_to_qtype(j),
--					      out_unlock);
-+					      out_unlock_uld);
- 		}
- 	}
-+	mutex_unlock(&uld_mutex);
-+
-+	if (!padap->tc_mqprio)
-+		goto out;
+-	MLX5_SET(rqtc, rqtc, rqt_actual_size, ndev->rqt_size);
++	MLX5_SET(rqtc, rqtc, rqt_actual_size, act_sz);
+ 	err = mlx5_vdpa_create_rqt(&ndev->mvdev, in, inlen, &ndev->res.rqtn);
+ 	kfree(in);
+ 	if (err)
+@@ -1331,6 +1333,7 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
  
-+	mutex_lock(&padap->tc_mqprio->mqprio_mutex);
- 	/* ETHOFLD TXQ */
- 	if (s->eohw_txq)
- 		for (i = 0; i < s->eoqsets; i++)
- 			QDESC_GET_TXQ(&s->eohw_txq[i].q,
--				      CUDBG_QTYPE_ETHOFLD_TXQ, out);
-+				      CUDBG_QTYPE_ETHOFLD_TXQ, out_unlock_mqprio);
+ static int modify_rqt(struct mlx5_vdpa_net *ndev, int num)
+ {
++	int act_sz = roundup_pow_of_two(num / 2);
+ 	__be32 *list;
+ 	void *rqtc;
+ 	int inlen;
+@@ -1338,7 +1341,7 @@ static int modify_rqt(struct mlx5_vdpa_net *ndev, int num)
+ 	int i, j;
+ 	int err;
  
- 	/* ETHOFLD RXQ and FLQ */
- 	if (s->eohw_rxq) {
- 		for (i = 0; i < s->eoqsets; i++)
- 			QDESC_GET_RXQ(&s->eohw_rxq[i].rspq,
--				      CUDBG_QTYPE_ETHOFLD_RXQ, out);
-+				      CUDBG_QTYPE_ETHOFLD_RXQ, out_unlock_mqprio);
+-	inlen = MLX5_ST_SZ_BYTES(modify_rqt_in) + ndev->rqt_size * MLX5_ST_SZ_BYTES(rq_num);
++	inlen = MLX5_ST_SZ_BYTES(modify_rqt_in) + act_sz * MLX5_ST_SZ_BYTES(rq_num);
+ 	in = kzalloc(inlen, GFP_KERNEL);
+ 	if (!in)
+ 		return -ENOMEM;
+@@ -1349,10 +1352,10 @@ static int modify_rqt(struct mlx5_vdpa_net *ndev, int num)
+ 	MLX5_SET(rqtc, rqtc, list_q_type, MLX5_RQTC_LIST_Q_TYPE_VIRTIO_NET_Q);
  
- 		for (i = 0; i < s->eoqsets; i++)
- 			QDESC_GET_FLQ(&s->eohw_rxq[i].fl,
--				      CUDBG_QTYPE_ETHOFLD_FLQ, out);
-+				      CUDBG_QTYPE_ETHOFLD_FLQ, out_unlock_mqprio);
- 	}
+ 	list = MLX5_ADDR_OF(rqtc, rqtc, rq_num[0]);
+-	for (i = 0, j = 0; i < ndev->rqt_size; i++, j += 2)
++	for (i = 0, j = 0; i < act_sz; i++, j = j + 2)
+ 		list[i] = cpu_to_be32(ndev->vqs[j % num].virtq_id);
  
--out_unlock:
--	mutex_unlock(&uld_mutex);
-+out_unlock_mqprio:
-+	mutex_unlock(&padap->tc_mqprio->mqprio_mutex);
- 
- out:
- 	qdesc_info->qdesc_entry_size = sizeof(*qdesc_entry);
-@@ -3559,6 +3565,10 @@ int cudbg_collect_qdesc(struct cudbg_init *pdbg_init,
- #undef QDESC_GET
- 
- 	return rc;
-+
-+out_unlock_uld:
-+	mutex_unlock(&uld_mutex);
-+	goto out;
- }
- 
- int cudbg_collect_flash(struct cudbg_init *pdbg_init,
+-	MLX5_SET(rqtc, rqtc, rqt_actual_size, ndev->rqt_size);
++	MLX5_SET(rqtc, rqtc, rqt_actual_size, act_sz);
+ 	err = mlx5_vdpa_modify_rqt(&ndev->mvdev, in, inlen, ndev->res.rqtn);
+ 	kfree(in);
+ 	if (err)
 -- 
 2.35.1
 
