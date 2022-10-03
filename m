@@ -2,43 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 812325F2B31
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD555F2949
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbiJCHvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:51:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60068 "EHLO
+        id S230120AbiJCHRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:17:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232252AbiJCHvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:51:16 -0400
+        with ESMTP id S229907AbiJCHQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:16:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844EF5BC23;
-        Mon,  3 Oct 2022 00:29:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B717546236;
+        Mon,  3 Oct 2022 00:13:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6371260FA8;
-        Mon,  3 Oct 2022 07:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70AA9C43143;
-        Mon,  3 Oct 2022 07:16:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C0C560F9B;
+        Mon,  3 Oct 2022 07:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 688C2C433D6;
+        Mon,  3 Oct 2022 07:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781410;
-        bh=sYll7ZP2PDZtg5d9aDoiVEZ7UY8f0WBXmTE27CYtDp0=;
+        s=korg; t=1664781218;
+        bh=QBY0gO4T5Cnxvtxpzk3yL4FGs5zO0Hc1hWtnO6/Truc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkHygsyaCLQHeXgrUWw34jnNrMJWo4NvzvNKnK1k5CuiFDkId61YigTA4rFdUquNW
-         Xb65OXhkE8VdbSMmVrr34esG5ZOPcmuTIuSaNu6x59nnYU/T1FyKDMHrT70FSHdNKT
-         B51EzB4kkSJZycXNqh9TlAT3cg6mxvuhONFt159w=
+        b=PNve9ThnjpsivZM5Pvp4rHFxCX4T1ciReo0/msJ33J54eatRSBHBJ9fPlJZwK0F9V
+         R3PhtUKYLJF29i3W6oXRsrzskc6EfInrzpPJJ12dDAkAZRcQoUoesJ08ZDogcoSktA
+         JIQ+1Zxt4TG7Erd6fC0eDRqTbQGqwFRIrZYcuwm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.15 10/83] usb: typec: ucsi: Remove incorrect warning
-Date:   Mon,  3 Oct 2022 09:10:35 +0200
-Message-Id: <20221003070722.244913101@linuxfoundation.org>
+        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Alex Sierra <alex.sierra@amd.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 040/101] mm/migrate_device.c: flush TLB while holding PTL
+Date:   Mon,  3 Oct 2022 09:10:36 +0200
+Message-Id: <20221003070725.465821005@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +68,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Alistair Popple <apopple@nvidia.com>
 
-commit 415ba26cb73f7d22a892043301b91b57ae54db02 upstream.
+commit 60bae73708963de4a17231077285bd9ff2f41c44 upstream.
 
-Sink only devices do not have any source capabilities, so
-the driver should not warn about that. Also DRP (Dual Role
-Power) capable devices, such as USB Type-C docking stations,
-do not return any source capabilities unless they are
-plugged to a power supply themselves.
+When clearing a PTE the TLB should be flushed whilst still holding the PTL
+to avoid a potential race with madvise/munmap/etc.  For example consider
+the following sequence:
 
-Fixes: 1f4642b72be7 ("usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+  CPU0                          CPU1
+  ----                          ----
+
+  migrate_vma_collect_pmd()
+  pte_unmap_unlock()
+                                madvise(MADV_DONTNEED)
+                                -> zap_pte_range()
+                                pte_offset_map_lock()
+                                [ PTE not present, TLB not flushed ]
+                                pte_unmap_unlock()
+                                [ page is still accessible via stale TLB ]
+  flush_tlb_range()
+
+In this case the page may still be accessed via the stale TLB entry after
+madvise returns.  Fix this by flushing the TLB while holding the PTL.
+
+Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
+Link: https://lkml.kernel.org/r/9f801e9d8d830408f2ca27821f606e09aa856899.1662078528.git-series.apopple@nvidia.com
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reported-by: Nadav Amit <nadav.amit@gmail.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Alex Sierra <alex.sierra@amd.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220922145924.80667-1-heikki.krogerus@linux.intel.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    2 --
- 1 file changed, 2 deletions(-)
+ mm/migrate_device.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -515,8 +515,6 @@ static int ucsi_get_pdos(struct ucsi_con
- 				num_pdos * sizeof(u32));
- 	if (ret < 0)
- 		dev_err(ucsi->dev, "UCSI_GET_PDOS failed (%d)\n", ret);
--	if (ret == 0 && offset == 0)
--		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
+--- a/mm/migrate_device.c
++++ b/mm/migrate_device.c
+@@ -248,13 +248,14 @@ next:
+ 		migrate->dst[migrate->npages] = 0;
+ 		migrate->src[migrate->npages++] = mpfn;
+ 	}
+-	arch_leave_lazy_mmu_mode();
+-	pte_unmap_unlock(ptep - 1, ptl);
  
- 	return ret;
+ 	/* Only flush the TLB if we actually modified any entries */
+ 	if (unmapped)
+ 		flush_tlb_range(walk->vma, start, end);
+ 
++	arch_leave_lazy_mmu_mode();
++	pte_unmap_unlock(ptep - 1, ptl);
++
+ 	return 0;
  }
+ 
 
 
