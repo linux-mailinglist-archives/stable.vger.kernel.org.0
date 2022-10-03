@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D6C5F2B2F
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 759405F2A49
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbiJCHvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:51:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42048 "EHLO
+        id S231373AbiJCHez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:34:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232168AbiJCHvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:51:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1051B4D274;
-        Mon,  3 Oct 2022 00:29:03 -0700 (PDT)
+        with ESMTP id S231675AbiJCHeE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E637B43E58;
+        Mon,  3 Oct 2022 00:21:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 404E860F08;
-        Mon,  3 Oct 2022 07:21:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AAEFC433D6;
-        Mon,  3 Oct 2022 07:21:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7153F60FAA;
+        Mon,  3 Oct 2022 07:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80267C433D6;
+        Mon,  3 Oct 2022 07:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781669;
-        bh=CXEbBTnR8AgKq3AZKykNF/J/yDkcEAUyJcKoYOeiXWA=;
+        s=korg; t=1664781620;
+        bh=Sb5PFIs2scKZ4zhb6dlIQIkS03z409cA4TLbcRTeacI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2I3nJGGSgR691SvwWa1yHs5igHCJKgv22+/vzgMtLeg+y0XE7O8Gyvb4Ln51JmDn
-         HE53h1Ww3Vu1joR8P9jKTCFvUM9pS7zD5luMqbVvPVLejxneu9cinmuFWAtJikL+V6
-         spR5ySQcydwIxiJrcJVNDWfbOaMEk9myQA1Im0pw=
+        b=bMNyGN9nH8PI9+1flgOqZVrwvldIV+rlbbdtsJeRZBd5GzQa3Lr2FVDCU//BRQw70
+         PVbmg8RWipJLF3FQIWXSQQqOHMqP615Lzyho0NppXxrIF3fUzGNH3zLMOMXKFQ1zbJ
+         xDi37GiBbW2Ms3svnIsdXZwzu70Aot+MX6tOgCDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jaap Berkhout <j.j.berkhout@staalenberk.nl>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.10 20/52] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
+        stable@vger.kernel.org, Junxiao Chang <junxiao.chang@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Jimmy JS Chen <jimmyjs.chen@adlinktech.com>,
+        "Looi, Hong Aun" <hong.aun.looi@intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Looi@vger.kernel.org
+Subject: [PATCH 5.15 62/83] net: stmmac: power up/down serdes in stmmac_open/release
 Date:   Mon,  3 Oct 2022 09:11:27 +0200
-Message-Id: <20221003070719.328481285@linuxfoundation.org>
+Message-Id: <20221003070723.554455710@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
-References: <20221003070718.687440096@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +56,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Junxiao Chang <junxiao.chang@intel.com>
 
-commit ea08aec7e77bfd6599489ec430f9f859ab84575a upstream.
+[ Upstream commit 49725ffc15fc4e9fae68c55b691fd25168cbe5c1 ]
 
-Commit 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as
-board_ahci_mobile") added an explicit entry for AMD Green Sardine
-AHCI controller using the board_ahci_mobile configuration (this
-configuration has later been renamed to board_ahci_low_power).
+This commit fixes DMA engine reset timeout issue in suspend/resume
+with ADLink I-Pi SMARC Plus board which dmesg shows:
+...
+[   54.678271] PM: suspend exit
+[   54.754066] intel-eth-pci 0000:00:1d.2 enp0s29f2: PHY [stmmac-3:01] driver [Maxlinear Ethernet GPY215B] (irq=POLL)
+[   54.755808] intel-eth-pci 0000:00:1d.2 enp0s29f2: Register MEM_TYPE_PAGE_POOL RxQ-0
+...
+[   54.780482] intel-eth-pci 0000:00:1d.2 enp0s29f2: Register MEM_TYPE_PAGE_POOL RxQ-7
+[   55.784098] intel-eth-pci 0000:00:1d.2: Failed to reset the dma
+[   55.784111] intel-eth-pci 0000:00:1d.2 enp0s29f2: stmmac_hw_setup: DMA engine initialization failed
+[   55.784115] intel-eth-pci 0000:00:1d.2 enp0s29f2: stmmac_open: Hw setup failed
+...
 
-The board_ahci_low_power configuration enables support for low power
-modes.
+The issue is related with serdes which impacts clock.  There is
+serdes in ADLink I-Pi SMARC board ethernet controller. Please refer to
+commit b9663b7ca6ff78 ("net: stmmac: Enable SERDES power up/down sequence")
+for detial. When issue is reproduced, DMA engine clock is not ready
+because serdes is not powered up.
 
-This explicit entry takes precedence over the generic AHCI controller
-entry, which does not enable support for low power modes.
+To reproduce DMA engine reset timeout issue with hardware which has
+serdes in GBE controller, install Ubuntu. In Ubuntu GUI, click
+"Power Off/Log Out" -> "Suspend" menu, it disables network interface,
+then goes to sleep mode. When it wakes up, it enables network
+interface again. Stmmac driver is called in this way:
 
-Therefore, when commit 1527f69204fe ("ata: ahci: Add Green Sardine
-vendor ID as board_ahci_mobile") was backported to stable kernels,
-it make some Pioneer optical drives, which was working perfectly fine
-before the commit was backported, stop working.
+1. stmmac_release: Stop network interface. In this function, it
+   disables DMA engine and network interface;
+2. stmmac_suspend: It is called in kernel suspend flow. But because
+   network interface has been disabled(netif_running(ndev) is
+   false), it does nothing and returns directly;
+3. System goes into S3 or S0ix state. Some time later, system is
+   waken up by keyboard or mouse;
+4. stmmac_resume: It does nothing because network interface has
+   been disabled;
+5. stmmac_open: It is called to enable network interace again. DMA
+   engine is initialized in this API, but serdes is not power on so
+   there will be DMA engine reset timeout issue.
 
-The real problem is that the Pioneer optical drives do not handle low
-power modes correctly. If these optical drives would have been tested
-on another AHCI controller using the board_ahci_low_power configuration,
-this issue would have been detected earlier.
+Similarly, serdes powerdown should be added in stmmac_release.
+Network interface might be disabled by cmd "ifconfig eth0 down",
+DMA engine, phy and mac have been disabled in ndo_stop callback,
+serdes should be powered down as well. It doesn't make sense that
+serdes is on while other components have been turned off.
 
-Unfortunately, the board_ahci_low_power configuration is only used in
-less than 15% of the total AHCI controller entries, so many devices
-have never been tested with an AHCI controller with low power modes.
+If ethernet interface is in enabled state(netif_running(ndev) is true)
+before suspend/resume, the issue couldn't be reproduced  because serdes
+could be powered up in stmmac_resume.
 
-Fixes: 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile")
-Cc: stable@vger.kernel.org
-Reported-by: Jaap Berkhout <j.j.berkhout@staalenberk.nl>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Because serdes_powerup is added in stmmac_open, it doesn't need to be
+called in probe function.
+
+Fixes: b9663b7ca6ff78 ("net: stmmac: Enable SERDES power up/down sequence")
+Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
+Reviewed-by: Voon Weifeng <weifeng.voon@intel.com>
+Tested-by: Jimmy JS Chen <jimmyjs.chen@adlinktech.com>
+Tested-by: Looi, Hong Aun <hong.aun.looi@intel.com>
+Link: https://lore.kernel.org/r/20220923050448.1220250-1-junxiao.chang@intel.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 23 +++++++++++--------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3936,6 +3936,10 @@ static const struct ata_blacklist_entry
- 	{ "PIONEER DVD-RW  DVR-212D",	NULL,	ATA_HORKAGE_NOSETXFER },
- 	{ "PIONEER DVD-RW  DVR-216D",	NULL,	ATA_HORKAGE_NOSETXFER },
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 2569673559df..6f579f498993 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3757,6 +3757,15 @@ static int stmmac_open(struct net_device *dev)
+ 		goto init_error;
+ 	}
  
-+	/* These specific Pioneer models have LPM issues */
-+	{ "PIONEER BD-RW   BDR-207M",	NULL,	ATA_HORKAGE_NOLPM },
-+	{ "PIONEER BD-RW   BDR-205",	NULL,	ATA_HORKAGE_NOLPM },
++	if (priv->plat->serdes_powerup) {
++		ret = priv->plat->serdes_powerup(dev, priv->plat->bsp_priv);
++		if (ret < 0) {
++			netdev_err(priv->dev, "%s: Serdes powerup failed\n",
++				   __func__);
++			goto init_error;
++		}
++	}
 +
- 	/* Crucial BX100 SSD 500GB has broken LPM support */
- 	{ "CT500BX100SSD1",		NULL,	ATA_HORKAGE_NOLPM },
+ 	ret = stmmac_hw_setup(dev, true);
+ 	if (ret < 0) {
+ 		netdev_err(priv->dev, "%s: Hw setup failed\n", __func__);
+@@ -3846,6 +3855,10 @@ static int stmmac_release(struct net_device *dev)
+ 	/* Disable the MAC Rx/Tx */
+ 	stmmac_mac_set(priv, priv->ioaddr, false);
  
++	/* Powerdown Serdes if there is */
++	if (priv->plat->serdes_powerdown)
++		priv->plat->serdes_powerdown(dev, priv->plat->bsp_priv);
++
+ 	netif_carrier_off(dev);
+ 
+ 	stmmac_release_ptp(priv);
+@@ -7224,14 +7237,6 @@ int stmmac_dvr_probe(struct device *device,
+ 		goto error_netdev_register;
+ 	}
+ 
+-	if (priv->plat->serdes_powerup) {
+-		ret = priv->plat->serdes_powerup(ndev,
+-						 priv->plat->bsp_priv);
+-
+-		if (ret < 0)
+-			goto error_serdes_powerup;
+-	}
+-
+ #ifdef CONFIG_DEBUG_FS
+ 	stmmac_init_fs(ndev);
+ #endif
+@@ -7246,8 +7251,6 @@ int stmmac_dvr_probe(struct device *device,
+ 
+ 	return ret;
+ 
+-error_serdes_powerup:
+-	unregister_netdev(ndev);
+ error_netdev_register:
+ 	phylink_destroy(priv->phylink);
+ error_xpcs_setup:
+-- 
+2.35.1
+
 
 
