@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 633FC5F29BE
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4DD5F29FF
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbiJCHYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:24:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53006 "EHLO
+        id S231186AbiJCH3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:29:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230511AbiJCHXu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:23:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C3940BFA;
-        Mon,  3 Oct 2022 00:17:45 -0700 (PDT)
+        with ESMTP id S231345AbiJCH2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:28:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6697AF587;
+        Mon,  3 Oct 2022 00:19:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47A4C60F9B;
-        Mon,  3 Oct 2022 07:15:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 577E3C433D6;
-        Mon,  3 Oct 2022 07:15:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1566BCE0B1C;
+        Mon,  3 Oct 2022 07:18:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262D9C433C1;
+        Mon,  3 Oct 2022 07:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781335;
-        bh=rbGALLdGpMoXn3faPKL8k519MdGxpF/HHBObKz4rX/Y=;
+        s=korg; t=1664781480;
+        bh=2UHdbvEr9lqpstgtuyNn+47IaQkePd+H6y1WP7Yv+1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPUtjnjqYbXg8tTpd1dDvghFGY9Z8l7QJIv5Vt6gfdpjuAWaJROewsngz2R+NtXzw
-         514J3QnM/XibvUpcQjpq9WcJoeJhgpl3NzB01mTRz3tL1vBIOY35ir1rA8KwBIKkYq
-         RkBKuee6X0UTsBDupqnvIfRMTdOAGtoau7nuq3GY=
+        b=MrhClt9KX4TV62GmRhnRv/loQ8y7hehAZXwMgo1YMSwkvjoCa1SedFgzFhlX+8R0R
+         ZGG/UbTcFuRvO/gKRC8/nD5tSuGKmASLtLe5+BTx4MwKlxzjY+36SQeNNyh6xdSbat
+         QtgeOT9Gx1nSp0X5lQWNIh+e7fgDohzOLRjMjPSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 057/101] soc: sunxi: sram: Fix debugfs info for A64 SRAM C
+        stable@vger.kernel.org, Wenchao Chen <wenchao.chen@unisoc.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 28/83] mmc: hsq: Fix data stomping during mmc recovery
 Date:   Mon,  3 Oct 2022 09:10:53 +0200
-Message-Id: <20221003070725.884772653@linuxfoundation.org>
+Message-Id: <20221003070722.704036470@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Wenchao Chen <wenchao.chen@unisoc.com>
 
-[ Upstream commit e3c95edb1bd8b9c2cb0caa6ae382fc8080f6a0ed ]
+commit e7afa79a3b35a27a046a2139f8b20bd6b98155c2 upstream.
 
-The labels were backward with respect to the register values. The SRAM
-is mapped to the CPU when the register value is 1.
+The block device uses multiple queues to access emmc. There will be up to 3
+requests in the hsq of the host. The current code will check whether there
+is a request doing recovery before entering the queue, but it will not check
+whether there is a request when the lock is issued. The request is in recovery
+mode. If there is a request in recovery, then a read and write request is
+initiated at this time, and the conflict between the request and the recovery
+request will cause the data to be trampled.
 
-Fixes: 5e4fb6429761 ("drivers: soc: sunxi: add support for A64 and its SRAM C")
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220815041248.53268-7-samuel@sholland.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
+Fixes: 511ce378e16f ("mmc: Add MMC host software queue support")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220916090506.10662-1-wenchao.chen666@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sunxi/sunxi_sram.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/mmc_hsq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/sunxi/sunxi_sram.c b/drivers/soc/sunxi/sunxi_sram.c
-index 52d07bed7664..09754cd1d57d 100644
---- a/drivers/soc/sunxi/sunxi_sram.c
-+++ b/drivers/soc/sunxi/sunxi_sram.c
-@@ -78,8 +78,8 @@ static struct sunxi_sram_desc sun4i_a10_sram_d = {
+--- a/drivers/mmc/host/mmc_hsq.c
++++ b/drivers/mmc/host/mmc_hsq.c
+@@ -34,7 +34,7 @@ static void mmc_hsq_pump_requests(struct
+ 	spin_lock_irqsave(&hsq->lock, flags);
  
- static struct sunxi_sram_desc sun50i_a64_sram_c = {
- 	.data	= SUNXI_SRAM_DATA("C", 0x4, 24, 1,
--				  SUNXI_SRAM_MAP(0, 1, "cpu"),
--				  SUNXI_SRAM_MAP(1, 0, "de2")),
-+				  SUNXI_SRAM_MAP(1, 0, "cpu"),
-+				  SUNXI_SRAM_MAP(0, 1, "de2")),
- };
- 
- static const struct of_device_id sunxi_sram_dt_ids[] = {
--- 
-2.35.1
-
+ 	/* Make sure we are not already running a request now */
+-	if (hsq->mrq) {
++	if (hsq->mrq || hsq->recovery_halt) {
+ 		spin_unlock_irqrestore(&hsq->lock, flags);
+ 		return;
+ 	}
 
 
