@@ -2,109 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50ADC5F34FB
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 19:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6DA5F3512
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 19:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229916AbiJCR4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 13:56:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53896 "EHLO
+        id S230018AbiJCR7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 13:59:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbiJCRzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 13:55:12 -0400
-Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E03F10FE6;
-        Mon,  3 Oct 2022 10:54:49 -0700 (PDT)
+        with ESMTP id S230092AbiJCR6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 13:58:35 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4ADE2D74C
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 10:57:47 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id u14so2711748ljk.4
+        for <stable@vger.kernel.org>; Mon, 03 Oct 2022 10:57:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1664819691; x=1696355691;
-  h=from:to:cc:date:message-id:references:in-reply-to:
-   content-id:content-transfer-encoding:mime-version:subject;
-  bh=uNQsP0QcxaUqiGvM3CPkPfMoDdNhIsBjWiT+0LzlH3o=;
-  b=W8mxAtzvHyp7PZIdpiZd2P4wGCgqw29SMU1++t5wSFKI2jQ/fXRDIAlb
-   Aoo1JierEfSyIBj+wha25/n3FDse8i63JvhDW0qn4cOZEuvyz7bxq9gHA
-   c5og9q1XN0DEA1L3ggV1pejBzP6Lxe567VFAX678th5/aT53RPn1PdsfD
-   0=;
-X-IronPort-AV: E=Sophos;i="5.93,366,1654560000"; 
-   d="scan'208";a="247815422"
-Subject: Re: [PATCH 0/6] IRQ handling patches backport to 4.14 stable
-Thread-Topic: [PATCH 0/6] IRQ handling patches backport to 4.14 stable
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-2d7489a4.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-2101.iad2.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Oct 2022 17:54:49 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-iad-1a-2d7489a4.us-east-1.amazon.com (Postfix) with ESMTPS id 6804E87F61;
-        Mon,  3 Oct 2022 17:54:48 +0000 (UTC)
-Received: from EX19D012UWC002.ant.amazon.com (10.13.138.165) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Mon, 3 Oct 2022 17:54:35 +0000
-Received: from EX19D002UWC004.ant.amazon.com (10.13.138.186) by
- EX19D012UWC002.ant.amazon.com (10.13.138.165) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.12; Mon, 3 Oct 2022 17:54:35 +0000
-Received: from EX19D002UWC004.ant.amazon.com ([fe80::f92f:5ec1:6ed3:7754]) by
- EX19D002UWC004.ant.amazon.com ([fe80::f92f:5ec1:6ed3:7754%4]) with mapi id
- 15.02.1118.012; Mon, 3 Oct 2022 17:54:35 +0000
-From:   "Bhatnagar, Rishabh" <risbhat@amazon.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>,
-        "Bacco, Mike" <mbacco@amazon.com>
-Thread-Index: AQHY1EeKPnOMRVz3KU6wb3fLP++ZDK37PzMAgAFFSQA=
-Date:   Mon, 3 Oct 2022 17:54:35 +0000
-Message-ID: <9BEC548C-6849-483B-9A30-10EFFB145E1C@amazon.com>
-References: <20220929210651.12308-1-risbhat@amazon.com>
- <YzmujBxtwUxHexem@kroah.com>
-In-Reply-To: <YzmujBxtwUxHexem@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.43.161.69]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <0B14D7DA93089D4E81E4FA4747E18A46@amazon.com>
-Content-Transfer-Encoding: base64
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=ZPof+jI/R1dfmUkJy1EKqNxrIvq4pry+XXXXmem36f4=;
+        b=y7ZFz/7zxfuHoIJfOY92zSTEkeSvPP+wBDhQDqvUs5aTnzb+4QOtA24ye/649cB7en
+         W5xAu+jR3rvNXDoJR7XoxjDctDA/oHdq4HQNeSP07edi7cmthudvaW79/HSW5Cljtz7C
+         H5gbKMGNZplstjbXjf8VgKfSBNQMMQULEz+uWeWH7OZUAKPtcTChITXB7eKsD7oB4An7
+         4NLSpsdX0rpLDHJW1dNrN4K+g9bo/++GkP3NzqlOKrkoYdFGfd56THhISUcuwn7YA2Mq
+         l/orygnQt4lliHozTZmynuwqEM78fTqYMf7WY6k31H0REpgzaQ0G9QxhCR9XnmwRpu8H
+         qYqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=ZPof+jI/R1dfmUkJy1EKqNxrIvq4pry+XXXXmem36f4=;
+        b=4JBN2/+/QQRbR8CKKADcFNlkf2fq8Xh5mLy/DF6gstgv9Aj6nMayY8iEvcQSShCNC1
+         xLQEoteUxjc1KSl65T69OUUk1I/o9sZ647WtB/ICyO7SHtV5VZlPntl6aUWptI69CqjI
+         8C4ucCMc0V/CkhZCf3jMyv/bEOFRrToEOiNfGHJ7JTH6sO/ktN7C4t3gdLniDi0aZOuI
+         78/ZypuwYYwTBYop3yH2BzTMK2TY6rrT7xUAHrQ58PLjPxlYcFqrkOERoa4n0fiQssuk
+         0GVC+3cG0Lj26An2ZRwz8FjWcBVoY5srSIz5gfaTIwQ+Aam2/J0GIG7FDd4GQ71v5H/o
+         EmmA==
+X-Gm-Message-State: ACrzQf02rWlacg77d70VXPuePqFvwUSaktxBrympo7fjkry6J4cF8tc2
+        W3nEcb3oLGKcXSaSsKCk4X9Iiw==
+X-Google-Smtp-Source: AMsMyM4zxlNrMG71JyuCr0C3hCUHzKzy3LAX/vjNbM8E1pmke49EjFhDiQMzyViR5K5PZeetOMKjlw==
+X-Received: by 2002:a2e:b4b9:0:b0:26d:d08c:1b88 with SMTP id q25-20020a2eb4b9000000b0026dd08c1b88mr2558306ljm.269.1664819866139;
+        Mon, 03 Oct 2022 10:57:46 -0700 (PDT)
+Received: from [192.168.0.21] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
+        by smtp.gmail.com with ESMTPSA id o20-20020a056512231400b00492d064e8f8sm1543640lfu.263.2022.10.03.10.57.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Oct 2022 10:57:45 -0700 (PDT)
+Message-ID: <c0bf359a-1ee9-04e2-2c58-9e7e8f3e12f7@linaro.org>
+Date:   Mon, 3 Oct 2022 19:57:44 +0200
 MIME-Version: 1.0
-X-Spam-Status: No, score=-10.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.0
+Subject: Re: [PATCH 2/3] arm64: dts: qcom: sdm845-db845c: correct SPI2 pins
+ drive strength
+Content-Language: en-US
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+References: <20220930182212.209804-1-krzysztof.kozlowski@linaro.org>
+ <20220930182212.209804-2-krzysztof.kozlowski@linaro.org>
+ <CAD=FV=WSbpV4aqyHgSX6rwanQmZYG1hdNourjP5DEmsfdq6aDA@mail.gmail.com>
+ <11a99a84-47ec-ca3e-5781-0f17ed33dbf9@linaro.org>
+ <CAD=FV=URMX9umJfqYOhnnnjsr09As-6mKAHs0YNZFK8n2K337g@mail.gmail.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <CAD=FV=URMX9umJfqYOhnnnjsr09As-6mKAHs0YNZFK8n2K337g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gMTAvMi8yMiwgODozMCBBTSwgIkdyZWcgS0giIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9y
-Zz4gd3JvdGU6DQoNCiAgICBDQVVUSU9OOiBUaGlzIGVtYWlsIG9yaWdpbmF0ZWQgZnJvbSBvdXRz
-aWRlIG9mIHRoZSBvcmdhbml6YXRpb24uIERvIG5vdCBjbGljayBsaW5rcyBvciBvcGVuIGF0dGFj
-aG1lbnRzIHVubGVzcyB5b3UgY2FuIGNvbmZpcm0gdGhlIHNlbmRlciBhbmQga25vdyB0aGUgY29u
-dGVudCBpcyBzYWZlLg0KDQoNCg0KICAgIE9uIFRodSwgU2VwIDI5LCAyMDIyIGF0IDA5OjA2OjQ1
-UE0gKzAwMDAsIFJpc2hhYmggQmhhdG5hZ2FyIHdyb3RlOg0KICAgID4gVGhpcyBwYXRjaCBzZXJp
-ZXMgYmFja3BvcnRzIGEgYnVuY2ggb2YgcGF0Y2hlcyByZWxhdGVkIElSUSBoYW5kbGluZw0KICAg
-ID4gd2l0aCByZXNwZWN0IHRvIGZyZWVpbmcgdGhlIGlycSBsaW5lIHdoaWxlIElSUSBpcyBpbiBm
-bGlnaHQgYXQgQ1BVDQogICAgPiBvciBhdCB0aGUgaGFyZHdhcmUgbGV2ZWwuDQogICAgPiBSZWNl
-bnRseSB3ZSBzYXcgdGhpcyBpc3N1ZSBpbiBzZXJpYWwgODI1MCBkcml2ZXIgd2hlcmUgdGhlIElS
-USB3YXMgYmVpbmcNCiAgICA+IGZyZWVkIHdoaWxlIHRoZSBpcnEgd2FzIGluIGZsaWdodCBvciBu
-b3QgeWV0IGRlbGl2ZXJlZCB0byB0aGUgQ1BVLiBBcyBhDQogICAgPiByZXN1bHQgdGhlIGlycWNo
-aXAgd2FzIGdvaW5nIGludG8gYSB3ZWRnZWQgc3RhdGUgYW5kIElSUSB3YXMgbm90IGdldHRpbmcN
-CiAgICA+IGRlbGl2ZXJlZCB0byB0aGUgY3B1LiBUaGVzZSBwYXRjaGVzIGhlbHBlZCBmaXhlZCB0
-aGUgaXNzdWUgaW4gNC4xNA0KICAgID4ga2VybmVsLg0KDQogICAgV2h5IGlzIHRoZSBzZXJpYWwg
-ZHJpdmVyIGZyZWVpbmcgYW4gaXJxIHdoaWxlIHRoZSBzeXN0ZW0gaXMgcnVubmluZz8NCiAgICBB
-aCwgdGhpcyBjb3VsZCBoYXBwZW4gb24gYSB0dHkgaGFuZ3VwLCByaWdodD8NClllcywgZXhhY3Rs
-eSBkdXJpbmcgdHR5IGhhbmd1cCB3ZSBzZWUgdGhpcyBzZXF1ZW5jZSBoYXBwZW5pbmcuDQpJdCBk
-b2Vzbid0IGhhcHBlbiBvbiBldmVyeSBoYW5ndXAgYnV0IGNhbiBiZSByZXByb2R1Y2VkIHdpdGhp
-biAxMCB0cmllcy4gV2UgZGlkbid0IHNlZSB0aGUgc2FtZQ0KYmVoYXZpb3IgaW4gNS4xMCBhbmQg
-aGVuY2UgZm91bmQgdGhlc2UgY29tbWl0cy4NCg0KICAgID4gTGV0IHVzIGtub3cgaWYgbW9yZSBw
-YXRjaGVzIG5lZWQgYmFja3BvcnRpbmcuDQoNCiAgICBXaGF0IGhhcmR3YXJlIHBsYXRmb3JtIHdl
-cmUgdGhlc2UgcGF0Y2hlcyB0ZXN0ZWQgb24gdG8gdmVyaWZ5IHRoZXkgd29yaw0KICAgIHByb3Bl
-cmx5PyAgQW5kIHdoeSBjYW4ndCB0aGV5IG1vdmUgdG8gNC4xOSBvciBuZXdlciBpZiB0aGV5IHJl
-YWxseSBuZWVkDQogICAgdGhpcyBmaXg/ICBXaGF0J3MgcHJldmVudGluZyB0aGF0Pw0KDQogICAg
-QXMgQW1hem9uIGRvZXNuJ3Qgc2VlbSB0byBiZSB0ZXN0aW5nIDQuMTQueSAtcmMgcmVsZWFzZXMs
-IEkgZmluZCBpdCBvZGQNCiAgICB0aGF0IHlvdSBhbGwgZGlkIHRoaXMgYmFja3BvcnQuICBJcyB0
-aGlzIGEga2VybmVsIHRoYXQgeW91IGFsbCBjYXJlDQogICAgYWJvdXQ/DQoNClRoZXNlIHdlcmUg
-dGVzdGVkIG9uIEludGVsIHg4Nl82NCAoWGVvbiBQbGF0aW51bSA4MjU5KS4NCkFtYXpvbiBsaW51
-eCAyIHN0aWxsIHN1cHBvcnRzIDQuMTQga2VybmVsIGZvciBvdXIgY3VzdG9tZXJzLCBzbyB3ZSB3
-b3VsZCBuZWVkIHRvIGZpeCB0aGF0Lg0KDQogICAgdGhhbmtzLA0KDQogICAgZ3JlZyBrLWgNCg0K
+On 03/10/2022 17:40, Doug Anderson wrote:
+>>>>
+>>>> diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+>>>> index 132417e2d11e..a157eab66dee 100644
+>>>> --- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+>>>> +++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+>>>> @@ -1123,7 +1123,9 @@ &wifi {
+>>>>
+>>>>  /* PINCTRL - additions to nodes defined in sdm845.dtsi */
+>>>>  &qup_spi2_default {
+>>>> -       drive-strength = <16>;
+>>>> +       pinmux {
+>>>> +               drive-strength = <16>;
+>>>> +       };
+>>>
+>>> The convention on Qualcomm boards of this era is that muxing (setting
+>>> the function) is done under a "pinmux" node and, unless some of the
+>>> pins need to be treated differently like for the UARTs, configuration
+>>> (bias, drive strength, etc) is done under a "pinconf" subnode.
+>>
+>> Yes, although this was not expressed in bindings.
+>>
+>>> I
+>>> believe that the "pinconf" subnode also needs to replicate the list of
+>>> pins, or at least that's what we did everywhere else on sdm845 /
+>>> sc7180.
+>>
+>> Yes.
+>>
+>>>
+>>> Thus to match conventions, I assume you'd do:
+>>>
+>>> &qup_spi2_default {
+>>>   pinconf {
+>>
+>> No, because I want a convention of all pinctrl bindings and drivers, not
+>> convention of old pinctrl ones. The new ones are already moved or being
+>> moved to "-state" and "-pins". In the same time I am also unifying the
+>> requirement of "function" property - enforcing it in each node, thus
+>> "pinconf" will not be valid anymore.
+> 
+> Regardless of where we want to end up, it feels like as of ${SUBJECT}
+> patch this should match existing conventions in this file. If a later
+> patch wants to change the conventions in this file then it can, but
+> having just this one patch leaving things in an inconsistent state
+> isn't great IMO...
+> 
+> If this really has to be one-off then the subnode shouldn't be called
+> "pinmux". A subnode called "pinmux" implies that it just has muxing
+> information in it. After your patch this is called "pinmux" but has
+> _configuration_ in it.
+> 
+
+It is a poor argument to keep some convention which is both
+undocumented, not kept in this file and known only to some folks
+(although that's effect of lack of documentation). Even the bindings do
+not say it should be "pinconf" but they mention "config" in example. The
+existing sdm845.dts uses config - so why now there should be "pinconf"?
+By this "convention" we have both "pinmux" and "mux", perfect. Several
+other pins do not have pinmux/mux/config at all.
+
+This convention was never implemented, so there is nothing to keep/match.
+
+Changing it to "config" (because this is the most used "convention" in
+the file and bindings) would also mean to add useless "pins" which will
+be in next patch removed.
+
+Best regards,
+Krzysztof
+
