@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D3C5F2A27
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B0E5F29DE
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:26:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231437AbiJCHbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
+        id S231189AbiJCH0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:26:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231358AbiJCHaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:30:14 -0400
+        with ESMTP id S230314AbiJCHYk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:24:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0CE1205F4;
-        Mon,  3 Oct 2022 00:20:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB54E3FD64;
+        Mon,  3 Oct 2022 00:18:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6085B80E72;
-        Mon,  3 Oct 2022 07:20:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0399C433D6;
-        Mon,  3 Oct 2022 07:20:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4463BB80E76;
+        Mon,  3 Oct 2022 07:15:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB8E6C433D6;
+        Mon,  3 Oct 2022 07:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781615;
-        bh=oKCYGSycukY9Zk0OSdLHysoRbpbMi0dodmHYKNVraG4=;
+        s=korg; t=1664781349;
+        bh=YoajUM20gTB4qwbFyiuAFKO4hfeAyGhn+vIsU9/vtJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGHUVBiv/XrlenF1cCLoknlU0qxW0TLmIDx1FCSrYpkGfLnZH4M/9BmjGYIV93jAO
-         IcyHrAd6TT6inHYl2mJHaXxaOqFxBI0tf2oanhv1re0qU5qZRJ905A1ATeqYsUfweA
-         lxIgkxUQeVURtdlG874dABifKvBD4QOuZceNTZrg=
+        b=OqTXHR5BCfSR4bH7RAqaeqgUaV/tUMriG9EGo+9YRC0Da0qQuGiluu4cYY1aR9pL+
+         YFKErMmzWr+y0KDXZ0PrpZR7/UZuWbUj9+L1Gm2F7d/wzoT2CQVaMFK4Zn0aacIpBV
+         puwcK7qLzaSURm84vnhd8zVYT+plRUxKMnuRqjrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 60/83] nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 089/101] dont use __kernel_write() on kmap_local_page()
 Date:   Mon,  3 Oct 2022 09:11:25 +0200
-Message-Id: <20221003070723.505616676@linuxfoundation.org>
+Message-Id: <20221003070726.658463729@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
+References: <20221003070724.490989164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +52,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit c292a337d0e45a292c301e3cd51c35aa0ae91e95 ]
+[ Upstream commit 06bbaa6dc53cb72040db952053432541acb9adc7 ]
 
-The IOC_PR_CLEAR and IOC_PR_RELEASE ioctls are
-non-functional on NVMe devices because the nvme_pr_clear()
-and nvme_pr_release() functions set the IEKEY field incorrectly.
-The IEKEY field should be set only when the key is zero (i.e,
-not specified).  The current code does it backwards.
+passing kmap_local_page() result to __kernel_write() is unsafe -
+random ->write_iter() might (and 9p one does) get unhappy when
+passed ITER_KVEC with pointer that came from kmap_local_page().
 
-Furthermore, the NVMe spec describes the persistent
-reservation "clear" function as an option on the reservation
-release command. The current implementation of nvme_pr_clear()
-erroneously uses the reservation register command.
+Fix by providing a variant of __kernel_write() that takes an iov_iter
+from caller (__kernel_write() becomes a trivial wrapper) and adding
+dump_emit_page() that parallels dump_emit(), except that instead of
+__kernel_write() it uses __kernel_write_iter() with ITER_BVEC source.
 
-Fix these errors. Note that NVMe version 1.3 and later specify
-that setting the IEKEY field will return an error of Invalid
-Field in Command.  The fix will set IEKEY when the key is zero,
-which is appropriate as these ioctls consider a zero key to
-be "unspecified", and the intention of the spec change is
-to require a valid key.
-
-Tested on a version 1.4 PCI NVMe device in an Azure VM.
-
-Fixes: 1673f1f08c88 ("nvme: move block_device_operations and ns/ctrl freeing to common code")
-Fixes: 1d277a637a71 ("NVMe: Add persistent reservation ops")
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 3159ed57792b "fs/coredump: use kmap_local_page()"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/coredump.c   | 38 +++++++++++++++++++++++++++++++++-----
+ fs/internal.h   |  3 +++
+ fs/read_write.c | 22 ++++++++++++++--------
+ 3 files changed, 50 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index ed2740585c5d..76d8a72f52e2 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2056,14 +2056,14 @@ static int nvme_pr_preempt(struct block_device *bdev, u64 old, u64 new,
- 
- static int nvme_pr_clear(struct block_device *bdev, u64 key)
- {
--	u32 cdw10 = 1 | (key ? 1 << 3 : 0);
-+	u32 cdw10 = 1 | (key ? 0 : 1 << 3);
- 
--	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_register);
-+	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
+diff --git a/fs/coredump.c b/fs/coredump.c
+index ebc43f960b64..f1355e52614a 100644
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -832,6 +832,38 @@ static int __dump_skip(struct coredump_params *cprm, size_t nr)
+ 	}
  }
  
- static int nvme_pr_release(struct block_device *bdev, u64 key, enum pr_type type)
++static int dump_emit_page(struct coredump_params *cprm, struct page *page)
++{
++	struct bio_vec bvec = {
++		.bv_page	= page,
++		.bv_offset	= 0,
++		.bv_len		= PAGE_SIZE,
++	};
++	struct iov_iter iter;
++	struct file *file = cprm->file;
++	loff_t pos = file->f_pos;
++	ssize_t n;
++
++	if (cprm->to_skip) {
++		if (!__dump_skip(cprm, cprm->to_skip))
++			return 0;
++		cprm->to_skip = 0;
++	}
++	if (cprm->written + PAGE_SIZE > cprm->limit)
++		return 0;
++	if (dump_interrupted())
++		return 0;
++	iov_iter_bvec(&iter, WRITE, &bvec, 1, PAGE_SIZE);
++	n = __kernel_write_iter(cprm->file, &iter, &pos);
++	if (n != PAGE_SIZE)
++		return 0;
++	file->f_pos = pos;
++	cprm->written += PAGE_SIZE;
++	cprm->pos += PAGE_SIZE;
++
++	return 1;
++}
++
+ int dump_emit(struct coredump_params *cprm, const void *addr, int nr)
  {
--	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 1 << 3 : 0);
-+	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 0 : 1 << 3);
+ 	if (cprm->to_skip) {
+@@ -863,7 +895,6 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
  
- 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
+ 	for (addr = start; addr < start + len; addr += PAGE_SIZE) {
+ 		struct page *page;
+-		int stop;
+ 
+ 		/*
+ 		 * To avoid having to allocate page tables for virtual address
+@@ -874,10 +905,7 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
+ 		 */
+ 		page = get_dump_page(addr);
+ 		if (page) {
+-			void *kaddr = kmap_local_page(page);
+-
+-			stop = !dump_emit(cprm, kaddr, PAGE_SIZE);
+-			kunmap_local(kaddr);
++			int stop = !dump_emit_page(cprm, page);
+ 			put_page(page);
+ 			if (stop)
+ 				return 0;
+diff --git a/fs/internal.h b/fs/internal.h
+index 87e96b9024ce..3e206d3e317c 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -16,6 +16,7 @@ struct shrink_control;
+ struct fs_context;
+ struct user_namespace;
+ struct pipe_inode_info;
++struct iov_iter;
+ 
+ /*
+  * block/bdev.c
+@@ -221,3 +222,5 @@ ssize_t do_getxattr(struct user_namespace *mnt_userns,
+ int setxattr_copy(const char __user *name, struct xattr_ctx *ctx);
+ int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+ 		struct xattr_ctx *ctx);
++
++ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos);
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 397da0236607..a0a3d35e2c0f 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -509,14 +509,9 @@ static ssize_t new_sync_write(struct file *filp, const char __user *buf, size_t
  }
+ 
+ /* caller is responsible for file_start_write/file_end_write */
+-ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
++ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos)
+ {
+-	struct kvec iov = {
+-		.iov_base	= (void *)buf,
+-		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
+-	};
+ 	struct kiocb kiocb;
+-	struct iov_iter iter;
+ 	ssize_t ret;
+ 
+ 	if (WARN_ON_ONCE(!(file->f_mode & FMODE_WRITE)))
+@@ -532,8 +527,7 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
+ 
+ 	init_sync_kiocb(&kiocb, file);
+ 	kiocb.ki_pos = pos ? *pos : 0;
+-	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
+-	ret = file->f_op->write_iter(&kiocb, &iter);
++	ret = file->f_op->write_iter(&kiocb, from);
+ 	if (ret > 0) {
+ 		if (pos)
+ 			*pos = kiocb.ki_pos;
+@@ -543,6 +537,18 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
+ 	inc_syscw(current);
+ 	return ret;
+ }
++
++/* caller is responsible for file_start_write/file_end_write */
++ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
++{
++	struct kvec iov = {
++		.iov_base	= (void *)buf,
++		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
++	};
++	struct iov_iter iter;
++	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
++	return __kernel_write_iter(file, &iter, pos);
++}
+ /*
+  * This "EXPORT_SYMBOL_GPL()" is more of a "EXPORT_SYMBOL_DONTUSE()",
+  * but autofs is one of the few internal kernel users that actually
 -- 
 2.35.1
 
