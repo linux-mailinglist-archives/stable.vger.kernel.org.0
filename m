@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5A525F2AEE
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 796845F2A5E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231968AbiJCHoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52304 "EHLO
+        id S231607AbiJCHfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:35:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232065AbiJCHnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:43:24 -0400
+        with ESMTP id S231826AbiJCHef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:34:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61BA029816;
-        Mon,  3 Oct 2022 00:25:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDC452E51;
+        Mon,  3 Oct 2022 00:22:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B75EB80E8B;
-        Mon,  3 Oct 2022 07:18:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E5FC433B5;
-        Mon,  3 Oct 2022 07:18:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4D8BB808BF;
+        Mon,  3 Oct 2022 07:20:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A598C433D6;
+        Mon,  3 Oct 2022 07:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781534;
-        bh=+VAuBlT2qbjuexas2uWO4klILw2NI4Bx5UICdkowzKU=;
+        s=korg; t=1664781644;
+        bh=3xrLfcjB9Quar55K3szE0jM1nPIp3xL1u/a7utKu0B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v68Eg1GZP3feD8T2qggA7KeJCJ3Tqvskw1oBPWlFKBXe7r2yg6KtYvEs7Q8s7fIyf
-         0CqcqyfczZWMIoi0KYPEHfJ94quCj4GHYLcRei1XWfqLJsogS5Mt9D+wb7eNRfrfLp
-         ACE23Nx9+n+GEhQ40hThbDXqg9ErIjw11i3lpkGk=
+        b=P4cio6DYnwGtj/v9/RhvXHpI3w8/riLfSszyzBqJSrg2g8VCpeU/NqsI6xxeQOguV
+         /Ei77f4wj3xDiMbY896ztUG8mVfcJVsT7jUDXNoqiY1lxYON0RnsAdacTBFCXa31f3
+         Y2yosBViIoYENHAlgEEmXTi4lxrowHuxNuuOvgkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 54/83] Input: melfas_mip4 - fix return value check in mip4_probe()
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.10 12/52] thunderbolt: Explicitly reset plug events delay back to USB4 spec value
 Date:   Mon,  3 Oct 2022 09:11:19 +0200
-Message-Id: <20221003070723.357996608@linuxfoundation.org>
+Message-Id: <20221003070719.091702858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
-References: <20221003070721.971297651@linuxfoundation.org>
+In-Reply-To: <20221003070718.687440096@linuxfoundation.org>
+References: <20221003070718.687440096@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit a54dc27bd25f20ee3ea2009584b3166d25178243 ]
+commit 31f87f705b3c1635345d8e8a493697099b43e508 upstream.
 
-devm_gpiod_get_optional() may return ERR_PTR(-EPROBE_DEFER),
-add a minus sign to fix it.
+If any software has interacted with the USB4 registers before the Linux
+USB4 CM runs, it may have modified the plug events delay. It has been
+observed that if this value too large, it's possible that hotplugged
+devices will negotiate a fallback mode instead in Linux.
 
-Fixes: 6ccb1d8f78bd ("Input: add MELFAS MIP4 Touchscreen driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220924030715.1653538-1-yangyingliang@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To prevent this, explicitly align the plug events delay with the USB4
+spec value of 10ms.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/melfas_mip4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thunderbolt/switch.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 2745bf1aee38..83f4be05e27b 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1453,7 +1453,7 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 					      "ce", GPIOD_OUT_LOW);
- 	if (IS_ERR(ts->gpio_ce)) {
- 		error = PTR_ERR(ts->gpio_ce);
--		if (error != EPROBE_DEFER)
-+		if (error != -EPROBE_DEFER)
- 			dev_err(&client->dev,
- 				"Failed to get gpio: %d\n", error);
- 		return error;
--- 
-2.35.1
-
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2046,6 +2046,7 @@ int tb_switch_configure(struct tb_switch
+ 		 * additional capabilities.
+ 		 */
+ 		sw->config.cmuv = USB4_VERSION_1_0;
++		sw->config.plug_events_delay = 0xa;
+ 
+ 		/* Enumerate the switch */
+ 		ret = tb_sw_write(sw, (u32 *)&sw->config + 1, TB_CFG_SWITCH,
 
 
