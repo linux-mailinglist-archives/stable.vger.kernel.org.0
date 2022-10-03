@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 268A05F29B4
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9E65F2AEA
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230014AbiJCHY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:24:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
+        id S231959AbiJCHod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:44:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230415AbiJCHX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:23:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C7B14AD6E;
-        Mon,  3 Oct 2022 00:17:19 -0700 (PDT)
+        with ESMTP id S232265AbiJCHoB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:44:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16664B9AF;
+        Mon,  3 Oct 2022 00:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89B54B80E71;
-        Mon,  3 Oct 2022 07:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF6EC433D6;
-        Mon,  3 Oct 2022 07:15:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75299B80E71;
+        Mon,  3 Oct 2022 07:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D95C8C433C1;
+        Mon,  3 Oct 2022 07:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781327;
-        bh=dpqP7njm08z32EsbBKqqFD21reKnRIhGSaYfiX3gJGU=;
+        s=korg; t=1664781456;
+        bh=Oddoo6UBftHoWQju6iQajBFBoQjhODuWFDBcjMPDH08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9j54Wi+t+BL8qU4D4uqm0kbkJNpjk2iK+EsdeHNAtO3rZNZ9dNosCCV4OTeHAeX5
-         oCpJC2A5ZgmWDyQN8ygvDKeTWIzKMFd6Kz7Ae22SabDJfdqbZKjGUkjbvhAgO9E6Rx
-         veQ9EDZGOgZDSODM2YGLsoFVaALb5mf0Qb3fJpqo=
+        b=HsW/gc7w5Ds+jS5ag1nMEzzZ4/q6woRS5wnJj3dCTUo8P9OA+cC6uovS55iANdEbr
+         8DWbE6HngL+AyXKBi65jyB1z8xJmJ5TWvJ/A+dt49v3JHmtdNzyYODel3CD3wuxg/4
+         3IZpLtKP6E8uR/gJ5ln+YUZt5YwnpZxVRni12vhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 054/101] soc: sunxi: sram: Actually claim SRAM regions
-Date:   Mon,  3 Oct 2022 09:10:50 +0200
-Message-Id: <20221003070725.806949417@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jaap Berkhout <j.j.berkhout@staalenberk.nl>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.15 26/83] libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
+Date:   Mon,  3 Oct 2022 09:10:51 +0200
+Message-Id: <20221003070722.651594151@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit fd362baad2e659ef0fb5652f023a606b248f1781 ]
+commit ea08aec7e77bfd6599489ec430f9f859ab84575a upstream.
 
-sunxi_sram_claim() checks the sram_desc->claimed flag before updating
-the register, with the intent that only one device can claim a region.
-However, this was ineffective because the flag was never set.
+Commit 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as
+board_ahci_mobile") added an explicit entry for AMD Green Sardine
+AHCI controller using the board_ahci_mobile configuration (this
+configuration has later been renamed to board_ahci_low_power).
 
-Fixes: 4af34b572a85 ("drivers: soc: sunxi: Introduce SoC driver to map SRAMs")
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220815041248.53268-4-samuel@sholland.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The board_ahci_low_power configuration enables support for low power
+modes.
+
+This explicit entry takes precedence over the generic AHCI controller
+entry, which does not enable support for low power modes.
+
+Therefore, when commit 1527f69204fe ("ata: ahci: Add Green Sardine
+vendor ID as board_ahci_mobile") was backported to stable kernels,
+it make some Pioneer optical drives, which was working perfectly fine
+before the commit was backported, stop working.
+
+The real problem is that the Pioneer optical drives do not handle low
+power modes correctly. If these optical drives would have been tested
+on another AHCI controller using the board_ahci_low_power configuration,
+this issue would have been detected earlier.
+
+Unfortunately, the board_ahci_low_power configuration is only used in
+less than 15% of the total AHCI controller entries, so many devices
+have never been tested with an AHCI controller with low power modes.
+
+Fixes: 1527f69204fe ("ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile")
+Cc: stable@vger.kernel.org
+Reported-by: Jaap Berkhout <j.j.berkhout@staalenberk.nl>
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sunxi/sunxi_sram.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/libata-core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/soc/sunxi/sunxi_sram.c b/drivers/soc/sunxi/sunxi_sram.c
-index a8f3876963a0..f3d3f9259df9 100644
---- a/drivers/soc/sunxi/sunxi_sram.c
-+++ b/drivers/soc/sunxi/sunxi_sram.c
-@@ -254,6 +254,7 @@ int sunxi_sram_claim(struct device *dev)
- 	writel(val | ((device << sram_data->offset) & mask),
- 	       base + sram_data->reg);
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -3961,6 +3961,10 @@ static const struct ata_blacklist_entry
+ 	{ "PIONEER DVD-RW  DVR-212D",	NULL,	ATA_HORKAGE_NOSETXFER },
+ 	{ "PIONEER DVD-RW  DVR-216D",	NULL,	ATA_HORKAGE_NOSETXFER },
  
-+	sram_desc->claimed = true;
- 	spin_unlock(&sram_lock);
++	/* These specific Pioneer models have LPM issues */
++	{ "PIONEER BD-RW   BDR-207M",	NULL,	ATA_HORKAGE_NOLPM },
++	{ "PIONEER BD-RW   BDR-205",	NULL,	ATA_HORKAGE_NOLPM },
++
+ 	/* Crucial BX100 SSD 500GB has broken LPM support */
+ 	{ "CT500BX100SSD1",		NULL,	ATA_HORKAGE_NOLPM },
  
- 	return 0;
--- 
-2.35.1
-
 
 
