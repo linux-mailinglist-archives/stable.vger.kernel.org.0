@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 520465F2966
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BC75F292E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229998AbiJCHS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:18:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
+        id S229992AbiJCHP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbiJCHRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:17:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0753FA21;
-        Mon,  3 Oct 2022 00:14:17 -0700 (PDT)
+        with ESMTP id S229953AbiJCHOU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:14:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4D34363E;
+        Mon,  3 Oct 2022 00:13:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FE6A60F9C;
-        Mon,  3 Oct 2022 07:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405E4C433C1;
-        Mon,  3 Oct 2022 07:14:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F4C6B80E68;
+        Mon,  3 Oct 2022 07:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81773C433C1;
+        Mon,  3 Oct 2022 07:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781256;
-        bh=8Mslj1HpVI930cyTmfnLKiQ1vm20+stzMVxebWCR37s=;
+        s=korg; t=1664781183;
+        bh=QJyR05NM4WiVWlT8tsk60B5jcs3NG5zS1iQCf/dY5BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvCIe3VPpwEi6a5YTkWTsz3rrA5G1wKDrEsyVYj1MnUgBgJu71Y6aPDRNoLNbCz8F
-         VQzVwoxVkkW/HlhhsWt0QAQhbDxLvPWyAZbBgzAD2r2u7HY1ofmbnVCtWWKBzMacOH
-         hVpU1CjtHIlryI2UwRu+v3aYFDcfoNM9q/TUlsUw=
+        b=UZ2OE98jUlV3TK87dwZEyXEC9DMWlBdSEcnyGf/1+GMnU4kVBcLyfj3/C1d+5COtz
+         n3KfAcTyfaiHE8/UkZQxoGJK/ZMqea5W9Yoo7ghtYZJWgWLT3ho7vmCi22DUPqGk4y
+         ezVYjJXzeiEDIehMsWn7tW94/ArIfQTwPD8PhELk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bokun Zhang <Bokun.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.19 027/101] drm/amdgpu: Add amdgpu suspend-resume code path under SRIOV
-Date:   Mon,  3 Oct 2022 09:10:23 +0200
-Message-Id: <20221003070725.155253949@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Maxime Coquelin <maxime.coquelin@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>
+Subject: [PATCH 5.19 028/101] vduse: prevent uninitialized memory accesses
+Date:   Mon,  3 Oct 2022 09:10:24 +0200
+Message-Id: <20221003070725.178005883@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
 References: <20221003070724.490989164@linuxfoundation.org>
@@ -52,110 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bokun Zhang <Bokun.Zhang@amd.com>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
 
-commit 3b7329cf5a767c1be38352d43066012e220ad43c upstream.
+commit 46f8a29272e51b6df7393d58fc5cb8967397ef2b upstream.
 
-- Under SRIOV, we need to send REQ_GPU_FINI to the hypervisor
-  during the suspend time. Furthermore, we cannot request a
-  mode 1 reset under SRIOV as VF. Therefore, we will skip it
-  as it is called in suspend_noirq() function.
+If the VDUSE application provides a smaller config space
+than the driver expects, the driver may use uninitialized
+memory from the stack.
 
-- In the resume code path, we need to send REQ_GPU_INIT to the
-  hypervisor and also resume PSP IP block under SRIOV.
+This patch prevents it by initializing the buffer passed by
+the driver to store the config value.
 
-Signed-off-by: Bokun Zhang <Bokun.Zhang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+This fix addresses CVE-2022-2308.
+
+Cc: stable@vger.kernel.org # v5.15+
+Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+Message-Id: <20220831154923.97809-1-maxime.coquelin@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c   |    4 ++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   27 ++++++++++++++++++++++++++-
- 2 files changed, 30 insertions(+), 1 deletion(-)
+ drivers/vdpa/vdpa_user/vduse_dev.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-@@ -1056,6 +1056,10 @@ bool amdgpu_acpi_should_gpu_reset(struct
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -662,10 +662,15 @@ static void vduse_vdpa_get_config(struct
  {
- 	if (adev->flags & AMD_IS_APU)
- 		return false;
+ 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
+ 
+-	if (offset > dev->config_size ||
+-	    len > dev->config_size - offset)
++	/* Initialize the buffer in case of partial copy. */
++	memset(buf, 0, len);
 +
-+	if (amdgpu_sriov_vf(adev))
-+		return false;
++	if (offset > dev->config_size)
+ 		return;
+ 
++	if (len > dev->config_size - offset)
++		len = dev->config_size - offset;
 +
- 	return pm_suspend_target_state != PM_SUSPEND_TO_IDLE;
+ 	memcpy(buf, dev->config + offset, len);
  }
  
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3178,7 +3178,8 @@ static int amdgpu_device_ip_resume_phase
- 			continue;
- 		if (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_COMMON ||
- 		    adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_GMC ||
--		    adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_IH) {
-+		    adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_IH ||
-+		    (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_PSP && amdgpu_sriov_vf(adev))) {
- 
- 			r = adev->ip_blocks[i].version->funcs->resume(adev);
- 			if (r) {
-@@ -4124,12 +4125,20 @@ static void amdgpu_device_evict_resource
- int amdgpu_device_suspend(struct drm_device *dev, bool fbcon)
- {
- 	struct amdgpu_device *adev = drm_to_adev(dev);
-+	int r = 0;
- 
- 	if (dev->switch_power_state == DRM_SWITCH_POWER_OFF)
- 		return 0;
- 
- 	adev->in_suspend = true;
- 
-+	if (amdgpu_sriov_vf(adev)) {
-+		amdgpu_virt_fini_data_exchange(adev);
-+		r = amdgpu_virt_request_full_gpu(adev, false);
-+		if (r)
-+			return r;
-+	}
-+
- 	if (amdgpu_acpi_smart_shift_update(dev, AMDGPU_SS_DEV_D3))
- 		DRM_WARN("smart shift update failed\n");
- 
-@@ -4153,6 +4162,9 @@ int amdgpu_device_suspend(struct drm_dev
- 
- 	amdgpu_device_ip_suspend_phase2(adev);
- 
-+	if (amdgpu_sriov_vf(adev))
-+		amdgpu_virt_release_full_gpu(adev, false);
-+
- 	return 0;
- }
- 
-@@ -4171,6 +4183,12 @@ int amdgpu_device_resume(struct drm_devi
- 	struct amdgpu_device *adev = drm_to_adev(dev);
- 	int r = 0;
- 
-+	if (amdgpu_sriov_vf(adev)) {
-+		r = amdgpu_virt_request_full_gpu(adev, true);
-+		if (r)
-+			return r;
-+	}
-+
- 	if (dev->switch_power_state == DRM_SWITCH_POWER_OFF)
- 		return 0;
- 
-@@ -4185,6 +4203,13 @@ int amdgpu_device_resume(struct drm_devi
- 	}
- 
- 	r = amdgpu_device_ip_resume(adev);
-+
-+	/* no matter what r is, always need to properly release full GPU */
-+	if (amdgpu_sriov_vf(adev)) {
-+		amdgpu_virt_init_data_exchange(adev);
-+		amdgpu_virt_release_full_gpu(adev, true);
-+	}
-+
- 	if (r) {
- 		dev_err(adev->dev, "amdgpu_device_ip_resume failed (%d).\n", r);
- 		return r;
 
 
