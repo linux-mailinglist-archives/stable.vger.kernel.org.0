@@ -2,197 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 726B35F2FEB
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 13:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882E95F2FEF
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 13:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbiJCL5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 07:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54506 "EHLO
+        id S229942AbiJCL6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 07:58:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbiJCL5n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 07:57:43 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D94B4F3B9;
-        Mon,  3 Oct 2022 04:57:40 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AAC32139F;
-        Mon,  3 Oct 2022 04:57:46 -0700 (PDT)
-Received: from e120937-lin (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E11A63F73B;
-        Mon,  3 Oct 2022 04:57:38 -0700 (PDT)
-Date:   Mon, 3 Oct 2022 12:57:36 +0100
-From:   Cristian Marussi <cristian.marussi@arm.com>
-To:     Yaxiong Tian <iambestgod@qq.com>
-Cc:     sudeep.holla@arm.com, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Yaxiong Tian <tianyaxiong@kylinos.cn>, stable@vger.kernel.org,
-        Jim Quinlan <james.quinlan@broadcom.com>
-Subject: Re: [PATCH -next 1/1] firmware: arm_scmi: Fix possible deadlock in
- shmem_tx_prepare()
-Message-ID: <YzrOMKiU3yHt5P/k@e120937-lin>
-References: <tencent_F612AC315B21CE91A89C20DBD7CE9B5FBB07@qq.com>
+        with ESMTP id S229611AbiJCL6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 07:58:36 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0BC4F645
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 04:58:35 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id 83so3013563pfw.10
+        for <stable@vger.kernel.org>; Mon, 03 Oct 2022 04:58:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=TH4cpelDdO1/Ub5fHWK8Gl6mcfMTmcYSVmTpk+JJTxA=;
+        b=Ju7M04oimSRbjnle9b9Jk2R4vF6F/YswZlm0unF+5XHBiOSKfzKblte8mfzuCpY9O+
+         +KUBx7305NjWHLGRICKYg5enc8YPROIhNnNSUUtRt5NO9iYhbqnQn5oyICpx25Fl9Qu4
+         YhCvW+HDzIIIsaBoKiTHLUBfLhHB+CB1iqFvKKcxsLgX8cX1+1edcZCrbLE+b7pbQRM4
+         Ah4UhP3NS8Q6LEVIbzYLNLzSmUvCmlzfS5ligEPjIokx1+i1VjeolyiheF3ndp119byI
+         DYi+manhVKKKkTVnofmoNABViKneKMRk9pKAmy1JanAxuO4iXeAQCsfRf9PFl/RsLHbf
+         ZEXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=TH4cpelDdO1/Ub5fHWK8Gl6mcfMTmcYSVmTpk+JJTxA=;
+        b=xsR0SZjUIHA+irsZ9CKJ02U3lLzEGxZMANVzuPy/5t5rxRuH1mt5ETW6y27F9X8dWC
+         0C8mO9j+6tozavnVtRJ+VfeLLzXI+klWocWeDW7EyLV4GvFFVEysQeiOqoh+2CTRUiSL
+         BzcmKrH1HTqnrebsMlqcl5/Mt5ekX9kpe5kBEAv+09LXZTibmWRu9xXgXkkbdbJcP9kT
+         ivMzsjKtcQCET+tD6g+QNCnYMoi0ifqXoNnx1BUIq49cu1c/w2X7VwOp4XkrgM/UajJu
+         dTCYihsISMJPNkFZZJt6kXnV2bEa+EHinGqgT+jPSXf+7ApJjpih4D4HhOkQNjPmvLbQ
+         aDYA==
+X-Gm-Message-State: ACrzQf3b6cgwe6Mo7q1tjFne9lLPqDAk1M5M/1I/WFJ8XkkLgjVEV4vD
+        QT2FedfGzpZC5tep3ZslOXmbV57aCSGWGnMtaXs=
+X-Google-Smtp-Source: AMsMyM4r9PCXHX2XjnRadHJQPO2TTZL1EsIvRtkBNO8eAhBwajif18qZxUxxOoe4gnPcUUwo/StCVA==
+X-Received: by 2002:a05:6a00:124e:b0:561:b241:f47f with SMTP id u14-20020a056a00124e00b00561b241f47fmr250255pfi.72.1664798314637;
+        Mon, 03 Oct 2022 04:58:34 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p124-20020a62d082000000b0053617cbe2d2sm7237229pfg.168.2022.10.03.04.58.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Oct 2022 04:58:34 -0700 (PDT)
+Message-ID: <633ace6a.620a0220.b4076.bfde@mx.google.com>
+Date:   Mon, 03 Oct 2022 04:58:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tencent_F612AC315B21CE91A89C20DBD7CE9B5FBB07@qq.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.71-84-g6b8312581f86c
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.15.y baseline: 124 runs,
+ 4 regressions (v5.15.71-84-g6b8312581f86c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 30, 2022 at 10:14:50AM +0800, Yaxiong Tian wrote:
-> From: Yaxiong Tian <tianyaxiong@kylinos.cn>
-> 
+stable-rc/linux-5.15.y baseline: 124 runs, 4 regressions (v5.15.71-84-g6b83=
+12581f86c)
 
-Hi Tian,
+Regressions Summary
+-------------------
 
-> In shmem_tx_prepare() ,it use spin_until_cond() to wait the chanel to be
-> free. Though it can avoid risk about overwriting the old command.But
-> when the platform has some problem in setting the chanel to free(such as
-> Improper initialization ),it can lead to the chanel never to be free.So
-> the os is sticked in it.
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | imx_v6_v7_defconfig | 1     =
+     =
 
-On a transport based on shared memory area indeed the busy/free bitflag is
-used, on the TX channel, to 'pass' ownership of the channel from the agent
-(Linux) to the platform SCMI server: as stated in the inline comment block,
-once the Linux agent write his command into the shmem area and set the
-channel busy, it HAS TO wait for the channel to be set free again by the
-platform to avoid possible corruptions due to a very late command being
-deliverd by the platform so late that it could override the next new command
-freshly written into the shared memory by the Linux agent.
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | multi_v7_defconfig  | 1     =
+     =
 
-In other words you CANNOT forcibly grab back the channel ownership on
-timeout like you are doing here, because you cannot assume anything on
-the status of the SCMI server entity: a misbehaving SCMI server could
-deliver a very late reply at any time (since it still thinks to have
-ownership) and the possible subsequent corruption in the next queued
-TX message would probably generate issues very difficult to spot and
-debug.
+panda       | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1     =
+     =
 
-Inded, in the SCMI Kernel stack we never forcibly free a TX transport
-channel on timeout, scmi_clear_channel() is called only on the RX channel
-for notifications and delayed response, because the ownership relation
-is just the opposite, we are indeed releasing the channel to the platform
-after we have processed their messages.
+panda       | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
 
-Same we do on a different transport like virtio, in which a virtio buffer,
-related a message without a reply, is just lost if the SCMI server never
-sent back anything: the only difference is that virtio has usually more
-numerous free buffers so we can carry on anyway using some of the other
-remaning free buffers.
 
-Moreover, when the SCMI server or a transport ended up in such a broken
-state that it does not even release the channel, it means the SCMI
-server stack  is in serious trouble, and we (Kernel) do not really want
-to do any businness with a backend in such a misbehaving state, the SCMI
-server should be fixed; instead, this kind of approach you propose could
-even hide some class of transient server-side problems by just ignoring
-this condition and grabbing back the channel forcibly.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.71-84-g6b8312581f86c/plan/baseline/
 
-> In addition when shmem_tx_prepare() called,this
-> indicates that the previous transfer has commpleted or timed out.It
-> unsuitable for unconditional waiting the chanel to be free.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.71-84-g6b8312581f86c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6b8312581f86c31858502556391330b10956a92b =
 
-Note that there could be also the case in which there are many other
-threads of executions on different cores trying to send a bunch of SCMI
-commands (there are indeed many SCMI drivers currently in the stack) so
-all these requests HAVE TO be queued while waiting for the shared
-memory area to be free again, so I don't think you can assume in general
-that shmem_tx_prepare() is called only after a successfull command completion
-or timeout: it is probably true when an SCMI Mailbox transport is
-used but it is not neccessarly the case when other shmem based transports
-like optee/smc are used. You could have N threads trying to send an SCMI
-command, queued, spinning on that loop, while waiting for the channel to
-be free: in such a case note that you TX has not even complete, you are
-still waiting for the channel the SCMI upper layer TX timeout has NOT
-even being started since your the transmission itself is pending (i.e.
-send_message has still not returned...)
 
-> 
-> So for system stablility,we can add timeout condition in waiting the
-> chanel to be free.
 
-In the end, I could agree that it is unfortunate that, if the SCMI Server
-gets stuck also the SCMI Linux agent gets stuck while waiting for a free
-channel, so that it could be sensible to timeout as you proposed BUT after
-the timeout you should NOT carry on, BUT FAIL the whole transmission;
-in this scenario, though, it would be tricky to choose a proper timeout
-value, because, as said above, the allowed timeout for the spin would
-depend on the number of existing queued in-flight transactions: as an
-example, if you had N previous pending transmissions and transport with
-X ms timeout, I would spin for at least N * X ms before timing out and
-failing. (additionally the current tx_prepare() helpers return voids so
-you'll need to figure out a way to report an error and stop the transaction
-by 'tunnelling' this errors back to .send_message())
+Test Regressions
+---------------- =
 
-Not sure that all of this kind of work would be worth to address some,
-maybe transient, error conditions due to a broken SCMI server, BUT in any
-case, any kind of timeout you want to introduce in the spin loop MUST
-result in a failed transmission until the FREE bitflag is cleared by the
-SCMI server; i.e. if that flag won't be cleared EVER by the server, you
-have to end up with a sequence of timed-out spinloops and transmission
-failures, you definetely cannot recover forcibly like this.
 
-Fix the SCMI server instead.
 
-Thanks,
-Cristian
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | imx_v6_v7_defconfig | 1     =
+     =
 
-> 
-> Fixes: 9dc34d635c67 ("firmware: arm_scmi: Check if platform has released shmem before using")
-> Signed-off-by: Yaxiong Tian <tianyaxiong@kylinos.cn>
-> Cc: stable@vger.kernel.org
-> Cc: Sudeep Holla <sudeep.holla@arm.com>
-> Cc: Jim Quinlan <james.quinlan@broadcom.com>
-> ---
->  drivers/firmware/arm_scmi/shmem.c | 15 +++++++++++++--
->  1 file changed, 13 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/firmware/arm_scmi/shmem.c b/drivers/firmware/arm_scmi/shmem.c
-> index 0e3eaea5d852..ae6110a81855 100644
-> --- a/drivers/firmware/arm_scmi/shmem.c
-> +++ b/drivers/firmware/arm_scmi/shmem.c
-> @@ -8,6 +8,7 @@
->  #include <linux/io.h>
->  #include <linux/processor.h>
->  #include <linux/types.h>
-> +#include <linux/ktime.h>
->  
->  #include "common.h"
->  
-> @@ -29,17 +30,27 @@ struct scmi_shared_mem {
->  	u8 msg_payload[];
->  };
->  
-> +#define SCMI_MAX_TX_PREPARE_TIMEOUT_MS 30
-> +
->  void shmem_tx_prepare(struct scmi_shared_mem __iomem *shmem,
->  		      struct scmi_xfer *xfer)
->  {
-> +	ktime_t stop = ktime_add_ms(ktime_get(), SCMI_MAX_TX_PREPARE_TIMEOUT_MS);
->  	/*
->  	 * Ideally channel must be free by now unless OS timeout last
->  	 * request and platform continued to process the same, wait
->  	 * until it releases the shared memory, otherwise we may endup
->  	 * overwriting its response with new message payload or vice-versa
->  	 */
-> -	spin_until_cond(ioread32(&shmem->channel_status) &
-> -			SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE);
-> +	spin_until_cond((ioread32(&shmem->channel_status) &
-> +			SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE) ||
-> +			ktime_after(ktime_get(), stop));
-> +
-> +	if (unlikely(ktime_after(ktime_get(), stop))) {
-> +		pr_err("timed out in shmem_tx_prepare(caller: %pS).\n",
-> +					(void *)_RET_IP_);
-> +	}
-> +
->  	/* Mark channel busy + clear error */
->  	iowrite32(0x0, &shmem->channel_status);
->  	iowrite32(xfer->hdr.poll_completion ? 0 : SCMI_SHMEM_FLAG_INTR_ENABLED,
-> -- 
-> 2.25.1
-> 
+
+  Details:     https://kernelci.org/test/plan/id/633a99dbda3b279fe3ec4eb0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp=
+-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp=
+-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633a99dbda3b279fe3ec4=
+eb1
+        failing since 6 days (last pass: v5.15.70, first fail: v5.15.70-144=
+-g0b09b5df445f9) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | multi_v7_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633a9e1565fee21c34ec4eb5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-=
+evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-=
+evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633a9e1565fee21c34ec4=
+eb6
+        failing since 6 days (last pass: v5.15.70, first fail: v5.15.70-144=
+-g0b09b5df445f9) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+panda       | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633a9fe1647fe01edcec4f1d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633a9fe1647fe01edcec4=
+f1e
+        failing since 48 days (last pass: v5.15.59, first fail: v5.15.60-78=
+0-ge0aee0aca52e6) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+panda       | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633a9bbce2e1f5b1ffec4eba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+1-84-g6b8312581f86c/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633a9bbce2e1f5b1ffec4=
+ebb
+        failing since 40 days (last pass: v5.15.60-779-g8c2db2eab58f3, firs=
+t fail: v5.15.62-245-g1450c8b12181) =
+
+ =20
