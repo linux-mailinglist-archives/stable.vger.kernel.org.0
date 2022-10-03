@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C735F2934
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDCBB5F29B8
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbiJCHPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:15:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47132 "EHLO
+        id S230224AbiJCHYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229797AbiJCHPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:15:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFBE4456D;
-        Mon,  3 Oct 2022 00:13:13 -0700 (PDT)
+        with ESMTP id S230171AbiJCHXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:23:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD5B3ED51;
+        Mon,  3 Oct 2022 00:17:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84E6C60F9D;
-        Mon,  3 Oct 2022 07:13:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95928C433C1;
-        Mon,  3 Oct 2022 07:13:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 808F0B80E7F;
+        Mon,  3 Oct 2022 07:17:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F059DC43147;
+        Mon,  3 Oct 2022 07:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781192;
-        bh=oI7WoSRs0qWoU3rqb4Lgv2/KUIFnQrRNqyd6f56F2ks=;
+        s=korg; t=1664781437;
+        bh=0oBSQwek0f/Ils927xvIAnBi6N7atps5OofrV7L2/jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZkzG+JIWEDQliKN1FtSslAc8U7Vlal6xodrsct6PL71uLn3sQhLKeYWNkkLyaA5c
-         EaBlTVRyL3A4wSOXk30sYX9xfdf6v2qRVWiDP1c+/UUbymqlGjXivK4E9fimA2uF1Z
-         50WAJItwoc353pe9X7QND3aFzsLcH2JRbNCkDkvU=
+        b=XgGLsTzwzkNusdtSDgRxE2hji7ell4/b3efIzTQNKtIbLSVjkn2owgoT4lvsvDt2/
+         EHmTnux4jVaZHizT6trXtvDOUvdj/qmfllIzy2TXKMdXPQGbGR66iZrnGKAdYAvzE1
+         PBWbxQdefemok6WQAxnSSBLmxqnRWTn+h6AwtnYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiang Biao <benbjiang@tencent.com>,
-        Mengen Sun <mengensun@tencent.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Menglong Dong <imagedong@tencent.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 031/101] mptcp: factor out __mptcp_close() without socket lock
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 02/83] ALSA: hda: Fix hang at HD-audio codec unbinding due to refcount saturation
 Date:   Mon,  3 Oct 2022 09:10:27 +0200
-Message-Id: <20221003070725.245896745@linuxfoundation.org>
+Message-Id: <20221003070722.038362006@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,75 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <imagedong@tencent.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 26d3e21ce1aab6cb19069c510fac8e7474445b18 upstream.
+[ Upstream commit ead3d3c5b54f76da79c079e61bacb4279ec56965 ]
 
-Factor out __mptcp_close() from mptcp_close(). The caller of
-__mptcp_close() should hold the socket lock, and cancel mptcp work when
-__mptcp_close() returns true.
+We fixed the potential deadlock at dynamic unbinding the HD-audio
+codec at the commit 7206998f578d ("ALSA: hda: Fix potential deadlock
+at codec unbinding"), but ironically, this caused another potential
+deadlock.  The current code uses refcount_dec() and waits for the
+pending task with wait_event for dropping the refcount to 0.  This
+works fine when PCMs are assigned and actually waiting for the
+refcount drop.
 
-This function will be used in the next commit.
+Meanwhile, when there was no PCM assigned, the refcount_dec() call
+itself was supposed to drop to zero -- alas, it doesn't in reality;
+refcount_dec() complains, spews kernel warning and it saturates
+instead of dropping to 0, due to the nature of refcount_dec()
+implementation.  This eventually blocks the wait_event() wakeup and
+the code get stuck there.
 
-Fixes: f296234c98a8 ("mptcp: Add handling of incoming MP_JOIN requests")
-Fixes: 6aeed9045071 ("mptcp: fix race on unaccepted mptcp sockets")
-Cc: stable@vger.kernel.org
-Reviewed-by: Jiang Biao <benbjiang@tencent.com>
-Reviewed-by: Mengen Sun <mengensun@tencent.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For avoiding the problem, we call refcount_dec_and_test() and skips
+the sync-wait if it already reaches to zero.
+
+The patch does a slight code reshuffling to make sure to invoke other
+disconnect calls before the sync-wait, too.
+
+Fixes: 7206998f578d ("ALSA: hda: Fix potential deadlock at codec unbinding")
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YxtflWQnslMHVlU7@intel.com
+Link: https://lore.kernel.org/r/20220910142550.28494-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c |   14 ++++++++++++--
- net/mptcp/protocol.h |    1 +
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_bind.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2832,13 +2832,12 @@ static void __mptcp_destroy_sock(struct
- 	sock_put(sk);
- }
- 
--static void mptcp_close(struct sock *sk, long timeout)
-+bool __mptcp_close(struct sock *sk, long timeout)
- {
- 	struct mptcp_subflow_context *subflow;
- 	struct mptcp_sock *msk = mptcp_sk(sk);
- 	bool do_cancel_work = false;
- 
--	lock_sock(sk);
- 	sk->sk_shutdown = SHUTDOWN_MASK;
- 
- 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE)) {
-@@ -2880,6 +2879,17 @@ cleanup:
- 	} else {
- 		mptcp_reset_timeout(msk, 0);
+diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
+index c572fb5886d5..7af251573595 100644
+--- a/sound/pci/hda/hda_bind.c
++++ b/sound/pci/hda/hda_bind.c
+@@ -157,10 +157,10 @@ static int hda_codec_driver_remove(struct device *dev)
+ 		return codec->bus->core.ext_ops->hdev_detach(&codec->core);
  	}
-+
-+	return do_cancel_work;
-+}
-+
-+static void mptcp_close(struct sock *sk, long timeout)
-+{
-+	bool do_cancel_work;
-+
-+	lock_sock(sk);
-+
-+	do_cancel_work = __mptcp_close(sk, timeout);
- 	release_sock(sk);
- 	if (do_cancel_work)
- 		mptcp_cancel_work(sk);
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -613,6 +613,7 @@ void mptcp_subflow_reset(struct sock *ss
- void mptcp_subflow_queue_clean(struct sock *ssk);
- void mptcp_sock_graft(struct sock *sk, struct socket *parent);
- struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
-+bool __mptcp_close(struct sock *sk, long timeout);
  
- bool mptcp_addresses_equal(const struct mptcp_addr_info *a,
- 			   const struct mptcp_addr_info *b, bool use_port);
+-	refcount_dec(&codec->pcm_ref);
+ 	snd_hda_codec_disconnect_pcms(codec);
+ 	snd_hda_jack_tbl_disconnect(codec);
+-	wait_event(codec->remove_sleep, !refcount_read(&codec->pcm_ref));
++	if (!refcount_dec_and_test(&codec->pcm_ref))
++		wait_event(codec->remove_sleep, !refcount_read(&codec->pcm_ref));
+ 	snd_power_sync_ref(codec->bus->card);
+ 
+ 	if (codec->patch_ops.free)
+-- 
+2.35.1
+
 
 
