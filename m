@@ -2,184 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31A6F5F32C5
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 17:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BBA5F32F6
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 17:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbiJCPlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 11:41:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52842 "EHLO
+        id S229589AbiJCP43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 11:56:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbiJCPlN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 11:41:13 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52DF21C43F
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 08:41:12 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id lc7so23071075ejb.0
-        for <stable@vger.kernel.org>; Mon, 03 Oct 2022 08:41:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=IuvCfQHYZuAZNcIkhOTfBkyTOSNYocbfYay1Zp9a9K4=;
-        b=iV7KVPyD504lwEn2yIKHgBC/KMGF9BeXrJj4c5rbhv579A6msPq5WNDspaAMVdMCko
-         hyuD4qNmq3Kn7Im3t52pvqUvbPM94HIvImNzqFfh72cclhaLMb1RMM/qjc94DM18mVt2
-         Jam94E4NUi72fhQjEkt2+C95MeSVYmLpOjAvQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=IuvCfQHYZuAZNcIkhOTfBkyTOSNYocbfYay1Zp9a9K4=;
-        b=q5kkmjgJnzAIo5oaWpYwT+ef/2LAFwe06NZ7o52l936SWBvYyGl29jpX5mN7hhyVU1
-         6+Pb5Ao67oA0CuJduiUB3uIyURuevGmaUk+rivduCkpoXcC/Ok5gF0mfKkjblupYj0YY
-         IxIlIz0YeB/R152c9B8oElpZy55DSeYJC44pw02n4YrhbHRireXvFof/zB6HdIf3n+HK
-         xcTP7XJFYQdFW4KGT6as4bU7Y5Uht6m29Ebo37HkpxHPWMw3EqdvVGSUoronuCcvVHQC
-         XzmXa0NW8G5ybzpYaP/az4os6WFj9/6wzDqI+dm19hK506/xLlujQgb0TGKpOTMFf8Fn
-         jx4Q==
-X-Gm-Message-State: ACrzQf3X1tIWlEh8OMPKPjWsbj/WeJILAOIIeOBhd4twy61VJHKinjfP
-        EBVjxPO0uZhZ7JiEDxOxVrCpRsV7xfHhafai
-X-Google-Smtp-Source: AMsMyM4sRsotIdAe0D/NvxpWkGT70Ft0DV18g2mtDmAJ2hFILzyYZCIronPTFtGilBc7/uHOLvKPcQ==
-X-Received: by 2002:a17:907:9812:b0:781:bbff:1d20 with SMTP id ji18-20020a170907981200b00781bbff1d20mr15547353ejc.33.1664811670634;
-        Mon, 03 Oct 2022 08:41:10 -0700 (PDT)
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com. [209.85.221.53])
-        by smtp.gmail.com with ESMTPSA id kv3-20020a17090778c300b0074a82932e3bsm2228290ejc.77.2022.10.03.08.41.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Oct 2022 08:41:09 -0700 (PDT)
-Received: by mail-wr1-f53.google.com with SMTP id b7so9725147wrq.9
-        for <stable@vger.kernel.org>; Mon, 03 Oct 2022 08:41:09 -0700 (PDT)
-X-Received: by 2002:adf:f90d:0:b0:20c:de32:4d35 with SMTP id
- b13-20020adff90d000000b0020cde324d35mr13476137wrr.583.1664811669508; Mon, 03
- Oct 2022 08:41:09 -0700 (PDT)
+        with ESMTP id S229486AbiJCP42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 11:56:28 -0400
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2087.outbound.protection.outlook.com [40.107.95.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E84DB2CCBA;
+        Mon,  3 Oct 2022 08:56:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Rumh37tClmdqsY3MG0avSjaJ5xbzmaLR6cvjMCN3mg8VTtRbJxyC8b4JMPCvnH7K8sods68hkvswrJYKYpFwekicY0Vxz/+aAYpCny+vejEAwfhpDXJHSajkDuB7i0YTeq2m8DdXFuMZ6otOZflkLsMUvIBG3ju0tjdZf6CieW+1/ShvXg+C7wJPXdX5JtW9vH3FE3za3YwkbyFZM260+BN59T9lq6XM2jzKCqxHhbHFtaKdatGH2oRA9LsHdAGC5QdhzuPdBXSW4CyxnJbO4WZV6rLHJ/1pFMWfcuvfis1ThZIbhsH71lpblShmPqrS0YlQLLyA4I0rBNorKsCUBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mSmijHv5o6zTEx3jhQeL3MaXHoinDjET9rFDDbfrO44=;
+ b=HQUKRBywQ77OhlJEf8C8ZP9v0Jeh4NZREn56Jw9XlRQkUGs8NLy+/NJqx7LTqU/B1I9drjkfXhPfkA9RvVmR1393U6CLfNrKEfs2T061zcsHrd9HF0cGhsIdCxPQcmkJkqnlYYkqqoHiJ64D2tT+FEDjU9bRpEpEVkhbLoR7kWvx7/36Rjl5LwQm5q5UWeAoQD/i03EBd8h1K58ZUZMrIaT3WgTJatk2RKkOpcnBKSe9+y3Hm7HAGxVfx74KrlF7Mg6HmaIkdKuXZUKiU6oEuRS8rYg1HNitzD7qVg0JuWnDL1z8xaHU8oDpB7dxQUMPmEgbIwnoMsKKHwjFgO0BNg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=intel.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mSmijHv5o6zTEx3jhQeL3MaXHoinDjET9rFDDbfrO44=;
+ b=AOQIuAs1PDlK8PNbU20Teui7VlntlKgzhZs+PjH6FLudGmFf3WK1j0aMP1TIzDZKmw9a2OwIalhhq2uWO2gfjGAztNP3+mcTUxQwXcAcqnWTkUTSD6/mc8QNEaVpHnbP4T3Jamq0H0rMatyTzij4QXatSOMkSxVIZ7NCEtACH8Y=
+Received: from DM6PR21CA0024.namprd21.prod.outlook.com (2603:10b6:5:174::34)
+ by BY5PR12MB4164.namprd12.prod.outlook.com (2603:10b6:a03:207::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.24; Mon, 3 Oct
+ 2022 15:56:23 +0000
+Received: from DM6NAM11FT057.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:174:cafe::1f) by DM6PR21CA0024.outlook.office365.com
+ (2603:10b6:5:174::34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.8 via Frontend
+ Transport; Mon, 3 Oct 2022 15:56:22 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DM6NAM11FT057.mail.protection.outlook.com (10.13.172.252) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5676.17 via Frontend Transport; Mon, 3 Oct 2022 15:56:21 +0000
+Received: from pyuan-Cloudripper.amd.com (10.180.168.240) by
+ SATLEXMB04.amd.com (10.181.40.145) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.28; Mon, 3 Oct 2022 10:56:18 -0500
+From:   Perry Yuan <Perry.Yuan@amd.com>
+To:     <rafael.j.wysocki@intel.com>, <ray.huang@amd.com>,
+        <viresh.kumar@linaro.org>
+CC:     <Deepak.Sharma@amd.com>, <Mario.Limonciello@amd.com>,
+        <Nathan.Fontenot@amd.com>, <Alexander.Deucher@amd.com>,
+        <Shimmer.Huang@amd.com>, <Xiaojian.Du@amd.com>, <Li.Meng@amd.com>,
+        <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Perry Yuan <Perry.Yuan@amd.com>, <stable@vger.kernel.org>
+Subject: [PATCH] x86/cpu/amd: remove the CPU model ID to get correct highest perf
+Date:   Mon, 3 Oct 2022 23:55:47 +0800
+Message-ID: <20221003155547.1325988-1-Perry.Yuan@amd.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220930182212.209804-1-krzysztof.kozlowski@linaro.org>
- <20220930182212.209804-2-krzysztof.kozlowski@linaro.org> <CAD=FV=WSbpV4aqyHgSX6rwanQmZYG1hdNourjP5DEmsfdq6aDA@mail.gmail.com>
- <11a99a84-47ec-ca3e-5781-0f17ed33dbf9@linaro.org>
-In-Reply-To: <11a99a84-47ec-ca3e-5781-0f17ed33dbf9@linaro.org>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Mon, 3 Oct 2022 08:40:57 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=URMX9umJfqYOhnnnjsr09As-6mKAHs0YNZFK8n2K337g@mail.gmail.com>
-Message-ID: <CAD=FV=URMX9umJfqYOhnnnjsr09As-6mKAHs0YNZFK8n2K337g@mail.gmail.com>
-Subject: Re: [PATCH 2/3] arm64: dts: qcom: sdm845-db845c: correct SPI2 pins
- drive strength
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT057:EE_|BY5PR12MB4164:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5c4df5dc-70e2-4d53-11d3-08daa557d181
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: qeZDaUjbeRE1HQpRIBGOtiE7NEnDRHYHj6c9ZfMjYS3OyKfiP0/6HMRXlwrOIUeFFLvvT0CBhzAh+RMdMJt6w8+ModTTIp/CGA4RrozaFCiBYmfW2PRcCujJRsoWfC8vUV5lZFRusT0F4MUsw/zvhoRMQaNBj8y506uDGkGSov844eeSEOzFRlsMgK9Qp2gmI9UJKXY9AU11CgHkNYIkZTLEr6nOh960YSkBjw6pwhiJbXMChaMODKyoQczCJjYYt4+wGbkd/r8ue+xLN5H5sAZtdR0ABe27B2MgRFgRy+dIMCwAenv2zUhZkSbH3IMsUMwZBmSUk1Bw/ncVzhuWxfTainEzmt/brgB6R3TxZTjgpq/D7EGhSgQHqibT6E2Qz5HiQbNJcgxTYmcSjzwEiyDcprPSNfC7jqab4dbD0TwpjHj5p/ik6QiIHrxu/Q9Ko0BAeyfIhxPYQRKzxGv/Sd7WTLl115ua7csHSisNJjB922O/ecutSDpw7U2oKHkjQYvJsMmNBSBqwpFbP8nB8lFrVCyoSnbUKsu09f1J9zD4b0Bpcwf89LKzqP3UmckJDyJW4fTbqVp6TPFEKpo85xBKVzxwg4G9hn7fZ2YC6rjxjiW/MU+Pc9BWNCyOoN0L0vIe1UWZKkH7Ngd/XpehxEBBhDj2zsr1xqlhvu7FTTMtjyBvxYGKcKHVNXR+7zQHyPIeZ4QbGtDABqsup24eROBaNytyfjCRG4Dg5jPB6RySqaRw53UnX6ZyXmI0yMdqQgKKTK8bN9FuCSFoN+H3BjaBMMfGVwk3y8R43N2dNWTeVmX+KDrpgL1fHHQwRb+UMLPwTmHsW1qaiHDxGPA8Mw==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(376002)(39860400002)(346002)(136003)(396003)(451199015)(36840700001)(46966006)(40470700004)(82310400005)(5660300002)(40460700003)(81166007)(2906002)(356005)(478600001)(8676002)(16526019)(336012)(83380400001)(4326008)(70206006)(86362001)(426003)(47076005)(26005)(6666004)(110136005)(41300700001)(54906003)(7696005)(8936002)(82740400003)(36756003)(316002)(36860700001)(2616005)(186003)(1076003)(40480700001)(70586007)(36900700001)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Oct 2022 15:56:21.9793
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c4df5dc-70e2-4d53-11d3-08daa557d181
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT057.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4164
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+The AMD Rome CPU model IDs(30h-3Fh) do not need to get the highest
+perf value from the amd_get_highest_perf() function, the correct
+highest perf will be queried from the cppc_acpi interface.
 
-On Sat, Oct 1, 2022 at 3:01 AM Krzysztof Kozlowski
-<krzysztof.kozlowski@linaro.org> wrote:
->
-> On 30/09/2022 22:12, Doug Anderson wrote:
-> > Hi,
-> >
-> > On Fri, Sep 30, 2022 at 11:22 AM Krzysztof Kozlowski
-> > <krzysztof.kozlowski@linaro.org> wrote:
-> >>
-> >> The pin configuration (done with generic pin controller helpers and
-> >> as expressed by bindings) requires children nodes with either:
-> >> 1. "pins" property and the actual configuration,
-> >> 2. another set of nodes with above point.
-> >>
-> >> The qup_spi2_default pin configuration used second method - with a
-> >> "pinmux" child.
-> >>
-> >> Fixes: 8d23a0040475 ("arm64: dts: qcom: db845c: add Low speed expansion i2c and spi nodes")
-> >> Cc: <stable@vger.kernel.org>
-> >> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> >>
-> >> ---
-> >>
-> >> Not tested on hardware.
-> >> ---
-> >>  arch/arm64/boot/dts/qcom/sdm845-db845c.dts | 4 +++-
-> >>  1 file changed, 3 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-> >> index 132417e2d11e..a157eab66dee 100644
-> >> --- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-> >> +++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-> >> @@ -1123,7 +1123,9 @@ &wifi {
-> >>
-> >>  /* PINCTRL - additions to nodes defined in sdm845.dtsi */
-> >>  &qup_spi2_default {
-> >> -       drive-strength = <16>;
-> >> +       pinmux {
-> >> +               drive-strength = <16>;
-> >> +       };
-> >
-> > The convention on Qualcomm boards of this era is that muxing (setting
-> > the function) is done under a "pinmux" node and, unless some of the
-> > pins need to be treated differently like for the UARTs, configuration
-> > (bias, drive strength, etc) is done under a "pinconf" subnode.
->
-> Yes, although this was not expressed in bindings.
->
-> > I
-> > believe that the "pinconf" subnode also needs to replicate the list of
-> > pins, or at least that's what we did everywhere else on sdm845 /
-> > sc7180.
->
-> Yes.
->
-> >
-> > Thus to match conventions, I assume you'd do:
-> >
-> > &qup_spi2_default {
-> >   pinconf {
->
-> No, because I want a convention of all pinctrl bindings and drivers, not
-> convention of old pinctrl ones. The new ones are already moved or being
-> moved to "-state" and "-pins". In the same time I am also unifying the
-> requirement of "function" property - enforcing it in each node, thus
-> "pinconf" will not be valid anymore.
+Fixes: 3743d55b2 (x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen generations)
+Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
+Cc: stable@vger.kernel.org
+---
+ arch/x86/kernel/cpu/amd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Regardless of where we want to end up, it feels like as of ${SUBJECT}
-patch this should match existing conventions in this file. If a later
-patch wants to change the conventions in this file then it can, but
-having just this one patch leaving things in an inconsistent state
-isn't great IMO...
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 48276c0e479d..1734cc5aa7ff 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -1183,8 +1183,7 @@ u32 amd_get_highest_perf(void)
+ {
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
+ 
+-	if (c->x86 == 0x17 && ((c->x86_model >= 0x30 && c->x86_model < 0x40) ||
+-			       (c->x86_model >= 0x70 && c->x86_model < 0x80)))
++	if (c->x86 == 0x17 && (c->x86_model >= 0x70 && c->x86_model < 0x80))
+ 		return 166;
+ 
+ 	if (c->x86 == 0x19 && ((c->x86_model >= 0x20 && c->x86_model < 0x30) ||
+-- 
+2.34.1
 
-If this really has to be one-off then the subnode shouldn't be called
-"pinmux". A subnode called "pinmux" implies that it just has muxing
-information in it. After your patch this is called "pinmux" but has
-_configuration_ in it.
-
-
-> >     pins = "gpio27", "gpio28", "gpio29", "gpio30";
-> >     drive-strength = <16>;
-> >   };
-> > };
-> >
-> > We've since moved away from this to a less cumbersome approach, but
-> > for "older" boards like db845c we should probably match the existing
-> > convention, or have a flag day and change all sdm845 boards over to
-> > the new convention.
->
-> That's what my next patchset from yesterday was doing. Unifying the
-> bindings with modern bindings and converting DTS to match them.
->
-> https://lore.kernel.org/linux-devicetree/20220930200529.331223-1-krzysztof.kozlowski@linaro.org/T/#t
-
-I wasn't CCed on that patch series. A few things jump out as not quite
-right to me. I'll try to do a review.
-
--Doug
