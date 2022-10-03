@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DE55F2B0A
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8999D5F2A2E
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 09:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231945AbiJCHqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 03:46:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
+        id S231411AbiJCHcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 03:32:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiJCHo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:44:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3524F476D5;
-        Mon,  3 Oct 2022 00:26:03 -0700 (PDT)
+        with ESMTP id S231210AbiJCHbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 03:31:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C588D4D80F;
+        Mon,  3 Oct 2022 00:20:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DABAB80E77;
-        Mon,  3 Oct 2022 07:16:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D669C433D7;
-        Mon,  3 Oct 2022 07:15:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3062360FC1;
+        Mon,  3 Oct 2022 07:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4672BC433D6;
+        Mon,  3 Oct 2022 07:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664781359;
-        bh=GLpatjvPIRyVVgNUsRmGJsg+QQg8gXy0pZ8E44NzLlM=;
+        s=korg; t=1664781628;
+        bh=Qehyhczy34GYCAxTdZ+1feiRyWrmxMPUNWaUD+1T+aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7e+ydVA2ovtLBR9Ff494b8WLYPiXJitq7+tZT4TPcFszgs9VXymKoo76ZOUPemzT
-         q/+Qq/mTmkVwNrbN4XGQ8CXq5furGmQkqp6bKIjbgyfnWscC6vtjGiGD48JikP3OND
-         s4PcbdIh9FclzwS4uEbQgVeZh/M43Xu+OD6dB2IU=
+        b=ub4X5N3lsiB2SdBtGa3MZ8YsZi8wJj7xn+HoUlgPrEKDoE6lNEYq6NmTn9wIVEbvB
+         AQu1kCL/yjFEIdb9tHHQH9PfY/vyepAUwf8qUg4i0ohsOZpXnhWcGTHo5Pf30I+YIk
+         sX6npY/udz9+RCQHnYsIShDHo56skMQApXQAx6b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Peng Fan <peng.fan@nxp.com>, Abel Vesa <abel.vesa@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Angus Chen <angus.chen@jaguarmicro.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Zhu Lingshan <lingshan.zhu@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 093/101] clk: imx93: drop of_match_ptr
-Date:   Mon,  3 Oct 2022 09:11:29 +0200
-Message-Id: <20221003070726.751403109@linuxfoundation.org>
+Subject: [PATCH 5.15 65/83] vdpa/ifcvf: fix the calculation of queuepair
+Date:   Mon,  3 Oct 2022 09:11:30 +0200
+Message-Id: <20221003070723.626652120@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221003070724.490989164@linuxfoundation.org>
-References: <20221003070724.490989164@linuxfoundation.org>
+In-Reply-To: <20221003070721.971297651@linuxfoundation.org>
+References: <20221003070721.971297651@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Angus Chen <angus.chen@jaguarmicro.com>
 
-[ Upstream commit daaa2fbe678efdaced53d1c635f4d326751addf8 ]
+[ Upstream commit db5db1a00d0816207be3a0166fcb4f523eaf3b52 ]
 
-There is build warning when CONFIG_OF is not selected.
->> drivers/clk/imx/clk-imx93.c:324:34: warning: 'imx93_clk_of_match'
->> defined but not used [-Wunused-const-variable=]
-     324 | static const struct of_device_id imx93_clk_of_match[] = {
-         |                                  ^~~~~~~~~~~~~~~~~~
+The q_pair_id to address a queue pair in the lm bar should be
+calculated by queue_id / 2 rather than queue_id / nr_vring.
 
-The driver only support DT table, no sense to use of_match_ptr.
-
-Fixes: 24defbe194b6 ("clk: imx: add i.MX93 clk")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/20220830033137.4149542-3-peng.fan@oss.nxp.com
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 2ddae773c93b ("vDPA/ifcvf: detect and use the onboard number of queues directly")
+Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+Reviewed-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Message-Id: <20220923091013.191-1-angus.chen@jaguarmicro.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx93.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/ifcvf/ifcvf_base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx93.c b/drivers/clk/imx/clk-imx93.c
-index f5c9fa40491c..dcc41d178238 100644
---- a/drivers/clk/imx/clk-imx93.c
-+++ b/drivers/clk/imx/clk-imx93.c
-@@ -332,7 +332,7 @@ static struct platform_driver imx93_clk_driver = {
- 	.driver = {
- 		.name = "imx93-ccm",
- 		.suppress_bind_attrs = true,
--		.of_match_table = of_match_ptr(imx93_clk_of_match),
-+		.of_match_table = imx93_clk_of_match,
- 	},
- };
- module_platform_driver(imx93_clk_driver);
+diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+index 7d41dfe48ade..5091ff9d6c93 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_base.c
++++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+@@ -327,7 +327,7 @@ u16 ifcvf_get_vq_state(struct ifcvf_hw *hw, u16 qid)
+ 	u32 q_pair_id;
+ 
+ 	ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+-	q_pair_id = qid / hw->nr_vring;
++	q_pair_id = qid / 2;
+ 	avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+ 	last_avail_idx = ifc_ioread16(avail_idx_addr);
+ 
+@@ -341,7 +341,7 @@ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num)
+ 	u32 q_pair_id;
+ 
+ 	ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+-	q_pair_id = qid / hw->nr_vring;
++	q_pair_id = qid / 2;
+ 	avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+ 	hw->vring[qid].last_avail_idx = num;
+ 	ifc_iowrite16(num, avail_idx_addr);
 -- 
 2.35.1
 
