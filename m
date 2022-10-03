@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ACC15F288B
-	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 08:20:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C5B5F288D
+	for <lists+stable@lfdr.de>; Mon,  3 Oct 2022 08:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229459AbiJCGUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Oct 2022 02:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46742 "EHLO
+        id S229569AbiJCGUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Oct 2022 02:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229559AbiJCGT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 02:19:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FB73E016
-        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 23:19:57 -0700 (PDT)
+        with ESMTP id S229548AbiJCGUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Oct 2022 02:20:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F16601581A
+        for <stable@vger.kernel.org>; Sun,  2 Oct 2022 23:20:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B056BB80DBD
-        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 06:19:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC76C433C1;
-        Mon,  3 Oct 2022 06:19:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A73D8B80D89
+        for <stable@vger.kernel.org>; Mon,  3 Oct 2022 06:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ABDAC433C1;
+        Mon,  3 Oct 2022 06:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664777994;
-        bh=BP+hnxX/Jx5ShxfvBS2zhwpBDmIoqYz0xLqfre41Mjg=;
+        s=korg; t=1664778011;
+        bh=TnajTBbvJF3TpEZrBDHONBO8JR8/3vW1LhZp6H1+WRw=;
         h=Subject:To:Cc:From:Date:From;
-        b=tAclRTcR4Txj9KXDAa5/tOaq+OyL4C0GO7wYb0ZWq5ZOwVw/XuOFyKN7VkYRsMUTQ
-         uMPAaZGAQxT4NVi9lmFVfJyDLBjCuuRe6q5ya22ssCLtKvblTgVKNtj2FWBasdj+qE
-         RKoh/q473tUd/EQFkVkTBNe6YrjyXgFMtIkKvASs=
-Subject: FAILED: patch "[PATCH] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant" failed to apply to 5.15-stable tree
+        b=l68SauuzU7FTJMzZk0i6vxW1HMB1hrfGHD3lcm5Oyx2gNLELYM+dVVOuu6xYw24Fo
+         MFC38uw8+QN21z8RF7wHaa8fPXVve6+ez+JAodF3Kk2dZAhD2GnIHjpq+KMUFgqfwJ
+         3pQKYw2P50EpSX+yyFoi5qCgEdKuF5TNzfxpxNhQ=
+Subject: FAILED: patch "[PATCH] x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant" failed to apply to 5.10-stable tree
 To:     bp@suse.de, ssengar@linux.microsoft.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Oct 2022 08:20:27 +0200
-Message-ID: <166477802792157@kroah.com>
+Date:   Mon, 03 Oct 2022 08:20:33 +0200
+Message-ID: <166477803339104@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,8 @@ Possible dependencies:
 
 df5b035b5683 ("x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant")
 66558b730f25 ("sched: Add cluster scheduler level for x86")
+9164d9493a79 ("x86/cpu: Add get_llc_id() helper function")
+2c88d45edbb8 ("x86, sched: Treat Intel SNC topology as default, COD as exception")
 
 thanks,
 
