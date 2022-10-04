@@ -2,127 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF8485F4497
-	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 15:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE3C5F4525
+	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 16:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbiJDNo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Oct 2022 09:44:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41316 "EHLO
+        id S229494AbiJDOHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Oct 2022 10:07:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229771AbiJDNow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 09:44:52 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467B5F59F
-        for <stable@vger.kernel.org>; Tue,  4 Oct 2022 06:44:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664891086; x=1696427086;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=eSBe9smtoV7qkYQconvXq2pg50vA/fg0vgTMB4G1NN8=;
-  b=hZ6NzqbkRY+qziPcdpXLnm9AswpUwWwpgHGDp0IQ+SDUBdnAf2SK9hSz
-   UpaOuIFR/vIIF0EAAz0dS1UpioNIN6YzmxfYjJReVrWI/O04OGh4WGWnC
-   v1kpGopW0Og9UFTIhfXpxJ1+BaOZLN8lqEjarAG1BOPAQCvrUvSzxg9A7
-   VYdKCuWvjqgIfbCkOTKEnMhzrt0XgDf+dLXSdXHoCMJ4jzuaY/URInK9D
-   D2N/URmdSQqhQfB8Wk4Yb1lzYUfaIYnj8qQqdtYqyMgxWaxyEnIF3aHOQ
-   ss39y22v9hPWimPgfM00fyjb+nzBUelh0H9JB8eu6K5bkYSIgjP53lyks
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10490"; a="290130170"
-X-IronPort-AV: E=Sophos;i="5.95,158,1661842800"; 
-   d="scan'208";a="290130170"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2022 06:44:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10490"; a="713013640"
-X-IronPort-AV: E=Sophos;i="5.95,158,1661842800"; 
-   d="scan'208";a="713013640"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by FMSMGA003.fm.intel.com with SMTP; 04 Oct 2022 06:44:36 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 04 Oct 2022 16:44:35 +0300
-Date:   Tue, 4 Oct 2022 16:44:35 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     David Matthew Mattli <dmm@mattli.us>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        Slade Watkins <srw@sladewatkins.net>,
-        Jerry Ling <jiling@cern.ch>, intel-gfx@lists.freedesktop.org
-Subject: Re: Regression on 5.19.12, display flickering on Framework laptop
-Message-ID: <Yzw4w6JQ2fKo9AE1@intel.com>
-References: <YzZynE2FAMNQKm2E@kroah.com>
- <YzaFq7fzw5TbrJyv@kroah.com>
- <03147889-B21C-449B-B110-7E504C8B0EF4@sladewatkins.net>
- <aa8b9724-50c6-ae2e-062d-3791144ac97e@cern.ch>
- <e3e2915d-1411-a758-3991-48d6c2688a1e@leemhuis.info>
- <YzsfrkJcwqKOO+E/@intel.com>
- <YzsgeXOK6JeVQGHF@intel.com>
- <714903fa-16c8-4247-d69d-74af6ef50bfa@leemhuis.info>
- <9aae6b15-265a-4ef9-87c1-83dfe5094378@smtp-relay.sendinblue.com>
- <Yzw3591mUb8b9Wst@kroah.com>
+        with ESMTP id S229469AbiJDOHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 10:07:53 -0400
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40EA15F9A4;
+        Tue,  4 Oct 2022 07:07:51 -0700 (PDT)
+Received: by mail-qt1-f178.google.com with SMTP id e20so8031612qts.1;
+        Tue, 04 Oct 2022 07:07:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=CwtCVo4E0uHMxh/oXIFSsuUlrvJUZN6evy9/L7XgMRM=;
+        b=ttKKC7oHwP8uhQwfkxVW6CYBu0fscWmPa4jbF4aHqFzvAh/tonDvyuV6wQaDGq8GNB
+         ekrd+8S0dHqiQiFjk/QvD6uR52L+VO52U4DUhNuwqecsNV4kEK7NnNdwrKiTzsOmKGAC
+         5ql91aYaIZJLKkAf+9X3pj8twN2KzVTqmIGz95qBX0S7sM9y1zAgc66kyRyOpXGVG0/3
+         LyRTnHNQbBw1OeLfgHP8cYSIgYczS49E0ZK6Z6lWF9aUTMB/ok6dfLIayeKZ1LR3mdlt
+         XLN9XVCCH17NuN25tcoOSG/6QU6EImCpMNdRfUANbTfvQAMy3uozfixoH/WGaTtdayOr
+         WFCg==
+X-Gm-Message-State: ACrzQf2iEHo/SL8lYIbEwsq3/BHqr/bVDiFNvWZjvxu0qSUIomWBNZuP
+        VnbtcXTABgp2OGSG2lLiBrKskInogqAu1beoYjg=
+X-Google-Smtp-Source: AMsMyM7XjpNPG7D4U+SwcBGLfHr5S0WNoNxy/EiVr4rwQ/ujw60PsGjVRTB6XGOAzzIOsRR02GBL/zCEsTGnnD05Jao=
+X-Received: by 2002:a05:622a:1a08:b0:35c:d9b5:144b with SMTP id
+ f8-20020a05622a1a0800b0035cd9b5144bmr19566667qtb.27.1664892469614; Tue, 04
+ Oct 2022 07:07:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Yzw3591mUb8b9Wst@kroah.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220916050535.26625-1-xueshuai@linux.alibaba.com>
+ <20220924074953.83064-1-xueshuai@linux.alibaba.com> <CAJZ5v0jAZC81Peowy0iKuq+cy68tyn0OK3a--nW=wWMbRojcxg@mail.gmail.com>
+ <f0735218-7730-c275-8cee-38df9bec427d@linux.alibaba.com> <SJ1PR11MB6083FC6B8D64933C573CAB64FC529@SJ1PR11MB6083.namprd11.prod.outlook.com>
+ <79cb9aee-9ad5-00f4-3f7a-9c409f502685@linux.alibaba.com> <SJ1PR11MB60830CBCB42CFF552A2B6CF0FC559@SJ1PR11MB6083.namprd11.prod.outlook.com>
+ <f09e6aee-5d7f-62c2-8a6e-d721d8b22699@linux.alibaba.com> <SJ1PR11MB60837ABF899B5CF1F01D68D1FC579@SJ1PR11MB6083.namprd11.prod.outlook.com>
+ <0f23cee8-9139-742c-a9d1-01674b16d05c@linux.alibaba.com> <SJ1PR11MB6083F02E240B6E8B8CEE1EAFFC569@SJ1PR11MB6083.namprd11.prod.outlook.com>
+In-Reply-To: <SJ1PR11MB6083F02E240B6E8B8CEE1EAFFC569@SJ1PR11MB6083.namprd11.prod.outlook.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 4 Oct 2022 16:07:38 +0200
+Message-ID: <CAJZ5v0gU9=-9cD0endsyGZUJ7WnOUqWBYoLCHayqhEDkfEHNvQ@mail.gmail.com>
+Subject: Re: [PATCH v2] ACPI: APEI: do not add task_work to kernel thread to
+ avoid memory leak
+To:     "Luck, Tony" <tony.luck@intel.com>,
+        Shuai Xue <xueshuai@linux.alibaba.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        "baicar@os.amperecomputing.com" <baicar@os.amperecomputing.com>,
+        Len Brown <lenb@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?= 
+        <naoya.horiguchi@nec.com>,
+        "linmiaohe@huawei.com" <linmiaohe@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stable <stable@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "cuibixuan@linux.alibaba.com" <cuibixuan@linux.alibaba.com>,
+        "baolin.wang@linux.alibaba.com" <baolin.wang@linux.alibaba.com>,
+        "zhuo.song@linux.alibaba.com" <zhuo.song@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 04, 2022 at 03:40:55PM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Oct 04, 2022 at 06:46:10AM -0500, David Matthew Mattli wrote:
-> > Thorsten Leemhuis writes:
-> > 
-> > > On 03.10.22 19:48, Ville Syrjälä wrote:
-> > >> On Mon, Oct 03, 2022 at 08:45:18PM +0300, Ville Syrjälä wrote:
-> > >>> On Sat, Oct 01, 2022 at 12:07:39PM +0200, Thorsten Leemhuis wrote:
-> > >>>> On 30.09.22 14:26, Jerry Ling wrote:
-> > >>>>>
-> > >>>>> looks like someone has done it:
-> > >>>>> https://bbs.archlinux.org/viewtopic.php?pid=2059823#p2059823
-> > >>>>>
-> > >>>>> and the bisect points to:
-> > >>>>>
-> > >>>>> |# first bad commit: [fc6aff984b1c63d6b9e54f5eff9cc5ac5840bc8c]
-> > >>>>> drm/i915/bios: Split VBT data into per-panel vs. global parts Best, Jerry
-> > |
-> > >>>>
-> > >>>> FWIW, that's 3cf050762534 in mainline. Adding Ville, its author to the
-> > >>>> list of recipients.
-> > >>>
-> > >>> I definitely had no plans to backport any of that stuff,
-> > >>> but I guess the automagics did it anyway.
-> > >>>
-> > >>> Looks like stable is at least missing this pile of stuff:
-> > >>> 50759c13735d drm/i915/pps: Keep VDD enabled during eDP probe
-> > >>> 67090801489d drm/i915/pps: Reinit PPS delays after VBT has been fully
-> > parsed
-> > >>> 8e75e8f573e1 drm/i915/pps: Split PPS init+sanitize in two
-> > >>> 586294c3c186 drm/i915/pps: Stash away original BIOS programmed PPS delays
-> > >>> 89fcdf430599 drm/i915/pps: Don't apply quirks/etc. to the VBT PPS
-> > >>> delays if they haven't been initialized
-> > >>> 60b02a09598f drm/i915/pps: Introduce pps_delays_valid()
-> > >>>
-> > >>> But dunno if even that is enough.
-> > >
-> > > If you need testers: David (now CCed) apparently has a affected machine
-> > > and offered to test patches in a different subthread of this thread.
-> > >
-> > 
-> > I cherry-picked the six commits Thorsten listed onto 5.19.12 and it
-> > resolved the issue on my Framework laptop.
-> 
-> Thanks for testing, but I'm just going to revert the offending commits
-> as they probably shouldn't all be added to 5.19.y
+On Fri, Sep 30, 2022 at 5:52 PM Luck, Tony <tony.luck@intel.com> wrote:
+>
+> > Yes, the error is actually handled in workqueue. I think the point is that the
+> > synchronous exception signaled by synchronous external abort must be handled
+> > synchronously, otherwise, it will be signaled again.
+>
+> Ok. Got it now. Thanks.
+>
+> For Rafael:
+>
+> Reviewed-by: Tony Luck <tony.luck@intel.com>
 
-Yeah, revert seems the safer route. Thanks.
-
--- 
-Ville Syrjälä
-Intel
+Applied as 6.1-rc material, thanks!
