@@ -2,65 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A4B5F4AAA
-	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 23:06:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520545F4AD2
+	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 23:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiJDVGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Oct 2022 17:06:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
+        id S229620AbiJDVUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Oct 2022 17:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbiJDVGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 17:06:11 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2872A6B151
-        for <stable@vger.kernel.org>; Tue,  4 Oct 2022 14:06:10 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id kg6so16160769ejc.9
-        for <stable@vger.kernel.org>; Tue, 04 Oct 2022 14:06:10 -0700 (PDT)
+        with ESMTP id S229529AbiJDVT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 17:19:59 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 378AC1116F
+        for <stable@vger.kernel.org>; Tue,  4 Oct 2022 14:19:57 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id i6so14219781pfb.2
+        for <stable@vger.kernel.org>; Tue, 04 Oct 2022 14:19:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=PGXp3VOaj51mo3NAOboUEy2QOQRbII2zrb0XhYBKtGM=;
-        b=ei9P+Bd8IeYaUbJs/c5FUcgm+e2dtUe8rcWZVo37eSWgUxP4UD6QIGM56JRbUsdKAq
-         4ChHOm92aseqM7vhWHDHYMlhdU4mpHqDSVbRYUQtjYgUHVj3Ewp87aHLGcd92ibTqxNU
-         2IGstbKW8X5ojiiNgUj0SQuMnL9V9JtF3auD/RllL0djegSirzfVdKiYefVkgtWql0Ui
-         FPpD9GZc3H9ebBi3c7N2NFImWUYv8+LyW95cg8EwHPK4pjqhyJKcUIGMqHjkSE/9cOIM
-         FjV23SIMC2JLakD2F+Htd1704Wd9H3+8iaB5WOQW5T8vEPL0q7CVDVkVUWIg8kMr3WjP
-         Mnmg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=tcT/JD/7HyFtGR8TTinHAztVcULc5v2ugRG6yMsCKos=;
+        b=RaKCeMjPtldCw4pDGrNxIbxX6y1Yn4vmddcsDfcImxFreSTXMRvslSDq3aept12SGj
+         bEL1uAXF4sMH3YTjKbzUas/97m2TLqEkkPr+AmpQmlQEoMspGZMv9WIJs5WHBtLHa9Ez
+         Cc3w4Q8dMztbFgmuFmw1A+J9aCGQq9Hguk6Z81vroVZtknakLE91uC5Q/+DFE6lqtoJR
+         mP5+rCi8B3wE/dFvu8sxHCd3ZMVU6oDoKHokkXL7eBsM7qTHW2C5eGJ5PTDR5U7bys9v
+         9BMo0tePMP0ok4I82TVyO1Yag8z84R8Jfkyl5PN88EuKr0zjMtAvRzauF6rsOcavrlun
+         1HEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=PGXp3VOaj51mo3NAOboUEy2QOQRbII2zrb0XhYBKtGM=;
-        b=j0+6MXDWDPUi+Zzv1abmBudqtdN4z+x7TNp9/aVjlavrRGRjyogUl0w42om0yTVzm8
-         4wWiDHP3cRfRQYSf1S1PE5CP7xXbVY727Y9latSFI8gaOInSCiNkPnmaIXQVOKcjIIkc
-         bEJf77Sj5DzIsp9IcCYLwUFGp+dM2z0cSIsfUrWgsF3iAa8kRF4V9PsabcRXkRI0wcfL
-         vH/k4DbHJ5PIyeMlTJubs0AzidJTBBkOC+BAc1YX8OGd3hCjNF9nifMfBMGkHFVVEa6H
-         BqGtSwTNwkHqQV/C+7A9LF+DpAxbyDxWb1yBV7nLlgNnbQw5JxzhMN/FDyxP87QFE5tX
-         NfyA==
-X-Gm-Message-State: ACrzQf3EWF2Q7IF658NAux9dJq/uAdHl0fiXcInTcURpvwuqWdsncNQR
-        j5fygehA6kwd/sIKDS/Dh39ZTAzCN0/FJWtOrACtVg==
-X-Google-Smtp-Source: AMsMyM6miuRPK7ev9MZ5sjWqzSrdpKNre547CDGwOeRVZ1Z48m1CIIGuRzThsoRIBOpqKcU0yJDkhB88phMaaOnIcJE=
-X-Received: by 2002:a17:907:6d28:b0:782:32ad:7b64 with SMTP id
- sa40-20020a1709076d2800b0078232ad7b64mr22349233ejc.23.1664917568615; Tue, 04
- Oct 2022 14:06:08 -0700 (PDT)
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=tcT/JD/7HyFtGR8TTinHAztVcULc5v2ugRG6yMsCKos=;
+        b=ZbAyPfeqm8iz+RiA8XeSROiBQXPJ+otqF3Gquk9EPbqHXQu69BexyH2xpd5u4N4N9g
+         tdtgTezQX8IF9QhdisPqGY+MHUF9bkcCvWnZ1SCAs6GkedhT815kO6w7+5JVAJC7/dOg
+         8hQODFByTEktO6ddczmaSdIO9w+Keng1ZxprkDnLpVKMr4lTC6XcslB/NJTorzBef3SZ
+         /maxvPUazCERUiTTQx1f9d7qgYuTaORTcRjmsprnc9kSSH5oZBUKDf6MneZ1vgMLd33T
+         AK9lJgi92/DAxKSLspffP3L8K5h80cD6WSn6FXRCrKULR2vZsqGJq4I79X8EsbyMkrTg
+         j/DA==
+X-Gm-Message-State: ACrzQf2f9A9ct2dbVOUlNrE3LBVKqfmBGdmv9WnphA/3fXepf+XxqTcd
+        HETGp32zLB8Dz30QS0aQQYcChazAw1JPK61tL0A=
+X-Google-Smtp-Source: AMsMyM4WgLGPrd8FCr33WhWTko6ux47+1kor0ATSv7dCcfUOTohGc5fdkwLCqdchPA339XVgCNu8vg==
+X-Received: by 2002:a63:4e16:0:b0:43f:3554:ff9c with SMTP id c22-20020a634e16000000b0043f3554ff9cmr25160157pgb.578.1664918397218;
+        Tue, 04 Oct 2022 14:19:57 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k3-20020aa79d03000000b0055b674dd134sm3436440pfp.29.2022.10.04.14.19.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Oct 2022 14:19:56 -0700 (PDT)
+Message-ID: <633ca37c.a70a0220.32e38.626f@mx.google.com>
+Date:   Tue, 04 Oct 2022 14:19:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20221003224531.1930646-1-sethjenkins@google.com> <20221004114621.7b539d2c3618b25037c4f2d0@linux-foundation.org>
-In-Reply-To: <20221004114621.7b539d2c3618b25037c4f2d0@linux-foundation.org>
-From:   Seth Jenkins <sethjenkins@google.com>
-Date:   Tue, 4 Oct 2022 17:05:57 -0400
-Message-ID: <CALxfFW6vLiASgY8BBBS8fJETTwv7iApnPjT0NJYJWTbDbRVJ-g@mail.gmail.com>
-Subject: Re: [PATCH] mm: /proc/pid/smaps_rollup: fix no vma's null-deref
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        linux-mm@kvack.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.295-19-g14a826f46e651
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 36 runs,
+ 3 regressions (v4.14.295-19-g14a826f46e651)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,38 +70,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I concur, mm-stable looks fine to me as well.
+stable-rc/queue/4.14 baseline: 36 runs, 3 regressions (v4.14.295-19-g14a826=
+f46e651)
 
-Jann and I conversed today and the tentative decision since this isn't
-considered a high-priority security bug is to wait for maple tree to
-merge into Linus's branch before submitting this patch to stable.
+Regressions Summary
+-------------------
 
-On Tue, Oct 4, 2022 at 2:46 PM Andrew Morton <akpm@linux-foundation.org> wrote:
->
-> On Mon,  3 Oct 2022 18:45:31 -0400 FirstName LastName <sethjenkins@google.com> wrote:
->
-> > From: Seth Jenkins <sethjenkins@google.com>
-> >
-> > Commit 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value
-> > seq_file") introduced a null-deref if there are no vma's in the task in
-> > show_smaps_rollup.
-> >
-> > --- a/fs/proc/task_mmu.c
-> > +++ b/fs/proc/task_mmu.c
-> > @@ -969,7 +969,7 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
-> >               vma = vma->vm_next;
-> >       }
-> >
-> > -     show_vma_header_prefix(m, priv->mm->mmap->vm_start,
-> > +     show_vma_header_prefix(m, priv->mm->mmap ? priv->mm->mmap->vm_start : 0,
-> >                              last_vma_end, 0, 0, 0, 0);
-> >       seq_pad(m, ' ');
-> >       seq_puts(m, "[rollup]\n");
->
-> The current mm tree is very different here.  In fact the bug might not
-> exist any more.  Please take a look at the mm-stable branch at
-> git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm?
->
-> If no fixes are needed in mm-stable then I guess the process is to
-> propose this patch to the stable tree maintainers.
->
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+meson-gxl-s905x-khadas-vim   | arm64 | lab-baylibre  | gcc-10   | defconfig=
+ | 1          =
+
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie   | gcc-10   | defconfig=
+ | 1          =
+
+qemu_arm64-virt-gicv3        | arm64 | lab-collabora | gcc-10   | defconfig=
+ | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.295-19-g14a826f46e651/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.295-19-g14a826f46e651
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      14a826f46e65185c2f6407b7d3c2ac8d209ec7a3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+meson-gxl-s905x-khadas-vim   | arm64 | lab-baylibre  | gcc-10   | defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/633c71135e4005e1ffcab608
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.295=
+-19-g14a826f46e651/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s=
+905x-khadas-vim.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.295=
+-19-g14a826f46e651/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s=
+905x-khadas-vim.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633c71135e4005e1ffcab=
+609
+        failing since 91 days (last pass: v4.14.285-35-g61a723f50c9f, first=
+ fail: v4.14.285-46-ga87318551bac) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie   | gcc-10   | defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/633c719165f127c4fdcab618
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.295=
+-19-g14a826f46e651/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s9=
+05x-libretech-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.295=
+-19-g14a826f46e651/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s9=
+05x-libretech-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633c719165f127c4fdcab=
+619
+        failing since 168 days (last pass: v4.14.275-277-gda5c0b6bebbb1, fi=
+rst fail: v4.14.275-284-gdf8ec5b4383b9) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+qemu_arm64-virt-gicv3        | arm64 | lab-collabora | gcc-10   | defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/633c710ba4ca2455b0cab606
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.295=
+-19-g14a826f46e651/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.295=
+-19-g14a826f46e651/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633c710ba4ca2455b0cab=
+607
+        failing since 70 days (last pass: v4.14.267-41-g23609abc0d54, first=
+ fail: v4.14.289-19-g8ed326806c84) =
+
+ =20
