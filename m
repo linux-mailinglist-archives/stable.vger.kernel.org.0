@@ -2,268 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C615F48B8
-	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 19:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B8655F48DC
+	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 19:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229831AbiJDRkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Oct 2022 13:40:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
+        id S229500AbiJDRqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Oct 2022 13:46:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230112AbiJDRkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 13:40:09 -0400
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 092E721838
-        for <stable@vger.kernel.org>; Tue,  4 Oct 2022 10:39:59 -0700 (PDT)
-Received: by mail-io1-xd33.google.com with SMTP id h19so447505iof.0
-        for <stable@vger.kernel.org>; Tue, 04 Oct 2022 10:39:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=iFTCUlAFWEMH4do++kOfX+ys9ol8jvxTz8LPUSildUg=;
-        b=aDRrTicvrJa/Q3Vo3aEvRhNr0g+1czm/VnPnd7udm1Sf1vapeTHAOUcQzudgcNGv9+
-         OEZEjwbV6ruBT0tKlKVY/AfaHtZnxi73WhJpCBqeHz2Zowjw/eIkYCJ7wW/qxv9u8OIc
-         gG1kGjrlIaYccya3BUoUrTQvwnHbk+MGCRMUE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=iFTCUlAFWEMH4do++kOfX+ys9ol8jvxTz8LPUSildUg=;
-        b=sS2Ulp7AH3zG11utVuXzunbCtwFaQnNzKp2eKoxRqanbl/w/WHeYmn7VhELgH2YhQh
-         Mru0SOLa9TE6DSoE6YhSvgC406OmGLtosZ/uMEuKEYPJd/cA+W7fu16m8QvHPaUPmLn3
-         RrW++UklctMNaGp9lUs7lyDhInpbqWdtrXq7VsxE/K76HvGkyJjFFXj1b7itLZUTm/5G
-         FKO5XeGsbMoAe+wzeWXv0jVxKZXEc03fnur5EDJUDzUNZrAwVm4Ua9ge3iWpOWYLPdMN
-         I/tO4huI8LZgrwjojpLr9yTmrsi7ortrYR6WdInY9pR1X7XholtVncREly6dtT0CUCk4
-         zGjA==
-X-Gm-Message-State: ACrzQf24TdzVhkqRKVI80H3Hp9+OG16s9ZoTL7VWJMSEXCuKVcfPQvWR
-        MHbUAHtwb1zaWf/dBsSMc6uEkg==
-X-Google-Smtp-Source: AMsMyM55siJsh131ne6Xx5C5nNrnIcS2ASztBCxuuQgZ+htIMj2piprrItlBVBSaBgRBRimisvuPEg==
-X-Received: by 2002:a05:6638:c52:b0:362:edd8:874b with SMTP id g18-20020a0566380c5200b00362edd8874bmr5812484jal.252.1664905198514;
-        Tue, 04 Oct 2022 10:39:58 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id c26-20020a02331a000000b003627dc2a94esm3324564jae.96.2022.10.04.10.39.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Oct 2022 10:39:58 -0700 (PDT)
-Message-ID: <e5b31a9f-56a2-d9e5-fe60-b785171600e2@linuxfoundation.org>
-Date:   Tue, 4 Oct 2022 11:39:57 -0600
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 5.4 00/30] 5.4.216-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S229549AbiJDRqD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 13:46:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F414AD4B;
+        Tue,  4 Oct 2022 10:46:01 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37635B81B41;
+        Tue,  4 Oct 2022 17:46:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B327C433D6;
+        Tue,  4 Oct 2022 17:45:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664905558;
+        bh=mEuhiXpELJARb7beXplRVX/+gd88BFbLzWSWad5oX8o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eDoUJN3Dk4zk4dFGhDVajXkCiOsVyfOlFNLKutOqnS0yZPN7S2hiRD/8aZFg57Dv1
+         pRzqnuTzSdvB5UnX9mZzlZJGsUyExJtBKbdsMMeKPXawisnLKquKXqUFghZyNYQwgU
+         DhEl72pDN/A+LsCppq7Jhy3uJGa0tnP/zbFXq55o=
+Date:   Tue, 4 Oct 2022 19:45:56 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, Shuah Khan <skhan@linuxfoundation.org>
-References: <20221003070716.269502440@linuxfoundation.org>
- <7af02bc3-c0f2-7326-e467-02549e88c9ce@linuxfoundation.org>
- <YzxvTF3qOacE9Cdi@kroah.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <YzxvTF3qOacE9Cdi@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        srw@sladewatkins.net
+Subject: Re: [PATCH 5.15 00/83] 5.15.72-rc1 review
+Message-ID: <YzxxVJqph3iOHcdb@kroah.com>
+References: <20221003070721.971297651@linuxfoundation.org>
+ <e7934bdb-fb0a-76cd-0fd2-f9b8da03170d@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <e7934bdb-fb0a-76cd-0fd2-f9b8da03170d@roeck-us.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/4/22 11:37, Greg Kroah-Hartman wrote:
-> On Mon, Oct 03, 2022 at 05:49:21PM -0600, Shuah Khan wrote:
->> On 10/3/22 01:11, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 5.4.216 release.
->>> There are 30 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Wed, 05 Oct 2022 07:07:06 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.216-rc1.gz
->>> or in the git tree and branch at:
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>>
->>> -------------
->>> Pseudo-Shortlog of commits:
->>>
->>> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>       Linux 5.4.216-rc1
->>>
->>> Florian Fainelli <f.fainelli@gmail.com>
->>>       clk: iproc: Do not rely on node name for correct PLL setup
->>>
->>> Han Xu <han.xu@nxp.com>
->>>       clk: imx: imx6sx: remove the SET_RATE_PARENT flag for QSPI clocks
->>>
->>> Wang Yufen <wangyufen@huawei.com>
->>>       selftests: Fix the if conditions of in test_extra_filter()
->>>
->>> Michael Kelley <mikelley@microsoft.com>
->>>       nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
->>>
->>> Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
->>>       nvme: add new line after variable declatation
->>>
->>> Peilin Ye <peilin.ye@bytedance.com>
->>>       usbnet: Fix memory leak in usbnet_disconnect()
->>>
->>> Yang Yingliang <yangyingliang@huawei.com>
->>>       Input: melfas_mip4 - fix return value check in mip4_probe()
->>>
->>> Brian Norris <briannorris@chromium.org>
->>>       Revert "drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time"
->>>
->>> Samuel Holland <samuel@sholland.org>
->>>       soc: sunxi: sram: Fix debugfs info for A64 SRAM C
->>>
->>> Samuel Holland <samuel@sholland.org>
->>>       soc: sunxi: sram: Fix probe function ordering issues
->>>
->>> Cai Huoqing <caihuoqing@baidu.com>
->>>       soc: sunxi_sram: Make use of the helper function devm_platform_ioremap_resource()
->>>
->>> Samuel Holland <samuel@sholland.org>
->>>       soc: sunxi: sram: Prevent the driver from being unbound
->>>
->>> Samuel Holland <samuel@sholland.org>
->>>       soc: sunxi: sram: Actually claim SRAM regions
->>>
->>> YuTong Chang <mtwget@gmail.com>
->>>       ARM: dts: am33xx: Fix MMCHS0 dma properties
->>>
->>> Faiz Abbas <faiz_abbas@ti.com>
->>>       ARM: dts: Move am33xx and am43xx mmc nodes to sdhci-omap driver
->>>
->>> Hangyu Hua <hbh25y@gmail.com>
->>>       media: dvb_vb2: fix possible out of bound access
->>>
->>> Minchan Kim <minchan@kernel.org>
->>>       mm: fix madivse_pageout mishandling on non-LRU page
->>>
->>> Alistair Popple <apopple@nvidia.com>
->>>       mm/migrate_device.c: flush TLB while holding PTL
->>>
->>> Maurizio Lombardi <mlombard@redhat.com>
->>>       mm: prevent page_frag_alloc() from corrupting the memory
->>>
->>> Mel Gorman <mgorman@techsingularity.net>
->>>       mm/page_alloc: fix race condition between build_all_zonelists and page allocation
->>>
->>> Sergei Antonov <saproj@gmail.com>
->>>       mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
->>>
->>> Niklas Cassel <niklas.cassel@wdc.com>
->>>       libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
->>>
->>> Sasha Levin <sashal@kernel.org>
->>>       Revert "net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()"
->>>
->>> ChenXiaoSong <chenxiaosong2@huawei.com>
->>>       ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
->>>
->>> Linus Walleij <linus.walleij@linaro.org>
->>>       ARM: dts: integrator: Tag PCI host with device_type
->>>
->>> Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
->>>       clk: ingenic-tcu: Properly enable registers before accessing timers
->>>
->>> Frank Wunderlich <frank-w@public-files.de>
->>>       net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
->>>
->>> Hongling Zeng <zenghongling@kylinos.cn>
->>>       uas: ignore UAS for Thinkplus chips
->>>
->>> Hongling Zeng <zenghongling@kylinos.cn>
->>>       usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS
->>>
->>> Hongling Zeng <zenghongling@kylinos.cn>
->>>       uas: add no-uas quirk for Hiksemi usb_disk
->>>
->>>
->>> -------------
->>>
->>> Diffstat:
->>>
->>>    Makefile                                           |  4 +-
->>>    arch/arm/boot/dts/am335x-baltos.dtsi               |  2 +-
->>>    arch/arm/boot/dts/am335x-boneblack-common.dtsi     |  1 +
->>>    arch/arm/boot/dts/am335x-boneblack-wireless.dts    |  1 -
->>>    arch/arm/boot/dts/am335x-boneblue.dts              |  1 -
->>>    arch/arm/boot/dts/am335x-bonegreen-wireless.dts    |  1 -
->>>    arch/arm/boot/dts/am335x-evm.dts                   |  3 +-
->>>    arch/arm/boot/dts/am335x-evmsk.dts                 |  2 +-
->>>    arch/arm/boot/dts/am335x-lxm.dts                   |  2 +-
->>>    arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi  |  2 +-
->>>    arch/arm/boot/dts/am335x-moxa-uc-8100-me-t.dts     |  2 +-
->>>    arch/arm/boot/dts/am335x-pepper.dts                |  4 +-
->>>    arch/arm/boot/dts/am335x-phycore-som.dtsi          |  2 +-
->>>    arch/arm/boot/dts/am33xx-l4.dtsi                   |  9 +--
->>>    arch/arm/boot/dts/am33xx.dtsi                      |  3 +-
->>>    arch/arm/boot/dts/am4372.dtsi                      |  3 +-
->>>    arch/arm/boot/dts/am437x-cm-t43.dts                |  2 +-
->>>    arch/arm/boot/dts/am437x-gp-evm.dts                |  4 +-
->>>    arch/arm/boot/dts/am437x-l4.dtsi                   |  5 +-
->>>    arch/arm/boot/dts/am437x-sk-evm.dts                |  2 +-
->>>    arch/arm/boot/dts/integratorap.dts                 |  1 +
->>>    drivers/ata/libata-core.c                          |  4 ++
->>>    drivers/clk/bcm/clk-iproc-pll.c                    | 12 ++--
->>>    drivers/clk/imx/clk-imx6sx.c                       |  4 +-
->>>    drivers/clk/ingenic/tcu.c                          | 15 ++---
->>>    drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 -----
->>>    drivers/input/touchscreen/melfas_mip4.c            |  2 +-
->>>    drivers/media/dvb-core/dvb_vb2.c                   | 11 ++++
->>>    drivers/mmc/host/moxart-mmc.c                      | 17 +-----
->>>    drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c |  4 +-
->>>    drivers/net/usb/qmi_wwan.c                         |  1 +
->>>    drivers/net/usb/usbnet.c                           |  7 ++-
->>>    drivers/nvme/host/core.c                           |  9 ++-
->>>    drivers/soc/sunxi/sunxi_sram.c                     | 27 ++++-----
->>>    drivers/usb/storage/unusual_uas.h                  | 21 +++++++
->>>    fs/ntfs/super.c                                    |  3 +-
->>>    mm/madvise.c                                       |  7 ++-
->>>    mm/migrate.c                                       |  5 +-
->>>    mm/page_alloc.c                                    | 65 ++++++++++++++++++----
->>>    tools/testing/selftests/net/reuseport_bpf.c        |  2 +-
->>>    40 files changed, 173 insertions(+), 112 deletions(-)
->>>
->>>
->>>
->>
->> Compiled and failed to boot. Reverting the following patch fixes
->> the problem.
->>
->> commit 4b453403a945b13ea8aa9e8628bec1eaffeb7257 (HEAD -> linux-5.4.y)
->> Author: Shuah Khan <skhan@linuxfoundation.org>
->> Date:   Mon Oct 3 15:45:57 2022 -0600
->>
->>      Revert "drm/amdgpu: use dirty framebuffer helper"
->>
->> thanks,
->> -- Shuah
->>      This reverts commit c89849ecfd2e10838b31c519c2a6607266b58f02.
+On Mon, Oct 03, 2022 at 07:26:40AM -0700, Guenter Roeck wrote:
+> On 10/3/22 00:10, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.15.72 release.
+> > There are 83 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 05 Oct 2022 07:07:06 +0000.
+> > Anything received after that time might be too late.
+> > 
 > 
-> As that commit is in 5.4.215, it's not part of this -rc series.  Do you
-> want to submit a patch for the revert, or want me to make one up after
-> 5.4.216 is out?
+> perf fails to build.
 > 
+> In file included from util/evlist.h:13,
+>                  from builtin-annotate.c:21:
+> util/evsel.h:266:38: error: ‘PERF_TOOL_MAX’ undeclared here (not in a function); did you mean ‘PERF_TXN_MAX’?
+>   266 | extern const char *evsel__tool_names[PERF_TOOL_MAX];
+>       |                                      ^~~~~~~~~~~~~
+>       |                                      PERF_TXN_MAX
+> In file included from util/hist.h:8,
+>                  from builtin-diff.c:13:
+> util/evsel.h:266:38: error: ‘PERF_TOOL_MAX’ undeclared here (not in a function); did you mean ‘PERF_TXN_MAX’?
+>   266 | extern const char *evsel__tool_names[PERF_TOOL_MAX];
+>       |                                      ^~~~~~~~~~~~~
+>       |                                      PERF_TXN_MAX
+> In file included from util/evlist.h:13,
+>                  from builtin-evlist.c:11:
+> util/evsel.h:266:38: error: ‘PERF_TOOL_MAX’ undeclared here (not in a function); did you mean ‘PERF_TXN_MAX’?
+>   266 | extern const char *evsel__tool_names[PERF_TOOL_MAX];
+>       |                                      ^~~~~~~~~~~~~
+>       |                                      PERF_TXN_MAX
+> In file included from tools/perf/util/evlist.h:13,
+>                  from builtin-ftrace.c:24:
+> tools/perf/util/evsel.h:266:38: error: ‘PERF_TOOL_MAX’ undeclared here (not in a function); did you mean ‘PERF_TXN_MAX’?
+>   266 | extern const char *evsel__tool_names[PERF_TOOL_MAX];
+>       |                                      ^~~~~~~~~~~~~
+>       |                                      PERF_TXN_MAX
+> builtin-annotate.c: In function ‘cmd_annotate’:
+> builtin-annotate.c:594:8: error: implicit declaration of function ‘symbol__validate_sym_arguments’ [-Werror=implicit-function-declaration]
+>   594 |  ret = symbol__validate_sym_arguments();
+>       |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-I will send in a revert.
+Thanks, I've dropped all perf patches from the 5.15 queue right now as
+they seem to have been added incorrectly.
 
-thanks,
--- Shuah
+That being said, I can't build perf for 5.15.y now anyway, so something
+older must have broken my system, glad it's building for you...
 
+thanks
+
+greg k-h
