@@ -2,90 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FE3C5F4525
-	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 16:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9FE5F454A
+	for <lists+stable@lfdr.de>; Tue,  4 Oct 2022 16:19:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbiJDOHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Oct 2022 10:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47932 "EHLO
+        id S229684AbiJDOTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Oct 2022 10:19:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiJDOHx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 10:07:53 -0400
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40EA15F9A4;
-        Tue,  4 Oct 2022 07:07:51 -0700 (PDT)
-Received: by mail-qt1-f178.google.com with SMTP id e20so8031612qts.1;
-        Tue, 04 Oct 2022 07:07:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=CwtCVo4E0uHMxh/oXIFSsuUlrvJUZN6evy9/L7XgMRM=;
-        b=ttKKC7oHwP8uhQwfkxVW6CYBu0fscWmPa4jbF4aHqFzvAh/tonDvyuV6wQaDGq8GNB
-         ekrd+8S0dHqiQiFjk/QvD6uR52L+VO52U4DUhNuwqecsNV4kEK7NnNdwrKiTzsOmKGAC
-         5ql91aYaIZJLKkAf+9X3pj8twN2KzVTqmIGz95qBX0S7sM9y1zAgc66kyRyOpXGVG0/3
-         LyRTnHNQbBw1OeLfgHP8cYSIgYczS49E0ZK6Z6lWF9aUTMB/ok6dfLIayeKZ1LR3mdlt
-         XLN9XVCCH17NuN25tcoOSG/6QU6EImCpMNdRfUANbTfvQAMy3uozfixoH/WGaTtdayOr
-         WFCg==
-X-Gm-Message-State: ACrzQf2iEHo/SL8lYIbEwsq3/BHqr/bVDiFNvWZjvxu0qSUIomWBNZuP
-        VnbtcXTABgp2OGSG2lLiBrKskInogqAu1beoYjg=
-X-Google-Smtp-Source: AMsMyM7XjpNPG7D4U+SwcBGLfHr5S0WNoNxy/EiVr4rwQ/ujw60PsGjVRTB6XGOAzzIOsRR02GBL/zCEsTGnnD05Jao=
-X-Received: by 2002:a05:622a:1a08:b0:35c:d9b5:144b with SMTP id
- f8-20020a05622a1a0800b0035cd9b5144bmr19566667qtb.27.1664892469614; Tue, 04
- Oct 2022 07:07:49 -0700 (PDT)
+        with ESMTP id S229719AbiJDOTJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Oct 2022 10:19:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AC76112A;
+        Tue,  4 Oct 2022 07:19:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C3D56148B;
+        Tue,  4 Oct 2022 14:19:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4463DC433D6;
+        Tue,  4 Oct 2022 14:19:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664893141;
+        bh=4b/8k++vVGGnVZHtWimknHqUFckZ0kIt4xJhhyFNO9Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=2q1gQriRFj8r3avOL/xhQEWMhD/LD4ltFyoFJVoeiq3Qe30alWDny+Eci103fpVfB
+         uLUJjZdXhifBFmGwKHabNoDc7YwuxoTBTqDUL2f+XSPhhgyxjTBg2Htxf05X1Zr//q
+         y7BWkZfrYAZqTTPBxkHiI/W4L2zPGBliYl6MgS/U=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.19.13
+Date:   Tue,  4 Oct 2022 16:18:54 +0200
+Message-Id: <16648930732832@kroah.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-References: <20220916050535.26625-1-xueshuai@linux.alibaba.com>
- <20220924074953.83064-1-xueshuai@linux.alibaba.com> <CAJZ5v0jAZC81Peowy0iKuq+cy68tyn0OK3a--nW=wWMbRojcxg@mail.gmail.com>
- <f0735218-7730-c275-8cee-38df9bec427d@linux.alibaba.com> <SJ1PR11MB6083FC6B8D64933C573CAB64FC529@SJ1PR11MB6083.namprd11.prod.outlook.com>
- <79cb9aee-9ad5-00f4-3f7a-9c409f502685@linux.alibaba.com> <SJ1PR11MB60830CBCB42CFF552A2B6CF0FC559@SJ1PR11MB6083.namprd11.prod.outlook.com>
- <f09e6aee-5d7f-62c2-8a6e-d721d8b22699@linux.alibaba.com> <SJ1PR11MB60837ABF899B5CF1F01D68D1FC579@SJ1PR11MB6083.namprd11.prod.outlook.com>
- <0f23cee8-9139-742c-a9d1-01674b16d05c@linux.alibaba.com> <SJ1PR11MB6083F02E240B6E8B8CEE1EAFFC569@SJ1PR11MB6083.namprd11.prod.outlook.com>
-In-Reply-To: <SJ1PR11MB6083F02E240B6E8B8CEE1EAFFC569@SJ1PR11MB6083.namprd11.prod.outlook.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 4 Oct 2022 16:07:38 +0200
-Message-ID: <CAJZ5v0gU9=-9cD0endsyGZUJ7WnOUqWBYoLCHayqhEDkfEHNvQ@mail.gmail.com>
-Subject: Re: [PATCH v2] ACPI: APEI: do not add task_work to kernel thread to
- avoid memory leak
-To:     "Luck, Tony" <tony.luck@intel.com>,
-        Shuai Xue <xueshuai@linux.alibaba.com>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        "baicar@os.amperecomputing.com" <baicar@os.amperecomputing.com>,
-        Len Brown <lenb@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?= 
-        <naoya.horiguchi@nec.com>,
-        "linmiaohe@huawei.com" <linmiaohe@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stable <stable@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "cuibixuan@linux.alibaba.com" <cuibixuan@linux.alibaba.com>,
-        "baolin.wang@linux.alibaba.com" <baolin.wang@linux.alibaba.com>,
-        "zhuo.song@linux.alibaba.com" <zhuo.song@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 30, 2022 at 5:52 PM Luck, Tony <tony.luck@intel.com> wrote:
->
-> > Yes, the error is actually handled in workqueue. I think the point is that the
-> > synchronous exception signaled by synchronous external abort must be handled
-> > synchronously, otherwise, it will be signaled again.
->
-> Ok. Got it now. Thanks.
->
-> For Rafael:
->
-> Reviewed-by: Tony Luck <tony.luck@intel.com>
+I'm announcing the release of the 5.19.13 kernel.
 
-Applied as 6.1-rc material, thanks!
+This release is to resolve a regression on some Intel graphics systems that had
+problems with 5.19.12.  If you do not have this problem with 5.19.12, there is
+no need to upgrade.
+
+The updated 5.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                               |    2 
+ drivers/gpu/drm/i915/display/g4x_dp.c                  |   22 
+ drivers/gpu/drm/i915/display/icl_dsi.c                 |   18 
+ drivers/gpu/drm/i915/display/intel_backlight.c         |   23 -
+ drivers/gpu/drm/i915/display/intel_bios.c              |  384 +++++++----------
+ drivers/gpu/drm/i915/display/intel_bios.h              |    4 
+ drivers/gpu/drm/i915/display/intel_ddi.c               |   22 
+ drivers/gpu/drm/i915/display/intel_ddi_buf_trans.c     |    9 
+ drivers/gpu/drm/i915/display/intel_display_types.h     |   69 ---
+ drivers/gpu/drm/i915/display/intel_dp.c                |   40 -
+ drivers/gpu/drm/i915/display/intel_dp.h                |    2 
+ drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c  |    6 
+ drivers/gpu/drm/i915/display/intel_drrs.c              |    3 
+ drivers/gpu/drm/i915/display/intel_dsi.c               |    2 
+ drivers/gpu/drm/i915/display/intel_dsi_dcs_backlight.c |    9 
+ drivers/gpu/drm/i915/display/intel_dsi_vbt.c           |   56 +-
+ drivers/gpu/drm/i915/display/intel_lvds.c              |    6 
+ drivers/gpu/drm/i915/display/intel_panel.c             |   13 
+ drivers/gpu/drm/i915/display/intel_pps.c               |   70 ---
+ drivers/gpu/drm/i915/display/intel_psr.c               |   35 -
+ drivers/gpu/drm/i915/display/intel_sdvo.c              |    3 
+ drivers/gpu/drm/i915/display/vlv_dsi.c                 |   21 
+ drivers/gpu/drm/i915/i915_drv.h                        |   63 ++
+ 23 files changed, 385 insertions(+), 497 deletions(-)
+
+Greg Kroah-Hartman (9):
+      Revert "drm/i915/display: Fix handling of enable_psr parameter"
+      Revert "drm/i915/dsi: fix dual-link DSI backlight and CABC ports for display 11+"
+      Revert "drm/i915/dsi: filter invalid backlight and CABC ports"
+      Revert "drm/i915/bios: Split VBT data into per-panel vs. global parts"
+      Revert "drm/i915/bios: Split VBT parsing to global vs. panel specific parts"
+      Revert "drm/i915/bios: Split parse_driver_features() into two parts"
+      Revert "drm/i915/pps: Split pps_init_delays() into distinct parts"
+      Revert "drm/i915: Extract intel_edp_fixup_vbt_bpp()"
+      Linux 5.19.13
+
