@@ -2,160 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E849F5F5A9D
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 21:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B1795F5AE2
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 22:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230359AbiJETaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 15:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
+        id S230352AbiJEUSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 16:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231204AbiJETaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 15:30:01 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9907E165A6;
-        Wed,  5 Oct 2022 12:29:55 -0700 (PDT)
-Received: from quatroqueijos.cascardo.eti.br (1.general.cascardo.us.vpn [10.172.70.58])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 668A83F092;
-        Wed,  5 Oct 2022 19:29:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1664998189;
-        bh=V8v8Hd5g+UPe3KQqKbmHroAK7N5dt5vEwospoXaQV68=;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To;
-        b=cOSSas9aTJgRHNw+FGaqQGpktiiQqk/Ingypp/PIvA7HtKQzSsePtnbdTnQ0+vnk+
-         55n9Zy6Ak6yL4r2GHCFPL8fpEZJeKzEbynd7qFJMnyc+XQqVRGqjjOnGC7QGsXaqQH
-         Nw6swSg2ISMbODUlXoPY0gJnppC6rLeUZGOvA70EIkOJg5W1g9wx3h9Jg2JbUoDhbW
-         qjalONtlmtiQeJGIrxNYc75y+SHqfjuFZcZ2yKfF3+6YWxusIHE6a6w9E62vIpntfJ
-         jzow3wDuqFyQwYtw1Opn06hMVFlwxcHedHqdgIESejmDOqqQDmLgrZlIN5L7nJFZda
-         VqS3cv8LzdGjg==
-Date:   Wed, 5 Oct 2022 16:29:38 -0300
-From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.4 00/51] 5.4.217-rc1 review
-Message-ID: <Yz3bIr7eSpSoU7T8@quatroqueijos.cascardo.eti.br>
-References: <20221005113210.255710920@linuxfoundation.org>
- <68134b95-ea83-cb02-0ded-fd147b117820@linaro.org>
+        with ESMTP id S229917AbiJEUSY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 16:18:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A569814DF
+        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 13:17:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665001076;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=g2vLC0/2i+I0uLMhPpq2EA/KZTboH7Z2lCWoTbduUxI=;
+        b=XflayfSe6uGdIa9s1TIIoXW0oZLvx8JVqBwo34VoSBe7XUGycQ3QakIIrQ6ZjPuM2xmhPh
+        lu/yv6qpmKW/UxO9//t7uQnRgGDPgAAXGhgeD++BCY9zeUy5sDMXiOXCBalK0rRQ71ya3A
+        VXeCoktCmuCErpTh7iKQfIRP48SUh58=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-94-95PF6x2BO_Ci8bno4cppjA-1; Wed, 05 Oct 2022 16:17:56 -0400
+X-MC-Unique: 95PF6x2BO_Ci8bno4cppjA-1
+Received: by mail-il1-f200.google.com with SMTP id j29-20020a056e02219d00b002f9b13c40c5so14892ila.21
+        for <stable@vger.kernel.org>; Wed, 05 Oct 2022 13:17:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=g2vLC0/2i+I0uLMhPpq2EA/KZTboH7Z2lCWoTbduUxI=;
+        b=hZr5+Uhl7GtqbP8W7XV0aygcuNvv2PlPrAQnDTKuZT4kjOmFVq1so1pKMinfphPmp8
+         iJNMlNzmsJ5bAGq6zERZQ0YrBNqIrz873+L/uz1qOy42vcDNCawG3P6SclcIc/8YFzql
+         GSikiiB7cLKXnnTTdVFpPk0/ShgajGL8oOzp6ZAGRizSR2wlwa+2V/l1wc12hRn3HNYk
+         f9w8160B18koDxfjOGRSb7Gj8l1zceFubqt+qwLsX/WKn/lQSoPJC0UNanCBrenH2CH6
+         tqGbCvhge4y8VMyP/ETA7eMyxcB3J/j84gHlJvfuL4HpoCkLeSiflJoUPcgWiA2X4kp6
+         AowQ==
+X-Gm-Message-State: ACrzQf0c0ZfCVz7IEr1B8UQ2OOde3vwCv014IZZU8p89soQRfOFRvpbb
+        JOJ/OblF/ePu+XxUEtfMp20BLgNOxy3Z2XeCNdwMmMEhi3TEgquiAHItDgeTqKIGDxYpPQxvXoG
+        IVLksGJrF1jy70rcy
+X-Received: by 2002:a05:6e02:c67:b0:2f9:9117:a581 with SMTP id f7-20020a056e020c6700b002f99117a581mr669154ilj.107.1665001075224;
+        Wed, 05 Oct 2022 13:17:55 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7TZXdlHRglVXSKK9ZEsjo4JcrcXszFMsFm+6IUYbJ/RhiRJTAFh4/Dq8wK7FNTPN7X1kZaiQ==
+X-Received: by 2002:a05:6e02:c67:b0:2f9:9117:a581 with SMTP id f7-20020a056e020c6700b002f99117a581mr669141ilj.107.1665001074983;
+        Wed, 05 Oct 2022 13:17:54 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id a14-20020a056602148e00b006a4ab3268f3sm1537915iow.42.2022.10.05.13.17.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Oct 2022 13:17:32 -0700 (PDT)
+Date:   Wed, 5 Oct 2022 14:17:17 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: Re: [PATCH] drm/i915/gvt: Add missing vfio_unregister_group_dev()
+ call
+Message-ID: <20221005141717.234c215e.alex.williamson@redhat.com>
+In-Reply-To: <0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com>
+References: <0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <68134b95-ea83-cb02-0ded-fd147b117820@linaro.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 05, 2022 at 02:12:46PM -0500, Daniel Díaz wrote:
-> Hello!
-> 
-> On 05/10/22 06:31, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.217 release.
-> > There are 51 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 07 Oct 2022 11:31:56 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.217-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> We are seeing a new warning on x86_64:
-> 
->   /builds/linux/arch/x86/entry/entry_64.S: Assembler messages:
->   /builds/linux/arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix given and no register operands; using default for `sysret'
->   arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsupported intra-function call
->   x86_64-linux-gnu-ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-only section `.head.text'
->   x86_64-linux-gnu-ld: warning: creating DT_TEXTREL in a PIE
+On Thu, 29 Sep 2022 14:48:35 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-You mean only the third line here with objtool complaining about unsupported
-intra-function call, right? The other warnings were likely there before.
-
+> When converting to directly create the vfio_device the mdev driver has to
+> put a vfio_register_emulated_iommu_dev() in the probe() and a pairing
+> vfio_unregister_group_dev() in the remove.
 > 
-> This started happening after 984b78c4ecea49b0b4b5729a502b689a623fde27 ("x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n").
-
-This is, in fact, introduced by the previous commit, 65e5a1959296e16a3566ff75e527f211f0bf5a26 ("x86/speculation: Change FILL_RETURN_BUFFER to work with objtool").
-
-You see it once 984b78c4ecea is applied because your configs do not have
-CONFIG_RETPOLINE.
-
-Notice that I note in 65e5a1959296 that intra-function validation is
-missing in objtool in 5.4, which is why you are seeing this warning.
-
-Cascardo.
-
+> This was missed for gvt, add it.
 > 
-> The following configurations are affected:
+> Cc: stable@vger.kernel.org
+> Fixes: 978cf586ac35 ("drm/i915/gvt: convert to use vfio_register_emulated_iommu_dev")
+> Reported-by: Alex Williamson <alex.williamson@redhat.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/gpu/drm/i915/gvt/kvmgt.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> * x86_64, build
->   - gcc-8-allnoconfig-warnings
->   - gcc-8-tinyconfig-warnings
->   - gcc-8-x86_64_defconfig-warnings
->   - gcc-9-allnoconfig-warnings
->   - gcc-9-tinyconfig-warnings
->   - gcc-9-x86_64_defconfig-warnings
->   - gcc-10-allnoconfig-warnings
->   - gcc-10-defconfig-warnings
->   - gcc-10-tinyconfig-warnings
->   - gcc-11-allnoconfig-warnings
->   - gcc-11-defconfig-warnings
->   - gcc-11-lkftconfig-debug-kmemleak-warnings
->   - gcc-11-lkftconfig-debug-warnings
->   - gcc-11-lkftconfig-kasan-warnings
->   - gcc-11-lkftconfig-kselftest-kernel-warnings
->   - gcc-11-lkftconfig-kselftest-warnings
->   - gcc-11-lkftconfig-kunit-warnings
->   - gcc-11-lkftconfig-libgpiod-warnings
->   - gcc-11-lkftconfig-perf-warnings
->   - gcc-11-lkftconfig-rcutorture-warnings
->   - gcc-11-lkftconfig-warnings
->   - gcc-11-tinyconfig-warnings
->   - gcc-12-allnoconfig-warnings
->   - gcc-12-defconfig-warnings
->   - gcc-12-tinyconfig-warnings
->   - clang-11-allnoconfig-warnings
->   - clang-11-tinyconfig-warnings
->   - clang-11-x86_64_defconfig-warnings
->   - clang-12-allnoconfig-warnings
->   - clang-12-lkftconfig-warnings
->   - clang-12-tinyconfig-warnings
->   - clang-12-x86_64_defconfig-warnings
->   - clang-13-allnoconfig-warnings
->   - clang-13-lkftconfig-warnings
->   - clang-13-tinyconfig-warnings
->   - clang-13-x86_64_defconfig-warnings
->   - clang-14-allnoconfig-warnings
->   - clang-14-lkftconfig-kcsan-warnings
->   - clang-14-lkftconfig-warnings
->   - clang-14-tinyconfig-warnings
->   - clang-14-x86_64_defconfig-warnings
->   - clang-nightly-lkftconfig-warnings
->   - clang-nightly-tinyconfig-warnings
->   - clang-nightly-x86_64_defconfig-warnings
+> Should go through Alex's tree.
 > 
+> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> index 41bba40feef8f4..9003145adb5a93 100644
+> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> @@ -1615,6 +1615,7 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
+>  	if (WARN_ON_ONCE(vgpu->attached))
+>  		return;
+>  
+> +	vfio_unregister_group_dev(&vgpu->vfio_device);
+>  	vfio_put_device(&vgpu->vfio_device);
+>  }
+>  
 > 
-> Greetings!
-> 
-> Daniel Díaz
-> daniel.diaz@linaro.org
+> base-commit: c72e0034e6d4c36322d958b997d11d2627c6056c
+
+This is marked for stable, but I think the stable backport for
+existing kernels is actually:
+
+diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+index e3cd58946477..de89946c4817 100644
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -1595,6 +1595,9 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
+ 
+ 	if (WARN_ON_ONCE(vgpu->attached))
+ 		return;
++
++	vfio_unregister_group_dev(&vgpu->vfio_device);
++	vfio_uninit_group_dev(&vgpu->vfio_device);
+ 	intel_gvt_destroy_vgpu(vgpu);
+ }
+
