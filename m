@@ -2,112 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0C55F508C
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 09:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E96FB5F510E
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 10:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229993AbiJEH7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 03:59:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48408 "EHLO
+        id S229450AbiJEIno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 04:43:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230053AbiJEH7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 03:59:21 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6295075CC3
-        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 00:59:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664956760; x=1696492760;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=4APE4Td3vlhTWgT0QNyfJeF5+Y1L7mYJzFdpEImeczM=;
-  b=lbLI1BoDB6HEvIkHeeWTUXNKuPOkgaHhj2EVVIWg2Op1CgpmB+/lzLo8
-   y1JpxnQTr9IajJ9lZkvGmxs2ycsOCcUsrq3WRl1RUpmzbLhgLxWwsVvGj
-   rbcEGSZnZHUqArItMokuB/ijh3Qcd8haqwKaqTGEXWjTZ0f7vtofxSVGU
-   MEBVsHhuvlNwI6UAeL3mPlNFkjsRCJkjCJ050dUZw65wpMQ7pxi8zq1pU
-   Dv9X4D7M7wmoYhbm88F1A3LSAbfrcbpfg5YNGtg/a04bgkcVNzLRQOQiH
-   VurtG5NaTS9b/2y/cPl7V5TUmIqUOh1bBHG6C4hzhhErCeQXz1AlVjxGy
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10490"; a="329519236"
-X-IronPort-AV: E=Sophos;i="5.95,159,1661842800"; 
-   d="scan'208";a="329519236"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2022 00:59:20 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10490"; a="655091239"
-X-IronPort-AV: E=Sophos;i="5.95,159,1661842800"; 
-   d="scan'208";a="655091239"
-Received: from bfglenno-mobl.ger.corp.intel.com (HELO [10.213.229.208]) ([10.213.229.208])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2022 00:59:18 -0700
-Message-ID: <7af80924-73cf-14fb-44d4-b5ed28bbdc9f@linux.intel.com>
-Date:   Wed, 5 Oct 2022 08:59:16 +0100
+        with ESMTP id S229941AbiJEInk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 04:43:40 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FA9F74DCD;
+        Wed,  5 Oct 2022 01:43:39 -0700 (PDT)
+Date:   Wed, 5 Oct 2022 10:43:34 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1664959417;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YUhdeTLnxdYmOvPifFFeBXKgsqaD5X82FItEAMBhlJs=;
+        b=jf1ERVTQJq95KzHJs4mQ+Ex9Nk5qcqDGUzkVtDWaoryRrOW4Q2l+IjAB9/Weqb6sHIt+zp
+        Bi2QV5GHqGM7pIB1Fn8OZ8DLHDr9w5KDspoAcTyF+QvnE49P8N70vAcX+UIpBeDuTEzPe/
+        JuWIaLbxJMVV83FfNH/8AsvjH5JFi/HEgp6VgIZhHYy+JBjKdyuaRJVkaepkkTJpH/AV+W
+        f/O3YI54rgWEGeXZYtbcnPRNgBl120CNo5H8Q288uX75xCOxcyu1JiKeRty4lVydn1g/BK
+        4rHMH/Sp9dqYWQwKAVThXWpmz28570bIRGfQyU3/749OVZk6PqAqgkaWllCVRw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1664959417;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YUhdeTLnxdYmOvPifFFeBXKgsqaD5X82FItEAMBhlJs=;
+        b=XbcNL3z6wgdaLRSoUCdqCVEJRC2zAmXggWWsidjcCIA6M8cGlotu7uAowm/UVkhK1VUUP3
+        ODDeiB2CDS8g26Dw==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     stable@vger.kernel.org
+Cc:     linux-rt-users@vger.kernel.org,
+        Danilo Cezar Zanella <danilo.zanella@iag.usp.br>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH] ARM: fix function graph tracer and unwinder dependencies
+Message-ID: <Yz1DtlYj+W7jfJLK@linutronix.de>
+References: <CAAxUTH4zpibkhOS+NPzcYsXFqx1bJfSU19gdt0eCAOrpWAkinA@mail.gmail.com>
+ <YyTXIUjq9tmFPTDi@linutronix.de>
+ <CAAxUTH4xawCFpnwpRkcaZ5fdzMEbZZmPOyVDoqdMrPrf+G64dg@mail.gmail.com>
+ <YzLZIX+Pi6lyIr1f@linutronix.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [Intel-gfx] [PATCH v2] drm/i915/guc: Fix revocation of
- non-persistent contexts
-Content-Language: en-US
-To:     "Ceraolo Spurio, Daniele" <daniele.ceraolospurio@intel.com>,
-        Intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>
-References: <20220930094716.430937-1-tvrtko.ursulin@linux.intel.com>
- <20221003121630.694249-1-tvrtko.ursulin@linux.intel.com>
- <36096340-aac7-7072-688a-bbef4e7d7d7f@linux.intel.com>
- <e2140d7a-b084-4298-d92a-649d0672fcc7@intel.com>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <e2140d7a-b084-4298-d92a-649d0672fcc7@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        NICE_REPLY_A,RCVD_IN_DNSWL_HI,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YzLZIX+Pi6lyIr1f@linutronix.de>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Danilo Cezar Zanella reported broken function graph tracer in the v4.19
+tree. This was caused by the backport of commit
+   f9b58e8c7d031 ("ARM: 8800/1: use choice for kernel unwinders")
 
-On 04/10/2022 16:13, Ceraolo Spurio, Daniele wrote:
-> On 10/4/2022 4:14 AM, Tvrtko Ursulin wrote:
->>
->> On 03/10/2022 13:16, Tvrtko Ursulin wrote:
->>> From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
->>>
->>> Patch which added graceful exit for non-persistent contexts missed the
->>> fact it is not enough to set the exiting flag on a context and let the
->>> backend handle it from there.
->>>
->>> GuC backend cannot handle it because it runs independently in the
->>> firmware and driver might not see the requests ever again. Patch also
->>> missed the fact some usages of intel_context_is_banned in the GuC 
->>> backend
->>> needed replacing with newly introduced intel_context_is_schedulable.
->>>
->>> Fix the first issue by calling into backend revoke when we know this is
->>> the last chance to do it. Fix the second issue by replacing
->>> intel_context_is_banned with intel_context_is_schedulable, which should
->>> always be safe since latter is a superset of the former.
->>>
->>> v2:
->>>   * Just call ce->ops->revoke unconditionally. (Andrzej)
->>
->> CI is happy - could I get some acks for the GuC backend changes please?
-> 
-> I think we still need to have a longer conversation on the revoking 
-> times, but in the meantime this fixes the immediate concerns, so:
-> 
-> Acked-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+which ended in the v4.19-stable tree as of v4.19.222.
+It is also part of v4.14-stable since v4.14.259.
+It is also part of v4.9-stable since v4.9.299.
 
-Thanks, I've pushed it so should unbreak 6.0 via stable.
+------->8---------
 
-For follow up work I am okay either with a fixes 20ms timeout (this was 
-enough for users which originally reported it), or go with fully 
-configurable? Latter feels a bit over the top since it would then me a 
-kconfig and sysfs to align with the normal preempt timeout.
+From: Russell King <rmk+kernel@armlinux.org.uk>
+Date: Tue, 23 Apr 2019 17:09:38 +0100
+Subject: [PATCH] ARM: fix function graph tracer and unwinder dependencies
 
-Regards,
+Upstream commit 503621628b32782a07b2318e4112bd4372aa3401
 
-Tvrtko
+Naresh Kamboju recently reported that the function-graph tracer crashes
+on ARM. The function-graph tracer assumes that the kernel is built with
+frame pointers.
+
+We explicitly disabled the function-graph tracer when building Thumb2,
+since the Thumb2 ABI doesn't have frame pointers.
+
+We recently changed the way the unwinder method was selected, which
+seems to have made it more likely that we can end up with the function-
+graph tracer enabled but without the kernel built with frame pointers.
+
+Fix up the function graph tracer dependencies so the option is not
+available when we have no possibility of having frame pointers, and
+adjust the dependencies on the unwinder option to hide the non-frame
+pointer unwinder options if the function-graph tracer is enabled.
+
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+---
+ arch/arm/Kconfig       | 2 +-
+ arch/arm/Kconfig.debug | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index d89d013f586cb..fce7e85f3ef57 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -68,7 +68,7 @@ config ARM
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FTRACE_MCOUNT_RECORD if (!XIP_KERNEL)
+-	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL)
++	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL && !CC_IS_CLANG)
+ 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
+diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
+index 01c760929c9e4..b931fac129a1b 100644
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -47,8 +47,8 @@ config DEBUG_WX
+ 
+ choice
+ 	prompt "Choose kernel unwinder"
+-	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
+-	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
++	default UNWINDER_ARM if AEABI
++	default UNWINDER_FRAME_POINTER if !AEABI
+ 	help
+ 	  This determines which method will be used for unwinding kernel stack
+ 	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
+@@ -65,7 +65,7 @@ config UNWINDER_FRAME_POINTER
+ 
+ config UNWINDER_ARM
+ 	bool "ARM EABI stack unwinder"
+-	depends on AEABI
++	depends on AEABI && !FUNCTION_GRAPH_TRACER
+ 	select ARM_UNWIND
+ 	help
+ 	  This option enables stack unwinding support in the kernel
+-- 
+2.37.2
+
