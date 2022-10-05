@@ -2,121 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 045C75F5B26
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 22:41:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0835F5C52
+	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 00:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231153AbiJEUlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 16:41:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
+        id S229625AbiJEWDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 18:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231158AbiJEUlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 16:41:24 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D20B62A95;
-        Wed,  5 Oct 2022 13:41:23 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id fb18so1238486qtb.12;
-        Wed, 05 Oct 2022 13:41:23 -0700 (PDT)
+        with ESMTP id S229688AbiJEWC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 18:02:58 -0400
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59437C77A;
+        Wed,  5 Oct 2022 15:02:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=aRUqCLLcHsh6POG9Rz1BBcJxeSLfOpSm82me8CPX0EE=;
-        b=a2w8m56hVR7oUjeaD3xC4eThLHjX8yEcgKQl3QPBYBTqGtjfaagppF85rJzly3lIes
-         KVm3ZkDRjC/QmMDrH7BsuIyfRJ70+O7WAFjYPhrVQb7JE6HQSq4j1nA8hjI2iD7gI6UH
-         BCSY0FoV68JsPoM7wcACKxx4s9IvXcGljNgtJ+Qjy8VfeTO/N/vVu0aWaezckVcY/bEY
-         T/29YUMAa+1NduUQmouMzLnjAl0xhnJo7YO+75sbVaVvO5lZLeAMCaBZxwAX6KPDR33l
-         mzJgUclQbWoLYgk0D+f2rQBTdb82fQil8OAfU/dsN5QfhChXSxt9tOx0fdXjHfWI2WSl
-         K+sA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=aRUqCLLcHsh6POG9Rz1BBcJxeSLfOpSm82me8CPX0EE=;
-        b=MkKu6myKa8216DRQ5rCwWtv7/0HcL9lsfHuDQviSG3SkfROcnwSNB8wNFBYVhaLliQ
-         aBjDgNY2q3WuNKRYums3boL/N2AFQu8mFfPyrlG+ezbIIuajZEJOD37tyzcFggIatXSj
-         Z5wj1JEKJ6QvwhUeomq5as+BiLBnWS5p/R0RC9+kxB6lhzrGj5gyoYs3Xd6fyDu6irUY
-         oCU5fWMvgGfyq1oPItm+6slXcadv35cHmApj/Go8rtsAh5fjNVmn2f8zQnWQHl/M8iZO
-         M3LPZCs9vJUjDLdQm0rEBj35EwfkiAvUO4Wm8v3qDqde822e9c559tj/MElI1uld/PF0
-         77Lg==
-X-Gm-Message-State: ACrzQf3RfjE8UJZJy/Kp88k1UFpk4lt6vPWT9gHUG9NuImwlpwrlwuP5
-        MKa7FkmhD1wlMAvlfRuV89jWWMJonzM=
-X-Google-Smtp-Source: AMsMyM77hOUYTwq3haH99gmohdvewNsrQ6T6C4Z4jNAq2MuVfu26WWSo3+luTr5tzXJrzofs3e974Q==
-X-Received: by 2002:ac8:7d11:0:b0:35c:f5c4:324a with SMTP id g17-20020ac87d11000000b0035cf5c4324amr1106355qtb.400.1665002481487;
-        Wed, 05 Oct 2022 13:41:21 -0700 (PDT)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id z10-20020ac87caa000000b0035d43eb67bcsm14387534qtv.91.2022.10.05.13.41.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Oct 2022 13:41:20 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        linux-kernel@vger.kernel.org (open list:PERFORMANCE EVENTS SUBSYSTEM),
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH RESEND stable 5.10] perf tools: Fixup get_current_dir_name() compilation
-Date:   Wed,  5 Oct 2022 13:41:16 -0700
-Message-Id: <20221005204116.4066871-1-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1665007373; x=1696543373;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=evHdjOAXPKiLJGfX1Rxa4wcF9HGFqVjvbfA3kvjlMjw=;
+  b=p/DV0fSlXwaxE2PYTmURWTkC0xavENyj8xoEEHyfypR6nn8XxoOvP5yl
+   KH9Pk7Ve5AYGVCpU45HYKmr9vjxgRpICTp1W734l+nMWZkWyo4I6wp9Av
+   2zQJ6lnz/esBo3zUX1VnTbelrgWCPwnQflExaG4juyCo/YDEXKyqbLDFn
+   k=;
+X-IronPort-AV: E=Sophos;i="5.95,162,1661817600"; 
+   d="scan'208";a="266550556"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1d-35b1f9a2.us-east-1.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2022 22:02:50 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1d-35b1f9a2.us-east-1.amazon.com (Postfix) with ESMTPS id EB307201312;
+        Wed,  5 Oct 2022 22:02:45 +0000 (UTC)
+Received: from EX19D030UWB002.ant.amazon.com (10.13.139.182) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.38; Wed, 5 Oct 2022 22:02:44 +0000
+Received: from u3c3f5cfe23135f.ant.amazon.com (10.43.161.69) by
+ EX19D030UWB002.ant.amazon.com (10.13.139.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.1118.12; Wed, 5 Oct 2022 22:02:43 +0000
+From:   Suraj Jitindar Singh <surajjs@amazon.com>
+To:     <kvm@vger.kernel.org>
+CC:     <surajjs@amazon.com>, <sjitindarsingh@gmail.com>,
+        <linux-kernel@vger.kernel.org>, <x86@kernel.org>,
+        <tglx@linutronix.de>, <mingo@redhat.com>, <bp@suse.de>,
+        <dave.hansen@linux.intel.com>, <seanjc@google.com>,
+        <pbonzini@redhat.com>, <peterz@infradead.org>,
+        <jpoimboe@kernel.org>, <daniel.sneddon@linux.intel.com>,
+        <pawan.kumar.gupta@linux.intel.com>, <benh@kernel.crashing.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] x86/speculation: Mitigate eIBRS PBRSB predictions with WRMSR
+Date:   Wed, 5 Oct 2022 15:02:27 -0700
+Message-ID: <20221005220227.1959-1-surajjs@amazon.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.43.161.69]
+X-ClientProxiedBy: EX13D06UWC004.ant.amazon.com (10.43.162.97) To
+ EX19D030UWB002.ant.amazon.com (10.13.139.182)
+X-Spam-Status: No, score=-14.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+tl;dr: The existing mitigation for eIBRS PBRSB predictions uses an INT3 to
+ensure a call instruction retires before a following unbalanced RET. Replace
+this with a WRMSR serialising instruction which has a lower performance
+penalty.
 
-commit 128dbd78bd673f9edbc4413072b23efb6657feb0 upstream
+== Background ==
 
-strdup() prototype doesn't live in stdlib.h .
+eIBRS (enhanced indirect branch restricted speculation) is used to prevent
+predictor addresses from one privilege domain from being used for prediction
+in a higher privilege domain.
 
-Add limits.h for PATH_MAX definition as well.
+== Problem ==
 
-This fixes the build on Android.
+On processors with eIBRS protections there can be a case where upon VM exit
+a guest address may be used as an RSB prediction for an unbalanced RET if a
+CALL instruction hasn't yet been retired. This is termed PBRSB (Post-Barrier
+Return Stack Buffer).
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/YRukaQbrgDWhiwGr@localhost.localdomain
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+A mitigation for this was introduced in:
+(2b1299322016731d56807aa49254a5ea3080b6b3 x86/speculation: Add RSB VM Exit protections)
+
+This mitigation [1] has a ~1% performance impact on VM exit compared to without
+it [2].
+
+== Solution ==
+
+The WRMSR instruction can be used as a speculation barrier and a serialising
+instruction. Use this on the VM exit path instead to ensure that a CALL
+instruction (in this case the call to vmx_spec_ctrl_restore_host) has retired
+before the prediction of a following unbalanced RET.
+
+This mitigation [3] has a negligible performance impact.
+
+== Testing ==
+
+Run the outl_to_kernel kvm-unit-tests test 200 times per configuration which
+counts the cycles for an exit to kernel mode.
+
+[1] With existing mitigation:
+Average: 2026 cycles
+[2] With no mitigation:
+Average: 2008 cycles
+[3] With proposed mitigation:
+Average: 2008 cycles
+
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Cc: stable@vger.kernel.org
 ---
+ arch/x86/include/asm/nospec-branch.h | 7 +++----
+ arch/x86/kvm/vmx/vmenter.S           | 3 +--
+ arch/x86/kvm/vmx/vmx.c               | 5 +++++
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-This patch is necessary to build perf with a musl-libc toolchain, not
-just Android's bionic.
-
- tools/perf/util/get_current_dir_name.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/tools/perf/util/get_current_dir_name.c b/tools/perf/util/get_current_dir_name.c
-index b205d929245f..e68935e9ac8c 100644
---- a/tools/perf/util/get_current_dir_name.c
-+++ b/tools/perf/util/get_current_dir_name.c
-@@ -3,8 +3,9 @@
- //
- #ifndef HAVE_GET_CURRENT_DIR_NAME
- #include "get_current_dir_name.h"
-+#include <limits.h>
-+#include <string.h>
- #include <unistd.h>
--#include <stdlib.h>
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index c936ce9f0c47..e5723e024b47 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -159,10 +159,9 @@
+   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+   * monstrosity above, manually.
+   */
+-.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=ALT_NOT(X86_FEATURE_ALWAYS)
+-	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
+-		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
+-		__stringify(__FILL_ONE_RETURN), \ftr2
++.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
++	ALTERNATIVE "jmp .Lskip_rsb_\@", \
++		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr
  
- /* Android's 'bionic' library, for one, doesn't have this */
+ .Lskip_rsb_\@:
+ .endm
+diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+index 6de96b943804..eb82797bd7bf 100644
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -231,8 +231,7 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL)
+ 	 * single call to retire, before the first unbalanced RET.
+          */
+ 
+-	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_VMEXIT,\
+-			   X86_FEATURE_RSB_VMEXIT_LITE
++	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_VMEXIT
+ 
+ 
+ 	pop %_ASM_ARG2	/* @flags */
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index c9b49a09e6b5..fdcd8e10c2ab 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7049,8 +7049,13 @@ void noinstr vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx,
+ 	 * For legacy IBRS, the IBRS bit always needs to be written after
+ 	 * transitioning from a less privileged predictor mode, regardless of
+ 	 * whether the guest/host values differ.
++	 *
++	 * For eIBRS affected by Post Barrier RSB Predictions a serialising
++	 * instruction (wrmsr) must be executed to ensure a call instruction has
++	 * retired before the prediction of a following unbalanced ret.
+ 	 */
+ 	if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) ||
++	    cpu_feature_enabled(X86_FEATURE_RSB_VMEXIT_LITE) ||
+ 	    vmx->spec_ctrl != hostval)
+ 		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
  
 -- 
-2.25.1
+2.17.1
 
