@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3FAE5F53AF
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC705F53BD
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229929AbiJELiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 07:38:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36580 "EHLO
+        id S230351AbiJELjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 07:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbiJELhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:37:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C0974DF4;
-        Wed,  5 Oct 2022 04:35:05 -0700 (PDT)
+        with ESMTP id S230352AbiJELio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:38:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407D579617;
+        Wed,  5 Oct 2022 04:35:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0248BB81DB8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92223B81DB6;
+        Wed,  5 Oct 2022 11:35:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0029DC433D6;
         Wed,  5 Oct 2022 11:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51898C433C1;
-        Wed,  5 Oct 2022 11:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664969702;
-        bh=xSuAihsjkHs/qqp/+v/TFR04hTHtsVz3pZtXM2Vuxi0=;
+        s=korg; t=1664969705;
+        bh=7a+WTDLovQeSm3K4+3q8ZCqpy2ODJ1EzuBZHDte6j3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3/3xptYe+Pffo9qWqtUcIwP+05pIoMqElA0cTwJQYuKPCkZB0mwsH3yEjdCmfBI2
-         e7pxViXXmhCUSMrRMlrjJ4HzQpxBHlPz98Whfrbf867evuwadOzLwC7MbvG5Hq4I6k
-         lJuyF+uHinpH0TGpVJ+yvMr10FUZDrJnO5s7Kz/0=
+        b=AG0qBJahFCqR7Rsx8zYJMqTRkV+sS/49DjrAHHbjhi4Gx97vQxVUurPW8srxtwl+u
+         OhSGB2vRfxZtN+cPz20n5KHmE3Hi2veVhfICe6bmZDdoLhRNB06cjXe65ruRDklAcJ
+         brqCkcvOMuSqxc0vOkrirf+jgD3ekVUjw5JJVI8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 50/51] Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
-Date:   Wed,  5 Oct 2022 13:32:38 +0200
-Message-Id: <20221005113212.556753745@linuxfoundation.org>
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.4 51/51] docs: update mediator information in CoC docs
+Date:   Wed,  5 Oct 2022 13:32:39 +0200
+Message-Id: <20221005113212.603825522@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221005113210.255710920@linuxfoundation.org>
 References: <20221005113210.255710920@linuxfoundation.org>
@@ -53,39 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 2120635108b35ecad9c59c8b44f6cbdf4f98214e upstream.
+commit 8bfdfa0d6b929ede7b6189e0e546ceb6a124d05d upstream.
 
-We enable -Wcast-function-type globally in the kernel to warn about
-mismatching types in function pointer casts. Compilers currently
-warn only about ABI incompability with this flag, but Clang 16 will
-enable a stricter version of the check by default that checks for an
-exact type match. This will be very noisy in the kernel, so disable
--Wcast-function-type-strict without W=1 until the new warnings have
-been addressed.
+Update mediator information in the CoC interpretation document.
 
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220901212319.56644-1-skhan@linuxfoundation.org
 Cc: stable@vger.kernel.org
-Link: https://reviews.llvm.org/D134831
-Link: https://github.com/ClangBuiltLinux/linux/issues/1724
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220930203310.4010564-1-samitolvanen@google.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Makefile.extrawarn |    1 +
- 1 file changed, 1 insertion(+)
+ Documentation/process/code-of-conduct-interpretation.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/Makefile.extrawarn
-+++ b/scripts/Makefile.extrawarn
-@@ -50,6 +50,7 @@ KBUILD_CFLAGS += -Wno-sign-compare
- KBUILD_CFLAGS += -Wno-format-zero-length
- KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
- KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
-+KBUILD_CFLAGS += $(call cc-disable-warning, cast-function-type-strict)
- endif
+--- a/Documentation/process/code-of-conduct-interpretation.rst
++++ b/Documentation/process/code-of-conduct-interpretation.rst
+@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or ot
+ uncertain how to handle situations that come up.  It will not be
+ considered a violation report unless you want it to be.  If you are
+ uncertain about approaching the TAB or any other maintainers, please
+-reach out to our conflict mediator, Mishi Choudhary <mishi@linux.com>.
++reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
  
- endif
+ In the end, "be kind to each other" is really what the end goal is for
+ everybody.  We know everyone is human and we all fail at times, but the
 
 
