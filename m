@@ -2,111 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEED5F511D
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 10:45:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4325F5181
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 11:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230175AbiJEIpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 04:45:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
+        id S230242AbiJEJI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 05:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230105AbiJEIpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 04:45:12 -0400
-Received: from radex-web.radex.nl (smtp.radex.nl [178.250.146.7])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 064D93C16A;
-        Wed,  5 Oct 2022 01:45:04 -0700 (PDT)
-Received: from [192.168.1.35] (cust-178-250-146-69.breedbanddelft.nl [178.250.146.69])
-        by radex-web.radex.nl (Postfix) with ESMTPS id 5106C24065;
-        Wed,  5 Oct 2022 10:45:03 +0200 (CEST)
-Message-ID: <53ca04e3-ee6f-1c4d-3a08-7b5d9dd0d629@gmail.com>
-Date:   Wed, 5 Oct 2022 10:45:03 +0200
+        with ESMTP id S230254AbiJEJIq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 05:08:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FD476952;
+        Wed,  5 Oct 2022 02:08:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18FBCB81D48;
+        Wed,  5 Oct 2022 09:08:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79771C433C1;
+        Wed,  5 Oct 2022 09:08:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664960885;
+        bh=omy0/pUp2MMqJkM5U7w06cKtRBXOXZXSECxfXHqI8hY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IEcv7UmkULkSEcY3NjGxTIbXrz9j9oMSYCxDvLPM0OWcFVHTvCwTLyYUYoEW8dH+H
+         Qm/5bgV+pewuSYKKOQQMbHkW3SmQgqL27fPH0PTi9i/6Z7JHL8PIAfblPyaPgCJP81
+         MFXn6KPFfaP50HGI0RSGO+5qxLrvpQ5W6Mui+ELw=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.19.261
+Date:   Wed,  5 Oct 2022 11:08:01 +0200
+Message-Id: <1664960882137215@kroah.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-From:   Ferry Toth <fntoth@gmail.com>
-Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
- if extcon is present"
-To:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
- <20220927155332.10762-3-andriy.shevchenko@linux.intel.com>
- <20221003215734.7l3cnb2zy57nrxkk@synopsys.com>
- <YzvusOI89ju9e5+0@smile.fi.intel.com>
- <a7724993-6c04-92c5-3a26-3aef6d29c9e3@gmail.com>
- <20221005021212.qwnbmq6p7t26c3a4@synopsys.com>
- <CAHQ1cqG9-SDM4_zUfCvxP7XD-U+PPOWqWDBFKU73ecomDpt9Jw@mail.gmail.com>
-Content-Language: en-US
-In-Reply-To: <CAHQ1cqG9-SDM4_zUfCvxP7XD-U+PPOWqWDBFKU73ecomDpt9Jw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.8 required=5.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-        FORGED_GMAIL_RCVD,FREEMAIL_FROM,NICE_REPLY_A,NML_ADSP_CUSTOM_MED,
-        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+I'm announcing the release of the 4.19.261 kernel.
 
-On 05-10-2022 04:39, Andrey Smirnov wrote:
-> On Tue, Oct 4, 2022 at 7:12 PM Thinh Nguyen<Thinh.Nguyen@synopsys.com>  wrote:
->> On Tue, Oct 04, 2022, Ferry Toth wrote:
->>> Hi
->>>
->>> Op 04-10-2022 om 10:28 schreef Andy Shevchenko:
->>>> On Mon, Oct 03, 2022 at 09:57:35PM +0000, Thinh Nguyen wrote:
->>>>> On Tue, Sep 27, 2022, Andy Shevchenko wrote:
->>>>>> This reverts commit 0f01017191384e3962fa31520a9fd9846c3d352f.
->>>>>>
->>>>>> As pointed out by Ferry this breaks Dual Role support on
->>>>>> Intel Merrifield platforms.
->>>>> Can you provide more info than this (any debug info/description)? It
->>>>> will be difficult to come back to fix with just this to go on. The
->>>>> reverted patch was needed to fix a different issue.
->>> On Merrifield we have a switch with extcon driver to switch between host and
->>> device mode. Now with commit 0f01017, device mode works. In host mode the
->>> root hub appears, but no devices appear. In the logs there are no messages
->>> from tusb1210, but there should be because lately there normally are
->>> (harmless) error messages. Nothing in the logs point in the direction of
->>> tusb1210 not being probed.
->>>
->>> The discussion is here:https://urldefense.com/v3/__https://lkml.org/lkml/2022/9/24/237__;!!A4F2R9G_pg!avfDjiGwi8xu0grHYrQQTZEEUnmaKu82xxdty0ZltxyU8BkoFD6AMq4a-7STYiKxNQpdYXgP1QG_IZbroEM$
->>>
->>> I tried moving some code as suggested without result:https://urldefense.com/v3/__https://lkml.org/lkml/2022/9/24/434__;!!A4F2R9G_pg!avfDjiGwi8xu0grHYrQQTZEEUnmaKu82xxdty0ZltxyU8BkoFD6AMq4a-7STYiKxNQpdYXgP1QG_boaK8Qw$
->>>
->>> And with success:https://urldefense.com/v3/__https://lkml.org/lkml/2022/9/25/285__;!!A4F2R9G_pg!avfDjiGwi8xu0grHYrQQTZEEUnmaKu82xxdty0ZltxyU8BkoFD6AMq4a-7STYiKxNQpdYXgP1QG_MbbbZII$
->>>
->>> So, as Andrey Smirnov writes "I think we'd want to figure out why the
->>> ordering is important if we want to justify the above fix."
->>>
->>>> It's already applied, but Ferry probably can provide more info if you describe
->>>> step-by-step instructions. (I'm still unable to test this particular type of
->>>> features since remove access is always in host mode.)
->>>>
->>> I'd be happy to test.
->> Thanks!
->>
->> Does the failure only happen the first time host is initialized? Or can
->> it recover after switching to device then back to host mode?
->>
->> Probably the failure happens if some step(s) in dwc3_core_init() hasn't
->> completed.
->>
->> tusb1210 is a phy driver right? The issue is probably because we didn't
->> initialize the phy yet. So, I suspect placing dwc3_get_extcon() after
->> initializing the phy will probably solve the dependency problem.
->>
->> You can try something for yourself or I can provide something to test
->> later if you don't mind (maybe next week if it's ok).
-> FWIW, I just got the same HW Ferry has last week and am planning to
-> work on this over the weekend.
-I can help you setup, we have binary images available on github as well 
-as Yocto recipies to build them.
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                           |    2 
+ arch/arm/boot/dts/integratorap.dts                 |    1 
+ drivers/ata/libata-core.c                          |    4 +
+ drivers/clk/bcm/clk-iproc-pll.c                    |   12 ++-
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ----
+ drivers/input/touchscreen/melfas_mip4.c            |    2 
+ drivers/mmc/host/moxart-mmc.c                      |   17 -----
+ drivers/net/usb/qmi_wwan.c                         |    1 
+ drivers/net/usb/usbnet.c                           |    7 +-
+ drivers/nvme/host/core.c                           |    9 +-
+ drivers/soc/sunxi/sunxi_sram.c                     |   23 +++----
+ drivers/usb/storage/unusual_uas.h                  |   21 ++++++
+ fs/ntfs/super.c                                    |    3 
+ mm/migrate.c                                       |    5 -
+ mm/page_alloc.c                                    |   65 +++++++++++++++++----
+ security/integrity/ima/ima.h                       |    5 +
+ security/integrity/ima/ima_policy.c                |   24 +++++--
+ tools/testing/selftests/net/reuseport_bpf.c        |    2 
+ 18 files changed, 146 insertions(+), 70 deletions(-)
+
+Alistair Popple (1):
+      mm/migrate_device.c: flush TLB while holding PTL
+
+Brian Norris (1):
+      Revert "drm: bridge: analogix/dp: add panel prepare/unprepare in suspend/resume time"
+
+Chaitanya Kulkarni (1):
+      nvme: add new line after variable declatation
+
+ChenXiaoSong (1):
+      ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
+
+Florian Fainelli (1):
+      clk: iproc: Do not rely on node name for correct PLL setup
+
+Frank Wunderlich (1):
+      net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.261
+
+Hongling Zeng (3):
+      uas: add no-uas quirk for Hiksemi usb_disk
+      usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS
+      uas: ignore UAS for Thinkplus chips
+
+Linus Walleij (1):
+      ARM: dts: integrator: Tag PCI host with device_type
+
+Maurizio Lombardi (1):
+      mm: prevent page_frag_alloc() from corrupting the memory
+
+Mel Gorman (1):
+      mm/page_alloc: fix race condition between build_all_zonelists and page allocation
+
+Michael Kelley (1):
+      nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
+
+Niklas Cassel (1):
+      libata: add ATA_HORKAGE_NOLPM for Pioneer BDR-207M and BDR-205
+
+Peilin Ye (1):
+      usbnet: Fix memory leak in usbnet_disconnect()
+
+Samuel Holland (4):
+      soc: sunxi: sram: Actually claim SRAM regions
+      soc: sunxi: sram: Prevent the driver from being unbound
+      soc: sunxi: sram: Fix probe function ordering issues
+      soc: sunxi: sram: Fix debugfs info for A64 SRAM C
+
+Sergei Antonov (1):
+      mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
+
+Tyler Hicks (3):
+      ima: Have the LSM free its audit rule
+      ima: Free the entire rule when deleting a list of rules
+      ima: Free the entire rule if it fails to parse
+
+Wang Yufen (1):
+      selftests: Fix the if conditions of in test_extra_filter()
+
+Yang Yingliang (1):
+      Input: melfas_mip4 - fix return value check in mip4_probe()
+
