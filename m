@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA275F53A4
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2AF5F53B6
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230225AbiJELh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 07:37:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36606 "EHLO
+        id S230247AbiJELiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 07:38:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230228AbiJELhL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:37:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A03451400;
-        Wed,  5 Oct 2022 04:34:56 -0700 (PDT)
+        with ESMTP id S230294AbiJELiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:38:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9596C72FFA;
+        Wed,  5 Oct 2022 04:35:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 047376166F;
-        Wed,  5 Oct 2022 11:34:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E25C433C1;
-        Wed,  5 Oct 2022 11:34:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67E55B81DC2;
+        Wed,  5 Oct 2022 11:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18E6C433D7;
+        Wed,  5 Oct 2022 11:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664969689;
-        bh=RHMNw4VDHSb0eehitrExluPSxkriKJXv1C+tOQe7P18=;
+        s=korg; t=1664969692;
+        bh=j8qDiqd4007TTVXR5GQqV4oL8mrRzRo/CNbjxYNi3ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgGoEQAM654okGfmMj7zf51t9kYX4cq8N8hUJAqCNonKsxzZopftALmCinL3Qc79t
-         g/6nYQHXnuCDMDWt6NZWOh27c0ZBwgrO+es6uZu+phSESbaxBcZHoWzNYj/flQC2H/
-         qL65DltX6hX+bkgq6wZ2sdbRSedAgzv7sdNtSnOg=
+        b=F08dObQkVzId/ETV1b2KTWPvAqOKrn/LHdP0dbk4nHpiroD1+YKo62owGkoiYKhZr
+         pwSBwAIX1jgmSEcIDWP9I/97SYPmisIuf0X5tM7zzkOifyYwq7CdJtIWYqBCAjwOy3
+         QwnrNPpVzrdwh+64M8cj6f68lAXOpHGjoTpqxtRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
         "Darrick J. Wong" <djwong@kernel.org>,
         Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 45/51] xfs: move incore structures out of xfs_da_format.h
-Date:   Wed,  5 Oct 2022 13:32:33 +0200
-Message-Id: <20221005113212.349623056@linuxfoundation.org>
+Subject: [PATCH 5.4 46/51] xfs: streamline xfs_attr3_leaf_inactive
+Date:   Wed,  5 Oct 2022 13:32:34 +0200
+Message-Id: <20221005113212.390334261@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221005113210.255710920@linuxfoundation.org>
 References: <20221005113210.255710920@linuxfoundation.org>
@@ -54,217 +55,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit a39f089a25e75c3d17b955d8eb8bc781f23364f3 upstream.
+commit 0bb9d159bd018b271e783d3b2d3bc82fa0727321 upstream.
 
-Move the abstract in-memory version of various btree block headers
-out of xfs_da_format.h as they aren't on-disk formats.
+Now that we know we don't have to take a transaction to stale the incore
+buffers for a remote value, get rid of the unnecessary memory allocation
+in the leaf walker and call the rmt_stale function directly.  Flatten
+the loop while we're at it.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.h |   23 ++++++++++++++++
- fs/xfs/libxfs/xfs_da_btree.h  |   13 +++++++++
- fs/xfs/libxfs/xfs_da_format.c |    1 
- fs/xfs/libxfs/xfs_da_format.h |   57 ------------------------------------------
- fs/xfs/libxfs/xfs_dir2.h      |    2 +
- fs/xfs/libxfs/xfs_dir2_priv.h |   19 ++++++++++++++
- 6 files changed, 58 insertions(+), 57 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.h |    9 ---
+ fs/xfs/xfs_attr_inactive.c    |  103 ++++++++++++------------------------------
+ 2 files changed, 30 insertions(+), 82 deletions(-)
 
 --- a/fs/xfs/libxfs/xfs_attr_leaf.h
 +++ b/fs/xfs/libxfs/xfs_attr_leaf.h
-@@ -17,6 +17,29 @@ struct xfs_inode;
- struct xfs_trans;
- 
- /*
-+ * Incore version of the attribute leaf header.
-+ */
-+struct xfs_attr3_icleaf_hdr {
-+	uint32_t	forw;
-+	uint32_t	back;
-+	uint16_t	magic;
-+	uint16_t	count;
-+	uint16_t	usedbytes;
-+	/*
-+	 * Firstused is 32-bit here instead of 16-bit like the on-disk variant
-+	 * to support maximum fsb size of 64k without overflow issues throughout
-+	 * the attr code. Instead, the overflow condition is handled on
-+	 * conversion to/from disk.
-+	 */
-+	uint32_t	firstused;
-+	__u8		holes;
-+	struct {
-+		uint16_t	base;
-+		uint16_t	size;
-+	} freemap[XFS_ATTR_LEAF_MAPSIZE];
-+};
-+
-+/*
-  * Used to keep a list of "remote value" extents when unlinking an inode.
-  */
- typedef struct xfs_attr_inactive_list {
---- a/fs/xfs/libxfs/xfs_da_btree.h
-+++ b/fs/xfs/libxfs/xfs_da_btree.h
-@@ -127,6 +127,19 @@ typedef struct xfs_da_state {
- } xfs_da_state_t;
- 
- /*
-+ * In-core version of the node header to abstract the differences in the v2 and
-+ * v3 disk format of the headers. Callers need to convert to/from disk format as
-+ * appropriate.
-+ */
-+struct xfs_da3_icnode_hdr {
-+	uint32_t		forw;
-+	uint32_t		back;
-+	uint16_t		magic;
-+	uint16_t		count;
-+	uint16_t		level;
-+};
-+
-+/*
-  * Utility macros to aid in logging changed structure fields.
-  */
- #define XFS_DA_LOGOFF(BASE, ADDR)	((char *)(ADDR) - (char *)(BASE))
---- a/fs/xfs/libxfs/xfs_da_format.c
-+++ b/fs/xfs/libxfs/xfs_da_format.c
-@@ -13,6 +13,7 @@
- #include "xfs_mount.h"
- #include "xfs_inode.h"
- #include "xfs_dir2.h"
-+#include "xfs_dir2_priv.h"
- 
- /*
-  * Shortform directory ops
---- a/fs/xfs/libxfs/xfs_da_format.h
-+++ b/fs/xfs/libxfs/xfs_da_format.h
-@@ -94,19 +94,6 @@ struct xfs_da3_intnode {
+@@ -39,15 +39,6 @@ struct xfs_attr3_icleaf_hdr {
+ 	} freemap[XFS_ATTR_LEAF_MAPSIZE];
  };
  
- /*
-- * In-core version of the node header to abstract the differences in the v2 and
-- * v3 disk format of the headers. Callers need to convert to/from disk format as
-- * appropriate.
-- */
--struct xfs_da3_icnode_hdr {
--	uint32_t	forw;
--	uint32_t	back;
--	uint16_t	magic;
--	uint16_t	count;
--	uint16_t	level;
--};
--
 -/*
-  * Directory version 2.
-  *
-  * There are 4 possible formats:
-@@ -434,14 +421,6 @@ struct xfs_dir3_leaf_hdr {
- 	__be32			pad;		/* 64 bit alignment */
- };
- 
--struct xfs_dir3_icleaf_hdr {
--	uint32_t		forw;
--	uint32_t		back;
--	uint16_t		magic;
--	uint16_t		count;
--	uint16_t		stale;
--};
+- * Used to keep a list of "remote value" extents when unlinking an inode.
+- */
+-typedef struct xfs_attr_inactive_list {
+-	xfs_dablk_t	valueblk;	/* block number of value bytes */
+-	int		valuelen;	/* number of bytes in value */
+-} xfs_attr_inactive_list_t;
 -
- /*
-  * Leaf block entry.
+-
+ /*========================================================================
+  * Function prototypes for the kernel.
+  *========================================================================*/
+--- a/fs/xfs/xfs_attr_inactive.c
++++ b/fs/xfs/xfs_attr_inactive.c
+@@ -37,8 +37,6 @@ xfs_attr3_rmt_stale(
+ 	int			blkcnt)
+ {
+ 	struct xfs_bmbt_irec	map;
+-	xfs_dablk_t		tblkno;
+-	int			tblkcnt;
+ 	int			nmap;
+ 	int			error;
+ 
+@@ -46,14 +44,12 @@ xfs_attr3_rmt_stale(
+ 	 * Roll through the "value", invalidating the attribute value's
+ 	 * blocks.
+ 	 */
+-	tblkno = blkno;
+-	tblkcnt = blkcnt;
+-	while (tblkcnt > 0) {
++	while (blkcnt > 0) {
+ 		/*
+ 		 * Try to remember where we decided to put the value.
+ 		 */
+ 		nmap = 1;
+-		error = xfs_bmapi_read(dp, (xfs_fileoff_t)tblkno, tblkcnt,
++		error = xfs_bmapi_read(dp, (xfs_fileoff_t)blkno, blkcnt,
+ 				       &map, &nmap, XFS_BMAPI_ATTRFORK);
+ 		if (error)
+ 			return error;
+@@ -68,8 +64,8 @@ xfs_attr3_rmt_stale(
+ 		if (error)
+ 			return error;
+ 
+-		tblkno += map.br_blockcount;
+-		tblkcnt -= map.br_blockcount;
++		blkno += map.br_blockcount;
++		blkcnt -= map.br_blockcount;
+ 	}
+ 
+ 	return 0;
+@@ -83,84 +79,45 @@ xfs_attr3_rmt_stale(
   */
-@@ -521,19 +500,6 @@ struct xfs_dir3_free {
- #define XFS_DIR3_FREE_CRC_OFF  offsetof(struct xfs_dir3_free, hdr.hdr.crc)
+ STATIC int
+ xfs_attr3_leaf_inactive(
+-	struct xfs_trans	**trans,
+-	struct xfs_inode	*dp,
+-	struct xfs_buf		*bp)
++	struct xfs_trans		**trans,
++	struct xfs_inode		*dp,
++	struct xfs_buf			*bp)
+ {
+-	struct xfs_attr_leafblock *leaf;
+-	struct xfs_attr3_icleaf_hdr ichdr;
+-	struct xfs_attr_leaf_entry *entry;
++	struct xfs_attr3_icleaf_hdr	ichdr;
++	struct xfs_mount		*mp = bp->b_mount;
++	struct xfs_attr_leafblock	*leaf = bp->b_addr;
++	struct xfs_attr_leaf_entry	*entry;
+ 	struct xfs_attr_leaf_name_remote *name_rmt;
+-	struct xfs_attr_inactive_list *list;
+-	struct xfs_attr_inactive_list *lp;
+-	int			error;
+-	int			count;
+-	int			size;
+-	int			tmp;
+-	int			i;
+-	struct xfs_mount	*mp = bp->b_mount;
++	int				error;
++	int				i;
  
- /*
-- * In core version of the free block header, abstracted away from on-disk format
-- * differences. Use this in the code, and convert to/from the disk version using
-- * xfs_dir3_free_hdr_from_disk/xfs_dir3_free_hdr_to_disk.
-- */
--struct xfs_dir3_icfree_hdr {
--	uint32_t	magic;
--	uint32_t	firstdb;
--	uint32_t	nvalid;
--	uint32_t	nused;
--
--};
--
--/*
-  * Single block format.
-  *
-  * The single block format looks like the following drawing on disk:
-@@ -710,29 +676,6 @@ struct xfs_attr3_leafblock {
- };
+-	leaf = bp->b_addr;
+ 	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &ichdr, leaf);
  
- /*
-- * incore, neutral version of the attribute leaf header
-- */
--struct xfs_attr3_icleaf_hdr {
--	uint32_t	forw;
--	uint32_t	back;
--	uint16_t	magic;
--	uint16_t	count;
--	uint16_t	usedbytes;
+ 	/*
+-	 * Count the number of "remote" value extents.
++	 * Find the remote value extents for this leaf and invalidate their
++	 * incore buffers.
+ 	 */
+-	count = 0;
+ 	entry = xfs_attr3_leaf_entryp(leaf);
+ 	for (i = 0; i < ichdr.count; entry++, i++) {
+-		if (be16_to_cpu(entry->nameidx) &&
+-		    ((entry->flags & XFS_ATTR_LOCAL) == 0)) {
+-			name_rmt = xfs_attr3_leaf_name_remote(leaf, i);
+-			if (name_rmt->valueblk)
+-				count++;
+-		}
+-	}
++		int		blkcnt;
+ 
 -	/*
--	 * firstused is 32-bit here instead of 16-bit like the on-disk variant
--	 * to support maximum fsb size of 64k without overflow issues throughout
--	 * the attr code. Instead, the overflow condition is handled on
--	 * conversion to/from disk.
+-	 * If there are no "remote" values, we're done.
 -	 */
--	uint32_t	firstused;
--	__u8		holes;
--	struct {
--		uint16_t	base;
--		uint16_t	size;
--	} freemap[XFS_ATTR_LEAF_MAPSIZE];
--};
+-	if (count == 0) {
+-		xfs_trans_brelse(*trans, bp);
+-		return 0;
+-	}
++		if (!entry->nameidx || (entry->flags & XFS_ATTR_LOCAL))
++			continue;
+ 
+-	/*
+-	 * Allocate storage for a list of all the "remote" value extents.
+-	 */
+-	size = count * sizeof(xfs_attr_inactive_list_t);
+-	list = kmem_alloc(size, 0);
 -
--/*
-  * Special value to represent fs block size in the leaf header firstused field.
-  * Only used when block size overflows the 2-bytes available on disk.
-  */
---- a/fs/xfs/libxfs/xfs_dir2.h
-+++ b/fs/xfs/libxfs/xfs_dir2.h
-@@ -18,6 +18,8 @@ struct xfs_dir2_sf_entry;
- struct xfs_dir2_data_hdr;
- struct xfs_dir2_data_entry;
- struct xfs_dir2_data_unused;
-+struct xfs_dir3_icfree_hdr;
-+struct xfs_dir3_icleaf_hdr;
- 
- extern struct xfs_name	xfs_name_dotdot;
- 
---- a/fs/xfs/libxfs/xfs_dir2_priv.h
-+++ b/fs/xfs/libxfs/xfs_dir2_priv.h
-@@ -8,6 +8,25 @@
- 
- struct dir_context;
- 
-+/*
-+ * In-core version of the leaf and free block headers to abstract the
-+ * differences in the v2 and v3 disk format of the headers.
-+ */
-+struct xfs_dir3_icleaf_hdr {
-+	uint32_t		forw;
-+	uint32_t		back;
-+	uint16_t		magic;
-+	uint16_t		count;
-+	uint16_t		stale;
-+};
+-	/*
+-	 * Identify each of the "remote" value extents.
+-	 */
+-	lp = list;
+-	entry = xfs_attr3_leaf_entryp(leaf);
+-	for (i = 0; i < ichdr.count; entry++, i++) {
+-		if (be16_to_cpu(entry->nameidx) &&
+-		    ((entry->flags & XFS_ATTR_LOCAL) == 0)) {
+-			name_rmt = xfs_attr3_leaf_name_remote(leaf, i);
+-			if (name_rmt->valueblk) {
+-				lp->valueblk = be32_to_cpu(name_rmt->valueblk);
+-				lp->valuelen = xfs_attr3_rmt_blocks(dp->i_mount,
+-						    be32_to_cpu(name_rmt->valuelen));
+-				lp++;
+-			}
+-		}
+-	}
+-	xfs_trans_brelse(*trans, bp);	/* unlock for trans. in freextent() */
+-
+-	/*
+-	 * Invalidate each of the "remote" value extents.
+-	 */
+-	error = 0;
+-	for (lp = list, i = 0; i < count; i++, lp++) {
+-		tmp = xfs_attr3_rmt_stale(dp, lp->valueblk, lp->valuelen);
+-		if (error == 0)
+-			error = tmp;	/* save only the 1st errno */
++		name_rmt = xfs_attr3_leaf_name_remote(leaf, i);
++		if (!name_rmt->valueblk)
++			continue;
 +
-+struct xfs_dir3_icfree_hdr {
-+	uint32_t		magic;
-+	uint32_t		firstdb;
-+	uint32_t		nvalid;
-+	uint32_t		nused;
-+};
-+
- /* xfs_dir2.c */
- extern int xfs_dir2_grow_inode(struct xfs_da_args *args, int space,
- 				xfs_dir2_db_t *dbp);
++		blkcnt = xfs_attr3_rmt_blocks(dp->i_mount,
++				be32_to_cpu(name_rmt->valuelen));
++		error = xfs_attr3_rmt_stale(dp,
++				be32_to_cpu(name_rmt->valueblk), blkcnt);
++		if (error)
++			goto err;
+ 	}
+ 
+-	kmem_free(list);
++	xfs_trans_brelse(*trans, bp);
++err:
+ 	return error;
+ }
+ 
 
 
