@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1D25F538E
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 046655F538A
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229517AbiJELgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 07:36:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36052 "EHLO
+        id S229895AbiJELfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 07:35:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230159AbiJELfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:35:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7ED1786D9;
-        Wed,  5 Oct 2022 04:34:10 -0700 (PDT)
+        with ESMTP id S229678AbiJELfE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:35:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 156DB7858D;
+        Wed,  5 Oct 2022 04:34:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C70E61646;
-        Wed,  5 Oct 2022 11:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32819C433C1;
-        Wed,  5 Oct 2022 11:33:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E9D8B81DB7;
+        Wed,  5 Oct 2022 11:34:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFDA9C433D6;
+        Wed,  5 Oct 2022 11:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664969638;
-        bh=OZmRwyCICynEbQ4jPcY7WzVABYtiTSKSIS4PsXbufSE=;
+        s=korg; t=1664969641;
+        bh=feMDUVj9ZKy4SEiv4+FTL0RHqr2n8lEuSdXvgtrlVRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yv+HmrKeVWZrYNMk8+8w8B9dNwFk+R60YGiPO07MW13Zm57yg27JbD2/gJRNTtv0m
-         i7N/8ObFTY3muDbMQwQ+X8xdHlIlK+lZ16HAoW/1CvHIEXfhdXT47ekXtEFR3OXTl/
-         I6vvVTBmN9tBXzQLs7X5F1Nt+/FdnYtZWL0XmdQk=
+        b=PknBcldNLhefgzZ5DNpPkJ6SzobTub4dT7+VuHsnncDFDXubKGCFI/SfuZWi1Jf2n
+         HQSICeKWRzV2zOpifb3I3i4VKPBZGdtx14KMktlxRWr9WuvNy80Nvv86TxAbxosA0b
+         A9mR+rNu1lIRBrIS6WoRz1b6TJBQT6kzEFeJFQ6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.4 33/51] x86/bugs: Add Cannon lake to RETBleed affected CPU list
-Date:   Wed,  5 Oct 2022 13:32:21 +0200
-Message-Id: <20221005113211.826455270@linuxfoundation.org>
+Subject: [PATCH 5.4 34/51] x86/speculation: Disable RRSBA behavior
+Date:   Wed,  5 Oct 2022 13:32:22 +0200
+Message-Id: <20221005113211.871526433@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221005113210.255710920@linuxfoundation.org>
 References: <20221005113210.255710920@linuxfoundation.org>
@@ -55,28 +55,125 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit f54d45372c6ac9c993451de5e51312485f7d10bc upstream.
+commit 4ad3278df6fe2b0852b00d5757fc2ccd8e92c26e upstream.
 
-Cannon lake is also affected by RETBleed, add it to the list.
+Some Intel processors may use alternate predictors for RETs on
+RSB-underflow. This condition may be vulnerable to Branch History
+Injection (BHI) and intramode-BTI.
 
-Fixes: 6ad0ad2bf8a6 ("x86/bugs: Report Intel retbleed vulnerability")
+Kernel earlier added spectre_v2 mitigation modes (eIBRS+Retpolines,
+eIBRS+LFENCE, Retpolines) which protect indirect CALLs and JMPs against
+such attacks. However, on RSB-underflow, RET target prediction may
+fallback to alternate predictors. As a result, RET's predicted target
+may get influenced by branch history.
+
+A new MSR_IA32_SPEC_CTRL bit (RRSBA_DIS_S) controls this fallback
+behavior when in kernel mode. When set, RETs will not take predictions
+from alternate predictors, hence mitigating RETs as well. Support for
+this is enumerated by CPUID.7.2.EDX[RRSBA_CTRL] (bit2).
+
+For spectre v2 mitigation, when a user selects a mitigation that
+protects indirect CALLs and JMPs against BHI and intramode-BTI, set
+RRSBA_DIS_S also to protect RETs for RSB-underflow case.
+
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: no tools/arch/x86/include/asm/msr-index.h]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/common.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/cpufeatures.h |    1 +
+ arch/x86/include/asm/msr-index.h   |    9 +++++++++
+ arch/x86/kernel/cpu/bugs.c         |   26 ++++++++++++++++++++++++++
+ arch/x86/kernel/cpu/scattered.c    |    1 +
+ 4 files changed, 37 insertions(+)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1136,6 +1136,7 @@ static const struct x86_cpu_id cpu_vuln_
- 	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
-+	VULNBL_INTEL_STEPPINGS(CANNONLAKE_L,	X86_STEPPING_ANY,		RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(ICELAKE_D,	X86_STEPPING_ANY,		MMIO),
- 	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPING_ANY,		MMIO),
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -286,6 +286,7 @@
+ #define X86_FEATURE_CQM_MBM_LOCAL	(11*32+ 3) /* LLC Local MBM monitoring */
+ #define X86_FEATURE_FENCE_SWAPGS_USER	(11*32+ 4) /* "" LFENCE in user entry SWAPGS path */
+ #define X86_FEATURE_FENCE_SWAPGS_KERNEL	(11*32+ 5) /* "" LFENCE in kernel entry SWAPGS path */
++#define X86_FEATURE_RRSBA_CTRL		(11*32+11) /* "" RET prediction control */
+ #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+ #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
+ 
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -47,6 +47,8 @@
+ #define SPEC_CTRL_STIBP			BIT(SPEC_CTRL_STIBP_SHIFT)	/* STIBP mask */
+ #define SPEC_CTRL_SSBD_SHIFT		2	   /* Speculative Store Bypass Disable bit */
+ #define SPEC_CTRL_SSBD			BIT(SPEC_CTRL_SSBD_SHIFT)	/* Speculative Store Bypass Disable */
++#define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
++#define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+ 
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+@@ -130,6 +132,13 @@
+ 						 * bit available to control VERW
+ 						 * behavior.
+ 						 */
++#define ARCH_CAP_RRSBA			BIT(19)	/*
++						 * Indicates RET may use predictors
++						 * other than the RSB. With eIBRS
++						 * enabled predictions in kernel mode
++						 * are restricted to targets in
++						 * kernel.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1181,6 +1181,22 @@ static enum spectre_v2_mitigation __init
+ 	return SPECTRE_V2_RETPOLINE;
+ }
+ 
++/* Disable in-kernel use of non-RSB RET predictors */
++static void __init spec_ctrl_disable_kernel_rrsba(void)
++{
++	u64 ia32_cap;
++
++	if (!boot_cpu_has(X86_FEATURE_RRSBA_CTRL))
++		return;
++
++	ia32_cap = x86_read_arch_cap_msr();
++
++	if (ia32_cap & ARCH_CAP_RRSBA) {
++		x86_spec_ctrl_base |= SPEC_CTRL_RRSBA_DIS_S;
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++	}
++}
++
+ static void __init spectre_v2_select_mitigation(void)
+ {
+ 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
+@@ -1274,6 +1290,16 @@ static void __init spectre_v2_select_mit
+ 		break;
+ 	}
+ 
++	/*
++	 * Disable alternate RSB predictions in kernel when indirect CALLs and
++	 * JMPs gets protection against BHI and Intramode-BTI, but RET
++	 * prediction from a non-RSB predictor is still a risk.
++	 */
++	if (mode == SPECTRE_V2_EIBRS_LFENCE ||
++	    mode == SPECTRE_V2_EIBRS_RETPOLINE ||
++	    mode == SPECTRE_V2_RETPOLINE)
++		spec_ctrl_disable_kernel_rrsba();
++
+ 	spectre_v2_enabled = mode;
+ 	pr_info("%s\n", spectre_v2_strings[mode]);
+ 
+--- a/arch/x86/kernel/cpu/scattered.c
++++ b/arch/x86/kernel/cpu/scattered.c
+@@ -26,6 +26,7 @@ struct cpuid_bit {
+ static const struct cpuid_bit cpuid_bits[] = {
+ 	{ X86_FEATURE_APERFMPERF,       CPUID_ECX,  0, 0x00000006, 0 },
+ 	{ X86_FEATURE_EPB,		CPUID_ECX,  3, 0x00000006, 0 },
++	{ X86_FEATURE_RRSBA_CTRL,	CPUID_EDX,  2, 0x00000007, 2 },
+ 	{ X86_FEATURE_CQM_LLC,		CPUID_EDX,  1, 0x0000000f, 0 },
+ 	{ X86_FEATURE_CQM_OCCUP_LLC,	CPUID_EDX,  0, 0x0000000f, 1 },
+ 	{ X86_FEATURE_CQM_MBM_TOTAL,	CPUID_EDX,  1, 0x0000000f, 1 },
 
 
