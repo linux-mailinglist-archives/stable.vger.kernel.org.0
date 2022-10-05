@@ -2,109 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 779355F52CA
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 12:45:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1905F52CB
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 12:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229565AbiJEKpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 06:45:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55412 "EHLO
+        id S229538AbiJEKp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 06:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbiJEKpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 06:45:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9036713E84
-        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 03:45:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229479AbiJEKp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 06:45:27 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062F6193FE
+        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 03:45:26 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 350B5615E9
-        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 10:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F7AC433D6;
-        Wed,  5 Oct 2022 10:45:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664966708;
-        bh=o0qR7HBEIgm+NA/vp2KEpWXTLQkdDrriMgkRr+JBOV8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kq5NdHY3ltrZLCfMHx70yoYNouZEzyef7E8gb0abcDjfQawR1lUzpp7J3vEA07LS5
-         79ylZX8brc2bAOIPr7SYHFOQXrOGzSlwzAjpuObJDUM8DIATweqNa/12N4z2jbHdJ9
-         GoKLpSKHR7pif2KhA30x6gCkf9AaJaWYJ2QNjjRY=
-Date:   Wed, 5 Oct 2022 12:45:06 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Peter Kosyh <pkosyh@yandex.ru>
-Cc:     stable@vger.kernel.org, Netanel Belgazal <netanel@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        Guy Tzalik <gtzalik@amazon.com>,
-        Saeed Bishara <saeedb@amazon.com>,
-        Zorik Machulsky <zorik@amazon.com>,
-        lvc-project@linuxtesting.org
-Subject: Re: [PATCH 5.10 1/1] eth: ena: Check return value of
- xdp_convert_buff_to_frame
-Message-ID: <Yz1gMg2UcR0h6u5e@kroah.com>
-References: <20221003114819.349535-1-pkosyh@yandex.ru>
- <20221003114819.349535-2-pkosyh@yandex.ru>
- <YzrqrC2soSLjxfLD@kroah.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id B5DDD1F388;
+        Wed,  5 Oct 2022 10:45:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1664966724; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qVvI7juaZC3YcwsPRPuTKlNhHaOKJHNLE9O69OTxnsU=;
+        b=Hs75b+aG9JMB2YoCpnQmsGCFDQ80s6aMvlA7GPkY6GY9DJYBmb6JwJjIs/DTOMuuV3CpLI
+        AfwJ32vxW1v15zGK2y7RvU9bC+AKoVZLKGqfDj46Q9NC2fTXNDITBom/7op5L5nWAVVUli
+        IhfMY/HAj+KaJfo4OqvZf7E4CAMHXhc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1664966724;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qVvI7juaZC3YcwsPRPuTKlNhHaOKJHNLE9O69OTxnsU=;
+        b=4Hu3vZR/AhgwlMDR/HLZej4SwUpgUj50tRgtQ6REubrAJUDSo6oH9phpMdE+qCFWWMPRNL
+        DDi8VRtXcCUzjgBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id AB7E913ABD;
+        Wed,  5 Oct 2022 10:45:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id ucvYKURgPWMZOgAAMHmgww
+        (envelope-from <bp@suse.de>); Wed, 05 Oct 2022 10:45:24 +0000
+Date:   Wed, 5 Oct 2022 12:45:19 +0200
+From:   Borislav Petkov <bp@suse.de>
+To:     gregkh@linuxfoundation.org
+Cc:     ssengar@linux.microsoft.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] x86/cacheinfo: Add a
+ cpu_llc_shared_mask() UP variant" failed to apply to 5.15-stable tree
+Message-ID: <Yz1gP2FLEbjLIL9y@zn.tnic>
+References: <166477802792157@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YzrqrC2soSLjxfLD@kroah.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <166477802792157@kroah.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 03, 2022 at 03:59:08PM +0200, Greg Kroah-Hartman wrote:
-> On Mon, Oct 03, 2022 at 02:48:19PM +0300, Peter Kosyh wrote:
-> > Return value of a function 'xdp_convert_buff_to_frame' is dereferenced
-> > without checking for null, but it is usually checked for this function.
-> > 
-> > This fixed in upstream commit <e8223eeff02> while refactoring.
-> > 
-> > Found by Linux Verification Center (linuxtesting.org) with SVACE.
-> > 
-> > Signed-off-by: Peter Kosyh <pkosyh@yandex.ru>
-> > ---
-> >  drivers/net/ethernet/amazon/ena/ena_netdev.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-> > index 52414ac2c901..9e6b2bd73dac 100644
-> > --- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-> > +++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-> > @@ -237,6 +237,8 @@ static int ena_xdp_tx_map_buff(struct ena_ring *xdp_ring,
-> >  	u32 size;
-> >  
-> >  	tx_info->xdpf = xdp_convert_buff_to_frame(xdp);
-> > +	if (unlikely(!tx_info->xdpf))
-> > +		goto error_report_dma_error;
-> >  	size = tx_info->xdpf->len;
-> >  	ena_buf = tx_info->bufs;
-> >  
-> > -- 
-> > 2.37.0
-> > 
+On Mon, Oct 03, 2022 at 08:20:27AM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> <formletter>
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
+> Possible dependencies:
 > 
-> </formletter>
+> df5b035b5683 ("x86/cacheinfo: Add a cpu_llc_shared_mask() UP variant")
+> 66558b730f25 ("sched: Add cluster scheduler level for x86")
 
-To be specific, why is this non-upstream commit really needed?  Can
-xdp_convert_buff_to_frame() ever fail under normal operation?  Why was
-this one commit picked?  And always properly reference commits in
-changelog text as the documentation asks you to.
+This is a fix for CONFIG_SMP=n kernels which was caught by testing this
+explicitly by disabling SMP. IOW, I don't think anyone would be running
+SMP=n kernels and thus maybe should not backport those...?
 
-Also, you didn't cc: everyone involved in the original commit, nor
-showed how you tested this in anyway (hint, read
-Documentation/process/researcher-guidelines.rst)
+Thx.
 
-thanks,
+-- 
+Regards/Gruss,
+    Boris.
 
-greg k-h
+SUSE Software Solutions Germany GmbH
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Martje Boudien Moerman
+(HRB 36809, AG Nürnberg)
