@@ -1,53 +1,53 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from out1.vger.email (unknown [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE555F5B22
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 22:41:00 +0200 (CEST)
+Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id 045C75F5B26
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 22:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231143AbiJEUki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 16:40:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
+        id S231153AbiJEUlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 16:41:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231137AbiJEUki (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 16:40:38 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 090635720C;
-        Wed,  5 Oct 2022 13:40:37 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id x18so10969830qkn.6;
-        Wed, 05 Oct 2022 13:40:36 -0700 (PDT)
+        with ESMTP id S231158AbiJEUlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 16:41:24 -0400
+Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D20B62A95;
+        Wed,  5 Oct 2022 13:41:23 -0700 (PDT)
+Received: by mail-qt1-x82e.google.com with SMTP id fb18so1238486qtb.12;
+        Wed, 05 Oct 2022 13:41:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=G/SJy23pyHdTBOwqTvrrJjRP4JYmINx8osvDYRRfOiA=;
-        b=Gy2RS+n5aXZK/vbHagqSrb642CEVulU2rctaskWTRmnr/sdYVgV4mAbCQqUvBgujAS
-         2B8STm+OdCYJV2Vtpl8N4n/6xG0eHNHV5s4KnDUZpU0MgglzBPD8kTNOlvbb/MFBBBTf
-         0EJZHfN14FTlV8tJ5RlypE3zqGPme/Y6S7Tjy5Wo9OtPIE+4lD9ryV8txeMlKyxs+S+r
-         tuXA+VUKfiEz7gh9D8EF/aJ7zJL3mhFqiZxB6AL2a98l4enLblbZz5oNfJ+yhaPyRCaQ
-         RCSpRA34xniiuaAniw+8di6h6vSqgmzH55DcgCOeyXr30QAYxDnC4soKmqH7LB7+Loa7
-         aD6Q==
+        bh=aRUqCLLcHsh6POG9Rz1BBcJxeSLfOpSm82me8CPX0EE=;
+        b=a2w8m56hVR7oUjeaD3xC4eThLHjX8yEcgKQl3QPBYBTqGtjfaagppF85rJzly3lIes
+         KVm3ZkDRjC/QmMDrH7BsuIyfRJ70+O7WAFjYPhrVQb7JE6HQSq4j1nA8hjI2iD7gI6UH
+         BCSY0FoV68JsPoM7wcACKxx4s9IvXcGljNgtJ+Qjy8VfeTO/N/vVu0aWaezckVcY/bEY
+         T/29YUMAa+1NduUQmouMzLnjAl0xhnJo7YO+75sbVaVvO5lZLeAMCaBZxwAX6KPDR33l
+         mzJgUclQbWoLYgk0D+f2rQBTdb82fQil8OAfU/dsN5QfhChXSxt9tOx0fdXjHfWI2WSl
+         K+sA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=G/SJy23pyHdTBOwqTvrrJjRP4JYmINx8osvDYRRfOiA=;
-        b=Sqrtco3puHrTX/LDgTm8BFlNIjzAxrmkumJFqLT9hq5AFp+2YUj4iLTVQrhjeeFV7j
-         mQr2Nulfnli1+sdVXK0eTa3h8vZdv+Xc/hqgptPBwQ5jF5L+S74l2VLnPwViBHtFxam6
-         Du/KGopESC6nMshw7y+DmwhJK00+z+j8yCs0eBbzuaCXpFZVHfRmfy8kO/+6qwoejflx
-         zB/fBk+3G5ZZXOBoFDIt6ZqzrxwJKFHUV2Pv9r4cKxUpywfzwoKLdf1kKWd0ef1mNOwH
-         j3U/rkWIjFCbpSP3m1NB5o9vNeLiYcKSrZj1hkkBI0goemZKcHTl3BclUl/U5eWSfqzx
-         83Fg==
-X-Gm-Message-State: ACrzQf12pDR5knt8QWHJy7FBGXNqPAWuY8N9nAgw+wLBhS4Kq0aNqd53
-        4GjcgtQfXD3nKiYcFcoMaxK0M+mE/Hs=
-X-Google-Smtp-Source: AMsMyM7uaIQVk5zGnmo7PkS8GSfpolbEaCPgcEymH0ZgxosWhQ7hqkxd8iG5Aq1/q5kpC4kIC/9AnQ==
-X-Received: by 2002:ae9:f205:0:b0:6bc:2d40:2f3d with SMTP id m5-20020ae9f205000000b006bc2d402f3dmr977651qkg.448.1665002435555;
-        Wed, 05 Oct 2022 13:40:35 -0700 (PDT)
+        bh=aRUqCLLcHsh6POG9Rz1BBcJxeSLfOpSm82me8CPX0EE=;
+        b=MkKu6myKa8216DRQ5rCwWtv7/0HcL9lsfHuDQviSG3SkfROcnwSNB8wNFBYVhaLliQ
+         aBjDgNY2q3WuNKRYums3boL/N2AFQu8mFfPyrlG+ezbIIuajZEJOD37tyzcFggIatXSj
+         Z5wj1JEKJ6QvwhUeomq5as+BiLBnWS5p/R0RC9+kxB6lhzrGj5gyoYs3Xd6fyDu6irUY
+         oCU5fWMvgGfyq1oPItm+6slXcadv35cHmApj/Go8rtsAh5fjNVmn2f8zQnWQHl/M8iZO
+         M3LPZCs9vJUjDLdQm0rEBj35EwfkiAvUO4Wm8v3qDqde822e9c559tj/MElI1uld/PF0
+         77Lg==
+X-Gm-Message-State: ACrzQf3RfjE8UJZJy/Kp88k1UFpk4lt6vPWT9gHUG9NuImwlpwrlwuP5
+        MKa7FkmhD1wlMAvlfRuV89jWWMJonzM=
+X-Google-Smtp-Source: AMsMyM77hOUYTwq3haH99gmohdvewNsrQ6T6C4Z4jNAq2MuVfu26WWSo3+luTr5tzXJrzofs3e974Q==
+X-Received: by 2002:ac8:7d11:0:b0:35c:f5c4:324a with SMTP id g17-20020ac87d11000000b0035cf5c4324amr1106355qtb.400.1665002481487;
+        Wed, 05 Oct 2022 13:41:21 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id y20-20020ac87c94000000b0038cdc487886sm3351624qtv.80.2022.10.05.13.40.32
+        by smtp.gmail.com with ESMTPSA id z10-20020ac87caa000000b0035d43eb67bcsm14387534qtv.91.2022.10.05.13.41.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Oct 2022 13:40:33 -0700 (PDT)
+        Wed, 05 Oct 2022 13:41:20 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
@@ -63,9 +63,9 @@ Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
         linux-kernel@vger.kernel.org (open list:PERFORMANCE EVENTS SUBSYSTEM),
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH RESEND stable 5.4] perf tools: Fixup get_current_dir_name() compilation
-Date:   Wed,  5 Oct 2022 13:40:28 -0700
-Message-Id: <20221005204028.4066674-1-f.fainelli@gmail.com>
+Subject: [PATCH RESEND stable 5.10] perf tools: Fixup get_current_dir_name() compilation
+Date:   Wed,  5 Oct 2022 13:41:16 -0700
+Message-Id: <20221005204116.4066871-1-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -98,8 +98,6 @@ Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 
 This patch is necessary to build perf with a musl-libc toolchain, not
 just Android's bionic.
-
-Resending because missed stable the first time
 
  tools/perf/util/get_current_dir_name.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
