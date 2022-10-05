@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEAC45F535F
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E985F5360
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbiJELdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 07:33:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35542 "EHLO
+        id S229494AbiJELdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 07:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbiJELdO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:33:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29BEC75CCC;
-        Wed,  5 Oct 2022 04:33:10 -0700 (PDT)
+        with ESMTP id S229895AbiJELdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:33:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE6172FEE;
+        Wed,  5 Oct 2022 04:33:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7D661646;
-        Wed,  5 Oct 2022 11:33:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A4BC433C1;
-        Wed,  5 Oct 2022 11:33:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46A3E61645;
+        Wed,  5 Oct 2022 11:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DF2C433D6;
+        Wed,  5 Oct 2022 11:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664969588;
-        bh=LSPx1gDfiYfefFdjkwGDKesJ1mIfUlbjg9qS061DB2o=;
+        s=korg; t=1664969590;
+        bh=pIptsOiS1gMpsNUQNIRZbi5bYJZFZSCrJ005eSxFfgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrxOp2Eco+Qp98zYVaxSLE8Crh2/S2xT1dzPjykUnnLu6ARhX1L0OlxLPiVHHxIiJ
-         LYJJK0xpZxP/CrT7KObjWlm4cGfHAdXIB7IrFr11lO1ouE2aC4YTp4irCwW6+56SB+
-         ll8VTj1mQATKhDe8kz0OcoYlAV2a7new+r6PB1DA=
+        b=U3477F558CdEL+ghhJbMSZm+R0vqGWJV8TgxV7TKT3VHAGMznIb6ex9WzCpyWiVMB
+         HJqrBXlQVmegAAIKsRiCLbz68jc8n6QCPcZ0B4l77O/1Y527t6RPmCCrGH4o6w2GnO
+         mUVooY3s141+VMfBnlDuH1DUrQEvSrQ3Jb6fKzKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.4 06/51] x86/kvm/vmx: Make noinstr clean
-Date:   Wed,  5 Oct 2022 13:31:54 +0200
-Message-Id: <20221005113210.548725185@linuxfoundation.org>
+Subject: [PATCH 5.4 07/51] x86/cpufeatures: Move RETPOLINE flags to word 11
+Date:   Wed,  5 Oct 2022 13:31:55 +0200
+Message-Id: <20221005113210.599340518@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221005113210.255710920@linuxfoundation.org>
 References: <20221005113210.255710920@linuxfoundation.org>
@@ -55,72 +56,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 742ab6df974ae8384a2dd213db1a3a06cf6d8936 upstream.
+commit a883d624aed463c84c22596006e5a96f5b44db31 upstream.
 
-The recent mmio_stale_data fixes broke the noinstr constraints:
-
-  vmlinux.o: warning: objtool: vmx_vcpu_enter_exit+0x15b: call to wrmsrl.constprop.0() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: vmx_vcpu_enter_exit+0x1bf: call to kvm_arch_has_assigned_device() leaves .noinstr.text section
-
-make it all happy again.
+In order to extend the RETPOLINE features to 4, move them to word 11
+where there is still room. This mostly keeps DISABLE_RETPOLINE
+simple.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c   |    6 +++---
- arch/x86/kvm/x86.c       |    4 ++--
- include/linux/kvm_host.h |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/cpufeatures.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -359,9 +359,9 @@ static __always_inline void vmx_disable_
- 	if (!vmx->disable_fb_clear)
- 		return;
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -203,8 +203,8 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ #define X86_FEATURE_SME			( 7*32+10) /* AMD Secure Memory Encryption */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
++/* FREE!				( 7*32+12) */
++/* FREE!				( 7*32+13) */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+@@ -286,6 +286,8 @@
+ #define X86_FEATURE_CQM_MBM_LOCAL	(11*32+ 3) /* LLC Local MBM monitoring */
+ #define X86_FEATURE_FENCE_SWAPGS_USER	(11*32+ 4) /* "" LFENCE in user entry SWAPGS path */
+ #define X86_FEATURE_FENCE_SWAPGS_KERNEL	(11*32+ 5) /* "" LFENCE in kernel entry SWAPGS path */
++#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
  
--	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	msr = __rdmsr(MSR_IA32_MCU_OPT_CTRL);
- 	msr |= FB_CLEAR_DIS;
--	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
- 	/* Cache the MSR value to avoid reading it later */
- 	vmx->msr_ia32_mcu_opt_ctrl = msr;
- }
-@@ -372,7 +372,7 @@ static __always_inline void vmx_enable_f
- 		return;
- 
- 	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
--	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
-+	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
- }
- 
- static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10329,9 +10329,9 @@ void kvm_arch_end_assignment(struct kvm
- }
- EXPORT_SYMBOL_GPL(kvm_arch_end_assignment);
- 
--bool kvm_arch_has_assigned_device(struct kvm *kvm)
-+bool noinstr kvm_arch_has_assigned_device(struct kvm *kvm)
- {
--	return atomic_read(&kvm->arch.assigned_device_count);
-+	return arch_atomic_read(&kvm->arch.assigned_device_count);
- }
- EXPORT_SYMBOL_GPL(kvm_arch_has_assigned_device);
- 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -955,7 +955,7 @@ static inline void kvm_arch_end_assignme
- {
- }
- 
--static inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
-+static __always_inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
- {
- 	return false;
- }
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
 
 
