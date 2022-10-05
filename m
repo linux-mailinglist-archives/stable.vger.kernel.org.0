@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 776F55F53C3
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 015DD5F5411
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbiJELkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 07:40:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
+        id S229682AbiJELzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 07:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230313AbiJELjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:39:47 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB0E786E0
-        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 04:36:46 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id c24so15158132plo.3
-        for <stable@vger.kernel.org>; Wed, 05 Oct 2022 04:36:46 -0700 (PDT)
+        with ESMTP id S229477AbiJELzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:55:12 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F090111143
+        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 04:55:09 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id t10-20020a17090a4e4a00b0020af4bcae10so680891pjl.3
+        for <stable@vger.kernel.org>; Wed, 05 Oct 2022 04:55:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date;
-        bh=hU0UXMk6o4v2XrP0oFRc4sDtpFES7ES5U0sFXivNLTM=;
-        b=JLdwWNuAOd0waP2ytcrDWuO0C+kpDCK3xzSbU8hDNUr6JBd4tM3NxOLI70U4KR86g0
-         GaQlh4u09bKEu+2sA+Lrfink6VJwfILWXteBbJ4Y3uhSfXJ61X5o0JLIMSP7pRe1xtTl
-         jq3lsCfJFc2fW/KFbf1FUMS8LJKV8Ldb78RvYgO6V4/OZk+aqB5OuW6b43PpHTnUPJly
-         my19CrjWc2/O+tdP8XQukrNZet6xbw/PPD0D9gDvegp/BCC7bWNBlWhL07ZF2EgTqbyb
-         v6eqyotU6JWb7cnIpxkq12NQx+I11o/2gHCYJiJcm+X1RaPfM3nBwrglZheJpaHrJEqT
-         nKNQ==
+        bh=cou5RnGcJHPBZgRek59B9cfY/zWE0WL5WDjnMsKvHWc=;
+        b=I5UDlm7eukZCbaBu+aPV8Ojfq7MlDnet/Qcs5lFJnEbcv9Rh4vbGpDuyHh/XDrnMAF
+         bJO+VpLra/xG5gUgiXmP5kKQewWTXYBI09DMMBMKCx638owIKLaYYUpT4A1ooXhcai0y
+         gmgYREzOYXb1aHc5ZNKrpM0co4xROGZHMXB/At6DirViKpp1tKV9B+8vZPps5YIE4m11
+         s3ANhDw5jDCayIsjF0c0ZTO0y07+8qPutdjh8HzFh3L0F8xgmGJY45Gr5AFU0791KkIN
+         kS0SD5OWKrpmRv4VmXRzjV8fFNwpY+fSVXoGOhJgbluZEg82CU4ueO3+GMgqpTLn8Z2K
+         JwHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=hU0UXMk6o4v2XrP0oFRc4sDtpFES7ES5U0sFXivNLTM=;
-        b=GTSAu0cmNSNtqI2r8D7ksZocUIRWlCxYIQqCGtjZ9DapRyvmndJK54gvt70Kj8gfYD
-         gOQqpA7NNwz2OnK4C5/s+2i9hW7efmqMtF5nRh9MewnKvZF6lz0zaMo4MfLK+tRCfy+K
-         Rm/Qpsang6o/aPvMWrmAuxAiGCBnKmy1z7Sq1FllQlcSsRfHTqq5RkspJw13EzAK9GZY
-         NRcAw7mJU51EtU7H+w5FQQAcfNmaOk74WIYfdVDCEZqYh6lDp52uePFrRQfLPZGP4ioQ
-         tVoN4U8ZqnFm2VEqozENBoxNRe31Hc/PK9igdv8F/9EP/8OjV6ZMQRLKA2NGanhzJSi3
-         YQ1A==
-X-Gm-Message-State: ACrzQf2eoMLanphp/BSOy2XG4NZPIEKs09O1Lcq6yoB1Y57I0fa2VKBZ
-        6v8sr67YTxow7FN2s5TzpZ9ZZ03qsAwvnVebKtU=
-X-Google-Smtp-Source: AMsMyM4Ac5+OIYHKVH0Btr49+tACTlINL80LKB281x+Ctot1DJEph0Sf0moG3/h0ZgaXe1hnuhYmmQ==
-X-Received: by 2002:a17:90b:4c43:b0:203:1ba4:f29a with SMTP id np3-20020a17090b4c4300b002031ba4f29amr4730894pjb.76.1664969746884;
-        Wed, 05 Oct 2022 04:35:46 -0700 (PDT)
+        bh=cou5RnGcJHPBZgRek59B9cfY/zWE0WL5WDjnMsKvHWc=;
+        b=74qid/6n4mjGqM+IVSnwVQOpoxBrA1na3rUuyMXK3HnZ2O6CmhRl5HKB7uVHehciYs
+         xv3ZqYSYFgvLWgj3zMI11XasIP/ZAM6sMccHKZw7ryk5OAvlLj9/3JfVfNL3pV23E6DQ
+         PM8TNXov1S3I5aFuReYGsaOhok/s9ysRhtPclu1ry4DyKm6+Ih6CVXowsy3Jg4+2Ypj0
+         sOD0MN22Ct2FtXJtk/4051Myiz+ghvPOPhrNozk2Z+fkIRbpKA+ctsLryQ21LTumgKiu
+         9jajKGk1oDUzWxBVNbM/gMm5+AYvowQ999AvP6+9cG9scsuEU1qZmgUdBomdzDHJMi4n
+         FZrA==
+X-Gm-Message-State: ACrzQf123FEUB+yh9XLOYc1eUtjaVx+hzag06nz05dPzgNXBUKGuts2U
+        wETjhSC+JJbfYxt4H7e1GJRGhNW8RnvEyTQIzXQ=
+X-Google-Smtp-Source: AMsMyM6XKRFi97/+Oe088DRlZnG7mNehzn8N1Hm2jP30Vu8L+oWaiL8EQCie0Cf1ujGtLf8pB+GOeA==
+X-Received: by 2002:a17:903:2349:b0:178:111b:e6da with SMTP id c9-20020a170903234900b00178111be6damr32075420plh.70.1664970908579;
+        Wed, 05 Oct 2022 04:55:08 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u135-20020a62798d000000b00537eb00850asm267012pfc.130.2022.10.05.04.35.46
+        by smtp.gmail.com with ESMTPSA id u12-20020a17090341cc00b0017c3776634dsm10216691ple.32.2022.10.05.04.55.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Oct 2022 04:35:46 -0700 (PDT)
-Message-ID: <633d6c12.620a0220.2d5a9.06bd@mx.google.com>
-Date:   Wed, 05 Oct 2022 04:35:46 -0700 (PDT)
+        Wed, 05 Oct 2022 04:55:08 -0700 (PDT)
+Message-ID: <633d709c.170a0220.2d25b.1dd8@mx.google.com>
+Date:   Wed, 05 Oct 2022 04:55:08 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.71-70-gda5ba601cd935
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v5.15.72
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed,
- 14 errors, 5 warnings (v5.15.71-70-gda5ba601cd935)
+Subject: stable/linux-5.15.y build: 184 builds: 4 failed, 180 passed, 14 errors,
+ 7 warnings (v5.15.72)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,18 +70,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed, 14 errors, 5 =
-warnings (v5.15.71-70-gda5ba601cd935)
+stable/linux-5.15.y build: 184 builds: 4 failed, 180 passed, 14 errors, 7 w=
+arnings (v5.15.72)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-5/kernel/v5.15.71-70-gda5ba601cd935/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.15.y/k=
+ernel/v5.15.72/
 
-Tree: stable-rc
-Branch: queue/5.15
-Git Describe: v5.15.71-70-gda5ba601cd935
-Git Commit: da5ba601cd935941e4075abf6b4a9a3bfe9519a0
+Tree: stable
+Branch: linux-5.15.y
+Git Describe: v5.15.72
+Git Commit: c68173b2012b8eba332cf9832f0ad23427d795b5
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
+e.git
 Built: 7 unique architectures
 
 Build Failures Detected:
@@ -100,6 +100,8 @@ arc:
     tinyconfig (gcc-10): 1 warning
 
 arm64:
+    defconfig+arm64-chromebook+kselftest (gcc-10): 1 warning
+    defconfig+kselftest (gcc-10): 1 warning
 
 arm:
     rpc_defconfig (gcc-10): 4 errors
@@ -134,6 +136,8 @@ h=3D=E2=80=99
 
 Warnings summary:
 
+    2    net/mac80211/mlme.c:4377:1: warning: the frame size of 2288 bytes =
+is larger than 2048 bytes [-Wframe-larger-than=3D]
     2    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes =
 is larger than 1024 bytes [-Wframe-larger-than=3D]
     1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
@@ -171,13 +175,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -383,8 +387,21 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
+defconfig+arm64-chromebook+kselftest (arm64, gcc-10) =E2=80=94 PASS, 0 erro=
+rs, 1 warning, 0 section mismatches
+
+Warnings:
+    net/mac80211/mlme.c:4377:1: warning: the frame size of 2288 bytes is la=
+rger than 2048 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+defconfig+kselftest (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    net/mac80211/mlme.c:4377:1: warning: the frame size of 2288 bytes is la=
+rger than 2048 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -738,6 +755,11 @@ ction mismatches
 -----
 multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig+kselftest (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1124,8 +1146,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+x86_64_defconfig+kselftest (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
 0 warnings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook+kselftest (x86_64, gcc-10) =E2=80=94 PASS, =
+0 errors, 0 warnings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
