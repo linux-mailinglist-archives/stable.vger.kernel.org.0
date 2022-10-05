@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B4D5F53A9
-	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD135F53B9
+	for <lists+stable@lfdr.de>; Wed,  5 Oct 2022 13:39:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230075AbiJELiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 07:38:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36826 "EHLO
+        id S230102AbiJELjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 07:39:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230061AbiJELhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:37:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1A4661D7B;
-        Wed,  5 Oct 2022 04:35:01 -0700 (PDT)
+        with ESMTP id S230310AbiJELif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 07:38:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7D679608;
+        Wed,  5 Oct 2022 04:35:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7D1B61543;
-        Wed,  5 Oct 2022 11:34:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A1CCC433C1;
-        Wed,  5 Oct 2022 11:34:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93BEE6164C;
+        Wed,  5 Oct 2022 11:35:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4755C433D6;
+        Wed,  5 Oct 2022 11:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1664969697;
-        bh=QpZ5IYhmYr0sbxy56R21Xhgqvtwy16ZLanrt25BG6eU=;
+        s=korg; t=1664969700;
+        bh=myyM/cpOxrZJqyMCFSWCCMivBd348xIo/wFw2g9wxm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCbaAOSjGx22TtqaI9jMdybLAF6mzubcuwcwL6ylCr+8SZQE4AAuli8wgmnifgNnX
-         eDs36frM7ytuEXBNIJPGE+SFZJgGNiJhXjYiWg6nuVALutd4C0Na0kGRKr0R+ykNBx
-         Xs/prMqt+BXrEZ0uHvDECCTQZC6d9OiIac7g9+9I=
+        b=E4qMwT9XujtN6nfjXauwtjy1HupfwnsSehfevg5cuF5qbQ095GAldp4hY56lOAb+5
+         9u9lJ8o/vA0Botx7175YtEgoUXaRbnJj9KJkU+/8Hh2t014toLZmDNb6tZzQXXR6sW
+         gyt3GefCaBmoMawKCpH6dPC0Xj7p0TOVwsnaXPsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        YueHaibing <yuehaibing@huawei.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 48/51] xfs: remove unused variable done
-Date:   Wed,  5 Oct 2022 13:32:36 +0200
-Message-Id: <20221005113212.479111487@linuxfoundation.org>
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 49/51] Revert "drm/amdgpu: use dirty framebuffer helper"
+Date:   Wed,  5 Oct 2022 13:32:37 +0200
+Message-Id: <20221005113212.519468645@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221005113210.255710920@linuxfoundation.org>
 References: <20221005113210.255710920@linuxfoundation.org>
@@ -56,39 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit b3531f5fc16d4df2b12567bce48cd9f3ab5f9131 upstream.
+This reverts commit c89849ecfd2e10838b31c519c2a6607266b58f02 which is
+commit 66f99628eb24409cb8feb5061f78283c8b65f820 upstream.
 
-fs/xfs/xfs_inode.c: In function 'xfs_itruncate_extents_flags':
-fs/xfs/xfs_inode.c:1523:8: warning: unused variable 'done' [-Wunused-variable]
+It is reported to cause problems on 5.4.y so it should be reverted for
+now.
 
-commit 4bbb04abb4ee ("xfs: truncate should remove
-all blocks, not just to the end of the page cache")
-left behind this, so remove it.
-
-Fixes: 4bbb04abb4ee ("xfs: truncate should remove all blocks, not just to the end of the page cache")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Reported-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/7af02bc3-c0f2-7326-e467-02549e88c9ce@linuxfoundation.org
+Cc: Hamza Mahfooz <hamza.mahfooz@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_inode.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -1515,7 +1515,6 @@ xfs_itruncate_extents_flags(
- 	xfs_fileoff_t		first_unmap_block;
- 	xfs_filblks_t		unmap_len;
- 	int			error = 0;
--	int			done = 0;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+@@ -35,7 +35,6 @@
+ #include <linux/pci.h>
+ #include <linux/pm_runtime.h>
+ #include <drm/drm_crtc_helper.h>
+-#include <drm/drm_damage_helper.h>
+ #include <drm/drm_edid.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_fb_helper.h>
+@@ -496,7 +495,6 @@ bool amdgpu_display_ddc_probe(struct amd
+ static const struct drm_framebuffer_funcs amdgpu_fb_funcs = {
+ 	.destroy = drm_gem_fb_destroy,
+ 	.create_handle = drm_gem_fb_create_handle,
+-	.dirty = drm_atomic_helper_dirtyfb,
+ };
  
- 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
- 	ASSERT(!atomic_read(&VFS_I(ip)->i_count) ||
+ uint32_t amdgpu_display_supported_domains(struct amdgpu_device *adev,
 
 
