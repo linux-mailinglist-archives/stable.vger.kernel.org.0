@@ -2,121 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 413435F60BE
-	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 07:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4C15F60CC
+	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 07:53:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbiJFFpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Oct 2022 01:45:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
+        id S230199AbiJFFxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Oct 2022 01:53:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiJFFpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Oct 2022 01:45:06 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD521F2F0
-        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 22:45:04 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1ogJgs-00044A-Os; Thu, 06 Oct 2022 07:45:02 +0200
-Message-ID: <2da7598f-26ae-3da2-2534-d843aae7140c@leemhuis.info>
-Date:   Thu, 6 Oct 2022 07:45:00 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH] Revert "drm/amdgpu: use dirty framebuffer helper"
-Content-Language: en-US, de-DE
-To:     Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        amd-gfx@lists.freedesktop.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20221005154719.57566-1-hamza.mahfooz@amd.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <20221005154719.57566-1-hamza.mahfooz@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1665035104;1a80d12a;
-X-HE-SMSGID: 1ogJgs-00044A-Os
-X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229955AbiJFFxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Oct 2022 01:53:13 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DDB591AF1C;
+        Wed,  5 Oct 2022 22:53:12 -0700 (PDT)
+Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 925D920D5F37;
+        Wed,  5 Oct 2022 22:53:12 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 925D920D5F37
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1665035592;
+        bh=Iv/HyXwyWvio7WsumWzIXqsQdEUafXvlyqJC/QOR3Fk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QEToUoTyDT/3p+8sEHZGJUj2d+89sTYBb8fhscx7+IKa7bzyf9AMtlX2TSIGUcutU
+         wUluGN7ysbql3699ZSzbprmQMI4LjPZsrcq53dcaY1DWvduacbC6kJW+dUrv1tE7SA
+         45s2xCZPGGRjMHBFv242DzWvNNh1E5/xsk5rjYJ8=
+From:   Gaurav Kohli <gauravkohli@linux.microsoft.com>
+To:     kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        wei.liu@kernel.org, decui@microsoft.com,
+        linux-hyperv@vger.kernel.org, netdev@vger.kernel.org,
+        kuba@kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2 net] hv_netvsc: Fix race between VF offering and VF association message from host
+Date:   Wed,  5 Oct 2022 22:52:58 -0700
+Message-Id: <1665035579-13755-1-git-send-email-gauravkohli@linux.microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
+X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[CCing regression and stable lists, to make sure they are aware of the
-regression]
+During vm boot, there might be possibility that vf registration
+call comes before the vf association from host to vm.
 
-On 05.10.22 17:47, Hamza Mahfooz wrote:
-> This reverts commit 10b6e91bd1ee9cd237ffbc244ad9c25b5fd3e167.
+And this might break netvsc vf path, To prevent the same block
+vf registration until vf bind message comes from host.
 
-/me can't find that id and wonders what he did wrong -- or is this not
-meant to refer to Linus tree?
+Cc: stable@vger.kernel.org
+Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+---
+v2: Move reinit completion to vf unregister call
+---
+ drivers/net/hyperv/hyperv_net.h |  3 ++-
+ drivers/net/hyperv/netvsc.c     |  4 ++++
+ drivers/net/hyperv/netvsc_drv.c | 19 +++++++++++++++++++
+ 3 files changed, 25 insertions(+), 1 deletion(-)
 
-And isn't this reverting both 66f99628eb24409cb8feb5061f78283c8b65f820
-and abbc7a3dafb91b9d4ec56b70ec9a7520f8e13334 in one go?
+diff --git a/drivers/net/hyperv/hyperv_net.h b/drivers/net/hyperv/hyperv_net.h
+index 25b38a374e3c..dd5919ec408b 100644
+--- a/drivers/net/hyperv/hyperv_net.h
++++ b/drivers/net/hyperv/hyperv_net.h
+@@ -1051,7 +1051,8 @@ struct net_device_context {
+ 	u32 vf_alloc;
+ 	/* Serial number of the VF to team with */
+ 	u32 vf_serial;
+-
++	/* completion variable to confirm vf association */
++	struct completion vf_add;
+ 	/* Is the current data path through the VF NIC? */
+ 	bool  data_path_is_vf;
+ 
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index 8bcba6f21aa9..8843cbeadabf 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -1582,6 +1582,10 @@ static void netvsc_send_vf(struct net_device *ndev,
+ 
+ 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
+ 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
++
++	if (net_device_ctx->vf_alloc)
++		complete(&net_device_ctx->vf_add);
++
+ 	netdev_info(ndev, "VF slot %u %s\n",
+ 		    net_device_ctx->vf_serial,
+ 		    net_device_ctx->vf_alloc ? "added" : "removed");
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index c27cb1267ca5..664a30aa46ea 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -2309,6 +2309,18 @@ static struct net_device *get_netvsc_byslot(const struct net_device *vf_netdev)
+ 
+ 	}
+ 
++	/* Fallback path to check synthetic vf with
++	 * help of mac addr
++	 */
++	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
++		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
++		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
++			netdev_notice(vf_netdev,
++				      "falling back to mac addr based matching\n");
++			return ndev;
++		}
++	}
++
+ 	netdev_notice(vf_netdev,
+ 		      "no netdev found for vf serial:%u\n", serial);
+ 	return NULL;
+@@ -2405,6 +2417,11 @@ static int netvsc_vf_changed(struct net_device *vf_netdev, unsigned long event)
+ 	if (net_device_ctx->data_path_is_vf == vf_is_up)
+ 		return NOTIFY_OK;
+ 
++	if (vf_is_up && !net_device_ctx->vf_alloc) {
++		netdev_info(ndev, "Waiting for the VF association from host\n");
++		wait_for_completion(&net_device_ctx->vf_add);
++	}
++
+ 	ret = netvsc_switch_datapath(ndev, vf_is_up);
+ 
+ 	if (ret) {
+@@ -2436,6 +2453,7 @@ static int netvsc_unregister_vf(struct net_device *vf_netdev)
+ 
+ 	netvsc_vf_setxdp(vf_netdev, NULL);
+ 
++	reinit_completion(&net_device_ctx->vf_add);
+ 	netdev_rx_handler_unregister(vf_netdev);
+ 	netdev_upper_dev_unlink(vf_netdev, ndev);
+ 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
+@@ -2475,6 +2493,7 @@ static int netvsc_probe(struct hv_device *dev,
+ 
+ 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
+ 
++	init_completion(&net_device_ctx->vf_add);
+ 	spin_lock_init(&net_device_ctx->lock);
+ 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
+ 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
+-- 
+2.17.1
 
-> Unfortunately, this commit causes performance regressions on non-PSR
-> setups. So, just revert it until FB_DAMAGE_CLIPS support can be added.
-> 
-> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2189
-> Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-
-This seems to be missing a Reported-by tag, a CC: stable tag (needed to
-ensure backporting), and a Fixes: tag.
-
-But the reason why I started writing this mail is totally different from
-the comments above:
-
-In case you are not aware of it, that patch apparently broke amdgpu for
-some users of 5.4.215:
-https://bugzilla.kernel.org/show_bug.cgi?id=216554
-
-So more Link: and Reported-by: tags might would be nice.
-
-Ciao, Thorsten
-
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 14 ++------------
->  1 file changed, 2 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> index 23998f727c7f..1a06b8d724f3 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-> @@ -38,8 +38,6 @@
->  #include <linux/pci.h>
->  #include <linux/pm_runtime.h>
->  #include <drm/drm_crtc_helper.h>
-> -#include <drm/drm_damage_helper.h>
-> -#include <drm/drm_drv.h>
->  #include <drm/drm_edid.h>
->  #include <drm/drm_gem_framebuffer_helper.h>
->  #include <drm/drm_fb_helper.h>
-> @@ -500,12 +498,6 @@ static const struct drm_framebuffer_funcs amdgpu_fb_funcs = {
->  	.create_handle = drm_gem_fb_create_handle,
->  };
->  
-> -static const struct drm_framebuffer_funcs amdgpu_fb_funcs_atomic = {
-> -	.destroy = drm_gem_fb_destroy,
-> -	.create_handle = drm_gem_fb_create_handle,
-> -	.dirty = drm_atomic_helper_dirtyfb,
-> -};
-> -
->  uint32_t amdgpu_display_supported_domains(struct amdgpu_device *adev,
->  					  uint64_t bo_flags)
->  {
-> @@ -1108,10 +1100,8 @@ static int amdgpu_display_gem_fb_verify_and_init(struct drm_device *dev,
->  	if (ret)
->  		goto err;
->  
-> -	if (drm_drv_uses_atomic_modeset(dev))
-> -		ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs_atomic);
-> -	else
-> -		ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs);
-> +	ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs);
-> +
->  	if (ret)
->  		goto err;
->  
