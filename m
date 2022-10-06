@@ -2,171 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 731335F6EC0
-	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 22:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 713EE5F6F12
+	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 22:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbiJFUP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Oct 2022 16:15:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41292 "EHLO
+        id S232055AbiJFU1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Oct 2022 16:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230148AbiJFUPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Oct 2022 16:15:55 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80181B03C8
-        for <stable@vger.kernel.org>; Thu,  6 Oct 2022 13:15:54 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id 13so7075860ejn.3
-        for <stable@vger.kernel.org>; Thu, 06 Oct 2022 13:15:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ffslzyhovix66SuNo1fNLtEXNp0U8o9uSFXQEaxg9aY=;
-        b=pn7LZWTZwNJgx4UKsu1GNG3jVDRrhCZUdbuD0+b6fr2Nzlv1BPSPXFvvPW15KSZfDd
-         lcQPyszZUeIl4A87VFIK4vQCvs1FDWRqQoou/pZX4znLZeOSeLYGIzYLNB3K1BBAZn0w
-         zudtE/f4S0sQ4opL69So1flMP24bTWBpn0R52fD4eP8KM2i/cK3YLnk/u6ciHn8rjfGS
-         z7ZOAWYvZu/yxhyWdhcas3stAaQamMoWghv9vpvD/0U3avRKL2K6u/EaWxKvgwWRKCBY
-         Jbe9/UEaLSQkPj7voGWTFnvmFhylS8I8VI5JtipF5TYei7kkqbK7WhrdKJgyDCkPgrOv
-         ewnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ffslzyhovix66SuNo1fNLtEXNp0U8o9uSFXQEaxg9aY=;
-        b=atcVf84TeiOZ3ButXXJBBQ9oxBkRMtnKfBm4Yk6Vi+RhnPqq/uqbDXhYSRsobjaskX
-         UKNwn5FMExD4yPLJTOTUtCjfk7v7IFx/Kv+1el7jkwTKCiNaligBVPcT6hmHtkarisBQ
-         SCDtig4slgWbtU11mlmuoRYNWGsOQ1/vY4XGWI70IKMm/ygTrayOiT7TU5zs0D31YG/u
-         IxspnajZnIfcRRDUixZE0fo3iOetGt84nOnMbBxg69sjBn87sH7kleJsHzFcT0we8Ydu
-         RR6RTtT8sLWdS79X58YiA4HRzXii/8IIi0n7BBAV5O5uuu+6sOj5zvHRWfDrAR3YhbF+
-         2t2A==
-X-Gm-Message-State: ACrzQf0r8W9GVHYMUVgRbPd9IqcH8Uu0NHygoPI8vUESNN/U48Lbo/2r
-        xF0D8gJw3Rj2GhwE+SPbPQJiqnGe6e6SVw==
-X-Google-Smtp-Source: AMsMyM7ftsSuASUkNtnziiN6++V3HNJGr7BJZ1WsJp1oSpsvPnKe8YCPTjJj9xLihitGoWdx2Lifww==
-X-Received: by 2002:a17:907:7dab:b0:782:fe13:6102 with SMTP id oz43-20020a1709077dab00b00782fe136102mr1270352ejc.617.1665087352949;
-        Thu, 06 Oct 2022 13:15:52 -0700 (PDT)
-Received: from localhost ([2a00:79e0:9d:4:96ba:f291:aa3b:107e])
-        by smtp.gmail.com with ESMTPSA id z21-20020a1709063a1500b00780636a85fasm113328eje.221.2022.10.06.13.15.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Oct 2022 13:15:50 -0700 (PDT)
-From:   Jann Horn <jannh@google.com>
-To:     stable@vger.kernel.org
-Cc:     Steven Price <steven.price@arm.com>
-Subject: [PATCH stable 5.4] mm: pagewalk: Fix race between unmap and page walker
-Date:   Thu,  6 Oct 2022 22:15:41 +0200
-Message-Id: <20221006201541.2004831-1-jannh@google.com>
-X-Mailer: git-send-email 2.38.0.rc1.362.ged0d419d3c-goog
+        with ESMTP id S232064AbiJFU1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Oct 2022 16:27:07 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14890BEAC4;
+        Thu,  6 Oct 2022 13:27:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1665088026; x=1696624026;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Tes0madONZScJefM8sUzOGl1lgaC9WI0wDedhGmunZU=;
+  b=fcgI/2O6CVq8TmeiYdipyySAxtBBcrPIwDToi+bQPZMiFhK4aTj/gMXd
+   PlGvrAD9YhnvusHb2oRFF32PnmiTRLmzObDnYyPU1h9NLjdIu7lEuyz9r
+   3wZheAv4e+idnep/UnG38qdlhl7UJON1mt4mnLwS+/AbMhSvPBGsLeSDe
+   MHYxK7PMdWIa4LEwq+WIPZ74g+HW/Oj4AmTW/nylknkzOAXivUnjEfnES
+   pWyd4h96KiW9jDcif6Uon5nOIvrxVdbpPQCQTECTeGLTU116tISzbQcqV
+   iVgoFjGtNKsUwB0B0ZBUNUtfbnEhy/353dLpdxSdLnQoaPt8AhNc2DHcr
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10492"; a="367688852"
+X-IronPort-AV: E=Sophos;i="5.95,164,1661842800"; 
+   d="scan'208";a="367688852"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Oct 2022 13:27:05 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10492"; a="655763947"
+X-IronPort-AV: E=Sophos;i="5.95,164,1661842800"; 
+   d="scan'208";a="655763947"
+Received: from spvenkat-mobl.amr.corp.intel.com (HELO desk) ([10.209.50.56])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Oct 2022 13:27:05 -0700
+Date:   Thu, 6 Oct 2022 13:27:03 -0700
+From:   "pawan.kumar.gupta@linux.intel.com" 
+        <pawan.kumar.gupta@linux.intel.com>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     'Jim Mattson' <jmattson@google.com>,
+        Suraj Jitindar Singh <surajjs@amazon.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "sjitindarsingh@gmail.com" <sjitindarsingh@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "mingo@redhat.com" <mingo@redhat.com>, "bp@suse.de" <bp@suse.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "seanjc@google.com" <seanjc@google.com>,
+        "pbonzini@redhat.com" <pbonzini@redhat.com>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "jpoimboe@kernel.org" <jpoimboe@kernel.org>,
+        "daniel.sneddon@linux.intel.com" <daniel.sneddon@linux.intel.com>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] x86/speculation: Mitigate eIBRS PBRSB predictions with
+ WRMSR
+Message-ID: <20221006202703.efa3ovs4eckevire@desk>
+References: <20221005220227.1959-1-surajjs@amazon.com>
+ <CALMp9eTy2w_ZbkVSVvTwOW3wYH6vnn5waEWc0BesXL-kYRFy4g@mail.gmail.com>
+ <a056259f338e411581b882555ed608cb@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <a056259f338e411581b882555ed608cb@AcuMS.aculab.com>
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8782fb61cc848364e1e1599d76d3c9dd58a1cc06 ]
+On Thu, Oct 06, 2022 at 08:25:15AM +0000, David Laight wrote:
+>From: Jim Mattson
+>> Sent: 05 October 2022 23:29
+>>
+>> On Wed, Oct 5, 2022 at 3:03 PM Suraj Jitindar Singh <surajjs@amazon.com> wrote:
+>> >
+>> > tl;dr: The existing mitigation for eIBRS PBRSB predictions uses an INT3 to
+>> > ensure a call instruction retires before a following unbalanced RET. Replace
+>> > this with a WRMSR serialising instruction which has a lower performance
+>> > penalty.
+>>
+>> The INT3 is only on a speculative path and should not impact performance.
+>
+>Doesn't that depend on how quickly the cpu can abort the
+>decode and execution of the INT3 instruction?
+>INT3 is bound to generate a lot of uops and/or be microcoded.
+>
+>Old cpu couldn't abort fpu instructions.
+>IIRC the Intel performance guide even suggested not interleaving
+>code and data because the data might get speculatively executed
+>and take a long time to abort.
+>
+>I actually wonder whether 'JMPS .' (eb fe) shouldn't be used
+>instead of INT3 (cc) because it is fast to decode and execute.
+>But I'm no expect here.
 
-The mmap lock protects the page walker from changes to the page tables
-during the walk.  However a read lock is insufficient to protect those
-areas which don't have a VMA as munmap() detaches the VMAs before
-downgrading to a read lock and actually tearing down PTEs/page tables.
-
-For users of walk_page_range() the solution is to simply call pte_hole()
-immediately without checking the actual page tables when a VMA is not
-present. We now never call __walk_page_range() without a valid vma.
-
-For walk_page_range_novma() the locking requirements are tightened to
-require the mmap write lock to be taken, and then walking the pgd
-directly with 'no_vma' set.
-
-This in turn means that all page walkers either have a valid vma, or
-it's that special 'novma' case for page table debugging.  As a result,
-all the odd '(!walk->vma && !walk->no_vma)' tests can be removed.
-
-Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>
-Cc: Konstantin Khlebnikov <koct9i@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[manually backported. backport note: walk_page_range_novma() does not exist=
- in
-5.4, so I'm omitting it from the backport]
-Signed-off-by: Jann Horn <jannh@google.com>
----
- mm/pagewalk.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-index 4eb09e0898817..ec41e7552f37c 100644
---- a/mm/pagewalk.c
-+++ b/mm/pagewalk.c
-@@ -38,7 +38,7 @@ static int walk_pmd_range(pud_t *pud, unsigned long addr,=
- unsigned long end,
- 	do {
- again:
- 		next =3D pmd_addr_end(addr, end);
--		if (pmd_none(*pmd) || !walk->vma) {
-+		if (pmd_none(*pmd)) {
- 			if (ops->pte_hole)
- 				err =3D ops->pte_hole(addr, next, walk);
- 			if (err)
-@@ -84,7 +84,7 @@ static int walk_pud_range(p4d_t *p4d, unsigned long addr,=
- unsigned long end,
- 	do {
-  again:
- 		next =3D pud_addr_end(addr, end);
--		if (pud_none(*pud) || !walk->vma) {
-+		if (pud_none(*pud)) {
- 			if (ops->pte_hole)
- 				err =3D ops->pte_hole(addr, next, walk);
- 			if (err)
-@@ -254,7 +254,7 @@ static int __walk_page_range(unsigned long start, unsig=
-ned long end,
- 	int err =3D 0;
- 	struct vm_area_struct *vma =3D walk->vma;
-=20
--	if (vma && is_vm_hugetlb_page(vma)) {
-+	if (is_vm_hugetlb_page(vma)) {
- 		if (walk->ops->hugetlb_entry)
- 			err =3D walk_hugetlb_range(start, end, walk);
- 	} else
-@@ -324,9 +324,13 @@ int walk_page_range(struct mm_struct *mm, unsigned lon=
-g start,
- 		if (!vma) { /* after the last vma */
- 			walk.vma =3D NULL;
- 			next =3D end;
-+			if (ops->pte_hole)
-+				err =3D ops->pte_hole(start, next, &walk);
- 		} else if (start < vma->vm_start) { /* outside vma */
- 			walk.vma =3D NULL;
- 			next =3D min(end, vma->vm_start);
-+			if (ops->pte_hole)
-+				err =3D ops->pte_hole(start, next, &walk);
- 		} else { /* inside vma */
- 			walk.vma =3D vma;
- 			next =3D min(end, vma->vm_end);
-@@ -344,9 +348,8 @@ int walk_page_range(struct mm_struct *mm, unsigned long=
- start,
- 			}
- 			if (err < 0)
- 				break;
--		}
--		if (walk.vma || walk.ops->pte_hole)
- 			err =3D __walk_page_range(start, next, &walk);
-+		}
- 		if (err)
- 			break;
- 	} while (start =3D next, start < end);
-
-base-commit: f28b7414ab715e6069e72a7bbe2f1354b2524beb
---=20
-2.38.0.rc1.362.ged0d419d3c-goog
-
+I have been told that INT3 is better in this case because 'JMP .' would
+waste CPU resources.
