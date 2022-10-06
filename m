@@ -2,65 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC645F5E88
-	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 04:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA385F5E8E
+	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 04:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiJFCB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Oct 2022 22:01:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34580 "EHLO
+        id S229965AbiJFCCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Oct 2022 22:02:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbiJFCBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 22:01:25 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5973437184
-        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 19:01:24 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id 78so551809pgb.13
-        for <stable@vger.kernel.org>; Wed, 05 Oct 2022 19:01:24 -0700 (PDT)
+        with ESMTP id S229968AbiJFCCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Oct 2022 22:02:09 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3AE3C144
+        for <stable@vger.kernel.org>; Wed,  5 Oct 2022 19:02:07 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id g28so740133pfk.8
+        for <stable@vger.kernel.org>; Wed, 05 Oct 2022 19:02:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
         bh=/bJ6Ot7VHNqG6fD6NCI1uSX1c2aopkFB+w2rPel+p1s=;
-        b=ctlHKDyOtF0nxEuctT7DgPrpkyX4qzfyeZQ6ConnEVtjOsvjkzhDEQnjpro/RO9mNK
-         AHMecbmHa+0xbVuzEvd31qJD07l30VXlYHvrMFE60SSJ/6U6XjulnFLVK9hKWIEBdSlM
-         YzPEJLAVzFDZRxB7RHTxDJRimrHp7ReYXswy/w9AcFwfRGBOSspwaH09pR2qb7CyaiNu
-         4I4zn3/u2JR2fNAP3ESDHuxONPZwYIS2BNTjXvmL3KA/lOq+9S3q/9dlW37EGA0wh4oq
-         jN53SJneQ21H3e8ht1v+uZ5Xb4Uw8HrWS3ZkkujvrxdAZaJUyTqKadhb0k7E2IuMr3AJ
-         OmcQ==
+        b=40JiXyEh9vQbl/LhcnRw7kqkEY1S10Uo4lBInQ+LUOcpFKxN94kVJTDAX06twrA1hK
+         8wSo58pBWJHfgxzN83cA0GrGCc3I0kATmI5TZaXjiup4m8tmVofQRFc9LmnJuGVnW0jq
+         AZ43LjLE63aauoem+vXdKWeUFHOvJhrtC5C8GIaEGRLg7Eu/uxRXVSm+Y7BELTi5Z2iO
+         AOJOgWlEICq7QugDLxVOadPjk20hhgI9oyOPZbq5rWB1souw52ddka1NqtVYUIGWEzTP
+         O7oLO/+g1AC0cJWXdM1Fva2Y8z6x3LGsjY1ZNQ6dN3lViabt+X9kSPuBWfbq3Fa4EjWp
+         3lYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
         bh=/bJ6Ot7VHNqG6fD6NCI1uSX1c2aopkFB+w2rPel+p1s=;
-        b=c4M7WD7M7y7d/YFX8q2Epme5hbm5RHzYnIkZVvzueZjdUsLO8VU5QaG5Vmr5Ck2om0
-         V5j4+p0y6rj7UZEIeLxvlLrevP/AOjGbN3FXu4J0ggP4b6AG9OwXjSRSWRIF3Ucr7Kxv
-         H5pVwLemkx1NFod/tBci91jGchTKVQZgxGu+4Erce6ve7rxSLQur/SV8TL0n5C9SxrZE
-         xanbPffDrBvYwUq0VutNHIQzUBqyn26Ql4fE/vAkKL+d62VRTx8sp4MIrGlINZjZsE4g
-         /futXiFBIx8+GgpZ1+E0y2ewYG/3a/ILLr/zPcOrB4EBCeF1qstHbIlZen+MLY4oIwbU
-         dMRw==
-X-Gm-Message-State: ACrzQf3SCr51XnAWOsGpUXXSw9i+oKFF0HyeVQE6O5b5Srrg7ruxlD8d
-        qF8POMmPFdtzW/tJZgR+KvGTNNYSWVMgGQ==
-X-Google-Smtp-Source: AMsMyM5IXlVnVz8/oFnEGLFscJYRfuksgyfelOI6tmkU18ZD3YZOGfcXFpqajj+zhYGyidrCmauN8w==
-X-Received: by 2002:a05:6a00:1907:b0:557:e83b:1671 with SMTP id y7-20020a056a00190700b00557e83b1671mr2299999pfi.65.1665021683865;
-        Wed, 05 Oct 2022 19:01:23 -0700 (PDT)
+        b=GUyezrORsrk2ufCNFa1mvfvV2vkXtAjbQJMvTEdiyfNe7mx+279OPAmzD4cIASIY/4
+         TrgP+CR1P9HeOyTcLf0dG7MGyxC0QWKCcglWncnB7gteAfYSZpGoqwDRZXODzjoiHm0o
+         deK3hyQ1RT4bSkq3iKSHoj+4Es6wvUDR93bRLgb7ypzumImj+b7URjdfyZM9DkhgCCBx
+         /QhMmsyGT3aOaTHvcsHo6VKRvzMJ6IDDufWctHoNn6ycFFIIlyJbMwaK/Jzy68+UzAmd
+         utHePu0k5ev4Ab4g3XaNa2qpOFRB+ENU3ZnEZG+U6r/TtCEcK9ncDNSYEVAsI8mHuGqB
+         pEpg==
+X-Gm-Message-State: ACrzQf25jBbNNhHCfL7DtTzFIjtrAM3ktVPk9B3jQyn1Frmk0QgWT+ql
+        4tLNfPCuaCDsf48lXi/dAmZQEv+7Fs1s8g==
+X-Google-Smtp-Source: AMsMyM43rOQmt3i2CiAZoMQxxV8CVsJrYTe+3ZgJzeOysAs2NfFdd5bLtOPBWMR6U5BcFlZK9kw6VQ==
+X-Received: by 2002:a63:186:0:b0:442:ee11:48a5 with SMTP id 128-20020a630186000000b00442ee1148a5mr2348422pgb.284.1665021726551;
+        Wed, 05 Oct 2022 19:02:06 -0700 (PDT)
 Received: from localhost.localdomain (23-122-157-100.lightspeed.irvnca.sbcglobal.net. [23.122.157.100])
-        by smtp.gmail.com with ESMTPSA id r20-20020a63e514000000b00456f77f6dd7sm449568pgh.44.2022.10.05.19.01.22
+        by smtp.gmail.com with ESMTPSA id w13-20020a63d74d000000b0043be67b6304sm482768pgi.0.2022.10.05.19.02.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Oct 2022 19:01:22 -0700 (PDT)
+        Wed, 05 Oct 2022 19:02:05 -0700 (PDT)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 X-Google-Original-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-To:     thunderbird2k@gmail.com
-Cc:     Roderick Colenbrander <roderick.colenbrander@sony.com>,
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
         stable@vger.kernel.org
 Subject: [PATCH 1/3] HID: playstation: stop DualSense output work on remove.
-Date:   Wed,  5 Oct 2022 19:01:17 -0700
-Message-Id: <20221006020117.132398-1-roderick.colenbrander@sony.com>
+Date:   Wed,  5 Oct 2022 19:01:49 -0700
+Message-Id: <20221006020151.132434-2-roderick.colenbrander@sony.com>
 X-Mailer: git-send-email 2.37.3
+In-Reply-To: <20221006020151.132434-1-roderick.colenbrander@sony.com>
+References: <20221006020151.132434-1-roderick.colenbrander@sony.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
