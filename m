@@ -2,121 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B845F6D03
-	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 19:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6826C5F6D83
+	for <lists+stable@lfdr.de>; Thu,  6 Oct 2022 20:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231565AbiJFRbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Oct 2022 13:31:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54732 "EHLO
+        id S231855AbiJFSba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Oct 2022 14:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231660AbiJFRbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Oct 2022 13:31:44 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D58A9243
-        for <stable@vger.kernel.org>; Thu,  6 Oct 2022 10:31:35 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id 78so2410323pgb.13
-        for <stable@vger.kernel.org>; Thu, 06 Oct 2022 10:31:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=GRA4ycWRFkZm1ucfJHpaw2c0g8Q5GIhkFkT0UR1L5mI=;
-        b=Ptq2un1p9KyWquo7813XSue6AcJqjqUcro1TjWRDhdS2lAlIklc5LCQECbjiBhkSMi
-         QzyBPBNKdWpfaVOkHzC+gKFQdHi9YgpmBiqmXeVrAOwzB7j6anYJotyTY00BPyx+afvm
-         60znYj5zPxW8MW4Z0pRslURCipa7Iq7vVHLGQ=
+        with ESMTP id S231845AbiJFSb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Oct 2022 14:31:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 727E4125038
+        for <stable@vger.kernel.org>; Thu,  6 Oct 2022 11:31:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665081085;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=D/EnO+t9YxsYbYukQoQ5MDLGm5W9hFbMKzmQnM2kN40=;
+        b=KMh9aNe8iCq05t8fHDKPHAgH97jT4WmYN2KzB1udF10MAHVMQbeGwmBfkSBAWdU8X62bzT
+        NSG85IbptJzhzVCbX3ui0haqzx9t6ST/m/mh5/qB8GZ2gYxlHSvLdQZd4BfckffdBtliCx
+        fTv0/eSVT2w8Al76S4QXTLvOfwOh1is=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-626-24V3aPlaM8e68zlIgAReKA-1; Thu, 06 Oct 2022 14:31:24 -0400
+X-MC-Unique: 24V3aPlaM8e68zlIgAReKA-1
+Received: by mail-io1-f70.google.com with SMTP id v4-20020a5ec204000000b006a32e713217so1685260iop.15
+        for <stable@vger.kernel.org>; Thu, 06 Oct 2022 11:31:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=GRA4ycWRFkZm1ucfJHpaw2c0g8Q5GIhkFkT0UR1L5mI=;
-        b=CQjW18T2dsbG75UI3crkcBZ4Q3C15L1LyW9cxZhCSOzYMmHWiVvzoq4GKO9KH5bNz9
-         +tqyo18ABIzqHSD+XzwjM8nrh+TgF7HQ+4NnhBmUusFVuh78QVl8udeEBU97ERlEnZx1
-         SQ0h88Vni4l9tAcDHWRDUXoKongE9MVK1h+Xj1KSMfWPh4HAlF1LYkaV5oCtY6Wlu+SN
-         woaGp5ucaNdtIzccyDMTvobjOr9Dka4K5KCyeTjqzlQR0HWS4UjeEFf7UUpRmHzPBZYE
-         aLCRgXv4iPKqkY1DHNywx4OVBTHOM1ACz3jClck9aVO5SRwRAbMGCfmQYFt3E+PFpgJa
-         NI9A==
-X-Gm-Message-State: ACrzQf3fjeLYVOMewEMgIqQEjCQsb2KuzbYSQD9Sz9jAuOWThLzQRKnA
-        caJXdr347E+QUPz4CpzuzWelzGLFL8KDs3OY
-X-Google-Smtp-Source: AMsMyM40lwewev/NWCr+3LQaFRHC33ymkCUzsFZyKqbMpN8AoGsxOdmrpDmjBJOWrla/Goal0ULpYQ==
-X-Received: by 2002:a63:e113:0:b0:439:e032:c879 with SMTP id z19-20020a63e113000000b00439e032c879mr782383pgh.287.1665077495060;
-        Thu, 06 Oct 2022 10:31:35 -0700 (PDT)
-Received: from zsm-linux.mtv.corp.google.com ([2620:15c:9d:2:8303:ab96:100f:af38])
-        by smtp.googlemail.com with ESMTPSA id d4-20020a170902654400b001769206a766sm12574441pln.307.2022.10.06.10.31.34
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=D/EnO+t9YxsYbYukQoQ5MDLGm5W9hFbMKzmQnM2kN40=;
+        b=H6GTtys9Ehj7kS7+NIT/tZLxw7/kajDe7PMkiQCngb2+0EdCXjx4u4YGaioTctqB+7
+         07fYSlXT3peLTsR+prGQ3dgGBa6YxYEE3tQrvkbPgIG1qAjeEJvsYC9YxXUM7T+A/6o5
+         reKTTUVilvHU42AICce23cLkhY+EuP28OfhyBZe4YUom7eNhJ7enz/g4sViDG9OB2IXs
+         Fe6IR5umNwvchoqHPYqyBSAjM1n5PV9wtHXfrwDhgOQGFUuKgwzaPHWLtURmf6R96r3A
+         lgcncbnIJRzr1hzaABTetN5HJkRKBWF+8e7qcZkLCzOhEqy+0vjHoTFLZo94ISLnPo72
+         Fwhg==
+X-Gm-Message-State: ACrzQf2yPHCvU+VXRwEwCv+jh1y3ICju7poA0scGMcPsv/sbD5Bu5M6D
+        MHWaPXy12nPytd5YFxj31ogNzpj/v7YL2i980QcsCGOT82Q9QiCFk7KVNRybtpvcBp+dI9eStkz
+        sFhua/z6rymJ0zGyC
+X-Received: by 2002:a6b:c3c1:0:b0:6a8:3ca0:dabf with SMTP id t184-20020a6bc3c1000000b006a83ca0dabfmr539238iof.0.1665081083576;
+        Thu, 06 Oct 2022 11:31:23 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7pXlhLelqt1wt/DC14P6+x2KJSzkrMLAIfpeD1/B//Vj/lBsUWd5ZxsZxZUGk5To+kMEPI+w==
+X-Received: by 2002:a6b:c3c1:0:b0:6a8:3ca0:dabf with SMTP id t184-20020a6bc3c1000000b006a83ca0dabfmr539223iof.0.1665081083396;
+        Thu, 06 Oct 2022 11:31:23 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id p2-20020a056638216200b003636e5c4612sm52644jak.33.2022.10.06.11.31.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Oct 2022 10:31:34 -0700 (PDT)
-From:   Zubin Mithra <zsm@chromium.org>
-X-Google-Original-From: Zubin Mithra <zsm@google.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, tiwai@suse.de, perex@perex.cz,
-        butterflyhuangxx@gmail.com, groeck@chromium.org
-Subject: [PATCH v5.10.y] ALSA: pcm: oss: Fix race at SNDCTL_DSP_SYNC
-Date:   Thu,  6 Oct 2022 10:31:27 -0700
-Message-Id: <20221006173127.2895108-1-zsm@google.com>
-X-Mailer: git-send-email 2.38.0.rc1.362.ged0d419d3c-goog
+        Thu, 06 Oct 2022 11:31:22 -0700 (PDT)
+Date:   Thu, 6 Oct 2022 12:31:22 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915/gvt: Add missing vfio_unregister_group_dev()
+ call
+Message-ID: <20221006123122.524c75c9.alex.williamson@redhat.com>
+In-Reply-To: <Yz695fy8hm0N9DvS@nvidia.com>
+References: <0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com>
+        <20221005141717.234c215e.alex.williamson@redhat.com>
+        <20221005160356.52d6428c.alex.williamson@redhat.com>
+        <Yz695fy8hm0N9DvS@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+On Thu, 6 Oct 2022 08:37:09 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-commit 8423f0b6d513b259fdab9c9bf4aaa6188d054c2d upstream.
+> On Wed, Oct 05, 2022 at 04:03:56PM -0600, Alex Williamson wrote:
+> > We can't have a .remove callback that does nothing, this breaks
+> > removing the device while it's in use.  Once we have the
+> > vfio_unregister_group_dev() fix below, we'll block until the device is
+> > unused, at which point vgpu->attached becomes false.  Unless I'm
+> > missing something, I think we should also follow-up with a patch to
+> > remove that bogus warn-on branch, right?  Thanks,  
+> 
+> Yes, looks right to me.
+> 
+> I question all the logical arround attached, where is the locking?
 
-There is a small race window at snd_pcm_oss_sync() that is called from
-OSS PCM SNDCTL_DSP_SYNC ioctl; namely the function calls
-snd_pcm_oss_make_ready() at first, then takes the params_lock mutex
-for the rest.  When the stream is set up again by another thread
-between them, it leads to inconsistency, and may result in unexpected
-results such as NULL dereference of OSS buffer as a fuzzer spotted
-recently.
+Zhenyu, Zhi, Kevin,
 
-The fix is simply to cover snd_pcm_oss_make_ready() call into the same
-params_lock mutex with snd_pcm_oss_make_ready_locked() variant.
+Could someone please take a look at use of vgpu->attached in the GVT-g
+driver?  It's use in intel_vgpu_remove() is bogus, the .release
+callback needs to use vfio_unregister_group_dev() to wait for the
+device to be unused.  The WARN_ON/return here breaks all future use of
+the device.  I assume @attached has something to do with the page table
+interface with KVM, but it all looks racy anyway.
 
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAFcO6XN7JDM4xSXGhtusQfS2mSBcx50VJKwQpCq=WeLt57aaZA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220905060714.22549-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Zubin Mithra <zsm@google.com>
----
-Note:
-* 8423f0b6d513 is present in linux-5.15.y and linux-5.4.y; missing in
-linux-5.10.y.
-* Backport addresses conflict due to surrounding context.
-* Tests run: build and boot.
+Also, whatever purpose vgpu->released served looks unnecessary now.
+Thanks,
 
- sound/core/oss/pcm_oss.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
-index f88de74da1eb..de6f94bee50b 100644
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -1662,13 +1662,14 @@ static int snd_pcm_oss_sync(struct snd_pcm_oss_file *pcm_oss_file)
- 		runtime = substream->runtime;
- 		if (atomic_read(&substream->mmap_count))
- 			goto __direct;
--		if ((err = snd_pcm_oss_make_ready(substream)) < 0)
--			return err;
- 		atomic_inc(&runtime->oss.rw_ref);
- 		if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
- 			atomic_dec(&runtime->oss.rw_ref);
- 			return -ERESTARTSYS;
- 		}
-+		err = snd_pcm_oss_make_ready_locked(substream);
-+		if (err < 0)
-+			goto unlock;
- 		format = snd_pcm_oss_format_from(runtime->oss.format);
- 		width = snd_pcm_format_physical_width(format);
- 		if (runtime->oss.buffer_used > 0) {
--- 
-2.38.0.rc1.362.ged0d419d3c-goog
+Alex
 
