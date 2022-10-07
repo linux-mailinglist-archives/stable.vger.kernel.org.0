@@ -2,214 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 703E25F7791
-	for <lists+stable@lfdr.de>; Fri,  7 Oct 2022 13:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C7D5F77A6
+	for <lists+stable@lfdr.de>; Fri,  7 Oct 2022 13:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229692AbiJGLjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Oct 2022 07:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
+        id S229771AbiJGLrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Oct 2022 07:47:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229725AbiJGLjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Oct 2022 07:39:42 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39343267C;
-        Fri,  7 Oct 2022 04:39:39 -0700 (PDT)
-Received: from [10.10.2.52] (unknown [10.10.2.52])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 20FDE40786C1;
-        Fri,  7 Oct 2022 11:39:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 20FDE40786C1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-        s=default; t=1665142772;
-        bh=RvDRFB7SscBbOK1M1nysxjqWBWdiGV6sE0yj5LXDjVE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=ZennULcfIF84ilsFKM4D18KTGziKTajRPxzx/Ji4de+EZdBEH2wJrLiKhv/l7CCRB
-         BEB1I2odA0ANYgIIyc/SG5azXw6Jgy+SlMB3ZkFN48PgKzhAqPZiS/g8TVSoyS4WSp
-         XyH0UFywDtKsggQ5soqjNAKorOLJL3oU5O175ItA=
-Subject: Re: [lvc-project] [PATCH 5.10 1/1] Backport of rpmsg: qcom: glink:
- replace strncpy() with strscpy_pad()
-To:     Andrew Chernyakov <acherniakov@astralinux.ru>,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     lvc-project@linuxtesting.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        linux-arm-msm@vger.kernel.org,
-        Bjorn Andersson <andersson@kernel.org>,
-        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Andy Gross <agross@kernel.org>
-References: <20221007104120.75208-1-acherniakov@astralinux.ru>
- <20221007104120.75208-2-acherniakov@astralinux.ru>
-From:   Alexey Khoroshilov <khoroshilov@ispras.ru>
-Autocrypt: addr=khoroshilov@ispras.ru; prefer-encrypt=mutual; keydata=
- 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
- kK2E04Fb+Zk1eJvHYRc=
-Message-ID: <d9bf2538-b450-d3ac-0542-8cad4a525f07@ispras.ru>
-Date:   Fri, 7 Oct 2022 14:39:30 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        with ESMTP id S229494AbiJGLrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Oct 2022 07:47:47 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75EB79E0E7
+        for <stable@vger.kernel.org>; Fri,  7 Oct 2022 04:47:45 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id c24so4330509plo.3
+        for <stable@vger.kernel.org>; Fri, 07 Oct 2022 04:47:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=R1Nvm8ub4Ww9IjiChsikZmjbWeWYy9ZM+gGZAOd9j/c=;
+        b=7I9yAW4LIOuZSGKNxq+g1qiALJO71NOH6o+8QMnXtyn4URih071YwBx7E5Em3XgD4B
+         O3j+s50ZIr+80vt3g7LnVTLpi0skIcOZnKCNY5Ek2FBYnQT1hFwOBHHwxrNzaVuf+55p
+         RknaOcn94FwHTzjaPThCJ2UFfmGrMPg0Wy0oDG0i3O5roPlZEWzzN0/51cntvFq2Ebhc
+         bleIQR/HkHTdkSDc6gkbx66PVWb9t+dpgGSKQ+7S0h5bFsBkL14wi4aeAp0ZwwG/j320
+         EP7klpkDNiBb9n0X1VLoxhphjNRmTmwDiW+Th6pXhRI14Igp5KgdEjnIZNXGGtXj1JDz
+         Cynw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=R1Nvm8ub4Ww9IjiChsikZmjbWeWYy9ZM+gGZAOd9j/c=;
+        b=x3ifyQQdsnqZ5rShIaByiSx7vHXDzwHO6LAkDr15RmLS1zJxMvo0M4CV9nd6L1I9O/
+         Nf1WowQszxXpGHZeNY1LlnKZPEuWPhDO8lMrYBJs0n5d2mcRhD9V+4ShU8c0/7h9S4Xp
+         nrDYmCPAory6BiikWyPJxb6BdEvpL1zN0IFZ4q4AfFFg6f5FP1lIYqY/NikCVcCZI1Qi
+         MPIykYYk+qnjSO/Rym5v2Z5G29UrofA9ExMHquARfnim5Ibt7/J5uGpiqIPcB7BpuvsQ
+         gHUIf5TabDn4qyvzy2nBOjuN6BsN7nkEQ00mXBOyNx1xZJ8sHmmNR1T0onefFXio4TmR
+         p+iA==
+X-Gm-Message-State: ACrzQf0cSFP6ziCY3yTgOaMYRucPZVY104KXMKNPdeXADO1z/re41Ndq
+        9oClgXv49HeewECuL8qz0Adf0XKdeTPkhkLZx2c=
+X-Google-Smtp-Source: AMsMyM7sE9e5UHdM5yDA5QyPP7Yqj2rh3AWHXBue7g8zKOpp8C0Dg4F1ufsaqnictR8OZWzm+k6zng==
+X-Received: by 2002:a17:90a:66c9:b0:20a:f78a:77e4 with SMTP id z9-20020a17090a66c900b0020af78a77e4mr11593665pjl.214.1665143264747;
+        Fri, 07 Oct 2022 04:47:44 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w2-20020a1709027b8200b0016dbe37cebdsm1319480pll.246.2022.10.07.04.47.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Oct 2022 04:47:44 -0700 (PDT)
+Message-ID: <634011e0.170a0220.ab383.256e@mx.google.com>
+Date:   Fri, 07 Oct 2022 04:47:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20221007104120.75208-2-acherniakov@astralinux.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Language: ru-RU
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.71-78-g20df32151b6fc
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 173 runs,
+ 5 regressions (v5.15.71-78-g20df32151b6fc)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Andrew,
+stable-rc/queue/5.15 baseline: 173 runs, 5 regressions (v5.15.71-78-g20df32=
+151b6fc)
 
-For backporting patches you should follow the following pattern:
+Regressions Summary
+-------------------
 
----------------------------------------------
-Subject: [PATCH 5.10 1/1] {ORIGINAL COMMIT SUBJECT}
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+beagle-xm   | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
 
-From:  {ORIGINAL AUTHOR EMAIL}
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | imx_v6_v7_defconfig | 1     =
+     =
 
-commit {ORIGINAL COMMIT HASH} upstream.
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | multi_v7_defconfig  | 1     =
+     =
 
-{ORIGINAL COMMIT TEXT INCLUDING ALL SIGGNED_OFF}
+panda       | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1     =
+     =
 
-Signed-off-by: {YOUR EMAIL}
----
-{ORIGINAL PATCH}
----------------------------------------------
-
-e.g.
----------------------------------------------
-Subject: [PATCH 5.10 1/1] rpmsg: qcom: glink: replace strncpy() with
-strscpy_pad()
-
-From:  Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-
-commit 766279a8f85df32345dbda03b102ca1ee3d5ddea upstream.
-
-The use of strncpy() is considered deprecated for NUL-terminated
-strings[1]. Replace strncpy() with strscpy_pad(), to keep existing
-pad-behavior of strncpy, similarly to commit 08de420a8014 ("rpmsg:
-glink: Replace strncpy() with strscpy_pad()").  This fixes W=1 warning:
-
-  In function ‘qcom_glink_rx_close’,
-    inlined from ‘qcom_glink_work’ at
-../drivers/rpmsg/qcom_glink_native.c:1638:4:
-  drivers/rpmsg/qcom_glink_native.c:1549:17: warning: ‘strncpy’
-specified bound 32 equals destination size [-Wstringop-truncation]
-   1549 |                 strncpy(chinfo.name, channel->name,
-sizeof(chinfo.name));
-
-[1]
-https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link:
-https://lore.kernel.org/r/20220519073330.7187-1-krzysztof.kozlowski@linaro.org
-
-Signed-off-by: Andrew Chernyakov <acherniakov@astralinux.ru>
----
-.....
----------------------------------------------
-
-Please update the patch according the requirements and resend.
-
-Thank you,
-Alexey
+panda       | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
 
 
-On 07.10.2022 13:41, Andrew Chernyakov wrote:
-> The use of strncpy() is considered deprecated for NULL-terminated
-> strings[1]. Replace strncpy() with strscpy_pad(), to keep existing
-> pad-behavior of strncpy, strncpy was found on line 1424 of
-> /drivers/rpmsg/qcom_glink_native.c.
-> 
-> Found by Linux Verification Center (linuxtesting.org) with SVACE.
-> 
-> Signed-off-by: Andrew Chernyakov <acherniakov@astralinux.ru>
-> ---
->  drivers/rpmsg/qcom_glink_native.c | 2 +-
->  drivers/rpmsg/qcom_smd.c          | 4 ++--
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-> index 4840886532ff..66a63b205744 100644
-> --- a/drivers/rpmsg/qcom_glink_native.c
-> +++ b/drivers/rpmsg/qcom_glink_native.c
-> @@ -1424,7 +1424,7 @@ static int qcom_glink_rx_open(struct qcom_glink *glink, unsigned int rcid,
->  		}
->  
->  		rpdev->ept = &channel->ept;
-> -		strncpy(rpdev->id.name, name, RPMSG_NAME_SIZE);
-> +		strscpy_pad(rpdev->id.name, name, RPMSG_NAME_SIZE);
->  		rpdev->src = RPMSG_ADDR_ANY;
->  		rpdev->dst = RPMSG_ADDR_ANY;
->  		rpdev->ops = &glink_device_ops;
-> diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-> index 0b1e853d8c91..b5167ef93abf 100644
-> --- a/drivers/rpmsg/qcom_smd.c
-> +++ b/drivers/rpmsg/qcom_smd.c
-> @@ -1073,7 +1073,7 @@ static int qcom_smd_create_device(struct qcom_smd_channel *channel)
->  
->  	/* Assign public information to the rpmsg_device */
->  	rpdev = &qsdev->rpdev;
-> -	strncpy(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
-> +	strscpy_pad(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
->  	rpdev->src = RPMSG_ADDR_ANY;
->  	rpdev->dst = RPMSG_ADDR_ANY;
->  
-> @@ -1304,7 +1304,7 @@ static void qcom_channel_state_worker(struct work_struct *work)
->  
->  		spin_unlock_irqrestore(&edge->channels_lock, flags);
->  
-> -		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
-> +		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
->  		chinfo.src = RPMSG_ADDR_ANY;
->  		chinfo.dst = RPMSG_ADDR_ANY;
->  		rpmsg_unregister_device(&edge->dev, &chinfo);
-> 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.71-78-g20df32151b6fc/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.71-78-g20df32151b6fc
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      20df32151b6fc154147304b80139b3c080089211 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+beagle-xm   | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633fdd8a120e682f2fcab5f8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633fdd8a120e682f2fcab=
+5f9
+        failing since 15 days (last pass: v5.15.69-17-g7d846e6eef7f, first =
+fail: v5.15.69-45-g01bb9cc9bf6e) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | imx_v6_v7_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633fe0260b9b104450cab5ec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633fe0260b9b104450cab=
+5ed
+        failing since 11 days (last pass: v5.15.70-117-g5ae36aa8ead6e, firs=
+t fail: v5.15.70-133-gbad831d5b9cf) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | multi_v7_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633fe1a24542ea2568cab63e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
+k.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
+k.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633fe1a24542ea2568cab=
+63f
+        failing since 11 days (last pass: v5.15.69-44-g09c929d3da79, first =
+fail: v5.15.70-123-gaf951c1b9b36) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+panda       | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633fe18bea2edaf41bcab5f7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633fe18bea2edaf41bcab=
+5f8
+        failing since 52 days (last pass: v5.15.60-48-g789367af88749, first=
+ fail: v5.15.60-779-ge1dae9850fdff) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+panda       | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/633fdda2120e682f2fcab623
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.71-=
+78-g20df32151b6fc/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/633fdda2120e682f2fcab=
+624
+        failing since 45 days (last pass: v5.15.61-1-geccb923b9eab2, first =
+fail: v5.15.62-232-g7f3b8845612d) =
+
+ =20
