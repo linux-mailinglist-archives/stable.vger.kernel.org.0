@@ -2,125 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D17035F78FE
-	for <lists+stable@lfdr.de>; Fri,  7 Oct 2022 15:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CAF5F79C2
+	for <lists+stable@lfdr.de>; Fri,  7 Oct 2022 16:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229918AbiJGNaU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 7 Oct 2022 09:30:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59220 "EHLO
+        id S229513AbiJGOgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Oct 2022 10:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229897AbiJGNaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Oct 2022 09:30:19 -0400
-Received: from mail.astralinux.ru (mail.astralinux.ru [217.74.38.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E514B5A3D4;
-        Fri,  7 Oct 2022 06:30:11 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.astralinux.ru (Postfix) with ESMTP id A5A8938629F6;
-        Fri,  7 Oct 2022 16:30:05 +0300 (MSK)
-Received: from mail.astralinux.ru ([127.0.0.1])
-        by localhost (rbta-msk-vsrv-mail01.astralinux.ru [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id IJZANrWFibnF; Fri,  7 Oct 2022 16:29:59 +0300 (MSK)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.astralinux.ru (Postfix) with ESMTP id 49B9D38629CE;
-        Fri,  7 Oct 2022 16:29:59 +0300 (MSK)
-X-Virus-Scanned: amavisd-new at astralinux.ru
-Received: from mail.astralinux.ru ([127.0.0.1])
-        by localhost (rbta-msk-vsrv-mail01.astralinux.ru [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id NfnRQhvHmFxB; Fri,  7 Oct 2022 16:29:59 +0300 (MSK)
-Received: from work-laptop.astralinux.ru (unknown [10.177.20.36])
-        by mail.astralinux.ru (Postfix) with ESMTPSA id 4932D38629B4;
-        Fri,  7 Oct 2022 16:29:58 +0300 (MSK)
-From:   Andrew Chernyakov <acherniakov@astralinux.ru>
-To:     acherniakov@astralinux.ru,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        stable@vger.kernel.org, lvc-project@linuxtesting.org,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.10 1/1] rpmsg: qcom: glink: replace strncpy() with strscpy_pad()
-Date:   Fri,  7 Oct 2022 16:29:31 +0300
-Message-Id: <20221007132931.123755-2-acherniakov@astralinux.ru>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221007132931.123755-1-acherniakov@astralinux.ru>
-References: <20221007132931.123755-1-acherniakov@astralinux.ru>
+        with ESMTP id S229674AbiJGOgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Oct 2022 10:36:07 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D924360680;
+        Fri,  7 Oct 2022 07:36:02 -0700 (PDT)
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MkW2H5dn8zHtqc;
+        Fri,  7 Oct 2022 22:31:03 +0800 (CST)
+Received: from kwepemm600020.china.huawei.com (7.193.23.147) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Fri, 7 Oct 2022 22:35:59 +0800
+Received: from [127.0.0.1] (10.174.178.94) by kwepemm600020.china.huawei.com
+ (7.193.23.147) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 7 Oct
+ 2022 22:35:57 +0800
+Message-ID: <bfb5b31c-3f2d-2b5e-baab-442651ecbc71@huawei.com>
+Date:   Fri, 7 Oct 2022 22:35:55 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH 5.4 00/51] 5.4.217-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <srw@sladewatkins.net>
+References: <20221005113210.255710920@linuxfoundation.org>
+Content-Language: en-US
+From:   zhouzhixiu <zhouzhixiu@huawei.com>
+In-Reply-To: <20221005113210.255710920@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.94]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemm600020.china.huawei.com (7.193.23.147)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 766279a8f85df32345dbda03b102ca1ee3d5ddea upstream.
+On 2022/10/5 19:31, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.217 release.
+> There are 51 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 07 Oct 2022 11:31:56 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.217-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+> -------------
+Tested on arm64 and x86 for 5.4.217-rc1,
 
-The use of strncpy() is considered deprecated for NUL-terminated
-strings[1]. Replace strncpy() with strscpy_pad(), to keep existing
-pad-behavior of strncpy, similarly to commit 08de420a8014 ("rpmsg:
-glink: Replace strncpy() with strscpy_pad()").  This fixes W=1 warning:
+Kernel 
+repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.217-rc1
+Commit: 6376bfa24632084363dcc5cd0cc8c5a1fdd4a72
+Compiler: gcc version 7.3.0 (GCC)
 
-  In function ‘qcom_glink_rx_close’,
-    inlined from ‘qcom_glink_work’ at ../drivers/rpmsg/qcom_glink_native.c:1638:4:
-  drivers/rpmsg/qcom_glink_native.c:1549:17: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
-   1549 |                 strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9017
+passed: 9017
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220519073330.7187-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Andrew Chernyakov <acherniakov@astralinux.ru>
----
- drivers/rpmsg/qcom_glink_native.c | 2 +-
- drivers/rpmsg/qcom_smd.c          | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-index 4840886532ff..7cbed0310c09 100644
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -1472,7 +1472,7 @@ static void qcom_glink_rx_close(struct qcom_glink *glink, unsigned int rcid)
- 	cancel_work_sync(&channel->intent_work);
- 
- 	if (channel->rpdev) {
--		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
-+		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
- 		chinfo.src = RPMSG_ADDR_ANY;
- 		chinfo.dst = RPMSG_ADDR_ANY;
- 
-diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-index 0b1e853d8c91..b5167ef93abf 100644
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1073,7 +1073,7 @@ static int qcom_smd_create_device(struct qcom_smd_channel *channel)
- 
- 	/* Assign public information to the rpmsg_device */
- 	rpdev = &qsdev->rpdev;
--	strncpy(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
-+	strscpy_pad(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
- 	rpdev->src = RPMSG_ADDR_ANY;
- 	rpdev->dst = RPMSG_ADDR_ANY;
- 
-@@ -1304,7 +1304,7 @@ static void qcom_channel_state_worker(struct work_struct *work)
- 
- 		spin_unlock_irqrestore(&edge->channels_lock, flags);
- 
--		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
-+		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
- 		chinfo.src = RPMSG_ADDR_ANY;
- 		chinfo.dst = RPMSG_ADDR_ANY;
- 		rpmsg_unregister_device(&edge->dev, &chinfo);
--- 
-2.35.1
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9017
+passed: 9017
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
 
