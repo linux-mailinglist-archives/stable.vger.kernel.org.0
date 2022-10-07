@@ -2,110 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18E055F76A8
-	for <lists+stable@lfdr.de>; Fri,  7 Oct 2022 12:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA875F7717
+	for <lists+stable@lfdr.de>; Fri,  7 Oct 2022 12:52:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbiJGKJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Oct 2022 06:09:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51486 "EHLO
+        id S229658AbiJGKwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Oct 2022 06:52:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbiJGKJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Oct 2022 06:09:48 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48125DE99;
-        Fri,  7 Oct 2022 03:09:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1665137384; x=1696673384;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=kxsqsFTelHvIhbWahvKIu4gWLPuU3Z6yYe+KJ6Mmdnw=;
-  b=Zl7EOXeV/Dh/up8tbPeBYeWG/7ihtBkxZTmqpES46aDw2q/yu/K/h5Cw
-   XtRYZpfs8EOzsUkOG1T5f2TwV2EgxSEV24tQ97W6+Ivz1j4CGplVihwvI
-   a9zt22UwNvc0BZAAssYDVJVZ95+9qpXAtW13uyQYUjxYP0ilPZd8A8n8C
-   ydTeMTwOpLyV1i+NIrpUtlgpYSfYtSnw/DbhC3uMkZih9kKOhQgVtuJzp
-   Fp6vtBBR/UhKJpq/hEY8APrD5IwvXo+4l07d3ORR9UhSIXeD0opch5Z7g
-   XappL/T5zaw/ZiXpQGCkjxTnNeuVpmgtaZpRrTarZfcZAw9QzETbI1brB
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10492"; a="330140341"
-X-IronPort-AV: E=Sophos;i="5.95,166,1661842800"; 
-   d="scan'208";a="330140341"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2022 03:09:44 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10492"; a="767530686"
-X-IronPort-AV: E=Sophos;i="5.95,166,1661842800"; 
-   d="scan'208";a="767530686"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 07 Oct 2022 03:09:39 -0700
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Bastian Rieck <bastian@rieck.me>, grzegorz.alibozek@gmail.com,
-        andrew.co@free.fr, meven29@gmail.com, pchernik@gmail.com,
-        jorge.cep.mart@gmail.com, danielmorgan@disroot.org,
-        bernie@codewiz.org, saipavanchitta1998@gmail.com,
-        rubin@starset.net, maniette@gmail.com, nate@kde.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v1 2/2] usb: typec: ucsi: acpi: Implement resume callback
-Date:   Fri,  7 Oct 2022 13:09:51 +0300
-Message-Id: <20221007100951.43798-3-heikki.krogerus@linux.intel.com>
+        with ESMTP id S229454AbiJGKw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Oct 2022 06:52:28 -0400
+Received: from mail.astralinux.ru (mail.astralinux.ru [217.74.38.119])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CBA74E35;
+        Fri,  7 Oct 2022 03:52:24 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.astralinux.ru (Postfix) with ESMTP id EE0BD3140AD9;
+        Fri,  7 Oct 2022 13:43:01 +0300 (MSK)
+Received: from mail.astralinux.ru ([127.0.0.1])
+        by localhost (rbta-msk-vsrv-mail01.astralinux.ru [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id fSDMqfgQr799; Fri,  7 Oct 2022 13:43:01 +0300 (MSK)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.astralinux.ru (Postfix) with ESMTP id 6FAC4314001C;
+        Fri,  7 Oct 2022 13:43:01 +0300 (MSK)
+X-Virus-Scanned: amavisd-new at astralinux.ru
+Received: from mail.astralinux.ru ([127.0.0.1])
+        by localhost (rbta-msk-vsrv-mail01.astralinux.ru [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id Cohsg_jf7vM0; Fri,  7 Oct 2022 13:43:01 +0300 (MSK)
+Received: from work-laptop.astralinux.ru (unknown [10.177.20.36])
+        by mail.astralinux.ru (Postfix) with ESMTPSA id 8E5863140957;
+        Fri,  7 Oct 2022 13:43:00 +0300 (MSK)
+From:   Andrew Chernyakov <acherniakov@astralinux.ru>
+To:     acherniakov@astralinux.ru, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        lvc-project@linuxtesting.org
+Subject: [PATCH 5.10 0/1] Backport of rpmsg: qcom: glink: replace strncpy() with  strscpy_pad()
+Date:   Fri,  7 Oct 2022 13:41:19 +0300
+Message-Id: <20221007104120.75208-1-acherniakov@astralinux.ru>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221007100951.43798-1-heikki.krogerus@linux.intel.com>
-References: <20221007100951.43798-1-heikki.krogerus@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ACPI driver needs to resume the interface by calling
-ucsi_resume(). Otherwise we may fail to detect connections
-and disconnections that happen while the system is
-suspended.
+With static analisys tools we found that strncpy() is used in rpmsg. This
+function is not safe and can lead to buffer overflow. This patchset
+replaces strncpy() with strscpy_pad().
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210425
-Fixes: a94ecde41f7e ("usb: typec: ucsi: ccg: enable runtime pm support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
----
- drivers/usb/typec/ucsi/ucsi_acpi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+This patchset backports the following commit from v5.16:
+commit 766279a8f85d ("rpmsg: qcom: glink: replace strncpy() with strscpy_=
+pad()")
 
-diff --git a/drivers/usb/typec/ucsi/ucsi_acpi.c b/drivers/usb/typec/ucsi/ucsi_acpi.c
-index 8873c1644a295..ce0c8ef80c043 100644
---- a/drivers/usb/typec/ucsi/ucsi_acpi.c
-+++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
-@@ -185,6 +185,15 @@ static int ucsi_acpi_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static int ucsi_acpi_resume(struct device *dev)
-+{
-+	struct ucsi_acpi *ua = dev_get_drvdata(dev);
-+
-+	return ucsi_resume(ua->ucsi);
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(ucsi_acpi_pm_ops, NULL, ucsi_acpi_resume);
-+
- static const struct acpi_device_id ucsi_acpi_match[] = {
- 	{ "PNP0CA0", 0 },
- 	{ },
-@@ -194,6 +203,7 @@ MODULE_DEVICE_TABLE(acpi, ucsi_acpi_match);
- static struct platform_driver ucsi_acpi_platform_driver = {
- 	.driver = {
- 		.name = "ucsi_acpi",
-+		.pm = pm_ptr(&ucsi_acpi_pm_ops),
- 		.acpi_match_table = ACPI_PTR(ucsi_acpi_match),
- 	},
- 	.probe = ucsi_acpi_probe,
--- 
-2.35.1
+Link: https://lore.kernel.org/all/20220519073330.7187-1-krzysztof.kozlows=
+ki@linaro.org/
 
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
