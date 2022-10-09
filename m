@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72EF85F90B4
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0AE5F904D
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232050AbiJIW0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42006 "EHLO
+        id S231592AbiJIWXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231840AbiJIWZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:25:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A123DF01;
-        Sun,  9 Oct 2022 15:18:23 -0700 (PDT)
+        with ESMTP id S231781AbiJIWW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:22:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A1E25589;
+        Sun,  9 Oct 2022 15:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D87BB80DCD;
-        Sun,  9 Oct 2022 22:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58A99C433D6;
-        Sun,  9 Oct 2022 22:16:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B400360C91;
+        Sun,  9 Oct 2022 22:16:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1C8BC433B5;
+        Sun,  9 Oct 2022 22:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353779;
-        bh=p9/uPrBC7Lu8bZsaakjZjm9RpK1vd5dI6sAFxr8FY58=;
+        s=k20201202; t=1665353781;
+        bh=R9mXsIyShsVWJOH9MSgqLniCVDqACxw0AMWjzPQJhRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPgdmbOFGviNG/Yxhfqu4MRIS0HTFzpazsd1FMdpiLVIMNv9pGrttX9+rphHUBiDk
-         6L/aUBY1eh2mtbehPYcZJy+YJ8XDAE+yJSi1QucR4QGuVBInKFUIiDZbNms/DmCOcs
-         kayV7BJxHS8AcdwsXJP41eTHhC+4rSfrPYIEHoPaGaO6jQjaMlDpQpClYQsng+deqA
-         IZjYdySrEGu2bP2wO8xepXEng4dEr66UdWGm32rKWtQvV2Ns3RX4DorxdB4KMN3BnJ
-         9n6NLNUKVNJPGNr/tgcEHhVIBCd1P45uqW7llJLEwu58xcgiaGaT837EyN30udElga
-         SJ+Y7q9oJMM7w==
+        b=OefNbQz0z4yym8HW/0tPGw76GS50qnKom3F04ZTyQALA/HdbzdYFW3ERISKf+60My
+         K0YdYxyIbBH+CRpagJRrzlBMGBOJyaPyBdpY54MO9wxJ4jP9xJvgvWjxGquqeFA7eT
+         ixDfQyjU08N3ueVyVHwcVA8yVbUspLGJNuoWRo1q/b1Ten/2nRQn38R1/r9cx88WqG
+         mBbBBkEDXIFFkNl7PPxzi5hB+ipYp15NnOAgFL1weI8Ts0ytXaJHeNSuGd0NjXhHpD
+         WlrkxAzDMDwJIL+C1+fRyCdNQjsHrGNXBQjNraNh1X39NaXunzq5ewrt0b+fsunHFB
+         5KSOKWs0x1P8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Neelima Krishnan <neelima.krishnan@intel.com>,
-        Sasha Levin <sashal@kernel.org>, corbet@lwn.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-        paulmck@kernel.org, akpm@linux-foundation.org,
-        quic_neeraju@quicinc.com, rdunlap@infradead.org,
-        damien.lemoal@opensource.wdc.com, songmuchun@bytedance.com,
-        peterz@infradead.org, jpoimboe@kernel.org, tony.luck@intel.com,
-        jithu.joseph@intel.com, pawan.kumar.gupta@linux.intel.com,
-        adrian.hunter@intel.com, pbonzini@redhat.com,
-        alexander.shishkin@linux.intel.com, ray.huang@amd.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com,
-        kirill.shutemov@linux.intel.com, suravee.suthikulpanit@amd.com,
-        ben-linux@fluff.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 19/73] x86/apic: Don't disable x2APIC if locked
-Date:   Sun,  9 Oct 2022 18:13:57 -0400
-Message-Id: <20221009221453.1216158-19-sashal@kernel.org>
+Cc:     Robert Hancock <robert.hancock@calian.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        radhey.shyam.pandey@xilinx.com, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, michal.simek@xilinx.com,
+        linux@armlinux.org.uk, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 20/73] net: axienet: Switch to 64-bit RX/TX statistics
+Date:   Sun,  9 Oct 2022 18:13:58 -0400
+Message-Id: <20221009221453.1216158-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009221453.1216158-1-sashal@kernel.org>
 References: <20221009221453.1216158-1-sashal@kernel.org>
@@ -67,225 +59,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Sneddon <daniel.sneddon@linux.intel.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit b8d1d163604bd1e600b062fb00de5dc42baa355f ]
+[ Upstream commit cb45a8bf4693965e89d115cd2c510f12bc127c37 ]
 
-The APIC supports two modes, legacy APIC (or xAPIC), and Extended APIC
-(or x2APIC).  X2APIC mode is mostly compatible with legacy APIC, but
-it disables the memory-mapped APIC interface in favor of one that uses
-MSRs.  The APIC mode is controlled by the EXT bit in the APIC MSR.
+The RX and TX byte/packet statistics in this driver could be overflowed
+relatively quickly on a 32-bit platform. Switch these stats to use the
+u64_stats infrastructure to avoid this.
 
-The MMIO/xAPIC interface has some problems, most notably the APIC LEAK
-[1].  This bug allows an attacker to use the APIC MMIO interface to
-extract data from the SGX enclave.
-
-Introduce support for a new feature that will allow the BIOS to lock
-the APIC in x2APIC mode.  If the APIC is locked in x2APIC mode and the
-kernel tries to disable the APIC or revert to legacy APIC mode a GP
-fault will occur.
-
-Introduce support for a new MSR (IA32_XAPIC_DISABLE_STATUS) and handle
-the new locked mode when the LEGACY_XAPIC_DISABLED bit is set by
-preventing the kernel from trying to disable the x2APIC.
-
-On platforms with the IA32_XAPIC_DISABLE_STATUS MSR, if SGX or TDX are
-enabled the LEGACY_XAPIC_DISABLED will be set by the BIOS.  If
-legacy APIC is required, then it SGX and TDX need to be disabled in the
-BIOS.
-
-[1]: https://aepicleak.com/aepicleak.pdf
-
-Signed-off-by: Daniel Sneddon <daniel.sneddon@linux.intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Link: https://lkml.kernel.org/r/20220816231943.1152579-1-daniel.sneddon@linux.intel.com
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220829233901.3429419-1-robert.hancock@calian.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/kernel-parameters.txt         |  4 ++
- arch/x86/Kconfig                              |  7 ++-
- arch/x86/include/asm/cpu.h                    |  2 +
- arch/x86/include/asm/msr-index.h              | 13 ++++++
- arch/x86/kernel/apic/apic.c                   | 44 +++++++++++++++++--
- 5 files changed, 65 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet.h  | 12 ++++++
+ .../net/ethernet/xilinx/xilinx_axienet_main.c | 37 +++++++++++++++++--
+ 2 files changed, 45 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 1b38d0f70677..5ef5d727ca34 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -3765,6 +3765,10 @@
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet.h b/drivers/net/ethernet/xilinx/xilinx_axienet.h
+index f2e2261b4b7d..8ff4333de2ad 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet.h
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet.h
+@@ -402,6 +402,9 @@ struct axidma_bd {
+  * @rx_bd_num:	Size of RX buffer descriptor ring
+  * @rx_bd_ci:	Stores the index of the Rx buffer descriptor in the ring being
+  *		accessed currently.
++ * @rx_packets: RX packet count for statistics
++ * @rx_bytes:	RX byte count for statistics
++ * @rx_stat_sync: Synchronization object for RX stats
+  * @napi_tx:	NAPI TX control structure
+  * @tx_dma_cr:  Nominal content of TX DMA control register
+  * @tx_bd_v:	Virtual address of the TX buffer descriptor ring
+@@ -411,6 +414,9 @@ struct axidma_bd {
+  *		complete. Only updated at runtime by TX NAPI poll.
+  * @tx_bd_tail:	Stores the index of the next Tx buffer descriptor in the ring
+  *              to be populated.
++ * @tx_packets: TX packet count for statistics
++ * @tx_bytes:	TX byte count for statistics
++ * @tx_stat_sync: Synchronization object for TX stats
+  * @dma_err_task: Work structure to process Axi DMA errors
+  * @tx_irq:	Axidma TX IRQ number
+  * @rx_irq:	Axidma RX IRQ number
+@@ -458,6 +464,9 @@ struct axienet_local {
+ 	dma_addr_t rx_bd_p;
+ 	u32 rx_bd_num;
+ 	u32 rx_bd_ci;
++	u64_stats_t rx_packets;
++	u64_stats_t rx_bytes;
++	struct u64_stats_sync rx_stat_sync;
  
- 	nox2apic	[X86-64,APIC] Do not enable x2APIC mode.
+ 	struct napi_struct napi_tx;
+ 	u32 tx_dma_cr;
+@@ -466,6 +475,9 @@ struct axienet_local {
+ 	u32 tx_bd_num;
+ 	u32 tx_bd_ci;
+ 	u32 tx_bd_tail;
++	u64_stats_t tx_packets;
++	u64_stats_t tx_bytes;
++	struct u64_stats_sync tx_stat_sync;
  
-+			NOTE: this parameter will be ignored on systems with the
-+			LEGACY_XAPIC_DISABLED bit set in the
-+			IA32_XAPIC_DISABLE_STATUS MSR.
-+
- 	nps_mtm_hs_ctr=	[KNL,ARC]
- 			This parameter sets the maximum duration, in
- 			cycles, each HW thread of the CTOP can run
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 25e2b8b75e40..1cccedfc2a48 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -450,6 +450,11 @@ config X86_X2APIC
- 	  This allows 32-bit apic IDs (so it can support very large systems),
- 	  and accesses the local apic via MSRs not via mmio.
+ 	struct work_struct dma_err_task;
  
-+	  Some Intel systems circa 2022 and later are locked into x2APIC mode
-+	  and can not fall back to the legacy APIC modes if SGX or TDX are
-+	  enabled in the BIOS.  They will be unable to boot without enabling
-+	  this option.
-+
- 	  If you don't know what to do here, say N.
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 1760930ec0c4..9262988d26a3 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -752,8 +752,10 @@ static int axienet_tx_poll(struct napi_struct *napi, int budget)
+ 		if (lp->tx_bd_ci >= lp->tx_bd_num)
+ 			lp->tx_bd_ci %= lp->tx_bd_num;
  
- config X86_MPPARSE
-@@ -1930,7 +1935,7 @@ endchoice
+-		ndev->stats.tx_packets += packets;
+-		ndev->stats.tx_bytes += size;
++		u64_stats_update_begin(&lp->tx_stat_sync);
++		u64_stats_add(&lp->tx_packets, packets);
++		u64_stats_add(&lp->tx_bytes, size);
++		u64_stats_update_end(&lp->tx_stat_sync);
  
- config X86_SGX
- 	bool "Software Guard eXtensions (SGX)"
--	depends on X86_64 && CPU_SUP_INTEL
-+	depends on X86_64 && CPU_SUP_INTEL && X86_X2APIC
- 	depends on CRYPTO=y
- 	depends on CRYPTO_SHA256=y
- 	select SRCU
-diff --git a/arch/x86/include/asm/cpu.h b/arch/x86/include/asm/cpu.h
-index 8cbf623f0ecf..b472ef76826a 100644
---- a/arch/x86/include/asm/cpu.h
-+++ b/arch/x86/include/asm/cpu.h
-@@ -94,4 +94,6 @@ static inline bool intel_cpu_signatures_match(unsigned int s1, unsigned int p1,
- 	return p1 & p2;
+ 		/* Matches barrier in axienet_start_xmit */
+ 		smp_mb();
+@@ -984,8 +986,10 @@ static int axienet_rx_poll(struct napi_struct *napi, int budget)
+ 		cur_p = &lp->rx_bd_v[lp->rx_bd_ci];
+ 	}
+ 
+-	lp->ndev->stats.rx_packets += packets;
+-	lp->ndev->stats.rx_bytes += size;
++	u64_stats_update_begin(&lp->rx_stat_sync);
++	u64_stats_add(&lp->rx_packets, packets);
++	u64_stats_add(&lp->rx_bytes, size);
++	u64_stats_update_end(&lp->rx_stat_sync);
+ 
+ 	if (tail_p)
+ 		axienet_dma_out_addr(lp, XAXIDMA_RX_TDESC_OFFSET, tail_p);
+@@ -1292,10 +1296,32 @@ static int axienet_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 	return phylink_mii_ioctl(lp->phylink, rq, cmd);
  }
  
-+extern u64 x86_read_arch_cap_msr(void);
-+
- #endif /* _ASM_X86_CPU_H */
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index e057e039173c..9267bfe3c33f 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -155,6 +155,11 @@
- 						 * Return Stack Buffer Predictions.
- 						 */
- 
-+#define ARCH_CAP_XAPIC_DISABLE		BIT(21)	/*
-+						 * IA32_XAPIC_DISABLE_STATUS MSR
-+						 * supported
-+						 */
-+
- #define MSR_IA32_FLUSH_CMD		0x0000010b
- #define L1D_FLUSH			BIT(0)	/*
- 						 * Writeback and invalidate the
-@@ -1046,4 +1051,12 @@
- #define MSR_IA32_HW_FEEDBACK_PTR        0x17d0
- #define MSR_IA32_HW_FEEDBACK_CONFIG     0x17d1
- 
-+/* x2APIC locked status */
-+#define MSR_IA32_XAPIC_DISABLE_STATUS	0xBD
-+#define LEGACY_XAPIC_DISABLED		BIT(0) /*
-+						* x2APIC mode is locked and
-+						* disabling x2APIC will cause
-+						* a #GP
-+						*/
-+
- #endif /* _ASM_X86_MSR_INDEX_H */
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 189d3a5e471a..665993b2e80d 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -61,6 +61,7 @@
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- #include <asm/irq_regs.h>
-+#include <asm/cpu.h>
- 
- unsigned int num_processors;
- 
-@@ -1756,11 +1757,26 @@ EXPORT_SYMBOL_GPL(x2apic_mode);
- 
- enum {
- 	X2APIC_OFF,
--	X2APIC_ON,
- 	X2APIC_DISABLED,
-+	/* All states below here have X2APIC enabled */
-+	X2APIC_ON,
-+	X2APIC_ON_LOCKED
- };
- static int x2apic_state;
- 
-+static bool x2apic_hw_locked(void)
++static void
++axienet_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 +{
-+	u64 ia32_cap;
-+	u64 msr;
++	struct axienet_local *lp = netdev_priv(dev);
++	unsigned int start;
 +
-+	ia32_cap = x86_read_arch_cap_msr();
-+	if (ia32_cap & ARCH_CAP_XAPIC_DISABLE) {
-+		rdmsrl(MSR_IA32_XAPIC_DISABLE_STATUS, msr);
-+		return (msr & LEGACY_XAPIC_DISABLED);
-+	}
-+	return false;
++	netdev_stats_to_stats64(stats, &dev->stats);
++
++	do {
++		start = u64_stats_fetch_begin_irq(&lp->rx_stat_sync);
++		stats->rx_packets = u64_stats_read(&lp->rx_packets);
++		stats->rx_bytes = u64_stats_read(&lp->rx_bytes);
++	} while (u64_stats_fetch_retry_irq(&lp->rx_stat_sync, start));
++
++	do {
++		start = u64_stats_fetch_begin_irq(&lp->tx_stat_sync);
++		stats->tx_packets = u64_stats_read(&lp->tx_packets);
++		stats->tx_bytes = u64_stats_read(&lp->tx_bytes);
++	} while (u64_stats_fetch_retry_irq(&lp->tx_stat_sync, start));
 +}
 +
- static void __x2apic_disable(void)
- {
- 	u64 msr;
-@@ -1798,6 +1814,10 @@ static int __init setup_nox2apic(char *str)
- 				apicid);
- 			return 0;
- 		}
-+		if (x2apic_hw_locked()) {
-+			pr_warn("APIC locked in x2apic mode, can't disable\n");
-+			return 0;
-+		}
- 		pr_warn("x2apic already enabled.\n");
- 		__x2apic_disable();
- 	}
-@@ -1812,10 +1832,18 @@ early_param("nox2apic", setup_nox2apic);
- void x2apic_setup(void)
- {
- 	/*
--	 * If x2apic is not in ON state, disable it if already enabled
-+	 * Try to make the AP's APIC state match that of the BSP,  but if the
-+	 * BSP is unlocked and the AP is locked then there is a state mismatch.
-+	 * Warn about the mismatch in case a GP fault occurs due to a locked AP
-+	 * trying to be turned off.
-+	 */
-+	if (x2apic_state != X2APIC_ON_LOCKED && x2apic_hw_locked())
-+		pr_warn("x2apic lock mismatch between BSP and AP.\n");
-+	/*
-+	 * If x2apic is not in ON or LOCKED state, disable it if already enabled
- 	 * from BIOS.
- 	 */
--	if (x2apic_state != X2APIC_ON) {
-+	if (x2apic_state < X2APIC_ON) {
- 		__x2apic_disable();
- 		return;
- 	}
-@@ -1836,6 +1864,11 @@ static __init void x2apic_disable(void)
- 	if (x2apic_id >= 255)
- 		panic("Cannot disable x2apic, id: %08x\n", x2apic_id);
+ static const struct net_device_ops axienet_netdev_ops = {
+ 	.ndo_open = axienet_open,
+ 	.ndo_stop = axienet_stop,
+ 	.ndo_start_xmit = axienet_start_xmit,
++	.ndo_get_stats64 = axienet_get_stats64,
+ 	.ndo_change_mtu	= axienet_change_mtu,
+ 	.ndo_set_mac_address = netdev_set_mac_address,
+ 	.ndo_validate_addr = eth_validate_addr,
+@@ -1850,6 +1876,9 @@ static int axienet_probe(struct platform_device *pdev)
+ 	lp->rx_bd_num = RX_BD_NUM_DEFAULT;
+ 	lp->tx_bd_num = TX_BD_NUM_DEFAULT;
  
-+	if (x2apic_hw_locked()) {
-+		pr_warn("Cannot disable locked x2apic, id: %08x\n", x2apic_id);
-+		return;
-+	}
++	u64_stats_init(&lp->rx_stat_sync);
++	u64_stats_init(&lp->tx_stat_sync);
 +
- 	__x2apic_disable();
- 	register_lapic_address(mp_lapic_addr);
- }
-@@ -1894,7 +1927,10 @@ void __init check_x2apic(void)
- 	if (x2apic_enabled()) {
- 		pr_info("x2apic: enabled by BIOS, switching to x2apic ops\n");
- 		x2apic_mode = 1;
--		x2apic_state = X2APIC_ON;
-+		if (x2apic_hw_locked())
-+			x2apic_state = X2APIC_ON_LOCKED;
-+		else
-+			x2apic_state = X2APIC_ON;
- 	} else if (!boot_cpu_has(X86_FEATURE_X2APIC)) {
- 		x2apic_state = X2APIC_DISABLED;
- 	}
+ 	netif_napi_add(ndev, &lp->napi_rx, axienet_rx_poll, NAPI_POLL_WEIGHT);
+ 	netif_napi_add(ndev, &lp->napi_tx, axienet_tx_poll, NAPI_POLL_WEIGHT);
+ 
 -- 
 2.35.1
 
