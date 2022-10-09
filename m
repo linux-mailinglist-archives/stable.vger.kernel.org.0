@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E8D45F960C
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0AAF5F95E7
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbiJJA0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35212 "EHLO
+        id S232386AbiJJAZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:25:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232879AbiJJAXv (ORCPT
+        with ESMTP id S232887AbiJJAXv (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:23:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7DC62409D;
-        Sun,  9 Oct 2022 16:57:17 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C1024BF7;
+        Sun,  9 Oct 2022 16:57:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46B4860CF5;
-        Sun,  9 Oct 2022 23:57:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EBC3C43470;
-        Sun,  9 Oct 2022 23:57:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DFC060B85;
+        Sun,  9 Oct 2022 23:57:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09364C433C1;
+        Sun,  9 Oct 2022 23:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359836;
-        bh=Ey1wAtKe5D9De2EgKa9byTbAcA1ewlHvhtn2bJ/qdqo=;
+        s=k20201202; t=1665359840;
+        bh=IqXIc2zb1gPqjZAiZAuDXqBufstMjobSxTTlD79UXjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5b0lB0GsvqC4tEB7m4cR8fQ6u9gtC+nGJZGaKfU4N8K2svcq8IR+yx662HhNd4s0
-         bAFeWC1jjAwZr2mUIs/gMtdArDyzOW/GdOHV3C8p2+Od9jofNrfhKlF3xBDZoiZmbX
-         vKr07ar/SUwxzj1wFSbALmNxSY/ZndznbAuUfjsPwpRLFj4dI+ktKu3vbkRAhV56KC
-         GUTB+73LPZVu1i3eHRWySND/31TSTJE9jr1rJZmtLC1AqRBgC71HhqxNLpqej2LZJC
-         j+LcUycxYeET3HAxUnZJ8rwU04jKiakuRVeZ64j0xFAWhtBwvCtVCoAVldDwo1wz7w
-         CGQRS6KIsAAXg==
+        b=dpK/egfxR0KAF1sLE1MtIehLgA6F3ktG2f6xSU8K4Ouy+NVC5rYFuqysZUXKB+2as
+         hUrLumcy5wMrad34Q3M0zUmJL2i0cjlelktx+sroenSAIqapd8e52AVfL0mBXxMW/G
+         vzU/k8cm/4VPkMIP5MhYtwnQOZRkTYlkgj4bPPVgmUGF+f7EiGlcKkJ8/abxiXPrR2
+         B0xwMZfzBm7vaFNpGmoyvaNT1lkGJJfDc6nrSPP2/orP5xnGVooVcQalZLiz+xX8nb
+         YQb7K3xcG3+vPWWg8sSGSiv5OD+mRbbYxqM6ta9olIgPn49MQReCG9dMbiAevlV2ik
+         TTXtl4xakKEuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Javier Martinez Canillas <javierm@redhat.com>,
-        Peter Robinson <pbrobinson@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        airlied@gmail.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 03/14] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
-Date:   Sun,  9 Oct 2022 19:56:59 -0400
-Message-Id: <20221009235710.1231937-3-sashal@kernel.org>
+Cc:     David Gow <davidgow@google.com>,
+        Tales Aparecida <tales.aparecida@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, isabbasso@riseup.net,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 04/14] drm/amd/display: fix overflow on MIN_I64 definition
+Date:   Sun,  9 Oct 2022 19:57:00 -0400
+Message-Id: <20221009235710.1231937-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235710.1231937-1-sashal@kernel.org>
 References: <20221009235710.1231937-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,85 +61,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
+[ Upstream commit 6ae0632d17759852c07e2d1e0a31c728eb6ba246 ]
 
-There are some struct drm_driver fields that are required by drivers since
-drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
+The definition of MIN_I64 in bw_fixed.c can cause gcc to whinge about
+integer overflow, because it is treated as a positive value, which is
+then negated. The temporary positive value is not necessarily
+representable.
 
-But it can be possible that a driver has a bug and did not set some of the
-fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
+This causes the following warning:
+../drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/bw_fixed.c:30:19:
+warning: integer overflow in expression ‘-9223372036854775808’ of type
+‘long long int’ results in ‘-9223372036854775808’ [-Woverflow]
+  30 |         (int64_t)(-(1LL << 63))
+     |                   ^
 
-[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-[  +0.010955] Mem abort info:
-[  +0.002835]   ESR = 0x0000000096000004
-[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  +0.005395]   SET = 0, FnV = 0
-[  +0.003113]   EA = 0, S1PTW = 0
-[  +0.003182]   FSC = 0x04: level 0 translation fault
-[  +0.004964] Data abort info:
-[  +0.002919]   ISV = 0, ISS = 0x00000004
-[  +0.003886]   CM = 0, WnR = 0
-[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
-[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
-...
-[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  +0.007061] pc : __pi_strlen+0x14/0x150
-[  +0.003895] lr : drm_copy_field+0x30/0x1a4
-[  +0.004156] sp : ffff8000094b3a50
-[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
-[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
-[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
-[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
-[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
-[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
-[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
-[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
-[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
-[  +0.007240] Call trace:
-[  +0.002475]  __pi_strlen+0x14/0x150
-[  +0.003537]  drm_version+0x84/0xac
-[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
-[  +0.003975]  drm_ioctl+0x270/0x580
-[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
-[  +0.003978]  invoke_syscall+0x78/0x100
-[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
-[  +0.004767]  do_el0_svc+0x38/0x4c
-[  +0.003357]  el0_svc+0x34/0x100
-[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
-[  +0.004418]  el0t_64_sync+0x190/0x194
-[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
-[  +0.006180] ---[ end trace 0000000000000000 ]---
+Writing out (-MAX_I64 - 1) works instead.
 
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Tales Aparecida <tales.aparecida@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
-index bde71aa67784..5b93150b1141 100644
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -475,6 +475,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
- {
- 	size_t len;
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
+index 6ca288fb5fb9..2d46bc527b21 100644
+--- a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
++++ b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
+@@ -26,12 +26,12 @@
+ #include "bw_fixed.h"
  
-+	/* don't attempt to copy a NULL pointer */
-+	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
-+		*buf_len = 0;
-+		return 0;
-+	}
+ 
+-#define MIN_I64 \
+-	(int64_t)(-(1LL << 63))
+-
+ #define MAX_I64 \
+ 	(int64_t)((1ULL << 63) - 1)
+ 
++#define MIN_I64 \
++	(-MAX_I64 - 1)
 +
- 	/* don't overflow userbuf */
- 	len = strlen(value);
- 	if (len > *buf_len)
+ #define FRACTIONAL_PART_MASK \
+ 	((1ULL << BW_FIXED_BITS_PER_FRACTIONAL_PART) - 1)
+ 
 -- 
 2.35.1
 
