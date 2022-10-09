@@ -2,74 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A43705F94F1
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 850355F94BA
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbiJJAOD convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 9 Oct 2022 20:14:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56926 "EHLO
+        id S231331AbiJJAEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:04:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230319AbiJJAMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:55 -0400
-X-Greylist: delayed 6664 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 09 Oct 2022 16:50:44 PDT
-Received: from symantec6.comsats.net.pk (symantec6.comsats.net.pk [203.124.39.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBDE43E7B
-        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 16:50:44 -0700 (PDT)
-X-AuditID: cb7c27aa-21bff70000006b5f-9b-63431c5eebe4
-Received: from host201505.comsatshosting.com (host201505.comsatshosting.com [210.56.11.66])
-        (using TLS with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        by symantec6.comsats.net.pk (Symantec Messaging Gateway) with SMTP id B2.8B.27487.E5C13436; Mon, 10 Oct 2022 00:09:19 +0500 (PKT)
-Received: from [103.145.253.52] (UnknownHost [103.145.253.52]) by host201505.comsatshosting.com with SMTP;
-   Mon, 10 Oct 2022 01:31:32 +0500
-Message-ID: <B2.8B.27487.E5C13436@symantec6.comsats.net.pk>
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S230381AbiJJAEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:04:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2913351A29;
+        Sun,  9 Oct 2022 16:37:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA1C560C91;
+        Sun,  9 Oct 2022 22:21:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CCAEC433D6;
+        Sun,  9 Oct 2022 22:21:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1665354101;
+        bh=KOyJZ8EAro8rxOf+fthAnt3nxSGIZ91HYgHAzMiTWno=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=L2irWoyPQeAhkarMEdo5WKJztJ7q5lPVNDzqe+FxKmn5STLAlFergd6/pzFU8Edsg
+         n98Z4CVS8laSfDkjtk4fOEZAusg0QUbCQdCfrovGSYUNnhQ6/yTjtWEkCENNFJzc6y
+         H5LR+58LAo7R5WM7499AQO198ulTTU+jdiapzyrC9KwDlW+1ZXOkdlVz7/yOZrmtCX
+         D9nEc74Z803drdJ9LuDwwKIZpYTMEjYzEFUq6J1nY4nwE7QO5iYs2sXvQ5WjdVWBIU
+         SCtAayBy/zTdwWqEo6+jQlpkS5pXZntRMLQC267+TWv0VPzwS0NzT3HpNIvpCgvNxW
+         zN7/TXXoQ3gOA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Mike Pattrick <mkp@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, pshelar@ovn.org,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org, dev@openvswitch.org
+Subject: [PATCH AUTOSEL 5.10 04/34] openvswitch: Fix double reporting of drops in dropwatch
+Date:   Sun,  9 Oct 2022 18:20:58 -0400
+Message-Id: <20221009222129.1218277-4-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221009222129.1218277-1-sashal@kernel.org>
+References: <20221009222129.1218277-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Re; Interest,
-To:     stable@vger.kernel.org
-From:   "Chen Yun" <imrank@riazeda.com.pk>
-Date:   Sun, 09 Oct 2022 13:26:34 -0700
-Reply-To: chyyncn@gmail.com
-X-Brightmail-Tracker: H4sIAAAAAAAAA02TbUhTURjHO7t37mx66nrNebqaxKWXlbSSQgorwpFIJQR9Cftgt+3kxLmt
-        3Tud6Qc/RNECNTGrRWYRVgpF9moW1YxiFmRRow8jezHIgrBZBBHRuXNz98vl3N9znv//Of9z
-        L2T4ToMAa90K8bkll5hhYl+tyyxbWV1gs6/u/pC5rvfaR7AZVEwPFu4AVaYNDuKqbSC+VZv2
-        mJwXroyx3mEmcKj9PNsKPumCwAgxtxY/fhcxBIEJ8twTHZ64doWZeWkDeOJiDKi7EFeKu4eP
-        MOqa4az47fGujBmejSOnJtgZXoT7zn2jeyBdL8W/goqKczgzjnf3GVQ8nxPw+JtSFWdwFjzQ
-        +iihyHJLcOx9e6KT5/Lx/WfODoBCGq+Qxiuk8QqlvXoB2w+w3FQv0WjsJVa7p16WFNnqJorV
-        WzcIaFDPWpb13wHvz0hhwEEgZiHnzTI7r5caaFcYbIM6MRf9WWqz83P3ehxNTkl2Vvv8LiKL
-        81EPphjN4r1+V50ooNaFlObMUjdplF1EoTcTBhgytA2cpQbIITUdID7PjFgY5ENWzEOO/auq
-        eK5GUkgdIV7iS1X3QMiF7w6MAYF1e9xExGhyBXXJ9pEaEthX61JSW6lG5SCV57SVxGAL0eKn
-        tGDWFrSz6aAxDCpgFh3wSYF6Ltkr1cu1NUndHDSknjYrRROaC9DLIgr5FEzrjQIP7Gl7cJ+B
-        46/H6PPXreBDhk8ML+Sh7RbaxaldTr97dnbBjE58piPO0xRUG6EATY1TnqvhaafUx/4VbKHX
-        l4NiqnYW/RXSs/OoRaQwMwkTo2P0Qr2n7CRL632lIehoCJE36i3JiqRoQ9CPlqkhJGkyhL+R
-        MjWEJExLCa3g8qG7XTurLB3WSdhXPhU88ZIYERne3XlY/yVaMXIVFDQH2o8uZy0l6/OLPwtz
-        /n2/MbTY+HzrydvXO+H0j0uyvueg4d6U4djG37bcmPn0rvJPhb8n+/jiKLsyHm92fxs55Q/k
-        MbcXtXkKG7uiH3+uqX7ltHUXVRrOj4wOxaMxkZWdUvEKxidL/wErWlcGJQQAAA==
-X-Spam-Status: No, score=2.9 required=5.0 tests=BAYES_50,
-        FREEMAIL_FORGED_REPLYTO,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_SOFTFAIL
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Re; Interest,
+From: Mike Pattrick <mkp@redhat.com>
 
-I am interested in discussing the Investment proposal as I explained
-in my previous mail. May you let me know your interest and the
-possibility of a cooperation aimed for mutual interest.
+[ Upstream commit 1100248a5c5ccd57059eb8d02ec077e839a23826 ]
 
-Looking forward to your mail for further discussion.
+Frames sent to userspace can be reported as dropped in
+ovs_dp_process_packet, however, if they are dropped in the netlink code
+then netlink_attachskb will report the same frame as dropped.
 
-Regards
+This patch checks for error codes which indicate that the frame has
+already been freed.
 
-------
-Chen Yun - Chairman of CREC
-China Railway Engineering Corporation - CRECG
-China Railway Plaza, No.69 Fuxing Road, Haidian District, Beijing, P.R.
-China
+Signed-off-by: Mike Pattrick <mkp@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109946
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/openvswitch/datapath.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 9d6ef6cb9b26..4d2d91d6f990 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -241,10 +241,17 @@ void ovs_dp_process_packet(struct sk_buff *skb, struct sw_flow_key *key)
+ 		upcall.portid = ovs_vport_find_upcall_portid(p, skb);
+ 		upcall.mru = OVS_CB(skb)->mru;
+ 		error = ovs_dp_upcall(dp, skb, key, &upcall, 0);
+-		if (unlikely(error))
+-			kfree_skb(skb);
+-		else
++		switch (error) {
++		case 0:
++		case -EAGAIN:
++		case -ERESTARTSYS:
++		case -EINTR:
+ 			consume_skb(skb);
++			break;
++		default:
++			kfree_skb(skb);
++			break;
++		}
+ 		stats_counter = &stats->n_missed;
+ 		goto out;
+ 	}
+-- 
+2.35.1
 
