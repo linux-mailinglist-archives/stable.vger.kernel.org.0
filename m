@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7535F9602
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3253A5F95D8
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:25:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232738AbiJJA00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35390 "EHLO
+        id S231719AbiJJAZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232912AbiJJAXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:23:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB84E252A4;
-        Sun,  9 Oct 2022 16:57:39 -0700 (PDT)
+        with ESMTP id S232922AbiJJAXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:23:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9C73DBEE;
+        Sun,  9 Oct 2022 16:57:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E6F0B80DEA;
-        Sun,  9 Oct 2022 23:57:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79628C433D6;
-        Sun,  9 Oct 2022 23:57:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D9429CE0F72;
+        Sun,  9 Oct 2022 23:57:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 952F4C43143;
+        Sun,  9 Oct 2022 23:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359857;
-        bh=urIQy0Zs8PsVFMCiFU6u2HlfNH0+WH5JcKKHZdSsssc=;
+        s=k20201202; t=1665359859;
+        bh=68484usKTHxDSlDitAPfp628Cran1WU7zwP/eWP86Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MfpYh4GLCSj3o7oV3l44+AhuSHyQiv+n5cuYQgpTfbVtGIZcMAICwFuJl/ozM1Gtb
-         F+3Bx7Epq2E0urdOcjFKaMdOmTvFmEHqFuv82/ZiNbvvMNcO3nVWgbS0zD48xP90i4
-         B7dcnOu1OAbrYfyTLpG3WIeyYFD7zZgASt0O1VcWym0BfIS4dR154DuNkDTU9BctPJ
-         +UUxUhMI+U6ACroBUfwCxBjOS1W3U2cfZB2Z6Cd8HfTl2WcYmfzKOxoqlbIV7a8zvp
-         xCU3iiHZCKldwJat8icRXUU/IYyMTdvyWpnij4IRnl+QIckBOE7R9zZaCkN8KQ1+Dm
-         MCQY6XjxFt1vg==
+        b=lz8DXgxUCo36HAfVU1HSaF50/BNpFJyelblOAqqkw2QrkFWXmnkY0CgTe1guz71fL
+         YgYX4PSfgpv47Z+STiXUgu12uM7Dn5D4k0T9Fsc8jw6CT3g6e/nRX0PQNoXzXVYCWE
+         /Zk2oFmgbwjKf1Zr4ZBceqa1wDx+c2jJ+CWNehwrLOUb5Do4N8S4yxmjjY8N563WZz
+         J4qHcS5tsrpBCmGrbz0tIK+osG8c98hnjBFKFabIbFRurnLx9P9FXVAjzoT3YjfTS8
+         psp73axcTTQqsjUqjlMALcGSZngg2q70//xI7boyGCGI/bn8TFx22U/Fi93upB1Sgf
+         yCmya1tDxF7ZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     hongao <hongao@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        harry.wentland@amd.com, tzimmermann@suse.de, cssk@net-c.es,
-        ville.syrjala@linux.intel.com, maxime@cerno.tech, zhou1615@umn.edu,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 11/14] drm/amdgpu: fix initial connector audio value
-Date:   Sun,  9 Oct 2022 19:57:07 -0400
-Message-Id: <20221009235710.1231937-11-sashal@kernel.org>
+Cc:     Nathan Huckleberry <nhuck@google.com>,
+        Dan Carpenter <error27@gmail.com>, llvm@lists.linux.dev,
+        Inki Dae <inki.dae@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, sw0312.kim@samsung.com,
+        kyungmin.park@samsung.com, airlied@gmail.com, daniel@ffwll.ch,
+        krzysztof.kozlowski@linaro.org, nathan@kernel.org,
+        ndesaulniers@google.com, dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 12/14] drm/exynos: Fix return type for mixer_mode_valid and hdmi_mode_valid
+Date:   Sun,  9 Oct 2022 19:57:08 -0400
+Message-Id: <20221009235710.1231937-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235710.1231937-1-sashal@kernel.org>
 References: <20221009235710.1231937-1-sashal@kernel.org>
@@ -59,62 +61,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hongao <hongao@uniontech.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
+[ Upstream commit 1261255531088208daeca818e2b486030b5339e5 ]
 
-This got lost somewhere along the way, This fixes
-audio not working until set_property was called.
+The field mode_valid in exynos_drm_crtc_ops is expected to be of type enum
+drm_mode_status (*mode_valid)(struct exynos_drm_crtc *crtc,
+                                   const struct drm_display_mode *mode);
 
-Signed-off-by: hongao <hongao@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Likewise for mode_valid in drm_connector_helper_funcs.
+
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
+
+The return type of mixer_mode_valid and hdmi_mode_valid should be changed
+from int to enum drm_mode_status.
+
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://protect2.fireeye.com/v1/url?k=3e644738-5fef521d-3e65cc77-
+74fe485cbff6-36ad29bf912d3c9f&q=1&e=5cc06174-77dd-4abd-ab50-
+155da5711aa3&u=https%3A%2F%2Fgithub.com%2FClangBuiltLinux%2Flinux%2Fissues%2F
+1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/exynos/exynos_hdmi.c  | 4 ++--
+ drivers/gpu/drm/exynos/exynos_mixer.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 0e1cacf73169..cf80da354ba1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -1646,10 +1646,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 						   adev->mode_info.dither_property,
- 						   AMDGPU_FMT_DITHER_DISABLE);
+diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
+index 0073a2b3b80a..838a638fb03a 100644
+--- a/drivers/gpu/drm/exynos/exynos_hdmi.c
++++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
+@@ -911,8 +911,8 @@ static int hdmi_find_phy_conf(struct hdmi_context *hdata, u32 pixel_clock)
+ 	return -EINVAL;
+ }
  
--			if (amdgpu_audio != 0)
-+			if (amdgpu_audio != 0) {
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
-+			}
+-static int hdmi_mode_valid(struct drm_connector *connector,
+-			struct drm_display_mode *mode)
++static enum drm_mode_status hdmi_mode_valid(struct drm_connector *connector,
++					    struct drm_display_mode *mode)
+ {
+ 	struct hdmi_context *hdata = connector_to_hdmi(connector);
+ 	int ret;
+diff --git a/drivers/gpu/drm/exynos/exynos_mixer.c b/drivers/gpu/drm/exynos/exynos_mixer.c
+index 22f494145411..07c59e647fc2 100644
+--- a/drivers/gpu/drm/exynos/exynos_mixer.c
++++ b/drivers/gpu/drm/exynos/exynos_mixer.c
+@@ -1039,7 +1039,7 @@ static void mixer_disable(struct exynos_drm_crtc *crtc)
+ 	clear_bit(MXR_BIT_POWERED, &ctx->flags);
+ }
  
- 			subpixel_order = SubPixelHorizontalRGB;
- 			connector->interlace_allowed = true;
-@@ -1771,6 +1773,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1824,6 +1827,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1874,6 +1878,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
+-static int mixer_mode_valid(struct exynos_drm_crtc *crtc,
++static enum drm_mode_status mixer_mode_valid(struct exynos_drm_crtc *crtc,
+ 		const struct drm_display_mode *mode)
+ {
+ 	struct mixer_context *ctx = crtc->ctx;
 -- 
 2.35.1
 
