@@ -2,52 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3B0F5F94F5
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5E95F94FF
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbiJJAOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:14:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54626 "EHLO
+        id S230496AbiJJAOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:14:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbiJJAMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157C157E32;
-        Sun,  9 Oct 2022 16:50:59 -0700 (PDT)
+        with ESMTP id S231403AbiJJAND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:13:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E64057E3C;
+        Sun,  9 Oct 2022 16:51:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C159DB80DE4;
-        Sun,  9 Oct 2022 23:50:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC29C433D7;
-        Sun,  9 Oct 2022 23:50:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39B3AB80DE0;
+        Sun,  9 Oct 2022 23:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 726F2C433D7;
+        Sun,  9 Oct 2022 23:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359456;
-        bh=pMbxhj9oyvXcVZkWKcZXy1MVAYMbhd3RSfm4nlEApfQ=;
+        s=k20201202; t=1665359460;
+        bh=FoAKBoM3BVE06nEwOQj9AKyKByzBVLYrsUm0mfXl8EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSvEg0VcX6f05tYyto5npAL1tZ5crLCTL80/mqLiwx4i1IYDW+SaIyeiZX7QJTNwb
-         RBF5YiTFJuAYpSo0pP0uK5V9NOuHQaKXd1J2S0/tKQLGgnmaz9o9j/zsHoA/lsbVLi
-         hlqbea6zmJU2XUF74k6KC5F37ZuaGepWhi6uarRbD0HoS5dVl3IujikREOeOhBwz0V
-         Z35p8+qo5SNevauGVLoBlaEZ1UNOhxdExTC+WaKWYWhR9G50a+5fyfHYUjFNuNT+Qv
-         2f0zlz8T96x9hh4GBUVnUyW/fr7nMaa3CkoEWlkNlFJvmmq7RUPk7OkAT8Jx96w8BN
-         O1IUpBvqzeJew==
+        b=t2tw1qWkdMgLMIkEKAuaDwOvFv8/p8RNHCTnJaqkpdXrYPPc3OkEG+flJkl2IsDMw
+         Y6QZnsqV9m+s2+3WXCw/QYBlJ9k52LlcXEmC8jkej1Wl+JuJA7b3H0psclMMzgwoTd
+         b2bLt9cR+5C+fuqvQyKPkwXnAu2F93rv/LeTd9P5dj5XdZA9WObZxDplCEJE11LZMX
+         3/gH56wD8g1o5xNBEuG7EAuW/lAG50MiTQBWY7TJMeG+UsE4F0mSkGETcJqoQNwfhK
+         hC9auInErdNk7s6d3N8t3Fg63B6v/79s3dChKF058CuLt9xQeA34cv1W0/4Q0PH44s
+         QWmzJ4muq93Aw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jairaj Arava <jairaj.arava@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Chao Song <chao.song@intel.com>,
-        Curtis Malainey <curtis@malainey.com>,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Cc:     Mikhail Rudenko <mike.rudenko@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        peter.ujfalusi@linux.intel.com, yung-chuan.liao@linux.intel.com,
-        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.0 26/44] ASoC: SOF: pci: Change DMI match info to support all Chrome platforms
-Date:   Sun,  9 Oct 2022 19:49:14 -0400
-Message-Id: <20221009234932.1230196-26-sashal@kernel.org>
+        perex@perex.cz, tiwai@suse.com, wens@csie.org,
+        jernej.skrabec@gmail.com, samuel@sholland.org,
+        ckeepax@opensource.cirrus.com, lchen@ambarella.com,
+        kuninori.morimoto.gx@renesas.com, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.0 27/44] ASoC: sunxi: sun4i-codec: set debugfs_prefix for CPU DAI component
+Date:   Sun,  9 Oct 2022 19:49:15 -0400
+Message-Id: <20221009234932.1230196-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
@@ -64,43 +60,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jairaj Arava <jairaj.arava@intel.com>
+From: Mikhail Rudenko <mike.rudenko@gmail.com>
 
-[ Upstream commit c1c1fc8103f794a10c5c15e3c17879caf4f42c8f ]
+[ Upstream commit 717a8ff20f32792d6a94f2883e771482c37d844b ]
 
-In some Chrome platforms if OEM's use their own string as SYS_VENDOR than
-"Google", it leads to firmware load failure from intel/sof/community path.
+At present, succesfull probing of H3 Codec results in an error
 
-Hence, changing SYS_VENDOR to PRODUCT_FAMILY in which "Google" is used
-as common prefix and is supported in all Chrome platforms.
+    debugfs: Directory '1c22c00.codec' with parent 'H3 Audio Codec' already present!
 
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Chao Song <chao.song@intel.com>
-Reviewed-by: Curtis Malainey <curtis@malainey.com>
-Signed-off-by: Jairaj Arava <jairaj.arava@intel.com>
-Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
-Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220919114429.42700-1-pierre-louis.bossart@linux.intel.com
+This is caused by a directory name conflict between codec
+components. Fix it by setting debugfs_prefix for the CPU DAI
+component.
+
+Signed-off-by: Mikhail Rudenko <mike.rudenko@gmail.com>
+Link: https://lore.kernel.org/r/20220913212256.151799-2-mike.rudenko@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/sof-pci-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sunxi/sun4i-codec.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
-index d627092b399d..643fd1036d60 100644
---- a/sound/soc/sof/sof-pci-dev.c
-+++ b/sound/soc/sof/sof-pci-dev.c
-@@ -138,7 +138,7 @@ static const struct dmi_system_id community_key_platforms[] = {
- 		.ident = "Google Chromebooks",
- 		.callback = chromebook_use_community_key,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
-+			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google"),
- 		}
- 	},
- 	{},
+diff --git a/sound/soc/sunxi/sun4i-codec.c b/sound/soc/sunxi/sun4i-codec.c
+index 830beb38bf15..fdf3165acd70 100644
+--- a/sound/soc/sunxi/sun4i-codec.c
++++ b/sound/soc/sunxi/sun4i-codec.c
+@@ -1232,6 +1232,9 @@ static const struct snd_soc_component_driver sun8i_a23_codec_codec = {
+ static const struct snd_soc_component_driver sun4i_codec_component = {
+ 	.name			= "sun4i-codec",
+ 	.legacy_dai_naming	= 1,
++#ifdef CONFIG_DEBUG_FS
++	.debugfs_prefix		= "cpu",
++#endif
+ };
+ 
+ #define SUN4I_CODEC_RATES	SNDRV_PCM_RATE_CONTINUOUS
 -- 
 2.35.1
 
