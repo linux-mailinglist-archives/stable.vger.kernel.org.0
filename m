@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EA75F95AB
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:22:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A16F95F95B2
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232377AbiJJAWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:22:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51812 "EHLO
+        id S231948AbiJJAWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232376AbiJJAVH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:21:07 -0400
+        with ESMTP id S232383AbiJJAVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:21:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF783AE7D;
-        Sun,  9 Oct 2022 16:55:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D490C3ED6E;
+        Sun,  9 Oct 2022 16:55:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 498BF60DD1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D9960DD1;
+        Sun,  9 Oct 2022 23:55:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28429C433B5;
         Sun,  9 Oct 2022 23:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90117C43141;
-        Sun,  9 Oct 2022 23:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359715;
-        bh=HmoANf9Uw6rvQWT7WsnNwfX8qNgo1J7uEFFslLv4mKo=;
+        s=k20201202; t=1665359717;
+        bh=SX0GqgOA8NN1x9UoZzDYjtv0281u8oPohNcPl7py/Fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGEkZVJFfA/VZwTzf99G7ygJYiBQaN7IKBkqulUtBidZ6Y7JLAujxOyc8TeHPQ54z
-         rq3cFZ4RBHfL0vxryxaY4Zul30XmCTXrWQj1Wj80GQ6pIKHGLbhMDrqUOzeVw+fx/z
-         /67FwVhZ4VgF887pflFOwtpKWHL9CG5Sq7vpKeuw2glxUI0kjdUBR1hRFj56JbrOb6
-         8q3HsrkmUrjvkJ2GcrBfr6axmCLQmzj/qqyBjmFZZqeEBd2nddge4Jfb96r8o2fIrO
-         C5MUWz521rAQMgdy+oNTsd9lzIzTB3uheoDMVhemixGaasUO1r/DH70ag48UZRWaQi
-         7w34xKrkqssug==
+        b=JwBZqeR+h73t1N4u4V28v4NpOo1PxOkzeu1vKw+z/3hdE+Cw46NpdMMw1cbz686ZN
+         VddtwUjT3gDVgCCM9pP42q4CzydlAXBAzCheyZS0nbV9b8IPkzI1ToAjHWFFfaTfJs
+         0Tduzi1AfVL/EqzQiUrGBn26oWxov5jxrFv0uI1msgGwIgSNAf5FEYQSJn7nRLlHHD
+         4UaX6/Ki6fIBKQMnU+z5yhi49FIHtEwMSNl3kZ+nev2mxlw2z5PMiOxBdA6ubrJ8zD
+         sMpqrnic1VwLbsIF4n3jzZQb0X1GrZ/9CEXcBSraWArpt3AAPh/rkDycLCnMEB5FyL
+         JUOAt59OCE+6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Adri=C3=A1n=20Larumbe?= <adrian.larumbe@collabora.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
-        daniel@ffwll.ch, khilman@baylibre.com,
-        dri-devel@lists.freedesktop.org, linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 20/25] drm/meson: explicitly remove aggregate driver at module unload time
-Date:   Sun,  9 Oct 2022 19:54:20 -0400
-Message-Id: <20221009235426.1231313-20-sashal@kernel.org>
+Cc:     Nathan Huckleberry <nhuck@google.com>,
+        Dan Carpenter <error27@gmail.com>, llvm@lists.linux.dev,
+        Inki Dae <inki.dae@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, sw0312.kim@samsung.com,
+        kyungmin.park@samsung.com, airlied@gmail.com, daniel@ffwll.ch,
+        krzysztof.kozlowski@linaro.org, nathan@kernel.org,
+        ndesaulniers@google.com, dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 21/25] drm/exynos: Fix return type for mixer_mode_valid and hdmi_mode_valid
+Date:   Sun,  9 Oct 2022 19:54:21 -0400
+Message-Id: <20221009235426.1231313-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235426.1231313-1-sashal@kernel.org>
 References: <20221009235426.1231313-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,192 +61,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrián Larumbe <adrian.larumbe@collabora.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 8616f2a0589a80e08434212324250eb22f6a66ce ]
+[ Upstream commit 1261255531088208daeca818e2b486030b5339e5 ]
 
-Because component_master_del wasn't being called when unloading the
-meson_drm module, the aggregate device would linger forever in the global
-aggregate_devices list. That means when unloading and reloading the
-meson_dw_hdmi module, component_add would call into
-try_to_bring_up_aggregate_device and find the unbound meson_drm aggregate
-device.
+The field mode_valid in exynos_drm_crtc_ops is expected to be of type enum
+drm_mode_status (*mode_valid)(struct exynos_drm_crtc *crtc,
+                                   const struct drm_display_mode *mode);
 
-This would in turn dereference some of the aggregate_device's struct
-entries which point to memory automatically freed by the devres API when
-unbinding the aggregate device from meson_drv_unbind, and trigger an
-use-after-free bug:
+Likewise for mode_valid in drm_connector_helper_funcs.
 
-[  +0.000014] =============================================================
-[  +0.000007] BUG: KASAN: use-after-free in find_components+0x468/0x500
-[  +0.000017] Read of size 8 at addr ffff000006731688 by task modprobe/2536
-[  +0.000018] CPU: 4 PID: 2536 Comm: modprobe Tainted: G         C O      5.19.0-rc6-lrmbkasan+ #1
-[  +0.000010] Hardware name: Hardkernel ODROID-N2Plus (DT)
-[  +0.000008] Call trace:
-[  +0.000005]  dump_backtrace+0x1ec/0x280
-[  +0.000011]  show_stack+0x24/0x80
-[  +0.000007]  dump_stack_lvl+0x98/0xd4
-[  +0.000010]  print_address_description.constprop.0+0x80/0x520
-[  +0.000011]  print_report+0x128/0x260
-[  +0.000007]  kasan_report+0xb8/0xfc
-[  +0.000007]  __asan_report_load8_noabort+0x3c/0x50
-[  +0.000009]  find_components+0x468/0x500
-[  +0.000008]  try_to_bring_up_aggregate_device+0x64/0x390
-[  +0.000009]  __component_add+0x1dc/0x49c
-[  +0.000009]  component_add+0x20/0x30
-[  +0.000008]  meson_dw_hdmi_probe+0x28/0x34 [meson_dw_hdmi]
-[  +0.000013]  platform_probe+0xd0/0x220
-[  +0.000008]  really_probe+0x3ac/0xa80
-[  +0.000008]  __driver_probe_device+0x1f8/0x400
-[  +0.000008]  driver_probe_device+0x68/0x1b0
-[  +0.000008]  __driver_attach+0x20c/0x480
-[  +0.000009]  bus_for_each_dev+0x114/0x1b0
-[  +0.000007]  driver_attach+0x48/0x64
-[  +0.000009]  bus_add_driver+0x390/0x564
-[  +0.000007]  driver_register+0x1a8/0x3e4
-[  +0.000009]  __platform_driver_register+0x6c/0x94
-[  +0.000007]  meson_dw_hdmi_platform_driver_init+0x30/0x1000 [meson_dw_hdmi]
-[  +0.000014]  do_one_initcall+0xc4/0x2b0
-[  +0.000008]  do_init_module+0x154/0x570
-[  +0.000010]  load_module+0x1a78/0x1ea4
-[  +0.000008]  __do_sys_init_module+0x184/0x1cc
-[  +0.000008]  __arm64_sys_init_module+0x78/0xb0
-[  +0.000008]  invoke_syscall+0x74/0x260
-[  +0.000008]  el0_svc_common.constprop.0+0xcc/0x260
-[  +0.000009]  do_el0_svc+0x50/0x70
-[  +0.000008]  el0_svc+0x68/0x1a0
-[  +0.000009]  el0t_64_sync_handler+0x11c/0x150
-[  +0.000009]  el0t_64_sync+0x18c/0x190
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
-[  +0.000014] Allocated by task 902:
-[  +0.000007]  kasan_save_stack+0x2c/0x5c
-[  +0.000009]  __kasan_kmalloc+0x90/0xd0
-[  +0.000007]  __kmalloc_node+0x240/0x580
-[  +0.000010]  memcg_alloc_slab_cgroups+0xa4/0x1ac
-[  +0.000010]  memcg_slab_post_alloc_hook+0xbc/0x4c0
-[  +0.000008]  kmem_cache_alloc_node+0x1d0/0x490
-[  +0.000009]  __alloc_skb+0x1d4/0x310
-[  +0.000010]  alloc_skb_with_frags+0x8c/0x620
-[  +0.000008]  sock_alloc_send_pskb+0x5ac/0x6d0
-[  +0.000010]  unix_dgram_sendmsg+0x2e0/0x12f0
-[  +0.000010]  sock_sendmsg+0xcc/0x110
-[  +0.000007]  sock_write_iter+0x1d0/0x304
-[  +0.000008]  new_sync_write+0x364/0x460
-[  +0.000007]  vfs_write+0x420/0x5ac
-[  +0.000008]  ksys_write+0x19c/0x1f0
-[  +0.000008]  __arm64_sys_write+0x78/0xb0
-[  +0.000007]  invoke_syscall+0x74/0x260
-[  +0.000008]  el0_svc_common.constprop.0+0x1a8/0x260
-[  +0.000009]  do_el0_svc+0x50/0x70
-[  +0.000007]  el0_svc+0x68/0x1a0
-[  +0.000008]  el0t_64_sync_handler+0x11c/0x150
-[  +0.000008]  el0t_64_sync+0x18c/0x190
+The return type of mixer_mode_valid and hdmi_mode_valid should be changed
+from int to enum drm_mode_status.
 
-[  +0.000013] Freed by task 2509:
-[  +0.000008]  kasan_save_stack+0x2c/0x5c
-[  +0.000007]  kasan_set_track+0x2c/0x40
-[  +0.000008]  kasan_set_free_info+0x28/0x50
-[  +0.000008]  ____kasan_slab_free+0x128/0x1d4
-[  +0.000008]  __kasan_slab_free+0x18/0x24
-[  +0.000007]  slab_free_freelist_hook+0x108/0x230
-[  +0.000010]  kfree+0x110/0x35c
-[  +0.000008]  release_nodes+0xf0/0x16c
-[  +0.000008]  devres_release_all+0xfc/0x180
-[  +0.000008]  device_unbind_cleanup+0x24/0x164
-[  +0.000008]  device_release_driver_internal+0x3e8/0x5b0
-[  +0.000010]  driver_detach+0xac/0x1b0
-[  +0.000008]  bus_remove_driver+0x158/0x29c
-[  +0.000008]  driver_unregister+0x70/0xb0
-[  +0.000009]  platform_driver_unregister+0x20/0x2c
-[  +0.000007]  0xffff800003722d98
-[  +0.000012]  __do_sys_delete_module+0x288/0x400
-[  +0.000009]  __arm64_sys_delete_module+0x5c/0x80
-[  +0.000008]  invoke_syscall+0x74/0x260
-[  +0.000008]  el0_svc_common.constprop.0+0xcc/0x260
-[  +0.000008]  do_el0_svc+0x50/0x70
-[  +0.000007]  el0_svc+0x68/0x1a0
-[  +0.000008]  el0t_64_sync_handler+0x11c/0x150
-[  +0.000009]  el0t_64_sync+0x18c/0x190
-
-[  +0.000013] Last potentially related work creation:
-[  +0.000007]  kasan_save_stack+0x2c/0x5c
-[  +0.000007]  __kasan_record_aux_stack+0xb8/0xf0
-[  +0.000009]  kasan_record_aux_stack_noalloc+0x14/0x20
-[  +0.000008]  insert_work+0x54/0x290
-[  +0.000009]  __queue_work+0x48c/0xd24
-[  +0.000008]  queue_work_on+0x90/0x11c
-[  +0.000008]  call_usermodehelper_exec+0x188/0x404
-[  +0.000010]  kobject_uevent_env+0x5a8/0x794
-[  +0.000010]  kobject_uevent+0x14/0x20
-[  +0.000008]  driver_register+0x230/0x3e4
-[  +0.000009]  __platform_driver_register+0x6c/0x94
-[  +0.000007]  gxbb_driver_init+0x28/0x34
-[  +0.000010]  do_one_initcall+0xc4/0x2b0
-[  +0.000008]  do_initcalls+0x20c/0x24c
-[  +0.000010]  kernel_init_freeable+0x22c/0x278
-[  +0.000009]  kernel_init+0x3c/0x170
-[  +0.000008]  ret_from_fork+0x10/0x20
-
-[  +0.000013] The buggy address belongs to the object at ffff000006731600
-               which belongs to the cache kmalloc-256 of size 256
-[  +0.000009] The buggy address is located 136 bytes inside of
-               256-byte region [ffff000006731600, ffff000006731700)
-
-[  +0.000015] The buggy address belongs to the physical page:
-[  +0.000008] page:fffffc000019cc00 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff000006730a00 pfn:0x6730
-[  +0.000011] head:fffffc000019cc00 order:2 compound_mapcount:0 compound_pincount:0
-[  +0.000008] flags: 0xffff00000010200(slab|head|node=0|zone=0|lastcpupid=0xffff)
-[  +0.000016] raw: 0ffff00000010200 fffffc00000c3d08 fffffc0000ef2b08 ffff000000002680
-[  +0.000009] raw: ffff000006730a00 0000000000150014 00000001ffffffff 0000000000000000
-[  +0.000006] page dumped because: kasan: bad access detected
-
-[  +0.000011] Memory state around the buggy address:
-[  +0.000007]  ffff000006731580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  +0.000007]  ffff000006731600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007] >ffff000006731680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007]                       ^
-[  +0.000006]  ffff000006731700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  +0.000007]  ffff000006731780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  +0.000006] ==================================================================
-
-Fix by adding 'remove' driver callback for meson-drm, and explicitly deleting the
-aggregate device.
-
-Signed-off-by: Adrián Larumbe <adrian.larumbe@collabora.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220919010940.419893-3-adrian.larumbe@collabora.com
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://protect2.fireeye.com/v1/url?k=3e644738-5fef521d-3e65cc77-
+74fe485cbff6-36ad29bf912d3c9f&q=1&e=5cc06174-77dd-4abd-ab50-
+155da5711aa3&u=https%3A%2F%2Fgithub.com%2FClangBuiltLinux%2Flinux%2Fissues%2F
+1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/exynos/exynos_hdmi.c  | 4 ++--
+ drivers/gpu/drm/exynos/exynos_mixer.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 56c7daeb116a..6e37de4fcb46 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -520,6 +520,13 @@ static int meson_drv_probe(struct platform_device *pdev)
- 	return 0;
- };
+diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
+index 7655142a4651..912a7df9f8c4 100644
+--- a/drivers/gpu/drm/exynos/exynos_hdmi.c
++++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
+@@ -922,8 +922,8 @@ static int hdmi_find_phy_conf(struct hdmi_context *hdata, u32 pixel_clock)
+ 	return -EINVAL;
+ }
  
-+static int meson_drv_remove(struct platform_device *pdev)
-+{
-+	component_master_del(&pdev->dev, &meson_drv_master_ops);
-+
-+	return 0;
-+}
-+
- static struct meson_drm_match_data meson_drm_gxbb_data = {
- 	.compat = VPU_COMPATIBLE_GXBB,
- };
-@@ -557,6 +564,7 @@ static const struct dev_pm_ops meson_drv_pm_ops = {
+-static int hdmi_mode_valid(struct drm_connector *connector,
+-			struct drm_display_mode *mode)
++static enum drm_mode_status hdmi_mode_valid(struct drm_connector *connector,
++					    struct drm_display_mode *mode)
+ {
+ 	struct hdmi_context *hdata = connector_to_hdmi(connector);
+ 	int ret;
+diff --git a/drivers/gpu/drm/exynos/exynos_mixer.c b/drivers/gpu/drm/exynos/exynos_mixer.c
+index 41c54f1f60bc..8d01e1068245 100644
+--- a/drivers/gpu/drm/exynos/exynos_mixer.c
++++ b/drivers/gpu/drm/exynos/exynos_mixer.c
+@@ -1044,7 +1044,7 @@ static void mixer_atomic_disable(struct exynos_drm_crtc *crtc)
+ 	clear_bit(MXR_BIT_POWERED, &ctx->flags);
+ }
  
- static struct platform_driver meson_drm_platform_driver = {
- 	.probe      = meson_drv_probe,
-+	.remove     = meson_drv_remove,
- 	.shutdown   = meson_drv_shutdown,
- 	.driver     = {
- 		.name	= "meson-drm",
+-static int mixer_mode_valid(struct exynos_drm_crtc *crtc,
++static enum drm_mode_status mixer_mode_valid(struct exynos_drm_crtc *crtc,
+ 		const struct drm_display_mode *mode)
+ {
+ 	struct mixer_context *ctx = crtc->ctx;
 -- 
 2.35.1
 
