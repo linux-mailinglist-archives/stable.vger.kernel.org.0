@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8456B5F95F0
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7105F9618
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbiJJA0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60150 "EHLO
+        id S231827AbiJJA0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:26:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbiJJAYF (ORCPT
+        with ESMTP id S233038AbiJJAYF (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:24:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D9A2FC3C;
-        Sun,  9 Oct 2022 16:58:39 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E3A144566;
+        Sun,  9 Oct 2022 16:58:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC79FB80DDF;
-        Sun,  9 Oct 2022 23:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7362C433D6;
-        Sun,  9 Oct 2022 23:58:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00AB2B80DDF;
+        Sun,  9 Oct 2022 23:58:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C73CC433D7;
+        Sun,  9 Oct 2022 23:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359916;
-        bh=oB3xpT3Zs7hadFynM24sKouggPpK1LgwIk14AdEUvRU=;
+        s=k20201202; t=1665359920;
+        bh=1f/IIM22KhSPq/tEzKR9rXQnG4Nt9yGvBNVX09/3mEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D4Dv+BmcIKh/a4rp7id2dE1obx+MrEnIUCwrYWjL4cZRjlFaOoYUNMFyAnDu+1W8J
-         20/R3Vjcqog4Y7ctRINSP/gl1Hslhrt4clbqQS4miNYEMOLZt8QVnlyUIkP4qXMvQU
-         9Vxit0nkzYcyFI0RbImvbwoUBl9WahBg5I7lXe9heyxkd4N3kpfdGKPkC2leW36FVX
-         ldkIElDAC2Tb6KeQPRWpwS9hPR6rc4b0o8Hld/8iPnUZlSdmlxIrIarVmQ1HVL3Oee
-         ggDyHPWvxsiCAz8cUDfRCanWlisy7CQ9G14RNFXtjwU5qIi6N3gh92ha4jrTwzq+qA
-         rDFSwS3clP+fw==
+        b=Ndedgr/Ai16WObmLsdK7PNKtZc7UzRyYeu3Em8c4ntpBqjxBeCrZnAQIOoqKlHY5T
+         /N6GVwOXZmkaM3ri9DtmVO17m42fglODE6R2OYp3PppkG407gihEb0lmKyi+B19dtN
+         5RnWIORcvLGFx1eNUOkXDenhG3hITrxwPNywKjbYk4xgrnU6GUMP11O7QE73w7K9NE
+         nEP8Sq3LD69/OrRhgm2Otezn+Diy/Wl/HJi3+0atpT3hVbFENoo2bsQEM3EJ6tm1NX
+         dsYtrA8t3aqvi8XDDkUcFaBhjl2Sq69f4dz89nYQPqtO/J5xtfkxr4nHuF0YAeNmbE
+         AsvkO/uxw7cKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jlee@suse.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 5/6] platform/x86: msi-laptop: Change DMI match / alias strings to fix module autoloading
-Date:   Sun,  9 Oct 2022 19:58:07 -0400
-Message-Id: <20221009235808.1232269-5-sashal@kernel.org>
+Cc:     hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        harry.wentland@amd.com, tzimmermann@suse.de,
+        ville.syrjala@linux.intel.com, cssk@net-c.es, maxime@cerno.tech,
+        zhou1615@umn.edu, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 6/6] drm/amdgpu: fix initial connector audio value
+Date:   Sun,  9 Oct 2022 19:58:08 -0400
+Message-Id: <20221009235808.1232269-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235808.1232269-1-sashal@kernel.org>
 References: <20221009235808.1232269-1-sashal@kernel.org>
@@ -55,55 +60,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: hongao <hongao@uniontech.com>
 
-[ Upstream commit 2a2565272a3628e45d61625e36ef17af7af4e3de ]
+[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
 
-On a MSI S270 with Fedora 37 x86_64 / systemd-251.4 the module does not
-properly autoload.
+This got lost somewhere along the way, This fixes
+audio not working until set_property was called.
 
-This is likely caused by issues with how systemd-udevd handles the single
-quote char (') which is part of the sys_vendor / chassis_vendor strings
-on this laptop. As a workaround remove the single quote char + everything
-behind it from the sys_vendor + chassis_vendor matches. This fixes
-the module not autoloading.
-
-Link: https://github.com/systemd/systemd/issues/24715
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220917210407.647432-1-hdegoede@redhat.com
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/msi-laptop.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index d5bfcc602090..3ad6ab5d2113 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -609,11 +609,10 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
- 	{
- 		.ident = "MSI S270",
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
-+			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
--			DMI_MATCH(DMI_CHASSIS_VENDOR,
--				  "MICRO-STAR INT'L CO.,LTD")
-+			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
- 		},
- 		.driver_data = &quirk_old_ec_model,
- 		.callback = dmi_check_cb
-@@ -646,8 +645,7 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
--			DMI_MATCH(DMI_CHASSIS_VENDOR,
--				  "MICRO-STAR INT'L CO.,LTD")
-+			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
- 		},
- 		.driver_data = &quirk_old_ec_model,
- 		.callback = dmi_check_cb
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index 0894bb98dc51..be3a384cc1cf 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -1678,10 +1678,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 						   adev->mode_info.dither_property,
+ 						   AMDGPU_FMT_DITHER_DISABLE);
+ 
+-			if (amdgpu_audio != 0)
++			if (amdgpu_audio != 0) {
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
++			}
+ 
+ 			subpixel_order = SubPixelHorizontalRGB;
+ 			connector->interlace_allowed = true;
+@@ -1786,6 +1788,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1834,6 +1837,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1879,6 +1883,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
 -- 
 2.35.1
 
