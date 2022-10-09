@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7105F9618
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05ADC5F9601
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbiJJA0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
+        id S232714AbiJJA0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:26:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233038AbiJJAYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:24:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E3A144566;
-        Sun,  9 Oct 2022 16:58:43 -0700 (PDT)
+        with ESMTP id S233049AbiJJAYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:24:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31AE9C34;
+        Sun,  9 Oct 2022 16:58:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00AB2B80DDF;
-        Sun,  9 Oct 2022 23:58:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C73CC433D7;
-        Sun,  9 Oct 2022 23:58:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A35C260CF4;
+        Sun,  9 Oct 2022 23:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE102C433C1;
+        Sun,  9 Oct 2022 23:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359920;
-        bh=1f/IIM22KhSPq/tEzKR9rXQnG4Nt9yGvBNVX09/3mEg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ndedgr/Ai16WObmLsdK7PNKtZc7UzRyYeu3Em8c4ntpBqjxBeCrZnAQIOoqKlHY5T
-         /N6GVwOXZmkaM3ri9DtmVO17m42fglODE6R2OYp3PppkG407gihEb0lmKyi+B19dtN
-         5RnWIORcvLGFx1eNUOkXDenhG3hITrxwPNywKjbYk4xgrnU6GUMP11O7QE73w7K9NE
-         nEP8Sq3LD69/OrRhgm2Otezn+Diy/Wl/HJi3+0atpT3hVbFENoo2bsQEM3EJ6tm1NX
-         dsYtrA8t3aqvi8XDDkUcFaBhjl2Sq69f4dz89nYQPqtO/J5xtfkxr4nHuF0YAeNmbE
-         AsvkO/uxw7cKA==
+        s=k20201202; t=1665359929;
+        bh=pM5RMo4uAMiKF6X+4lf7+U0OlbszhbcSfGki5iniq/c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MyjCM5I/AHmeL0/reO7A6tpg5KCq2R+vx0KGbktglwGpJu81iXMwaikn+OQY/kwct
+         lJqoOpY64jn2Yzv57wFqbkdMkr0V2u0CDYwWPNYPTqlxd+nAXtguYNpE90m0s5cJY5
+         dsvN+lePn4K/FBcNNQBNZfT1Hk9SZZ7CRcy11lcAlpE9aG17sr/2BMbkOe4H+M3GeO
+         riXzUEusrXY1NblA0HxOxFMPcSqqWfCEM/893y2BgUPGrUMQj/nGqqKbCcIwsCFDMc
+         heVy+PF68uVP6iksNDmntc5BT5ocG1kZTBF7BnkBhAuC0giUN8Dgdcg8eNwyT2xiv3
+         8uCkPj/FOiBFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     hongao <hongao@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        harry.wentland@amd.com, tzimmermann@suse.de,
-        ville.syrjala@linux.intel.com, cssk@net-c.es, maxime@cerno.tech,
-        zhou1615@umn.edu, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 6/6] drm/amdgpu: fix initial connector audio value
-Date:   Sun,  9 Oct 2022 19:58:08 -0400
-Message-Id: <20221009235808.1232269-6-sashal@kernel.org>
+Cc:     Javier Martinez Canillas <javierm@redhat.com>,
+        Peter Robinson <pbrobinson@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        airlied@gmail.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 1/4] drm: Use size_t type for len variable in drm_copy_field()
+Date:   Sun,  9 Oct 2022 19:58:38 -0400
+Message-Id: <20221009235841.1232395-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221009235808.1232269-1-sashal@kernel.org>
-References: <20221009235808.1232269-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,62 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hongao <hongao@uniontech.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
+[ Upstream commit 94dc3471d1b2b58b3728558d0e3f264e9ce6ff59 ]
 
-This got lost somewhere along the way, This fixes
-audio not working until set_property was called.
+The strlen() function returns a size_t which is an unsigned int on 32-bit
+arches and an unsigned long on 64-bit arches. But in the drm_copy_field()
+function, the strlen() return value is assigned to an 'int len' variable.
 
-Signed-off-by: hongao <hongao@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Later, the len variable is passed as copy_from_user() third argument that
+is an unsigned long parameter as well.
+
+In theory, this can lead to an integer overflow via type conversion. Since
+the assignment happens to a signed int lvalue instead of a size_t lvalue.
+
+In practice though, that's unlikely since the values copied are set by DRM
+drivers and not controlled by userspace. But using a size_t for len is the
+correct thing to do anyways.
+
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-2-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 0894bb98dc51..be3a384cc1cf 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -1678,10 +1678,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 						   adev->mode_info.dither_property,
- 						   AMDGPU_FMT_DITHER_DISABLE);
+diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
+index 04b26ca06180..faa084ff4f17 100644
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -419,7 +419,7 @@ EXPORT_SYMBOL(drm_invalid_op);
+  */
+ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
+ {
+-	int len;
++	size_t len;
  
--			if (amdgpu_audio != 0)
-+			if (amdgpu_audio != 0) {
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
-+			}
- 
- 			subpixel_order = SubPixelHorizontalRGB;
- 			connector->interlace_allowed = true;
-@@ -1786,6 +1788,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1834,6 +1837,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1879,6 +1883,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
+ 	/* don't overflow userbuf */
+ 	len = strlen(value);
 -- 
 2.35.1
 
