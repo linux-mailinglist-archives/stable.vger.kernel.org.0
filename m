@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3F15F9616
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65ED5F95EA
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231238AbiJJA0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35254 "EHLO
+        id S232421AbiJJAZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232779AbiJJAWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:22:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 726591571B;
+        with ESMTP id S232783AbiJJAWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:22:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61DC1583C;
         Sun,  9 Oct 2022 16:56:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CAA63CE0F9B;
-        Sun,  9 Oct 2022 23:56:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB8FC433B5;
-        Sun,  9 Oct 2022 23:56:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93733B80DEA;
+        Sun,  9 Oct 2022 23:56:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96197C433D6;
+        Sun,  9 Oct 2022 23:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359796;
-        bh=o3vtTwlB4jCOZ2PyHCmxu2zJ9FHZxZzmrmeAx8nin9U=;
+        s=k20201202; t=1665359797;
+        bh=nlsFU6+qAFHENonUxtCRXgN1MbdHlXKsPAZ0zCns0UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRJ0EDRteZiRSvcjvIY2JDR4OtJzK+opAJGwPRsAwd+xKlcVtYaKK7BF8/rZOsqno
-         rGmdsuC3Q/xCWcSos0tJYuVhCbWeEDCLq9nkz7JXBKumTwOv9PSnk2jeB9df6HnQK6
-         3kGmDM1i6xz8VPnLyDCyL36DvOuD7Yx4O0vte/06HmW3PH2pxd0l2lKMWVfulfi2kJ
-         uJ40a3wCCRR0BUO9oxvMGusNYXjInAqHcbAhZOlbi0mA6dW6Qy6ba2iWMSYUOL/8gs
-         1CSBswG3p87RaG580BDHQ53xgzPzMC+yW2078+yJAtvdbBvsSTn3YfsF0YynfR1Hcm
-         Fkx7JTyZJBOww==
+        b=f5imAO8dcJZH0g03y2DhiZzDrpUSnH3fGzgwAzyMwkmF1bd9LOUzRyj2QFeiIZMbj
+         w+hwK6JDnw9aKFVWSlCj8dZDum8+/g6R0sRqdRTrAF59JtZQby2jvI17NiRSMVGuWS
+         fFy/hD22isFC1RUKspf/Y85l1MOBL7FkiHmTwe8RPtIfwsa+Y0GS0tjXN0KGN3lf45
+         QCb7lh2mYgq1ObrKe8dGJQvxC8CTRB1H/NRN6Q4zOTRUEeMG1/3vippI246lA0NyJJ
+         nV736ahhxxr8LqyQbQxgZL8iaI9IbigYdY/mHe4kgo7qQLbGldypL+pMVotDgd/x6c
+         mpdBGdGo/L8Tg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jameson Thies <jthies@google.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        chrome-platform@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 13/22] platform/chrome: cros_ec: Notify the PM of wake events during resume
-Date:   Sun,  9 Oct 2022 19:55:31 -0400
-Message-Id: <20221009235540.1231640-13-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jlee@suse.com,
+        markgross@kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/22] platform/x86: msi-laptop: Change DMI match / alias strings to fix module autoloading
+Date:   Sun,  9 Oct 2022 19:55:32 -0400
+Message-Id: <20221009235540.1231640-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235540.1231640-1-sashal@kernel.org>
 References: <20221009235540.1231640-1-sashal@kernel.org>
@@ -58,53 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jameson Thies <jthies@google.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8edd2752b0aa498b3a61f3caee8f79f7e0567fad ]
+[ Upstream commit 2a2565272a3628e45d61625e36ef17af7af4e3de ]
 
-cros_ec_handle_event in the cros_ec driver can notify the PM of wake
-events. When a device is suspended, cros_ec_handle_event will not check
-MKBP events. Instead, received MKBP events are checked during resume by
-cros_ec_report_events_during_suspend. But
-cros_ec_report_events_during_suspend cannot notify the PM if received
-events are wake events, causing wake events to not be reported if
-received while the device is suspended.
+On a MSI S270 with Fedora 37 x86_64 / systemd-251.4 the module does not
+properly autoload.
 
-Update cros_ec_report_events_during_suspend to notify the PM of wake
-events during resume by calling pm_wakeup_event.
+This is likely caused by issues with how systemd-udevd handles the single
+quote char (') which is part of the sys_vendor / chassis_vendor strings
+on this laptop. As a workaround remove the single quote char + everything
+behind it from the sys_vendor + chassis_vendor matches. This fixes
+the module not autoloading.
 
-Signed-off-by: Jameson Thies <jthies@google.com>
-Reviewed-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220913204954.2931042-1-jthies@google.com
+Link: https://github.com/systemd/systemd/issues/24715
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220917210407.647432-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/platform/x86/msi-laptop.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index c4de8c4db193..5a622666a075 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -332,10 +332,16 @@ EXPORT_SYMBOL(cros_ec_suspend);
- 
- static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
- {
-+	bool wake_event;
-+
- 	while (ec_dev->mkbp_event_supported &&
--	       cros_ec_get_next_event(ec_dev, NULL, NULL) > 0)
-+	       cros_ec_get_next_event(ec_dev, &wake_event, NULL) > 0) {
- 		blocking_notifier_call_chain(&ec_dev->event_notifier,
- 					     1, ec_dev);
-+
-+		if (wake_event && device_may_wakeup(ec_dev->dev))
-+			pm_wakeup_event(ec_dev->dev, 0);
-+	}
- }
- 
- /**
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 24ffc8e2d2d1..d8a94968aedc 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -596,11 +596,10 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+ 	{
+ 		.ident = "MSI S270",
+ 		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
+-			DMI_MATCH(DMI_CHASSIS_VENDOR,
+-				  "MICRO-STAR INT'L CO.,LTD")
++			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
+ 		},
+ 		.driver_data = &quirk_old_ec_model,
+ 		.callback = dmi_check_cb
+@@ -633,8 +632,7 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
+-			DMI_MATCH(DMI_CHASSIS_VENDOR,
+-				  "MICRO-STAR INT'L CO.,LTD")
++			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
+ 		},
+ 		.driver_data = &quirk_old_ec_model,
+ 		.callback = dmi_check_cb
 -- 
 2.35.1
 
