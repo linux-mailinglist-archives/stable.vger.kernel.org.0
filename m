@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A09DD5F95F9
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A00075F9606
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232676AbiJJA0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60192 "EHLO
+        id S231717AbiJJA0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:26:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232748AbiJJAWf (ORCPT
+        with ESMTP id S232749AbiJJAWf (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:22:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7037860E2;
-        Sun,  9 Oct 2022 16:56:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFCB60F8;
+        Sun,  9 Oct 2022 16:56:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CFCE60DC9;
-        Sun,  9 Oct 2022 23:56:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB09C433B5;
-        Sun,  9 Oct 2022 23:56:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E123F60D57;
+        Sun,  9 Oct 2022 23:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD534C433D7;
+        Sun,  9 Oct 2022 23:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359788;
-        bh=t5hmdcnuv44cMjaNtCCxpqakrK7D417F3SSIMY/c0Z4=;
+        s=k20201202; t=1665359790;
+        bh=4PTtWdXmjg58DcnDfoqUi1D2EwzL9HhrXD/pwzSWVpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPUS2mQEoLB7D5uHxi0bjrnzXERMxnG7CyPUIxxJJDKG/mFo2ttCAyfv3WvMCGTMZ
-         GanntesZXmUDwKjuEVi99j9UhLFgQ39sUfQSH/6kRQd6j0GUszLAWdMecoccTOPZ1o
-         73UQYgR79U+Kbx3o2E43ArFSW3FFkwIXOw0j8jMFol71SQ6wHrwIeUNVlTyWGwX627
-         N38K2KUcDh9Efe2w/iX8zCVXNcPFJPld6CFz9zGkQoiiyPGVe2XNpgVp4kSwgggfbN
-         TSlu5+02ccKyzdBOKAiXoTI6aVkX3IYh2dOcb10y3FzOkTscuzJQIMcGHQzeuKX8k/
-         3HwjixwLhkIww==
+        b=EdDl+sIQ3y4Zb16f0OJpWZrr6YpV9HBs1cnN5wO9YSN2hrJgEcwb7I6fXVv71OQgF
+         FqK/9CQUJUjTnet2FZ4CiIksJPdNF7d+awp3mNGMgRUca3YK5HG09vTIr8qZoTLosq
+         OObWP+W22jeulfF6/aROUtdRal41tQoA05zVJiYWzhZNaA16BsqNDYHnJAxQeUCOe4
+         d9iOTwZgsA/hFIfkiLVQpwv08qxUyBAGrXZgCAz43kqvZFQVnmoJteG1Ml0oO2KwTk
+         5RXl5HDIKRazkkH+RJKIzkohlYvQA04OvW/JCHD95mXA2qd02omFimGHmVYx7EsFOR
+         EDi09pazlasbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, andrzej.hajda@intel.com,
-        neil.armstrong@linaro.org, airlied@gmail.com, daniel@ffwll.ch,
-        Sandor.yu@nxp.com, ville.syrjala@linux.intel.com, sam@ravnborg.org,
-        tzimmermann@suse.de, maxime@cerno.tech,
+Cc:     Simon Ser <contact@emersion.fr>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 08/22] drm: bridge: dw_hdmi: only trigger hotplug event on link change
-Date:   Sun,  9 Oct 2022 19:55:26 -0400
-Message-Id: <20221009235540.1231640-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 09/22] drm: hide unregistered connectors from GETCONNECTOR IOCTL
+Date:   Sun,  9 Oct 2022 19:55:27 -0400
+Message-Id: <20221009235540.1231640-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235540.1231640-1-sashal@kernel.org>
 References: <20221009235540.1231640-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,63 +62,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Simon Ser <contact@emersion.fr>
 
-[ Upstream commit da09daf881082266e4075657fac53c7966de8e4d ]
+[ Upstream commit 981f09295687f856d5345e19c7084aca481c1395 ]
 
-There are two events that signal a real change of the link state: HPD going
-high means the sink is newly connected or wants the source to re-read the
-EDID, RX sense going low is a indication that the link has been disconnected.
+When registering a connector, the kernel sends a hotplug uevent in
+drm_connector_register(). When unregistering a connector, drivers
+are expected to send a uevent as well. However, user-space has no way
+to figure out that the connector isn't registered anymore: it'll still
+be reported in GETCONNECTOR IOCTLs.
 
-Ignore the other two events that also trigger interrupts, but don't need
-immediate attention: HPD going low does not necessarily mean the link has
-been lost and should not trigger a immediate read of the status. RX sense
-going high also does not require a detect cycle, as HPD going high is the
-right point in time to read the EDID.
+The documentation for DRM_CONNECTOR_UNREGISTERED states:
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com> (v1)
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220826185733.3213248-1-l.stach@pengutronix.de
+> The connector […] has since been unregistered and removed from
+> userspace, or the connector was unregistered before it had a chance
+> to be exposed to userspace
+
+Signed-off-by: Simon Ser <contact@emersion.fr>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220801133754.461037-1-contact@emersion.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_mode_config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index b10228b9e3a9..356c7d0bd035 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -2984,6 +2984,7 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
- {
- 	struct dw_hdmi *hdmi = dev_id;
- 	u8 intr_stat, phy_int_pol, phy_pol_mask, phy_stat;
-+	enum drm_connector_status status = connector_status_unknown;
- 
- 	intr_stat = hdmi_readb(hdmi, HDMI_IH_PHY_STAT0);
- 	phy_int_pol = hdmi_readb(hdmi, HDMI_PHY_POL0);
-@@ -3022,13 +3023,15 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
- 			cec_notifier_phys_addr_invalidate(hdmi->cec_notifier);
- 			mutex_unlock(&hdmi->cec_notifier_mutex);
- 		}
--	}
- 
--	if (intr_stat & HDMI_IH_PHY_STAT0_HPD) {
--		enum drm_connector_status status = phy_int_pol & HDMI_PHY_HPD
--						 ? connector_status_connected
--						 : connector_status_disconnected;
-+		if (phy_stat & HDMI_PHY_HPD)
-+			status = connector_status_connected;
+diff --git a/drivers/gpu/drm/drm_mode_config.c b/drivers/gpu/drm/drm_mode_config.c
+index f1affc1bb679..5ec0157b1426 100644
+--- a/drivers/gpu/drm/drm_mode_config.c
++++ b/drivers/gpu/drm/drm_mode_config.c
+@@ -150,6 +150,9 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
+ 	count = 0;
+ 	connector_id = u64_to_user_ptr(card_res->connector_id_ptr);
+ 	drm_for_each_connector_iter(connector, &conn_iter) {
++		if (connector->registration_state != DRM_CONNECTOR_REGISTERED)
++			continue;
 +
-+		if (!(phy_stat & (HDMI_PHY_HPD | HDMI_PHY_RX_SENSE)))
-+			status = connector_status_disconnected;
-+	}
- 
-+	if (status != connector_status_unknown) {
- 		dev_dbg(hdmi->dev, "EVENT=%s\n",
- 			status == connector_status_connected ?
- 			"plugin" : "plugout");
+ 		/* only expose writeback connectors if userspace understands them */
+ 		if (!file_priv->writeback_connectors &&
+ 		    (connector->connector_type == DRM_MODE_CONNECTOR_WRITEBACK))
 -- 
 2.35.1
 
