@@ -2,52 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3315F9506
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3365F950B
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231804AbiJJAOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57192 "EHLO
+        id S231858AbiJJAOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231487AbiJJANY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:13:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B23C580BB;
-        Sun,  9 Oct 2022 16:51:08 -0700 (PDT)
+        with ESMTP id S231535AbiJJANf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:13:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15E01A3B2;
+        Sun,  9 Oct 2022 16:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC62460D3F;
-        Sun,  9 Oct 2022 23:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B239C433C1;
-        Sun,  9 Oct 2022 23:51:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4160BCE0E90;
+        Sun,  9 Oct 2022 23:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EFCBC433B5;
+        Sun,  9 Oct 2022 23:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359467;
-        bh=Syyww4aE/A9q2YbgecUDjN7WhpYEeXohYESQpJiSY+w=;
+        s=k20201202; t=1665359480;
+        bh=0Mkkz5bfFZBlBKXGzFz6TYYw1H49rCJnHuktGD6YMI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3tlTlt4I8OFepj2T5UZ35Lqa6etCm/3lQCzcoaQrMfbiCWp5WcXnSvgGRIqG9o4T
-         A0HbUiF3eG3+8tEDjMu1I16J4C0LrUDZdLC+yoPZB5zAt8KUfOA3E7smFvuxSO6IPS
-         j4rhVMWQ1/npM/8l6+cBsG5BknsFW+JNDhcoQrRM1FjUkinBtFIUhP3TbsFx9kYlLM
-         upQEfjxGrBuLGtW6aVZ0qRRtHVZKie98+r/adZWBxFzTanPjdmBFyEZBBAZosg5z3u
-         BWZ7AnGj7gIspkDA5nYnP33t8o0GFAP6LpAxL8z7rmv9t8r2QB1IdVv5XqN7d2jndZ
-         w0AOqHz1tW2+Q==
+        b=Ahje+cu0uJRI2KWNXTiElJg4DNMt95ToVUp2aTlpmHOMJjsHttpRXkbjHvev3TPf+
+         M0HtfvaHFKrSfTCPlhQMT+bf6LSFXfszCz3taS0ERyBdZ4LZ3p69/nnqoY/YjyXzoZ
+         MdvxxWGYH+QQRXyQqCYSlkFICMeTE08t9beHaaO9k9E/7Zm1ISokuDtS2C85F1yRIY
+         x4508q1mRIT0OxNYqI5vrlkcoeJOJJieGE/wTy84VC6weZLohESoN+pzcVYD6VHdmZ
+         8qi/2iIFrhJ/lbRj9vFSEWR0YuHbw9C1l8okBS+YmOWKWD5c6w0qPBycA9l6uELbmp
+         4iPc5tSoJa68A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <felix.kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     George Shen <george.shen@amd.com>, Alvin Lee <alvin.lee2@amd.com>,
+        Nevenko Stupar <Nevenko.Stupar@amd.com>,
+        Wayne Lin <wayne.lin@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@gmail.com, daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, Alvin.Lee2@amd.com, Jun.Lei@amd.com,
+        samson.tam@amd.com, David.Galiffi@amd.com,
+        yang.lee@linux.alibaba.com, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 29/44] drm/amdgpu: SDMA update use unlocked iterator
-Date:   Sun,  9 Oct 2022 19:49:17 -0400
-Message-Id: <20221009234932.1230196-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 30/44] drm/amd/display: Fix urgent latency override for DCN32/DCN321
+Date:   Sun,  9 Oct 2022 19:49:18 -0400
+Message-Id: <20221009234932.1230196-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,58 +64,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: George Shen <george.shen@amd.com>
 
-[ Upstream commit 3913f0179ba366f7d7d160c506ce00de1602bbc4 ]
+[ Upstream commit e7f2f4cd67443ce308480ca461806fcc3456e0ba ]
 
-SDMA update page table may be called from unlocked context, this
-generate below warning. Use unlocked iterator to handle this case.
+[Why]
+The urgent latency override is useful when debugging issues
+relating to underflow.
 
-WARNING: CPU: 0 PID: 1475 at
-drivers/dma-buf/dma-resv.c:483 dma_resv_iter_next
-Call Trace:
- dma_resv_iter_first+0x43/0xa0
- amdgpu_vm_sdma_update+0x69/0x2d0 [amdgpu]
- amdgpu_vm_ptes_update+0x29c/0x870 [amdgpu]
- amdgpu_vm_update_range+0x2f6/0x6c0 [amdgpu]
- svm_range_unmap_from_gpus+0x115/0x300 [amdgpu]
- svm_range_cpu_invalidate_pagetables+0x510/0x5e0 [amdgpu]
- __mmu_notifier_invalidate_range_start+0x1d3/0x230
- unmap_vmas+0x140/0x150
- unmap_region+0xa8/0x110
+Current overridden variable is not correct and has no effect
+on DCN3.2 and DCN3.21 DML calculations.
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Suggested-by: Felix Kuehling <felix.kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+[How]
+For DCN3.2 and DCN3.21, override the correct urgent latency
+variable when bounding box override is present.
+
+Reviewed-by: Alvin Lee <alvin.lee2@amd.com>
+Reviewed-by: Nevenko Stupar <Nevenko.Stupar@amd.com>
+Acked-by: Wayne Lin <wayne.lin@amd.com>
+Signed-off-by: George Shen <george.shen@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c   | 1 +
+ drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
-index 1fd3cbca20a2..718db7d98e5a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
-@@ -211,12 +211,15 @@ static int amdgpu_vm_sdma_update(struct amdgpu_vm_update_params *p,
- 	int r;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+index e573e706430d..b9d3a4000c3d 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+@@ -2199,6 +2199,7 @@ void dcn32_update_bw_bounding_box_fpu(struct dc *dc, struct clk_bw_params *bw_pa
+ 		if ((int)(dcn3_2_soc.urgent_latency_us * 1000) != dc->bb_overrides.urgent_latency_ns
+ 			&& dc->bb_overrides.urgent_latency_ns) {
+ 			dcn3_2_soc.urgent_latency_us = dc->bb_overrides.urgent_latency_ns / 1000.0;
++			dcn3_2_soc.urgent_latency_pixel_data_only_us = dc->bb_overrides.urgent_latency_ns / 1000.0;
+ 		}
  
- 	/* Wait for PD/PT moves to be completed */
--	dma_resv_for_each_fence(&cursor, bo->tbo.base.resv,
--				DMA_RESV_USAGE_KERNEL, fence) {
-+	dma_resv_iter_begin(&cursor, bo->tbo.base.resv, DMA_RESV_USAGE_KERNEL);
-+	dma_resv_for_each_fence_unlocked(&cursor, fence) {
- 		r = amdgpu_sync_fence(&p->job->sync, fence);
--		if (r)
-+		if (r) {
-+			dma_resv_iter_end(&cursor);
- 			return r;
-+		}
- 	}
-+	dma_resv_iter_end(&cursor);
+ 		if ((int)(dcn3_2_soc.dram_clock_change_latency_us * 1000)
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+index c87091683b5d..b6369758b491 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+@@ -489,6 +489,7 @@ void dcn321_update_bw_bounding_box_fpu(struct dc *dc, struct clk_bw_params *bw_p
+ 		if ((int)(dcn3_21_soc.urgent_latency_us * 1000) != dc->bb_overrides.urgent_latency_ns
+ 			&& dc->bb_overrides.urgent_latency_ns) {
+ 			dcn3_21_soc.urgent_latency_us = dc->bb_overrides.urgent_latency_ns / 1000.0;
++			dcn3_21_soc.urgent_latency_pixel_data_only_us = dc->bb_overrides.urgent_latency_ns / 1000.0;
+ 		}
  
- 	do {
- 		ndw = p->num_dw_left;
+ 		if ((int)(dcn3_21_soc.dram_clock_change_latency_us * 1000)
 -- 
 2.35.1
 
