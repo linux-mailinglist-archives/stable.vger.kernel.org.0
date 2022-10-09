@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F8F5F8F8A
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD4E5F8F9A
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231211AbiJIWKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:10:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40930 "EHLO
+        id S230201AbiJIWKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:10:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbiJIWJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:09:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA1B286DE;
-        Sun,  9 Oct 2022 15:08:49 -0700 (PDT)
+        with ESMTP id S231142AbiJIWJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:09:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB5AE27FFA;
+        Sun,  9 Oct 2022 15:08:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1536B80DD2;
-        Sun,  9 Oct 2022 22:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F761C43143;
-        Sun,  9 Oct 2022 22:08:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6507FB80DD7;
+        Sun,  9 Oct 2022 22:08:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF87EC433D7;
+        Sun,  9 Oct 2022 22:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353325;
-        bh=QRlhcj5BMHJzNR3pQ4+/M72AS4Peto5sSQnQiwknc4c=;
+        s=k20201202; t=1665353327;
+        bh=/LmuOibYq4SSvlEYG9tQkbKyOyx/DdrdHV6RwtqcukY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grIlAGL948xJQrVbsGm7G8eHP4iQOH19ZVB3//2GhzSmvlQU4CPFDOuEO4Bgrg9qI
-         g9KK9x8TQozzyzQzjDzMTMBzEmvKNaowHZzw074pBsi0mWLrIFDP7rUrHYfnED3Zb1
-         BG2+uIavtlg+TEph2BwzsZjZU1tPHosAXiuIzUFs1iH/jKRT/zNYQPxUmQ26ufvt0I
-         KkgAV0RUb+8+sQ5qw3rNCi/YHAdW3FVhth7unKa004kgkXWLLjjLeVs3tDjajPvYSA
-         Mxdd50URFoEsF5M9Bh1YrlVcBkr4cEA01PTLfoNxWT00Uw8UgeoX0k4VPTgX69V51p
-         7ZA8F79PtWULA==
+        b=Nycm77E36xDLKRLiIjEDBqPw1O22Z/tb4iZZ0F+5jvHyEYuYwoKmnoX2HbHMOPCUc
+         II6TVrIGDSsVKHG2p7FlWthZWuGqH9rDEC016rpXO8XRPFIOpNPoZQkGvf2Oh9OAu0
+         h7lSgkFPqHnBwQRB2UEZjoT/3bR7HfLjlFxlYKlmM51tMT7uVbyfH4gGcK4vI4Ix+K
+         yOaJuYJ+oMO4pLB0r01zyFA9GSgLfD2S6AielDwKisK/gmAJGsxaUMde/u5ho8qTDF
+         NsOQcB+7MydyI8D7QLcugT0g//7LQS37L+Ih6jO18yMoGOO1sWMAfxOdzSc0tBUfVS
+         VzedjSRXDL+ZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcus Carlberg <marcus.carlberg@axis.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
-        vivien.didelot@gmail.com, f.fainelli@gmail.com, olteanv@gmail.com,
-        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 18/77] net: dsa: mv88e6xxx: Allow external SMI if serial
-Date:   Sun,  9 Oct 2022 18:06:55 -0400
-Message-Id: <20221009220754.1214186-18-sashal@kernel.org>
+Cc:     Jane Chu <jane.chu@oracle.com>, Borislav Petkov <bp@suse.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, bp@alien8.de,
+        tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com,
+        x86@kernel.org, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 19/77] x86/mce: Retrieve poison range from hardware
+Date:   Sun,  9 Oct 2022 18:06:56 -0400
+Message-Id: <20221009220754.1214186-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
 References: <20221009220754.1214186-1-sashal@kernel.org>
@@ -58,41 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Carlberg <marcus.carlberg@axis.com>
+From: Jane Chu <jane.chu@oracle.com>
 
-[ Upstream commit 8532c60efcc5b7b382006129b77aee2c19c43f15 ]
+[ Upstream commit f9781bb18ed828e7b83b7bac4a4ad7cd497ee7d7 ]
 
-p0_mode set to one of the supported serial mode should not prevent
-configuring the external SMI interface in
-mv88e6xxx_g2_scratch_gpio_set_smi. The current masking of the p0_mode
-only checks the first 2 bits. This results in switches supporting
-serial mode cannot setup external SMI on certain serial modes
-(Ex: 1000BASE-X and SGMII).
+When memory poison consumption machine checks fire, MCE notifier
+handlers like nfit_handle_mce() record the impacted physical address
+range which is reported by the hardware in the MCi_MISC MSR. The error
+information includes data about blast radius, i.e. how many cachelines
+did the hardware determine are impacted. A recent change
 
-Extend the mask of the p0_mode to include the reduced modes and
-serial modes as allowed modes for the external SMI interface.
+  7917f9cdb503 ("acpi/nfit: rely on mce->misc to determine poison granularity")
 
-Signed-off-by: Marcus Carlberg <marcus.carlberg@axis.com>
-Link: https://lore.kernel.org/r/20220824093706.19049-1-marcus.carlberg@axis.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+updated nfit_handle_mce() to stop hard coding the blast radius value of
+1 cacheline, and instead rely on the blast radius reported in 'struct
+mce' which can be up to 4K (64 cachelines).
+
+It turns out that apei_mce_report_mem_error() had a similar problem in
+that it hard coded a blast radius of 4K rather than reading the blast
+radius from the error information. Fix apei_mce_report_mem_error() to
+convey the proper poison granularity.
+
+Signed-off-by: Jane Chu <jane.chu@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/7ed50fd8-521e-cade-77b1-738b8bfb8502@oracle.com
+Link: https://lore.kernel.org/r/20220826233851.1319100-1-jane.chu@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/global2.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mce/apei.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/global2.h b/drivers/net/dsa/mv88e6xxx/global2.h
-index 807aeaad9830..7536b8b0ad01 100644
---- a/drivers/net/dsa/mv88e6xxx/global2.h
-+++ b/drivers/net/dsa/mv88e6xxx/global2.h
-@@ -298,7 +298,7 @@
- #define MV88E6352_G2_SCRATCH_CONFIG_DATA1	0x71
- #define MV88E6352_G2_SCRATCH_CONFIG_DATA1_NO_CPU	BIT(2)
- #define MV88E6352_G2_SCRATCH_CONFIG_DATA2	0x72
--#define MV88E6352_G2_SCRATCH_CONFIG_DATA2_P0_MODE_MASK	0x3
-+#define MV88E6352_G2_SCRATCH_CONFIG_DATA2_P0_MODE_MASK	0xf
- #define MV88E6352_G2_SCRATCH_CONFIG_DATA3	0x73
- #define MV88E6352_G2_SCRATCH_CONFIG_DATA3_S_SEL		BIT(1)
+diff --git a/arch/x86/kernel/cpu/mce/apei.c b/arch/x86/kernel/cpu/mce/apei.c
+index 717192915f28..8ed341714686 100644
+--- a/arch/x86/kernel/cpu/mce/apei.c
++++ b/arch/x86/kernel/cpu/mce/apei.c
+@@ -29,15 +29,26 @@
+ void apei_mce_report_mem_error(int severity, struct cper_sec_mem_err *mem_err)
+ {
+ 	struct mce m;
++	int lsb;
  
+ 	if (!(mem_err->validation_bits & CPER_MEM_VALID_PA))
+ 		return;
+ 
++	/*
++	 * Even if the ->validation_bits are set for address mask,
++	 * to be extra safe, check and reject an error radius '0',
++	 * and fall back to the default page size.
++	 */
++	if (mem_err->validation_bits & CPER_MEM_VALID_PA_MASK)
++		lsb = find_first_bit((void *)&mem_err->physical_addr_mask, PAGE_SHIFT);
++	else
++		lsb = PAGE_SHIFT;
++
+ 	mce_setup(&m);
+ 	m.bank = -1;
+ 	/* Fake a memory read error with unknown channel */
+ 	m.status = MCI_STATUS_VAL | MCI_STATUS_EN | MCI_STATUS_ADDRV | MCI_STATUS_MISCV | 0x9f;
+-	m.misc = (MCI_MISC_ADDR_PHYS << 6) | PAGE_SHIFT;
++	m.misc = (MCI_MISC_ADDR_PHYS << 6) | lsb;
+ 
+ 	if (severity >= GHES_SEV_RECOVERABLE)
+ 		m.status |= MCI_STATUS_UC;
 -- 
 2.35.1
 
