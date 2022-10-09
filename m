@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E952B5F94E9
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 846AF5F94EA
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231643AbiJJANw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:13:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
+        id S230514AbiJJANz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231169AbiJJAMt (ORCPT
+        with ESMTP id S231281AbiJJAMt (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A732B37F80;
-        Sun,  9 Oct 2022 16:50:16 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C6E43148;
+        Sun,  9 Oct 2022 16:50:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5946EB80DE4;
-        Sun,  9 Oct 2022 23:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195DCC433D6;
-        Sun,  9 Oct 2022 23:50:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A93EB60D3F;
+        Sun,  9 Oct 2022 23:50:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB97C433C1;
+        Sun,  9 Oct 2022 23:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359414;
-        bh=IlbwxedBFgehkgmZM83YAvGzi/DzkHI0VCuiL4xBrZo=;
+        s=k20201202; t=1665359423;
+        bh=D57F51nhXs+6rwTKvULIB5lh9K58TqPulJrZALO2lFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FRofkGLicyZH+CbdbD8TM+Y2+QANMubrkVFxUbs49VDxEx5pnFYVeF4jYFDihQcUF
-         e7eXpxWmiOgyKkrdey5WYMeE8V7QGM6+c+NpQEQLYKzMcVgov+b/KvI0D7gKksVtiq
-         0ix2hdWw5dTalgFtrP7NoMjgAwCc3ZtKZmMDEvxrwl8u5t/44IdJ/xCCLbdOupLfhJ
-         1fq8b0Ndy6pVVci5EYOluIcaU8JduKxq9HvAOv01j6atlFwD7eYMdzyCA1GCKzLTX6
-         sYchNZGhKFAV7DFwuAD30mbYvK2eOkz5ZEbX4/L4ltmCfJ7/IJk07h0izC5V7ov7i4
-         gPNpkx5RXCQoQ==
+        b=RTELeqsV4IpYnlBcoO4JHI1C2vkJW2lb10mUBZyR5Ctfx2YVO6fQxQUK2WWdxSpIJ
+         RASE4b47f0WQOhDZ3YH4hMb2FvoRP/khcct51GaIxj+CJtfeRxTnVqVMBzE74jsiFe
+         xZPg6zudvg5rIr5NkjE/tnD36ODVUYbY3BZaHZYvDrX+31WZaUQeAZPKuqpJ4StVt4
+         8zJn83THEtp/r1dxAZJprfYfKsI1T5KgGLyMzNfgvjgTdNR613CH1kWBCu44Ii51Wt
+         ptLmoPn9po+A/Mj8W/DQksH+sNSVwHGEkdveXTLiGIOoKTHtJqk662H7+zrn7I8OGa
+         tWKlPlbAgJArg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     sunliming <sunliming@kylinos.cn>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Yifan Zha <Yifan.Zha@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Horace Chen <horace.chen@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, Alvin.Lee2@amd.com, Jun.Lei@amd.com,
-        Brian.Chang@amd.com, felipe.clark@amd.com,
-        aurabindo.pillai@amd.com, amd-gfx@lists.freedesktop.org,
+        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
+        airlied@gmail.com, daniel@ffwll.ch, Likun.Gao@amd.com,
+        tianci.yin@amd.com, Jack.Gui@amd.com, ray.huang@amd.com,
+        evan.quan@amd.com, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 13/44] drm/amd/display: Fix variable dereferenced before check
-Date:   Sun,  9 Oct 2022 19:49:01 -0400
-Message-Id: <20221009234932.1230196-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 14/44] drm/amdgpu: Skip the program of MMMC_VM_AGP_* in SRIOV on MMHUB v3_0_0
+Date:   Sun,  9 Oct 2022 19:49:02 -0400
+Message-Id: <20221009234932.1230196-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -63,43 +63,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunliming <sunliming@kylinos.cn>
+From: Yifan Zha <Yifan.Zha@amd.com>
 
-[ Upstream commit 45a92f45f4578ff89da7dc5ef50bab4ef870f3b7 ]
+[ Upstream commit c1026c6f319724dc88fc08d9d9d35bcbdf492b42 ]
 
-Fixes the following smatch warning:
+[Why]
+VF should not program these registers, the value were defined in the host.
 
-drivers/gpu/drm/amd/amdgpu/../display/dc/dc_dmub_srv.c:311 dc_dmub_srv_p_state_delegate()
-warn: variable dereferenced before check 'dc' (see line 309)
+[How]
+Skip writing them in SRIOV environment and program them on host side.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: sunliming <sunliming@kylinos.cn>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Yifan Zha <Yifan.Zha@amd.com>
+Signed-off-by: Horace Chen <horace.chen@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c b/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c
-index 52a61b3e5a8b..2e243b70747f 100644
---- a/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c
-+++ b/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c
-@@ -323,11 +323,13 @@ bool dc_dmub_srv_p_state_delegate(struct dc *dc, bool should_manage_pstate, stru
- 	struct dmub_cmd_fw_assisted_mclk_switch_config *config_data = &cmd.fw_assisted_mclk_switch.config_data;
- 	int i = 0;
- 	int ramp_up_num_steps = 1; // TODO: Ramp is currently disabled. Reenable it.
--	uint8_t visual_confirm_enabled = dc->debug.visual_confirm == VISUAL_CONFIRM_FAMS;
-+	uint8_t visual_confirm_enabled;
+diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
+index bc11b2de37ae..a1d26c4d80b8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
+@@ -169,17 +169,17 @@ static void mmhub_v3_0_init_system_aperture_regs(struct amdgpu_device *adev)
+ 	uint64_t value;
+ 	uint32_t tmp;
  
- 	if (dc == NULL)
- 		return false;
- 
-+	visual_confirm_enabled = dc->debug.visual_confirm == VISUAL_CONFIRM_FAMS;
+-	/* Disable AGP. */
+-	WREG32_SOC15(MMHUB, 0, regMMMC_VM_AGP_BASE, 0);
+-	WREG32_SOC15(MMHUB, 0, regMMMC_VM_AGP_TOP, 0);
+-	WREG32_SOC15(MMHUB, 0, regMMMC_VM_AGP_BOT, 0x00FFFFFF);
+-
+ 	if (!amdgpu_sriov_vf(adev)) {
+ 		/*
+ 		 * the new L1 policy will block SRIOV guest from writing
+ 		 * these regs, and they will be programed at host.
+ 		 * so skip programing these regs.
+ 		 */
++		/* Disable AGP. */
++		WREG32_SOC15(MMHUB, 0, regMMMC_VM_AGP_BASE, 0);
++		WREG32_SOC15(MMHUB, 0, regMMMC_VM_AGP_TOP, 0);
++		WREG32_SOC15(MMHUB, 0, regMMMC_VM_AGP_BOT, 0x00FFFFFF);
 +
- 	// Format command.
- 	cmd.fw_assisted_mclk_switch.header.type = DMUB_CMD__FW_ASSISTED_MCLK_SWITCH;
- 	cmd.fw_assisted_mclk_switch.header.sub_type = DMUB_CMD__FAMS_SETUP_FW_CTRL;
+ 		/* Program the system aperture low logical page number. */
+ 		WREG32_SOC15(MMHUB, 0, regMMMC_VM_SYSTEM_APERTURE_LOW_ADDR,
+ 			     adev->gmc.vram_start >> 18);
 -- 
 2.35.1
 
