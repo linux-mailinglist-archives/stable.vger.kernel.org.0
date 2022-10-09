@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D7925F9591
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:21:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F915F9594
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232429AbiJJAVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:21:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47700 "EHLO
+        id S232562AbiJJAVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:21:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232486AbiJJAUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:20:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8F2AE5C;
-        Sun,  9 Oct 2022 16:54:45 -0700 (PDT)
+        with ESMTP id S232495AbiJJAUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:20:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD92CDF07;
+        Sun,  9 Oct 2022 16:54:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0019860D57;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36DFDB80DEE;
+        Sun,  9 Oct 2022 23:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF140C433B5;
         Sun,  9 Oct 2022 23:54:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF8AC433C1;
-        Sun,  9 Oct 2022 23:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359684;
-        bh=IUpuJLyLUQd1BoDEG1IqdNAmx4Mwk+yPRjQw2dQF9bI=;
+        s=k20201202; t=1665359685;
+        bh=yxGkSTZYL1lOGJSNqH0ReJY84nBjcJY52M5+93fYZ7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFlXZLq0oIVfl7K8H5cniKOSrndye2gvYffq9f0O9rHjZ4Xv4htSgMn3oduOdr0h+
-         g0PeePx8QrLvKy5awF5/BKXHh30DTKcQGaTQVG+EMh1Bm/QAH8xMohHPC7kM599z/7
-         yyEwHm/clYk9VKyIfekEf4sBw2B6CLX8vm4qJGbgjmzsv4snBz8tPnve1I8ihqCAVJ
-         TLCm6FtP+IgXHDcT/NOyWlrWpMjTxakL3No8YOtj3IrSJJC/I4czGZtGpyBvPJAzM0
-         6d95ywSTE5s2t4Or/m5ulHoxAlvy45EJEQJWWxDMNmDJmxLt/IWYi6EXjHipPsLA0a
-         Wbj3grH9bCH3Q==
+        b=GVY3o9WP/x4ceRAR560UbnmCdghhCuB4Rq4V0/oSPrZt+DRA7rtkz808yCGNTzD7H
+         ElLzv2qUT5aznFJqzg/yTakXuB3dB6kzCNLR3QPzG+0+NeWCVkgg/Eu7ojuZHUb3D3
+         Tc4RdbuN37hocUNHv5Gu4QsP4C28ESXj7sIy7tbqbohCNaUuk7Sx3tG8tlKxiE1s86
+         C7FrIqUHO+Esyj4XT+mEjbH4vZWGAWJ4wmf2shvYqB0a41yfPnOuV5Xdd4SpdummSw
+         RT4WBui+OBezc8XW536/ZpNVW6F3FhnLEdyi03SSCyIB73cldI0zOsl/lk0PhihVBZ
+         4uRGcey+Psmfg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Conner Knox <connerknoxpublic@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, sdoregor@sdore.me,
-        hahnjo@hahnjo.de, brendan@grieve.com.au, willovertonuk@gmail.com,
-        john-linux@pelago.org.uk, gregkh@linuxfoundation.org,
-        alexander@tsoy.me, giun7a@gmail.com, cyrozap@gmail.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 07/25] ALSA: usb-audio: Add quirk to enable Avid Mbox 3 support
-Date:   Sun,  9 Oct 2022 19:54:07 -0400
-Message-Id: <20221009235426.1231313-7-sashal@kernel.org>
+Cc:     Vivek Kasireddy <vivek.kasireddy@intel.com>,
+        syzbot+c80e9ef5d8bb45894db0@syzkaller.appspotmail.com,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, sumit.semwal@linaro.org,
+        christian.koenig@amd.com, dri-devel@lists.freedesktop.org,
+        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.15 08/25] udmabuf: Set ubuf->sg = NULL if the creation of sg table fails
+Date:   Sun,  9 Oct 2022 19:54:08 -0400
+Message-Id: <20221009235426.1231313-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235426.1231313-1-sashal@kernel.org>
 References: <20221009235426.1231313-1-sashal@kernel.org>
@@ -59,428 +58,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conner Knox <connerknoxpublic@gmail.com>
+From: Vivek Kasireddy <vivek.kasireddy@intel.com>
 
-[ Upstream commit b01104fc62b6194c852124f6c6df1c0a5c031fc1 ]
+[ Upstream commit d9c04a1b7a15b5e74b2977461d9511e497f05d8f ]
 
-Add support for Avid Mbox3 USB audio interface at 48kHz
+When userspace tries to map the dmabuf and if for some reason
+(e.g. OOM) the creation of the sg table fails, ubuf->sg needs to be
+set to NULL. Otherwise, when the userspace subsequently closes the
+dmabuf fd, we'd try to erroneously free the invalid sg table from
+release_udmabuf resulting in the following crash reported by syzbot:
 
-Signed-off-by: Conner Knox <connerknoxpublic@gmail.com>
-Link: https://lore.kernel.org/r/20220818201433.16360-1-mbarriolinares@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+general protection fault, probably for non-canonical address
+0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+CPU: 0 PID: 3609 Comm: syz-executor487 Not tainted
+5.19.0-syzkaller-13930-g7ebfc85e2cd7 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 07/22/2022
+RIP: 0010:dma_unmap_sgtable include/linux/dma-mapping.h:378 [inline]
+RIP: 0010:put_sg_table drivers/dma-buf/udmabuf.c:89 [inline]
+RIP: 0010:release_udmabuf+0xcb/0x4f0 drivers/dma-buf/udmabuf.c:114
+Code: 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 2b 04 00 00 48 8d 7d 0c 4c
+8b 63 30 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 14
+02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 e2
+RSP: 0018:ffffc900037efd30 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffffff8cb67800 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff84ad27e0 RDI: 0000000000000000
+RBP: fffffffffffffff4 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000000 R11: 000000000008c07c R12: ffff88801fa05000
+R13: ffff888073db07e8 R14: ffff888025c25440 R15: 0000000000000000
+FS:  0000555555fc4300(0000) GS:ffff8880b9a00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fc1c0ce06e4 CR3: 00000000715e6000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ dma_buf_release+0x157/0x2d0 drivers/dma-buf/dma-buf.c:78
+ __dentry_kill+0x42b/0x640 fs/dcache.c:612
+ dentry_kill fs/dcache.c:733 [inline]
+ dput+0x806/0xdb0 fs/dcache.c:913
+ __fput+0x39c/0x9d0 fs/file_table.c:333
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:177
+ ptrace_notify+0x114/0x140 kernel/signal.c:2353
+ ptrace_report_syscall include/linux/ptrace.h:420 [inline]
+ ptrace_report_syscall_exit include/linux/ptrace.h:482 [inline]
+ syscall_exit_work kernel/entry/common.c:249 [inline]
+ syscall_exit_to_user_mode_prepare+0x129/0x280 kernel/entry/common.c:276
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:281 [inline]
+ syscall_exit_to_user_mode+0x9/0x50 kernel/entry/common.c:294
+ do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fc1c0c35b6b
+Code: 0f 05 48 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24
+0c e8 63 fc ff ff 8b 7c 24 0c 41 89 c0 b8 03 00 00 00 0f 05 <48> 3d 00
+f0 ff ff 77 35 44 89 c7 89 44 24 0c e8 a1 fc ff ff 8b 44
+RSP: 002b:00007ffd78a06090 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000007 RCX: 00007fc1c0c35b6b
+RDX: 0000000020000280 RSI: 0000000040086200 RDI: 0000000000000006
+RBP: 0000000000000007 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000293 R12: 000000000000000c
+R13: 0000000000000003 R14: 00007fc1c0cfe4a0 R15: 00007ffd78a06140
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:dma_unmap_sgtable include/linux/dma-mapping.h:378 [inline]
+RIP: 0010:put_sg_table drivers/dma-buf/udmabuf.c:89 [inline]
+RIP: 0010:release_udmabuf+0xcb/0x4f0 drivers/dma-buf/udmabuf.c:114
+
+Reported-by: syzbot+c80e9ef5d8bb45894db0@syzkaller.appspotmail.com
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220825063522.801264-1-vivek.kasireddy@intel.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks-table.h |  76 ++++++++++
- sound/usb/quirks.c       | 302 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 378 insertions(+)
+ drivers/dma-buf/udmabuf.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index f93201a830b5..06dfdd45cff8 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2985,6 +2985,82 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 		}
- 	}
- },
-+/* DIGIDESIGN MBOX 3 */
-+{
-+	USB_DEVICE(0x0dba, 0x5000),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "Digidesign",
-+		.product_name = "Mbox 3",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = (const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_IGNORE_INTERFACE
-+			},
-+			{
-+				.ifnum = 1,
-+				.type = QUIRK_IGNORE_INTERFACE
-+			},
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 4,
-+					.iface = 2,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.attributes = 0x00,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) {
-+						48000
-+					}
-+				}
-+			},
-+			{
-+				.ifnum = 3,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 4,
-+					.iface = 3,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x81,
-+					.attributes = 0x00,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.maxpacksize = 0x009c,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) {
-+						48000
-+					}
-+				}
-+			},
-+			{
-+				.ifnum = 4,
-+				.type = QUIRK_MIDI_FIXED_ENDPOINT,
-+				.data = &(const struct snd_usb_midi_endpoint_info) {
-+					.out_cables = 0x0001,
-+					.in_cables  = 0x0001
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
+diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
+index 38e8767ec371..bf11d32205f3 100644
+--- a/drivers/dma-buf/udmabuf.c
++++ b/drivers/dma-buf/udmabuf.c
+@@ -124,17 +124,20 @@ static int begin_cpu_udmabuf(struct dma_buf *buf,
  {
- 	/* Tascam US122 MKII - playback-only support */
- 	USB_DEVICE_VENDOR_SPEC(0x0644, 0x8021),
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 5b4d8f5eade2..194c75c45628 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1020,6 +1020,304 @@ static int snd_usb_axefx3_boot_quirk(struct usb_device *dev)
- 	return 0;
+ 	struct udmabuf *ubuf = buf->priv;
+ 	struct device *dev = ubuf->device->this_device;
++	int ret = 0;
+ 
+ 	if (!ubuf->sg) {
+ 		ubuf->sg = get_sg_table(dev, buf, direction);
+-		if (IS_ERR(ubuf->sg))
+-			return PTR_ERR(ubuf->sg);
++		if (IS_ERR(ubuf->sg)) {
++			ret = PTR_ERR(ubuf->sg);
++			ubuf->sg = NULL;
++		}
+ 	} else {
+ 		dma_sync_sg_for_cpu(dev, ubuf->sg->sgl, ubuf->sg->nents,
+ 				    direction);
+ 	}
+ 
+-	return 0;
++	return ret;
  }
  
-+static void mbox3_setup_48_24_magic(struct usb_device *dev)
-+{
-+	/* The Mbox 3 is "little endian" */
-+	/* max volume is: 0x0000. */
-+	/* min volume is: 0x0080 (shown in little endian form) */
-+
-+
-+	/* Load 48000Hz rate into buffer */
-+	u8 com_buff[4] = {0x80, 0xbb, 0x00, 0x00};
-+
-+	/* Set 48000Hz sample rate */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			0x01, 0x21, 0x0100, 0x0001, &com_buff, 4);  //Is this really needed?
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			0x01, 0x21, 0x0100, 0x8101, &com_buff, 4);
-+
-+	/* Deactivate Tuner */
-+	/* on  = 0x01*/
-+	/* off = 0x00*/
-+	com_buff[0] = 0x00;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+		0x01, 0x21, 0x0003, 0x2001, &com_buff, 1);
-+
-+	/* Set clock source to Internal (as opposed to S/PDIF) */
-+	com_buff[0] = 0x01;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0100, 0x8001, &com_buff, 1);
-+
-+	/* Mute the hardware loopbacks to start the device in a known state. */
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* Analogue input 1 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0110, 0x4001, &com_buff, 2);
-+	/* Analogue input 1 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0111, 0x4001, &com_buff, 2);
-+	/* Analogue input 2 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0114, 0x4001, &com_buff, 2);
-+	/* Analogue input 2 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0115, 0x4001, &com_buff, 2);
-+	/* Analogue input 3 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0118, 0x4001, &com_buff, 2);
-+	/* Analogue input 3 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0119, 0x4001, &com_buff, 2);
-+	/* Analogue input 4 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x011c, 0x4001, &com_buff, 2);
-+	/* Analogue input 4 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x011d, 0x4001, &com_buff, 2);
-+
-+	/* Set software sends to output */
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x00;
-+	/* Analogue software return 1 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0100, 0x4001, &com_buff, 2);
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* Analogue software return 1 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0101, 0x4001, &com_buff, 2);
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* Analogue software return 2 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0104, 0x4001, &com_buff, 2);
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x00;
-+	/* Analogue software return 2 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0105, 0x4001, &com_buff, 2);
-+
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* Analogue software return 3 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0108, 0x4001, &com_buff, 2);
-+	/* Analogue software return 3 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0109, 0x4001, &com_buff, 2);
-+	/* Analogue software return 4 left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x010c, 0x4001, &com_buff, 2);
-+	/* Analogue software return 4 right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x010d, 0x4001, &com_buff, 2);
-+
-+	/* Return to muting sends */
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* Analogue fx return left channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0120, 0x4001, &com_buff, 2);
-+	/* Analogue fx return right channel: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0121, 0x4001, &com_buff, 2);
-+
-+	/* Analogue software input 1 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0100, 0x4201, &com_buff, 2);
-+	/* Analogue software input 2 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0101, 0x4201, &com_buff, 2);
-+	/* Analogue software input 3 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0102, 0x4201, &com_buff, 2);
-+	/* Analogue software input 4 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0103, 0x4201, &com_buff, 2);
-+	/* Analogue input 1 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0104, 0x4201, &com_buff, 2);
-+	/* Analogue input 2 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0105, 0x4201, &com_buff, 2);
-+	/* Analogue input 3 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0106, 0x4201, &com_buff, 2);
-+	/* Analogue input 4 fx send: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0107, 0x4201, &com_buff, 2);
-+
-+	/* Toggle allowing host control */
-+	com_buff[0] = 0x02;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			3, 0x21, 0x0000, 0x2001, &com_buff, 1);
-+
-+	/* Do not dim fx returns */
-+	com_buff[0] = 0x00;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			3, 0x21, 0x0002, 0x2001, &com_buff, 1);
-+
-+	/* Do not set fx returns to mono */
-+	com_buff[0] = 0x00;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			3, 0x21, 0x0001, 0x2001, &com_buff, 1);
-+
-+	/* Mute the S/PDIF hardware loopback
-+	 * same odd volume logic here as above
-+	 */
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* S/PDIF hardware input 1 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0112, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 1 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0113, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 2 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0116, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 2 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0117, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 3 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x011a, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 3 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x011b, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 4 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x011e, 0x4001, &com_buff, 2);
-+	/* S/PDIF hardware input 4 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x011f, 0x4001, &com_buff, 2);
-+	/* S/PDIF software return 1 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0102, 0x4001, &com_buff, 2);
-+	/* S/PDIF software return 1 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0103, 0x4001, &com_buff, 2);
-+	/* S/PDIF software return 2 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0106, 0x4001, &com_buff, 2);
-+	/* S/PDIF software return 2 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0107, 0x4001, &com_buff, 2);
-+
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x00;
-+	/* S/PDIF software return 3 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x010a, 0x4001, &com_buff, 2);
-+
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* S/PDIF software return 3 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x010b, 0x4001, &com_buff, 2);
-+	/* S/PDIF software return 4 left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x010e, 0x4001, &com_buff, 2);
-+
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x00;
-+	/* S/PDIF software return 4 right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x010f, 0x4001, &com_buff, 2);
-+
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x80;
-+	/* S/PDIF fx returns left channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0122, 0x4001, &com_buff, 2);
-+	/* S/PDIF fx returns right channel */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0123, 0x4001, &com_buff, 2);
-+
-+	/* Set the dropdown "Effect" to the first option */
-+	/* Room1  = 0x00 */
-+	/* Room2  = 0x01 */
-+	/* Room3  = 0x02 */
-+	/* Hall 1 = 0x03 */
-+	/* Hall 2 = 0x04 */
-+	/* Plate  = 0x05 */
-+	/* Delay  = 0x06 */
-+	/* Echo   = 0x07 */
-+	com_buff[0] = 0x00;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0200, 0x4301, &com_buff, 1);	/* max is 0xff */
-+	/* min is 0x00 */
-+
-+
-+	/* Set the effect duration to 0 */
-+	/* max is 0xffff */
-+	/* min is 0x0000 */
-+	com_buff[0] = 0x00;
-+	com_buff[1] = 0x00;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0400, 0x4301, &com_buff, 2);
-+
-+	/* Set the effect volume and feedback to 0 */
-+	/* max is 0xff */
-+	/* min is 0x00 */
-+	com_buff[0] = 0x00;
-+	/* feedback: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0500, 0x4301, &com_buff, 1);
-+	/* volume: */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			1, 0x21, 0x0300, 0x4301, &com_buff, 1);
-+
-+	/* Set soft button hold duration */
-+	/* 0x03 = 250ms */
-+	/* 0x05 = 500ms DEFAULT */
-+	/* 0x08 = 750ms */
-+	/* 0x0a = 1sec */
-+	com_buff[0] = 0x05;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			3, 0x21, 0x0005, 0x2001, &com_buff, 1);
-+
-+	/* Use dim LEDs for button of state */
-+	com_buff[0] = 0x00;
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
-+			3, 0x21, 0x0004, 0x2001, &com_buff, 1);
-+}
-+
-+#define MBOX3_DESCRIPTOR_SIZE	464
-+
-+static int snd_usb_mbox3_boot_quirk(struct usb_device *dev)
-+{
-+	struct usb_host_config *config = dev->actconfig;
-+	int err;
-+	int descriptor_size;
-+
-+	descriptor_size = le16_to_cpu(get_cfg_desc(config)->wTotalLength);
-+
-+	if (descriptor_size != MBOX3_DESCRIPTOR_SIZE) {
-+		dev_err(&dev->dev, "Invalid descriptor size=%d.\n", descriptor_size);
-+		return -ENODEV;
-+	}
-+
-+	dev_dbg(&dev->dev, "device initialised!\n");
-+
-+	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0,
-+		&dev->descriptor, sizeof(dev->descriptor));
-+	config = dev->actconfig;
-+	if (err < 0)
-+		dev_dbg(&dev->dev, "error usb_get_descriptor: %d\n", err);
-+
-+	err = usb_reset_configuration(dev);
-+	if (err < 0)
-+		dev_dbg(&dev->dev, "error usb_reset_configuration: %d\n", err);
-+	dev_dbg(&dev->dev, "mbox3_boot: new boot length = %d\n",
-+		le16_to_cpu(get_cfg_desc(config)->wTotalLength));
-+
-+	mbox3_setup_48_24_magic(dev);
-+	dev_info(&dev->dev, "Digidesign Mbox 3: 24bit 48kHz");
-+
-+	return 0; /* Successful boot */
-+}
- 
- #define MICROBOOK_BUF_SIZE 128
- 
-@@ -1324,6 +1622,10 @@ int snd_usb_apply_boot_quirk(struct usb_device *dev,
- 	case USB_ID(0x0dba, 0x3000):
- 		/* Digidesign Mbox 2 */
- 		return snd_usb_mbox2_boot_quirk(dev);
-+	case USB_ID(0x0dba, 0x5000):
-+		/* Digidesign Mbox 3 */
-+		return snd_usb_mbox3_boot_quirk(dev);
-+
- 
- 	case USB_ID(0x1235, 0x0010): /* Focusrite Novation Saffire 6 USB */
- 	case USB_ID(0x1235, 0x0018): /* Focusrite Novation Twitch */
+ static int end_cpu_udmabuf(struct dma_buf *buf,
 -- 
 2.35.1
 
