@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF3055F8E6A
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD635F8E6E
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231273AbiJIU5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 16:57:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44190 "EHLO
+        id S231190AbiJIU5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 16:57:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230402AbiJIUz6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:55:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE7831ED4;
-        Sun,  9 Oct 2022 13:53:28 -0700 (PDT)
+        with ESMTP id S231194AbiJIU4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:56:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 807F831EF1;
+        Sun,  9 Oct 2022 13:53:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4CE6B80DC4;
-        Sun,  9 Oct 2022 20:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFDE1C433C1;
-        Sun,  9 Oct 2022 20:53:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C5B160C95;
+        Sun,  9 Oct 2022 20:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64761C433C1;
+        Sun,  9 Oct 2022 20:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665348805;
-        bh=LMpvV+Axxobl3nMGH8clYz35R+yJiKcgygsY85XwLhw=;
+        s=k20201202; t=1665348813;
+        bh=do1I8NQWeaTX8+T+0jwrZEdD9Gg7WWzIym3aPHt6SJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IkcjzOnL/BejMrH03irqbako0Pd0hjm1B+AN1Ce9HlHW+RwBzODlRlK9BlOyK/Yfm
-         3avhvPpadkRpK4Y07+5GkdBiHEUD54OXUd92Lh5+Y23dPTOXDYDdJatgbIm7wc9j3a
-         9fI/XHjodvrQoDMx+ct8IZeRsCUoFTdBdVoovVcWc8I5XmOcBQohmnClJsdhYG5y0b
-         MUdoRFjsOho6J8des8hR8zIZwpiYScyiAM0ff5SfHU/c6pGk6hVja1AVyTt1xWygMR
-         3Wc9fsAziA5frf2dFQMBr/H05YcyK56XcXLdyhJJ5jmFVGBh0BtxzTqPP5NSVBx9GP
-         oshvwJWjAd1lQ==
+        b=aOgpmCBThVVBQmcWlVrORQOqpHz8JmcV2JdY3bt2xJt44mpirTtyuV/5sVnMVZKwk
+         O7YiIKDEikZrklXyuJF+FVpkGht0u1tLyQOHd2xEf1KLIqfucaAXJJJ+tIE7OWn1UV
+         n2CJvZ8T8Lu+Tm9lhYWPagc46nGXwv2KykpDd56k4hSl1Rhx2MB2EN4hZfj4NiVJdW
+         JTmrtMP4iDnjL20Ojlx+lTl9trZePxSsgQarcck520Ff28tVIhq+wnJa/rg+eei3YQ
+         a56owipSpBk7c/cW9shHz6PEKjHWBBb5IB/B/Bdp481vAMhPWVg9Hko9XfTzsJBsJN
+         ngwLZY/hJu3xw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Qin <chao.qin@intel.com>, Zhang Rui <rui.zhang@intel.com>,
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Chen Yu <yu.c.chen@intel.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 09/15] powercap: intel_rapl: fix UBSAN shift-out-of-bounds issue
-Date:   Sun,  9 Oct 2022 16:53:02 -0400
-Message-Id: <20221009205308.1202627-9-sashal@kernel.org>
+        daniel.lezcano@linaro.org, rikard.falkeborn@gmail.com,
+        yury.norov@gmail.com, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 10/15] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
+Date:   Sun,  9 Oct 2022 16:53:03 -0400
+Message-Id: <20221009205308.1202627-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009205308.1202627-1-sashal@kernel.org>
 References: <20221009205308.1202627-1-sashal@kernel.org>
@@ -56,43 +58,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Qin <chao.qin@intel.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 2d93540014387d1c73b9ccc4d7895320df66d01b ]
+[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
 
-When value < time_unit, the parameter of ilog2() will be zero and
-the return value is -1. u64(-1) is too large for shift exponent
-and then will trigger shift-out-of-bounds:
+When CPU 0 is offline and intel_powerclamp is used to inject
+idle, it generates kernel BUG:
 
-shift exponent 18446744073709551615 is too large for 32-bit type 'int'
+BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+caller is debug_smp_processor_id+0x17/0x20
+CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
 Call Trace:
- rapl_compute_time_window_core
- rapl_write_data_raw
- set_time_window
- store_constraint_time_window_us
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+check_preemption_disabled+0xdd/0xe0
+debug_smp_processor_id+0x17/0x20
+powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+...
+...
 
-Signed-off-by: Chao Qin <chao.qin@intel.com>
-Acked-by: Zhang Rui <rui.zhang@intel.com>
+Here CPU 0 is the control CPU by default and changed to the current CPU,
+if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+hence the above warning.
+
+Use get_cpu() instead of smp_processor_id() to avoid this BUG.
+
+Suggested-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Subject edits ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/powercap/intel_rapl_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/thermal/intel/intel_powerclamp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
-index 7c0099e7a6d7..0f0a7191d040 100644
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -938,6 +938,9 @@ static u64 rapl_compute_time_window_core(struct rapl_package *rp, u64 value,
- 		y = value & 0x1f;
- 		value = (1 << y) * (4 + f) * rp->time_unit / 4;
- 	} else {
-+		if (value < rp->time_unit)
-+			return 0;
-+
- 		do_div(value, rp->time_unit);
- 		y = ilog2(value);
- 		f = div64_u64(4 * (value - (1 << y)), 1 << y);
+diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
+index a5b58ea89cc6..9121ae4f5068 100644
+--- a/drivers/thermal/intel/intel_powerclamp.c
++++ b/drivers/thermal/intel/intel_powerclamp.c
+@@ -532,8 +532,10 @@ static int start_power_clamp(void)
+ 
+ 	/* prefer BSP */
+ 	control_cpu = 0;
+-	if (!cpu_online(control_cpu))
+-		control_cpu = smp_processor_id();
++	if (!cpu_online(control_cpu)) {
++		control_cpu = get_cpu();
++		put_cpu();
++	}
+ 
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 -- 
 2.35.1
 
