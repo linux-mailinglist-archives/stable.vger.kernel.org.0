@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DDA5F8DC9
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 21:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CC05F8DD0
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230243AbiJIT4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 15:56:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
+        id S229716AbiJIUKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 16:10:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbiJIT42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 15:56:28 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5372627B04
-        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 12:56:23 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id n7so8767563plp.1
-        for <stable@vger.kernel.org>; Sun, 09 Oct 2022 12:56:23 -0700 (PDT)
+        with ESMTP id S230072AbiJIUKC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:10:02 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4C313F79
+        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 13:09:58 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id l4so8747227plb.8
+        for <stable@vger.kernel.org>; Sun, 09 Oct 2022 13:09:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=2bsAAE2gu1ySeSMm/ERzKRddvA4vYu1t2sWiGfSreQ8=;
-        b=ppfrUosYJuS5ZGn6ESMHd4VxglktC9NDLXpWzro7dX3bd8TO3PF2zI1uTAEdWDaYKG
-         igFsYcvGX9xYBeLd+19sdEqzlAV8pKw/r8JQ5XWPQCP1a8L7INDrLDgBd7f4A4PjEk2/
-         9QFY+R42ISiwtmvFCvH8Cx4nriWv4+9c7UUWXCNrNvHv+G90MITzvz4XS8xNrpr0KCxA
-         SweFB+A3xahLcvppGczAIjBgSO+XVAai7eyidRIOIs/th4y/xAtDIcqx3UZ1KoffdC9H
-         NsZlqdgel/oDWvZjRXddtxNyx3r1eJ6wc6ymyewUiS2NEAVgOfFykvyLSLBF9p9xEl6G
-         opnw==
+        bh=pLs+adk6ECzsNcBMzOlvvug49phDUwL84i9jeTtNtO0=;
+        b=jKT+IVN2P9dK4GdcZolYTLD5qCmpdS1GXlCV2yxrdD4Fv6uoNHhPk9BQuxgaol1Nzt
+         oLFFKwUvrM3Jgj+IcWC2Ee3MnpDTeDP4ZQXj04Nx3Drf2fJFxS1ktWstTv1RTzMMFewb
+         x4Hz8YMHdeX7epRLUCaKZ9J7Ba+XxsTSGiCkk8bGfzsnXgXtWldpagBcVRqHZTNBcnlr
+         M+ytCdkh5bnv9f2bQaGd/5vsvcbF7OjI9g0DSKpsmJNjyZpXClfuQPIxlvi/YyXgzIEX
+         NSh9ycvm4vmVNHkb0MCk//LS7FWIaEUQXs6ZSf/8fE03o4VHtM7ROxGfXJkmbmubd2KD
+         DShw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=2bsAAE2gu1ySeSMm/ERzKRddvA4vYu1t2sWiGfSreQ8=;
-        b=S2/Wthwgemmy1mrDcFbcP3/y09/daaKrtZyvhMpg4tb9I+1bi8QIY6tvjSTl/Rant6
-         bNXKnzs+gmwxb3fFJQ6fXxR4a06LktLhDhIQLc0nu2y2d9+A2k9v63ZM0PD9tBsUhwx6
-         vNQA7dWdh6V80c4s4m1JwD9wVjBQUPp6JuZrVheThCyPTKBmwUBLe3PKMbbO7lP/8zRJ
-         qJN6pY9l8mX3bqQTkS0C+Bl7XkwKMdeSq7PPYvlMWS2a7Pc3x4IINtfVF3Av0+5B0YhH
-         6MHbKTVxgk/jmbePElvB4pA6Atr56Ei1H/o+b1VHGEmLJi8jTFzJ87APeb7wBpwqe0kh
-         9cHg==
-X-Gm-Message-State: ACrzQf1GBHKvjbsDAKACHAH/gg9IKHB0cmk1k4JExJZs3NohgzBqLVyL
-        71LsoFfTNKOgACGoWdfiUXlXMX+36oqDnJI15c4=
-X-Google-Smtp-Source: AMsMyM55BSLFzhRDAA4vevtVewSbmpHcZLfSgSDVyJDShf5kK3zP25DRNQd93wsqzGmg7LEWrTvdVw==
-X-Received: by 2002:a17:902:9308:b0:182:b2ba:755 with SMTP id bc8-20020a170902930800b00182b2ba0755mr322436plb.107.1665345382049;
-        Sun, 09 Oct 2022 12:56:22 -0700 (PDT)
+        bh=pLs+adk6ECzsNcBMzOlvvug49phDUwL84i9jeTtNtO0=;
+        b=aon/FLkbjdGR1xak7m6PF6LL6Jzt9vEjEPKrk5pqj01hNW3v1/qzUaAHNCvYEmF7Hk
+         J/0sacpZxqFTJR3+AbNOtv4maaNBY13hoh8UaXWNvO1BtLq6UWak9OusxzcrGrxsFMGl
+         oHMFKF1jK3D2zn8OOMog2uOCaJQOa49TSQD/eFOboqz9c/SqDAJIE7hb5X4E0TKLH6p1
+         NVH+fy8U1Sb65Qc/Y4lD8BoG3fzeYo5lu1Lt9TuRP1pjYwf1p1TY1plQK1OLP5sWlwAm
+         GKHNE73xufLw41joDWEStLsPZyI9ey4eKAsIpeKJIYZ5w+BwP+0hbKTPv5Qdm5jxjSLa
+         ptfw==
+X-Gm-Message-State: ACrzQf2wm6yOgyKFpQ001I/54Fw1uZbzIu9iY8dNXLqlCXwj15RdidQP
+        UV2uHcLqho/bubf5oq3YfX3odMFQOCh3U2aaKBA=
+X-Google-Smtp-Source: AMsMyM4cjJcYG7dNrkkpvbL+LT22+593PkA3Rum/WOTPrTPOdQL8GkIzqANBfksc8lWlk/ubdcJwTg==
+X-Received: by 2002:a17:902:8347:b0:178:6e81:35ce with SMTP id z7-20020a170902834700b001786e8135cemr14943846pln.23.1665346197040;
+        Sun, 09 Oct 2022 13:09:57 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e6-20020a656886000000b0043b565cb57csm5059909pgt.73.2022.10.09.12.56.21
+        by smtp.gmail.com with ESMTPSA id z11-20020a63190b000000b0042aca53b4cesm4977576pgl.70.2022.10.09.13.09.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Oct 2022 12:56:21 -0700 (PDT)
-Message-ID: <63432765.650a0220.46d9e.889e@mx.google.com>
-Date:   Sun, 09 Oct 2022 12:56:21 -0700 (PDT)
+        Sun, 09 Oct 2022 13:09:56 -0700 (PDT)
+Message-ID: <63432a94.630a0220.23f7.885c@mx.google.com>
+Date:   Sun, 09 Oct 2022 13:09:56 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
+X-Kernelci-Branch: queue/5.4
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.330-28-g29b82b91492a
+X-Kernelci-Kernel: v5.4.217-16-gfa9d2ff84a082
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.9 build: 180 builds: 18 failed, 162 passed,
- 34 errors, 46 warnings (v4.9.330-28-g29b82b91492a)
+Subject: stable-rc/queue/5.4 build: 189 builds: 16 failed, 173 passed,
+ 17 errors, 47 warnings (v5.4.217-16-gfa9d2ff84a082)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,19 +71,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 build: 180 builds: 18 failed, 162 passed, 34 errors, 46=
- warnings (v4.9.330-28-g29b82b91492a)
+stable-rc/queue/5.4 build: 189 builds: 16 failed, 173 passed, 17 errors, 47=
+ warnings (v5.4.217-16-gfa9d2ff84a082)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
-/kernel/v4.9.330-28-g29b82b91492a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.217-16-gfa9d2ff84a082/
 
 Tree: stable-rc
-Branch: queue/4.9
-Git Describe: v4.9.330-28-g29b82b91492a
-Git Commit: 29b82b91492a3ecea6c96e30d0a29332fb8ed0ec
+Branch: queue/5.4
+Git Describe: v5.4.217-16-gfa9d2ff84a082
+Git Commit: fa9d2ff84a08217cf8731c910e625bf18c5129c8
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
 
@@ -91,6 +91,9 @@ arc:
     allnoconfig: (gcc-10) FAIL
     axs103_defconfig: (gcc-10) FAIL
     axs103_smp_defconfig: (gcc-10) FAIL
+    haps_hs_defconfig: (gcc-10) FAIL
+    haps_hs_smp_defconfig: (gcc-10) FAIL
+    hsdk_defconfig: (gcc-10) FAIL
     nsim_hs_defconfig: (gcc-10) FAIL
     nsim_hs_smp_defconfig: (gcc-10) FAIL
     nsimosci_hs_defconfig: (gcc-10) FAIL
@@ -98,14 +101,9 @@ arc:
     tinyconfig: (gcc-10) FAIL
     vdk_hs38_defconfig: (gcc-10) FAIL
     vdk_hs38_smp_defconfig: (gcc-10) FAIL
-    zebu_hs_defconfig: (gcc-10) FAIL
-    zebu_hs_smp_defconfig: (gcc-10) FAIL
 
-arm64:
-    allnoconfig: (gcc-10) FAIL
-    defconfig: (gcc-10) FAIL
-    defconfig+arm64-chromebook: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
+arm:
+    rpc_defconfig: (gcc-10) FAIL
 
 mips:
     ip27_defconfig: (gcc-10) FAIL
@@ -117,6 +115,9 @@ arc:
     allnoconfig (gcc-10): 1 error, 1 warning
     axs103_defconfig (gcc-10): 1 error, 1 warning
     axs103_smp_defconfig (gcc-10): 1 error, 1 warning
+    haps_hs_defconfig (gcc-10): 1 error, 1 warning
+    haps_hs_smp_defconfig (gcc-10): 1 error, 1 warning
+    hsdk_defconfig (gcc-10): 1 error, 1 warning
     nsim_hs_defconfig (gcc-10): 1 error, 1 warning
     nsim_hs_smp_defconfig (gcc-10): 1 error, 1 warning
     nsimosci_hs_defconfig (gcc-10): 1 error, 1 warning
@@ -124,70 +125,81 @@ arc:
     tinyconfig (gcc-10): 1 error, 1 warning
     vdk_hs38_defconfig (gcc-10): 1 error, 1 warning
     vdk_hs38_smp_defconfig (gcc-10): 1 error, 1 warning
-    zebu_hs_defconfig (gcc-10): 1 error, 1 warning
-    zebu_hs_smp_defconfig (gcc-10): 1 error, 1 warning
 
 arm64:
-    allnoconfig (gcc-10): 6 errors
-    defconfig (gcc-10): 6 errors
-    defconfig+arm64-chromebook (gcc-10): 6 errors
-    tinyconfig (gcc-10): 4 errors
+    defconfig (gcc-10): 2 warnings
+    defconfig+arm64-chromebook (gcc-10): 2 warnings
 
 arm:
-    mini2440_defconfig (gcc-10): 1 warning
-    omap1_defconfig (gcc-10): 1 warning
-    s3c2410_defconfig (gcc-10): 1 warning
+    assabet_defconfig (gcc-10): 1 warning
+    collie_defconfig (gcc-10): 1 warning
+    h3600_defconfig (gcc-10): 1 warning
+    neponset_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 4 errors
+    shannon_defconfig (gcc-10): 1 warning
 
 i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
+    allnoconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 2 warnings
 
 mips:
     mtx1_defconfig (gcc-10): 3 warnings
 
+riscv:
+
 x86_64:
-    allnoconfig (gcc-10): 5 warnings
+    allnoconfig (gcc-10): 4 warnings
     tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 5 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
+    x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 Errors summary:
 
-    12   include/linux/wait.h:1069:7: error: implicit declaration of functi=
-on 'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-func=
-tion-declaration]
-    11   include/linux/compiler.h:531:3: error: unknown type name =E2=80=98=
-bool=E2=80=99
-    11   include/asm-generic/bitops/non-atomic.h:114:24: error: unknown typ=
-e name =E2=80=98bool=E2=80=99
+    13   include/linux/wait_bit.h:74:7: error: implicit declaration of func=
+tion 'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-fu=
+nction-declaration]
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
 
 Warnings summary:
 
-    12   cc1: some warnings being treated as errors
+    13   cc1: some warnings being treated as errors
     7    ld: warning: creating DT_TEXTREL in a PIE
-    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
     4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
+    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+ to integer of different size [-Wpointer-to-int-cast]
     3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
+    2    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpolin=
+e, please patch it in with alternatives and annotate it with ANNOTATE_NOSPE=
+C_ALTERNATIVE.
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
 
 Section mismatches summary:
 
-    13   WARNING: modpost: Found 1 section mismatch(es).
+    10   WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section =
+mismatch in reference from the variable __ksymtab_vic_init_cascaded to the =
+function .init.text:vic_init_cascaded()
+    1    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mi=
+smatch in reference from the variable __ksymtab_ixp4xx_irq_init to the func=
+tion .init.text:ixp4xx_irq_init()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -198,28 +210,30 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
 mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
@@ -229,47 +243,12 @@ allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
 matches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-10) =E2=80=94 FAIL, 6 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -293,8 +272,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -322,9 +305,9 @@ axs103_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -335,9 +318,9 @@ axs103_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -372,16 +355,10 @@ tion mismatches
 bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -430,8 +407,12 @@ colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -450,46 +431,55 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 FAIL, 6 errors, 0 warnings, 0 section m=
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
-Errors:
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 FAIL, 6 errors, 0 warn=
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warn=
 ings, 0 section mismatches
 
-Errors:
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -517,7 +507,9 @@ ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -546,13 +538,27 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -566,17 +572,54 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
 hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+hsdk_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -602,21 +645,13 @@ integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -644,6 +679,11 @@ on mismatches
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mismatc=
+h in reference from the variable __ksymtab_ixp4xx_irq_init to the function =
+.init.text:ixp4xx_irq_init()
+
 ---------------------------------------------------------------------------=
 -----
 jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
@@ -663,11 +703,6 @@ section mismatches
 -----
 keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -702,6 +737,11 @@ section mismatches
 ---------------------------------------------------------------------------=
 -----
 lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
@@ -751,6 +791,11 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
 maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
 
@@ -761,17 +806,23 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
-Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -782,6 +833,11 @@ mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 -----
 mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -822,7 +878,9 @@ multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -846,8 +904,12 @@ mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -856,19 +918,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
 nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -886,9 +942,9 @@ nsim_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -899,9 +955,9 @@ nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -912,9 +968,9 @@ nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -925,36 +981,17 @@ nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning,=
  0 section mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -963,8 +1000,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -979,6 +1026,11 @@ ion mismatches
 ---------------------------------------------------------------------------=
 -----
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -1033,13 +1085,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1053,12 +1105,26 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
+ mismatches
 
-Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1066,7 +1132,9 @@ s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1074,7 +1142,9 @@ s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1088,8 +1158,12 @@ sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1117,7 +1191,9 @@ spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1125,7 +1201,9 @@ spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1144,12 +1222,22 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
@@ -1164,48 +1252,26 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
 tinyconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
 atches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
 ismatches
 
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section =
-mismatches
-
-Errors:
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
-    include/asm-generic/bitops/non-atomic.h:114:24: error: unknown type nam=
-e =E2=80=98bool=E2=80=99
-    include/linux/compiler.h:531:3: error: unknown type name =E2=80=98bool=
-=E2=80=99
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1213,13 +1279,18 @@ tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
  mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1227,7 +1298,9 @@ u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1240,9 +1313,9 @@ vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -1253,9 +1326,9 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
 section mismatches
 
 Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
+    include/linux/wait_bit.h:74:7: error: implicit declaration of function =
+'test_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-functio=
+n-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
@@ -1266,7 +1339,14 @@ versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1280,6 +1360,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 0 section mismatches
 
@@ -1290,16 +1375,15 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1307,15 +1391,14 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-5 warnings, 0 section mismatches
+4 warnings, 0 section mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1324,37 +1407,6 @@ y section `.head.text'
 -----
 xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    include/linux/wait.h:1069:7: error: implicit declaration of function 't=
-est_bit_acquire'; did you mean 'test_bit_le'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
