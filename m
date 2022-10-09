@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA5035F92EC
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6605F938B
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 01:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233333AbiJIWzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:55:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58810 "EHLO
+        id S231262AbiJIXgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 19:36:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233627AbiJIWwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:52:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70C548EBE;
-        Sun,  9 Oct 2022 15:28:25 -0700 (PDT)
+        with ESMTP id S231214AbiJIXgM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 19:36:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E189A4F3A9;
+        Sun,  9 Oct 2022 16:07:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A268260DBB;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90FCAB80DE9;
+        Sun,  9 Oct 2022 22:24:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C27CC43150;
         Sun,  9 Oct 2022 22:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B64C433B5;
-        Sun,  9 Oct 2022 22:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665354260;
-        bh=maJ8fNNyCcC99rqyWAvsYKYOT4uvsH7Am3h5FOC+4NU=;
+        s=k20201202; t=1665354261;
+        bh=oSEwHrF3uLuQvDbP2ocyulp2gLrZ/bx2nS2MuGBDTI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAQ4YlrKyVpRsvzhre8HvpITg1PKAknMnVuTle+0Abu0NA5s0CLAFzzbRHi/2/2Zm
-         iWvSNeB8+3HODu66g12+x/jk7iTDUWgRzmDM1C3ANwPdeMwOJkn50UieYzWo9rnXzN
-         FHHogZrqIfsZU5XQ0UmK+1HCT8BXLZ8Uu8eezTNm4tb3Nt0UcQmLTCs+zD5wOhQENt
-         +DIdU506dWMwY+skKxIkURWiZVcAGKZRfzvhdjbXcJRTBH4B4Ovm3BBqeLF2QyfGCO
-         9YW/RHfyeaa6L2Uffrb2ZiFVVpI1ObCqWD7GTeyyLBrIkrBnYAZwD8j5c5r3gxUNlt
-         2c3KmNfihwKlg==
+        b=Q50tgDpeV/OyP6+FWMmVkpRVH0LQrLs8aYfKnybRfbpf8evsLJGUs4gfGiebthBQj
+         v5H/ga3laHcqafl8loyYXr7ydHMpJvQj55a71ENBsflGNNI5vit8Ntca/Kr0QuWxNZ
+         GCZm9lBZZtVubL+Y/jYedBcCo1w2QKTX7p7aLqWdLfvFcL/FUwV2v2K7QXi4o/7eiS
+         3nG1vGimVvD6ZDNrf/MelQgSQqztUIMIesvA3wxMxFba7EReMJgguh6reMByfiFSwz
+         JkwIwD18jC1I/jdadb45GgRCw8HH0jhaRgWDBGQVLEVqyzCmRicJ4Zl0+JKbSs1XQz
+         u/msN/pRM9cAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sungwoo Kim <iam@sung-woo.kim>,
-        Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
-        johan.hedberg@gmail.com, luiz.dentz@gmail.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 27/29] Bluetooth: L2CAP: Fix user-after-free
-Date:   Sun,  9 Oct 2022 18:23:02 -0400
-Message-Id: <20221009222304.1218873-27-sashal@kernel.org>
+Cc:     Xin Liu <liuxin350@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 28/29] libbpf: Fix overrun in netlink attribute iteration
+Date:   Sun,  9 Oct 2022 18:23:03 -0400
+Message-Id: <20221009222304.1218873-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009222304.1218873-1-sashal@kernel.org>
 References: <20221009222304.1218873-1-sashal@kernel.org>
@@ -58,59 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Xin Liu <liuxin350@huawei.com>
 
-[ Upstream commit 35fcbc4243aad7e7d020b7c1dfb14bb888b20a4f ]
+[ Upstream commit 51e05a8cf8eb34da7473823b7f236a77adfef0b4 ]
 
-This uses l2cap_chan_hold_unless_zero() after calling
-__l2cap_get_chan_blah() to prevent the following trace:
+I accidentally found that a change in commit 1045b03e07d8 ("netlink: fix
+overrun in attribute iteration") was not synchronized to the function
+`nla_ok` in tools/lib/bpf/nlattr.c, I think it is necessary to modify,
+this patch will do it.
 
-Bluetooth: l2cap_core.c:static void l2cap_chan_destroy(struct kref
-*kref)
-Bluetooth: chan 0000000023c4974d
-Bluetooth: parent 00000000ae861c08
-==================================================================
-BUG: KASAN: use-after-free in __mutex_waiter_is_first
-kernel/locking/mutex.c:191 [inline]
-BUG: KASAN: use-after-free in __mutex_lock_common
-kernel/locking/mutex.c:671 [inline]
-BUG: KASAN: use-after-free in __mutex_lock+0x278/0x400
-kernel/locking/mutex.c:729
-Read of size 8 at addr ffff888006a49b08 by task kworker/u3:2/389
-
-Link: https://lore.kernel.org/lkml/20220622082716.478486-1-lee.jones@linaro.org
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
+Signed-off-by: Xin Liu <liuxin350@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220930090708.62394-1-liuxin350@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/lib/bpf/nlattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 442432f89be1..2d28b4e49b7a 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4066,6 +4066,12 @@ static int l2cap_connect_create_rsp(struct l2cap_conn *conn,
- 		}
- 	}
+diff --git a/tools/lib/bpf/nlattr.c b/tools/lib/bpf/nlattr.c
+index 1e69c0c8d413..faa6256d857a 100644
+--- a/tools/lib/bpf/nlattr.c
++++ b/tools/lib/bpf/nlattr.c
+@@ -31,7 +31,7 @@ static struct nlattr *nla_next(const struct nlattr *nla, int *remaining)
  
-+	chan = l2cap_chan_hold_unless_zero(chan);
-+	if (!chan) {
-+		err = -EBADSLT;
-+		goto unlock;
-+	}
-+
- 	err = 0;
- 
- 	l2cap_chan_lock(chan);
-@@ -4095,6 +4101,7 @@ static int l2cap_connect_create_rsp(struct l2cap_conn *conn,
- 	}
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- unlock:
- 	mutex_unlock(&conn->chan_lock);
+ static int nla_ok(const struct nlattr *nla, int remaining)
+ {
+-	return remaining >= sizeof(*nla) &&
++	return remaining >= (int)sizeof(*nla) &&
+ 	       nla->nla_len >= sizeof(*nla) &&
+ 	       nla->nla_len <= remaining;
+ }
 -- 
 2.35.1
 
