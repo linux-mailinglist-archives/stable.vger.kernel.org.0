@@ -2,56 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F275F90B8
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:26:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30AB55F9089
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231309AbiJIW0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:26:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42008 "EHLO
+        id S231917AbiJIWZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231841AbiJIWZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:25:51 -0400
+        with ESMTP id S231881AbiJIWX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:23:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882041F60B;
-        Sun,  9 Oct 2022 15:18:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC58B3C166;
+        Sun,  9 Oct 2022 15:18:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE9F7B80DF1;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F307B80DF4;
+        Sun,  9 Oct 2022 22:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83D5AC433D7;
         Sun,  9 Oct 2022 22:15:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6019C433D6;
-        Sun,  9 Oct 2022 22:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353724;
-        bh=bPQpXuTiwSD2XHaeEE3f7S0MAGju3li9gNzgfMUaygQ=;
+        s=k20201202; t=1665353726;
+        bh=xHizhrsgBaS+HGjRTXe73ubCJjvU4dsr7/rdK0W9Avo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBX1+cyJJJAELBl9R+u/rinJOQ01OQKadbO4vY960u/N836eI55bPn5fmSEcNUXNF
-         kgy7FngVeJTdBazoJcywnGOANGTQbCg6pmqs6v9HCF658ojELIP66CQ9VfRD7Sw7xE
-         s1P0n7nUZC2+XWuZdJ8a55ji9orrhwn5OFEW8dVbAy+dwOzFmiklG0Az6McoRHQUU+
-         NZjKIcKoEYG1WiwjBURukW9se7SpwurTTDE9AEvL0zcZAq2EGPRDPUndBxLVwXMC/4
-         p0fFn+qj+u97tTJY0thVcpi8mCfI5kamMS3Fu+eXoWdb4VBleTfT4gAQrFpZkpPnhJ
-         qbxwQAVsIzwJg==
+        b=FP7KdZS3OjunJA9E8Xlj2pFS3r1bulYWIrdtAfNkHejx1bO3rHdT8w/BOea5XRD5O
+         4ulGA9TBS5oBh7Bt526nIbc0aDJCgCvlhfkhLDPtfG+B8rp4F3Gxbu+gzEYJ3mSYfx
+         npjtZcJZYbQWhnW5gPp3yqpAyf9XEfrlMBYsqwol5Tuv9zSdT8JXh++yGejNbkwSp7
+         RUkOxiSqOWd5w1GkumfV80l/9JJ5AaVezEmdR2joGkJxoUHKhNh3i2WG0e251uZsWZ
+         RM9yvKuyHrOw5CnLBUR2bMjICDmf/CK2acMUtzL7RJlllNBLbHGUeL/NwaJBdyjsSm
+         a7tQQGHqgEVZA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wright Feng <wright.feng@cypress.com>,
-        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        aspriel@gmail.com, franky.lin@broadcom.com,
-        hante.meuleman@broadcom.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-wireless@vger.kernel.org,
-        brcm80211-dev-list.pdl@broadcom.com,
-        SHA-cyfmac-dev-list@infineon.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 04/73] wifi: brcmfmac: fix invalid address access when enabling SCAN log level
-Date:   Sun,  9 Oct 2022 18:13:42 -0400
-Message-Id: <20221009221453.1216158-4-sashal@kernel.org>
+Cc:     Quentin Monnet <quentin@isovalent.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        andrii@kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 05/73] bpftool: Clear errno after libcap's checks
+Date:   Sun,  9 Oct 2022 18:13:43 -0400
+Message-Id: <20221009221453.1216158-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009221453.1216158-1-sashal@kernel.org>
 References: <20221009221453.1216158-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -64,104 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wright Feng <wright.feng@cypress.com>
+From: Quentin Monnet <quentin@isovalent.com>
 
-[ Upstream commit aa666b68e73fc06d83c070d96180b9010cf5a960 ]
+[ Upstream commit cea558855c39b7f1f02ff50dcf701ca6596bc964 ]
 
-The variable i is changed when setting random MAC address and causes
-invalid address access when printing the value of pi->reqs[i]->reqid.
+When bpftool is linked against libcap, the library runs a "constructor"
+function to compute the number of capabilities of the running kernel
+[0], at the beginning of the execution of the program. As part of this,
+it performs multiple calls to prctl(). Some of these may fail, and set
+errno to a non-zero value:
 
-We replace reqs index with ri to fix the issue.
+    # strace -e prctl ./bpftool version
+    prctl(PR_CAPBSET_READ, CAP_MAC_OVERRIDE) = 1
+    prctl(PR_CAPBSET_READ, 0x30 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, CAP_CHECKPOINT_RESTORE) = 1
+    prctl(PR_CAPBSET_READ, 0x2c /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x2a /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x29 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    ** fprintf added at the top of main(): we have errno == 1
+    ./bpftool v7.0.0
+    using libbpf v1.0
+    features: libbfd, libbpf_strict, skeletons
+    +++ exited with 0 +++
 
-[  136.726473] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-[  136.737365] Mem abort info:
-[  136.740172]   ESR = 0x96000004
-[  136.743359]   Exception class = DABT (current EL), IL = 32 bits
-[  136.749294]   SET = 0, FnV = 0
-[  136.752481]   EA = 0, S1PTW = 0
-[  136.755635] Data abort info:
-[  136.758514]   ISV = 0, ISS = 0x00000004
-[  136.762487]   CM = 0, WnR = 0
-[  136.765522] user pgtable: 4k pages, 48-bit VAs, pgdp = 000000005c4e2577
-[  136.772265] [0000000000000000] pgd=0000000000000000
-[  136.777160] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[  136.782732] Modules linked in: brcmfmac(O) brcmutil(O) cfg80211(O) compat(O)
-[  136.789788] Process wificond (pid: 3175, stack limit = 0x00000000053048fb)
-[  136.796664] CPU: 3 PID: 3175 Comm: wificond Tainted: G           O      4.19.42-00001-g531a5f5 #1
-[  136.805532] Hardware name: Freescale i.MX8MQ EVK (DT)
-[  136.810584] pstate: 60400005 (nZCv daif +PAN -UAO)
-[  136.815429] pc : brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
-[  136.821811] lr : brcmf_pno_config_sched_scans+0x67c/0xa80 [brcmfmac]
-[  136.828162] sp : ffff00000e9a3880
-[  136.831475] x29: ffff00000e9a3890 x28: ffff800020543400
-[  136.836786] x27: ffff8000b1008880 x26: ffff0000012bf6a0
-[  136.842098] x25: ffff80002054345c x24: ffff800088d22400
-[  136.847409] x23: ffff0000012bf638 x22: ffff0000012bf6d8
-[  136.852721] x21: ffff8000aced8fc0 x20: ffff8000ac164400
-[  136.858032] x19: ffff00000e9a3946 x18: 0000000000000000
-[  136.863343] x17: 0000000000000000 x16: 0000000000000000
-[  136.868655] x15: ffff0000093f3b37 x14: 0000000000000050
-[  136.873966] x13: 0000000000003135 x12: 0000000000000000
-[  136.879277] x11: 0000000000000000 x10: ffff000009a61888
-[  136.884589] x9 : 000000000000000f x8 : 0000000000000008
-[  136.889900] x7 : 303a32303d726464 x6 : ffff00000a1f957d
-[  136.895211] x5 : 0000000000000000 x4 : ffff00000e9a3942
-[  136.900523] x3 : 0000000000000000 x2 : ffff0000012cead8
-[  136.905834] x1 : ffff0000012bf6d8 x0 : 0000000000000000
-[  136.911146] Call trace:
-[  136.913623]  brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
-[  136.919658]  brcmf_pno_start_sched_scan+0xa4/0x118 [brcmfmac]
-[  136.925430]  brcmf_cfg80211_sched_scan_start+0x80/0xe0 [brcmfmac]
-[  136.931636]  nl80211_start_sched_scan+0x140/0x308 [cfg80211]
-[  136.937298]  genl_rcv_msg+0x358/0x3f4
-[  136.940960]  netlink_rcv_skb+0xb4/0x118
-[  136.944795]  genl_rcv+0x34/0x48
-[  136.947935]  netlink_unicast+0x264/0x300
-[  136.951856]  netlink_sendmsg+0x2e4/0x33c
-[  136.955781]  __sys_sendto+0x120/0x19c
+This has been addressed in libcap 2.63 [1], but until this version is
+available everywhere, we can fix it on bpftool side.
 
-Signed-off-by: Wright Feng <wright.feng@cypress.com>
-Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220722115632.620681-4-alvin@pqrs.dk
+Let's clean errno at the beginning of the main() function, to make sure
+that these checks do not interfere with the batch mode, where we error
+out if errno is set after a bpftool command.
+
+  [0] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/libcap/cap_alloc.c?h=libcap-2.65#n20
+  [1] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/commit/?id=f25a1b7e69f7b33e6afb58b3e38f3450b7d2d9a0
+
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220815162205.45043-1-quentin@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/broadcom/brcm80211/brcmfmac/pno.c   | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/bpf/bpftool/main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-index fabfbb0b40b0..d0a7465be586 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-@@ -158,12 +158,12 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
- 	struct brcmf_pno_macaddr_le pfn_mac;
- 	u8 *mac_addr = NULL;
- 	u8 *mac_mask = NULL;
--	int err, i;
-+	int err, i, ri;
+diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
+index 9062ef2b8767..0881437587ba 100644
+--- a/tools/bpf/bpftool/main.c
++++ b/tools/bpf/bpftool/main.c
+@@ -435,6 +435,16 @@ int main(int argc, char **argv)
  
--	for (i = 0; i < pi->n_reqs; i++)
--		if (pi->reqs[i]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
--			mac_addr = pi->reqs[i]->mac_addr;
--			mac_mask = pi->reqs[i]->mac_addr_mask;
-+	for (ri = 0; ri < pi->n_reqs; ri++)
-+		if (pi->reqs[ri]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
-+			mac_addr = pi->reqs[ri]->mac_addr;
-+			mac_mask = pi->reqs[ri]->mac_addr_mask;
- 			break;
- 		}
+ 	setlinebuf(stdout);
  
-@@ -185,7 +185,7 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
- 	pfn_mac.mac[0] |= 0x02;
- 
- 	brcmf_dbg(SCAN, "enabling random mac: reqid=%llu mac=%pM\n",
--		  pi->reqs[i]->reqid, pfn_mac.mac);
-+		  pi->reqs[ri]->reqid, pfn_mac.mac);
- 	err = brcmf_fil_iovar_data_set(ifp, "pfn_macaddr", &pfn_mac,
- 				       sizeof(pfn_mac));
- 	if (err)
++#ifdef USE_LIBCAP
++	/* Libcap < 2.63 hooks before main() to compute the number of
++	 * capabilities of the running kernel, and doing so it calls prctl()
++	 * which may fail and set errno to non-zero.
++	 * Let's reset errno to make sure this does not interfere with the
++	 * batch mode.
++	 */
++	errno = 0;
++#endif
++
+ 	last_do_help = do_help;
+ 	pretty_output = false;
+ 	json_output = false;
 -- 
 2.35.1
 
