@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A36855F9018
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 399AA5F9003
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbiJIWUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46096 "EHLO
+        id S231221AbiJIWT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:19:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231852AbiJIWTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:19:34 -0400
+        with ESMTP id S231561AbiJIWSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:18:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 368C73D59A;
-        Sun,  9 Oct 2022 15:16:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2CA3AE6F;
+        Sun,  9 Oct 2022 15:15:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB9760D3F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5388060DB4;
+        Sun,  9 Oct 2022 22:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B80C433D6;
         Sun,  9 Oct 2022 22:14:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8225BC433C1;
-        Sun,  9 Oct 2022 22:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353644;
-        bh=f33ezdzKDOq2FUj87Tg0YqhnSXpQQOcpgP0oUn0mnp8=;
+        s=k20201202; t=1665353646;
+        bh=iOp5sUohYYKlU8xKhB8swSLrL8/OASDUJXxbMxBidxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqkkkUJzdLpcQfRVBEYuXVlLKesew7qgabX8lrtu758U0doYChsgZ8OqEL8tMx2rj
-         PMAWyv1N6HKaVKvWw3RQI2xBd+kLlLOhXY/n8k8je8tVVO+9sHIodQ2r1m/1W+cJkX
-         lQx9BkeYT4pCUcK4CD2+DGP4If06EBhE+2hsCIRtVjkJcr0s2hGbYeiKnaVszkHGTV
-         K7rMAjIFHKVojZic/ARFyjXNUxtKJXjEhTb77UErJ8DmcRgfWyjVA4/rMay1Y+bhOR
-         Zr1Mue0BATLyhMRJoGYsGzi59ftT34FxcusHB/tuZu4LmBJD6rHDG0PLZvvbKMLs+D
-         IblPgv6txibbQ==
+        b=U7F/S4MCaZDPvxH2qpZJCCm4J9MWEwp2DtTvdItvblhjMnipRNGikPmteYvDZaC/a
+         etQgo4GbwB2J9EeFiU5Idm02Mge0pY/u7DJiNQ8yYEfJtzqR0kqhg6ZxyqDTwRS37x
+         B9Snz58PbG7rY1Evfc3v/qFRKfM0hmxwq1ot1RjezQFT0nejNbBjiG7fKD4y6j2DD0
+         sAQWPg0AbTbkXWhJIX4jQgqhVhUyxSbwrYL72YHnB1vCU8F9n8De/OVp9DL3L+yvUh
+         swalwvzoTlP9/zEkNHR6j65tp37cR91QAm7kZiWemsYCaZZu2ocXmMLSp2y5v4HGl0
+         Yxkj/hA5qVT7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        syzbot+a2c4601efc75848ba321@syzkaller.appspotmail.com,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 72/77] net: sched: cls_u32: Avoid memcpy() false-positive warning
-Date:   Sun,  9 Oct 2022 18:07:49 -0400
-Message-Id: <20221009220754.1214186-72-sashal@kernel.org>
+Cc:     Xin Liu <liuxin350@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 73/77] libbpf: Fix overrun in netlink attribute iteration
+Date:   Sun,  9 Oct 2022 18:07:50 -0400
+Message-Id: <20221009220754.1214186-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
 References: <20221009220754.1214186-1-sashal@kernel.org>
@@ -60,50 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Xin Liu <liuxin350@huawei.com>
 
-[ Upstream commit 7cba18332e3635aaae60e4e7d4e52849de50d91b ]
+[ Upstream commit 51e05a8cf8eb34da7473823b7f236a77adfef0b4 ]
 
-To work around a misbehavior of the compiler's ability to see into
-composite flexible array structs (as detailed in the coming memcpy()
-hardening series[1]), use unsafe_memcpy(), as the sizing,
-bounds-checking, and allocation are all very tightly coupled here.
-This silences the false-positive reported by syzbot:
+I accidentally found that a change in commit 1045b03e07d8 ("netlink: fix
+overrun in attribute iteration") was not synchronized to the function
+`nla_ok` in tools/lib/bpf/nlattr.c, I think it is necessary to modify,
+this patch will do it.
 
-  memcpy: detected field-spanning write (size 80) of single field "&n->sel" at net/sched/cls_u32.c:1043 (size 16)
-
-[1] https://lore.kernel.org/linux-hardening/20220901065914.1417829-2-keescook@chromium.org
-
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Reported-by: syzbot+a2c4601efc75848ba321@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/lkml/000000000000a96c0b05e97f0444@google.com/
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Link: https://lore.kernel.org/r/20220927153700.3071688-1-keescook@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xin Liu <liuxin350@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220930090708.62394-1-liuxin350@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_u32.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/lib/bpf/nlattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/cls_u32.c b/net/sched/cls_u32.c
-index 4d27300c287c..5f33472aad36 100644
---- a/net/sched/cls_u32.c
-+++ b/net/sched/cls_u32.c
-@@ -1040,7 +1040,11 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
- 	}
- #endif
+diff --git a/tools/lib/bpf/nlattr.c b/tools/lib/bpf/nlattr.c
+index f57e77a6e40f..3900d052ed19 100644
+--- a/tools/lib/bpf/nlattr.c
++++ b/tools/lib/bpf/nlattr.c
+@@ -32,7 +32,7 @@ static struct nlattr *nla_next(const struct nlattr *nla, int *remaining)
  
--	memcpy(&n->sel, s, sel_size);
-+	unsafe_memcpy(&n->sel, s, sel_size,
-+		      /* A composite flex-array structure destination,
-+		       * which was correctly sized with struct_size(),
-+		       * bounds-checked against nla_len(), and allocated
-+		       * above. */);
- 	RCU_INIT_POINTER(n->ht_up, ht);
- 	n->handle = handle;
- 	n->fshift = s->hmask ? ffs(ntohl(s->hmask)) - 1 : 0;
+ static int nla_ok(const struct nlattr *nla, int remaining)
+ {
+-	return remaining >= sizeof(*nla) &&
++	return remaining >= (int)sizeof(*nla) &&
+ 	       nla->nla_len >= sizeof(*nla) &&
+ 	       nla->nla_len <= remaining;
+ }
 -- 
 2.35.1
 
