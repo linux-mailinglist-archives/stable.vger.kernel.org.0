@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA87F5F8E78
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 452D75F8E7D
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbiJIU61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 16:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59850 "EHLO
+        id S231312AbiJIU6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 16:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231144AbiJIU5X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:57:23 -0400
+        with ESMTP id S231266AbiJIU50 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:57:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7F03204F;
-        Sun,  9 Oct 2022 13:53:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E743C22B02;
+        Sun,  9 Oct 2022 13:53:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E8E560C79;
-        Sun,  9 Oct 2022 20:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F19C433B5;
-        Sun,  9 Oct 2022 20:53:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC82760C85;
+        Sun,  9 Oct 2022 20:53:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3B7C433D7;
+        Sun,  9 Oct 2022 20:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665348828;
-        bh=eEkKhel/dkvqZLvCArQ7RAj4NcXEexhoiqLhszBxwz0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEgA51Y7dKfBzesThHoXmPoCWVtrr41xFA+2qpfEjFVeQ3OXcHBKn0IeNClmYiPC8
-         6pUXdnwHsjz9wYQvbv9ueMUBr2mFzY1I0Xyo+ggTwpyM/F504sO6GOf4rBuSVifc7a
-         UVwnB8c/iIOsRzY6IKihP3CyYheZ+/3yD/u5KbrlBbVsjDg9xG/z2DKH4PdUNAqp5N
-         4bYdPziNV5u0s5YZOifcZ5xzFYsZdeL4ujZ4V6Ro/WFRjyoyrkyP+wigw5mKNCie9B
-         2neIxjl3PQnGn1ZfZPAcZuMA8WVegYmLSi9Osh42Ptwhaii7MVyox2LwIVw2BzkgyI
-         gbBhv3wrsTkjQ==
+        s=k20201202; t=1665348833;
+        bh=la6Focf99ixLU4gXyDPCNI6jI7AOOZrRr8SSC+3kks4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UJ9TeZMvhbqiDzrg5J3p5jCj27XeCcBYRD+Q82flaUj7AEHZwegVtosGhKQgCsWfV
+         dQj9OhTC3Cn0bE/ExHpMSZTqS+Khctem7xqnDzi/QZxo2TjpkegZu9kJAzK0sKgaur
+         tqtrfevb1fOPyCJ31I1Z5ISIFIO7fn2Ha+Q4CwhE0JBipBX86mYBF7ss9FZ3jD+mh3
+         0eVX2+O5/3Zj6zUccVOngIEsaiB12gF00aBiHAoxlSJdBlZkKMzCuyeEUd+NQWVQKZ
+         wBl4Jk5f0svVXgYW62IcNZSl6B98fZsAJT83EjMdCGoiUHnBQbSYKb05Nx078egVUr
+         hDyjJkztO9Vgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dai Ngo <dai.ngo@oracle.com>, Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jlayton@kernel.org,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 15/15] NFSD: fix use-after-free on source server when doing inter-server copy
-Date:   Sun,  9 Oct 2022 16:53:08 -0400
-Message-Id: <20221009205308.1202627-15-sashal@kernel.org>
+Cc:     Michal Hocko <mhocko@suse.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/10] rcu: Back off upon fill_page_cache_func() allocation failure
+Date:   Sun,  9 Oct 2022 16:53:40 -0400
+Message-Id: <20221009205350.1203176-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221009205308.1202627-1-sashal@kernel.org>
-References: <20221009205308.1202627-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,76 +61,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Michal Hocko <mhocko@suse.com>
 
-[ Upstream commit 019805fea91599b22dfa62ffb29c022f35abeb06 ]
+[ Upstream commit 093590c16b447f53e66771c8579ae66c96f6ef61 ]
 
-Use-after-free occurred when the laundromat tried to free expired
-cpntf_state entry on the s2s_cp_stateids list after inter-server
-copy completed. The sc_cp_list that the expired copy state was
-inserted on was already freed.
+The fill_page_cache_func() function allocates couple of pages to store
+kvfree_rcu_bulk_data structures. This is a lightweight (GFP_NORETRY)
+allocation which can fail under memory pressure. The function will,
+however keep retrying even when the previous attempt has failed.
 
-When COPY completes, the Linux client normally sends LOCKU(lock_state x),
-FREE_STATEID(lock_state x) and CLOSE(open_state y) to the source server.
-The nfs4_put_stid call from nfsd4_free_stateid cleans up the copy state
-from the s2s_cp_stateids list before freeing the lock state's stid.
+This retrying is in theory correct, but in practice the allocation is
+invoked from workqueue context, which means that if the memory reclaim
+gets stuck, these retries can hog the worker for quite some time.
+Although the workqueues subsystem automatically adjusts concurrency, such
+adjustment is not guaranteed to happen until the worker context sleeps.
+And the fill_page_cache_func() function's retry loop is not guaranteed
+to sleep (see the should_reclaim_retry() function).
 
-However, sometimes the CLOSE was sent before the FREE_STATEID request.
-When this happens, the nfsd4_close_open_stateid call from nfsd4_close
-frees all lock states on its st_locks list without cleaning up the copy
-state on the sc_cp_list list. When the time the FREE_STATEID arrives the
-server returns BAD_STATEID since the lock state was freed. This causes
-the use-after-free error to occur when the laundromat tries to free
-the expired cpntf_state.
+And we have seen this function cause workqueue lockups:
 
-This patch adds a call to nfs4_free_cpntf_statelist in
-nfsd4_close_open_stateid to clean up the copy state before calling
-free_ol_stateid_reaplist to free the lock state's stid on the reaplist.
+kernel: BUG: workqueue lockup - pool cpus=93 node=1 flags=0x1 nice=0 stuck for 32s!
+[...]
+kernel: pool 74: cpus=37 node=0 flags=0x1 nice=0 hung=32s workers=2 manager: 2146
+kernel:   pwq 498: cpus=249 node=1 flags=0x1 nice=0 active=4/256 refcnt=5
+kernel:     in-flight: 1917:fill_page_cache_func
+kernel:     pending: dbs_work_handler, free_work, kfree_rcu_monitor
 
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Originally, we thought that the root cause of this lockup was several
+retries with direct reclaim, but this is not yet confirmed.  Furthermore,
+we have seen similar lockups without any heavy memory pressure.  This
+suggests that there are other factors contributing to these lockups.
+However, it is not really clear that endless retries are desireable.
+
+So let's make the fill_page_cache_func() function back off after
+allocation failure.
+
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/rcu/tree.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index f9e2fa9cfbec..7b763f146b62 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -961,6 +961,7 @@ static struct nfs4_ol_stateid * nfs4_alloc_open_stateid(struct nfs4_client *clp)
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index b41009a283ca..b10d6bcea77d 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3393,15 +3393,16 @@ static void fill_page_cache_func(struct work_struct *work)
+ 		bnode = (struct kvfree_rcu_bulk_data *)
+ 			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
  
- static void nfs4_free_deleg(struct nfs4_stid *stid)
- {
-+	WARN_ON(!list_empty(&stid->sc_cp_list));
- 	kmem_cache_free(deleg_slab, stid);
- 	atomic_long_dec(&num_delegations);
- }
-@@ -1374,6 +1375,7 @@ static void nfs4_free_ol_stateid(struct nfs4_stid *stid)
- 	release_all_access(stp);
- 	if (stp->st_stateowner)
- 		nfs4_put_stateowner(stp->st_stateowner);
-+	WARN_ON(!list_empty(&stid->sc_cp_list));
- 	kmem_cache_free(stateid_slab, stid);
- }
+-		if (bnode) {
+-			raw_spin_lock_irqsave(&krcp->lock, flags);
+-			pushed = put_cached_bnode(krcp, bnode);
+-			raw_spin_unlock_irqrestore(&krcp->lock, flags);
++		if (!bnode)
++			break;
  
-@@ -6389,6 +6391,7 @@ static void nfsd4_close_open_stateid(struct nfs4_ol_stateid *s)
- 	struct nfs4_client *clp = s->st_stid.sc_client;
- 	bool unhashed;
- 	LIST_HEAD(reaplist);
-+	struct nfs4_ol_stateid *stp;
+-			if (!pushed) {
+-				free_page((unsigned long) bnode);
+-				break;
+-			}
++		raw_spin_lock_irqsave(&krcp->lock, flags);
++		pushed = put_cached_bnode(krcp, bnode);
++		raw_spin_unlock_irqrestore(&krcp->lock, flags);
++
++		if (!pushed) {
++			free_page((unsigned long) bnode);
++			break;
+ 		}
+ 	}
  
- 	spin_lock(&clp->cl_lock);
- 	unhashed = unhash_open_stateid(s, &reaplist);
-@@ -6397,6 +6400,8 @@ static void nfsd4_close_open_stateid(struct nfs4_ol_stateid *s)
- 		if (unhashed)
- 			put_ol_stateid_locked(s, &reaplist);
- 		spin_unlock(&clp->cl_lock);
-+		list_for_each_entry(stp, &reaplist, st_locks)
-+			nfs4_free_cpntf_statelist(clp->net, &stp->st_stid);
- 		free_ol_stateid_reaplist(&reaplist);
- 	} else {
- 		spin_unlock(&clp->cl_lock);
 -- 
 2.35.1
 
