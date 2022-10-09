@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F075F9550
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:18:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C295F9551
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbiJJASZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:18:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43520 "EHLO
+        id S231772AbiJJAS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:18:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231551AbiJJARs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:17:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB4735E562;
-        Sun,  9 Oct 2022 16:53:07 -0700 (PDT)
+        with ESMTP id S231754AbiJJARx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:17:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96CD85E565;
+        Sun,  9 Oct 2022 16:53:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69FB4B80DE4;
-        Sun,  9 Oct 2022 23:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B999C433C1;
-        Sun,  9 Oct 2022 23:53:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83B0C60D57;
+        Sun,  9 Oct 2022 23:53:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99AA1C43142;
+        Sun,  9 Oct 2022 23:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359585;
-        bh=GE2YQiTOCkVprWu/xnAquC2VU2jYU3qYnrea42lOiBk=;
+        s=k20201202; t=1665359586;
+        bh=E8lnajgY5yjgmA9Ze197EDHKNzbkkiNgzzOdflXRywI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2CGffiE8bBdtxPzgltaKnYtW0P7VWBu7Zv/yu+w4a4O3nf0DzlKXUmHLfnk7Qcyl
-         EM+4WPaquQZKZ4Hoy/5LOgsGQxyid2AAE88cB0e2PN7oqSH2UsBuuaRweS68FbiN5A
-         tuQnZ9iO/pF54L9wlK9v8iaMHGFj25D/jzZWyRqMRd8oZqFZ1b7yx2bN8xgw3Yf5wQ
-         boJPIl6XKayUzMKbo030ki1IaULZGq7SE+oR0SaLKy89OhAYmLENkZAMCllRVi2AoE
-         UTICglAcu0AVSfF3qqmu+HQLuSatmVttK2mXplzJDwzZsJ3oAf9uhDRtWFECZRp0uj
-         ltwuphZdX76VA==
+        b=siaFa+E9z32rgaYY1oorFeDSqNnzMRHxwELXjayX4vzG99RlHbqMg5UeiZfJ18b1x
+         tzoyMsHmvKkh0+KmdTKdon2/r/qm6PIXqrp9wXYL5kXkIKqYZAH2Sx7YkMVDqJHNTP
+         nYhzmX99d2aauIHfkfemARhbdCI7ZxGxpQrMJpIL7laTIpQ+L5TbALbklx6yw7QgrL
+         k/r1KR2HrFS05AxYfWrM6fWri4Psk8Fn9qV0sS6V4VeZg7/aG8iR/SUzy8V3B/hsZZ
+         MPK7sKWFgFRDK9WmoU8XJ7K0WhrJvwDfLGJF/pg+q0JTPuw1BzBVt2Omt0d/lttrxe
+         vp/B51ZywuqPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yifan Zha <Yifan.Zha@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@gmail.com, daniel@ffwll.ch, sonny.jiang@amd.com,
-        evan.quan@amd.com, James.Zhu@amd.com, tim.huang@amd.com,
-        Likun.Gao@amd.com, Stanley.Yang@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 12/36] drm/admgpu: Skip CG/PG on SOC21 under SRIOV VF
-Date:   Sun,  9 Oct 2022 19:51:58 -0400
-Message-Id: <20221009235222.1230786-12-sashal@kernel.org>
+Cc:     Simon Ser <contact@emersion.fr>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 13/36] drm: hide unregistered connectors from GETCONNECTOR IOCTL
+Date:   Sun,  9 Oct 2022 19:51:59 -0400
+Message-Id: <20221009235222.1230786-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235222.1230786-1-sashal@kernel.org>
 References: <20221009235222.1230786-1-sashal@kernel.org>
@@ -62,42 +62,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zha <Yifan.Zha@amd.com>
+From: Simon Ser <contact@emersion.fr>
 
-[ Upstream commit 828418259254863e0af5805bd712284e2bd88e3b ]
+[ Upstream commit 981f09295687f856d5345e19c7084aca481c1395 ]
 
-[Why]
-There is no CG(Clock Gating)/PG(Power Gating) requirement on SRIOV VF.
-For multi VF, VF should not enable any CG/PG features.
-For one VF, PF will program CG/PG related registers.
+When registering a connector, the kernel sends a hotplug uevent in
+drm_connector_register(). When unregistering a connector, drivers
+are expected to send a uevent as well. However, user-space has no way
+to figure out that the connector isn't registered anymore: it'll still
+be reported in GETCONNECTOR IOCTLs.
 
-[How]
-Do not set any cg/pg flag bit at early init under sriov.
+The documentation for DRM_CONNECTOR_UNREGISTERED states:
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Yifan Zha <Yifan.Zha@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> The connector […] has since been unregistered and removed from
+> userspace, or the connector was unregistered before it had a chance
+> to be exposed to userspace
+
+Signed-off-by: Simon Ser <contact@emersion.fr>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220801133754.461037-1-contact@emersion.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc21.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/drm_mode_config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc21.c b/drivers/gpu/drm/amd/amdgpu/soc21.c
-index 8d5c452a9100..6d3bfb0f0346 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-@@ -551,6 +551,10 @@ static int soc21_common_early_init(void *handle)
- 			AMD_PG_SUPPORT_JPEG |
- 			AMD_PG_SUPPORT_ATHUB |
- 			AMD_PG_SUPPORT_MMHUB;
-+		if (amdgpu_sriov_vf(adev)) {
-+			adev->cg_flags = 0;
-+			adev->pg_flags = 0;
-+		}
- 		adev->external_rev_id = adev->rev_id + 0x1; // TODO: need update
- 		break;
- 	case IP_VERSION(11, 0, 2):
+diff --git a/drivers/gpu/drm/drm_mode_config.c b/drivers/gpu/drm/drm_mode_config.c
+index 37b4b9f0e468..6a326b41d193 100644
+--- a/drivers/gpu/drm/drm_mode_config.c
++++ b/drivers/gpu/drm/drm_mode_config.c
+@@ -150,6 +150,9 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
+ 	count = 0;
+ 	connector_id = u64_to_user_ptr(card_res->connector_id_ptr);
+ 	drm_for_each_connector_iter(connector, &conn_iter) {
++		if (connector->registration_state != DRM_CONNECTOR_REGISTERED)
++			continue;
++
+ 		/* only expose writeback connectors if userspace understands them */
+ 		if (!file_priv->writeback_connectors &&
+ 		    (connector->connector_type == DRM_MODE_CONNECTOR_WRITEBACK))
 -- 
 2.35.1
 
