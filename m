@@ -2,161 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3455F9587
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4B35F954A
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbiJJAVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45576 "EHLO
+        id S232215AbiJJAR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232478AbiJJAT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:19:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6268B1E3EF;
-        Sun,  9 Oct 2022 16:54:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D13B260D17;
-        Sun,  9 Oct 2022 23:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0B3C433D7;
-        Sun,  9 Oct 2022 23:54:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359665;
-        bh=k1aIw9YxKECaGaO2jmbXqWliP/zH74AICWyaTZxJlzY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YX+As//5fuL/ISwn9hP7eN+vAjV/ARtB/IK8Lj5ErKRk/Fu2tdOzeS+grE2AC1B9S
-         ZKq9e1+XwCy1vMD5p3zwIOhKZsasjUkq/xqLnG4TzzcatZPgVT062lWOAxpTF4Vajf
-         47o/9SW/7G6xQrifAchZJC9+jshRcA9qOTAOi/GGx+mo9Ko5KwbSnQ9kVJ7FOU/mck
-         vInmDX1OFTRBUclciQG9MiQqbN2VrhVN77x5bJ/ntxiCOS5fHZN4mSdjZJz4MKQiov
-         yinHzgW+mJ4RAJm1eN6MDvVrFMjL2cg3jL0ivwP6PJvDr+4gGVr6leCx9QUU8i+Sgz
-         OaXrOHED2d8pw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
-        Ellis Michael <ellis@ellismichael.com>,
-        Graham Sider <Graham.Sider@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 36/36] drm/amdkfd: Fix UBSAN shift-out-of-bounds warning
-Date:   Sun,  9 Oct 2022 19:52:22 -0400
-Message-Id: <20221009235222.1230786-36-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221009235222.1230786-1-sashal@kernel.org>
-References: <20221009235222.1230786-1-sashal@kernel.org>
+        with ESMTP id S231805AbiJJARF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:17:05 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30EACB68
+        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 16:52:47 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id 78so8994746pgb.13
+        for <stable@vger.kernel.org>; Sun, 09 Oct 2022 16:52:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=W/vjhCBDhW3tHWa1+eSOS2YwWicC18cRR7t0HzEfgbY=;
+        b=R2DPqXMkSevOnRRFIo61n+sNQh/611CJS9XxtjOgb3dyjQ0hsh0gj8fbr/4q9kl1eC
+         L+JMviX8xNHYJILyScuHWqRDXo04GoMMWZRHXhr8981knP85GIk830fRVehx5fXfi5vh
+         lkOcCMMq1wOEBFARiqc181qW1l6R815UYXPasfrYMP8NU4V24bWuLznGylYqbisbv2jw
+         LFiB6T7UOBfqCAVFwiYGwOvc4B6iS/Dv6D5D3lNv4/isv6k7FPdvk6Xw81vcFDnDYm7P
+         18Io5Uc/pOL+sHVBS7WKp/r1ZaniptBCKjtIhqNGBHzvIRc1nQIDXvclCJFaV+m0HThU
+         Myrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=W/vjhCBDhW3tHWa1+eSOS2YwWicC18cRR7t0HzEfgbY=;
+        b=n9eT4kZ/EJW4Zm5GngxACqANijnsqxFG0ZnnCcyno86vyFKetRNyMA3vKkqk90IKCX
+         2mDYmRYdlA37GtdpnPMFIDC+y2ghO9UhRISaUWA/FkOXhko/T6SIpqZrPMPbDkJAFijc
+         NW64s/bOZ3UNrRMpDMn2p8zkLNSoEwIBpwZueFlkB26WNYMq+JNuNkCBa1flGtQDiQM6
+         2wYeHPrU/sXROQKBVsYE+5r3QzlWVhbFk90OYqMRcBGA29nCvjqDf4xaFqTm8Y1s1CUM
+         BFCwQWDmywfdZSV+62Ig7OcUzZ0e+fey8mRm1w8wIZ6qdbCTOLoENzcal6mI805MNlk9
+         zC9g==
+X-Gm-Message-State: ACrzQf3FmMrBi1ZYPkv0h1TKG7ODrX7b7/5/1ZbX/P+aJ5GPV0LZHEDk
+        ejFhZL0tHVcSZFsUHMUKw2iWg8QYBX3ZSpVEBTQ=
+X-Google-Smtp-Source: AMsMyM4DAV9+0+6uy8xa9M2/i2jw1tko+jd/YWMzPtePuBfzPwp7oTMX3ovT+RaqsgNkivXSrU11Cw==
+X-Received: by 2002:a65:6148:0:b0:458:88cd:f46 with SMTP id o8-20020a656148000000b0045888cd0f46mr14211395pgv.303.1665359566462;
+        Sun, 09 Oct 2022 16:52:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s10-20020a170903200a00b0017b264a2d4asm5251883pla.44.2022.10.09.16.52.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 Oct 2022 16:52:46 -0700 (PDT)
+Message-ID: <63435ece.170a0220.da066.8914@mx.google.com>
+Date:   Sun, 09 Oct 2022 16:52:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.72-36-g65c395d4451cf
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 194 runs,
+ 5 regressions (v5.15.72-36-g65c395d4451cf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+stable-rc/queue/5.15 baseline: 194 runs, 5 regressions (v5.15.72-36-g65c395=
+d4451cf)
 
-[ Upstream commit b292cafe2dd02d96a07147e4b160927e8399d5cc ]
+Regressions Summary
+-------------------
 
-This was fixed in initialize_cpsch before, but not in initialize_nocpsch.
-Factor sdma bitmap initialization into a helper function to apply the
-correct implementation in both cases without duplicating it.
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+beagle-xm   | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
 
-v2: Added a range check
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | imx_v6_v7_defconfig | 1     =
+     =
 
-Reported-by: Ellis Michael <ellis@ellismichael.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Graham Sider <Graham.Sider@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- .../drm/amd/amdkfd/kfd_device_queue_manager.c | 45 +++++++++----------
- 1 file changed, 21 insertions(+), 24 deletions(-)
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | multi_v7_defconfig  | 1     =
+     =
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index e1797657b04c..7d3fc5849466 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1232,6 +1232,24 @@ static void init_interrupts(struct device_queue_manager *dqm)
- 			dqm->dev->kfd2kgd->init_interrupts(dqm->dev->adev, i);
- }
- 
-+static void init_sdma_bitmaps(struct device_queue_manager *dqm)
-+{
-+	unsigned int num_sdma_queues =
-+		min_t(unsigned int, sizeof(dqm->sdma_bitmap)*8,
-+		      get_num_sdma_queues(dqm));
-+	unsigned int num_xgmi_sdma_queues =
-+		min_t(unsigned int, sizeof(dqm->xgmi_sdma_bitmap)*8,
-+		      get_num_xgmi_sdma_queues(dqm));
-+
-+	if (num_sdma_queues)
-+		dqm->sdma_bitmap = GENMASK_ULL(num_sdma_queues-1, 0);
-+	if (num_xgmi_sdma_queues)
-+		dqm->xgmi_sdma_bitmap = GENMASK_ULL(num_xgmi_sdma_queues-1, 0);
-+
-+	dqm->sdma_bitmap &= ~get_reserved_sdma_queues_bitmap(dqm);
-+	pr_info("sdma_bitmap: %llx\n", dqm->sdma_bitmap);
-+}
-+
- static int initialize_nocpsch(struct device_queue_manager *dqm)
- {
- 	int pipe, queue;
-@@ -1260,11 +1278,7 @@ static int initialize_nocpsch(struct device_queue_manager *dqm)
- 
- 	memset(dqm->vmid_pasid, 0, sizeof(dqm->vmid_pasid));
- 
--	dqm->sdma_bitmap = ~0ULL >> (64 - get_num_sdma_queues(dqm));
--	dqm->sdma_bitmap &= ~(get_reserved_sdma_queues_bitmap(dqm));
--	pr_info("sdma_bitmap: %llx\n", dqm->sdma_bitmap);
--
--	dqm->xgmi_sdma_bitmap = ~0ULL >> (64 - get_num_xgmi_sdma_queues(dqm));
-+	init_sdma_bitmaps(dqm);
- 
- 	return 0;
- }
-@@ -1442,9 +1456,6 @@ static int set_sched_resources(struct device_queue_manager *dqm)
- 
- static int initialize_cpsch(struct device_queue_manager *dqm)
- {
--	uint64_t num_sdma_queues;
--	uint64_t num_xgmi_sdma_queues;
--
- 	pr_debug("num of pipes: %d\n", get_pipes_per_mec(dqm));
- 
- 	mutex_init(&dqm->lock_hidden);
-@@ -1453,24 +1464,10 @@ static int initialize_cpsch(struct device_queue_manager *dqm)
- 	dqm->active_cp_queue_count = 0;
- 	dqm->gws_queue_count = 0;
- 	dqm->active_runlist = false;
--
--	num_sdma_queues = get_num_sdma_queues(dqm);
--	if (num_sdma_queues >= BITS_PER_TYPE(dqm->sdma_bitmap))
--		dqm->sdma_bitmap = ULLONG_MAX;
--	else
--		dqm->sdma_bitmap = (BIT_ULL(num_sdma_queues) - 1);
--
--	dqm->sdma_bitmap &= ~(get_reserved_sdma_queues_bitmap(dqm));
--	pr_info("sdma_bitmap: %llx\n", dqm->sdma_bitmap);
--
--	num_xgmi_sdma_queues = get_num_xgmi_sdma_queues(dqm);
--	if (num_xgmi_sdma_queues >= BITS_PER_TYPE(dqm->xgmi_sdma_bitmap))
--		dqm->xgmi_sdma_bitmap = ULLONG_MAX;
--	else
--		dqm->xgmi_sdma_bitmap = (BIT_ULL(num_xgmi_sdma_queues) - 1);
--
- 	INIT_WORK(&dqm->hw_exception_work, kfd_process_hw_exception);
- 
-+	init_sdma_bitmaps(dqm);
-+
- 	return 0;
- }
- 
--- 
-2.35.1
+panda       | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1     =
+     =
 
+panda       | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.72-36-g65c395d4451cf/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.72-36-g65c395d4451cf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      65c395d4451cfa584571e1b842c90df91c1b4568 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+beagle-xm   | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63432ca5e5d353cdf8cab601
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63432ca5e5d353cdf8cab=
+602
+        failing since 18 days (last pass: v5.15.69-17-g7d846e6eef7f, first =
+fail: v5.15.69-45-g01bb9cc9bf6e) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | imx_v6_v7_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63432e88333e488289cab5ec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63432e88333e488289cab=
+5ed
+        failing since 14 days (last pass: v5.15.70-117-g5ae36aa8ead6e, firs=
+t fail: v5.15.70-133-gbad831d5b9cf) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+imx7ulp-evk | arm  | lab-nxp      | gcc-10   | multi_v7_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63432ff0e4bc4ad43acab602
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
+k.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
+k.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63432ff0e4bc4ad43acab=
+603
+        failing since 14 days (last pass: v5.15.69-44-g09c929d3da79, first =
+fail: v5.15.70-123-gaf951c1b9b36) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+panda       | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63432ed8f7fb19f04bcab5ec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63432ed8f7fb19f04bcab=
+5ed
+        failing since 54 days (last pass: v5.15.60-48-g789367af88749, first=
+ fail: v5.15.60-779-ge1dae9850fdff) =
+
+ =
+
+
+
+platform    | arch | lab          | compiler | defconfig           | regres=
+sions
+------------+------+--------------+----------+---------------------+-------=
+-----
+panda       | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63432ce42ab5772276cab616
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.72-=
+36-g65c395d4451cf/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63432ce42ab5772276cab=
+617
+        failing since 47 days (last pass: v5.15.61-1-geccb923b9eab2, first =
+fail: v5.15.62-232-g7f3b8845612d) =
+
+ =20
