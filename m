@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD4E5F8F9A
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:10:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615ED5F8F9B
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230201AbiJIWKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:10:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42060 "EHLO
+        id S231279AbiJIWKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:10:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231142AbiJIWJ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:09:26 -0400
+        with ESMTP id S230483AbiJIWJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:09:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB5AE27FFA;
-        Sun,  9 Oct 2022 15:08:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB5228732;
+        Sun,  9 Oct 2022 15:08:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6507FB80DD7;
-        Sun,  9 Oct 2022 22:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF87EC433D7;
-        Sun,  9 Oct 2022 22:08:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8404CB80DD8;
+        Sun,  9 Oct 2022 22:08:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE41FC4347C;
+        Sun,  9 Oct 2022 22:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353327;
-        bh=/LmuOibYq4SSvlEYG9tQkbKyOyx/DdrdHV6RwtqcukY=;
+        s=k20201202; t=1665353329;
+        bh=uFZzpqGeI0F+s1iei+vQqMl4q+FdPp2Sji8X1gj9HgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nycm77E36xDLKRLiIjEDBqPw1O22Z/tb4iZZ0F+5jvHyEYuYwoKmnoX2HbHMOPCUc
-         II6TVrIGDSsVKHG2p7FlWthZWuGqH9rDEC016rpXO8XRPFIOpNPoZQkGvf2Oh9OAu0
-         h7lSgkFPqHnBwQRB2UEZjoT/3bR7HfLjlFxlYKlmM51tMT7uVbyfH4gGcK4vI4Ix+K
-         yOaJuYJ+oMO4pLB0r01zyFA9GSgLfD2S6AielDwKisK/gmAJGsxaUMde/u5ho8qTDF
-         NsOQcB+7MydyI8D7QLcugT0g//7LQS37L+Ih6jO18yMoGOO1sWMAfxOdzSc0tBUfVS
-         VzedjSRXDL+ZQ==
+        b=IItcKXBvThrqEvex+TKmSNPHr/y08vOckhqLhLtQVePAwJTjNEEuuKuUIKXec7hZ0
+         YAyVL+RWjtzOnzrZX3ouYyUyAHA13c/m1z0fruoQ0G0cvrgY1qBok7Amt02ZoJ17VT
+         Zkl7p+H2iow5Qr4wc0RH5nSNTpy3VfuZsI78pc7Q/P99YV552nopS/Rz9S4JQyBXTz
+         mwWDqVbDiwcY1DiujVVmYLo4e256iuxtz9d4a7GMMJBNJiFkaKzAs56kM3+Avzhv6q
+         r+w5hRg34J5ze9guqVgG8NorH8f27k88botWUTF20N9islLzbkFMiqWNJkjdn/sodJ
+         TjY8KzymOOdZg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jane Chu <jane.chu@oracle.com>, Borislav Petkov <bp@suse.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, bp@alien8.de,
-        tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com,
-        x86@kernel.org, linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 19/77] x86/mce: Retrieve poison range from hardware
-Date:   Sun,  9 Oct 2022 18:06:56 -0400
-Message-Id: <20221009220754.1214186-19-sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 20/77] wifi: ath9k: avoid uninit memory read in ath9k_htc_rx_msg()
+Date:   Sun,  9 Oct 2022 18:06:57 -0400
+Message-Id: <20221009220754.1214186-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
 References: <20221009220754.1214186-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,70 +61,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Chu <jane.chu@oracle.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit f9781bb18ed828e7b83b7bac4a4ad7cd497ee7d7 ]
+[ Upstream commit b383e8abed41cc6ff1a3b34de75df9397fa4878c ]
 
-When memory poison consumption machine checks fire, MCE notifier
-handlers like nfit_handle_mce() record the impacted physical address
-range which is reported by the hardware in the MCi_MISC MSR. The error
-information includes data about blast radius, i.e. how many cachelines
-did the hardware determine are impacted. A recent change
+syzbot is reporting uninit value at ath9k_htc_rx_msg() [1], for
+ioctl(USB_RAW_IOCTL_EP_WRITE) can call ath9k_hif_usb_rx_stream() with
+pkt_len = 0 but ath9k_hif_usb_rx_stream() uses
+__dev_alloc_skb(pkt_len + 32, GFP_ATOMIC) based on an assumption that
+pkt_len is valid. As a result, ath9k_hif_usb_rx_stream() allocates skb
+with uninitialized memory and ath9k_htc_rx_msg() is reading from
+uninitialized memory.
 
-  7917f9cdb503 ("acpi/nfit: rely on mce->misc to determine poison granularity")
+Since bytes accessed by ath9k_htc_rx_msg() is not known until
+ath9k_htc_rx_msg() is called, it would be difficult to check minimal valid
+pkt_len at "if (pkt_len > 2 * MAX_RX_BUF_SIZE) {" line in
+ath9k_hif_usb_rx_stream().
 
-updated nfit_handle_mce() to stop hard coding the blast radius value of
-1 cacheline, and instead rely on the blast radius reported in 'struct
-mce' which can be up to 4K (64 cachelines).
+We have two choices. One is to workaround by adding __GFP_ZERO so that
+ath9k_htc_rx_msg() sees 0 if pkt_len is invalid. The other is to let
+ath9k_htc_rx_msg() validate pkt_len before accessing. This patch chose
+the latter.
 
-It turns out that apei_mce_report_mem_error() had a similar problem in
-that it hard coded a blast radius of 4K rather than reading the blast
-radius from the error information. Fix apei_mce_report_mem_error() to
-convey the proper poison granularity.
+Note that I'm not sure threshold condition is correct, for I can't find
+details on possible packet length used by this protocol.
 
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/7ed50fd8-521e-cade-77b1-738b8bfb8502@oracle.com
-Link: https://lore.kernel.org/r/20220826233851.1319100-1-jane.chu@oracle.com
+Link: https://syzkaller.appspot.com/bug?extid=2ca247c2d60c7023de7f [1]
+Reported-by: syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/7acfa1be-4b5c-b2ce-de43-95b0593fb3e5@I-love.SAKURA.ne.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/apei.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc_hst.c | 43 +++++++++++++++---------
+ 1 file changed, 28 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/apei.c b/arch/x86/kernel/cpu/mce/apei.c
-index 717192915f28..8ed341714686 100644
---- a/arch/x86/kernel/cpu/mce/apei.c
-+++ b/arch/x86/kernel/cpu/mce/apei.c
-@@ -29,15 +29,26 @@
- void apei_mce_report_mem_error(int severity, struct cper_sec_mem_err *mem_err)
- {
- 	struct mce m;
-+	int lsb;
+diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
+index 994ec48b2f66..ca05b07a45e6 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_hst.c
++++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
+@@ -364,33 +364,27 @@ void ath9k_htc_txcompletion_cb(struct htc_target *htc_handle,
+ }
  
- 	if (!(mem_err->validation_bits & CPER_MEM_VALID_PA))
+ static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
+-				      struct sk_buff *skb)
++				      struct sk_buff *skb, u32 len)
+ {
+ 	uint32_t *pattern = (uint32_t *)skb->data;
+ 
+-	switch (*pattern) {
+-	case 0x33221199:
+-		{
++	if (*pattern == 0x33221199 && len >= sizeof(struct htc_panic_bad_vaddr)) {
+ 		struct htc_panic_bad_vaddr *htc_panic;
+ 		htc_panic = (struct htc_panic_bad_vaddr *) skb->data;
+ 		dev_err(htc_handle->dev, "ath: firmware panic! "
+ 			"exccause: 0x%08x; pc: 0x%08x; badvaddr: 0x%08x.\n",
+ 			htc_panic->exccause, htc_panic->pc,
+ 			htc_panic->badvaddr);
+-		break;
+-		}
+-	case 0x33221299:
+-		{
++		return;
++	}
++	if (*pattern == 0x33221299) {
+ 		struct htc_panic_bad_epid *htc_panic;
+ 		htc_panic = (struct htc_panic_bad_epid *) skb->data;
+ 		dev_err(htc_handle->dev, "ath: firmware panic! "
+ 			"bad epid: 0x%08x\n", htc_panic->epid);
+-		break;
+-		}
+-	default:
+-		dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
+-		break;
++		return;
+ 	}
++	dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
+ }
+ 
+ /*
+@@ -411,16 +405,26 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+ 	if (!htc_handle || !skb)
  		return;
  
-+	/*
-+	 * Even if the ->validation_bits are set for address mask,
-+	 * to be extra safe, check and reject an error radius '0',
-+	 * and fall back to the default page size.
++	/* A valid message requires len >= 8.
++	 *
++	 *   sizeof(struct htc_frame_hdr) == 8
++	 *   sizeof(struct htc_ready_msg) == 8
++	 *   sizeof(struct htc_panic_bad_vaddr) == 16
++	 *   sizeof(struct htc_panic_bad_epid) == 8
 +	 */
-+	if (mem_err->validation_bits & CPER_MEM_VALID_PA_MASK)
-+		lsb = find_first_bit((void *)&mem_err->physical_addr_mask, PAGE_SHIFT);
-+	else
-+		lsb = PAGE_SHIFT;
-+
- 	mce_setup(&m);
- 	m.bank = -1;
- 	/* Fake a memory read error with unknown channel */
- 	m.status = MCI_STATUS_VAL | MCI_STATUS_EN | MCI_STATUS_ADDRV | MCI_STATUS_MISCV | 0x9f;
--	m.misc = (MCI_MISC_ADDR_PHYS << 6) | PAGE_SHIFT;
-+	m.misc = (MCI_MISC_ADDR_PHYS << 6) | lsb;
++	if (unlikely(len < sizeof(struct htc_frame_hdr)))
++		goto invalid;
+ 	htc_hdr = (struct htc_frame_hdr *) skb->data;
+ 	epid = htc_hdr->endpoint_id;
  
- 	if (severity >= GHES_SEV_RECOVERABLE)
- 		m.status |= MCI_STATUS_UC;
+ 	if (epid == 0x99) {
+-		ath9k_htc_fw_panic_report(htc_handle, skb);
++		ath9k_htc_fw_panic_report(htc_handle, skb, len);
+ 		kfree_skb(skb);
+ 		return;
+ 	}
+ 
+ 	if (epid < 0 || epid >= ENDPOINT_MAX) {
++invalid:
+ 		if (pipe_id != USB_REG_IN_PIPE)
+ 			dev_kfree_skb_any(skb);
+ 		else
+@@ -432,21 +436,30 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+ 
+ 		/* Handle trailer */
+ 		if (htc_hdr->flags & HTC_FLAGS_RECV_TRAILER) {
+-			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000)
++			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000) {
+ 				/* Move past the Watchdog pattern */
+ 				htc_hdr = (struct htc_frame_hdr *)(skb->data + 4);
++				len -= 4;
++			}
+ 		}
+ 
+ 		/* Get the message ID */
++		if (unlikely(len < sizeof(struct htc_frame_hdr) + sizeof(__be16)))
++			goto invalid;
+ 		msg_id = (__be16 *) ((void *) htc_hdr +
+ 				     sizeof(struct htc_frame_hdr));
+ 
+ 		/* Now process HTC messages */
+ 		switch (be16_to_cpu(*msg_id)) {
+ 		case HTC_MSG_READY_ID:
++			if (unlikely(len < sizeof(struct htc_ready_msg)))
++				goto invalid;
+ 			htc_process_target_rdy(htc_handle, htc_hdr);
+ 			break;
+ 		case HTC_MSG_CONNECT_SERVICE_RESPONSE_ID:
++			if (unlikely(len < sizeof(struct htc_frame_hdr) +
++				     sizeof(struct htc_conn_svc_rspmsg)))
++				goto invalid;
+ 			htc_process_conn_rsp(htc_handle, htc_hdr);
+ 			break;
+ 		default:
 -- 
 2.35.1
 
