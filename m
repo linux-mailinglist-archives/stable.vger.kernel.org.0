@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A13455F9093
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5121A5F911F
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbiJIW0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:26:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32842 "EHLO
+        id S231190AbiJIWal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbiJIWYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:24:04 -0400
+        with ESMTP id S232201AbiJIW20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:28:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5993B3DF00;
-        Sun,  9 Oct 2022 15:18:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E276738699;
+        Sun,  9 Oct 2022 15:18:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE5D8B80DFE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C827B80DFD;
+        Sun,  9 Oct 2022 22:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17DE4C4347C;
         Sun,  9 Oct 2022 22:16:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 311B3C433D6;
-        Sun,  9 Oct 2022 22:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353762;
-        bh=uFZzpqGeI0F+s1iei+vQqMl4q+FdPp2Sji8X1gj9HgQ=;
+        s=k20201202; t=1665353764;
+        bh=Hx4mL44wdPU71kowxGBfpLmQJGtZwfe5kyjz5eQ9nTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2dKMUqNknBWfviTGGAnpichFCkc3nGdkNVCVR7nCfOinl/Nk/p3jWEWuR5VdoK6s
-         AzHsBuEA/6jSKKADn/A9dc18kCVZqohm/ZYMn+EQdVXVYVgKJnuqTCr57StZz1DPhE
-         +Gfap7S3uet37bQE9NYjEhHLpHoblWtCGWNB3jtMo/E9H65kC8y8f8y0sQKDkvgx8e
-         7UAdqcwvCOlA8LWn1YEbkZyKVxDSVjUodwXJ8AZjf3DcM/hztDu2aDgtgUj2AFAIIg
-         ZNjOP3yW/DCQguoOemxnQCiqMHxFYYajzUjEfS5wxM2DavSuW3rK5LKLXtAqzB3il+
-         1mn+z7fmIjazg==
+        b=YZe0Xxv2cjYKyUHFvtqF13N/tw0ZsYpUAuXlwr/HjSSCUqOZ2qEGhSSWCLdEVjo+x
+         RnJtNpqMoJJVRFibVFWGoDoYGBQCF1g7i+SXN2Cbcd8+qDZ2CeCpsXUts0Cs86fvt6
+         7aF3bENZSCrIMGD92LHCfEfpEjQgtGIHvyhloYzxj8Ig3G085Jk7c/fGor7ti9sPuN
+         Qwx8q97za6K3vj1/uIpCdbpuv9RnpyKBiBxk7N2f0WEgL6xoLIzA7AssDIVcgMuLqg
+         jg/0GefqdSKw9oeHBGjqu+lHN02UZZLUPuhR+bwu0i+AqWDhc/etqDnrVvkKyvOTXR
+         vmwj9DaRhecSA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 17/73] wifi: ath9k: avoid uninit memory read in ath9k_htc_rx_msg()
-Date:   Sun,  9 Oct 2022 18:13:55 -0400
-Message-Id: <20221009221453.1216158-17-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, andreas.noever@gmail.com,
+        michael.jamet@intel.com, YehezkelShB@gmail.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 18/73] thunderbolt: Add back Intel Falcon Ridge end-to-end flow control workaround
+Date:   Sun,  9 Oct 2022 18:13:56 -0400
+Message-Id: <20221009221453.1216158-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009221453.1216158-1-sashal@kernel.org>
 References: <20221009221453.1216158-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,147 +57,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit b383e8abed41cc6ff1a3b34de75df9397fa4878c ]
+[ Upstream commit 54669e2f17cb5a4c41ade89427f074dc22cecb17 ]
 
-syzbot is reporting uninit value at ath9k_htc_rx_msg() [1], for
-ioctl(USB_RAW_IOCTL_EP_WRITE) can call ath9k_hif_usb_rx_stream() with
-pkt_len = 0 but ath9k_hif_usb_rx_stream() uses
-__dev_alloc_skb(pkt_len + 32, GFP_ATOMIC) based on an assumption that
-pkt_len is valid. As a result, ath9k_hif_usb_rx_stream() allocates skb
-with uninitialized memory and ath9k_htc_rx_msg() is reading from
-uninitialized memory.
+As we are now enabling full end-to-end flow control to the Thunderbolt
+networking driver, in order for it to work properly on second generation
+Thunderbolt hardware (Falcon Ridge), we need to add back the workaround
+that was removed with commit 53f13319d131 ("thunderbolt: Get rid of E2E
+workaround"). However, this time we only apply it for Falcon Ridge
+controllers as a form of an additional quirk. For non-Falcon Ridge this
+does nothing.
 
-Since bytes accessed by ath9k_htc_rx_msg() is not known until
-ath9k_htc_rx_msg() is called, it would be difficult to check minimal valid
-pkt_len at "if (pkt_len > 2 * MAX_RX_BUF_SIZE) {" line in
-ath9k_hif_usb_rx_stream().
+While there fix a typo 'reqister' -> 'register' in the comment.
 
-We have two choices. One is to workaround by adding __GFP_ZERO so that
-ath9k_htc_rx_msg() sees 0 if pkt_len is invalid. The other is to let
-ath9k_htc_rx_msg() validate pkt_len before accessing. This patch chose
-the latter.
-
-Note that I'm not sure threshold condition is correct, for I can't find
-details on possible packet length used by this protocol.
-
-Link: https://syzkaller.appspot.com/bug?extid=2ca247c2d60c7023de7f [1]
-Reported-by: syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/7acfa1be-4b5c-b2ce-de43-95b0593fb3e5@I-love.SAKURA.ne.jp
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c | 43 +++++++++++++++---------
- 1 file changed, 28 insertions(+), 15 deletions(-)
+ drivers/thunderbolt/nhi.c | 49 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 42 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
-index 994ec48b2f66..ca05b07a45e6 100644
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -364,33 +364,27 @@ void ath9k_htc_txcompletion_cb(struct htc_target *htc_handle,
- }
+diff --git a/drivers/thunderbolt/nhi.c b/drivers/thunderbolt/nhi.c
+index 1333b158a95e..407a89047473 100644
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -28,7 +28,11 @@
+ #define RING_TYPE(ring) ((ring)->is_tx ? "TX ring" : "RX ring")
  
- static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
--				      struct sk_buff *skb)
-+				      struct sk_buff *skb, u32 len)
- {
- 	uint32_t *pattern = (uint32_t *)skb->data;
- 
--	switch (*pattern) {
--	case 0x33221199:
--		{
-+	if (*pattern == 0x33221199 && len >= sizeof(struct htc_panic_bad_vaddr)) {
- 		struct htc_panic_bad_vaddr *htc_panic;
- 		htc_panic = (struct htc_panic_bad_vaddr *) skb->data;
- 		dev_err(htc_handle->dev, "ath: firmware panic! "
- 			"exccause: 0x%08x; pc: 0x%08x; badvaddr: 0x%08x.\n",
- 			htc_panic->exccause, htc_panic->pc,
- 			htc_panic->badvaddr);
--		break;
--		}
--	case 0x33221299:
--		{
-+		return;
-+	}
-+	if (*pattern == 0x33221299) {
- 		struct htc_panic_bad_epid *htc_panic;
- 		htc_panic = (struct htc_panic_bad_epid *) skb->data;
- 		dev_err(htc_handle->dev, "ath: firmware panic! "
- 			"bad epid: 0x%08x\n", htc_panic->epid);
--		break;
--		}
--	default:
--		dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
--		break;
-+		return;
- 	}
-+	dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
- }
- 
+ #define RING_FIRST_USABLE_HOPID	1
+-
++/*
++ * Used with QUIRK_E2E to specify an unused HopID the Rx credits are
++ * transferred.
++ */
++#define RING_E2E_RESERVED_HOPID	RING_FIRST_USABLE_HOPID
  /*
-@@ -411,16 +405,26 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
- 	if (!htc_handle || !skb)
- 		return;
+  * Minimal number of vectors when we use MSI-X. Two for control channel
+  * Rx/Tx and the rest four are for cross domain DMA paths.
+@@ -38,7 +42,9 @@
  
-+	/* A valid message requires len >= 8.
-+	 *
-+	 *   sizeof(struct htc_frame_hdr) == 8
-+	 *   sizeof(struct htc_ready_msg) == 8
-+	 *   sizeof(struct htc_panic_bad_vaddr) == 16
-+	 *   sizeof(struct htc_panic_bad_epid) == 8
-+	 */
-+	if (unlikely(len < sizeof(struct htc_frame_hdr)))
-+		goto invalid;
- 	htc_hdr = (struct htc_frame_hdr *) skb->data;
- 	epid = htc_hdr->endpoint_id;
+ #define NHI_MAILBOX_TIMEOUT	500 /* ms */
  
- 	if (epid == 0x99) {
--		ath9k_htc_fw_panic_report(htc_handle, skb);
-+		ath9k_htc_fw_panic_report(htc_handle, skb, len);
- 		kfree_skb(skb);
- 		return;
++/* Host interface quirks */
+ #define QUIRK_AUTO_CLEAR_INT	BIT(0)
++#define QUIRK_E2E		BIT(1)
+ 
+ static int ring_interrupt_index(struct tb_ring *ring)
+ {
+@@ -458,8 +464,18 @@ static void ring_release_msix(struct tb_ring *ring)
+ 
+ static int nhi_alloc_hop(struct tb_nhi *nhi, struct tb_ring *ring)
+ {
++	unsigned int start_hop = RING_FIRST_USABLE_HOPID;
+ 	int ret = 0;
+ 
++	if (nhi->quirks & QUIRK_E2E) {
++		start_hop = RING_FIRST_USABLE_HOPID + 1;
++		if (ring->flags & RING_FLAG_E2E && !ring->is_tx) {
++			dev_dbg(&nhi->pdev->dev, "quirking E2E TX HopID %u -> %u\n",
++				ring->e2e_tx_hop, RING_E2E_RESERVED_HOPID);
++			ring->e2e_tx_hop = RING_E2E_RESERVED_HOPID;
++		}
++	}
++
+ 	spin_lock_irq(&nhi->lock);
+ 
+ 	if (ring->hop < 0) {
+@@ -469,7 +485,7 @@ static int nhi_alloc_hop(struct tb_nhi *nhi, struct tb_ring *ring)
+ 		 * Automatically allocate HopID from the non-reserved
+ 		 * range 1 .. hop_count - 1.
+ 		 */
+-		for (i = RING_FIRST_USABLE_HOPID; i < nhi->hop_count; i++) {
++		for (i = start_hop; i < nhi->hop_count; i++) {
+ 			if (ring->is_tx) {
+ 				if (!nhi->tx_rings[i]) {
+ 					ring->hop = i;
+@@ -484,6 +500,11 @@ static int nhi_alloc_hop(struct tb_nhi *nhi, struct tb_ring *ring)
+ 		}
  	}
  
- 	if (epid < 0 || epid >= ENDPOINT_MAX) {
-+invalid:
- 		if (pipe_id != USB_REG_IN_PIPE)
- 			dev_kfree_skb_any(skb);
- 		else
-@@ -432,21 +436,30 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
++	if (ring->hop > 0 && ring->hop < start_hop) {
++		dev_warn(&nhi->pdev->dev, "invalid hop: %d\n", ring->hop);
++		ret = -EINVAL;
++		goto err_unlock;
++	}
+ 	if (ring->hop < 0 || ring->hop >= nhi->hop_count) {
+ 		dev_warn(&nhi->pdev->dev, "invalid hop: %d\n", ring->hop);
+ 		ret = -EINVAL;
+@@ -1097,12 +1118,26 @@ static void nhi_shutdown(struct tb_nhi *nhi)
  
- 		/* Handle trailer */
- 		if (htc_hdr->flags & HTC_FLAGS_RECV_TRAILER) {
--			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000)
-+			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000) {
- 				/* Move past the Watchdog pattern */
- 				htc_hdr = (struct htc_frame_hdr *)(skb->data + 4);
-+				len -= 4;
-+			}
- 		}
+ static void nhi_check_quirks(struct tb_nhi *nhi)
+ {
+-	/*
+-	 * Intel hardware supports auto clear of the interrupt status
+-	 * reqister right after interrupt is being issued.
+-	 */
+-	if (nhi->pdev->vendor == PCI_VENDOR_ID_INTEL)
++	if (nhi->pdev->vendor == PCI_VENDOR_ID_INTEL) {
++		/*
++		 * Intel hardware supports auto clear of the interrupt
++		 * status register right after interrupt is being
++		 * issued.
++		 */
+ 		nhi->quirks |= QUIRK_AUTO_CLEAR_INT;
++
++		switch (nhi->pdev->device) {
++		case PCI_DEVICE_ID_INTEL_FALCON_RIDGE_2C_NHI:
++		case PCI_DEVICE_ID_INTEL_FALCON_RIDGE_4C_NHI:
++			/*
++			 * Falcon Ridge controller needs the end-to-end
++			 * flow control workaround to avoid losing Rx
++			 * packets when RING_FLAG_E2E is set.
++			 */
++			nhi->quirks |= QUIRK_E2E;
++			break;
++		}
++	}
+ }
  
- 		/* Get the message ID */
-+		if (unlikely(len < sizeof(struct htc_frame_hdr) + sizeof(__be16)))
-+			goto invalid;
- 		msg_id = (__be16 *) ((void *) htc_hdr +
- 				     sizeof(struct htc_frame_hdr));
- 
- 		/* Now process HTC messages */
- 		switch (be16_to_cpu(*msg_id)) {
- 		case HTC_MSG_READY_ID:
-+			if (unlikely(len < sizeof(struct htc_ready_msg)))
-+				goto invalid;
- 			htc_process_target_rdy(htc_handle, htc_hdr);
- 			break;
- 		case HTC_MSG_CONNECT_SERVICE_RESPONSE_ID:
-+			if (unlikely(len < sizeof(struct htc_frame_hdr) +
-+				     sizeof(struct htc_conn_svc_rspmsg)))
-+				goto invalid;
- 			htc_process_conn_rsp(htc_handle, htc_hdr);
- 			break;
- 		default:
+ static int nhi_check_iommu_pdev(struct pci_dev *pdev, void *data)
 -- 
 2.35.1
 
