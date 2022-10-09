@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5E95F94FF
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 175AF5F9502
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbiJJAOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:14:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
+        id S231423AbiJJAO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:14:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231403AbiJJAND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:13:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E64057E3C;
-        Sun,  9 Oct 2022 16:51:02 -0700 (PDT)
+        with ESMTP id S231463AbiJJANS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:13:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3D336DE2;
+        Sun,  9 Oct 2022 16:51:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39B3AB80DE0;
-        Sun,  9 Oct 2022 23:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 726F2C433D7;
-        Sun,  9 Oct 2022 23:50:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4032060D2B;
+        Sun,  9 Oct 2022 23:51:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2379CC433B5;
+        Sun,  9 Oct 2022 23:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359460;
-        bh=FoAKBoM3BVE06nEwOQj9AKyKByzBVLYrsUm0mfXl8EQ=;
+        s=k20201202; t=1665359463;
+        bh=8vlZOH+1gnjwy2xjkBABceLfZcQrgsu6aRHtvXp0IEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2tw1qWkdMgLMIkEKAuaDwOvFv8/p8RNHCTnJaqkpdXrYPPc3OkEG+flJkl2IsDMw
-         Y6QZnsqV9m+s2+3WXCw/QYBlJ9k52LlcXEmC8jkej1Wl+JuJA7b3H0psclMMzgwoTd
-         b2bLt9cR+5C+fuqvQyKPkwXnAu2F93rv/LeTd9P5dj5XdZA9WObZxDplCEJE11LZMX
-         3/gH56wD8g1o5xNBEuG7EAuW/lAG50MiTQBWY7TJMeG+UsE4F0mSkGETcJqoQNwfhK
-         hC9auInErdNk7s6d3N8t3Fg63B6v/79s3dChKF058CuLt9xQeA34cv1W0/4Q0PH44s
-         QWmzJ4muq93Aw==
+        b=T7nyoKmbm4RSrJBh8Zeh9F0+mJzASl2ZTO+jBK/XQNOyredgvQTB20KjLpqaJlJ77
+         LjSzDs81/kTS+Z5ZqlC7cFc5Ww9kwOjNfMuEEV9Wm3pdTKhIinLWk5IXIoxAJVRvbv
+         JuPZv8q7JP3ranPDHaZHayM5NbqHPqCROd+/A0DcDUP2tm3gkeJsEzL2YpggLSkhER
+         VhyNKT7suqLPZ4iPq5wjIN164RNjSXHn/Qazg7j+gNgOa3qQkxtymMLHVwBN+nT3K0
+         CtqXCi2jIZ/BO6YJCZ3hvd6h3IKEF1LvIxUBXMdIFdpVzR5TR4/jw4rp4FKUBMm6eL
+         ol4+ztu4/4VWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikhail Rudenko <mike.rudenko@gmail.com>,
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, wens@csie.org,
-        jernej.skrabec@gmail.com, samuel@sholland.org,
-        ckeepax@opensource.cirrus.com, lchen@ambarella.com,
-        kuninori.morimoto.gx@renesas.com, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 27/44] ASoC: sunxi: sun4i-codec: set debugfs_prefix for CPU DAI component
-Date:   Sun,  9 Oct 2022 19:49:15 -0400
-Message-Id: <20221009234932.1230196-27-sashal@kernel.org>
+        peter.ujfalusi@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        guennadi.liakhovetski@linux.intel.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.0 28/44] ASoC: SOF: add quirk to override topology mclk_id
+Date:   Sun,  9 Oct 2022 19:49:16 -0400
+Message-Id: <20221009234932.1230196-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
@@ -60,40 +61,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikhail Rudenko <mike.rudenko@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 717a8ff20f32792d6a94f2883e771482c37d844b ]
+[ Upstream commit d136949dd8e2e309dc2f186507486b71cbe9acdb ]
 
-At present, succesfull probing of H3 Codec results in an error
+Some Intel-based platforms rely on a topology file that hard-codes the
+use of MCLK0. This is incorrect in 10% of the cases. Rather than
+generating yet another set of topology files, this patch adds a kernel
+module parameter to override the topology value.
 
-    debugfs: Directory '1c22c00.codec' with parent 'H3 Audio Codec' already present!
+In hindsight, we should never have allowed mclks to be specified in
+topology, this is a hardware-level information that should not have
+been visible in the topology.
 
-This is caused by a directory name conflict between codec
-components. Fix it by setting debugfs_prefix for the CPU DAI
-component.
+Future patches will try to set this value automagically, e.g. by
+parsing the NHLT content.
 
-Signed-off-by: Mikhail Rudenko <mike.rudenko@gmail.com>
-Link: https://lore.kernel.org/r/20220913212256.151799-2-mike.rudenko@gmail.com
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220919115350.43104-3-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sunxi/sun4i-codec.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/sof/intel/hda.c     | 11 +++++++++++
+ sound/soc/sof/ipc3-topology.c |  7 +++++++
+ sound/soc/sof/sof-priv.h      |  4 ++++
+ 3 files changed, 22 insertions(+)
 
-diff --git a/sound/soc/sunxi/sun4i-codec.c b/sound/soc/sunxi/sun4i-codec.c
-index 830beb38bf15..fdf3165acd70 100644
---- a/sound/soc/sunxi/sun4i-codec.c
-+++ b/sound/soc/sunxi/sun4i-codec.c
-@@ -1232,6 +1232,9 @@ static const struct snd_soc_component_driver sun8i_a23_codec_codec = {
- static const struct snd_soc_component_driver sun4i_codec_component = {
- 	.name			= "sun4i-codec",
- 	.legacy_dai_naming	= 1,
-+#ifdef CONFIG_DEBUG_FS
-+	.debugfs_prefix		= "cpu",
-+#endif
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index 6d4ecbe14adf..ada2e6775749 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -376,6 +376,10 @@ static int dmic_num_override = -1;
+ module_param_named(dmic_num, dmic_num_override, int, 0444);
+ MODULE_PARM_DESC(dmic_num, "SOF HDA DMIC number");
+ 
++static int mclk_id_override = -1;
++module_param_named(mclk_id, mclk_id_override, int, 0444);
++MODULE_PARM_DESC(mclk_id, "SOF SSP mclk_id");
++
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
+ static bool hda_codec_use_common_hdmi = IS_ENABLED(CONFIG_SND_HDA_CODEC_HDMI);
+ module_param_named(use_common_hdmi, hda_codec_use_common_hdmi, bool, 0444);
+@@ -1565,6 +1569,13 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
+ 
+ 			sof_pdata->tplg_filename = tplg_filename;
+ 		}
++
++		/* check if mclk_id should be modified from topology defaults */
++		if (mclk_id_override >= 0) {
++			dev_info(sdev->dev, "Overriding topology with MCLK %d from kernel_parameter\n", mclk_id_override);
++			sdev->mclk_id_override = true;
++			sdev->mclk_id_quirk = mclk_id_override;
++		}
+ 	}
+ 
+ 	/*
+diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
+index 65923e7a5976..a39b43850f0e 100644
+--- a/sound/soc/sof/ipc3-topology.c
++++ b/sound/soc/sof/ipc3-topology.c
+@@ -1249,6 +1249,7 @@ static int sof_link_afe_load(struct snd_soc_component *scomp, struct snd_sof_dai
+ static int sof_link_ssp_load(struct snd_soc_component *scomp, struct snd_sof_dai_link *slink,
+ 			     struct sof_ipc_dai_config *config, struct snd_sof_dai *dai)
+ {
++	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
+ 	struct snd_soc_tplg_hw_config *hw_config = slink->hw_configs;
+ 	struct sof_dai_private_data *private = dai->private;
+ 	u32 size = sizeof(*config);
+@@ -1273,6 +1274,12 @@ static int sof_link_ssp_load(struct snd_soc_component *scomp, struct snd_sof_dai
+ 
+ 		config[i].hdr.size = size;
+ 
++		if (sdev->mclk_id_override) {
++			dev_dbg(scomp->dev, "tplg: overriding topology mclk_id %d by quirk %d\n",
++				config[i].ssp.mclk_id, sdev->mclk_id_quirk);
++			config[i].ssp.mclk_id = sdev->mclk_id_quirk;
++		}
++
+ 		/* copy differentiating hw configs to ipc structs */
+ 		config[i].ssp.mclk_rate = le32_to_cpu(hw_config[i].mclk_rate);
+ 		config[i].ssp.bclk_rate = le32_to_cpu(hw_config[i].bclk_rate);
+diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
+index 823583086279..828c74bb75f8 100644
+--- a/sound/soc/sof/sof-priv.h
++++ b/sound/soc/sof/sof-priv.h
+@@ -594,6 +594,10 @@ struct snd_sof_dev {
+ 	/* to protect the ipc_rx_handler_list  and  dsp_state_handler_list list */
+ 	struct mutex client_event_handler_mutex;
+ 
++	/* quirks to override topology values */
++	bool mclk_id_override;
++	u16  mclk_id_quirk; /* same size as in IPC3 definitions */
++
+ 	void *private;			/* core does not touch this */
  };
  
- #define SUN4I_CODEC_RATES	SNDRV_PCM_RATE_CONTINUOUS
 -- 
 2.35.1
 
