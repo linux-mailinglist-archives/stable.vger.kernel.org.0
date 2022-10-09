@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55ADD5F9205
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 072AB5F91E3
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232371AbiJIWof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35860 "EHLO
+        id S232929AbiJIWme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:42:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233159AbiJIWn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:43:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E1A043159;
-        Sun,  9 Oct 2022 15:22:51 -0700 (PDT)
+        with ESMTP id S233050AbiJIWkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:40:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4DE3CBF2;
+        Sun,  9 Oct 2022 15:22:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4016CB80DCE;
-        Sun,  9 Oct 2022 22:21:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DF9C433B5;
-        Sun,  9 Oct 2022 22:21:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E889B80DDB;
+        Sun,  9 Oct 2022 22:21:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B898C433D6;
+        Sun,  9 Oct 2022 22:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665354067;
-        bh=FkZN7VM0y4peBWKjGswgOJ3KaV/NSrZfrcSmPvX06TQ=;
+        s=k20201202; t=1665354068;
+        bh=bALSsrDsYiGvrQhdjWgMeF/pAodNNbEgK4sWVnAJ1Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0xADk7Z/rbLQBPxLw/L+FowTNnCajr+Awuug8aTjDe0KN41XFeTtG+izW8rA0ZdV
-         iA8pcODiqoXwkkUTwpCQ4+n/+XSTDsDwyzQdbUiMGyZjr4OCv/z6pwZNSOI0tS1mVh
-         uGxIxwbg7Hkf0R2jwEcMVUcJ1FAQBSEx/cT2/D1n5nQQcPmw6Z50hiKLLx4Y2aMnj0
-         uwJyZ4Chl/vEVx8nn+pKto/FBem2Jud75tIkM8HGx+/ZTAaIM4su2dlH3Idq4A291j
-         TulLZwpScoTTN40nDGzRtq9yWy0gZV4gojwGWo+rkDGY11e9Uvu4Ripd+PmahVAiRS
-         sMLUrBPjLsB0w==
+        b=jl6DCv5/0scl8aINTYltBCfQhd+5t3OL3Qh+vuWrM2nJaRTLEGoM+8/19wFDvbbzs
+         OlTYHuKv+jAVzw80wN7EvG31RklspjH9UzNaZyuGWOn9opxsRKUvBH5S/q0VakMxIM
+         tPLX5l7bNY1x4Otrn0Yt4WIBNKhfWqPQJgox4iDm5K3ve8Y5zmfrH3xl7aLXqEc0q7
+         h9yZGOCw65nHtFAV9C0ixhnco/0vP6uW4PXcQZxVoBqHet2hbsQY2AFjzU/x5Lilqn
+         kEd89zt/h3EeYYePGp0woALgmoWycbMn0cMN6r+LTg7A1BUGks9gnYyKC86Sfjzr58
+         K1/Khy0rs1AcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Golle <daniel@makrotopia.org>,
-        Serge Vasilugin <vasilugin@yandex.ru>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        helmut.schaa@googlemail.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 41/46] wifi: rt2x00: correctly set BBP register 86 for MT7620
-Date:   Sun,  9 Oct 2022 18:19:06 -0400
-Message-Id: <20221009221912.1217372-41-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 42/46] hwmon: (sht4x) do not overflow clamping operation on 32-bit platforms
+Date:   Sun,  9 Oct 2022 18:19:07 -0400
+Message-Id: <20221009221912.1217372-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009221912.1217372-1-sashal@kernel.org>
 References: <20221009221912.1217372-1-sashal@kernel.org>
@@ -59,38 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit c9aada64fe6493461127f1522d7e2f01792d2424 ]
+[ Upstream commit f9c0cf8f26de367c58e48b02b1cdb9c377626e6f ]
 
-Instead of 0 set the correct value for BBP register 86 for MT7620.
+On 32-bit platforms, long is 32 bits, so (long)UINT_MAX is less than
+(long)SHT4X_MIN_POLL_INTERVAL, which means the clamping operation is
+bogus. Fix this by clamping at INT_MAX, so that the upperbound is the
+same on all platforms.
 
-Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/257267247ee4fa7ebc6a5d0c4948b3f8119c0d77.1663445157.git.daniel@makrotopia.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220924101151.4168414-1-Jason@zx2c4.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hwmon/sht4x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index d7b862b7bf67..34788bfb34b7 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -4164,7 +4164,10 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
- 		rt2800_bbp_write(rt2x00dev, 62, 0x37 - rt2x00dev->lna_gain);
- 		rt2800_bbp_write(rt2x00dev, 63, 0x37 - rt2x00dev->lna_gain);
- 		rt2800_bbp_write(rt2x00dev, 64, 0x37 - rt2x00dev->lna_gain);
--		rt2800_bbp_write(rt2x00dev, 86, 0);
-+		if (rt2x00_rt(rt2x00dev, RT6352))
-+			rt2800_bbp_write(rt2x00dev, 86, 0x38);
-+		else
-+			rt2800_bbp_write(rt2x00dev, 86, 0);
- 	}
+diff --git a/drivers/hwmon/sht4x.c b/drivers/hwmon/sht4x.c
+index 09c2a0b06444..9aeb3dbf6c20 100644
+--- a/drivers/hwmon/sht4x.c
++++ b/drivers/hwmon/sht4x.c
+@@ -129,7 +129,7 @@ static int sht4x_read_values(struct sht4x_data *data)
  
- 	if (rf->channel <= 14) {
+ static ssize_t sht4x_interval_write(struct sht4x_data *data, long val)
+ {
+-	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, UINT_MAX);
++	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, INT_MAX);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
