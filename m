@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1BD55F8E21
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1715F8E22
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230350AbiJIUxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 16:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
+        id S230460AbiJIUxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 16:53:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230414AbiJIUxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:53:15 -0400
+        with ESMTP id S230358AbiJIUxQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:53:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF812B1AA;
-        Sun,  9 Oct 2022 13:52:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB8632B1A0;
+        Sun,  9 Oct 2022 13:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DA3260C6F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4549860CA0;
+        Sun,  9 Oct 2022 20:52:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF1AC433C1;
         Sun,  9 Oct 2022 20:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C0D4C43470;
-        Sun,  9 Oct 2022 20:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665348749;
-        bh=KM+yqH9LxgCI1cABBreSlmVHgkz04CgVC7Pe9gqdX88=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VHf/8AEQjydJt9Xq8bH18CrDg2I1u75NlxU7trs1IPaGn5B3t7sykX2NirLUAkqd4
-         hiv7fi+PqytyUrtLWVlTju7yQjE2jaBAk2FT7Z6r0gbfS4MB5MKMUNNSrLF/f0Tr9X
-         LsAQ3kkG6DkbZp0g1Lnc9CkrnMvoesFpEqxcU4s+gjilCnYCQAeBpvLJA9v/lLv1Zz
-         RezwLujauMV/YeOuxEqHR1FMbMlVOrXPPOmSOCPW/41ryImRbVvcgMDgjzPgIyMuCe
-         qUb25f/r/NJ0tkYWfAFvC6D0HizNyubkbD78sc5a1dWiKOWxo/Bh20KxyvkphKC9Ta
-         lWy8AHpKTatOQ==
+        s=k20201202; t=1665348750;
+        bh=6Njtknf8o9zV3FzGqR/rcsTSKjOQy+EbRF2tsLSqiFY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=e9bYda+Wxn1WN5asVQOk65AxtJfjM9QK7uRi5Sc+aYjbHitCidShe7S0XGdrlYXQ6
+         1Jb5G67CouW2MDIvcsFH7+T5S0FK8+S9vOeCxqK14MmZmARXpc/chbsfMTrSZYnMwu
+         eNk1t4aB0kb3+SvI2Y5/5NTj6HnsNID427vCHmmU+RfC2jgT63QQ3vkSwo5NLF2ZZ4
+         F0csiKsObMqPTIyxYcQdyWssSe5+nW8AkCKRR8ZWHSQVqR141XvX5nLrqTuFFKZ8ND
+         GALOvjvIWsEn2ORG0vakUn5QLnxVMhLJZv2nfccNG7khre77eTXndIUV1cTw0IKf8H
+         9sFYxjunO5NCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, ccaulfie@redhat.com,
-        cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.19 01/16] fs: dlm: fix race in lowcomms
-Date:   Sun,  9 Oct 2022 16:52:10 -0400
-Message-Id: <20221009205226.1202133-1-sashal@kernel.org>
+Cc:     Zqiang <qiang1.zhang@intel.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
+        quic_neeraju@quicinc.com, josh@joshtriplett.org,
+        rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 02/16] rcu: Avoid triggering strict-GP irq-work when RCU is idle
+Date:   Sun,  9 Oct 2022 16:52:11 -0400
+Message-Id: <20221009205226.1202133-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221009205226.1202133-1-sashal@kernel.org>
+References: <20221009205226.1202133-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,93 +57,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit 30ea3257e8766027c4d8d609dcbd256ff9a76073 ]
+[ Upstream commit 621189a1fe93cb2b34d62c5cdb9e258bca044813 ]
 
-This patch fixes a race between queue_work() in
-_dlm_lowcomms_commit_msg() and srcu_read_unlock(). The queue_work() can
-take the final reference of a dlm_msg and so msg->idx can contain
-garbage which is signaled by the following warning:
+Kernels built with PREEMPT_RCU=y and RCU_STRICT_GRACE_PERIOD=y trigger
+irq-work from rcu_read_unlock(), and the resulting irq-work handler
+invokes rcu_preempt_deferred_qs_handle().  The point of this triggering
+is to force grace periods to end quickly in order to give tools like KASAN
+a better chance of detecting RCU usage bugs such as leaking RCU-protected
+pointers out of an RCU read-side critical section.
 
-[  676.237050] ------------[ cut here ]------------
-[  676.237052] WARNING: CPU: 0 PID: 1060 at include/linux/srcu.h:189 dlm_lowcomms_commit_msg+0x41/0x50
-[  676.238945] Modules linked in: dlm_locktorture torture rpcsec_gss_krb5 intel_rapl_msr intel_rapl_common iTCO_wdt iTCO_vendor_support qxl kvm_intel drm_ttm_helper vmw_vsock_virtio_transport kvm vmw_vsock_virtio_transport_common ttm irqbypass crc32_pclmul joydev crc32c_intel serio_raw drm_kms_helper vsock virtio_scsi virtio_console virtio_balloon snd_pcm drm syscopyarea sysfillrect sysimgblt snd_timer fb_sys_fops i2c_i801 lpc_ich snd i2c_smbus soundcore pcspkr
-[  676.244227] CPU: 0 PID: 1060 Comm: lock_torture_wr Not tainted 5.19.0-rc3+ #1546
-[  676.245216] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-2.module+el8.7.0+15506+033991b0 04/01/2014
-[  676.246460] RIP: 0010:dlm_lowcomms_commit_msg+0x41/0x50
-[  676.247132] Code: fe ff ff ff 75 24 48 c7 c6 bd 0f 49 bb 48 c7 c7 38 7c 01 bd e8 00 e7 ca ff 89 de 48 c7 c7 60 78 01 bd e8 42 3d cd ff 5b 5d c3 <0f> 0b eb d8 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 55 48
-[  676.249253] RSP: 0018:ffffa401c18ffc68 EFLAGS: 00010282
-[  676.249855] RAX: 0000000000000001 RBX: 00000000ffff8b76 RCX: 0000000000000006
-[  676.250713] RDX: 0000000000000000 RSI: ffffffffbccf3a10 RDI: ffffffffbcc7b62e
-[  676.251610] RBP: ffffa401c18ffc70 R08: 0000000000000001 R09: 0000000000000001
-[  676.252481] R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000005
-[  676.253421] R13: ffff8b76786ec370 R14: ffff8b76786ec370 R15: ffff8b76786ec480
-[  676.254257] FS:  0000000000000000(0000) GS:ffff8b7777800000(0000) knlGS:0000000000000000
-[  676.255239] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  676.255897] CR2: 00005590205d88b8 CR3: 000000017656c003 CR4: 0000000000770ee0
-[  676.256734] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  676.257567] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  676.258397] PKRU: 55555554
-[  676.258729] Call Trace:
-[  676.259063]  <TASK>
-[  676.259354]  dlm_midcomms_commit_mhandle+0xcc/0x110
-[  676.259964]  queue_bast+0x8b/0xb0
-[  676.260423]  grant_pending_locks+0x166/0x1b0
-[  676.261007]  _unlock_lock+0x75/0x90
-[  676.261469]  unlock_lock.isra.57+0x62/0xa0
-[  676.262009]  dlm_unlock+0x21e/0x330
-[  676.262457]  ? lock_torture_stats+0x80/0x80 [dlm_locktorture]
-[  676.263183]  torture_unlock+0x5a/0x90 [dlm_locktorture]
-[  676.263815]  ? preempt_count_sub+0xba/0x100
-[  676.264361]  ? complete+0x1d/0x60
-[  676.264777]  lock_torture_writer+0xb8/0x150 [dlm_locktorture]
-[  676.265555]  kthread+0x10a/0x130
-[  676.266007]  ? kthread_complete_and_exit+0x20/0x20
-[  676.266616]  ret_from_fork+0x22/0x30
-[  676.267097]  </TASK>
-[  676.267381] irq event stamp: 9579855
-[  676.267824] hardirqs last  enabled at (9579863): [<ffffffffbb14e6f8>] __up_console_sem+0x58/0x60
-[  676.268896] hardirqs last disabled at (9579872): [<ffffffffbb14e6dd>] __up_console_sem+0x3d/0x60
-[  676.270008] softirqs last  enabled at (9579798): [<ffffffffbc200349>] __do_softirq+0x349/0x4c7
-[  676.271438] softirqs last disabled at (9579897): [<ffffffffbb0d54c0>] irq_exit_rcu+0xb0/0xf0
-[  676.272796] ---[ end trace 0000000000000000 ]---
+However, this irq-work triggering is unconditional.  This works, but
+there is no point in doing this irq-work unless the current grace period
+is waiting on the running CPU or task, which is not the common case.
+After all, in the common case there are many rcu_read_unlock() calls
+per CPU per grace period.
 
-I reproduced this warning with dlm_locktorture test which is currently
-not upstream. However this patch fix the issue by make a additional
-refcount between dlm_lowcomms_new_msg() and dlm_lowcomms_commit_msg().
-In case of the race the kref_put() in dlm_lowcomms_commit_msg() will be
-the final put.
+This commit therefore triggers the irq-work only when the current grace
+period is waiting on the running CPU or task.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+This change was tested as follows on a four-CPU system:
+
+	echo rcu_preempt_deferred_qs_handler > /sys/kernel/debug/tracing/set_ftrace_filter
+	echo 1 > /sys/kernel/debug/tracing/function_profile_enabled
+	insmod rcutorture.ko
+	sleep 20
+	rmmod rcutorture.ko
+	echo 0 > /sys/kernel/debug/tracing/function_profile_enabled
+	echo > /sys/kernel/debug/tracing/set_ftrace_filter
+
+This procedure produces results in this per-CPU set of files:
+
+	/sys/kernel/debug/tracing/trace_stat/function*
+
+Sample output from one of these files is as follows:
+
+  Function                               Hit    Time            Avg             s^2
+  --------                               ---    ----            ---             ---
+  rcu_preempt_deferred_qs_handle      838746    182650.3 us     0.217 us        0.004 us
+
+The baseline sum of the "Hit" values (the number of calls to this
+function) was 3,319,015.  With this commit, that sum was 1,140,359,
+for a 2.9x reduction.  The worst-case variance across the CPUs was less
+than 25%, so this large effect size is statistically significant.
+
+The raw data is available in the Link: URL.
+
+Link: https://lore.kernel.org/all/20220808022626.12825-1-qiang1.zhang@intel.com/
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/rcu/tree_plugin.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 19e82f08c0e0..c80ee6a95d17 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1336,6 +1336,8 @@ struct dlm_msg *dlm_lowcomms_new_msg(int nodeid, int len, gfp_t allocation,
- 		return NULL;
- 	}
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index c8ba0fe17267..d164938528cd 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -641,7 +641,8 @@ static void rcu_read_unlock_special(struct task_struct *t)
  
-+	/* for dlm_lowcomms_commit_msg() */
-+	kref_get(&msg->ref);
- 	/* we assume if successful commit must called */
- 	msg->idx = idx;
- 	return msg;
-@@ -1375,6 +1377,8 @@ void dlm_lowcomms_commit_msg(struct dlm_msg *msg)
- {
- 	_dlm_lowcomms_commit_msg(msg);
- 	srcu_read_unlock(&connections_srcu, msg->idx);
-+	/* because dlm_lowcomms_new_msg() */
-+	kref_put(&msg->ref, dlm_msg_release);
- }
- #endif
- 
+ 		expboost = (t->rcu_blocked_node && READ_ONCE(t->rcu_blocked_node->exp_tasks)) ||
+ 			   (rdp->grpmask & READ_ONCE(rnp->expmask)) ||
+-			   IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD) ||
++			   (IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD) &&
++			   ((rdp->grpmask & READ_ONCE(rnp->qsmask)) || t->rcu_blocked_node)) ||
+ 			   (IS_ENABLED(CONFIG_RCU_BOOST) && irqs_were_disabled &&
+ 			    t->rcu_blocked_node);
+ 		// Need to defer quiescent state until everything is enabled.
 -- 
 2.35.1
 
