@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B8A5F8E8A
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6605F8E92
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 23:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231287AbiJIU7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 16:59:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
+        id S231194AbiJIVAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 17:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231354AbiJIU6k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:58:40 -0400
+        with ESMTP id S231211AbiJIU7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:59:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6BC12DE9;
-        Sun,  9 Oct 2022 13:54:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7E03135A;
+        Sun,  9 Oct 2022 13:55:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FE3460C6F;
-        Sun,  9 Oct 2022 20:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7852C433C1;
-        Sun,  9 Oct 2022 20:54:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12D1560CA0;
+        Sun,  9 Oct 2022 20:54:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7CC3C433C1;
+        Sun,  9 Oct 2022 20:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665348849;
-        bh=sMbI5Gj5LiK/Mj6Nr4l6ukPafQ7m5GMQYGZXTlMT9Ck=;
+        s=k20201202; t=1665348856;
+        bh=KJQPpJ32UIqN4u7A8mzjqm34rg4kJPRAbyTUOPAsbIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHhvTJf8NYx4eK1w1EmI0BJfmOtcGUyKIrKRuIVTqITdlWCkhupaYz/2ItT63FNgJ
-         AozJ1FW/gTywjNzKaXWFZYKYggzo6ri2+WGZa3e8pvT0N5RZPoTDIF9jyuAQ1MVNsw
-         /zxR+9TDZDGcwX2k4euyGu6aQZD/L9X3oPhUrKkxTX92gIAD3l+RtVz8Tf2o8V6NIn
-         qQ5wgmelCygMGRzVjwRaxIpK/CdW9LcuzpQE++SnlMkzu837gakqCRVtJGsozGOw+r
-         75yaMA8byYBvpiPHXeGaZLm7rxnyRvnGqZg2HKu0VM7iM+ACa/FJm22CGWkb4ROefO
-         PJ/6Uv7atodlg==
+        b=P2GXlHSw77/ULDQClxk5+gfwj5M/68i5VmC0QVLUojXU3nJQ0Djwd0IT2aTnbLwXe
+         rFxpYL8eyFuRJOtul+5wAvIwfk302SO3HVVU7vq6t13flek2TyPP42ajgZkM4lX3NE
+         /NWNRQvlqJWBwC6KoWAFUGA2Ia65KcYN/zMCWbcfcegw8u2y6JSZGuzRoqAN1quJH1
+         6wTAsTD/NvZTtWNa2iZKYj5pmqDCElf0NiIjJxLJBuPMH5EQgkbWKhxRW6W/Q45kEf
+         gjMKMLlcuxFh6hp9yTlKRjuMt1LQRuW6oE1POMAvOkvYek2IH2UDE2kQ3G7+G6CNcb
+         Vh4tDcuxB+JOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        daniel.lezcano@linaro.org, rikard.falkeborn@gmail.com,
-        yury.norov@gmail.com, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 06/10] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
-Date:   Sun,  9 Oct 2022 16:53:45 -0400
-Message-Id: <20221009205350.1203176-6-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        kernel test robot <lkp@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 07/10] ARM: decompressor: Include .data.rel.ro.local
+Date:   Sun,  9 Oct 2022 16:53:46 -0400
+Message-Id: <20221009205350.1203176-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009205350.1203176-1-sashal@kernel.org>
 References: <20221009205350.1203176-1-sashal@kernel.org>
@@ -58,58 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
+[ Upstream commit 1b64daf413acd86c2c13f5443f6b4ef3690c8061 ]
 
-When CPU 0 is offline and intel_powerclamp is used to inject
-idle, it generates kernel BUG:
+The .data.rel.ro.local section has the same semantics as .data.rel.ro
+here, so include it in the .rodata section of the decompressor.
+Additionally since the .printk_index section isn't usable outside of
+the core kernel, discard it in the decompressor. Avoids these warnings:
 
-BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
-caller is debug_smp_processor_id+0x17/0x20
-CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-check_preemption_disabled+0xdd/0xe0
-debug_smp_processor_id+0x17/0x20
-powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
-...
-...
+arm-linux-gnueabi-ld: warning: orphan section `.data.rel.ro.local' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.data.rel.ro.local'
+arm-linux-gnueabi-ld: warning: orphan section `.printk_index' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.printk_index'
 
-Here CPU 0 is the control CPU by default and changed to the current CPU,
-if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
-hence the above warning.
-
-Use get_cpu() instead of smp_processor_id() to avoid this BUG.
-
-Suggested-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/linux-mm/202209080545.qMIVj7YM-lkp@intel.com
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_powerclamp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/compressed/vmlinux.lds.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
-index b0eb5ece9243..14381f7587ff 100644
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -532,8 +532,10 @@ static int start_power_clamp(void)
- 
- 	/* prefer BSP */
- 	control_cpu = 0;
--	if (!cpu_online(control_cpu))
--		control_cpu = smp_processor_id();
-+	if (!cpu_online(control_cpu)) {
-+		control_cpu = get_cpu();
-+		put_cpu();
-+	}
- 
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+diff --git a/arch/arm/boot/compressed/vmlinux.lds.S b/arch/arm/boot/compressed/vmlinux.lds.S
+index 1bcb68ac4b01..3fcb3e62dc56 100644
+--- a/arch/arm/boot/compressed/vmlinux.lds.S
++++ b/arch/arm/boot/compressed/vmlinux.lds.S
+@@ -23,6 +23,7 @@ SECTIONS
+     *(.ARM.extab*)
+     *(.note.*)
+     *(.rel.*)
++    *(.printk_index)
+     /*
+      * Discard any r/w data - this produces a link error if we have any,
+      * which is required for PIC decompression.  Local data generates
+@@ -57,6 +58,7 @@ SECTIONS
+     *(.rodata)
+     *(.rodata.*)
+     *(.data.rel.ro)
++    *(.data.rel.ro.*)
+   }
+   .piggydata : {
+     *(.piggydata)
 -- 
 2.35.1
 
