@@ -2,54 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB4E5F9595
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3715F9597
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230432AbiJJAVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:21:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48056 "EHLO
+        id S232478AbiJJAVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:21:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232506AbiJJAUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:20:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDCAA13DCB;
-        Sun,  9 Oct 2022 16:54:52 -0700 (PDT)
+        with ESMTP id S232564AbiJJAUm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:20:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0777D1F2F5;
+        Sun,  9 Oct 2022 16:55:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FF7760CF5;
-        Sun,  9 Oct 2022 23:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D66BC433D7;
-        Sun,  9 Oct 2022 23:54:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D81CEB80DEA;
+        Sun,  9 Oct 2022 23:55:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4607AC433C1;
+        Sun,  9 Oct 2022 23:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359691;
-        bh=E8lnajgY5yjgmA9Ze197EDHKNzbkkiNgzzOdflXRywI=;
+        s=k20201202; t=1665359699;
+        bh=eDeBSiIKixe6Te7PK8P1+e7QjUkM90YCHsUhK7/2fM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZ8V1/D6Zw5gwz0jHIuImDbabWO4XClbv5KNGLakWEg2hKk67vMl4k1jueAu0OSKM
-         RAbuXvSha2bUQlmoC38W7d7t5fqDtvueLG/2MJzS+ibWE3I0OjXLP3kDDhNdKB8o3Z
-         XZELkuezVOKs9+RocBA8269gEPIyxbNwe7yZrD1Ciipc+/c2CSGcVB6RNLoLHmLwgQ
-         bBqaz3cioQPSALNhh00YitQyufLE43kH5PnyCcrnisMb8+WQVJH/yDKZISSIRbTluZ
-         Trrrt11Y3USFuTbadWr7SNaKFVeZvML7YENEtR81/HLrSqSCB0UpsjZ0MptPYEFiOC
-         oc2sJQIngmxvw==
+        b=Z+UbWONWr3ti3tfeUJQCm7qtIwU6HLWrXt74+Zzvi7RviEgAEFkZyMBLqSM8iIDPE
+         v4myRFsSgF4tGckxGlDm5o2e9guEa9CetA1fh3M2OeExJXK4O+23M2GSiiXcYUwLe0
+         yJBx3XTPQ5ei3d2qWRXRpd0iCnFJBzhBbMDqfF7ORAWoJ81DR/N28ii6uFsGQ19HSO
+         NufFhy9GH1jF/W+IAlot+0JrPjGdMZ0KMtAZp1LoKRV8LIDxKvgCGTsmj+GHLHaCFi
+         yDhOF76B3eEjcsFXz5i0BLx5yvikjdO9LrEOzt6SBG2IMbXSmIfsO+jzkuVCQM85rD
+         fJ3ryWECN1QhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Simon Ser <contact@emersion.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 10/25] drm: hide unregistered connectors from GETCONNECTOR IOCTL
-Date:   Sun,  9 Oct 2022 19:54:10 -0400
-Message-Id: <20221009235426.1231313-10-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, sdoregor@sdore.me,
+        cyrozap@gmail.com, connerknoxpublic@gmail.com, giun7a@gmail.com,
+        gregkh@linuxfoundation.org, bp@suse.de, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 11/25] ALSA: usb-audio: Register card at the last interface
+Date:   Sun,  9 Oct 2022 19:54:11 -0400
+Message-Id: <20221009235426.1231313-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235426.1231313-1-sashal@kernel.org>
 References: <20221009235426.1231313-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,47 +56,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 981f09295687f856d5345e19c7084aca481c1395 ]
+[ Upstream commit 6392dcd1d0c7034ccf630ec55fc9e5810ecadf3b ]
 
-When registering a connector, the kernel sends a hotplug uevent in
-drm_connector_register(). When unregistering a connector, drivers
-are expected to send a uevent as well. However, user-space has no way
-to figure out that the connector isn't registered anymore: it'll still
-be reported in GETCONNECTOR IOCTLs.
+The USB-audio driver matches per interface, and as default, it
+registers the card instance at the very first instance.  This can be a
+problem for the devices that have multiple interfaces to be probed, as
+the udev rule isn't applied properly for the later appearing
+interfaces.  Although we introduced the delayed_register option and
+the quirks for covering those shortcomings, it's nothing but a
+workaround for specific devices.
 
-The documentation for DRM_CONNECTOR_UNREGISTERED states:
+This patch is an another attempt to fix the problem in a more generic
+way.  Now the driver checks the whole USB device descriptor at the
+very first time when an interface is attached to a sound card.  It
+looks at each matching interface in the descriptor and remembers the
+last matching one.  The snd_card_register() is invoked only when this
+last interface is probed.
 
-> The connector […] has since been unregistered and removed from
-> userspace, or the connector was unregistered before it had a chance
-> to be exposed to userspace
+After this change, the quirks for the delayed registration become
+superfluous, hence they are removed along with the patch.  OTOH, the
+delayed_register option is still kept, as it might be useful for some
+corner cases (e.g. a special driver overtakes the interface probe from
+the standard driver, and the last interface probe may miss).
 
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220801133754.461037-1-contact@emersion.fr
+Link: https://lore.kernel.org/r/20220904161247.16461-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mode_config.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/usb/card.c     | 32 +++++++++++++++++++++++++-------
+ sound/usb/quirks.c   | 42 ------------------------------------------
+ sound/usb/quirks.h   |  2 --
+ sound/usb/usbaudio.h |  1 +
+ 4 files changed, 26 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mode_config.c b/drivers/gpu/drm/drm_mode_config.c
-index 37b4b9f0e468..6a326b41d193 100644
---- a/drivers/gpu/drm/drm_mode_config.c
-+++ b/drivers/gpu/drm/drm_mode_config.c
-@@ -150,6 +150,9 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
- 	count = 0;
- 	connector_id = u64_to_user_ptr(card_res->connector_id_ptr);
- 	drm_for_each_connector_iter(connector, &conn_iter) {
-+		if (connector->registration_state != DRM_CONNECTOR_REGISTERED)
-+			continue;
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 713b84d8d42f..207c212eabde 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -689,7 +689,7 @@ static bool get_alias_id(struct usb_device *dev, unsigned int *id)
+ 	return false;
+ }
+ 
+-static bool check_delayed_register_option(struct snd_usb_audio *chip, int iface)
++static int check_delayed_register_option(struct snd_usb_audio *chip)
+ {
+ 	int i;
+ 	unsigned int id, inum;
+@@ -698,14 +698,31 @@ static bool check_delayed_register_option(struct snd_usb_audio *chip, int iface)
+ 		if (delayed_register[i] &&
+ 		    sscanf(delayed_register[i], "%x:%x", &id, &inum) == 2 &&
+ 		    id == chip->usb_id)
+-			return iface < inum;
++			return inum;
+ 	}
+ 
+-	return false;
++	return -1;
+ }
+ 
+ static const struct usb_device_id usb_audio_ids[]; /* defined below */
+ 
++/* look for the last interface that matches with our ids and remember it */
++static void find_last_interface(struct snd_usb_audio *chip)
++{
++	struct usb_host_config *config = chip->dev->actconfig;
++	struct usb_interface *intf;
++	int i;
 +
- 		/* only expose writeback connectors if userspace understands them */
- 		if (!file_priv->writeback_connectors &&
- 		    (connector->connector_type == DRM_MODE_CONNECTOR_WRITEBACK))
++	if (!config)
++		return;
++	for (i = 0; i < config->desc.bNumInterfaces; i++) {
++		intf = config->interface[i];
++		if (usb_match_id(intf, usb_audio_ids))
++			chip->last_iface = intf->altsetting[0].desc.bInterfaceNumber;
++	}
++	usb_audio_dbg(chip, "Found last interface = %d\n", chip->last_iface);
++}
++
+ /* look for the corresponding quirk */
+ static const struct snd_usb_audio_quirk *
+ get_alias_quirk(struct usb_device *dev, unsigned int id)
+@@ -812,6 +829,7 @@ static int usb_audio_probe(struct usb_interface *intf,
+ 			err = -ENODEV;
+ 			goto __error;
+ 		}
++		find_last_interface(chip);
+ 	}
+ 
+ 	if (chip->num_interfaces >= MAX_CARD_INTERFACES) {
+@@ -861,11 +879,11 @@ static int usb_audio_probe(struct usb_interface *intf,
+ 		chip->need_delayed_register = false; /* clear again */
+ 	}
+ 
+-	/* we are allowed to call snd_card_register() many times, but first
+-	 * check to see if a device needs to skip it or do anything special
++	/* register card if we reach to the last interface or to the specified
++	 * one given via option
+ 	 */
+-	if (!snd_usb_registration_quirk(chip, ifnum) &&
+-	    !check_delayed_register_option(chip, ifnum)) {
++	if (check_delayed_register_option(chip) == ifnum ||
++	    chip->last_iface == ifnum) {
+ 		err = snd_card_register(chip->card);
+ 		if (err < 0)
+ 			goto __error;
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 194c75c45628..eadac586bcc8 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -2030,48 +2030,6 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
+ 	}
+ }
+ 
+-/*
+- * registration quirk:
+- * the registration is skipped if a device matches with the given ID,
+- * unless the interface reaches to the defined one.  This is for delaying
+- * the registration until the last known interface, so that the card and
+- * devices appear at the same time.
+- */
+-
+-struct registration_quirk {
+-	unsigned int usb_id;	/* composed via USB_ID() */
+-	unsigned int interface;	/* the interface to trigger register */
+-};
+-
+-#define REG_QUIRK_ENTRY(vendor, product, iface) \
+-	{ .usb_id = USB_ID(vendor, product), .interface = (iface) }
+-
+-static const struct registration_quirk registration_quirks[] = {
+-	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
+-	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
+-	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
+-	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
+-	REG_QUIRK_ENTRY(0x0ecb, 0x1f47, 2),	/* JBL Quantum 800 */
+-	REG_QUIRK_ENTRY(0x0ecb, 0x1f4c, 2),	/* JBL Quantum 400 */
+-	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
+-	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
+-	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
+-	{ 0 }					/* terminator */
+-};
+-
+-/* return true if skipping registration */
+-bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface)
+-{
+-	const struct registration_quirk *q;
+-
+-	for (q = registration_quirks; q->usb_id; q++)
+-		if (chip->usb_id == q->usb_id)
+-			return iface < q->interface;
+-
+-	/* Register as normal */
+-	return false;
+-}
+-
+ /*
+  * driver behavior quirk flags
+  */
+diff --git a/sound/usb/quirks.h b/sound/usb/quirks.h
+index 31abb7cb01a5..f9bfd5ac7bab 100644
+--- a/sound/usb/quirks.h
++++ b/sound/usb/quirks.h
+@@ -48,8 +48,6 @@ void snd_usb_audioformat_attributes_quirk(struct snd_usb_audio *chip,
+ 					  struct audioformat *fp,
+ 					  int stream);
+ 
+-bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface);
+-
+ void snd_usb_init_quirk_flags(struct snd_usb_audio *chip);
+ 
+ #endif /* __USBAUDIO_QUIRKS_H */
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index 044cd7ab27cb..39c3c61a7e49 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -37,6 +37,7 @@ struct snd_usb_audio {
+ 	unsigned int quirk_flags;
+ 	unsigned int need_delayed_register:1; /* warn for delayed registration */
+ 	int num_interfaces;
++	int last_iface;
+ 	int num_suspended_intf;
+ 	int sample_rate_read_error;
+ 
 -- 
 2.35.1
 
