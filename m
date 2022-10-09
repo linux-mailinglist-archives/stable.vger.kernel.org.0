@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F33985F900F
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA6D5F8FF1
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbiJIWU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
+        id S230500AbiJIWTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231830AbiJIWTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:19:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A7F3CBE0;
-        Sun,  9 Oct 2022 15:16:41 -0700 (PDT)
+        with ESMTP id S231705AbiJIWS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:18:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094B83BC63;
+        Sun,  9 Oct 2022 15:16:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F27F60A1A;
-        Sun,  9 Oct 2022 22:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13EFCC433C1;
-        Sun,  9 Oct 2022 22:14:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E5F60CA0;
+        Sun,  9 Oct 2022 22:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD596C433D6;
+        Sun,  9 Oct 2022 22:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353684;
-        bh=Q7nL0WEUtaTUZsGTu8PhNbsvfvjXK7qqWWgILZtc6rQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eN551fbhjCW4YT3vh5RPQIOhquT6GQSrUPPVmH0K/JcOo4HuShfLZFcp8IZgoo7n0
-         xOvFMGx1sllJWxVHuvPhAiaOzzuMmvXTjRItz0BM1puAtujtg9Ptuxu+RUiWSHrYet
-         g7MpAKGbllxeiOjuhP1yUnZS/efcf/sGkUGt8uAo5PT0cDlaMu0yljBH4X+Ews4TdQ
-         uM6dn+PqWTZZ1ETnlvUl7u/YMjImMM/U94Mrv6gUAmd63bB+4H75ZqzInXqdPdScct
-         qctDSKsyuvDTxp+hwf7C8wTpYlLGGYW7YGGTuSZJYoG+8TJwOEimgdGk1nter9C+e/
-         +IovQmbXhrkQA==
+        s=k20201202; t=1665353696;
+        bh=csB+pO8pL0qHwlqK0R5dM8S9SaeLsh5olOWztVLv/ec=;
+        h=From:To:Cc:Subject:Date:From;
+        b=R13aVpDr2fNJGqX+1ykGseyzdihQVkUQUgj7Ge4FGCDmOSjmTXlzEJU7kisZXnW61
+         8SBxGtUh/oZHOTNBC8Znkjoyz8qZkvsomqD3MeWRmBsrqS1lYTwcDgD8XuIaBD15Tt
+         qScZgP0GBZXglmVtj3RF5zopX/7RUZgndDhRYaH0HBy4OiVG7Nyq4cEzu59SBOYv2E
+         H3IEtPChYaFD17S9KUkbtAFffTSxlZzSR1OqDjozgaPGONMBnzxd/+oN2Yfdvm7kfm
+         +NNBFudULzaUN9jc2cd7q+kHxYZgeBJKb/pAE+obrB65z3EJIXR+h0aNHDU6mm50o5
+         zCyQv7KJqox1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Gaul <gaul@gaul.org>, Andrew Gaul <gaul@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, hayeswang@realtek.com,
-        jflf_kernel@gmx.com, aaron.ma@canonical.com, dober6023@gmail.com,
-        svenva@chromium.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 77/77] r8152: Rate limit overflow messages
-Date:   Sun,  9 Oct 2022 18:07:54 -0400
-Message-Id: <20221009220754.1214186-77-sashal@kernel.org>
+Cc:     Hengqi Chen <hengqi.chen@gmail.com>, Goro Fuji <goro@fastly.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 01/73] libbpf: Do not require executable permission for shared libraries
+Date:   Sun,  9 Oct 2022 18:13:39 -0400
+Message-Id: <20221009221453.1216158-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
-References: <20221009220754.1214186-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,36 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gaul <gaul@gaul.org>
+From: Hengqi Chen <hengqi.chen@gmail.com>
 
-[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
+[ Upstream commit 9e32084ef1c33a87a736d6ce3fcb95b60dac9aa1 ]
 
-My system shows almost 10 million of these messages over a 24-hour
-period which pollutes my logs.
+Currently, resolve_full_path() requires executable permission for both
+programs and shared libraries. This causes failures on distos like Debian
+since the shared libraries are not installed executable and Linux is not
+requiring shared libraries to have executable permissions. Let's remove
+executable permission check for shared libraries.
 
-Signed-off-by: Andrew Gaul <gaul@google.com>
-Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Goro Fuji <goro@fastly.com>
+Signed-off-by: Hengqi Chen <hengqi.chen@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220806102021.3867130-1-hengqi.chen@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 688905ea0a6d..e7b0b59e2bc8 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -1874,7 +1874,9 @@ static void intr_callback(struct urb *urb)
- 			   "Stop submitting intr, status %d\n", status);
- 		return;
- 	case -EOVERFLOW:
--		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
-+		if (net_ratelimit())
-+			netif_info(tp, intr, tp->netdev,
-+				   "intr status -EOVERFLOW\n");
- 		goto resubmit;
- 	/* -EPIPE:  should clear the halt */
- 	default:
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 266357b1dca1..91bfe42e5cf4 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -11206,15 +11206,17 @@ static const char *arch_specific_lib_paths(void)
+ static int resolve_full_path(const char *file, char *result, size_t result_sz)
+ {
+ 	const char *search_paths[3] = {};
+-	int i;
++	int i, perm;
+ 
+ 	if (str_has_sfx(file, ".so") || strstr(file, ".so.")) {
+ 		search_paths[0] = getenv("LD_LIBRARY_PATH");
+ 		search_paths[1] = "/usr/lib64:/usr/lib";
+ 		search_paths[2] = arch_specific_lib_paths();
++		perm = R_OK;
+ 	} else {
+ 		search_paths[0] = getenv("PATH");
+ 		search_paths[1] = "/usr/bin:/usr/sbin";
++		perm = R_OK | X_OK;
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(search_paths); i++) {
+@@ -11233,8 +11235,8 @@ static int resolve_full_path(const char *file, char *result, size_t result_sz)
+ 			if (!seg_len)
+ 				continue;
+ 			snprintf(result, result_sz, "%.*s/%s", seg_len, s, file);
+-			/* ensure it is an executable file/link */
+-			if (access(result, R_OK | X_OK) < 0)
++			/* ensure it has required permissions */
++			if (access(result, perm) < 0)
+ 				continue;
+ 			pr_debug("resolved '%s' to '%s'\n", file, result);
+ 			return 0;
 -- 
 2.35.1
 
