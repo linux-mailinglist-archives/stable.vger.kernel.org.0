@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE88B5F9600
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E20F5F9607
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232718AbiJJA0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38182 "EHLO
+        id S232756AbiJJA0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:26:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232955AbiJJAX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:23:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01803054B;
-        Sun,  9 Oct 2022 16:57:58 -0700 (PDT)
+        with ESMTP id S232964AbiJJAX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:23:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A4937427;
+        Sun,  9 Oct 2022 16:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C6FB60DD3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 454E6B80DED;
+        Sun,  9 Oct 2022 23:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C75C433C1;
         Sun,  9 Oct 2022 23:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9438FC433B5;
-        Sun,  9 Oct 2022 23:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359877;
-        bh=oLQNDm95SWVtvPjxRy2VakTKeT3riPaK0HtW3lY2t8k=;
+        s=k20201202; t=1665359879;
+        bh=wb9vh0Mmtg5hvYgo4TgdquqlAzWz5rdLgqYBW+klRA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DkvfLrE22ivyZZ5hSIs6hHlX+qlV96o77u8kQp1xwkd54kOOzYvaGwtphUyA3ht6q
-         KAodpqYvt37k4BI4SZ1YEMsQs/LRhaANz7KJfVO+nLaIj1HATMfAL9fzr9N8jmeo5Q
-         w+R/7Extx4PXvPXsTiU/BKFD5c5sO/b0hHqbjgjY+xyUztgSBcXhntnYZfM6+000ks
-         fp717gCT9OW76ElMwVFZ6NEoiGDbnOLhjU0xNVglpoWQ1BddU81PRUfUGoI7OJ3EA7
-         6ZXSBpwFXadhQHs7Mk1qsRLQaSLxhN4YYyOtMeNb1R8t5rcwNyl4CdagfWwZZNzIUZ
-         CDy1cIehk8zDA==
+        b=VQpS1o/QO8oLDpcBuMWsPaiI6rMdQng/5bCOxWDmaKaDxhAITl86kp8ELLabzEvgP
+         UeJqGKh2tTLawBVJDpxJ0cmiIzOnqpDugCJiedR9OZGdfEK0uiF1lYf9xccW/DWeJG
+         buGQOiPzG5e+VqbOo7ZPezYIw6bqrXezFtnxVhczWrR9kAlI+Xj6pFa8lIFFC4ez33
+         GKN+2K0+OB61DykpqI3SipMyD5pONua7zO1EhofqQ0eXxMphX0k/FyzqrIC/fixptD
+         TUO4VrGS8m+QRiHB4+Oat98zlM6Q8q/Fx9GjIoV/xVqWSchom8StgnO5N3/pzXrzRx
+         PrUQaYfiv/1Gg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>, emma@anholt.net,
-        mripard@kernel.org, airlied@gmail.com, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 05/10] drm/vc4: vec: Fix timings for VEC modes
-Date:   Sun,  9 Oct 2022 19:57:40 -0400
-Message-Id: <20221009235746.1232129-5-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Arvid Norlander <lkml@vorpal.se>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/10] ACPI: video: Change disable_backlight_sysfs_if quirks to acpi_backlight=native
+Date:   Sun,  9 Oct 2022 19:57:41 -0400
+Message-Id: <20221009235746.1232129-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235746.1232129-1-sashal@kernel.org>
 References: <20221009235746.1232129-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -59,49 +58,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 30d7565be96b3946c18a1ce3fd538f7946839092 ]
+[ Upstream commit c5b94f5b7819348c59f9949b2b75c341a114cdd4 ]
 
-This commit fixes vertical timings of the VEC (composite output) modes
-to accurately represent the 525-line ("NTSC") and 625-line ("PAL") ITU-R
-standards.
+Some Toshibas have a broken acpi-video interface for brightness control
+and need a special firmware call on resume to turn the panel back on.
+So far these have been using the disable_backlight_sysfs_if workaround
+to deal with this.
 
-Previous timings were actually defined as 502 and 601 lines, resulting
-in non-standard 62.69 Hz and 52 Hz signals being generated,
-respectively.
+The recent x86/acpi backlight refactoring has broken this workaround:
+1. This workaround relies on acpi_video_get_backlight_type() returning
+   acpi_video so that the acpi_video code actually runs; and
+2. this relies on the actual native GPU driver to offer the sysfs
+   backlight interface to userspace.
 
-Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220728-rpi-analog-tv-properties-v2-28-459522d653a7@cerno.tech
+After the refactor this breaks since the native driver will no
+longer register its backlight-device if acpi_video_get_backlight_type()
+does not return native and making it return native breaks 1.
+
+Keeping the acpi_video backlight handling on resume active, while not
+using it to set the brightness, is necessary because it does a _BCM
+call on resume which is necessary to turn the panel back on on resume.
+
+Looking at the DSDT shows that this _BCM call results in a Toshiba
+HCI_SET HCI_LCD_BRIGHTNESS call, which turns the panel back on.
+
+This kind of special vendor specific handling really belongs in
+the vendor specific acpi driver. An earlier patch in this series
+modifies toshiba_acpi to make the necessary HCI_SET call on resume
+on affected models.
+
+With toshiba_acpi taking care of the HCI_SET call on resume,
+the acpi_video code no longer needs to call _BCM on resume.
+
+So instead of using the (now broken) disable_backlight_sysfs_if
+workaround, simply setting acpi_backlight=native to disable
+the broken apci-video interface is sufficient fix things now.
+
+After this there are no more users of the disable_backlight_sysfs_if
+flag and as discussed above the flag also no longer works as intended,
+so remove the disable_backlight_sysfs_if flag entirely.
+
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Arvid Norlander <lkml@vorpal.se>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_vec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_video.c   | 48 -------------------------------------
+ drivers/acpi/video_detect.c | 35 +++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_vec.c b/drivers/gpu/drm/vc4/vc4_vec.c
-index 8e7facb6514e..ae0354ceb2a3 100644
---- a/drivers/gpu/drm/vc4/vc4_vec.c
-+++ b/drivers/gpu/drm/vc4/vc4_vec.c
-@@ -291,7 +291,7 @@ static void vc4_vec_ntsc_j_mode_set(struct vc4_vec *vec)
- static const struct drm_display_mode ntsc_mode = {
- 	DRM_MODE("720x480", DRM_MODE_TYPE_DRIVER, 13500,
- 		 720, 720 + 14, 720 + 14 + 64, 720 + 14 + 64 + 60, 0,
--		 480, 480 + 3, 480 + 3 + 3, 480 + 3 + 3 + 16, 0,
-+		 480, 480 + 7, 480 + 7 + 6, 525, 0,
- 		 DRM_MODE_FLAG_INTERLACE)
- };
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index ac54fc03cf81..51a9937e6e3e 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -63,9 +63,6 @@ module_param(brightness_switch_enabled, bool, 0644);
+ static bool allow_duplicates;
+ module_param(allow_duplicates, bool, 0644);
  
-@@ -313,7 +313,7 @@ static void vc4_vec_pal_m_mode_set(struct vc4_vec *vec)
- static const struct drm_display_mode pal_mode = {
- 	DRM_MODE("720x576", DRM_MODE_TYPE_DRIVER, 13500,
- 		 720, 720 + 20, 720 + 20 + 64, 720 + 20 + 64 + 60, 0,
--		 576, 576 + 2, 576 + 2 + 3, 576 + 2 + 3 + 20, 0,
-+		 576, 576 + 4, 576 + 4 + 6, 625, 0,
- 		 DRM_MODE_FLAG_INTERLACE)
- };
+-static int disable_backlight_sysfs_if = -1;
+-module_param(disable_backlight_sysfs_if, int, 0444);
+-
+ #define REPORT_OUTPUT_KEY_EVENTS		0x01
+ #define REPORT_BRIGHTNESS_KEY_EVENTS		0x02
+ static int report_key_events = -1;
+@@ -397,14 +394,6 @@ static int video_set_bqc_offset(const struct dmi_system_id *d)
+ 	return 0;
+ }
  
+-static int video_disable_backlight_sysfs_if(
+-	const struct dmi_system_id *d)
+-{
+-	if (disable_backlight_sysfs_if == -1)
+-		disable_backlight_sysfs_if = 1;
+-	return 0;
+-}
+-
+ static int video_set_device_id_scheme(const struct dmi_system_id *d)
+ {
+ 	device_id_scheme = true;
+@@ -477,40 +466,6 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		},
+ 	},
+ 
+-	/*
+-	 * Some machines have a broken acpi-video interface for brightness
+-	 * control, but still need an acpi_video_device_lcd_set_level() call
+-	 * on resume to turn the backlight power on.  We Enable backlight
+-	 * control on these systems, but do not register a backlight sysfs
+-	 * as brightness control does not work.
+-	 */
+-	{
+-	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
+-	 .callback = video_disable_backlight_sysfs_if,
+-	 .ident = "Toshiba Portege R700",
+-	 .matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+-		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R700"),
+-		},
+-	},
+-	{
+-	 /* https://bugs.freedesktop.org/show_bug.cgi?id=82634 */
+-	 .callback = video_disable_backlight_sysfs_if,
+-	 .ident = "Toshiba Portege R830",
+-	 .matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+-		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R830"),
+-		},
+-	},
+-	{
+-	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
+-	 .callback = video_disable_backlight_sysfs_if,
+-	 .ident = "Toshiba Satellite R830",
+-	 .matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+-		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
+-		},
+-	},
+ 	/*
+ 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
+ 	 * but the IDs actually follow the Device ID Scheme.
+@@ -1773,9 +1728,6 @@ static void acpi_video_dev_register_backlight(struct acpi_video_device *device)
+ 	if (result)
+ 		return;
+ 
+-	if (disable_backlight_sysfs_if > 0)
+-		return;
+-
+ 	name = kasprintf(GFP_KERNEL, "acpi_video%d", count);
+ 	if (!name)
+ 		return;
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 490ae990bd3c..62975cfcce68 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -447,6 +447,41 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
+ 		},
+ 	},
++	/*
++	 * These Toshibas have a broken acpi-video interface for brightness
++	 * control. They also have an issue where the panel is off after
++	 * suspend until a special firmware call is made to turn it back
++	 * on. This is handled by the toshiba_acpi kernel module, so that
++	 * module must be enabled for these models to work correctly.
++	 */
++	{
++	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
++	 .callback = video_detect_force_native,
++	 /* Toshiba Portégé R700 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R700"),
++		},
++	},
++	{
++	 /* Portégé: https://bugs.freedesktop.org/show_bug.cgi?id=82634 */
++	 /* Satellite: https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
++	 .callback = video_detect_force_native,
++	 /* Toshiba Satellite/Portégé R830 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "R830"),
++		},
++	},
++	{
++	 .callback = video_detect_force_native,
++	 /* Toshiba Satellite/Portégé Z830 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "Z830"),
++		},
++	},
++
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
 -- 
 2.35.1
 
