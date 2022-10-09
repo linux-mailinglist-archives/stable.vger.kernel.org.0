@@ -2,122 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 836BD5F8CAF
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 19:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F15705F8D0E
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 20:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiJIRuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 13:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36268 "EHLO
+        id S229935AbiJISSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 14:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230101AbiJIRuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 13:50:20 -0400
-Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BC5DFB4;
-        Sun,  9 Oct 2022 10:50:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1665337818; x=1696873818;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=1w/EVmNT7psEnsmxWuhy+bUOj1fiP2N+jrdt5vLYEOY=;
-  b=QAJxXejz1Peoqowrf4/LrE4r8LlcIUyiXtieCZpilCGL1nVWbmNrlxEr
-   mDGQaDAdXqnboGyjTlYJu0S4NNouinoLQVRy0gT76Z6yiHY6Z3fByImb7
-   RfCn4HLz190FfZ76zp8yH2y4Z5TtWkOpHdm4tHhsvsqkZVggCwmFr77VS
-   E=;
-X-IronPort-AV: E=Sophos;i="5.95,172,1661817600"; 
-   d="scan'208";a="1062316103"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2c-7d0c7241.us-west-2.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2022 17:50:18 +0000
-Received: from EX13MTAUWC002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-pdx-2c-7d0c7241.us-west-2.amazon.com (Postfix) with ESMTPS id E582B45618;
-        Sun,  9 Oct 2022 17:50:17 +0000 (UTC)
-Received: from EX19D002UWC004.ant.amazon.com (10.13.138.186) by
- EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Sun, 9 Oct 2022 17:50:17 +0000
-Received: from [192.168.22.91] (10.43.160.95) by EX19D002UWC004.ant.amazon.com
- (10.13.138.186) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.12; Sun, 9 Oct 2022
- 17:50:16 +0000
-Message-ID: <e35b7856-138c-a255-a32e-41f57ad6f76d@amazon.com>
-Date:   Sun, 9 Oct 2022 10:50:15 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.3.2
-Subject: Re: [PATCH 0/6] IRQ handling patches backport to 4.14 stable
-Content-Language: en-US
-To:     "Herrenschmidt, Benjamin" <benh@amazon.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "sashal@kernel.org" <sashal@kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
+        with ESMTP id S229996AbiJISRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 14:17:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8639CE1A;
+        Sun,  9 Oct 2022 11:17:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C35D9B80D13;
+        Sun,  9 Oct 2022 18:17:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093F1C433D6;
+        Sun,  9 Oct 2022 18:17:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1665339428;
+        bh=WlUVYWcv0RSfNrnisKDi/OW/RV7h0cjuQQ19bFBOoog=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Rw38q9pBwLqsPyZDDYNCUJVBM/wQdBpInwfKXrazRDvratMB1+6APuHPbMdcHL+tR
+         alh1uFrcM2QaDGYEEa9Ik0BNxthXgmQq9lBiv8sDxOxB4YOspqrAFf70S0yVAsH5yg
+         DoiwdVTyLl225YVSwhFR/J3E6MuPtUqjH3skq9iE=
+Date:   Sun, 9 Oct 2022 20:17:51 +0200
+From:   'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Andrew Chernyakov <acherniakov@astralinux.ru>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Bacco, Mike" <mbacco@amazon.com>
-References: <20220929210651.12308-1-risbhat@amazon.com>
- <YzmujBxtwUxHexem@kroah.com>
- <58294d242fc256a48abb31926232565830197f02.camel@amazon.com>
-From:   "Bhatnagar, Rishabh" <risbhat@amazon.com>
-In-Reply-To: <58294d242fc256a48abb31926232565830197f02.camel@amazon.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.43.160.95]
-X-ClientProxiedBy: EX13D03UWA004.ant.amazon.com (10.43.160.250) To
- EX19D002UWC004.ant.amazon.com (10.13.138.186)
-X-Spam-Status: No, score=-15.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH 5.10 1/1] rpmsg: qcom: glink: replace strncpy() with
+ strscpy_pad()
+Message-ID: <Y0MQT2z+nc8+0WPY@kroah.com>
+References: <20221007132931.123755-1-acherniakov@astralinux.ru>
+ <20221007132931.123755-2-acherniakov@astralinux.ru>
+ <Y0BWc6A8C++M9TWP@kroah.com>
+ <36f776cbc16f4e988d96b7bcb77cd559@AcuMS.aculab.com>
+ <e829329e-ac55-e04a-c8ab-4eeeec6217ab@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e829329e-ac55-e04a-c8ab-4eeeec6217ab@linaro.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Oct 09, 2022 at 05:23:06PM +0200, Krzysztof Kozlowski wrote:
+> On 08/10/2022 23:11, David Laight wrote:
+> >>> ---
+> >>>  drivers/rpmsg/qcom_glink_native.c | 2 +-
+> >>>  drivers/rpmsg/qcom_smd.c          | 4 ++--
+> >>>  2 files changed, 3 insertions(+), 3 deletions(-)
+> >>
+> >> Why just this specific kernel branch?  We can't add patches to an older
+> >> tree and have someone upgrade to a newer one and hit the same issue.
+> >>
+> >> So please provide backports for all active versions.  In this case that
+> >> would be 5.15.y and 5.19.y.
+> > 
+> > If it is only fixing a compile warning is it even stable material?
+> > The generic commit message doesn't say whether the old code was
+> > actually right or wrong.
+> > 
+> > At least one of these 'replace strncpy()' changes was definitely
+> > broken (the copy needed to be equivalent to memcpy()).
+> > 
+> > So applying ANY of them to stable unless they actually fix
+> > a real bug seems dubious.
+> 
+> Except the warning from GCC, there was no bug to fix. The warning is
+> about discouraged and risky practice, but no actual real risk was
+> identified, so for me it matches stable rules poorly.
+> 
+> It's basically backporting to silence automated code checkers...
 
-On 10/6/22 8:07 PM, Herrenschmidt, Benjamin wrote:
-> (putting my @amazon.com hat on)
->
-> On Sun, 2022-10-02 at 17:30 +0200, Greg KH wrote:
->
->
->> On Thu, Sep 29, 2022 at 09:06:45PM +0000, Rishabh Bhatnagar wrote:
->>> This patch series backports a bunch of patches related IRQ handling
->>> with respect to freeing the irq line while IRQ is in flight at CPU
->>> or at the hardware level.
->>> Recently we saw this issue in serial 8250 driver where the IRQ was
->>> being
->>> freed while the irq was in flight or not yet delivered to the CPU.
->>> As a
->>> result the irqchip was going into a wedged state and IRQ was not
->>> getting
->>> delivered to the cpu. These patches helped fixed the issue in 4.14
->>> kernel.
->> Why is the serial driver freeing an irq while the system is running?
->> Ah, this could happen on a tty hangup, right?
-> Right. Rishabh answered that separately.
->
->>> Let us know if more patches need backporting.
->> What hardware platform were these patches tested on to verify they
->> work properly?  And why can't they move to 4.19 or newer if they
->> really need this fix?  What's preventing that?
->>
->> As Amazon doesn't seem to be testing 4.14.y -rc releases, I find it
->> odd that you all did this backport.  Is this a kernel that you all
->> care about?
-> These were tested on a collection of EC2 instances, virtual and metal I
-> believe (Rishabh, please confirm).
-Yes these patches were tested on multiple virt/metal EC2 instances.
->
-> Amazon Linux 2 runs 4.14 or 5.10. Unfortunately we still have to
-> support customers running the former.
->
-> We'll be including these patches in our releases, we thought it would
-> be nice to have them in -stable as well for the sake of whoever else
-> might be still using this kernel. No huge deal if they don't.
->
-> As for testing -rc's, yes, we need to get better at that (and publish
-> what we test). Point taken :-)
->
-> Cheers,
-> Ben.
->
+Are you sure?  Look at the code path here, there might be a way to
+overflow the string, from the virtio interface, but I might be wrong...
+
+Anyway, I need all the backports before I can take this one, sorry.
+
+greg k-h
