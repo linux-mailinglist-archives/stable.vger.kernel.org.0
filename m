@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDE65F9059
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994D95F9104
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231542AbiJIWYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:24:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
+        id S231821AbiJIWaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231704AbiJIWW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:22:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60761392;
-        Sun,  9 Oct 2022 15:17:45 -0700 (PDT)
+        with ESMTP id S232033AbiJIW0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:26:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C493E74E;
+        Sun,  9 Oct 2022 15:18:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B502B80DEA;
-        Sun,  9 Oct 2022 22:12:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9747EC43470;
-        Sun,  9 Oct 2022 22:12:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74CD9B80DE5;
+        Sun,  9 Oct 2022 22:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 140B3C433D6;
+        Sun,  9 Oct 2022 22:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353546;
-        bh=YHvVHIJX2HPHSLT4eGLhe20mkccL+miqWFxNvBZc7ac=;
+        s=k20201202; t=1665353572;
+        bh=sExncP2vEI4lKfEjoGTg9PlosArh89bqCxfpK8p7bwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chVjI7fLnK9Wm59MtGVvtZnWqtwQBqUUdnvNc+33OulBXSYk1tlV/TZvdjvcqW194
-         ejdfiSoKMwK9Pnj2yDLxRkIcQX3cd0gEY3U1niKBcJdHdyWuGmyIE7sFh0YkC7w+ES
-         wx9jYDX7OK8o/l9LkclAUOeD09MUJ2cHQsRpiRCswk8RctWzMeSmPD1BOcY0/RC/e2
-         ylzbfjLqjE044i4XhglYW2upH967YxMaPUOyjN0uI70BPvuG1zPYu4rg9Bqz+oLq+5
-         3Y3bI2do8ozUIbrq9UWywTVkMef57W93TvZEUeHRGgT/4FQw5hF4+GyfFkmV4Sw/Qt
-         JBuKkT45Bd4UA==
+        b=euG/T1SHw94FydHc/EbXWD5QGfhaWtjrBPPlZ74qwc5UGXsr/uJEqST/5pHyQaTTD
+         3zC2LY2Tv+Yp9eqqivzoxsjLboMWxgQ9IE3TVltX6qYZlbeEmmH4PYvf76bEaiXoC3
+         DUkm/4pjAfQwO/kBwYBAnydwauTyVGla4hMH9+fNI4ZchmLfTK8cYX8XpkReHgMShA
+         0PRBF3/0LYScW0Te9g+BYB1ALE77tj/H/Lawkx+Gfb0huKChIUU8bFc2nhnlyfiMvM
+         1Zvys+9dxtygSYMN3sw594M2dTICOc29G4uAm//uNfkAcX0C2IRbZqm8Lmbve02JHA
+         cZkIZDL9k7aHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vadim Fedorenko <vfedorenko@novek.ru>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 59/77] bnxt_en: replace reset with config timestamps
-Date:   Sun,  9 Oct 2022 18:07:36 -0400
-Message-Id: <20221009220754.1214186-59-sashal@kernel.org>
+Cc:     Hou Tao <houtao1@huawei.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, shuah@kernel.org,
+        bpf@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 60/77] selftests/bpf: Free the allocated resources after test case succeeds
+Date:   Sun,  9 Oct 2022 18:07:37 -0400
+Message-Id: <20221009220754.1214186-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
 References: <20221009220754.1214186-1-sashal@kernel.org>
@@ -58,51 +57,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 8db3d514e96715c897fe793c4d5fc0fd86aca517 ]
+[ Upstream commit 103d002fb7d548fb1187e350f2b73788558128b9 ]
 
-Any change to the hardware timestamps configuration triggers nic restart,
-which breaks transmition and reception of network packets for a while.
-But there is no need to fully restart the device because while configuring
-hardware timestamps. The code for changing configuration runs after all
-of the initialisation, when the NIC is actually up and running. This patch
-changes the code that ioctl will only update configuration registers and
-will not trigger carrier status change, but in case of timestamps for
-all rx packetes it fallbacks to close()/open() sequnce because of
-synchronization issues in the hardware. Tested on BCM57504.
+Free the created fd or allocated bpf_object after test case succeeds,
+else there will be resource leaks.
 
-Cc: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/20220922191038.29921-1-vfedorenko@novek.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Spotted by using address sanitizer and checking the content of
+/proc/$pid/fd directory.
+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Link: https://lore.kernel.org/r/20220921070035.2016413-3-houtao@huaweicloud.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ .../bpf/map_tests/array_map_batch_ops.c       |  2 ++
+ .../bpf/map_tests/htab_map_batch_ops.c        |  2 ++
+ .../bpf/map_tests/lpm_trie_map_batch_ops.c    |  2 ++
+ tools/testing/selftests/bpf/test_maps.c       | 24 ++++++++++++-------
+ 4 files changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-index 8e316367f6ce..2132ce63193c 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-@@ -505,9 +505,13 @@ static int bnxt_hwrm_ptp_cfg(struct bnxt *bp)
- 	ptp->tstamp_filters = flags;
+diff --git a/tools/testing/selftests/bpf/map_tests/array_map_batch_ops.c b/tools/testing/selftests/bpf/map_tests/array_map_batch_ops.c
+index 78c76496b14a..b595556315bc 100644
+--- a/tools/testing/selftests/bpf/map_tests/array_map_batch_ops.c
++++ b/tools/testing/selftests/bpf/map_tests/array_map_batch_ops.c
+@@ -3,6 +3,7 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <string.h>
++#include <unistd.h>
  
- 	if (netif_running(bp->dev)) {
--		rc = bnxt_close_nic(bp, false, false);
--		if (!rc)
--			rc = bnxt_open_nic(bp, false, false);
-+		if (ptp->rx_filter == HWTSTAMP_FILTER_ALL) {
-+			rc = bnxt_close_nic(bp, false, false);
-+			if (!rc)
-+				rc = bnxt_open_nic(bp, false, false);
-+		} else {
-+			bnxt_ptp_cfg_tstamp_filters(bp);
-+		}
- 		if (!rc && !ptp->tstamp_filters)
- 			rc = -EIO;
+ #include <bpf/bpf.h>
+ #include <bpf/libbpf.h>
+@@ -137,6 +138,7 @@ static void __test_map_lookup_and_update_batch(bool is_pcpu)
+ 	free(keys);
+ 	free(values);
+ 	free(visited);
++	close(map_fd);
+ }
+ 
+ static void array_map_batch_ops(void)
+diff --git a/tools/testing/selftests/bpf/map_tests/htab_map_batch_ops.c b/tools/testing/selftests/bpf/map_tests/htab_map_batch_ops.c
+index f807d53fd8dd..1230ccf90128 100644
+--- a/tools/testing/selftests/bpf/map_tests/htab_map_batch_ops.c
++++ b/tools/testing/selftests/bpf/map_tests/htab_map_batch_ops.c
+@@ -3,6 +3,7 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <string.h>
++#include <unistd.h>
+ 
+ #include <bpf/bpf.h>
+ #include <bpf/libbpf.h>
+@@ -255,6 +256,7 @@ void __test_map_lookup_and_delete_batch(bool is_pcpu)
+ 	free(visited);
+ 	if (!is_pcpu)
+ 		free(values);
++	close(map_fd);
+ }
+ 
+ void htab_map_batch_ops(void)
+diff --git a/tools/testing/selftests/bpf/map_tests/lpm_trie_map_batch_ops.c b/tools/testing/selftests/bpf/map_tests/lpm_trie_map_batch_ops.c
+index 87d07b596e17..b66d56ddb7ef 100644
+--- a/tools/testing/selftests/bpf/map_tests/lpm_trie_map_batch_ops.c
++++ b/tools/testing/selftests/bpf/map_tests/lpm_trie_map_batch_ops.c
+@@ -7,6 +7,7 @@
+ #include <errno.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <unistd.h>
+ 
+ #include <bpf/bpf.h>
+ #include <bpf/libbpf.h>
+@@ -150,4 +151,5 @@ void test_lpm_trie_map_batch_ops(void)
+ 	free(keys);
+ 	free(values);
+ 	free(visited);
++	close(map_fd);
+ }
+diff --git a/tools/testing/selftests/bpf/test_maps.c b/tools/testing/selftests/bpf/test_maps.c
+index cbebfaa7c1e8..4d42ffea0038 100644
+--- a/tools/testing/selftests/bpf/test_maps.c
++++ b/tools/testing/selftests/bpf/test_maps.c
+@@ -658,13 +658,13 @@ static void test_sockmap(unsigned int tasks, void *data)
+ {
+ 	struct bpf_map *bpf_map_rx, *bpf_map_tx, *bpf_map_msg, *bpf_map_break;
+ 	int map_fd_msg = 0, map_fd_rx = 0, map_fd_tx = 0, map_fd_break;
++	struct bpf_object *parse_obj, *verdict_obj, *msg_obj;
+ 	int ports[] = {50200, 50201, 50202, 50204};
+ 	int err, i, fd, udp, sfd[6] = {0xdeadbeef};
+ 	u8 buf[20] = {0x0, 0x5, 0x3, 0x2, 0x1, 0x0};
+ 	int parse_prog, verdict_prog, msg_prog;
+ 	struct sockaddr_in addr;
+ 	int one = 1, s, sc, rc;
+-	struct bpf_object *obj;
+ 	struct timeval to;
+ 	__u32 key, value;
+ 	pid_t pid[tasks];
+@@ -760,6 +760,7 @@ static void test_sockmap(unsigned int tasks, void *data)
+ 		       i, udp);
+ 		goto out_sockmap;
  	}
++	close(udp);
+ 
+ 	/* Test update without programs */
+ 	for (i = 0; i < 6; i++) {
+@@ -822,27 +823,27 @@ static void test_sockmap(unsigned int tasks, void *data)
+ 
+ 	/* Load SK_SKB program and Attach */
+ 	err = bpf_prog_test_load(SOCKMAP_PARSE_PROG,
+-			    BPF_PROG_TYPE_SK_SKB, &obj, &parse_prog);
++			    BPF_PROG_TYPE_SK_SKB, &parse_obj, &parse_prog);
+ 	if (err) {
+ 		printf("Failed to load SK_SKB parse prog\n");
+ 		goto out_sockmap;
+ 	}
+ 
+ 	err = bpf_prog_test_load(SOCKMAP_TCP_MSG_PROG,
+-			    BPF_PROG_TYPE_SK_MSG, &obj, &msg_prog);
++			    BPF_PROG_TYPE_SK_MSG, &msg_obj, &msg_prog);
+ 	if (err) {
+ 		printf("Failed to load SK_SKB msg prog\n");
+ 		goto out_sockmap;
+ 	}
+ 
+ 	err = bpf_prog_test_load(SOCKMAP_VERDICT_PROG,
+-			    BPF_PROG_TYPE_SK_SKB, &obj, &verdict_prog);
++			    BPF_PROG_TYPE_SK_SKB, &verdict_obj, &verdict_prog);
+ 	if (err) {
+ 		printf("Failed to load SK_SKB verdict prog\n");
+ 		goto out_sockmap;
+ 	}
+ 
+-	bpf_map_rx = bpf_object__find_map_by_name(obj, "sock_map_rx");
++	bpf_map_rx = bpf_object__find_map_by_name(verdict_obj, "sock_map_rx");
+ 	if (!bpf_map_rx) {
+ 		printf("Failed to load map rx from verdict prog\n");
+ 		goto out_sockmap;
+@@ -854,7 +855,7 @@ static void test_sockmap(unsigned int tasks, void *data)
+ 		goto out_sockmap;
+ 	}
+ 
+-	bpf_map_tx = bpf_object__find_map_by_name(obj, "sock_map_tx");
++	bpf_map_tx = bpf_object__find_map_by_name(verdict_obj, "sock_map_tx");
+ 	if (!bpf_map_tx) {
+ 		printf("Failed to load map tx from verdict prog\n");
+ 		goto out_sockmap;
+@@ -866,7 +867,7 @@ static void test_sockmap(unsigned int tasks, void *data)
+ 		goto out_sockmap;
+ 	}
+ 
+-	bpf_map_msg = bpf_object__find_map_by_name(obj, "sock_map_msg");
++	bpf_map_msg = bpf_object__find_map_by_name(verdict_obj, "sock_map_msg");
+ 	if (!bpf_map_msg) {
+ 		printf("Failed to load map msg from msg_verdict prog\n");
+ 		goto out_sockmap;
+@@ -878,7 +879,7 @@ static void test_sockmap(unsigned int tasks, void *data)
+ 		goto out_sockmap;
+ 	}
+ 
+-	bpf_map_break = bpf_object__find_map_by_name(obj, "sock_map_break");
++	bpf_map_break = bpf_object__find_map_by_name(verdict_obj, "sock_map_break");
+ 	if (!bpf_map_break) {
+ 		printf("Failed to load map tx from verdict prog\n");
+ 		goto out_sockmap;
+@@ -1124,7 +1125,9 @@ static void test_sockmap(unsigned int tasks, void *data)
+ 	}
+ 	close(fd);
+ 	close(map_fd_rx);
+-	bpf_object__close(obj);
++	bpf_object__close(parse_obj);
++	bpf_object__close(msg_obj);
++	bpf_object__close(verdict_obj);
+ 	return;
+ out:
+ 	for (i = 0; i < 6; i++)
+@@ -1282,8 +1285,11 @@ static void test_map_in_map(void)
+ 			printf("Inner map mim.inner was not destroyed\n");
+ 			goto out_map_in_map;
+ 		}
++
++		close(fd);
+ 	}
+ 
++	bpf_object__close(obj);
+ 	return;
+ 
+ out_map_in_map:
 -- 
 2.35.1
 
