@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 947945F8E2E
-	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4505A5F8E32
+	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbiJIUy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 16:54:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44960 "EHLO
+        id S230319AbiJIUye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 16:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230310AbiJIUxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:53:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4C830557;
-        Sun,  9 Oct 2022 13:52:41 -0700 (PDT)
+        with ESMTP id S230314AbiJIUxl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:53:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E64330F54;
+        Sun,  9 Oct 2022 13:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAA47B80DC4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70C8CB80DC2;
+        Sun,  9 Oct 2022 20:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54077C4347C;
         Sun,  9 Oct 2022 20:52:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090B9C433D6;
-        Sun,  9 Oct 2022 20:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665348758;
-        bh=hzbiDCjgP4PWpxtEpRK2mCWbxYUpFdc6paCISbBKNxg=;
+        s=k20201202; t=1665348760;
+        bh=VV1OpKp2yHPswDsQUvrr44yQuL620U4g+koU7ZS60sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPmd5hluPJe5Mjr6czZ3IznGYFbRVwrIKDmKnxVxc23tY4G7sGy1WW3Qiw+KzZSex
-         n2NAmDA97sZkqAUhcs69JZx3A4m7AQN9lfxGCVQKp6HhbDBl1cJuqXlsOkQBzWHtOl
-         MT8uP4LjnKH5ZJpDQ/6devxq24ipNwOAnzeGCF6+1Nrvd9Hu7C03I/7C16pBYUwV3o
-         zDvN2r7MT6gbN156fgW9ZgQHTvB/GD+NDy+VrAxxdb59Y3VRgP5BZHBBU2MxDE2gCd
-         0DLQ+LCt1Wsbw9yQdJbLuyMIQmVHV7nkE0zQGJsUeoYL4fxyT81hKNwo98tazDyn5b
-         qT7MU4Bho0RGQ==
+        b=OevnlcpECnInDdqUOeJGnW0tCzHHOmlrqkaGjF9ugDUvtvW+IiYiIfmuov2xj4ftO
+         Tq8r9+ff5UVNFAIGdtnS6TP3WH72R9lJZVwLokcLBvZA4d4+vlfwm5BrHAOGrd5t1Q
+         QDt8MLBFdKj9f191tx11NjqxN/2PwopvLuyCS1AWkF6AiUPyqeOS12scdWt8szIwda
+         Tgir8T+q7I2IN8snVBqH3/nGCQYRrRfCpaMXqSH6Lmil14o5sdCovTGsqLi2SaZFB+
+         t8Dcx3d2L6UIhY4nZdO5tv+bWw5A0BbNzNF8QdhrU07vN8CvF69uiMSSce72tG6rJW
+         BEesg6MXHJQdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Tom Rix <trix@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        David Gow <davidgow@google.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sander Vanheule <sander@svanheule.net>,
-        linux-hardening@vger.kernel.org, llvm@lists.linux.dev,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.19 06/16] fortify: Fix __compiletime_strlen() under UBSAN_BOUNDS_LOCAL
-Date:   Sun,  9 Oct 2022 16:52:15 -0400
-Message-Id: <20221009205226.1202133-6-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 07/16] ACPI: tables: FPDT: Don't call acpi_os_map_memory() on invalid phys address
+Date:   Sun,  9 Oct 2022 16:52:16 -0400
+Message-Id: <20221009205226.1202133-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009205226.1202133-1-sashal@kernel.org>
 References: <20221009205226.1202133-1-sashal@kernel.org>
@@ -65,83 +56,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d07c0acb4f41cc42a0d97530946965b3e4fa68c1 ]
+[ Upstream commit 211391bf04b3c74e250c566eeff9cf808156c693 ]
 
-With CONFIG_FORTIFY=y and CONFIG_UBSAN_LOCAL_BOUNDS=y enabled, we observe
-a runtime panic while running Android's Compatibility Test Suite's (CTS)
-android.hardware.input.cts.tests. This is stemming from a strlen()
-call in hidinput_allocate().
+On a Packard Bell Dot SC (Intel Atom N2600 model) there is a FPDT table
+which contains invalid physical addresses, with high bits set which fall
+outside the range of the CPU-s supported physical address range.
 
-__compiletime_strlen() is implemented in terms of __builtin_object_size(),
-then does an array access to check for NUL-termination. A quirk of
-__builtin_object_size() is that for strings whose values are runtime
-dependent, __builtin_object_size(str, 1 or 0) returns the maximum size
-of possible values when those sizes are determinable at compile time.
-Example:
+Calling acpi_os_map_memory() on such an invalid phys address leads to
+the below WARN_ON in ioremap triggering resulting in an oops/stacktrace.
 
-  static const char *v = "FOO BAR";
-  static const char *y = "FOO BA";
-  unsigned long x (int z) {
-      // Returns 8, which is:
-      // max(__builtin_object_size(v, 1), __builtin_object_size(y, 1))
-      return __builtin_object_size(z ? v : y, 1);
-  }
+Add code to verify the physical address before calling acpi_os_map_memory()
+to fix / avoid the oops.
 
-So when FORTIFY_SOURCE is enabled, the current implementation of
-__compiletime_strlen() will try to access beyond the end of y at runtime
-using the size of v. Mixed with UBSAN_LOCAL_BOUNDS we get a fault.
+[    1.226900] ioremap: invalid physical address 3001000000000000
+[    1.226949] ------------[ cut here ]------------
+[    1.226962] WARNING: CPU: 1 PID: 1 at arch/x86/mm/ioremap.c:200 __ioremap_caller.cold+0x43/0x5f
+[    1.226996] Modules linked in:
+[    1.227016] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.0.0-rc3+ #490
+[    1.227029] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
+[    1.227038] RIP: 0010:__ioremap_caller.cold+0x43/0x5f
+[    1.227054] Code: 96 00 00 e9 f8 af 24 ff 89 c6 48 c7 c7 d8 0c 84 99 e8 6a 96 00 00 e9 76 af 24 ff 48 89 fe 48 c7 c7 a8 0c 84 99 e8 56 96 00 00 <0f> 0b e9 60 af 24 ff 48 8b 34 24 48 c7 c7 40 0d 84 99 e8 3f 96 00
+[    1.227067] RSP: 0000:ffffb18c40033d60 EFLAGS: 00010286
+[    1.227084] RAX: 0000000000000032 RBX: 3001000000000000 RCX: 0000000000000000
+[    1.227095] RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00000000ffffffff
+[    1.227105] RBP: 3001000000000000 R08: 0000000000000000 R09: ffffb18c40033c18
+[    1.227115] R10: 0000000000000003 R11: ffffffff99d62fe8 R12: 0000000000000008
+[    1.227124] R13: 0003001000000000 R14: 0000000000001000 R15: 3001000000000000
+[    1.227135] FS:  0000000000000000(0000) GS:ffff913a3c080000(0000) knlGS:0000000000000000
+[    1.227146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.227156] CR2: 0000000000000000 CR3: 0000000018c26000 CR4: 00000000000006e0
+[    1.227167] Call Trace:
+[    1.227176]  <TASK>
+[    1.227185]  ? acpi_os_map_iomem+0x1c9/0x1e0
+[    1.227215]  ? kmem_cache_alloc_trace+0x187/0x370
+[    1.227254]  acpi_os_map_iomem+0x1c9/0x1e0
+[    1.227288]  acpi_init_fpdt+0xa8/0x253
+[    1.227308]  ? acpi_debugfs_init+0x1f/0x1f
+[    1.227339]  do_one_initcall+0x5a/0x300
+[    1.227406]  ? rcu_read_lock_sched_held+0x3f/0x80
+[    1.227442]  kernel_init_freeable+0x28b/0x2cc
+[    1.227512]  ? rest_init+0x170/0x170
+[    1.227538]  kernel_init+0x16/0x140
+[    1.227552]  ret_from_fork+0x1f/0x30
+[    1.227639]  </TASK>
+[    1.227647] irq event stamp: 186819
+[    1.227656] hardirqs last  enabled at (186825): [<ffffffff98184a6e>] __up_console_sem+0x5e/0x70
+[    1.227672] hardirqs last disabled at (186830): [<ffffffff98184a53>] __up_console_sem+0x43/0x70
+[    1.227686] softirqs last  enabled at (186576): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
+[    1.227701] softirqs last disabled at (186569): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
+[    1.227715] ---[ end trace 0000000000000000 ]---
 
-hidinput_allocate() has a local C string whose value is control flow
-dependent on a switch statement, so __builtin_object_size(str, 1)
-evaluates to the maximum string length, making all other cases fault on
-the last character check. hidinput_allocate() could be cleaned up to
-avoid runtime calls to strlen() since the local variable can only have
-literal values, so there's no benefit to trying to fortify the strlen
-call site there.
-
-Perform a __builtin_constant_p() check against index 0 earlier in the
-macro to filter out the control-flow-dependant case. Add a KUnit test
-for checking the expected behavioral characteristics of FORTIFY_SOURCE
-internals.
-
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Tom Rix <trix@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Cc: David Gow <davidgow@google.com>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Sander Vanheule <sander@svanheule.net>
-Cc: linux-hardening@vger.kernel.org
-Cc: llvm@lists.linux.dev
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Android Treehugger Robot
-Link: https://android-review.googlesource.com/c/kernel/common/+/2206839
-Co-developed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/fortify-string.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/acpi_fpdt.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/include/linux/fortify-string.h b/include/linux/fortify-string.h
-index 3b401fa0f374..fce2fb2fc962 100644
---- a/include/linux/fortify-string.h
-+++ b/include/linux/fortify-string.h
-@@ -19,7 +19,8 @@ void __write_overflow_field(size_t avail, size_t wanted) __compiletime_warning("
- 	unsigned char *__p = (unsigned char *)(p);		\
- 	size_t __ret = (size_t)-1;				\
- 	size_t __p_size = __builtin_object_size(p, 1);		\
--	if (__p_size != (size_t)-1) {				\
-+	if (__p_size != (size_t)-1 &&				\
-+	    __builtin_constant_p(*__p)) {			\
- 		size_t __p_len = __p_size - 1;			\
- 		if (__builtin_constant_p(__p[__p_len]) &&	\
- 		    __p[__p_len] == '\0')			\
+diff --git a/drivers/acpi/acpi_fpdt.c b/drivers/acpi/acpi_fpdt.c
+index 6922a44b3ce7..a2056c4c8cb7 100644
+--- a/drivers/acpi/acpi_fpdt.c
++++ b/drivers/acpi/acpi_fpdt.c
+@@ -143,6 +143,23 @@ static const struct attribute_group boot_attr_group = {
+ 
+ static struct kobject *fpdt_kobj;
+ 
++#if defined CONFIG_X86 && defined CONFIG_PHYS_ADDR_T_64BIT
++#include <linux/processor.h>
++static bool fpdt_address_valid(u64 address)
++{
++	/*
++	 * On some systems the table contains invalid addresses
++	 * with unsuppored high address bits set, check for this.
++	 */
++	return !(address >> boot_cpu_data.x86_phys_bits);
++}
++#else
++static bool fpdt_address_valid(u64 address)
++{
++	return true;
++}
++#endif
++
+ static int fpdt_process_subtable(u64 address, u32 subtable_type)
+ {
+ 	struct fpdt_subtable_header *subtable_header;
+@@ -151,6 +168,11 @@ static int fpdt_process_subtable(u64 address, u32 subtable_type)
+ 	u32 length, offset;
+ 	int result;
+ 
++	if (!fpdt_address_valid(address)) {
++		pr_info(FW_BUG "invalid physical address: 0x%llx!\n", address);
++		return -EINVAL;
++	}
++
+ 	subtable_header = acpi_os_map_memory(address, sizeof(*subtable_header));
+ 	if (!subtable_header)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
