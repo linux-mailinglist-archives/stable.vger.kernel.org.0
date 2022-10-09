@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 852DC5F94F7
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C9F5F94EF
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231673AbiJJAOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:14:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55214 "EHLO
+        id S231651AbiJJAN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:13:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231311AbiJJAMx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD674D171;
+        with ESMTP id S230328AbiJJAMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B499F543E5;
         Sun,  9 Oct 2022 16:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80D09B80DE1;
-        Sun,  9 Oct 2022 23:50:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6162EC43470;
-        Sun,  9 Oct 2022 23:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52D2460DC4;
+        Sun,  9 Oct 2022 23:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9834C4347C;
+        Sun,  9 Oct 2022 23:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359444;
-        bh=FyIbb5eCQn1vDkQGKOZ1uQh1B6Niqv3G2H3D3qe7blc=;
+        s=k20201202; t=1665359445;
+        bh=q1chyhTIU7/d/UsHn4fDC9XzScQs2LA1hTV5YSEKLN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOBZzhYTS482W8xDb6xo+gH8x++FschYD9DZUcSrj8wniH8CA3ozd7cMAlyI/nntO
-         gfbOSou/jEeX4UBcCvGwTCh+HlLhtjDTFFMpW+IT1Bj/zb6otJzoXOup01MfhHcNsH
-         +oyM+1jZPubmjJPqNvYVhBfwmrPb3MO4cMgURpaTZPlWy/zVwSX/3VsOvzCfXUxJe4
-         3Yra3mG59fZ8wY6MuIa9morjtG20Lprg/t1HNwuANiPir+uoN6z1NouMpPbl5J+0Sy
-         UAveNXJ8jH/I3o3vPpmF6gL0a3iS6fviy6rOAW15S1YLU1bhh+nS3kDn2InOe1ZXHd
-         Gr8hUK/YSNSZg==
+        b=mc3H4WDqhuTS6kxSmVH9G+6HqyrF41cq5zF8vm+2aFKmepDQS15dTRQF54iaOmtV9
+         p8TgfaV5NFBpvzfkFs9rmOSYnHj+RO5JVrEoiRviPe0C8ngyMFg/TheKTl39vZtT8D
+         usVVwiXho3eYssl7EFr8yxiivdcFL85/zwxu9+aCiOyR5qMUWBO6nSfmWLfpHiOH57
+         pBPbMTPg9A4BbVNa12CiX5EUp5iMuPr+/TJOJlb4KAYaVrft7lcUS7g+02kH/k8PR3
+         T5Nxo0sXB1dAjhgcgRehPGZsb/eFe826ujWEpfYA1n2R1nD2A9AiPUfwVFnsZwTJDd
+         l+5QdMXIaNVQw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Arvid Norlander <lkml@vorpal.se>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 19/44] ACPI: video: Change disable_backlight_sysfs_if quirks to acpi_backlight=native
-Date:   Sun,  9 Oct 2022 19:49:07 -0400
-Message-Id: <20221009234932.1230196-19-sashal@kernel.org>
+Cc:     Maya Matuszczyk <maccraft123mc@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 20/44] drm: panel-orientation-quirks: Add quirk for Anbernic Win600
+Date:   Sun,  9 Oct 2022 19:49:08 -0400
+Message-Id: <20221009234932.1230196-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -58,183 +58,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Maya Matuszczyk <maccraft123mc@gmail.com>
 
-[ Upstream commit c5b94f5b7819348c59f9949b2b75c341a114cdd4 ]
+[ Upstream commit 770e19076065e079a32f33eb11be2057c87f1cde ]
 
-Some Toshibas have a broken acpi-video interface for brightness control
-and need a special firmware call on resume to turn the panel back on.
-So far these have been using the disable_backlight_sysfs_if workaround
-to deal with this.
+This device is another x86 gaming handheld, and as (hopefully) there is
+only one set of DMI IDs it's using DMI_EXACT_MATCH
 
-The recent x86/acpi backlight refactoring has broken this workaround:
-1. This workaround relies on acpi_video_get_backlight_type() returning
-   acpi_video so that the acpi_video code actually runs; and
-2. this relies on the actual native GPU driver to offer the sysfs
-   backlight interface to userspace.
-
-After the refactor this breaks since the native driver will no
-longer register its backlight-device if acpi_video_get_backlight_type()
-does not return native and making it return native breaks 1.
-
-Keeping the acpi_video backlight handling on resume active, while not
-using it to set the brightness, is necessary because it does a _BCM
-call on resume which is necessary to turn the panel back on on resume.
-
-Looking at the DSDT shows that this _BCM call results in a Toshiba
-HCI_SET HCI_LCD_BRIGHTNESS call, which turns the panel back on.
-
-This kind of special vendor specific handling really belongs in
-the vendor specific acpi driver. An earlier patch in this series
-modifies toshiba_acpi to make the necessary HCI_SET call on resume
-on affected models.
-
-With toshiba_acpi taking care of the HCI_SET call on resume,
-the acpi_video code no longer needs to call _BCM on resume.
-
-So instead of using the (now broken) disable_backlight_sysfs_if
-workaround, simply setting acpi_backlight=native to disable
-the broken apci-video interface is sufficient fix things now.
-
-After this there are no more users of the disable_backlight_sysfs_if
-flag and as discussed above the flag also no longer works as intended,
-so remove the disable_backlight_sysfs_if flag entirely.
-
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Arvid Norlander <lkml@vorpal.se>
+Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220803182402.1217293-1-maccraft123mc@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_video.c   | 48 -------------------------------------
- drivers/acpi/video_detect.c | 35 +++++++++++++++++++++++++++
- 2 files changed, 35 insertions(+), 48 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-index 5cbe2196176d..8da63f146fe1 100644
---- a/drivers/acpi/acpi_video.c
-+++ b/drivers/acpi/acpi_video.c
-@@ -47,9 +47,6 @@ module_param(brightness_switch_enabled, bool, 0644);
- static bool allow_duplicates;
- module_param(allow_duplicates, bool, 0644);
- 
--static int disable_backlight_sysfs_if = -1;
--module_param(disable_backlight_sysfs_if, int, 0444);
--
- #define REPORT_OUTPUT_KEY_EVENTS		0x01
- #define REPORT_BRIGHTNESS_KEY_EVENTS		0x02
- static int report_key_events = -1;
-@@ -382,14 +379,6 @@ static int video_set_bqc_offset(const struct dmi_system_id *d)
- 	return 0;
- }
- 
--static int video_disable_backlight_sysfs_if(
--	const struct dmi_system_id *d)
--{
--	if (disable_backlight_sysfs_if == -1)
--		disable_backlight_sysfs_if = 1;
--	return 0;
--}
--
- static int video_set_device_id_scheme(const struct dmi_system_id *d)
- {
- 	device_id_scheme = true;
-@@ -462,40 +451,6 @@ static const struct dmi_system_id video_dmi_table[] = {
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index fc1728d46ac2..64b194af003c 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -128,6 +128,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
  		},
- 	},
- 
--	/*
--	 * Some machines have a broken acpi-video interface for brightness
--	 * control, but still need an acpi_video_device_lcd_set_level() call
--	 * on resume to turn the backlight power on.  We Enable backlight
--	 * control on these systems, but do not register a backlight sysfs
--	 * as brightness control does not work.
--	 */
--	{
--	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
--	 .callback = video_disable_backlight_sysfs_if,
--	 .ident = "Toshiba Portege R700",
--	 .matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R700"),
--		},
--	},
--	{
--	 /* https://bugs.freedesktop.org/show_bug.cgi?id=82634 */
--	 .callback = video_disable_backlight_sysfs_if,
--	 .ident = "Toshiba Portege R830",
--	 .matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R830"),
--		},
--	},
--	{
--	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
--	 .callback = video_disable_backlight_sysfs_if,
--	 .ident = "Toshiba Satellite R830",
--	 .matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
--		},
--	},
- 	/*
- 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
- 	 * but the IDs actually follow the Device ID Scheme.
-@@ -1758,9 +1713,6 @@ static void acpi_video_dev_register_backlight(struct acpi_video_device *device)
- 	if (result)
- 		return;
- 
--	if (disable_backlight_sysfs_if > 0)
--		return;
--
- 	name = kasprintf(GFP_KERNEL, "acpi_video%d", count);
- 	if (!name)
- 		return;
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index 5d7f38016a24..c370de174fd3 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -514,6 +514,41 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
- 		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
- 		},
- 	},
-+	/*
-+	 * These Toshibas have a broken acpi-video interface for brightness
-+	 * control. They also have an issue where the panel is off after
-+	 * suspend until a special firmware call is made to turn it back
-+	 * on. This is handled by the toshiba_acpi kernel module, so that
-+	 * module must be enabled for these models to work correctly.
-+	 */
-+	{
-+	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
-+	 .callback = video_detect_force_native,
-+	 /* Toshiba Portégé R700 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R700"),
+ 		.driver_data = (void *)&lcd800x1280_rightside_up,
++	}, {	/* Anbernic Win600 */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Anbernic"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Win600"),
 +		},
-+	},
-+	{
-+	 /* Portégé: https://bugs.freedesktop.org/show_bug.cgi?id=82634 */
-+	 /* Satellite: https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
-+	 .callback = video_detect_force_native,
-+	 /* Toshiba Satellite/Portégé R830 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "R830"),
-+		},
-+	},
-+	{
-+	 .callback = video_detect_force_native,
-+	 /* Toshiba Satellite/Portégé Z830 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "Z830"),
-+		},
-+	},
-+
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
- 	 * for this do not catch.
++		.driver_data = (void *)&lcd720x1280_rightside_up,
+ 	}, {	/* Asus T100HA */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 -- 
 2.35.1
 
