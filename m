@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BDA5F94D7
+	by mail.lfdr.de (Postfix) with ESMTP id 16F745F94D5
 	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230460AbiJJAM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:12:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57032 "EHLO
+        id S230432AbiJJAM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:12:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230424AbiJJAMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:41 -0400
+        with ESMTP id S230034AbiJJAMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16F8610050;
-        Sun,  9 Oct 2022 16:49:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F5212626;
+        Sun,  9 Oct 2022 16:49:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6512B60D2B;
-        Sun,  9 Oct 2022 23:49:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 428CFC433D6;
-        Sun,  9 Oct 2022 23:49:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4D6A60D3D;
+        Sun,  9 Oct 2022 23:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3AA6C433D6;
+        Sun,  9 Oct 2022 23:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359385;
-        bh=Bl4G7PhvvFyNlas+R2mIUh5HCYKgCqnCPCHdtZQ7cm4=;
+        s=k20201202; t=1665359389;
+        bh=DBhVd95XpZutQyzgeXjErPc70e6GrTLKwZc/rk2PCZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4FzgYJUxGur39HhBtlcIPEsgP4L/q7AS082Ti5VVs36E4AlUQjmO0uKUrYipn+hu
-         o0zdkCS4WJU19AsISMa3SMGLd3bEQ4vP2UCkq3mq/RnNTS1bwv7f4aU0a/hfTN99m4
-         SOfmNUhHIr7hKNw2PxVf7qX08ul5d60z4F3Gzt9E4g2vm/J+cqrnDmBK9e2t+9dFyH
-         Z9JoHwOW1qnoOGqxG0yNLQh08tA8n2SdCo1CSIi96lGmCmRiwwuGcDgN9ctH9GoYjY
-         WIG5WQ7hUUWMUPVmBy8536EHVakezK2eutEU/2Rnm/1UKPvfyVwYQZjRdVHANT98CO
-         mcFEm8v23Zwjw==
+        b=pTAXnGc3bBW8hVojdZY7HgrOgp6ZWLd0Gogb5w8MaFzD1hx7mMtEvUHVDqZF7JQDW
+         Lz47Fn4jFAY+RJzRWggojc8JAikOE6U0qDuxr/vSs+eIod1lTM/8s4tVTiTygCFGk0
+         qWbGDM9NHOkgKhcSDhIOiaHRRYRimGEv4DBe9TpjTGhydv4MC2Qh0ZCz2WtD1GEpuz
+         t01N1xfX1tIUZcKSIM1/NR8ywL8VqyMUzZ9oMlCX3sCtoRPVN5hMvZA1dWRDjUa5yb
+         B1IcZhaYpghUnaeAY9wX7YjkVZZZShrIcRcavgp/SldjRndGqkFB1BXDPFvCgITaaV
+         5V9puwWd8K9hA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Gow <davidgow@google.com>,
-        Tales Aparecida <tales.aparecida@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, isabbasso@riseup.net,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 06/44] drm/amd/display: fix overflow on MIN_I64 definition
-Date:   Sun,  9 Oct 2022 19:48:54 -0400
-Message-Id: <20221009234932.1230196-6-sashal@kernel.org>
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, mkumard@nvidia.com,
+        peter.ujfalusi@linux.intel.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.0 07/44] ALSA: hda: Fix page fault in snd_hda_codec_shutdown()
+Date:   Sun,  9 Oct 2022 19:48:55 -0400
+Message-Id: <20221009234932.1230196-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,52 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit 6ae0632d17759852c07e2d1e0a31c728eb6ba246 ]
+[ Upstream commit f2bd1c5ae2cb0cf9525c9bffc0038c12dd7e1338 ]
 
-The definition of MIN_I64 in bw_fixed.c can cause gcc to whinge about
-integer overflow, because it is treated as a positive value, which is
-then negated. The temporary positive value is not necessarily
-representable.
+If early probe of HDAudio bus driver fails e.g.: due to missing
+firmware file, snd_hda_codec_shutdown() ends in manipulating
+uninitialized codec->pcm_list_head causing page fault.
 
-This causes the following warning:
-../drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/bw_fixed.c:30:19:
-warning: integer overflow in expression ‘-9223372036854775808’ of type
-‘long long int’ results in ‘-9223372036854775808’ [-Woverflow]
-  30 |         (int64_t)(-(1LL << 63))
-     |                   ^
+Initialization of HDAudio codec in ASoC is split in two:
+- snd_hda_codec_device_init()
+- snd_hda_codec_device_new()
 
-Writing out (-MAX_I64 - 1) works instead.
+snd_hda_codec_device_init() is called during probe_codecs() by HDAudio
+bus driver while snd_hda_codec_device_new() is called by
+codec-component's ->probe(). The second call will not happen until all
+components required by related sound card are present within the ASoC
+framework. With firmware failing to load during the PCI's deferred
+initialization i.e.: probe_work(), no platform components are ever
+registered. HDAudio codec enumeration is done at that point though, so
+the codec components became registered to ASoC framework, calling
+snd_hda_codec_device_init() in the process.
 
-Signed-off-by: David Gow <davidgow@google.com>
-Signed-off-by: Tales Aparecida <tales.aparecida@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Now, during platform reboot snd_hda_codec_shutdown() is called for every
+codec found on the HDAudio bus causing oops if any of them has not
+completed both of their initialization steps. Relocating field
+initialization fixes the issue.
+
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20220816111727.3218543-7-cezary.rojewski@intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/calcs/bw_fixed.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_codec.c | 41 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/calcs/bw_fixed.c b/drivers/gpu/drm/amd/display/dc/dml/calcs/bw_fixed.c
-index 6ca288fb5fb9..2d46bc527b21 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/calcs/bw_fixed.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/calcs/bw_fixed.c
-@@ -26,12 +26,12 @@
- #include "bw_fixed.h"
+diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
+index 384426d7e9dd..4ae8b9574778 100644
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -931,8 +931,28 @@ snd_hda_codec_device_init(struct hda_bus *bus, unsigned int codec_addr,
+ 	}
  
+ 	codec->bus = bus;
++	codec->depop_delay = -1;
++	codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
++	codec->core.dev.release = snd_hda_codec_dev_release;
++	codec->core.exec_verb = codec_exec_verb;
+ 	codec->core.type = HDA_DEV_LEGACY;
  
--#define MIN_I64 \
--	(int64_t)(-(1LL << 63))
--
- #define MAX_I64 \
- 	(int64_t)((1ULL << 63) - 1)
- 
-+#define MIN_I64 \
-+	(-MAX_I64 - 1)
++	mutex_init(&codec->spdif_mutex);
++	mutex_init(&codec->control_mutex);
++	snd_array_init(&codec->mixers, sizeof(struct hda_nid_item), 32);
++	snd_array_init(&codec->nids, sizeof(struct hda_nid_item), 32);
++	snd_array_init(&codec->init_pins, sizeof(struct hda_pincfg), 16);
++	snd_array_init(&codec->driver_pins, sizeof(struct hda_pincfg), 16);
++	snd_array_init(&codec->cvt_setups, sizeof(struct hda_cvt_setup), 8);
++	snd_array_init(&codec->spdif_out, sizeof(struct hda_spdif_out), 16);
++	snd_array_init(&codec->jacktbl, sizeof(struct hda_jack_tbl), 16);
++	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
++	INIT_LIST_HEAD(&codec->conn_list);
++	INIT_LIST_HEAD(&codec->pcm_list_head);
++	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
++	refcount_set(&codec->pcm_ref, 1);
++	init_waitqueue_head(&codec->remove_sleep);
 +
- #define FRACTIONAL_PART_MASK \
- 	((1ULL << BW_FIXED_BITS_PER_FRACTIONAL_PART) - 1)
+ 	return codec;
+ }
+ EXPORT_SYMBOL_GPL(snd_hda_codec_device_init);
+@@ -985,29 +1005,8 @@ int snd_hda_codec_device_new(struct hda_bus *bus, struct snd_card *card,
+ 	if (snd_BUG_ON(codec_addr > HDA_MAX_CODEC_ADDRESS))
+ 		return -EINVAL;
  
+-	codec->core.dev.release = snd_hda_codec_dev_release;
+-	codec->core.exec_verb = codec_exec_verb;
+-
+ 	codec->card = card;
+ 	codec->addr = codec_addr;
+-	mutex_init(&codec->spdif_mutex);
+-	mutex_init(&codec->control_mutex);
+-	snd_array_init(&codec->mixers, sizeof(struct hda_nid_item), 32);
+-	snd_array_init(&codec->nids, sizeof(struct hda_nid_item), 32);
+-	snd_array_init(&codec->init_pins, sizeof(struct hda_pincfg), 16);
+-	snd_array_init(&codec->driver_pins, sizeof(struct hda_pincfg), 16);
+-	snd_array_init(&codec->cvt_setups, sizeof(struct hda_cvt_setup), 8);
+-	snd_array_init(&codec->spdif_out, sizeof(struct hda_spdif_out), 16);
+-	snd_array_init(&codec->jacktbl, sizeof(struct hda_jack_tbl), 16);
+-	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
+-	INIT_LIST_HEAD(&codec->conn_list);
+-	INIT_LIST_HEAD(&codec->pcm_list_head);
+-	refcount_set(&codec->pcm_ref, 1);
+-	init_waitqueue_head(&codec->remove_sleep);
+-
+-	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
+-	codec->depop_delay = -1;
+-	codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
+ 
+ #ifdef CONFIG_PM
+ 	codec->power_jiffies = jiffies;
 -- 
 2.35.1
 
