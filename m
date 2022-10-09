@@ -2,52 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 141205F9570
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 508B05F9572
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbiJJAUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:20:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
+        id S232487AbiJJAUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232431AbiJJASu (ORCPT
+        with ESMTP id S232439AbiJJASu (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:18:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521FF5F995;
-        Sun,  9 Oct 2022 16:53:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F0B2CE7;
+        Sun,  9 Oct 2022 16:53:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECB4CB80D33;
-        Sun,  9 Oct 2022 23:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7087C433D7;
-        Sun,  9 Oct 2022 23:53:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07F65B80DE9;
+        Sun,  9 Oct 2022 23:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B18C433D7;
+        Sun,  9 Oct 2022 23:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359621;
-        bh=/qVHldP64B5xa9jg2xsijaphwXXl0NsLnQSVOzxEN8M=;
+        s=k20201202; t=1665359625;
+        bh=zvWGShizebvrdEFUd9n0bZ6NDl0vKJL3PrigdSbA9rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qye1RtXZzAWDQGCdvyQS930HuKPYxoE7sNFL8Vd02tMLH77mhFZqPCwWxFrORraYD
-         plswcu2licV313aPEHTMTUs2TvkWJ2jtd4wGPbF5BxCpGDIe3jC3kXW71kU2d09PuT
-         CKZ7I3CBDOTfch3yjvymubezGGmG5I0GxpHs5wTIOHpYYiaV5dxQ8zvC/6+RTV99/B
-         6hmrYPBQ0Zb1wKO92l02W6xqIVqyGbEOFCL06xyCxLzVol6G0vT95ATKezpMN3Fa9g
-         NZXKBza1C9S+dIDAlW1CRjj8LYZDuBp1AZxf/PWaK9FtikF38jifXiS2mDMCS1rRe3
-         bP+oc/be8dMQA==
+        b=rlPIjYdTMeKfEc58hievnx3zmKNjva2hya48O5CgYmkem3eNcQNEl6L+tkiQylWyj
+         /8rZK8FYO8HTZqelI01AShycMHLQdRTOR4xraDJWRyfBizrTS7nsWTlYWhUqh2GkYj
+         BMkWfnuWyMYdSQBR/ZvRQObmxQu37CECHkOlkPaqwjKUeBhP4z2B8F4afFkqis3hBy
+         9K9tyNa7XEK2i+qs7ho9rQQ5p5iRxzskaO5Hh0HXYdl3x38khqGrMI8Tjq/LftmxfW
+         RVvDabHr/T4YSQjRYNX1GeTQeWoSNsElTLEshii8V5awpnLsdCGoVDeKTtU8J9NnMH
+         1iBWlU3xP/5TQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sherry Wang <Yao.Wang1@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+Cc:     hongao <hongao@uniontech.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, nicholas.kazlauskas@amd.com,
-        agustin.gutierrez@amd.com, Eric.Yang2@amd.com,
-        michael.strauss@amd.com, mwen@igalia.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 26/36] drm/amd/display: correct hostvm flag
-Date:   Sun,  9 Oct 2022 19:52:12 -0400
-Message-Id: <20221009235222.1230786-26-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        harry.wentland@amd.com, tzimmermann@suse.de,
+        ville.syrjala@linux.intel.com, cssk@net-c.es, maxime@cerno.tech,
+        zhou1615@umn.edu, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 27/36] drm/amdgpu: fix initial connector audio value
+Date:   Sun,  9 Oct 2022 19:52:13 -0400
+Message-Id: <20221009235222.1230786-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235222.1230786-1-sashal@kernel.org>
 References: <20221009235222.1230786-1-sashal@kernel.org>
@@ -64,41 +60,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Wang <Yao.Wang1@amd.com>
+From: hongao <hongao@uniontech.com>
 
-[ Upstream commit 796d6a37ff5ffaf9f2dc0f3f4bf9f4a1034c00de ]
+[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
 
-[Why]
-Hostvm should be enabled/disabled accordding to
-the status of riommu_active, but hostvm always
-be disabled on DCN31 which causes underflow
+This got lost somewhere along the way, This fixes
+audio not working until set_property was called.
 
-[How]
-Set correct hostvm flag on DCN31
-
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Sherry Wang <Yao.Wang1@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: hongao <hongao@uniontech.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-index 3d9f07d4770b..8a0de6bfc716 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-@@ -892,7 +892,7 @@ static const struct dc_debug_options debug_defaults_drv = {
- 	.enable_sw_cntl_psr = true,
- 	.apply_vendor_specific_lttpr_wa = true,
- 	.enable_z9_disable_interface = true, /* Allow support for the PMFW interface for disable Z9*/
--	.dml_hostvm_override = DML_HOSTVM_OVERRIDE_FALSE,
-+	.dml_hostvm_override = DML_HOSTVM_NO_OVERRIDE,
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index b7933c2ce765..491d4846fc02 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -1674,10 +1674,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 						   adev->mode_info.dither_property,
+ 						   AMDGPU_FMT_DITHER_DISABLE);
  
- static const struct dc_debug_options debug_defaults_diags = {
+-			if (amdgpu_audio != 0)
++			if (amdgpu_audio != 0) {
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
++			}
+ 
+ 			subpixel_order = SubPixelHorizontalRGB;
+ 			connector->interlace_allowed = true;
+@@ -1799,6 +1801,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1852,6 +1855,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1902,6 +1906,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
 -- 
 2.35.1
 
