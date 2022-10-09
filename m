@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B06B5F960D
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B36055F9617
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:26:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232795AbiJJA0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:26:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37774 "EHLO
+        id S230092AbiJJA0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:26:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233011AbiJJAYD (ORCPT
+        with ESMTP id S233013AbiJJAYD (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:24:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14FF56260;
-        Sun,  9 Oct 2022 16:58:32 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B9F4333C;
+        Sun,  9 Oct 2022 16:58:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A525260D3D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F10460C57;
+        Sun,  9 Oct 2022 23:58:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E688C43470;
         Sun,  9 Oct 2022 23:58:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C6FC433C1;
-        Sun,  9 Oct 2022 23:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359911;
-        bh=dkDStA/N5coBfdpr+Nbz6hKHmobdpXDdiQ3lUfUMJpY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=RbPKkINe4M09wMT3/4LedDo4Vd6YH9v13Zo2DtEcY/Bmok1rpcjaVj+U8KV29Dl2A
-         7OBe7udlf0hSgBS+eH7zsknzKR7KrQ1dPsyu3fiYXuSX1oQ25HqYt8v54040ljuuUN
-         ew5yAVUDkJ/j70c8xqEHpmH/DCxOXU1vpdxfGoY5QEkyCvl07qvbcPCo0rLiyF5iii
-         0Z/2rjg3zwx44H2bAadRy5xdh4np3DK00UGBxcJZ4pNxvA9ynsrHHq4d7g7XZ7bvOT
-         TPGy0CgKHkOy3h9WE7OofPSgGxU+LfdoAwm0p15j4siCbJ8j2YO6eD3ZzGwEKhFInu
-         XgKt+lB69zSPw==
+        s=k20201202; t=1665359912;
+        bh=vvwgSjYLB6FyCR2+DSdzynHETnNIDB8EdTSjFM5J3rI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=i7SztnV3D4BM2ZCC/TgOFlQymH4kGeW/6pD9bFwtlC/+mOFeSgSStrE++cR9+QXX3
+         QqOx8FfbJpDg0SJ3HLck31r49UcgY/WgkXuAKKL25bN6zvRyp4wE9giAAVxL2W08yK
+         C7nacXgjLqDdG7mJvQevNpmoy9AGs/j7C2/P7tUi0Ih9ix5yke97Rrv16bgmrxbpKv
+         +N5ANQUkOXVw/co6KMEr70Ts7UswwMl3fjfPhXB+kWKzdPxuU0MVP93nK6xpZ8lsLn
+         iwvFQyi8NLjQg2uIg2pkleAIn/9RQVF7ClZzFTV/M8hmauaCBZkWWCRkeoka/vzCSi
+         iFbIuTuguQ1SQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Javier Martinez Canillas <javierm@redhat.com>,
@@ -39,10 +39,12 @@ Cc:     Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
         maarten.lankhorst@linux.intel.com, mripard@kernel.org,
         airlied@gmail.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 1/6] drm: Use size_t type for len variable in drm_copy_field()
-Date:   Sun,  9 Oct 2022 19:58:03 -0400
-Message-Id: <20221009235808.1232269-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 2/6] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
+Date:   Sun,  9 Oct 2022 19:58:04 -0400
+Message-Id: <20221009235808.1232269-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221009235808.1232269-1-sashal@kernel.org>
+References: <20221009235808.1232269-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,44 +60,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 94dc3471d1b2b58b3728558d0e3f264e9ce6ff59 ]
+[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
 
-The strlen() function returns a size_t which is an unsigned int on 32-bit
-arches and an unsigned long on 64-bit arches. But in the drm_copy_field()
-function, the strlen() return value is assigned to an 'int len' variable.
+There are some struct drm_driver fields that are required by drivers since
+drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
 
-Later, the len variable is passed as copy_from_user() third argument that
-is an unsigned long parameter as well.
+But it can be possible that a driver has a bug and did not set some of the
+fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
 
-In theory, this can lead to an integer overflow via type conversion. Since
-the assignment happens to a signed int lvalue instead of a size_t lvalue.
+[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+[  +0.010955] Mem abort info:
+[  +0.002835]   ESR = 0x0000000096000004
+[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  +0.005395]   SET = 0, FnV = 0
+[  +0.003113]   EA = 0, S1PTW = 0
+[  +0.003182]   FSC = 0x04: level 0 translation fault
+[  +0.004964] Data abort info:
+[  +0.002919]   ISV = 0, ISS = 0x00000004
+[  +0.003886]   CM = 0, WnR = 0
+[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
+[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
+...
+[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  +0.007061] pc : __pi_strlen+0x14/0x150
+[  +0.003895] lr : drm_copy_field+0x30/0x1a4
+[  +0.004156] sp : ffff8000094b3a50
+[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
+[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
+[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
+[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
+[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
+[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
+[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
+[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
+[  +0.007240] Call trace:
+[  +0.002475]  __pi_strlen+0x14/0x150
+[  +0.003537]  drm_version+0x84/0xac
+[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
+[  +0.003975]  drm_ioctl+0x270/0x580
+[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
+[  +0.003978]  invoke_syscall+0x78/0x100
+[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
+[  +0.004767]  do_el0_svc+0x38/0x4c
+[  +0.003357]  el0_svc+0x34/0x100
+[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
+[  +0.004418]  el0t_64_sync+0x190/0x194
+[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
+[  +0.006180] ---[ end trace 0000000000000000 ]---
 
-In practice though, that's unlikely since the values copied are set by DRM
-drivers and not controlled by userspace. But using a size_t for len is the
-correct thing to do anyways.
-
+Reported-by: Peter Robinson <pbrobinson@gmail.com>
 Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-2-javierm@redhat.com
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioctl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
-index ce26e8fea9c2..335fad8b209a 100644
+index 335fad8b209a..73dcf03e7e8c 100644
 --- a/drivers/gpu/drm/drm_ioctl.c
 +++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -437,7 +437,7 @@ EXPORT_SYMBOL(drm_invalid_op);
-  */
- static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
+@@ -439,6 +439,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
  {
--	int len;
-+	size_t len;
+ 	size_t len;
  
++	/* don't attempt to copy a NULL pointer */
++	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
++		*buf_len = 0;
++		return 0;
++	}
++
  	/* don't overflow userbuf */
  	len = strlen(value);
+ 	if (len > *buf_len)
 -- 
 2.35.1
 
