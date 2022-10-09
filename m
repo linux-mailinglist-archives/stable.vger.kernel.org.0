@@ -2,93 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC075F92FA
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A43705F94F1
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbiJIWzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S231370AbiJJAOD convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 9 Oct 2022 20:14:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233797AbiJIWx0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:53:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587F448EA9;
-        Sun,  9 Oct 2022 15:28:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94758B80E00;
-        Sun,  9 Oct 2022 22:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA3F2C433D6;
-        Sun,  9 Oct 2022 22:27:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665354481;
-        bh=/DR/Pm6olMKD07sZdtTxvKVfY++LskMxUDTIWs68pxo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2rABrOgyZe531eUfWSTqeupEVRotVKyoORytRO3qEEU+yf8ugOx3ceWyAaGvOSsW
-         3hDbsO2T2hDUWoCSHGClLUMNwhs/oG/YkqXlCDqWKe34NipgVkxhiQ6UlW/XPuf+M6
-         W8Vdc4xTVRO+8QB8hpeNY8Db1+wOliY/JAJP80++kdsfE87zAGJtPqw8Zrv7h57VmU
-         Vpy2c7r82aoBIgBSc9Pm038NFra0IWPxseHZkwMwaaU1cL9H7fa1PSNSp+ekTrTKuu
-         wAOXCJADNpG6T2lMSiKaIHqR/a6qaef7AVkrFL4QEWayb2/mdKfDZiPeMEYOQuMI2A
-         c0XOfwxXQF2ZA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Gaul <gaul@gaul.org>, Andrew Gaul <gaul@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, hayeswang@realtek.com,
-        aaron.ma@canonical.com, jflf_kernel@gmx.com, dober6023@gmail.com,
-        svenva@chromium.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 16/16] r8152: Rate limit overflow messages
-Date:   Sun,  9 Oct 2022 18:27:12 -0400
-Message-Id: <20221009222713.1220394-16-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221009222713.1220394-1-sashal@kernel.org>
-References: <20221009222713.1220394-1-sashal@kernel.org>
+        with ESMTP id S230319AbiJJAMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:55 -0400
+X-Greylist: delayed 6664 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 09 Oct 2022 16:50:44 PDT
+Received: from symantec6.comsats.net.pk (symantec6.comsats.net.pk [203.124.39.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBDE43E7B
+        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 16:50:44 -0700 (PDT)
+X-AuditID: cb7c27aa-21bff70000006b5f-9b-63431c5eebe4
+Received: from host201505.comsatshosting.com (host201505.comsatshosting.com [210.56.11.66])
+        (using TLS with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        by symantec6.comsats.net.pk (Symantec Messaging Gateway) with SMTP id B2.8B.27487.E5C13436; Mon, 10 Oct 2022 00:09:19 +0500 (PKT)
+Received: from [103.145.253.52] (UnknownHost [103.145.253.52]) by host201505.comsatshosting.com with SMTP;
+   Mon, 10 Oct 2022 01:31:32 +0500
+Message-ID: <B2.8B.27487.E5C13436@symantec6.comsats.net.pk>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Re; Interest,
+To:     stable@vger.kernel.org
+From:   "Chen Yun" <imrank@riazeda.com.pk>
+Date:   Sun, 09 Oct 2022 13:26:34 -0700
+Reply-To: chyyncn@gmail.com
+X-Brightmail-Tracker: H4sIAAAAAAAAA02TbUhTURjHO7t37mx66nrNebqaxKWXlbSSQgorwpFIJQR9Cftgt+3kxLmt
+        3Tud6Qc/RNECNTGrRWYRVgpF9moW1YxiFmRRow8jezHIgrBZBBHRuXNz98vl3N9znv//Of9z
+        L2T4ToMAa90K8bkll5hhYl+tyyxbWV1gs6/u/pC5rvfaR7AZVEwPFu4AVaYNDuKqbSC+VZv2
+        mJwXroyx3mEmcKj9PNsKPumCwAgxtxY/fhcxBIEJ8twTHZ64doWZeWkDeOJiDKi7EFeKu4eP
+        MOqa4az47fGujBmejSOnJtgZXoT7zn2jeyBdL8W/goqKczgzjnf3GVQ8nxPw+JtSFWdwFjzQ
+        +iihyHJLcOx9e6KT5/Lx/WfODoBCGq+Qxiuk8QqlvXoB2w+w3FQv0WjsJVa7p16WFNnqJorV
+        WzcIaFDPWpb13wHvz0hhwEEgZiHnzTI7r5caaFcYbIM6MRf9WWqz83P3ehxNTkl2Vvv8LiKL
+        81EPphjN4r1+V50ooNaFlObMUjdplF1EoTcTBhgytA2cpQbIITUdID7PjFgY5ENWzEOO/auq
+        eK5GUkgdIV7iS1X3QMiF7w6MAYF1e9xExGhyBXXJ9pEaEthX61JSW6lG5SCV57SVxGAL0eKn
+        tGDWFrSz6aAxDCpgFh3wSYF6Ltkr1cu1NUndHDSknjYrRROaC9DLIgr5FEzrjQIP7Gl7cJ+B
+        46/H6PPXreBDhk8ML+Sh7RbaxaldTr97dnbBjE58piPO0xRUG6EATY1TnqvhaafUx/4VbKHX
+        l4NiqnYW/RXSs/OoRaQwMwkTo2P0Qr2n7CRL632lIehoCJE36i3JiqRoQ9CPlqkhJGkyhL+R
+        MjWEJExLCa3g8qG7XTurLB3WSdhXPhU88ZIYERne3XlY/yVaMXIVFDQH2o8uZy0l6/OLPwtz
+        /n2/MbTY+HzrydvXO+H0j0uyvueg4d6U4djG37bcmPn0rvJPhb8n+/jiKLsyHm92fxs55Q/k
+        MbcXtXkKG7uiH3+uqX7ltHUXVRrOj4wOxaMxkZWdUvEKxidL/wErWlcGJQQAAA==
+X-Spam-Status: No, score=2.9 required=5.0 tests=BAYES_50,
+        FREEMAIL_FORGED_REPLYTO,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_SOFTFAIL
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gaul <gaul@gaul.org>
+Re; Interest,
 
-[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
+I am interested in discussing the Investment proposal as I explained
+in my previous mail. May you let me know your interest and the
+possibility of a cooperation aimed for mutual interest.
 
-My system shows almost 10 million of these messages over a 24-hour
-period which pollutes my logs.
+Looking forward to your mail for further discussion.
 
-Signed-off-by: Andrew Gaul <gaul@google.com>
-Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/usb/r8152.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Regards
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 96f6edcb0062..a354695a22a9 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -1282,7 +1282,9 @@ static void intr_callback(struct urb *urb)
- 			   "Stop submitting intr, status %d\n", status);
- 		return;
- 	case -EOVERFLOW:
--		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
-+		if (net_ratelimit())
-+			netif_info(tp, intr, tp->netdev,
-+				   "intr status -EOVERFLOW\n");
- 		goto resubmit;
- 	/* -EPIPE:  should clear the halt */
- 	default:
--- 
-2.35.1
+------
+Chen Yun - Chairman of CREC
+China Railway Engineering Corporation - CRECG
+China Railway Plaza, No.69 Fuxing Road, Haidian District, Beijing, P.R.
+China
 
