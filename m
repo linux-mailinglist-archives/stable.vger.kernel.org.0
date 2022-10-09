@@ -2,52 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0D15F956C
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141205F9570
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232448AbiJJATh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47228 "EHLO
+        id S232435AbiJJAUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:20:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232392AbiJJASp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:18:45 -0400
+        with ESMTP id S232431AbiJJASu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:18:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF2BC1DF27;
-        Sun,  9 Oct 2022 16:53:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521FF5F995;
+        Sun,  9 Oct 2022 16:53:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79A39B80C74;
-        Sun,  9 Oct 2022 23:53:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A9CAC433D7;
-        Sun,  9 Oct 2022 23:53:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECB4CB80D33;
+        Sun,  9 Oct 2022 23:53:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7087C433D7;
+        Sun,  9 Oct 2022 23:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359617;
-        bh=Syyww4aE/A9q2YbgecUDjN7WhpYEeXohYESQpJiSY+w=;
+        s=k20201202; t=1665359621;
+        bh=/qVHldP64B5xa9jg2xsijaphwXXl0NsLnQSVOzxEN8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/GjbnOj15vDcLlMONesQcQh3wA3K2sFz39R/OlzzT2ZXiDOdHDuKsRln1xgbVoxW
-         30pISaVwuJXQ8mL4lZ0fjkAUKPlB9pnGOMCeHL+l70SL9x+crxhja8QpEwi9kgMbjd
-         mwSuT5zz1D8fMKP2CYM+mDM888CsVfT8maXz4hxhypnZaEehpchjiw4PS2O4cKwRUt
-         G07t82mNaDmCj/W1nfwlZCh9/9U5s8R6BKaQXu5F16sewbs7RiqXr1/o0Vm0o80itf
-         GeWzSt3TLpstyPexTh3Z+DXRo/oR1b0Kj/4+R3NRqHG6ANbompPjjJPcVXmlfzLx1P
-         NGnn2QeJJj3yQ==
+        b=qye1RtXZzAWDQGCdvyQS930HuKPYxoE7sNFL8Vd02tMLH77mhFZqPCwWxFrORraYD
+         plswcu2licV313aPEHTMTUs2TvkWJ2jtd4wGPbF5BxCpGDIe3jC3kXW71kU2d09PuT
+         CKZ7I3CBDOTfch3yjvymubezGGmG5I0GxpHs5wTIOHpYYiaV5dxQ8zvC/6+RTV99/B
+         6hmrYPBQ0Zb1wKO92l02W6xqIVqyGbEOFCL06xyCxLzVol6G0vT95ATKezpMN3Fa9g
+         NZXKBza1C9S+dIDAlW1CRjj8LYZDuBp1AZxf/PWaK9FtikF38jifXiS2mDMCS1rRe3
+         bP+oc/be8dMQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <felix.kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     Sherry Wang <Yao.Wang1@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Wayne Lin <wayne.lin@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@gmail.com, daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 25/36] drm/amdgpu: SDMA update use unlocked iterator
-Date:   Sun,  9 Oct 2022 19:52:11 -0400
-Message-Id: <20221009235222.1230786-25-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, nicholas.kazlauskas@amd.com,
+        agustin.gutierrez@amd.com, Eric.Yang2@amd.com,
+        michael.strauss@amd.com, mwen@igalia.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 26/36] drm/amd/display: correct hostvm flag
+Date:   Sun,  9 Oct 2022 19:52:12 -0400
+Message-Id: <20221009235222.1230786-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235222.1230786-1-sashal@kernel.org>
 References: <20221009235222.1230786-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,58 +64,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Sherry Wang <Yao.Wang1@amd.com>
 
-[ Upstream commit 3913f0179ba366f7d7d160c506ce00de1602bbc4 ]
+[ Upstream commit 796d6a37ff5ffaf9f2dc0f3f4bf9f4a1034c00de ]
 
-SDMA update page table may be called from unlocked context, this
-generate below warning. Use unlocked iterator to handle this case.
+[Why]
+Hostvm should be enabled/disabled accordding to
+the status of riommu_active, but hostvm always
+be disabled on DCN31 which causes underflow
 
-WARNING: CPU: 0 PID: 1475 at
-drivers/dma-buf/dma-resv.c:483 dma_resv_iter_next
-Call Trace:
- dma_resv_iter_first+0x43/0xa0
- amdgpu_vm_sdma_update+0x69/0x2d0 [amdgpu]
- amdgpu_vm_ptes_update+0x29c/0x870 [amdgpu]
- amdgpu_vm_update_range+0x2f6/0x6c0 [amdgpu]
- svm_range_unmap_from_gpus+0x115/0x300 [amdgpu]
- svm_range_cpu_invalidate_pagetables+0x510/0x5e0 [amdgpu]
- __mmu_notifier_invalidate_range_start+0x1d3/0x230
- unmap_vmas+0x140/0x150
- unmap_region+0xa8/0x110
+[How]
+Set correct hostvm flag on DCN31
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Suggested-by: Felix Kuehling <felix.kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Wayne Lin <wayne.lin@amd.com>
+Signed-off-by: Sherry Wang <Yao.Wang1@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
-index 1fd3cbca20a2..718db7d98e5a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
-@@ -211,12 +211,15 @@ static int amdgpu_vm_sdma_update(struct amdgpu_vm_update_params *p,
- 	int r;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+index 3d9f07d4770b..8a0de6bfc716 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+@@ -892,7 +892,7 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 	.enable_sw_cntl_psr = true,
+ 	.apply_vendor_specific_lttpr_wa = true,
+ 	.enable_z9_disable_interface = true, /* Allow support for the PMFW interface for disable Z9*/
+-	.dml_hostvm_override = DML_HOSTVM_OVERRIDE_FALSE,
++	.dml_hostvm_override = DML_HOSTVM_NO_OVERRIDE,
+ };
  
- 	/* Wait for PD/PT moves to be completed */
--	dma_resv_for_each_fence(&cursor, bo->tbo.base.resv,
--				DMA_RESV_USAGE_KERNEL, fence) {
-+	dma_resv_iter_begin(&cursor, bo->tbo.base.resv, DMA_RESV_USAGE_KERNEL);
-+	dma_resv_for_each_fence_unlocked(&cursor, fence) {
- 		r = amdgpu_sync_fence(&p->job->sync, fence);
--		if (r)
-+		if (r) {
-+			dma_resv_iter_end(&cursor);
- 			return r;
-+		}
- 	}
-+	dma_resv_iter_end(&cursor);
- 
- 	do {
- 		ndw = p->num_dw_left;
+ static const struct dc_debug_options debug_defaults_diags = {
 -- 
 2.35.1
 
