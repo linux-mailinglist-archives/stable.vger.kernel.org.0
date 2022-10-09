@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5FF5F95A5
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E20F5F95A6
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232682AbiJJAWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:22:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47070 "EHLO
+        id S232296AbiJJAWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232276AbiJJAU7 (ORCPT
+        with ESMTP id S232287AbiJJAU7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:20:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A55A25C4F;
-        Sun,  9 Oct 2022 16:55:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E075D27CEA;
+        Sun,  9 Oct 2022 16:55:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E954D60D3D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A63760DC7;
+        Sun,  9 Oct 2022 23:55:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA57C43141;
         Sun,  9 Oct 2022 23:55:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95689C433C1;
-        Sun,  9 Oct 2022 23:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359706;
-        bh=nlsFU6+qAFHENonUxtCRXgN1MbdHlXKsPAZ0zCns0UI=;
+        s=k20201202; t=1665359708;
+        bh=J135anatUTW3EbLfshYvQtJh1Vx3yzaqMkJvXQNgapA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3ALnhfv1lM4/8+TbFqlEptlbsEItDZjasxpb46BFkWvoKAhQmHH+TAHipqlaCV+Y
-         WxSvs/U3tvO8CcNxxEusnYIqggpnEZ1fq5UtwyPsbQQwYH+l3bYGQ5cot1AzmGGAZD
-         ocUAYdzMFsvbZPPDZ//hAyT8dReTlQbHEs6UP4vZkMuvp/E00iQgbEGy4KTGqhaxnl
-         zqARV0ITi/w1hO3eBREvuoyZvY2PQ8ynW5Xtmjv9VS3yMMcTSlYql6PRcFVreQp4nB
-         XFXeXERuFjpLMVMz4O8tW2ObIX1chSEOF5gccutLa991IHJGAb4Ef7ZeKW2jT7Supk
-         uCB/eyqcugkQw==
+        b=Dk6KfsCElnxTnQefItEa3pM5bGrMRv5WSueOtq/gu+cVkyxdKTrZsrtYP2OLOZOsI
+         aWYfDQdXAJGEXIXSlBkvhsYmMbNssz71STB73KXnIXFdARnCmXbX+go5g6ugyE/LTj
+         rBWX0/R+ieqBzR/bWgb2AxbIPWFmSyF/DN/ArqndeQ1UrKFTLE38u3kjcvntpSf/ey
+         +/WcKxB0pvGJJS1h07qkMzMQwTIVIoUZG9B2tnUaZQcKH07bINHPZ+bokyPYkwhCLM
+         xo2xkrwU9OdO3JXvyR7gqqXA6FGj5SNTvJH3FlfffFEUW7dSCvocegdI84xheZgUH7
+         La854GYbNmpNw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jlee@suse.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 16/25] platform/x86: msi-laptop: Change DMI match / alias strings to fix module autoloading
-Date:   Sun,  9 Oct 2022 19:54:16 -0400
-Message-Id: <20221009235426.1231313-16-sashal@kernel.org>
+Cc:     Jairaj Arava <jairaj.arava@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Chao Song <chao.song@intel.com>,
+        Curtis Malainey <curtis@malainey.com>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        peter.ujfalusi@linux.intel.com, yung-chuan.liao@linux.intel.com,
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 17/25] ASoC: SOF: pci: Change DMI match info to support all Chrome platforms
+Date:   Sun,  9 Oct 2022 19:54:17 -0400
+Message-Id: <20221009235426.1231313-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009235426.1231313-1-sashal@kernel.org>
 References: <20221009235426.1231313-1-sashal@kernel.org>
@@ -55,55 +64,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jairaj Arava <jairaj.arava@intel.com>
 
-[ Upstream commit 2a2565272a3628e45d61625e36ef17af7af4e3de ]
+[ Upstream commit c1c1fc8103f794a10c5c15e3c17879caf4f42c8f ]
 
-On a MSI S270 with Fedora 37 x86_64 / systemd-251.4 the module does not
-properly autoload.
+In some Chrome platforms if OEM's use their own string as SYS_VENDOR than
+"Google", it leads to firmware load failure from intel/sof/community path.
 
-This is likely caused by issues with how systemd-udevd handles the single
-quote char (') which is part of the sys_vendor / chassis_vendor strings
-on this laptop. As a workaround remove the single quote char + everything
-behind it from the sys_vendor + chassis_vendor matches. This fixes
-the module not autoloading.
+Hence, changing SYS_VENDOR to PRODUCT_FAMILY in which "Google" is used
+as common prefix and is supported in all Chrome platforms.
 
-Link: https://github.com/systemd/systemd/issues/24715
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220917210407.647432-1-hdegoede@redhat.com
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Chao Song <chao.song@intel.com>
+Reviewed-by: Curtis Malainey <curtis@malainey.com>
+Signed-off-by: Jairaj Arava <jairaj.arava@intel.com>
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220919114429.42700-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/msi-laptop.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ sound/soc/sof/sof-pci-dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 24ffc8e2d2d1..d8a94968aedc 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -596,11 +596,10 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index b773289c928d..3b4c011e0283 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -80,7 +80,7 @@ static const struct dmi_system_id community_key_platforms[] = {
  	{
- 		.ident = "MSI S270",
+ 		.ident = "Google Chromebooks",
  		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
-+			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
--			DMI_MATCH(DMI_CHASSIS_VENDOR,
--				  "MICRO-STAR INT'L CO.,LTD")
-+			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
- 		},
- 		.driver_data = &quirk_old_ec_model,
- 		.callback = dmi_check_cb
-@@ -633,8 +632,7 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
--			DMI_MATCH(DMI_CHASSIS_VENDOR,
--				  "MICRO-STAR INT'L CO.,LTD")
-+			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
- 		},
- 		.driver_data = &quirk_old_ec_model,
- 		.callback = dmi_check_cb
+-			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google"),
+ 		}
+ 	},
+ 	{},
 -- 
 2.35.1
 
