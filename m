@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A072F5F8FFD
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C34675F9082
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbiJIWTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:19:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
+        id S231902AbiJIWZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231804AbiJIWTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:19:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0AFF386B2;
-        Sun,  9 Oct 2022 15:16:37 -0700 (PDT)
+        with ESMTP id S231848AbiJIWXu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:23:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DF52F016;
+        Sun,  9 Oct 2022 15:18:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7438060CEF;
-        Sun,  9 Oct 2022 22:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23891C43470;
-        Sun,  9 Oct 2022 22:13:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70A77B80D36;
+        Sun,  9 Oct 2022 22:13:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0AABC433D6;
+        Sun,  9 Oct 2022 22:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353590;
-        bh=tGduk6NkYZkVJ9uF+cMq9hjrPTghwEt6RVgQ/f8m48Q=;
+        s=k20201202; t=1665353603;
+        bh=M3JkTWTLC3RdhvEFrlNL9DYet52opleSNkWm+4Lv/LA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XD5e7jk33bXizCI1D0oPg5rZU4XYGziYUVyaCwDy3VfT+Sdl7WZ2l4oXP8f4fbMGp
-         v/Ug2oP75G7Xoa5wBRwMxRNPXo3d9th9w0xjSzWgn5WFHvqPmGqa1T7ZW/qqb8+wT1
-         PQFS9ZMlFKqe+lH1tQbyHymHYer/XfrR2D6imMXiv4svjZn81RjQZYQcHqQomhn5nV
-         olPfMwdJDQUL2x9UjkGE8fyG5h7Hd1Ly0svo2IbDjoISXwmkK/sNkEg5hjRhF2s8qb
-         QZAZMdkwdse1/kBIcMFWWZr8LtLaTyFe4mXv/4VRwq8zMLDP/IeUxWq8fAtr269Hpc
-         PhsAhrJnDc/ow==
+        b=fzGgSJnIlHt2+j9P2dNLJdQ6urQRQCYkbXTizUSiDht3ZLxIKumLSZAMREvBc09es
+         2UyxdgzNY1mxnwIOIXaWuNuCiCeBvIM97ZAdaetSN4LdBjmqprujwKvRGFIwas4K7Z
+         UrC1iLg6+59xzCRlS8GXzywtql7ss0CBmjy1czmvlP2aP266dHogRAqfbQu3eu6KkA
+         TlAIQY3nKJ+msdy6kT6+E/lWyvGUUDYcah61YC6kaRztbJ54tDepHWynLbkXncOBQJ
+         k1GZztLoDGFuF1Szsy60b59jbaJ7cH9jXopCeVrzYklVy08C3TuaHpEHMX/ONmzT7K
+         l1GzLpfbrkzdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 67/77] hwmon: (sht4x) do not overflow clamping operation on 32-bit platforms
-Date:   Sun,  9 Oct 2022 18:07:44 -0400
-Message-Id: <20221009220754.1214186-67-sashal@kernel.org>
+Cc:     Liu Jian <liujian56@huawei.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 68/77] net: If sock is dead don't access sock's sk_wq in sk_stream_wait_memory
+Date:   Sun,  9 Oct 2022 18:07:45 -0400
+Message-Id: <20221009220754.1214186-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
 References: <20221009220754.1214186-1-sashal@kernel.org>
@@ -56,36 +60,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit f9c0cf8f26de367c58e48b02b1cdb9c377626e6f ]
+[ Upstream commit 3f8ef65af927db247418d4e1db49164d7a158fc5 ]
 
-On 32-bit platforms, long is 32 bits, so (long)UINT_MAX is less than
-(long)SHT4X_MIN_POLL_INTERVAL, which means the clamping operation is
-bogus. Fix this by clamping at INT_MAX, so that the upperbound is the
-same on all platforms.
+Fixes the below NULL pointer dereference:
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20220924101151.4168414-1-Jason@zx2c4.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  [...]
+  [   14.471200] Call Trace:
+  [   14.471562]  <TASK>
+  [   14.471882]  lock_acquire+0x245/0x2e0
+  [   14.472416]  ? remove_wait_queue+0x12/0x50
+  [   14.473014]  ? _raw_spin_lock_irqsave+0x17/0x50
+  [   14.473681]  _raw_spin_lock_irqsave+0x3d/0x50
+  [   14.474318]  ? remove_wait_queue+0x12/0x50
+  [   14.474907]  remove_wait_queue+0x12/0x50
+  [   14.475480]  sk_stream_wait_memory+0x20d/0x340
+  [   14.476127]  ? do_wait_intr_irq+0x80/0x80
+  [   14.476704]  do_tcp_sendpages+0x287/0x600
+  [   14.477283]  tcp_bpf_push+0xab/0x260
+  [   14.477817]  tcp_bpf_sendmsg_redir+0x297/0x500
+  [   14.478461]  ? __local_bh_enable_ip+0x77/0xe0
+  [   14.479096]  tcp_bpf_send_verdict+0x105/0x470
+  [   14.479729]  tcp_bpf_sendmsg+0x318/0x4f0
+  [   14.480311]  sock_sendmsg+0x2d/0x40
+  [   14.480822]  ____sys_sendmsg+0x1b4/0x1c0
+  [   14.481390]  ? copy_msghdr_from_user+0x62/0x80
+  [   14.482048]  ___sys_sendmsg+0x78/0xb0
+  [   14.482580]  ? vmf_insert_pfn_prot+0x91/0x150
+  [   14.483215]  ? __do_fault+0x2a/0x1a0
+  [   14.483738]  ? do_fault+0x15e/0x5d0
+  [   14.484246]  ? __handle_mm_fault+0x56b/0x1040
+  [   14.484874]  ? lock_is_held_type+0xdf/0x130
+  [   14.485474]  ? find_held_lock+0x2d/0x90
+  [   14.486046]  ? __sys_sendmsg+0x41/0x70
+  [   14.486587]  __sys_sendmsg+0x41/0x70
+  [   14.487105]  ? intel_pmu_drain_pebs_core+0x350/0x350
+  [   14.487822]  do_syscall_64+0x34/0x80
+  [   14.488345]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  [...]
+
+The test scenario has the following flow:
+
+thread1                               thread2
+-----------                           ---------------
+ tcp_bpf_sendmsg
+  tcp_bpf_send_verdict
+   tcp_bpf_sendmsg_redir              sock_close
+    tcp_bpf_push_locked                 __sock_release
+     tcp_bpf_push                         //inet_release
+      do_tcp_sendpages                    sock->ops->release
+       sk_stream_wait_memory          	   // tcp_close
+          sk_wait_event                      sk->sk_prot->close
+           release_sock(__sk);
+            ***
+                                                lock_sock(sk);
+                                                  __tcp_close
+                                                    sock_orphan(sk)
+                                                      sk->sk_wq  = NULL
+                                                release_sock
+            ****
+           lock_sock(__sk);
+          remove_wait_queue(sk_sleep(sk), &wait);
+             sk_sleep(sk)
+             //NULL pointer dereference
+             &rcu_dereference_raw(sk->sk_wq)->wait
+
+While waiting for memory in thread1, the socket is released with its wait
+queue because thread2 has closed it. This caused by tcp_bpf_send_verdict
+didn't increase the f_count of psock->sk_redir->sk_socket->file in thread1.
+
+We should check if SOCK_DEAD flag is set on wakeup in sk_stream_wait_memory
+before accessing the wait queue.
+
+Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/bpf/20220823133755.314697-2-liujian56@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/sht4x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/stream.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/sht4x.c b/drivers/hwmon/sht4x.c
-index c19df3ade48e..13ac2d8f22c7 100644
---- a/drivers/hwmon/sht4x.c
-+++ b/drivers/hwmon/sht4x.c
-@@ -129,7 +129,7 @@ static int sht4x_read_values(struct sht4x_data *data)
+diff --git a/net/core/stream.c b/net/core/stream.c
+index ccc083cdef23..1105057ce00a 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -159,7 +159,8 @@ int sk_stream_wait_memory(struct sock *sk, long *timeo_p)
+ 		*timeo_p = current_timeo;
+ 	}
+ out:
+-	remove_wait_queue(sk_sleep(sk), &wait);
++	if (!sock_flag(sk, SOCK_DEAD))
++		remove_wait_queue(sk_sleep(sk), &wait);
+ 	return err;
  
- static ssize_t sht4x_interval_write(struct sht4x_data *data, long val)
- {
--	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, UINT_MAX);
-+	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, INT_MAX);
- 
- 	return 0;
- }
+ do_error:
 -- 
 2.35.1
 
