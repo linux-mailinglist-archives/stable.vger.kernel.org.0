@@ -2,53 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 075F05F8E7F
+	by mail.lfdr.de (Postfix) with ESMTP id A9BED5F8E81
 	for <lists+stable@lfdr.de>; Sun,  9 Oct 2022 22:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231144AbiJIU7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 16:59:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60188 "EHLO
+        id S230207AbiJIU7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 16:59:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230374AbiJIU5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:57:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0322CDFE;
-        Sun,  9 Oct 2022 13:54:00 -0700 (PDT)
+        with ESMTP id S231150AbiJIU5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 16:57:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23053206F;
+        Sun,  9 Oct 2022 13:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3773460C92;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A18AB80DCF;
+        Sun,  9 Oct 2022 20:54:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E7CC433D6;
         Sun,  9 Oct 2022 20:53:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 615D5C433D7;
-        Sun,  9 Oct 2022 20:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665348838;
-        bh=/OXXMxHwFAPpWYWH3Twq50RGB1+01cfTvXGSwWG1oCs=;
+        s=k20201202; t=1665348840;
+        bh=mJaAX5aQnkjIe12CCLao8bgMgMSX4vYZAqRvmLN19Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6kmZYhzjVOfcHWKDS8MPdqFsfMzKmNIvaTv7jBXhTrBke/rHeSW1kjUOn6eY6ScP
-         3cJskZ6hBxucci7Gi9QdZHHe/P4b0ig2x+bF1Jy9z+xCNsQuB5TFlx5lnbbMjS8mgl
-         Q8/WP6Z7ha+MA1sNPYBMFSm2OFv5N+U9fdM13Wvv8uSOaznTYa5CT80r3eAeA37KX/
-         SlPmPegLb1R/qSbTsmKgpgDh7HPnkw17CJTf+d1kQGE0ltPc1JcgPGhjqUsSfseaIY
-         YkIDG1bfNX3wmvxiewNPJJamXCrN6LMWShIs2kh0VUx1drQqPAIsqX7ZgPXOiPrpIB
-         o/2FPq4OHLBFA==
+        b=tbluvfSstBzJ0c+sXODeSNm46MnaUKfDEkF42d2Tr7NgL0ik5VcL+xSBLMSpH87jF
+         6oFvj+lCAZP2+4sTJ/0y1RI9idf3EUoo+WEhyzaqq4IhP7F1xdWOcG/VxLfw2SEWR2
+         2jV64KjwSaYjKdaRARQXVoSsc8kaDrokZm/WmVrIjRqSR2R7OdgRXiiQzPzxFpbgQu
+         jweN6T/4Dnn6MmJ9GhiHzptXInE0JCfG/dJbRkKbiv1hyuxybQCKWS9FQH7rfcflEE
+         7J8s4++xBC6iAkVxSM/62goYTEREpV/pFPjFmgdhbKlR024yxbhzH3yl99XvAT96fs
+         CvGVLK8UfcZ7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 04/10] MIPS: BCM47XX: Cast memcmp() of function to (void *)
-Date:   Sun,  9 Oct 2022 16:53:43 -0400
-Message-Id: <20221009205350.1203176-4-sashal@kernel.org>
+Cc:     Chao Qin <chao.qin@intel.com>, Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/10] powercap: intel_rapl: fix UBSAN shift-out-of-bounds issue
+Date:   Sun,  9 Oct 2022 16:53:44 -0400
+Message-Id: <20221009205350.1203176-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009205350.1203176-1-sashal@kernel.org>
 References: <20221009205350.1203176-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,57 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Chao Qin <chao.qin@intel.com>
 
-[ Upstream commit 0dedcf6e3301836eb70cfa649052e7ce4fcd13ba ]
+[ Upstream commit 2d93540014387d1c73b9ccc4d7895320df66d01b ]
 
-Clang is especially sensitive about argument type matching when using
-__overloaded functions (like memcmp(), etc). Help it see that function
-pointers are just "void *". Avoids this error:
+When value < time_unit, the parameter of ilog2() will be zero and
+the return value is -1. u64(-1) is too large for shift exponent
+and then will trigger shift-out-of-bounds:
 
-arch/mips/bcm47xx/prom.c:89:8: error: no matching function for call to 'memcmp'
-                   if (!memcmp(prom_init, prom_init + mem, 32))
-                        ^~~~~~
-include/linux/string.h:156:12: note: candidate function not viable: no known conversion from 'void (void)' to 'const void *' for 1st argument extern int memcmp(const void *,const void *,__kernel_size_t);
+shift exponent 18446744073709551615 is too large for 32-bit type 'int'
+Call Trace:
+ rapl_compute_time_window_core
+ rapl_write_data_raw
+ set_time_window
+ store_constraint_time_window_us
 
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: "Rafał Miłecki" <zajec5@gmail.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: llvm@lists.linux.dev
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202209080652.sz2d68e5-lkp@intel.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Chao Qin <chao.qin@intel.com>
+Acked-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm47xx/prom.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/powercap/intel_rapl_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/bcm47xx/prom.c b/arch/mips/bcm47xx/prom.c
-index 3e2a8166377f..22509b5fab74 100644
---- a/arch/mips/bcm47xx/prom.c
-+++ b/arch/mips/bcm47xx/prom.c
-@@ -86,7 +86,7 @@ static __init void prom_init_mem(void)
- 			pr_debug("Assume 128MB RAM\n");
- 			break;
- 		}
--		if (!memcmp(prom_init, prom_init + mem, 32))
-+		if (!memcmp((void *)prom_init, (void *)prom_init + mem, 32))
- 			break;
- 	}
- 	lowmem = mem;
-@@ -163,7 +163,7 @@ void __init bcm47xx_prom_highmem_init(void)
- 
- 	off = EXTVBASE + __pa(off);
- 	for (extmem = 128 << 20; extmem < 512 << 20; extmem <<= 1) {
--		if (!memcmp(prom_init, (void *)(off + extmem), 16))
-+		if (!memcmp((void *)prom_init, (void *)(off + extmem), 16))
- 			break;
- 	}
- 	extmem -= lowmem;
+diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
+index 70d6d52bc1e2..64a86990671a 100644
+--- a/drivers/powercap/intel_rapl_common.c
++++ b/drivers/powercap/intel_rapl_common.c
+@@ -938,6 +938,9 @@ static u64 rapl_compute_time_window_core(struct rapl_package *rp, u64 value,
+ 		y = value & 0x1f;
+ 		value = (1 << y) * (4 + f) * rp->time_unit / 4;
+ 	} else {
++		if (value < rp->time_unit)
++			return 0;
++
+ 		do_div(value, rp->time_unit);
+ 		y = ilog2(value);
+ 		f = div64_u64(4 * (value - (1 << y)), 1 << y);
 -- 
 2.35.1
 
