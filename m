@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B1D5F9287
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9E75F9286
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbiJIWt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
+        id S233411AbiJIWt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:49:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233213AbiJIWsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:48:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E424A21B5;
-        Sun,  9 Oct 2022 15:24:38 -0700 (PDT)
+        with ESMTP id S233065AbiJIWs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:48:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487B738444;
+        Sun,  9 Oct 2022 15:24:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 672AF60CF5;
-        Sun,  9 Oct 2022 22:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB095C43470;
-        Sun,  9 Oct 2022 22:22:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2B5E60C2B;
+        Sun,  9 Oct 2022 22:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3981C433D6;
+        Sun,  9 Oct 2022 22:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665354178;
-        bh=2Sj7O+erMHJGAMzPNnqV1KY//aM847UrlErlhJZbn0A=;
+        s=k20201202; t=1665354183;
+        bh=gFrW7cGD5JJ4ll2P3SrnHW8IEKo4ms+qt3S6ja08OKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRl3SprXVddMbSHbvvBZEcQlgDd0hmmv3kWfj3enqPnSP8dfJ+t3bpdVZwnDQ2TmG
-         azgyuOhoLqJUAc37dEYVtvQdqZSpDndKyeeRkxioVo0zMc2crX6Tq/Ma/wNI04Ljtv
-         2C01q+JAx1RJ8rhKM1yk7m6BfXH8UQNdhaME0Kh8uDzGBfR//mXzkAgp8w47MBB2N9
-         NXtuXcxMF3Wy6cwMZ8/xP9YMogvYrPYPs5/8ir0jrD5DsB89NuEJQH/UDxEr4SRbWa
-         FxSFvrT5suqvlP5PFKsHS26Awq102oNH12edrYX/EsRU8SUWC2CMyVDGUujwOGJT6J
-         5vgPBE0iBghnA==
+        b=powlyeuP6sZk2roy5xM/QPpGVcWkLIKawAgopO+hJCZrPKZsqIcowy9QFHAl1JnFj
+         MMjXWGwJtOg/5wqrnkartkz5drsXFVEcTc6nqEvLK5Fc0jfq9lKHsZNXTKcIm7Op81
+         JPXaF5yydEGoi0GrEiQHlAQtWRwI+KqI/4FrD1hqqHgJCuJUFNOEjW03lrwQ+YTaLV
+         OWk7YW5eXAcHJFfM9anK+fub9/Grngsa9pJvpZk5BtKAtCHnxB0anC4LYy7b4kgfXn
+         kfwzMGtc/vSQiPdepywQDyvgGbUYi+3iG8qqR0/psqMNn7Z8xmyYLjigjDFt71vgFf
+         3HK4hzyT5SqVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xin Liu <liuxin350@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        daniel@iogearbox.net, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 33/34] libbpf: Fix overrun in netlink attribute iteration
-Date:   Sun,  9 Oct 2022 18:21:27 -0400
-Message-Id: <20221009222129.1218277-33-sashal@kernel.org>
+Cc:     Andrew Gaul <gaul@gaul.org>, Andrew Gaul <gaul@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, hayeswang@realtek.com,
+        jflf_kernel@gmx.com, aaron.ma@canonical.com, dober6023@gmail.com,
+        svenva@chromium.org, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 34/34] r8152: Rate limit overflow messages
+Date:   Sun,  9 Oct 2022 18:21:28 -0400
+Message-Id: <20221009222129.1218277-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009222129.1218277-1-sashal@kernel.org>
 References: <20221009222129.1218277-1-sashal@kernel.org>
@@ -56,36 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Liu <liuxin350@huawei.com>
+From: Andrew Gaul <gaul@gaul.org>
 
-[ Upstream commit 51e05a8cf8eb34da7473823b7f236a77adfef0b4 ]
+[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
 
-I accidentally found that a change in commit 1045b03e07d8 ("netlink: fix
-overrun in attribute iteration") was not synchronized to the function
-`nla_ok` in tools/lib/bpf/nlattr.c, I think it is necessary to modify,
-this patch will do it.
+My system shows almost 10 million of these messages over a 24-hour
+period which pollutes my logs.
 
-Signed-off-by: Xin Liu <liuxin350@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220930090708.62394-1-liuxin350@huawei.com
+Signed-off-by: Andrew Gaul <gaul@google.com>
+Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/nlattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/r8152.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/nlattr.c b/tools/lib/bpf/nlattr.c
-index b607fa9852b1..8f00a2ee5762 100644
---- a/tools/lib/bpf/nlattr.c
-+++ b/tools/lib/bpf/nlattr.c
-@@ -32,7 +32,7 @@ static struct nlattr *nla_next(const struct nlattr *nla, int *remaining)
- 
- static int nla_ok(const struct nlattr *nla, int remaining)
- {
--	return remaining >= sizeof(*nla) &&
-+	return remaining >= (int)sizeof(*nla) &&
- 	       nla->nla_len >= sizeof(*nla) &&
- 	       nla->nla_len <= remaining;
- }
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 0bb5b1c78654..a526242a3e36 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -1689,7 +1689,9 @@ static void intr_callback(struct urb *urb)
+ 			   "Stop submitting intr, status %d\n", status);
+ 		return;
+ 	case -EOVERFLOW:
+-		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
++		if (net_ratelimit())
++			netif_info(tp, intr, tp->netdev,
++				   "intr status -EOVERFLOW\n");
+ 		goto resubmit;
+ 	/* -EPIPE:  should clear the halt */
+ 	default:
 -- 
 2.35.1
 
