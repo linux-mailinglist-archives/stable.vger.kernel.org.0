@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D90B35F8F71
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5355F8F6D
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 00:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230484AbiJIWIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 18:08:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
+        id S230434AbiJIWIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 18:08:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230301AbiJIWI0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:08:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF396286F5;
+        with ESMTP id S230362AbiJIWIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 18:08:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79E7286FB;
         Sun,  9 Oct 2022 15:08:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E675B80DCD;
-        Sun,  9 Oct 2022 22:08:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08B51C4347C;
-        Sun,  9 Oct 2022 22:08:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E90360C93;
+        Sun,  9 Oct 2022 22:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D81C433C1;
+        Sun,  9 Oct 2022 22:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665353292;
-        bh=x0O9W2XoIIMXYnl74aXnnkx0BzJcyvrdEjk6w1tkkfU=;
+        s=k20201202; t=1665353294;
+        bh=Xkhp6qFYAJNu1xrHgYYTR3y2exUAugmzcx115MDESBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvDxvORL3SEUcTpC+b9eQro8ENXw36/obFpCfRJrkUVdMmpi1hp5dQkyIPdgxZOBf
-         0DVYg3plWE2sJXJLnX4WZXoSVCvXQswBO3T2q9/jszJ2Bm6JL6JUxK8dQCBA1sbf7b
-         kfYZb3Sx8u4MHblWIqsK3QxFGGRUi+Tp8/g9cdfThJjhxqcSGfMvrX3/NKoZ3ExqCu
-         /y35aVY6fbjbU0TxgYgMJpWrG6EKeRVjujx0dSxOyWAImVAlziVxxIqap0LMQTYODC
-         0u0gd/yCKkZhiJupywF1Gqq+y4KnYkBwcLgXViBSQE05onus2aXdR9R6DWsSmhC7x4
-         8rB97dMxP49PA==
+        b=QP8+pUWmgelOTE0ABp0o0bZ0DckZswlyeWcy0ps3cJmNxE1L7RH2x71kzuCCF0Fw3
+         fe/YhY62kyrNdkpNR32JQxL0yUZf5KUKBkEvJsqN9ppJolqHJk/p7NhiRxjjoyJnT9
+         koWNcHnP6QzT+jo3ephNBGagOFqXw1HAi+mUrdddikR9DAUabPuj03aM3MJF0OBrE5
+         SJzseCWABY2/MbIyaP9xmzbHYROdaUFY7fm9hc6sFOCw4le59jGIh5FV0rnw6jl7k5
+         80JrmYR3jgdCdsBj8Xn395+n0kJZS0SiqoEoz8GxgDy0LMlZAf/agpZz1MXyQxnsN4
+         xX/WG3L98lkiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quentin Monnet <quentin@isovalent.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        andrii@kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 06/77] bpftool: Clear errno after libcap's checks
-Date:   Sun,  9 Oct 2022 18:06:43 -0400
-Message-Id: <20221009220754.1214186-6-sashal@kernel.org>
+Cc:     Jacob Keller <jacob.e.keller@intel.com>,
+        Gurucharan <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>, jesse.brandeburg@intel.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, intel-wired-lan@lists.osuosl.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 07/77] ice: set tx_tstamps when creating new Tx rings via ethtool
+Date:   Sun,  9 Oct 2022 18:06:44 -0400
+Message-Id: <20221009220754.1214186-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009220754.1214186-1-sashal@kernel.org>
 References: <20221009220754.1214186-1-sashal@kernel.org>
@@ -56,68 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin@isovalent.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit cea558855c39b7f1f02ff50dcf701ca6596bc964 ]
+[ Upstream commit b3b173745c8cab1e24d6821488b60abed3acb24d ]
 
-When bpftool is linked against libcap, the library runs a "constructor"
-function to compute the number of capabilities of the running kernel
-[0], at the beginning of the execution of the program. As part of this,
-it performs multiple calls to prctl(). Some of these may fail, and set
-errno to a non-zero value:
+When the user changes the number of queues via ethtool, the driver
+allocates new rings. This allocation did not initialize tx_tstamps. This
+results in the tx_tstamps field being zero (due to kcalloc allocation), and
+would result in a NULL pointer dereference when attempting a transmit
+timestamp on the new ring.
 
-    # strace -e prctl ./bpftool version
-    prctl(PR_CAPBSET_READ, CAP_MAC_OVERRIDE) = 1
-    prctl(PR_CAPBSET_READ, 0x30 /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    prctl(PR_CAPBSET_READ, CAP_CHECKPOINT_RESTORE) = 1
-    prctl(PR_CAPBSET_READ, 0x2c /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    prctl(PR_CAPBSET_READ, 0x2a /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    prctl(PR_CAPBSET_READ, 0x29 /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    ** fprintf added at the top of main(): we have errno == 1
-    ./bpftool v7.0.0
-    using libbpf v1.0
-    features: libbfd, libbpf_strict, skeletons
-    +++ exited with 0 +++
-
-This has been addressed in libcap 2.63 [1], but until this version is
-available everywhere, we can fix it on bpftool side.
-
-Let's clean errno at the beginning of the main() function, to make sure
-that these checks do not interfere with the batch mode, where we error
-out if errno is set after a bpftool command.
-
-  [0] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/libcap/cap_alloc.c?h=libcap-2.65#n20
-  [1] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/commit/?id=f25a1b7e69f7b33e6afb58b3e38f3450b7d2d9a0
-
-Signed-off-by: Quentin Monnet <quentin@isovalent.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220815162205.45043-1-quentin@isovalent.com
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/main.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
-index 451cefc2d0da..ccd7457f92bf 100644
---- a/tools/bpf/bpftool/main.c
-+++ b/tools/bpf/bpftool/main.c
-@@ -435,6 +435,16 @@ int main(int argc, char **argv)
- 
- 	setlinebuf(stdout);
- 
-+#ifdef USE_LIBCAP
-+	/* Libcap < 2.63 hooks before main() to compute the number of
-+	 * capabilities of the running kernel, and doing so it calls prctl()
-+	 * which may fail and set errno to non-zero.
-+	 * Let's reset errno to make sure this does not interfere with the
-+	 * batch mode.
-+	 */
-+	errno = 0;
-+#endif
-+
- 	last_do_help = do_help;
- 	pretty_output = false;
- 	json_output = false;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index a6fff8ebaf9d..bbf6a300078e 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -2826,6 +2826,7 @@ ice_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring,
+ 		tx_rings[i].count = new_tx_cnt;
+ 		tx_rings[i].desc = NULL;
+ 		tx_rings[i].tx_buf = NULL;
++		tx_rings[i].tx_tstamps = &pf->ptp.port.tx;
+ 		err = ice_setup_tx_ring(&tx_rings[i]);
+ 		if (err) {
+ 			while (i--)
 -- 
 2.35.1
 
