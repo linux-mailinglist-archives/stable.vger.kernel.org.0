@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 843685F94DE
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:13:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C284C5F94E1
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 02:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231473AbiJJANT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Oct 2022 20:13:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56708 "EHLO
+        id S230092AbiJJAN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Oct 2022 20:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230514AbiJJAMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6598E1A3B6;
-        Sun,  9 Oct 2022 16:49:59 -0700 (PDT)
+        with ESMTP id S230164AbiJJAMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Oct 2022 20:12:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3FB62A96D;
+        Sun,  9 Oct 2022 16:50:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DA6AB80DE4;
-        Sun,  9 Oct 2022 23:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 325CEC433D7;
-        Sun,  9 Oct 2022 23:49:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E0F060DB4;
+        Sun,  9 Oct 2022 23:50:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A3E1C433C1;
+        Sun,  9 Oct 2022 23:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665359396;
-        bh=T//Mq0MV/vPrzN/kQ3SK6QnEFdooxLJ2GbtjTJnDnIg=;
+        s=k20201202; t=1665359405;
+        bh=flhMqOyp2jHHYjkvWABjQ6X28xgOgGeP/qWxCP2QoLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNr2Bl15ayFbrtmbyLoA4195TFEAaOwbCwRSa99sAWuj/mnSLR+UubaRMZqApQ17F
-         pZdOkAyH1PlungTiSlVJr7xuaXIl6RsezHCsLtr5EHy0KMcXufl1fFENlF/6GiBLLR
-         arS2q9NHDQErO+AMMUPKB0yiWWGV0gr6T5ldXzoweKGdUCYxFD9ik47EJCDPK1kvaB
-         4Hdwfy7hB5sy1d+w5Qh5xXWGcB3UYjIxuxBBjWAM8T1XZZr91JxMLUMLiGZIdLCRDx
-         KtXov1ZRK/C4i60m/IKDH0NBvj/FoVGf1udPN0ilZ5dMETSYpT+TngQBrQyNJvC6iM
-         asJD1ptWdyS0w==
+        b=gXY7GBBUA9z8rwrz64Cv3ZJ4LLxHDaAHVnbqulwE9Eelp2Y4Io/x+MRYJT4/xaX08
+         8jQKWq7d1u/wRkAUeJiNe05H+Re5SSxJbEcj1HlVIHNdCPSugeCWaOMYeFC1QjEjIf
+         FR/eUAVj/iQx4N522K+zYiTnz9VzArsZoX/6oSM9axZyUBDJgv69momh2+kBOxE6vu
+         VgRu0Aiyxnospb7A0xYI732PffR3NkW+TVf0KCiIIAeJuW6fVzRaI8/WJqstC3QgKv
+         AXQQma7W5bsgdFPXHjGP0dilwHWob9h075s6gFVsivI8TTq7FRfAsBVdF8ph5m+XUo
+         5+QHZUe5iU8Aw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 10/44] platform/x86: pmc_atom: Improve quirk message to be less cryptic
-Date:   Sun,  9 Oct 2022 19:48:58 -0400
-Message-Id: <20221009234932.1230196-10-sashal@kernel.org>
+Cc:     Bernard Zhao <bernard@vivo.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, nicholas.kazlauskas@amd.com,
+        agustin.gutierrez@amd.com, Charlene.Liu@amd.com,
+        michael.strauss@amd.com, mwen@igalia.com, Eric.Yang2@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 11/44] drm/amd: fix potential memory leak
+Date:   Sun,  9 Oct 2022 19:48:59 -0400
+Message-Id: <20221009234932.1230196-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221009234932.1230196-1-sashal@kernel.org>
 References: <20221009234932.1230196-1-sashal@kernel.org>
@@ -56,35 +61,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Bernard Zhao <bernard@vivo.com>
 
-[ Upstream commit 32c9b75640aeb1b144f9e2963c1640f4cef7c6f2 ]
+[ Upstream commit 6160216fd2c97107e8a9ab39863b056d677fcd85 ]
 
-Not everyone can get what "critclks" means in the message, improve
-it to make less cryptic.
+This patch fix potential memory leak (clk_src) when function run
+into last return NULL.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220801113734.36131-2-andriy.shevchenko@linux.intel.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+s/free/kfree/ - Alex
+
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/pmc_atom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index 5c757c7f64de..f4046572a9fe 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -354,7 +354,7 @@ static bool pmc_clk_is_critical = true;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
+index 44ac1c2aabf5..b96e8089aaa3 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
+@@ -1719,6 +1719,7 @@ static struct clock_source *dcn30_clock_source_create(
+ 	}
  
- static int dmi_callback(const struct dmi_system_id *d)
- {
--	pr_info("%s critclks quirk enabled\n", d->ident);
-+	pr_info("%s: PMC critical clocks quirk enabled\n", d->ident);
- 
- 	return 1;
+ 	BREAK_TO_DEBUGGER();
++	kfree(clk_src);
+ 	return NULL;
  }
+ 
 -- 
 2.35.1
 
