@@ -2,119 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A83395F9E4B
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 14:04:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A06CA5F9E63
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 14:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231891AbiJJMEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 08:04:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59542 "EHLO
+        id S231976AbiJJMKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 08:10:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231961AbiJJMEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 08:04:09 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4EB961D74
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 05:04:02 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id bg9-20020a05600c3c8900b003bf249616b0so6267751wmb.3
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 05:04:02 -0700 (PDT)
+        with ESMTP id S231731AbiJJMKl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 08:10:41 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB7E658DF7
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 05:10:40 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id v10-20020a17090a634a00b00205e48cf845so12908645pjs.4
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 05:10:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:organization:from:reply-to
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=anupc4X0yEkslqWKC62ceahK3G1bRO/6awTx/DjrXFY=;
-        b=XNtx65jOCrdtHOvpAYPzGEIcsToZ4E+YRQ+lQ3tLDOQVnAjXzokwPSIV8KHt3qrQ5A
-         xwgc3UHA4CJewkbWylvogz2sTkeGXeImQTKW4Mbcw9iLxfQHkMUDIzxWx7Tft0CjC4Si
-         TYbZ9dtRJ1F2Z0Y+bfq5WdW1+otL8ZFbsBOibPag9I7tjHQN3Jb7mJy6umHqsCLlnG3F
-         7r1DUoZW1Nz/ZgQ8dPk7lbHj4vkfysJe7ZuWcQbMdDYxsevfZz/Na6uWVdTBQjIsKtVP
-         MHFE6smnhcoWlE4DBg9KaGikefc/unMT13qTaE3jpepbPnd5Krdqt+rwo1i6JgpapflS
-         uzgg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=PnDrntg9FRxZgjPvPumhzRHYnD8TrwvvN+eeUcVszL0=;
+        b=2vm6AiFO3PC712+VC8DCqtRK8zr42T/7EJMcqucS4eFC1JSnxfE0a6xo1q9g/rBXjW
+         WWXzN/2cJi9IQOPFNStugihvshUa4Kgp74eUyMmflWH7RRa1kBPFZdWaec2hzD8ey7JX
+         FFuwy4+2l2wpHgpX0nMs3PBBxuiaGsLWKxBEBEY/0BIi3+ga4bjMcinSEA1RAjnrjBNO
+         Lx8d1/vdbeNPAoKDFETaDiECleDnVr5Qy3OX+NUV8v0FAfnTyis5wCzTdptGRdvnm7nv
+         60ovvK+3kgjauwf34QYihQWdFde8fe1XDhAF/aoYnKA4Oe386Jm7yJRu8lNIud0XCD67
+         LoYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:reply-to
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=anupc4X0yEkslqWKC62ceahK3G1bRO/6awTx/DjrXFY=;
-        b=u96uhGEWT1mUFqnk+Rkqd+ZfKfyN9hy8gb1+peUMC8cw2T69HxNItXGySbVnxPax5y
-         xVkCu3jKC/dLPWsM/rn0uiNSeXtsN5MguM2Ppdt+JGa73XCF2zDzj1tK5GjNxLBC+Lme
-         q+4ymuGitp+bnMogJSxeXygqXnm6jdM620+ZsUOaaS1bKv+UA/bikzBx7tMc3WJ9G+gJ
-         MMjMaOweSNdDO/oeTlLuS0DgWBWsmATvyp3doG7VQK2KYORSBP4b2yMw7cIGvHIqGHWa
-         drBD7QzpCex/KDDEvPr5V0UH2i+esdvbNH0Yrp3833UmGo+GDsT3MvmU2jLOxOJnJJo2
-         wYWA==
-X-Gm-Message-State: ACrzQf2/y5t4OYbbW3h0P5Y5e8gs4uOYQ4/eMXZK0u2FqV/8h6/Vyncd
-        Ku441PG+kexH9m3xJKHY3u9Tlg==
-X-Google-Smtp-Source: AMsMyM5WhmkC9zQn6K5Zcxtc7sS4mTlFVp3bIYMUmhkCnJPdtTGjGloyPN9n0NLIBomMJYMAAlkMcQ==
-X-Received: by 2002:a05:600c:198d:b0:3b4:a62c:a085 with SMTP id t13-20020a05600c198d00b003b4a62ca085mr18698587wmq.140.1665403441074;
-        Mon, 10 Oct 2022 05:04:01 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:982:cbb0:1d81:c6ce:69e8:c0? ([2a01:e0a:982:cbb0:1d81:c6ce:69e8:c0])
-        by smtp.gmail.com with ESMTPSA id l9-20020adfe589000000b0022e6178bd84sm8711022wrm.8.2022.10.10.05.04.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Oct 2022 05:04:00 -0700 (PDT)
-Message-ID: <6cc7ef4b-8c11-96ad-76dd-77a4e2de3d2b@linaro.org>
-Date:   Mon, 10 Oct 2022 14:03:59 +0200
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=PnDrntg9FRxZgjPvPumhzRHYnD8TrwvvN+eeUcVszL0=;
+        b=gRqtlEo7/2dKbQyhavZYOaJrqMaHeipLqfZ/5Q37WQ2nfCUa3Q3C3wGhcRLJaFY5NP
+         pyY35HxRwlJa4/uuqwoKOshmJWo2Dx8Q3wP/e4lVI6iuUNzypR7VO7NKi5ZuB6AozaU3
+         ZbX1YdBU98ZDjv1+rw7O0Nx+DWgX5R/bvk/sdM3QyG8skeslOzh9oet/Ym51yBUNgnc6
+         YKR/iPfMIVfOToPwf+g/aKZcGvCETRNLv/S/kjLGealF0MjkqaexFFeO/Q8PTaHEiBPV
+         VPkx6pnTdLEdH7ZMNFzPEK9BXoXYjPQHGMbG2KupABT8idozZlUYGZI4IpB7Iig+9n6u
+         DBzA==
+X-Gm-Message-State: ACrzQf0SjFJ8+bz4wD6l7MsFZflr4Bs6rt+xbnTWl385ubebAwFhftUI
+        +SUvokURGVSvN0hjD4j95aMnGeiCd8EdQz4pU2k=
+X-Google-Smtp-Source: AMsMyM7zSxwC7jTnGQbPunQp6bIX9whRp48nCBc1pVisaxu6cGIpoWzUvT2VNX0bRYv3Qy4UXXhb3Q==
+X-Received: by 2002:a17:90b:1808:b0:20c:8409:2007 with SMTP id lw8-20020a17090b180800b0020c84092007mr13921104pjb.226.1665403840223;
+        Mon, 10 Oct 2022 05:10:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id je17-20020a170903265100b00174abcb02d6sm6432177plb.235.2022.10.10.05.10.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Oct 2022 05:10:39 -0700 (PDT)
+Message-ID: <63440bbf.170a0220.a5ac3.aadd@mx.google.com>
+Date:   Mon, 10 Oct 2022 05:10:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH v2 2/6] arm64: dts: qcom: sdm845-db845c: correct SPI2 pins
- drive strength
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Vinod Koul <vkoul@kernel.org>, Xilin Wu <wuxilin123@gmail.com>,
-        Molly Sophia <mollysophia379@gmail.com>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20221010114417.29859-1-krzysztof.kozlowski@linaro.org>
- <20221010114417.29859-2-krzysztof.kozlowski@linaro.org>
-Content-Language: en-US
-Reply-To: neil.armstrong@linaro.org
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Organization: Linaro Developer Services
-In-Reply-To: <20221010114417.29859-2-krzysztof.kozlowski@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.19.14-49-g2e79dbde2710b
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.19.y baseline: 180 runs,
+ 3 regressions (v5.19.14-49-g2e79dbde2710b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/10/2022 13:44, Krzysztof Kozlowski wrote:
-> The pin configuration (done with generic pin controller helpers and
-> as expressed by bindings) requires children nodes with either:
-> 1. "pins" property and the actual configuration,
-> 2. another set of nodes with above point.
-> 
-> The qup_spi2_default pin configuration uses alreaady the second method
-> with a "pinmux" child, so configure drive-strength similarly in
-> "pinconf".  Otherwise the PIN drive strength would not be applied.
-> 
-> Fixes: 8d23a0040475 ("arm64: dts: qcom: db845c: add Low speed expansion i2c and spi nodes")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> 
-> ---
-> 
-> Not tested on hardware.
-> 
-> Changes since v1:
-> 1. Put it under pinconf instead of pinmux, as suggested by Doug.
-> ---
+stable-rc/linux-5.19.y baseline: 180 runs, 3 regressions (v5.19.14-49-g2e79=
+dbde2710b)
 
-<snip>
+Regressions Summary
+-------------------
 
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-10   | defconfig         =
+  | 1          =
+
+imx7ulp-evk          | arm   | lab-nxp      | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+imx7ulp-evk          | arm   | lab-nxp      | gcc-10   | multi_v7_defconfig=
+  | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
+nel/v5.19.14-49-g2e79dbde2710b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.19.y
+  Describe: v5.19.14-49-g2e79dbde2710b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2e79dbde2710b3939943c5d2ea3028329b820e9f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-10   | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6343d943ac0310c98bcab5f7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+4-49-g2e79dbde2710b/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unl=
+eashed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+4-49-g2e79dbde2710b/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unl=
+eashed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6343d943ac0310c98bcab=
+5f8
+        failing since 13 days (last pass: v5.19.11-208-gf962b265cecbb, firs=
+t fail: v5.19.11-208-gddfc037235223) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+imx7ulp-evk          | arm   | lab-nxp      | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6343d8280620402075cab5fc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+4-49-g2e79dbde2710b/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp=
+-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+4-49-g2e79dbde2710b/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp=
+-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6343d8280620402075cab=
+5fd
+        failing since 13 days (last pass: v5.19.10-40-g8d4fd61ab089, first =
+fail: v5.19.11-208-gddfc037235223) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+imx7ulp-evk          | arm   | lab-nxp      | gcc-10   | multi_v7_defconfig=
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6343dad4df56f1a25bcab640
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+4-49-g2e79dbde2710b/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-=
+evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+4-49-g2e79dbde2710b/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-=
+evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220919.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6343dad4df56f1a25bcab=
+641
+        failing since 13 days (last pass: v5.19.11, first fail: v5.19.11-20=
+8-gddfc037235223) =
+
+ =20
