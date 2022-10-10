@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E89F75F994E
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:10:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EA15F9995
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231422AbiJJHKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:10:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35824 "EHLO
+        id S232020AbiJJHOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:14:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231802AbiJJHJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:09:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AD375BC3D;
-        Mon, 10 Oct 2022 00:06:15 -0700 (PDT)
+        with ESMTP id S232030AbiJJHMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:12:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DE2F5EDD3;
+        Mon, 10 Oct 2022 00:08:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EB57B80E5C;
-        Mon, 10 Oct 2022 07:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65A62C433D7;
-        Mon, 10 Oct 2022 07:06:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 989E6B80E60;
+        Mon, 10 Oct 2022 07:08:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00DF7C433D6;
+        Mon, 10 Oct 2022 07:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385568;
-        bh=kEVzyc8uT2RwjoKkZI5RjRz4QrD+XKGFvbKecr0kE8g=;
+        s=korg; t=1665385686;
+        bh=U1YIBTobLGPtIEpiy0QykVj1EC6xjgv8Bd2UL63hik0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coRP6Ti7alPqJe3hd++95zGSj49cSzdm7Y0sMOGXm8uUUrU/cnP13oiAnCU7ZRJ7o
-         au8FEBPu9C4ofOVxKRPsZmKfw2XM0w48LnnlNB5+3jFK1Oqy0Q51FQ0cb4SSTgziiy
-         sQ/ASAc0oFcedUo2UDAACc88hLiIsbQHvuJeuv+8=
+        b=WsvgI2j7AMvFBSSQdnJfNnxtVUgyqsfas02dz/OoXNUpMc2VizpzHHXRNPetM2+gI
+         05TPr/uv8XT4cgSTCFKOyZPyCZkeNB86F7omzhFqtTVdlE98Fqd/+ZqzjfDh5zqQ5e
+         WTYRsf3tXyCDiixYQyb99LNdnolqxoGT8cO/pqxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Gow <davidgow@google.com>,
-        Lukas Straub <lukasstraub2@web.de>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.19 26/48] arch: um: Mark the stack non-executable to fix a binutils warning
-Date:   Mon, 10 Oct 2022 09:05:24 +0200
-Message-Id: <20221010070334.383070513@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 06/37] wait_on_bit: add an acquire memory barrier
+Date:   Mon, 10 Oct 2022 09:05:25 +0200
+Message-Id: <20221010070331.442847347@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
+References: <20221010070331.211113813@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +53,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit bd71558d585ac61cfd799db7f25e78dca404dd7a ]
+commit 8238b4579866b7c1bb99883cfe102a43db5506ff upstream.
 
-Since binutils 2.39, ld will print a warning if any stack section is
-executable, which is the default for stack sections on files without a
-.note.GNU-stack section.
+There are several places in the kernel where wait_on_bit is not followed
+by a memory barrier (for example, in drivers/md/dm-bufio.c:new_read).
 
-This was fixed for x86 in commit ffcf9c5700e4 ("x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments"),
-but remained broken for UML, resulting in several warnings:
+On architectures with weak memory ordering, it may happen that memory
+accesses that follow wait_on_bit are reordered before wait_on_bit and
+they may return invalid data.
 
-/usr/bin/ld: warning: arch/x86/um/vdso/vdso.o: missing .note.GNU-stack section implies executable stack
-/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
-/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1 has a LOAD segment with RWX permissions
-/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1.o: missing .note.GNU-stack section implies executable stack
-/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
-/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2 has a LOAD segment with RWX permissions
-/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2.o: missing .note.GNU-stack section implies executable stack
-/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
-/usr/bin/ld: warning: vmlinux has a LOAD segment with RWX permissions
+Fix this class of bugs by introducing a new function "test_bit_acquire"
+that works like test_bit, but has acquire memory ordering semantics.
 
-Link both the VDSO and vmlinux with -z noexecstack, fixing the warnings
-about .note.GNU-stack sections. In addition, pass --no-warn-rwx-segments
-to dodge the remaining warnings about LOAD segments with RWX permissions
-in the kallsyms objects. (Note that this flag is apparently not
-available on lld, so hide it behind a test for BFD, which is what the
-x86 patch does.)
-
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ffcf9c5700e49c0aee42dcba9a12ba21338e8136
-Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
-Signed-off-by: David Gow <davidgow@google.com>
-Reviewed-by: Lukas Straub <lukasstraub2@web.de>
-Tested-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/Makefile          | 8 ++++++++
- arch/x86/um/vdso/Makefile | 2 +-
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/bitops.h                        |   21 +++++++++++++++++++
+ include/asm-generic/bitops/instrumented-non-atomic.h |   12 ++++++++++
+ include/asm-generic/bitops/non-atomic.h              |   14 ++++++++++++
+ include/linux/buffer_head.h                          |    2 -
+ include/linux/wait_bit.h                             |    8 +++----
+ kernel/sched/wait_bit.c                              |    2 -
+ 6 files changed, 53 insertions(+), 6 deletions(-)
 
-diff --git a/arch/um/Makefile b/arch/um/Makefile
-index f2fe63bfd819..f1d4d67157be 100644
---- a/arch/um/Makefile
-+++ b/arch/um/Makefile
-@@ -132,10 +132,18 @@ export LDS_ELF_FORMAT := $(ELF_FORMAT)
- # The wrappers will select whether using "malloc" or the kernel allocator.
- LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
+--- a/arch/x86/include/asm/bitops.h
++++ b/arch/x86/include/asm/bitops.h
+@@ -207,6 +207,20 @@ static __always_inline bool constant_tes
+ 		(addr[nr >> _BITOPS_LONG_SHIFT])) != 0;
+ }
  
-+# Avoid binutils 2.39+ warnings by marking the stack non-executable and
-+# ignorning warnings for the kallsyms sections.
-+LDFLAGS_EXECSTACK = -z noexecstack
-+ifeq ($(CONFIG_LD_IS_BFD),y)
-+LDFLAGS_EXECSTACK += $(call ld-option,--no-warn-rwx-segments)
-+endif
++static __always_inline bool constant_test_bit_acquire(long nr, const volatile unsigned long *addr)
++{
++	bool oldbit;
 +
- LD_FLAGS_CMDLINE = $(foreach opt,$(KBUILD_LDFLAGS),-Wl,$(opt))
++	asm volatile("testb %2,%1"
++		     CC_SET(nz)
++		     : CC_OUT(nz) (oldbit)
++		     : "m" (((unsigned char *)addr)[nr >> 3]),
++		       "i" (1 << (nr & 7))
++		     :"memory");
++
++	return oldbit;
++}
++
+ static __always_inline bool variable_test_bit(long nr, volatile const unsigned long *addr)
+ {
+ 	bool oldbit;
+@@ -224,6 +238,13 @@ static __always_inline bool variable_tes
+ 	 ? constant_test_bit((nr), (addr))	\
+ 	 : variable_test_bit((nr), (addr)))
  
- # Used by link-vmlinux.sh which has special support for um link
- export CFLAGS_vmlinux := $(LINK-y) $(LINK_WRAPS) $(LD_FLAGS_CMDLINE)
-+export LDFLAGS_vmlinux := $(LDFLAGS_EXECSTACK)
++static __always_inline bool
++arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	return __builtin_constant_p(nr) ? constant_test_bit_acquire(nr, addr) :
++					  variable_test_bit(nr, addr);
++}
++
+ /**
+  * __ffs - find first set bit in word
+  * @word: The word to search
+--- a/include/asm-generic/bitops/instrumented-non-atomic.h
++++ b/include/asm-generic/bitops/instrumented-non-atomic.h
+@@ -135,4 +135,16 @@ static inline bool test_bit(long nr, con
+ 	return arch_test_bit(nr, addr);
+ }
  
- # When cleaning we don't include .config, so we don't include
- # TT or skas makefiles and don't clean skas_ptregs.h.
-diff --git a/arch/x86/um/vdso/Makefile b/arch/x86/um/vdso/Makefile
-index 5943387e3f35..5ca366e15c76 100644
---- a/arch/x86/um/vdso/Makefile
-+++ b/arch/x86/um/vdso/Makefile
-@@ -62,7 +62,7 @@ quiet_cmd_vdso = VDSO    $@
- 		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
- 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
++/**
++ * _test_bit_acquire - Determine, with acquire semantics, whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	instrument_atomic_read(addr + BIT_WORD(nr), sizeof(long));
++	return arch_test_bit_acquire(nr, addr);
++}
++
+ #endif /* _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H */
+--- a/include/asm-generic/bitops/non-atomic.h
++++ b/include/asm-generic/bitops/non-atomic.h
+@@ -3,6 +3,7 @@
+ #define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
  
--VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv
-+VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv -z noexecstack
- GCOV_PROFILE := n
+ #include <asm/types.h>
++#include <asm/barrier.h>
  
- #
--- 
-2.35.1
-
+ /**
+  * arch___set_bit - Set a bit in memory
+@@ -119,4 +120,17 @@ arch_test_bit(unsigned int nr, const vol
+ }
+ #define test_bit arch_test_bit
+ 
++/**
++ * arch_test_bit_acquire - Determine, with acquire semantics, whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static __always_inline bool
++arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++#define test_bit_acquire arch_test_bit_acquire
++
+ #endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
+--- a/include/linux/buffer_head.h
++++ b/include/linux/buffer_head.h
+@@ -166,7 +166,7 @@ static __always_inline int buffer_uptoda
+ 	 * make it consistent with folio_test_uptodate
+ 	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
+ 	 */
+-	return (smp_load_acquire(&bh->b_state) & (1UL << BH_Uptodate)) != 0;
++	return test_bit_acquire(BH_Uptodate, &bh->b_state);
+ }
+ 
+ #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
+--- a/include/linux/wait_bit.h
++++ b/include/linux/wait_bit.h
+@@ -71,7 +71,7 @@ static inline int
+ wait_on_bit(unsigned long *word, int bit, unsigned mode)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit(word, bit,
+ 				       bit_wait,
+@@ -96,7 +96,7 @@ static inline int
+ wait_on_bit_io(unsigned long *word, int bit, unsigned mode)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit(word, bit,
+ 				       bit_wait_io,
+@@ -123,7 +123,7 @@ wait_on_bit_timeout(unsigned long *word,
+ 		    unsigned long timeout)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit_timeout(word, bit,
+ 					       bit_wait_timeout,
+@@ -151,7 +151,7 @@ wait_on_bit_action(unsigned long *word,
+ 		   unsigned mode)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit(word, bit, action, mode);
+ }
+--- a/kernel/sched/wait_bit.c
++++ b/kernel/sched/wait_bit.c
+@@ -47,7 +47,7 @@ __wait_on_bit(struct wait_queue_head *wq
+ 		prepare_to_wait(wq_head, &wbq_entry->wq_entry, mode);
+ 		if (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags))
+ 			ret = (*action)(&wbq_entry->key, mode);
+-	} while (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
++	} while (test_bit_acquire(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
+ 
+ 	finish_wait(wq_head, &wbq_entry->wq_entry);
+ 
 
 
