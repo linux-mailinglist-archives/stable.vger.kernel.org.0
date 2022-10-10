@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 468795F99D9
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DCA5F996C
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbiJJHTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57340 "EHLO
+        id S231986AbiJJHMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232456AbiJJHSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:18:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B0F222BFB;
-        Mon, 10 Oct 2022 00:12:07 -0700 (PDT)
+        with ESMTP id S231848AbiJJHLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C4622BFA;
+        Mon, 10 Oct 2022 00:07:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E34760EA7;
-        Mon, 10 Oct 2022 07:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F412C433C1;
-        Mon, 10 Oct 2022 07:09:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1C7BB80E5A;
+        Mon, 10 Oct 2022 07:06:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C39EC433C1;
+        Mon, 10 Oct 2022 07:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385746;
-        bh=S+37KtSGUzleq/dZfn19t0o4NkUukA9tB4DzcRapmio=;
+        s=korg; t=1665385602;
+        bh=mtBG7YbGLH+hzkVaeIuOFkvDxRFlNPWGo/GBstJHbe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZrbEFzgSEZiNRv37TuJd8ceTx5yUpnGGeg7IqJvbPPgOvJm0SuC7NQBDcXJIQkMj
-         MycMX7mFfoPAOKAxmJ1MP21sA2Ypx2/V1+uRNDYZexpQmQoNy2puwaWJfnBUVFhpIJ
-         kfgW6eHDubOvSctHi2Ta8vKuOlkUQmbrJBXMMq4k=
+        b=YDBXPivQCYwfvZ5Nv31KQw0miYi4KOC6lBMokrpuHAy6P+bIyFrj3yCULTSIlz5pP
+         +bF2/7mQIj+U5DkOsvvDsLtSYbZcO3P07q74GGxRQJbtQu+YfEqT/mpBi2meKmf8M5
+         oOXPEQefnW0zN6R4tx9mRDSwpteudGsWg7xmFbJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 19/37] ALSA: hda/hdmi: Fix the converter reuse for the silent stream
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.19 40/48] gpiolib: acpi: Add support to ignore programming an interrupt
 Date:   Mon, 10 Oct 2022 09:05:38 +0200
-Message-Id: <20221010070331.778305155@linuxfoundation.org>
+Message-Id: <20221010070334.735457362@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
-References: <20221010070331.211113813@linuxfoundation.org>
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+References: <20221010070333.676316214@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 5f80d6bd2b01de4cafac3302f58456bf860322fc ]
+commit 6b6af7bd5718f4e45a9b930533aec1158387d552 upstream.
 
-When the user space pcm stream uses the silent stream converter,
-it is no longer allocated for the silent stream. Clear the appropriate
-flag in the hdmi_pcm_open() function. The silent stream setup may
-be applied in hdmi_pcm_close() (and the error path - open fcn) again.
+gpiolib-acpi already had support for ignoring a pin for wakeup, but
+if an OEM configures a floating pin as an interrupt source then
+stopping it from being a wakeup won't do much good to stop the
+interrupt storm.
 
-If the flag is not cleared, the reuse conditions for the silent
-stream converter in hdmi_choose_cvt() may improperly share
-this converter.
+Add support for a module parameter and quirk infrastructure to
+ignore interrupts as well.
 
-Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220913070216.3233974-1-perex@perex.cz
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpiolib-acpi.c |   24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index d3da42e0e7b3..1994a83fa391 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1270,6 +1270,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
- 	set_bit(pcm_idx, &spec->pcm_in_use);
- 	per_pin = get_pin(spec, pin_idx);
- 	per_pin->cvt_nid = per_cvt->cvt_nid;
-+	per_pin->silent_stream = false;
- 	hinfo->nid = per_cvt->cvt_nid;
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -32,9 +32,16 @@ MODULE_PARM_DESC(ignore_wake,
+ 		 "controller@pin combos on which to ignore the ACPI wake flag "
+ 		 "ignore_wake=controller@pin[,controller@pin[,...]]");
  
- 	/* flip stripe flag for the assigned stream if supported */
--- 
-2.35.1
-
++static char *ignore_interrupt;
++module_param(ignore_interrupt, charp, 0444);
++MODULE_PARM_DESC(ignore_interrupt,
++		 "controller@pin combos on which to ignore interrupt "
++		 "ignore_interrupt=controller@pin[,controller@pin[,...]]");
++
+ struct acpi_gpiolib_dmi_quirk {
+ 	bool no_edge_events_on_boot;
+ 	char *ignore_wake;
++	char *ignore_interrupt;
+ };
+ 
+ /**
+@@ -317,14 +324,15 @@ static struct gpio_desc *acpi_request_ow
+ 	return desc;
+ }
+ 
+-static bool acpi_gpio_in_ignore_list(const char *controller_in, unsigned int pin_in)
++static bool acpi_gpio_in_ignore_list(const char *ignore_list, const char *controller_in,
++				     unsigned int pin_in)
+ {
+ 	const char *controller, *pin_str;
+ 	unsigned int pin;
+ 	char *endp;
+ 	int len;
+ 
+-	controller = ignore_wake;
++	controller = ignore_list;
+ 	while (controller) {
+ 		pin_str = strchr(controller, '@');
+ 		if (!pin_str)
+@@ -348,7 +356,7 @@ static bool acpi_gpio_in_ignore_list(con
+ 
+ 	return false;
+ err:
+-	pr_err_once("Error: Invalid value for gpiolib_acpi.ignore_wake: %s\n", ignore_wake);
++	pr_err_once("Error: Invalid value for gpiolib_acpi.ignore_...: %s\n", ignore_list);
+ 	return false;
+ }
+ 
+@@ -360,7 +368,7 @@ static bool acpi_gpio_irq_is_wake(struct
+ 	if (agpio->wake_capable != ACPI_WAKE_CAPABLE)
+ 		return false;
+ 
+-	if (acpi_gpio_in_ignore_list(dev_name(parent), pin)) {
++	if (acpi_gpio_in_ignore_list(ignore_wake, dev_name(parent), pin)) {
+ 		dev_info(parent, "Ignoring wakeup on pin %u\n", pin);
+ 		return false;
+ 	}
+@@ -427,6 +435,11 @@ static acpi_status acpi_gpiochip_alloc_e
+ 		goto fail_unlock_irq;
+ 	}
+ 
++	if (acpi_gpio_in_ignore_list(ignore_interrupt, dev_name(chip->parent), pin)) {
++		dev_info(chip->parent, "Ignoring interrupt on pin %u\n", pin);
++		return AE_OK;
++	}
++
+ 	event = kzalloc(sizeof(*event), GFP_KERNEL);
+ 	if (!event)
+ 		goto fail_unlock_irq;
+@@ -1582,6 +1595,9 @@ static int __init acpi_gpio_setup_params
+ 	if (ignore_wake == NULL && quirk && quirk->ignore_wake)
+ 		ignore_wake = quirk->ignore_wake;
+ 
++	if (ignore_interrupt == NULL && quirk && quirk->ignore_interrupt)
++		ignore_interrupt = quirk->ignore_interrupt;
++
+ 	return 0;
+ }
+ 
 
 
