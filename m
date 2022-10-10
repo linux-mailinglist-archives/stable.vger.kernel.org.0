@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACAAF5F999E
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791605F995E
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:11:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231989AbiJJHOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:14:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34408 "EHLO
+        id S231720AbiJJHLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232236AbiJJHNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:13:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21BA7EA1;
-        Mon, 10 Oct 2022 00:09:25 -0700 (PDT)
+        with ESMTP id S231719AbiJJHLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6935D0C3;
+        Mon, 10 Oct 2022 00:07:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F06A60E44;
-        Mon, 10 Oct 2022 07:08:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22F13C433C1;
-        Mon, 10 Oct 2022 07:08:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B27C660E74;
+        Mon, 10 Oct 2022 07:06:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C7FC433D6;
+        Mon, 10 Oct 2022 07:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385699;
-        bh=Oo5dzfgUvi7RFuvhID2RTEtBjZh0y9xtz/tZcCFnyi8=;
+        s=korg; t=1665385605;
+        bh=TVmifSLd598vBmFBbOOzT6/vPAVc43mXl5Lyo9GcfsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZg5+1tYIzVg8cyGdNNMPMwhC6+Anlp2BnhZ53SzCEEAEWhccOtKXVeKKX6hXqrmp
-         vAht5Ow7jlZp5AVbC9FQecGun2vnSzHJG7lz00td1mUcz2SKA1ZT5MfzqoGxi/tcas
-         YxwJoqnMpU564KFivQce1jfUI5ahj80p3jkrDhvI=
+        b=R6EccrxsrIfWexeNBak+tUlhlOvw31noaVivhkRPNRapYeka35cmLJ+N/tVbtj+xJ
+         3Kh518AKqzz0fCK/oT70aHV+UZQdu/DJKUkPhin/3BvW3pbTsxCuq6bzYHtw31Wqfj
+         xstd0H89p9HWS3dXSR3fCiSqnmPiI3PK1eayUxQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.15 20/37] um: Cleanup syscall_handler_t cast in syscalls_32.h
+        stable@vger.kernel.org, Pavel Krc <reg.krn@pkrc.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.19 41/48] gpiolib: acpi: Add a quirk for Asus UM325UAZ
 Date:   Mon, 10 Oct 2022 09:05:39 +0200
-Message-Id: <20221010070331.802699830@linuxfoundation.org>
+Message-Id: <20221010070334.761150427@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
-References: <20221010070331.211113813@linuxfoundation.org>
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+References: <20221010070333.676316214@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Straub <lukasstraub2@web.de>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 61670b4d270c71219def1fbc9441debc2ac2e6e9 ]
+commit 0ea76c401f9245ac209f1b1ce03a7e1fb9de36e5 upstream.
 
-Like in f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9
-"um: Cleanup syscall_handler_t definition/cast, fix warning",
-remove the cast to to fix the compiler warning.
+Asus UM325UAZ has GPIO 18 programmed as both an interrupt and a wake
+source, but confirmed with internal team on this design this pin is
+floating and shouldn't have been programmed. This causes lots of
+spurious IRQs on the system and horrendous battery life.
 
-Signed-off-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a quirk to ignore attempts to program this pin on this system.
+
+Reported-by: Pavel Krc <reg.krn@pkrc.net>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216208
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/um/shared/sysdep/syscalls_32.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpio/gpiolib-acpi.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/x86/um/shared/sysdep/syscalls_32.h b/arch/x86/um/shared/sysdep/syscalls_32.h
-index 68fd2cf526fd..f6e9f84397e7 100644
---- a/arch/x86/um/shared/sysdep/syscalls_32.h
-+++ b/arch/x86/um/shared/sysdep/syscalls_32.h
-@@ -6,10 +6,9 @@
- #include <asm/unistd.h>
- #include <sysdep/ptrace.h>
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1573,6 +1573,20 @@ static const struct dmi_system_id gpioli
+ 			.ignore_wake = "INT33FF:01@0",
+ 		},
+ 	},
++	{
++		/*
++		 * Interrupt storm caused from edge triggered floating pin
++		 * Found in BIOS UX325UAZ.300
++		 * https://bugzilla.kernel.org/show_bug.cgi?id=216208
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UAZ_UM325UAZ"),
++		},
++		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
++			.ignore_interrupt = "AMDI0030:00@18",
++		},
++	},
+ 	{} /* Terminating entry */
+ };
  
--typedef long syscall_handler_t(struct pt_regs);
-+typedef long syscall_handler_t(struct syscall_args);
- 
- extern syscall_handler_t *sys_call_table[];
- 
- #define EXECUTE_SYSCALL(syscall, regs) \
--	((long (*)(struct syscall_args)) \
--	 (*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
-+	((*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
--- 
-2.35.1
-
 
 
