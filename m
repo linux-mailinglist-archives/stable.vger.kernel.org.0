@@ -2,210 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 713175F9D46
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 13:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FAF5F9D4D
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 13:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231961AbiJJLE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 07:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
+        id S231790AbiJJLHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 07:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231966AbiJJLE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 07:04:57 -0400
-Received: from radex-web.radex.nl (smtp.radex.nl [178.250.146.7])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5ECD51A042;
-        Mon, 10 Oct 2022 04:04:54 -0700 (PDT)
-Received: from [192.168.1.35] (cust-178-250-146-69.breedbanddelft.nl [178.250.146.69])
-        by radex-web.radex.nl (Postfix) with ESMTPS id 9AD542406A;
-        Mon, 10 Oct 2022 13:04:53 +0200 (CEST)
-Message-ID: <4e73bbb9-eae1-6a90-d716-c721a1eeced3@gmail.com>
-Date:   Mon, 10 Oct 2022 13:04:53 +0200
+        with ESMTP id S230206AbiJJLHE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 07:07:04 -0400
+Received: from gw.atmark-techno.com (gw.atmark-techno.com [13.115.124.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F2D5BC3B
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 04:07:01 -0700 (PDT)
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
+        by gw.atmark-techno.com (Postfix) with ESMTPS id 7444A60109
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 20:07:00 +0900 (JST)
+Received: by mail-pj1-f70.google.com with SMTP id o15-20020a17090a0a0f00b0020ae208febfso3853199pjo.5
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 04:07:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6kaXrUY3ds3NT80yBeO+dgFMn3QrJP1rbt9Y4guB0fU=;
+        b=Al5yMVieouwxEdZc5LNHG8Zp/dFXWWTr6NzUKhojEt6jLuN2GUz/opkg/3pE186TET
+         qcH32Yo1mauEFEwZwC7QHLcQbCWOwJT3kt/E6jYyT4dRrkqTzrnGeldGCNGMKeXlqKsP
+         APLRYM5HGzV2FnqK8GZruSHS0aV3FD93UqgM9+GDo7lW+a6k5SCZDP8As2yb424LyCuQ
+         dh+W7pYrI6WL65Ol/cugBy9Gvmvr9SX3jd11pm2ufXOTRGXkKF1V9YCBcqXYV6w8F2lz
+         X1KrBoSo1NupTLNfu7XKmi3Htq/nbnc7O5B9kuukZybUfbjr/sbMlwlv827jXJG6xxHC
+         7LQQ==
+X-Gm-Message-State: ACrzQf1Nh73IvFhEnBHTRu0N6J44l8Q/YAQW/horKbiDKQcOyXJin7Q9
+        iK5FBiR3g2awrUWCFKuDDO+MwWkn1vZEgA5WQPb+noydpWdBHpUkm1wbq9nJA+lj/3Doj/725FL
+        5XZuh2LVFMAYrYLt7uExs
+X-Received: by 2002:a17:90a:4e48:b0:209:a883:7f45 with SMTP id t8-20020a17090a4e4800b00209a8837f45mr30957428pjl.106.1665400019463;
+        Mon, 10 Oct 2022 04:06:59 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5G4l8W/f4N1dU2rep4UW9rNCshL05qc75JiwYwqqkanqV4pUPmLY9S5B35hpMChnd5mm4YDg==
+X-Received: by 2002:a17:90a:4e48:b0:209:a883:7f45 with SMTP id t8-20020a17090a4e4800b00209a8837f45mr30957408pjl.106.1665400019198;
+        Mon, 10 Oct 2022 04:06:59 -0700 (PDT)
+Received: from pc-zest.atmarktech (145.82.198.104.bc.googleusercontent.com. [104.198.82.145])
+        by smtp.gmail.com with ESMTPSA id nm12-20020a17090b19cc00b0020a9af6bb1asm5907067pjb.32.2022.10.10.04.06.57
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 10 Oct 2022 04:06:58 -0700 (PDT)
+Received: from martinet by pc-zest.atmarktech with local (Exim 4.96)
+        (envelope-from <martinet@pc-zest>)
+        id 1ohqca-008nSX-06;
+        Mon, 10 Oct 2022 20:06:56 +0900
+Date:   Mon, 10 Oct 2022 20:06:46 +0900
+From:   Dominique MARTINET <dominique.martinet@atmark-techno.com>
+To:     Lukas Wunner <lukas@wunner.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-serial@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4] serial: Deassert Transmit Enable on probe in
+ driver-specific way
+Message-ID: <Y0P8xle/cw3cRkGv@atmark-techno.com>
+References: <2de36eba3fbe11278d5002e4e501afe0ceaca039.1663863805.git.lukas@wunner.de>
+ <Y0O46rcQap99fZVC@atmark-techno.com>
+ <20221010085305.GA32599@wunner.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.2
-Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
- if extcon is present"
-Content-Language: en-US
-To:     Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
- <20220927155332.10762-3-andriy.shevchenko@linux.intel.com>
- <20221003215734.7l3cnb2zy57nrxkk@synopsys.com>
- <YzvusOI89ju9e5+0@smile.fi.intel.com>
- <a7724993-6c04-92c5-3a26-3aef6d29c9e3@gmail.com>
- <20221005021212.qwnbmq6p7t26c3a4@synopsys.com>
- <2886b82d-a1f6-d288-e8d1-edae54046b4f@gmail.com>
- <20221006021204.hz7iteao65dgsev6@synopsys.com>
- <d52cc102-6a4f-78e9-6176-b33e2813fd1d@gmail.com>
- <20221007021122.nnwmqc6sq43e5xbn@synopsys.com>
- <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com>
- <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
-From:   Ferry Toth <fntoth@gmail.com>
-In-Reply-To: <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-        FORGED_GMAIL_RCVD,FREEMAIL_FROM,NICE_REPLY_A,NML_ADSP_CUSTOM_MED,
-        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20221010085305.GA32599@wunner.de>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+Lukas Wunner wrote on Mon, Oct 10, 2022 at 10:53:05AM +0200:
+> > Unfortunately you've marked this for v4.14+ stable, but it doesn't even
+> > apply to 5.19.14
+> [...]
+> > What would you like to do for stable branches?
+> > Would you be able to send a patch that applies on older 5.10 and 5.15
+> > where commit d3b3404df318 ("serial: Fix incorrect rs485 polarity on uart
+> > open") has been backported?
+> 
+> Greg will try to apply it to stable kernels (probably after the merge
+> window closes) and send an e-mail that it failed.  I was going to wait
+> for that to happen and then look into backporting the patch.
 
-On 10-10-2022 07:02, Andrey Smirnov wrote:
-> On Fri, Oct 7, 2022 at 6:07 AM Ferry Toth <fntoth@gmail.com> wrote:
->>
->> On 07-10-2022 04:11, Thinh Nguyen wrote:
->>> On Thu, Oct 06, 2022, Ferry Toth wrote:
->>>> Hi
->>>>
->>>> On 06-10-2022 04:12, Thinh Nguyen wrote:
->>>>> On Wed, Oct 05, 2022, Ferry Toth wrote:
->>>>>> Hi,
->>>>>>
->>>>>>        Thanks!
->>>>>>
->>>>>>        Does the failure only happen the first time host is initialized? Or can
->>>>>>        it recover after switching to device then back to host mode?
->>>>>>
->>>>>> I can switch back and forth and device mode works each time, host mode remains
->>>>>> dead.
->>>>> Ok.
->>>>>
->>>>>>        Probably the failure happens if some step(s) in dwc3_core_init() hasn't
->>>>>>        completed.
->>>>>>
->>>>>>        tusb1210 is a phy driver right? The issue is probably because we didn't
->>>>>>        initialize the phy yet. So, I suspect placing dwc3_get_extcon() after
->>>>>>        initializing the phy will probably solve the dependency problem.
->>>>>>
->>>>>>        You can try something for yourself or I can provide something to test
->>>>>>        later if you don't mind (maybe next week if it's ok).
->>>>>>
->>>>>> Yes, the code move I mentioned above "moves dwc3_get_extcon() until after
->>>>>> dwc3_core_init() but just before dwc3_core_init_mode(). AFAIU initially
->>>>>> dwc3_get_extcon() was called from within dwc3_core_init_mode() but only for
->>>>>> case USB_DR_MODE_OTG. So with this change order of events is more or less
->>>>>> unchanged" solves the issue.
->>>>>>
->>>>> I saw the experiment you did from the link you provided. We want to also
->>>>> confirm exactly which step in dwc3_core_init() was needed.
->>>> Ok. I first tried the code move suggested by Andrey (didn't work). Then
->>>> after reading the actual code I moved a bit further.
->>>>
->>>> This move was on top of -rc6 without any reverts. I did not make additional
->>>> changes to dwc3_core_init()
->>>>
->>>> So current v6.0 has: dwc3_get_extcon - dwc3_get_dr_mode - ... -
->>>> dwc3_core_init - .. - dwc3_core_init_mode (not working)
->>>>
->>>> I changed to: dwc3_get_dr_mode - dwc3_get_extcon - .. - dwc3_core_init - ..
->>>> - dwc3_core_init_mode (no change)
->>>>
->>>> Then to: dwc3_get_dr_mode - .. - dwc3_core_init - .. - dwc3_get_extcon -
->>>> dwc3_core_init_mode (works)
->>>>
->>>> .. are what I believe for this issue irrelevant calls to
->>>> dwc3_alloc_scratch_buffers, dwc3_check_params and dwc3_debugfs_init.
->>>>
->>> Right. Thanks for narrowing it down. There are still many steps in
->>> dwc3_core_init(). We have some suspicion, but we still haven't confirmed
->>> the exact cause of the failure. We can write a proper patch once we know
->>> the reason.
->> If you would like me to test your suspicion, just tell me what to do :-)
->
-> OK, Ferry, I think I'm going to need clarification on specifics on
-> your test setup. Can you share your kernel config, maybe your
-> "/proc/config.gz", somewhere? When you say you are running vanilla
-> Linux, do you mean it or do you mean vanilla tree + some patch delta?
+Ah, sorry for rushing you here -- I got tricked by the git committer
+date but that doesn't mean the merge commit was that old, I hadn't
+noticed this just got in.
 
-For v6.0 I can get the exacts tonight. But earlier I had this for v5.17:
+> Basically what needs to be done is replace calls to uart_rs485_config()
+> with a direct invocation of port->rs485_config().  Plus carefully checking
+> that nothing is missing or breaks.  That's probably simpler than just
+> backporting additional patches or reverting stuff.  If you want to take
+> a stab at it, go ahead. :)
 
-https://github.com/htot/meta-intel-edison/blob/master/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_5.17.bb
+The only hardware I have is ims and your patch touches at quite a few of
+the drivers, I'm not really in a good position to check anything there
+but I can give it a stab tomorrow or Wed
 
-There are 2 patches referred in #67 and #68. One is related to the 
-infinite loop. The other is I believe also needed to get dwc3 to work.
 
-All the kernel config are applied as .cfg.
+By the way that just made me check the imx code, but if I am to trust
+that set_mctrl is never called with RS485 enabled and rs485_config is
+only called when it is enabled should the SER_RS485_ENABLED checks be
+removed there, or did I misunderstand something and it's still useful?
 
-Patches and cfs's here:
+(I wouldn't know if the rs232 hardware flags have any impact on rs485
+actual control but I'll trust you on this and that nothing ever calls
+set_mctrl when rs485 is enabled... I would actually have said that
+rts_active/inactive should keep setting port->mctrl precisely for the
+cases where both are muxed as you'll otherwise unreliably enable/disable
+RTS based on the state the last time was when get_mctrl was called; but
+I haven't seen this done so it doesn't really matter to me)
 
-https://github.com/htot/meta-intel-edison/tree/master/meta-intel-edison-bsp/recipes-kernel/linux/files
 
-> The reason I'm asking is because I'm having a hard time reproducing
-> the problem on my end. In fact, when I build v6.0
-> (4fe89d07dcc2804c8b562f6c7896a45643d34b2f) and then do a
->
-> git revert 8bd6b8c4b100 0f0101719138 (original revert proposed by Andy)
->
-> I get an infinite loop of reprobing that looks something like (some
-> debug tracing, function name + line number, included):
->
-> [    6.160732] tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41
-> to reg 0x80
-> [    6.172299] XXXXXXXXXXX: dwc3_probe 1834
-> [    6.172426] XXXXXXXXXXX: dwc3_core_init_mode 1386
-> [    6.176391] XXXXXXXXXXX: dwc3_drd_init 593
-> [    6.181573] dwc3 dwc3.0.auto: Driver dwc3 requests probe deferral
-> [    6.191886] platform dwc3.0.auto: Added to deferred list
-> [    6.197249] platform dwc3.0.auto: Retrying from deferred list
-> [    6.203057] bus: 'platform': __driver_probe_device: matched device
-> dwc3.0.auto with driver dwc3
-> [    6.211783] bus: 'platform': really_probe: probing driver dwc3 with
-> device dwc3.0.auto
-> [    6.219935] XXXXXXXXXXX: dwc3_probe 1822
-> [    6.219952] XXXXXXXXXXX: dwc3_core_init 1092
-> [    6.223903] XXXXXXXXXXX: dwc3_core_init 1095
-> [    6.234839] bus: 'ulpi': __driver_probe_device: matched device
-> dwc3.0.auto.ulpi with driver tusb1210
-> [    6.248335] bus: 'ulpi': really_probe: probing driver tusb1210 with
-> device dwc3.0.auto.ulpi
-> [    6.257039] driver: 'tusb1210': driver_bound: bound to device
-> 'dwc3.0.auto.ulpi'
-> [    6.264501] bus: 'ulpi': really_probe: bound device
-> dwc3.0.auto.ulpi to driver tusb1210
-> [    6.272553] debugfs: Directory 'dwc3.0.auto' with parent 'ulpi'
-> already present!
-> [    6.279978] XXXXXXXXXXX: dwc3_core_init 1099
-> [    6.279991] XXXXXXXXXXX: dwc3_core_init 1103
-> [    6.345769] tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41
-> to reg 0x80
-> [    6.357316] XXXXXXXXXXX: dwc3_probe 1834
-> [    6.357447] XXXXXXXXXXX: dwc3_core_init_mode 1386
-> [    6.361402] XXXXXXXXXXX: dwc3_drd_init 593
-> [    6.366589] dwc3 dwc3.0.auto: Driver dwc3 requests probe deferral
-> [    6.376901] platform dwc3.0.auto: Added to deferred list
->
-> which renders the system completely unusable, but USB host is
-> definitely going to be broken too. Now, ironically, with my patch
-> in-place, an attempt to probe extcon that ends up deferring the probe
-> happens before the ULPI driver failure (which wasn't failing driver
-> probe prior to https://lore.kernel.org/all/20220213130524.18748-7-hdegoede@redhat.com/),
-> there no "driver binding" event that re-triggers deferred probe
-> causing the loop, so the system progresses to a point where extcon is
-> available and dwc3 driver eventually loads.
->
-> After that, and I don't know if I'm doing the same test, USB host
-> seems to work as expected. lsusb works, my USB stick enumerates as
-> expected. Switching the USB mux to micro-USB and back shuts the host
-> functionality down and brings it up as expected. Now I didn't try to
-> load any gadgets to make sure USB gadget works 100%, but since you
-> were saying it was USB host that was broken, I wasn't concerned with
-> that. Am I doing the right test?
->
-> For the reference what I test with is:
->   - vanilla kernel, no patch delta (sans minor debug tracing) + initrd
-> built with Buildroot 2022.08.1
->   - Initrd is using systemd (don't think that really matters, but who knows)
->   - U-Boot 2022.04 (built with Buildroot as well)
->   - kernel config is x86_64_defconfig + whatever I gathered from *.cfg
-> files in https://github.com/edison-fw/meta-intel-edison/tree/master/meta-intel-edison-bsp/recipes-kernel/linux/files
+Thanks,
+-- 
+Dominique
