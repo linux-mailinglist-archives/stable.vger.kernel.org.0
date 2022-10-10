@@ -2,45 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F4D5F9941
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FD65F99B3
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231512AbiJJHJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45700 "EHLO
+        id S232234AbiJJHPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231714AbiJJHJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:09:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B7CFAE6B;
-        Mon, 10 Oct 2022 00:06:08 -0700 (PDT)
+        with ESMTP id S232355AbiJJHOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:14:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FC610576;
+        Mon, 10 Oct 2022 00:09:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB2C960E33;
-        Mon, 10 Oct 2022 07:06:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0868C433C1;
-        Mon, 10 Oct 2022 07:06:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A3B660E89;
+        Mon, 10 Oct 2022 07:08:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43501C433C1;
+        Mon, 10 Oct 2022 07:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385566;
-        bh=Ij9qIbVDOEwLjRKRVfWKa91KXVvfWGsn+1ZqzNaeZok=;
+        s=korg; t=1665385683;
+        bh=Ep335t2I/xaHGQeJd/i5wb01J+lIvEjwZwn2VcHR79Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wxc7/YbPME7n9T6wrAyjmUS4O2toFhRM/oIkjlw74NGLTdv0dxUEZsR/H6DJrcGwx
-         oITaULULj/RuJ+6Bi373UkAZG9pkVYpox5BCgVZlVwXUVM1X/ylpG4a9XhnY3oTx93
-         HdQi9iytWJ1ngou6UJ2gEZnAJM5eEtg74658HLyU=
+        b=tWNmKKZT0k9AulVhUD4+LXLqNZUo3xg5bUWxopoU+MokIukWAeiiUTe1DmqlJY1QR
+         2eqABNjfunwLD5TFCfrBDng3tu8OQsmj9iM+7uI52z0xYsshzfz4+jCjNfWQw7Nh3r
+         caauGcZ1YCui9XAIaDhBDo9qd7PnVgvOnEHVqoW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 25/48] gpio: ftgpio010: Make irqchip immutable
-Date:   Mon, 10 Oct 2022 09:05:23 +0200
-Message-Id: <20221010070334.359746429@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Hugh Dickins <hughd@google.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 05/37] powerpc/64s/radix: dont need to broadcast IPI for radix pmd collapse flush
+Date:   Mon, 10 Oct 2022 09:05:24 +0200
+Message-Id: <20221010070331.409815434@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
+References: <20221010070331.211113813@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +63,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit ab637d48363d7b8ee67ae089808a8bc6051d53c4 ]
+commit bedf03416913d88c796288f9dca109a53608c745 upstream.
 
-This turns the FTGPIO010 irqchip immutable.
+The IPI broadcast is used to serialize against fast-GUP, but fast-GUP will
+move to use RCU instead of disabling local interrupts in fast-GUP.  Using
+an IPI is the old-styled way of serializing against fast-GUP although it
+still works as expected now.
 
-Tested on the D-Link DIR-685.
+And fast-GUP now fixed the potential race with THP collapse by checking
+whether PMD is changed or not.  So IPI broadcast in radix pmd collapse
+flush is not necessary anymore.  But it is still needed for hash TLB.
 
-Cc: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220907180144.555485-2-shy828301@gmail.com
+Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-ftgpio010.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ arch/powerpc/mm/book3s64/radix_pgtable.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpio/gpio-ftgpio010.c b/drivers/gpio/gpio-ftgpio010.c
-index f422c3e129a0..f77a965f5780 100644
---- a/drivers/gpio/gpio-ftgpio010.c
-+++ b/drivers/gpio/gpio-ftgpio010.c
-@@ -41,14 +41,12 @@
-  * struct ftgpio_gpio - Gemini GPIO state container
-  * @dev: containing device for this instance
-  * @gc: gpiochip for this instance
-- * @irq: irqchip for this instance
-  * @base: remapped I/O-memory base
-  * @clk: silicon clock
-  */
- struct ftgpio_gpio {
- 	struct device *dev;
- 	struct gpio_chip gc;
--	struct irq_chip irq;
- 	void __iomem *base;
- 	struct clk *clk;
- };
-@@ -70,6 +68,7 @@ static void ftgpio_gpio_mask_irq(struct irq_data *d)
- 	val = readl(g->base + GPIO_INT_EN);
- 	val &= ~BIT(irqd_to_hwirq(d));
- 	writel(val, g->base + GPIO_INT_EN);
-+	gpiochip_disable_irq(gc, irqd_to_hwirq(d));
- }
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -954,15 +954,6 @@ pmd_t radix__pmdp_collapse_flush(struct
+ 	pmd = *pmdp;
+ 	pmd_clear(pmdp);
  
- static void ftgpio_gpio_unmask_irq(struct irq_data *d)
-@@ -78,6 +77,7 @@ static void ftgpio_gpio_unmask_irq(struct irq_data *d)
- 	struct ftgpio_gpio *g = gpiochip_get_data(gc);
- 	u32 val;
- 
-+	gpiochip_enable_irq(gc, irqd_to_hwirq(d));
- 	val = readl(g->base + GPIO_INT_EN);
- 	val |= BIT(irqd_to_hwirq(d));
- 	writel(val, g->base + GPIO_INT_EN);
-@@ -221,6 +221,16 @@ static int ftgpio_gpio_set_config(struct gpio_chip *gc, unsigned int offset,
- 	return 0;
- }
- 
-+static const struct irq_chip ftgpio_irq_chip = {
-+	.name = "FTGPIO010",
-+	.irq_ack = ftgpio_gpio_ack_irq,
-+	.irq_mask = ftgpio_gpio_mask_irq,
-+	.irq_unmask = ftgpio_gpio_unmask_irq,
-+	.irq_set_type = ftgpio_gpio_set_irq_type,
-+	.flags = IRQCHIP_IMMUTABLE,
-+	 GPIOCHIP_IRQ_RESOURCE_HELPERS,
-+};
-+
- static int ftgpio_gpio_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -277,14 +287,8 @@ static int ftgpio_gpio_probe(struct platform_device *pdev)
- 	if (!IS_ERR(g->clk))
- 		g->gc.set_config = ftgpio_gpio_set_config;
- 
--	g->irq.name = "FTGPIO010";
--	g->irq.irq_ack = ftgpio_gpio_ack_irq;
--	g->irq.irq_mask = ftgpio_gpio_mask_irq;
--	g->irq.irq_unmask = ftgpio_gpio_unmask_irq;
--	g->irq.irq_set_type = ftgpio_gpio_set_irq_type;
+-	/*
+-	 * pmdp collapse_flush need to ensure that there are no parallel gup
+-	 * walk after this call. This is needed so that we can have stable
+-	 * page ref count when collapsing a page. We don't allow a collapse page
+-	 * if we have gup taken on the page. We can ensure that by sending IPI
+-	 * because gup walk happens with IRQ disabled.
+-	 */
+-	serialize_against_pte_lookup(vma->vm_mm);
 -
- 	girq = &g->gc.irq;
--	girq->chip = &g->irq;
-+	gpio_irq_chip_set_chip(girq, &ftgpio_irq_chip);
- 	girq->parent_handler = ftgpio_gpio_irq_handler;
- 	girq->num_parents = 1;
- 	girq->parents = devm_kcalloc(dev, 1, sizeof(*girq->parents),
--- 
-2.35.1
-
+ 	radix__flush_tlb_collapsed_pmd(vma->vm_mm, address);
+ 
+ 	return pmd;
 
 
