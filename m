@@ -2,53 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E985FA17B
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 17:58:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 552A95FA184
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 18:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229647AbiJJP6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 11:58:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34722 "EHLO
+        id S229838AbiJJQCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 12:02:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229587AbiJJP6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 11:58:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D6E726A1;
-        Mon, 10 Oct 2022 08:58:03 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A618260F83;
-        Mon, 10 Oct 2022 15:58:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE16C433C1;
-        Mon, 10 Oct 2022 15:58:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665417482;
-        bh=4X8G6+O+QPksuawyg4i/Nna0sKN6RLkcN88gN30z0WQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=or5Xo6bByP/+sU2YzNNgerI3psEg5NS8d6+pB4H4McSxdVROTy4ecdDYLLzj1EdQS
-         s1qOZ29tUdTt7BnP4Q8tF+qlG7NwCnF/4uPSvWD/KElohBWibmREfwob1qG14Z2NNB
-         F6QqsCqZnFrmxqYuZF2S1NVcAby0aWBqDf8ZiSH4=
-Date:   Mon, 10 Oct 2022 17:58:45 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     yong w <yongw.pur@gmail.com>
-Cc:     jaewon31.kim@samsung.com, linux-kernel@vger.kernel.org,
-        mhocko@kernel.org, stable@vger.kernel.org, wang.yong12@zte.com.cn
-Subject: Re: [PATCH v2 stable-4.19 0/3] page_alloc: consider highatomic
- reserve in watermark fast backports to 4.19
-Message-ID: <Y0RBNTQnYpoF1r7w@kroah.com>
-References: <Yyn7MoSmV43Gxog4@kroah.com>
- <20220925103529.13716-1-yongw.pur@gmail.com>
- <YzmwKxYVDSWsaPCU@kroah.com>
- <CAOH5QeB2EqpqQd6fw-P199w8K8-3QNv_t-u_Wn1BLnfaSscmCg@mail.gmail.com>
- <Y0BWuJHsK6XDk2nx@kroah.com>
- <CAOH5QeAX0NzO2mXqBbMRYGMzNMTAq4H1r9r_AFWC2Fj=MNWwiw@mail.gmail.com>
+        with ESMTP id S229472AbiJJQCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 12:02:10 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D5E6D9E6
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 09:02:09 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id bj12so25740976ejb.13
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 09:02:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Nwq4bMhUMj88l332uILPVv/eaSX1xTBS7cLpnqsyXvQ=;
+        b=xSPe7cYNg+MpTivVRwY6eRBn/8r3s+sulx3x4zNf6jErlq3gMQUIXAGAfjtdYJBNPb
+         THGXlsKqrvDrrsgMXBo36/ngZwyQ2eCifi2S6GgkAqw8j8AurmrSRpo3jUu/j8HyRW7j
+         fY7qoF9PxYDYHrzPqg7XrKJbeqf6POxyPlflRoKS5FTQnynir00M+5fxngI4TDk2o1dE
+         dAG/X2+zfedDTeT+veHDiMPaqQ4G1r2xAW84m6RVL/lJmd4nSr/qijy/s3XZoCUS1yi5
+         mFOB52AYjQQscyA+xUInf1HD+x3iLxNl09kC/X6m/QthoTqsPFi5Sx9IQZt9XMV5USGk
+         yWeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Nwq4bMhUMj88l332uILPVv/eaSX1xTBS7cLpnqsyXvQ=;
+        b=NCh6+eLaIzs4yyyeDLQPzEZhyztGtwTfgNrYfytxWTwSCTm2CSdP5+Gu1bz5IN9b6q
+         VIv7mJXeuLCw+3qgYxUFl9+Rpd0mjOpj8Jt0sBcPXWHNNA+LCVPbpzTfzpS6yhr/81rN
+         k7a5XwadXtFbawxcjLzRtWHddWFSXa1RsSDCVVNGGmdwVBZDPMmZnwdnUanMFe+B7d0O
+         HeRMxdp2THpxyX5dxOe78QEhclv36GMh3HI/a82cr1lCrScG75mDUBie3guYQfL1GuWf
+         38z1jkd2S2eF1sM8ryJQ2Vwkkt8XXmXD7n0MCZcW3k/elRyjtP1roC4ctl4hIES5qib0
+         P9bw==
+X-Gm-Message-State: ACrzQf15xLv5gku0jT06MPG9WZAeATJrnxDnADx7pUqIY21XIScuPGfN
+        7Ws17eO9Si+yAL9x6CCHtJPWcET8oNyMX+tTMLDZ7d4SeJy/uA==
+X-Google-Smtp-Source: AMsMyM6UjqlmiGIqHRFrDacODsmCwKujwrsZhqJHxSFg09qxg4AhOfSzBLdpmJ57AvjVGnWGz9+4flmBBDcH+iziw8A=
+X-Received: by 2002:a17:907:3188:b0:741:4bf7:ec1a with SMTP id
+ xe8-20020a170907318800b007414bf7ec1amr15730725ejb.448.1665417727159; Mon, 10
+ Oct 2022 09:02:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOH5QeAX0NzO2mXqBbMRYGMzNMTAq4H1r9r_AFWC2Fj=MNWwiw@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 10 Oct 2022 21:31:55 +0530
+Message-ID: <CA+G9fYvQHA-dfeFNQ8xcqSi46mdzPQeXbyXPR62m_BgS90aj9g@mail.gmail.com>
+Subject: Re: [PATCH 5.19 00/48] 5.19.15-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,56 +69,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 10, 2022 at 11:47:30PM +0800, yong w wrote:
-> Greg KH <gregkh@linuxfoundation.org> 于2022年10月8日周六 00:40写道：
-> >
-> > A: http://en.wikipedia.org/wiki/Top_post
-> > Q: Were do I find info about this thing called top-posting?
-> > A: Because it messes up the order in which people normally read text.
-> > Q: Why is top-posting such a bad thing?
-> > A: Top-posting.
-> > Q: What is the most annoying thing in e-mail?
-> >
-> > A: No.
-> > Q: Should I include quotations after my reply?
-> >
-> > http://daringfireball.net/2007/07/on_top
-> >
-> >
-> > On Fri, Oct 07, 2022 at 04:53:50PM +0800, yong w wrote:
-> > > Is it ok to add my signed-off-by? my signed-off-by is as follows:
-> > >
-> > >   Signed-off-by: wangyong <wang.yong12@zte.com.cn>
-> >
-> > For obvious reasons, I can not take that from a random gmail account
-> > (nor should ZTE want me to do that.)
-> >
-> > Please fix up your email systems and do this properly and send the
-> > series again.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Sorry, our mail system cannot send external mail for some reason.
+On Mon, 10 Oct 2022 at 12:36, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.19.15 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.15-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Sorry, then I can not attribute anything to your company.  It has
-already been warned that it can not continue to contribute to the Linux
-kernel and some of your gmail "aliases" have been banned from the
-mailing lists.
 
-Please fix your email system so that you can properly contribute to
-Linux.
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> And this is my email, I can receive an email and reply to it.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Yes, but I have no proof that your ZTE email is correct, only that this
-is a random gmail.com address :(
+NOTE:
+1) Build warning which were reported on last round of stable rc review
 
-What would you do if you were in my situation?
+Following build warning found on few arm configs which do not set Kconfig
+# CONFIG_ELF_CORE is not set
 
-Please work with your IT group to fix their email systems.
+- powerpc: tqm8xx_defconfig
+- arm: keystone_defconfig and omap1_defconfig
+- mips: ar7_defconfig
+fs/coredump.c:835:12: warning: 'dump_emit_page' defined but not used
+[-Wunused-function]
+  835 | static int dump_emit_page(struct coredump_params *cprm, struct
+page *page)
+      |            ^~~~~~~~~~~~~~
 
-good luck,
+## Build
+* kernel: 5.19.15-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.19.y
+* git commit: 2e79dbde2710b3939943c5d2ea3028329b820e9f
+* git describe: v5.19.14-49-g2e79dbde2710
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.19.y/build/v5.19.14-49-g2e79dbde2710
 
-greg k-h
+## Test Regressions (compared to v5.19.12-110-g30c780ac0f9f)
+
+## Metric Regressions (compared to v5.19.12-110-g30c780ac0f9f)
+
+## Test Fixes (compared to v5.19.12-110-g30c780ac0f9f)
+
+## Metric Fixes (compared to v5.19.12-110-g30c780ac0f9f)
+
+## Test result summary
+total: 112321, pass: 100742, fail: 732, skip: 10568, xfail: 279
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 339 total, 336 passed, 3 failed
+* arm64: 72 total, 70 passed, 2 failed
+* i386: 61 total, 55 passed, 6 failed
+* mips: 62 total, 59 passed, 3 failed
+* parisc: 14 total, 14 passed, 0 failed
+* powerpc: 75 total, 66 passed, 9 failed
+* riscv: 32 total, 27 passed, 5 failed
+* s390: 26 total, 24 passed, 2 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x86_64: 65 total, 63 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
