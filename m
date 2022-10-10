@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2FD65F99B3
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E89F75F994E
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbiJJHPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
+        id S231422AbiJJHKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:10:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232355AbiJJHOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:14:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FC610576;
-        Mon, 10 Oct 2022 00:09:52 -0700 (PDT)
+        with ESMTP id S231802AbiJJHJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:09:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AD375BC3D;
+        Mon, 10 Oct 2022 00:06:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A3B660E89;
-        Mon, 10 Oct 2022 07:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43501C433C1;
-        Mon, 10 Oct 2022 07:08:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EB57B80E5C;
+        Mon, 10 Oct 2022 07:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65A62C433D7;
+        Mon, 10 Oct 2022 07:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385683;
-        bh=Ep335t2I/xaHGQeJd/i5wb01J+lIvEjwZwn2VcHR79Q=;
+        s=korg; t=1665385568;
+        bh=kEVzyc8uT2RwjoKkZI5RjRz4QrD+XKGFvbKecr0kE8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWNmKKZT0k9AulVhUD4+LXLqNZUo3xg5bUWxopoU+MokIukWAeiiUTe1DmqlJY1QR
-         2eqABNjfunwLD5TFCfrBDng3tu8OQsmj9iM+7uI52z0xYsshzfz4+jCjNfWQw7Nh3r
-         caauGcZ1YCui9XAIaDhBDo9qd7PnVgvOnEHVqoW4=
+        b=coRP6Ti7alPqJe3hd++95zGSj49cSzdm7Y0sMOGXm8uUUrU/cnP13oiAnCU7ZRJ7o
+         au8FEBPu9C4ofOVxKRPsZmKfw2XM0w48LnnlNB5+3jFK1Oqy0Q51FQ0cb4SSTgziiy
+         sQ/ASAc0oFcedUo2UDAACc88hLiIsbQHvuJeuv+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Hugh Dickins <hughd@google.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 05/37] powerpc/64s/radix: dont need to broadcast IPI for radix pmd collapse flush
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Lukas Straub <lukasstraub2@web.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.19 26/48] arch: um: Mark the stack non-executable to fix a binutils warning
 Date:   Mon, 10 Oct 2022 09:05:24 +0200
-Message-Id: <20221010070331.409815434@linuxfoundation.org>
+Message-Id: <20221010070334.383070513@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
-References: <20221010070331.211113813@linuxfoundation.org>
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+References: <20221010070333.676316214@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,55 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: David Gow <davidgow@google.com>
 
-commit bedf03416913d88c796288f9dca109a53608c745 upstream.
+[ Upstream commit bd71558d585ac61cfd799db7f25e78dca404dd7a ]
 
-The IPI broadcast is used to serialize against fast-GUP, but fast-GUP will
-move to use RCU instead of disabling local interrupts in fast-GUP.  Using
-an IPI is the old-styled way of serializing against fast-GUP although it
-still works as expected now.
+Since binutils 2.39, ld will print a warning if any stack section is
+executable, which is the default for stack sections on files without a
+.note.GNU-stack section.
 
-And fast-GUP now fixed the potential race with THP collapse by checking
-whether PMD is changed or not.  So IPI broadcast in radix pmd collapse
-flush is not necessary anymore.  But it is still needed for hash TLB.
+This was fixed for x86 in commit ffcf9c5700e4 ("x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments"),
+but remained broken for UML, resulting in several warnings:
 
-Link: https://lkml.kernel.org/r/20220907180144.555485-2-shy828301@gmail.com
-Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+/usr/bin/ld: warning: arch/x86/um/vdso/vdso.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1 has a LOAD segment with RWX permissions
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2 has a LOAD segment with RWX permissions
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: vmlinux has a LOAD segment with RWX permissions
+
+Link both the VDSO and vmlinux with -z noexecstack, fixing the warnings
+about .note.GNU-stack sections. In addition, pass --no-warn-rwx-segments
+to dodge the remaining warnings about LOAD segments with RWX permissions
+in the kallsyms objects. (Note that this flag is apparently not
+available on lld, so hide it behind a test for BFD, which is what the
+x86 patch does.)
+
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ffcf9c5700e49c0aee42dcba9a12ba21338e8136
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Lukas Straub <lukasstraub2@web.de>
+Tested-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/radix_pgtable.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ arch/um/Makefile          | 8 ++++++++
+ arch/x86/um/vdso/Makefile | 2 +-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -954,15 +954,6 @@ pmd_t radix__pmdp_collapse_flush(struct
- 	pmd = *pmdp;
- 	pmd_clear(pmdp);
+diff --git a/arch/um/Makefile b/arch/um/Makefile
+index f2fe63bfd819..f1d4d67157be 100644
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -132,10 +132,18 @@ export LDS_ELF_FORMAT := $(ELF_FORMAT)
+ # The wrappers will select whether using "malloc" or the kernel allocator.
+ LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
  
--	/*
--	 * pmdp collapse_flush need to ensure that there are no parallel gup
--	 * walk after this call. This is needed so that we can have stable
--	 * page ref count when collapsing a page. We don't allow a collapse page
--	 * if we have gup taken on the page. We can ensure that by sending IPI
--	 * because gup walk happens with IRQ disabled.
--	 */
--	serialize_against_pte_lookup(vma->vm_mm);
--
- 	radix__flush_tlb_collapsed_pmd(vma->vm_mm, address);
++# Avoid binutils 2.39+ warnings by marking the stack non-executable and
++# ignorning warnings for the kallsyms sections.
++LDFLAGS_EXECSTACK = -z noexecstack
++ifeq ($(CONFIG_LD_IS_BFD),y)
++LDFLAGS_EXECSTACK += $(call ld-option,--no-warn-rwx-segments)
++endif
++
+ LD_FLAGS_CMDLINE = $(foreach opt,$(KBUILD_LDFLAGS),-Wl,$(opt))
  
- 	return pmd;
+ # Used by link-vmlinux.sh which has special support for um link
+ export CFLAGS_vmlinux := $(LINK-y) $(LINK_WRAPS) $(LD_FLAGS_CMDLINE)
++export LDFLAGS_vmlinux := $(LDFLAGS_EXECSTACK)
+ 
+ # When cleaning we don't include .config, so we don't include
+ # TT or skas makefiles and don't clean skas_ptregs.h.
+diff --git a/arch/x86/um/vdso/Makefile b/arch/x86/um/vdso/Makefile
+index 5943387e3f35..5ca366e15c76 100644
+--- a/arch/x86/um/vdso/Makefile
++++ b/arch/x86/um/vdso/Makefile
+@@ -62,7 +62,7 @@ quiet_cmd_vdso = VDSO    $@
+ 		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+-VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv
++VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv -z noexecstack
+ GCOV_PROFILE := n
+ 
+ #
+-- 
+2.35.1
+
 
 
