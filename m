@@ -2,81 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D60335F9A3C
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E74135F9A5B
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232516AbiJJHmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40638 "EHLO
+        id S232535AbiJJHrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:47:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231847AbiJJHmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:42:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC64E4B0E4
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:37:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665387443;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ud93KJJkCZzSClERMM/p1ephAQ7PSqhTgaZWI2tdGjo=;
-        b=grYjm07CnJHKkmPR3umrTxu28XOZP5ooqv3gKn707c/coVv+CJmzH15soQT7CkAZ8rVpu2
-        OS6Gr+26/FKJdVahm7uN5Uk6YyTM4w9vYJN8GWZt5RxrFnCgJyyNDdmGdnzAOL02A+bJfs
-        t4pDg9MaQxc0FMP8R73kCcd+CSz/lTA=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-201-Y-hOJD0cPWGXWoNGVD07Sg-1; Mon, 10 Oct 2022 03:37:19 -0400
-X-MC-Unique: Y-hOJD0cPWGXWoNGVD07Sg-1
-Received: by mail-ej1-f71.google.com with SMTP id xc12-20020a170907074c00b007416699ea14so4016752ejb.19
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:37:19 -0700 (PDT)
+        with ESMTP id S231984AbiJJHrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:47:17 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D8D1C921;
+        Mon, 10 Oct 2022 00:44:13 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id n18-20020a17090ade9200b0020b0012097cso8010533pjv.0;
+        Mon, 10 Oct 2022 00:44:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=byYv+p4uc+egG0+zuLE4MMW1fuarHCm8QYsjJ5KX+/g=;
+        b=JEJ9mBjH45J+pWURJLiPEp4ZCHXwV75nr955I1u3f7eUUneGg/usBui1mNS8ePqtIV
+         VSqexjBb9RMIf3FvNi1Qmn73rJQObFN9cv4S+yi29om5TDsYaj7tr42edstRWKO71wV7
+         qZtUs4dB/t90W10sCMNEkMBJYqZe0wZva38qFR8FQpIbKDs88D6sR/3ql2tNNrhEn6Gh
+         gEd/AUjtyp/6vJdhSoam1ckZ8jHKeWE0YroIu7eAfpMpAypDHqZ/HqybfWzP6+ONzxQB
+         MfUNbGDQcAB9A3dTZhElz+NEbUVPLtFuIzF+iepAGCLC7Drscxnn1b0sZG07l8VZIufr
+         Fq5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ud93KJJkCZzSClERMM/p1ephAQ7PSqhTgaZWI2tdGjo=;
-        b=Q+Igh3AOcTnkaTBPDY+dKyhtixxn0nVJXZ0Cesl6s6/2rBAkR7hbxbqV5+PMvR6hzo
-         /8qWztO01CpNJFyKbBmyNRp5whMeNK/TaVM8o99K7bD1elfmkABfAEGtyPgt/W4jQxvL
-         DdWmVpHm3Oo7riKEpy87jJtYQLLkwS4YJV+FAFlp2V6m/MTsAgN86gIyRtulj8RcD86X
-         C1EeUCGWRrTSsZrFOsEl16x6vi4z3WUhzyYDiENmiiJxEPpkFB3mkYsG19aVAPC8ukre
-         IDFLa2HIo2w+6UJw4ONjU8PaAt0Q9B+q6UZokodbtIfg3bLImwyD0Kjdor+AICxxcxK3
-         myPA==
-X-Gm-Message-State: ACrzQf3s5s9MLORTOlxYa5Nqx0hNPiu97afaqkuxR2XJiKTsrwEPIsYl
-        SOBYeez9xP1Ia6Anzy84evfOK+xtNfsCmhGKjdJHJe0ly/vnOQBIM82gB5fbdsC52BlQljht1f0
-        DLegIyXrCXugOK6U6
-X-Received: by 2002:a05:6402:2949:b0:451:fabf:d88a with SMTP id ed9-20020a056402294900b00451fabfd88amr16281466edb.324.1665387438428;
-        Mon, 10 Oct 2022 00:37:18 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6qUXXfgF/tbt5Fu0TXOBayxdXXf+OGmwpNaoJNWLEiAQR7MHjTSkGYtp2ZlsUbnKWPwatT0Q==
-X-Received: by 2002:a05:6402:2949:b0:451:fabf:d88a with SMTP id ed9-20020a056402294900b00451fabfd88amr16281454edb.324.1665387438192;
-        Mon, 10 Oct 2022 00:37:18 -0700 (PDT)
-Received: from [10.40.98.142] ([78.108.130.194])
-        by smtp.gmail.com with ESMTPSA id ha6-20020a170906a88600b00780f24b797dsm4899797ejb.108.2022.10.10.00.37.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Oct 2022 00:37:17 -0700 (PDT)
-Message-ID: <610e3232-d66c-cac3-b13d-ec8b24a1de6e@redhat.com>
-Date:   Mon, 10 Oct 2022 09:37:16 +0200
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=byYv+p4uc+egG0+zuLE4MMW1fuarHCm8QYsjJ5KX+/g=;
+        b=dw9OwjW4hXp89aUkEYG/Z19/BcTOpuIpWnqliAeeGz73XgUGVOjNPhnKJilV7WfYJA
+         nn5ZUeAf8LZQqqqoCeVuvkJQlOKCgHBaOv+PRc0Q6FfXxVguEMWCBRkrA0cEzDtKNiuD
+         agbF7+iru4AvmUihadctOvVn58OhtNNkqY+MEUbr0AbZcbld1fFZYONTSB4yrOTRoWrx
+         0FuZCnsUM/IKAIRpiea8m0jjs1Zt4ms3njakCflgYMLeStIYiBjDtvuSC8cPkA4iXT21
+         144xfyaBrxDZbq1I0nPqmkGrMjiXgvAvuNNdAWVQjcoy+J2kyZyl8YGV9BQt45VyMeJB
+         bLEQ==
+X-Gm-Message-State: ACrzQf1x4Ac1MyRRCgWxrbFeQKBMEtbRmcGNq4XTAh+w+VfUJqz1/QF0
+        s60zu3YYGEs5ntW1OXHDHGJrS1205nDH0r6EnVU=
+X-Google-Smtp-Source: AMsMyM7KRGGyZHJ2tp41WQTQeyJuRXK5xKHwabpO1RzA3t42hFOcYnAtPxG5XCB34B5qhzzDPh8QLbFyG0lXZSwjLxI=
+X-Received: by 2002:a17:902:c94e:b0:181:4ab4:179b with SMTP id
+ i14-20020a170902c94e00b001814ab4179bmr9753809pla.126.1665387839925; Mon, 10
+ Oct 2022 00:43:59 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH AUTOSEL 4.14 4/6] ACPI: video: Change
- disable_backlight_sysfs_if quirks to acpi_backlight=native
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Arvid Norlander <lkml@vorpal.se>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-References: <20221009235808.1232269-1-sashal@kernel.org>
- <20221009235808.1232269-4-sashal@kernel.org>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20221009235808.1232269-4-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+References: <20221010070330.159911806@linuxfoundation.org>
+In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
+From:   Luna Jernberg <droidbittin@gmail.com>
+Date:   Mon, 10 Oct 2022 09:43:47 +0200
+Message-ID: <CADo9pHgdB7Czsuw=gxv9jAyrUJLjFNCVLW0CGXfszKrj1EfK1A@mail.gmail.com>
+Subject: Re: [PATCH 6.0 00/17] 6.0.1-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Luna Jernberg <droidbittin@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,201 +71,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Works on Arch Linux
 
-On 10/10/22 01:58, Sasha Levin wrote:
-> From: Hans de Goede <hdegoede@redhat.com>
-> 
-> [ Upstream commit c5b94f5b7819348c59f9949b2b75c341a114cdd4 ]
-> 
-> Some Toshibas have a broken acpi-video interface for brightness control
-> and need a special firmware call on resume to turn the panel back on.
-> So far these have been using the disable_backlight_sysfs_if workaround
-> to deal with this.
-> 
-> The recent x86/acpi backlight refactoring has broken this workaround:
-> 1. This workaround relies on acpi_video_get_backlight_type() returning
->    acpi_video so that the acpi_video code actually runs; and
-> 2. this relies on the actual native GPU driver to offer the sysfs
->    backlight interface to userspace.
-> 
-> After the refactor this breaks since the native driver will no
-> longer register its backlight-device if acpi_video_get_backlight_type()
-> does not return native and making it return native breaks 1.
-> 
-> Keeping the acpi_video backlight handling on resume active, while not
-> using it to set the brightness, is necessary because it does a _BCM
-> call on resume which is necessary to turn the panel back on on resume.
-> 
-> Looking at the DSDT shows that this _BCM call results in a Toshiba
-> HCI_SET HCI_LCD_BRIGHTNESS call, which turns the panel back on.
-> 
-> This kind of special vendor specific handling really belongs in
-> the vendor specific acpi driver. An earlier patch in this series
-> modifies toshiba_acpi to make the necessary HCI_SET call on resume
-> on affected models.
-> 
-> With toshiba_acpi taking care of the HCI_SET call on resume,
-> the acpi_video code no longer needs to call _BCM on resume.
-> 
-> So instead of using the (now broken) disable_backlight_sysfs_if
-> workaround, simply setting acpi_backlight=native to disable
-> the broken apci-video interface is sufficient fix things now.
-> 
-> After this there are no more users of the disable_backlight_sysfs_if
-> flag and as discussed above the flag also no longer works as intended,
-> so remove the disable_backlight_sysfs_if flag entirely.
-> 
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Tested-by: Arvid Norlander <lkml@vorpal.se>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-
-This patch goes hand in hand with:
-
-commit 3cb1f40dfdc3 ("drivers/platform: toshiba_acpi: Call HCI_PANEL_POWER_ON on resume on some models")
-
-and without that commit also being present it will cause a regression on
-the quirked Toshiba models.
-
-This really is part of the big x86/ACPI backlight handling refactor which 
-has landed in 6.1 and as such is not intended for older kernels, please
-drop this from the stable series.
-
-Regards,
-
-Hans
+Tested-by: Luna Jernberg <droidbittin@gmail.com>
 
 
-> ---
->  drivers/acpi/acpi_video.c   | 48 -------------------------------------
->  drivers/acpi/video_detect.c | 35 +++++++++++++++++++++++++++
->  2 files changed, 35 insertions(+), 48 deletions(-)
-> 
-> diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-> index 5a69260edf80..324be2a29d68 100644
-> --- a/drivers/acpi/acpi_video.c
-> +++ b/drivers/acpi/acpi_video.c
-> @@ -63,9 +63,6 @@ module_param(brightness_switch_enabled, bool, 0644);
->  static bool allow_duplicates;
->  module_param(allow_duplicates, bool, 0644);
->  
-> -static int disable_backlight_sysfs_if = -1;
-> -module_param(disable_backlight_sysfs_if, int, 0444);
-> -
->  #define REPORT_OUTPUT_KEY_EVENTS		0x01
->  #define REPORT_BRIGHTNESS_KEY_EVENTS		0x02
->  static int report_key_events = -1;
-> @@ -397,14 +394,6 @@ static int video_set_bqc_offset(const struct dmi_system_id *d)
->  	return 0;
->  }
->  
-> -static int video_disable_backlight_sysfs_if(
-> -	const struct dmi_system_id *d)
-> -{
-> -	if (disable_backlight_sysfs_if == -1)
-> -		disable_backlight_sysfs_if = 1;
-> -	return 0;
-> -}
-> -
->  static int video_set_device_id_scheme(const struct dmi_system_id *d)
->  {
->  	device_id_scheme = true;
-> @@ -477,40 +466,6 @@ static const struct dmi_system_id video_dmi_table[] = {
->  		},
->  	},
->  
-> -	/*
-> -	 * Some machines have a broken acpi-video interface for brightness
-> -	 * control, but still need an acpi_video_device_lcd_set_level() call
-> -	 * on resume to turn the backlight power on.  We Enable backlight
-> -	 * control on these systems, but do not register a backlight sysfs
-> -	 * as brightness control does not work.
-> -	 */
-> -	{
-> -	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
-> -	 .callback = video_disable_backlight_sysfs_if,
-> -	 .ident = "Toshiba Portege R700",
-> -	 .matches = {
-> -		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> -		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R700"),
-> -		},
-> -	},
-> -	{
-> -	 /* https://bugs.freedesktop.org/show_bug.cgi?id=82634 */
-> -	 .callback = video_disable_backlight_sysfs_if,
-> -	 .ident = "Toshiba Portege R830",
-> -	 .matches = {
-> -		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> -		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R830"),
-> -		},
-> -	},
-> -	{
-> -	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
-> -	 .callback = video_disable_backlight_sysfs_if,
-> -	 .ident = "Toshiba Satellite R830",
-> -	 .matches = {
-> -		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> -		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
-> -		},
-> -	},
->  	/*
->  	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
->  	 * but the IDs actually follow the Device ID Scheme.
-> @@ -1772,9 +1727,6 @@ static void acpi_video_dev_register_backlight(struct acpi_video_device *device)
->  	if (result)
->  		return;
->  
-> -	if (disable_backlight_sysfs_if > 0)
-> -		return;
-> -
->  	name = kasprintf(GFP_KERNEL, "acpi_video%d", count);
->  	if (!name)
->  		return;
-> diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-> index 490ae990bd3c..62975cfcce68 100644
-> --- a/drivers/acpi/video_detect.c
-> +++ b/drivers/acpi/video_detect.c
-> @@ -447,6 +447,41 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
->  		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
->  		},
->  	},
-> +	/*
-> +	 * These Toshibas have a broken acpi-video interface for brightness
-> +	 * control. They also have an issue where the panel is off after
-> +	 * suspend until a special firmware call is made to turn it back
-> +	 * on. This is handled by the toshiba_acpi kernel module, so that
-> +	 * module must be enabled for these models to work correctly.
-> +	 */
-> +	{
-> +	 /* https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
-> +	 .callback = video_detect_force_native,
-> +	 /* Toshiba Portégé R700 */
-> +	 .matches = {
-> +		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> +		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE R700"),
-> +		},
-> +	},
-> +	{
-> +	 /* Portégé: https://bugs.freedesktop.org/show_bug.cgi?id=82634 */
-> +	 /* Satellite: https://bugzilla.kernel.org/show_bug.cgi?id=21012 */
-> +	 .callback = video_detect_force_native,
-> +	 /* Toshiba Satellite/Portégé R830 */
-> +	 .matches = {
-> +		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> +		DMI_MATCH(DMI_PRODUCT_NAME, "R830"),
-> +		},
-> +	},
-> +	{
-> +	 .callback = video_detect_force_native,
-> +	 /* Toshiba Satellite/Portégé Z830 */
-> +	 .matches = {
-> +		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-> +		DMI_MATCH(DMI_PRODUCT_NAME, "Z830"),
-> +		},
-> +	},
-> +
->  	/*
->  	 * Desktops which falsely report a backlight and which our heuristics
->  	 * for this do not catch.
-
+On Mon, Oct 10, 2022 at 9:07 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.0.1 release.
+> There are 17 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.1-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+> -------------
+> Pseudo-Shortlog of commits:
+>
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>     Linux 6.0.1-rc1
+>
+> Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+>     Bluetooth: use hdev->workqueue when queuing hdev->{cmd,ncmd}_timer works
+>
+> Jules Irenge <jbi.octave@gmail.com>
+>     bpf: Fix resetting logic for unreferenced kptrs
+>
+> Daniel Golle <daniel@makrotopia.org>
+>     net: ethernet: mtk_eth_soc: fix state in __mtk_foe_entry_clear
+>
+> Kumar Kartikeya Dwivedi <memxor@gmail.com>
+>     bpf: Gate dynptr API behind CAP_BPF
+>
+> Palmer Dabbelt <palmer@rivosinc.com>
+>     RISC-V: Print SSTC in canonical order
+>
+> Mario Limonciello <mario.limonciello@amd.com>
+>     gpiolib: acpi: Add a quirk for Asus UM325UAZ
+>
+> Mario Limonciello <mario.limonciello@amd.com>
+>     gpiolib: acpi: Add support to ignore programming an interrupt
+>
+> Johan Hovold <johan@kernel.org>
+>     USB: serial: ftdi_sio: fix 300 bps rate for SIO
+>
+> Tadeusz Struk <tadeusz.struk@linaro.org>
+>     usb: mon: make mmapped memory read only
+>
+> Aleksa Savic <savicaleksa83@gmail.com>
+>     hwmon: (aquacomputer_d5next) Fix Quadro fan speed offsets
+>
+> Shuah Khan <skhan@linuxfoundation.org>
+>     docs: update mediator information in CoC docs
+>
+> Kees Cook <keescook@chromium.org>
+>     hardening: Remove Clang's enable flag for -ftrivial-auto-var-init=zero
+>
+> Sami Tolvanen <samitolvanen@google.com>
+>     Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
+>
+> Bart Van Assche <bvanassche@acm.org>
+>     sparc: Unbreak the build
+>
+> Al Viro <viro@zeniv.linux.org.uk>
+>     fix coredump breakage
+>
+> Dongliang Mu <mudongliangabcd@gmail.com>
+>     fs: fix UAF/GPF bug in nilfs_mdt_destroy
+>
+> Jalal Mostafa <jalal.a.mostapha@gmail.com>
+>     xsk: Inherit need_wakeup flag for shared sockets
+>
+>
+> -------------
+>
+> Diffstat:
+>
+>  .../process/code-of-conduct-interpretation.rst     |  2 +-
+>  Makefile                                           |  8 ++---
+>  arch/riscv/kernel/cpu.c                            |  2 +-
+>  arch/sparc/include/asm/smp_32.h                    | 15 ++++-----
+>  arch/sparc/kernel/leon_smp.c                       | 12 ++++---
+>  arch/sparc/kernel/sun4d_smp.c                      | 12 ++++---
+>  arch/sparc/kernel/sun4m_smp.c                      | 10 +++---
+>  arch/sparc/mm/srmmu.c                              | 29 ++++++++---------
+>  drivers/gpio/gpiolib-acpi.c                        | 38 +++++++++++++++++++---
+>  drivers/hwmon/aquacomputer_d5next.c                |  2 +-
+>  drivers/net/ethernet/mediatek/mtk_ppe.c            |  2 +-
+>  drivers/usb/mon/mon_bin.c                          |  5 +++
+>  drivers/usb/serial/ftdi_sio.c                      |  3 +-
+>  fs/coredump.c                                      |  3 +-
+>  fs/inode.c                                         |  7 ++--
+>  include/net/xsk_buff_pool.h                        |  2 +-
+>  kernel/bpf/helpers.c                               | 28 ++++++++--------
+>  kernel/bpf/syscall.c                               |  2 +-
+>  net/bluetooth/hci_core.c                           | 15 +++++++--
+>  net/bluetooth/hci_event.c                          |  6 ++--
+>  net/xdp/xsk.c                                      |  4 +--
+>  net/xdp/xsk_buff_pool.c                            |  5 +--
+>  scripts/Makefile.extrawarn                         |  1 +
+>  security/Kconfig.hardening                         | 14 +++++---
+>  24 files changed, 141 insertions(+), 86 deletions(-)
+>
+>
