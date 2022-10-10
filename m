@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F309D5F9967
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 757695F9977
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbiJJHMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:12:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34718 "EHLO
+        id S231917AbiJJHMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231897AbiJJHLO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BBF2317A;
-        Mon, 10 Oct 2022 00:07:25 -0700 (PDT)
+        with ESMTP id S231918AbiJJHL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3E3657544;
+        Mon, 10 Oct 2022 00:07:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 336C2B80E60;
-        Mon, 10 Oct 2022 07:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ED94C433C1;
-        Mon, 10 Oct 2022 07:07:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B1F3B80E56;
+        Mon, 10 Oct 2022 07:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9898CC433D6;
+        Mon, 10 Oct 2022 07:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385641;
-        bh=YoajUM20gTB4qwbFyiuAFKO4hfeAyGhn+vIsU9/vtJA=;
+        s=korg; t=1665385668;
+        bh=Ag4aLuw9wMnLOhH+/uCRkuFV3iWQqUkfEVryUMoqJxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1nSo6a2FEKSf1dwCrlPpH9n11YbskN8kNiN+TiUGpFSUXhohA0CCs1PmNNm+lEwO
-         iix9/pHknO09RA3+9zoFXfGtrYIi8yVTAPdgb43Xgx1585Gc6r5SEm7KAQmQxSE174
-         4pOtxNb8v7nKsJsG+6TjzotCAwRm0mTn7Yn8zK94=
+        b=QWkSsYJYqCH5aZcskKvhEn8ftOh8WrA9cFcChWN8xBxIjMDY1ybs4E8c2UvnuzVRn
+         uikNfdFmWa0anSWM0uHvK4e9UZ9e+uFapwzAcisYr8j/EqlTm1st9jUmmBoAaggq6S
+         12XMeO/ISFFtnmvQUjyz8PNlGip/sG402/XUjIfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Wende Tan <twd2.me@gmail.com>, Letu Ren <fantasquex@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 36/48] [coredump] dont use __kernel_write() on kmap_local_page()
-Date:   Mon, 10 Oct 2022 09:05:34 +0200
-Message-Id: <20221010070334.630261714@linuxfoundation.org>
+Subject: [PATCH 5.15 16/37] scsi: qedf: Fix a UAF bug in __qedf_probe()
+Date:   Mon, 10 Oct 2022 09:05:35 +0200
+Message-Id: <20221010070331.705185424@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
+References: <20221010070331.211113813@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,158 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit 06bbaa6dc53cb72040db952053432541acb9adc7 ]
+[ Upstream commit fbfe96869b782364caebae0445763969ddb6ea67 ]
 
-passing kmap_local_page() result to __kernel_write() is unsafe -
-random ->write_iter() might (and 9p one does) get unhappy when
-passed ITER_KVEC with pointer that came from kmap_local_page().
+In __qedf_probe(), if qedf->cdev is NULL which means
+qed_ops->common->probe() failed, then the program will goto label err1, and
+scsi_host_put() will free lport->host pointer. Because the memory qedf
+points to is allocated by libfc_host_alloc(), it will be freed by
+scsi_host_put(). However, the if statement below label err0 only checks
+whether qedf is NULL but doesn't check whether the memory has been freed.
+So a UAF bug can occur.
 
-Fix by providing a variant of __kernel_write() that takes an iov_iter
-from caller (__kernel_write() becomes a trivial wrapper) and adding
-dump_emit_page() that parallels dump_emit(), except that instead of
-__kernel_write() it uses __kernel_write_iter() with ITER_BVEC source.
+There are two ways to reach the statements below err0. The first one is
+described as before, "qedf" should be set to NULL. The second one is goto
+"err0" directly. In the latter scenario qedf hasn't been changed and it has
+the initial value NULL. As a result the if statement is not reachable in
+any situation.
 
-Fixes: 3159ed57792b "fs/coredump: use kmap_local_page()"
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+The KASAN logs are as follows:
+
+[    2.312969] BUG: KASAN: use-after-free in __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]
+[    2.312969] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    2.312969] Call Trace:
+[    2.312969]  dump_stack_lvl+0x59/0x7b
+[    2.312969]  print_address_description+0x7c/0x3b0
+[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]  __kasan_report+0x160/0x1c0
+[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]  kasan_report+0x4b/0x70
+[    2.312969]  ? kobject_put+0x25d/0x290
+[    2.312969]  kasan_check_range+0x2ca/0x310
+[    2.312969]  __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]  ? selinux_kernfs_init_security+0xdc/0x5f0
+[    2.312969]  ? trace_rpm_return_int_rcuidle+0x18/0x120
+[    2.312969]  ? rpm_resume+0xa5c/0x16e0
+[    2.312969]  ? qedf_get_generic_tlv_data+0x160/0x160
+[    2.312969]  local_pci_probe+0x13c/0x1f0
+[    2.312969]  pci_device_probe+0x37e/0x6c0
+
+Link: https://lore.kernel.org/r/20211112120641.16073-1-fantasquex@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Acked-by: Saurav Kashyap <skashyap@marvell.com>
+Co-developed-by: Wende Tan <twd2.me@gmail.com>
+Signed-off-by: Wende Tan <twd2.me@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/coredump.c   | 38 +++++++++++++++++++++++++++++++++-----
- fs/internal.h   |  3 +++
- fs/read_write.c | 22 ++++++++++++++--------
- 3 files changed, 50 insertions(+), 13 deletions(-)
+ drivers/scsi/qedf/qedf_main.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/fs/coredump.c b/fs/coredump.c
-index ebc43f960b64..f1355e52614a 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -832,6 +832,38 @@ static int __dump_skip(struct coredump_params *cprm, size_t nr)
- 	}
- }
- 
-+static int dump_emit_page(struct coredump_params *cprm, struct page *page)
-+{
-+	struct bio_vec bvec = {
-+		.bv_page	= page,
-+		.bv_offset	= 0,
-+		.bv_len		= PAGE_SIZE,
-+	};
-+	struct iov_iter iter;
-+	struct file *file = cprm->file;
-+	loff_t pos = file->f_pos;
-+	ssize_t n;
-+
-+	if (cprm->to_skip) {
-+		if (!__dump_skip(cprm, cprm->to_skip))
-+			return 0;
-+		cprm->to_skip = 0;
-+	}
-+	if (cprm->written + PAGE_SIZE > cprm->limit)
-+		return 0;
-+	if (dump_interrupted())
-+		return 0;
-+	iov_iter_bvec(&iter, WRITE, &bvec, 1, PAGE_SIZE);
-+	n = __kernel_write_iter(cprm->file, &iter, &pos);
-+	if (n != PAGE_SIZE)
-+		return 0;
-+	file->f_pos = pos;
-+	cprm->written += PAGE_SIZE;
-+	cprm->pos += PAGE_SIZE;
-+
-+	return 1;
-+}
-+
- int dump_emit(struct coredump_params *cprm, const void *addr, int nr)
- {
- 	if (cprm->to_skip) {
-@@ -863,7 +895,6 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
- 
- 	for (addr = start; addr < start + len; addr += PAGE_SIZE) {
- 		struct page *page;
--		int stop;
- 
- 		/*
- 		 * To avoid having to allocate page tables for virtual address
-@@ -874,10 +905,7 @@ int dump_user_range(struct coredump_params *cprm, unsigned long start,
- 		 */
- 		page = get_dump_page(addr);
- 		if (page) {
--			void *kaddr = kmap_local_page(page);
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 544401f76c07..73c7197081ea 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -3686,11 +3686,6 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+ err1:
+ 	scsi_host_put(lport->host);
+ err0:
+-	if (qedf) {
+-		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
 -
--			stop = !dump_emit(cprm, kaddr, PAGE_SIZE);
--			kunmap_local(kaddr);
-+			int stop = !dump_emit_page(cprm, page);
- 			put_page(page);
- 			if (stop)
- 				return 0;
-diff --git a/fs/internal.h b/fs/internal.h
-index 87e96b9024ce..3e206d3e317c 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -16,6 +16,7 @@ struct shrink_control;
- struct fs_context;
- struct user_namespace;
- struct pipe_inode_info;
-+struct iov_iter;
- 
- /*
-  * block/bdev.c
-@@ -221,3 +222,5 @@ ssize_t do_getxattr(struct user_namespace *mnt_userns,
- int setxattr_copy(const char __user *name, struct xattr_ctx *ctx);
- int do_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
- 		struct xattr_ctx *ctx);
-+
-+ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos);
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 397da0236607..a0a3d35e2c0f 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -509,14 +509,9 @@ static ssize_t new_sync_write(struct file *filp, const char __user *buf, size_t
+-		clear_bit(QEDF_PROBING, &qedf->flags);
+-	}
+ 	return rc;
  }
  
- /* caller is responsible for file_start_write/file_end_write */
--ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
-+ssize_t __kernel_write_iter(struct file *file, struct iov_iter *from, loff_t *pos)
- {
--	struct kvec iov = {
--		.iov_base	= (void *)buf,
--		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
--	};
- 	struct kiocb kiocb;
--	struct iov_iter iter;
- 	ssize_t ret;
- 
- 	if (WARN_ON_ONCE(!(file->f_mode & FMODE_WRITE)))
-@@ -532,8 +527,7 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
- 
- 	init_sync_kiocb(&kiocb, file);
- 	kiocb.ki_pos = pos ? *pos : 0;
--	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
--	ret = file->f_op->write_iter(&kiocb, &iter);
-+	ret = file->f_op->write_iter(&kiocb, from);
- 	if (ret > 0) {
- 		if (pos)
- 			*pos = kiocb.ki_pos;
-@@ -543,6 +537,18 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
- 	inc_syscw(current);
- 	return ret;
- }
-+
-+/* caller is responsible for file_start_write/file_end_write */
-+ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
-+{
-+	struct kvec iov = {
-+		.iov_base	= (void *)buf,
-+		.iov_len	= min_t(size_t, count, MAX_RW_COUNT),
-+	};
-+	struct iov_iter iter;
-+	iov_iter_kvec(&iter, WRITE, &iov, 1, iov.iov_len);
-+	return __kernel_write_iter(file, &iter, pos);
-+}
- /*
-  * This "EXPORT_SYMBOL_GPL()" is more of a "EXPORT_SYMBOL_DONTUSE()",
-  * but autofs is one of the few internal kernel users that actually
 -- 
 2.35.1
 
