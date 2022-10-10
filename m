@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E765F998B
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E5F5F993F
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231569AbiJJHOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:14:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
+        id S231417AbiJJHJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:09:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231899AbiJJHMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:12:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB6C05E664;
-        Mon, 10 Oct 2022 00:07:57 -0700 (PDT)
+        with ESMTP id S231389AbiJJHJH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:09:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47EDC5FB4;
+        Mon, 10 Oct 2022 00:06:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E121B80E4B;
-        Mon, 10 Oct 2022 07:07:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F7D4C433C1;
-        Mon, 10 Oct 2022 07:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79D2A60E8D;
+        Mon, 10 Oct 2022 07:06:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C4CEC433C1;
+        Mon, 10 Oct 2022 07:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385675;
-        bh=7a+WTDLovQeSm3K4+3q8ZCqpy2ODJ1EzuBZHDte6j3s=;
+        s=korg; t=1665385560;
+        bh=Oo5dzfgUvi7RFuvhID2RTEtBjZh0y9xtz/tZcCFnyi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZXeD+j9xGiKq0jim+ziwC/jSq6PiDz4r/CqB/NJx2t/7gpGjnt681Sd4XojJ7Q30F
-         VRocoJClF3TL2kxyLqz83X6GeHCY2jxLYGGkrdjcXf+mU63smsAvGpIyyTU7UVgh89
-         ARrDfpVvCd/efa7xjdmdygZAGt4Z4A96C/QXcC9I=
+        b=pUSZ4ysVqpozHqYwB7Uf6zitgFCnlY5e26sB3WIGld2YjyMRJdBCxbkwb0XLUwQqd
+         tGUKXhn5C0XRYsVZBAVKB0iPPh2soVowTZiz0Obt71ktS7ezD40raX65o8A3YHzJBQ
+         i6oQ9WQbnoGWCunj/GksjkS9XkH4431M1S163SEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.15 02/37] docs: update mediator information in CoC docs
+        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.19 23/48] um: Cleanup syscall_handler_t cast in syscalls_32.h
 Date:   Mon, 10 Oct 2022 09:05:21 +0200
-Message-Id: <20221010070331.304903711@linuxfoundation.org>
+Message-Id: <20221010070334.306949060@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
-References: <20221010070331.211113813@linuxfoundation.org>
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+References: <20221010070333.676316214@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Lukas Straub <lukasstraub2@web.de>
 
-commit 8bfdfa0d6b929ede7b6189e0e546ceb6a124d05d upstream.
+[ Upstream commit 61670b4d270c71219def1fbc9441debc2ac2e6e9 ]
 
-Update mediator information in the CoC interpretation document.
+Like in f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9
+"um: Cleanup syscall_handler_t definition/cast, fix warning",
+remove the cast to to fix the compiler warning.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220901212319.56644-1-skhan@linuxfoundation.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/process/code-of-conduct-interpretation.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/um/shared/sysdep/syscalls_32.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/Documentation/process/code-of-conduct-interpretation.rst
-+++ b/Documentation/process/code-of-conduct-interpretation.rst
-@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or ot
- uncertain how to handle situations that come up.  It will not be
- considered a violation report unless you want it to be.  If you are
- uncertain about approaching the TAB or any other maintainers, please
--reach out to our conflict mediator, Mishi Choudhary <mishi@linux.com>.
-+reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
+diff --git a/arch/x86/um/shared/sysdep/syscalls_32.h b/arch/x86/um/shared/sysdep/syscalls_32.h
+index 68fd2cf526fd..f6e9f84397e7 100644
+--- a/arch/x86/um/shared/sysdep/syscalls_32.h
++++ b/arch/x86/um/shared/sysdep/syscalls_32.h
+@@ -6,10 +6,9 @@
+ #include <asm/unistd.h>
+ #include <sysdep/ptrace.h>
  
- In the end, "be kind to each other" is really what the end goal is for
- everybody.  We know everyone is human and we all fail at times, but the
+-typedef long syscall_handler_t(struct pt_regs);
++typedef long syscall_handler_t(struct syscall_args);
+ 
+ extern syscall_handler_t *sys_call_table[];
+ 
+ #define EXECUTE_SYSCALL(syscall, regs) \
+-	((long (*)(struct syscall_args)) \
+-	 (*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
++	((*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
+-- 
+2.35.1
+
 
 
