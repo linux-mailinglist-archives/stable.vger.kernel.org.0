@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C175F9959
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074D65F9992
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbiJJHLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:11:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
+        id S232082AbiJJHOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbiJJHKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:10:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC95B5E327;
-        Mon, 10 Oct 2022 00:06:56 -0700 (PDT)
+        with ESMTP id S231847AbiJJHMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:12:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6864A5E644;
+        Mon, 10 Oct 2022 00:08:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55F7160E08;
-        Mon, 10 Oct 2022 07:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 657F0C433C1;
-        Mon, 10 Oct 2022 07:06:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6A38B80E53;
+        Mon, 10 Oct 2022 07:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37BF3C433D6;
+        Mon, 10 Oct 2022 07:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385594;
-        bh=e1JMPfuaurNU7yamrXuJDf13lTzY2GGhqF2mchjNmik=;
+        s=korg; t=1665385691;
+        bh=fuyYJ1PgQ/0Vjya1hDPC75yBAXa5+cuLBuE8AjfFauk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENz83DBf9AljXaPNFbiq4ogUDMONPU34tht0OawPue0dSQT1Y2Ghxe8Eug7XZQvHX
-         umiGayQ5bCDUrLacCQ7kS/ZMU2SAinsdGj6P4hal5bLvN3yCGOetBszMFZrQu6G3nz
-         oKC7Ci2PqVLwZiyxD2ZToNtRLa4d0GAcdng2iDdw=
+        b=PzMmwly47EApNlj/lXx2WleZ7AVFc0Oi7p05xE1CdY4GdF+N3gZgQyJi47saNasjn
+         v6i9cN48+0hcqNPZWX/Xd6Cpgl0EF59LQlscSYQqV4NsoP1yQ7h0o+xFd1XnIijzxD
+         k3tg1YkHgpCxfXZFlKgFvKfMAndxnL8c8GsuHPYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 29/48] drm/amd/display: Fix double cursor on non-video RGB MPO
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.15 08/37] fs: fix UAF/GPF bug in nilfs_mdt_destroy
 Date:   Mon, 10 Oct 2022 09:05:27 +0200
-Message-Id: <20221010070334.456327237@linuxfoundation.org>
+Message-Id: <20221010070331.502596854@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
+References: <20221010070331.211113813@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,81 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Li <sunpeng.li@amd.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit b261509952bc19d1012cf732f853659be6ebc61e ]
+commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
 
-[Why]
+In alloc_inode, inode_init_always() could return -ENOMEM if
+security_inode_alloc() fails, which causes inode->i_private
+uninitialized. Then nilfs_is_metadata_file_inode() returns
+true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
+which frees the uninitialized inode->i_private
+and leads to crashes(e.g., UAF/GPF).
 
-DC makes use of layer_index (zpos) when picking the HW plane to enable
-HW cursor on. However, some compositors will not attach zpos information
-to each DRM plane. Consequently, in amdgpu, we default layer_index to 0
-and do not update it.
+Fix this by moving security_inode_alloc just prior to
+this_cpu_inc(nr_inodes)
 
-This causes said DC logic to enable HW cursor on all planes of the same
-layer_index, which manifests as a double cursor issue if one of the
-planes is scaled (and hence scaling the cursor as well).
-
-[How]
-
-Use DRM core helpers to calculate a normalized_zpos value for each
-drm_plane_state under each crtc, within the atomic state.
-
-This helper will first consider existing zpos values, and if
-identical/unset, fallback to plane ID ordering.
-
-The normalized_zpos is then passed to dc_plane_info during atomic check
-for later use by the cursor logic.
-
-Reviewed-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Leo Li <sunpeng.li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/inode.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 0424570c736f..c781f92db959 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5629,7 +5629,7 @@ fill_dc_plane_info_and_addr(struct amdgpu_device *adev,
- 	plane_info->visible = true;
- 	plane_info->stereo_format = PLANE_STEREO_FORMAT_NONE;
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -167,8 +167,6 @@ int inode_init_always(struct super_block
+ 	inode->i_wb_frn_history = 0;
+ #endif
  
--	plane_info->layer_index = 0;
-+	plane_info->layer_index = plane_state->normalized_zpos;
+-	if (security_inode_alloc(inode))
+-		goto out;
+ 	spin_lock_init(&inode->i_lock);
+ 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
  
- 	ret = fill_plane_color_attributes(plane_state, plane_info->format,
- 					  &plane_info->color_space);
-@@ -5697,7 +5697,7 @@ static int fill_dc_plane_attributes(struct amdgpu_device *adev,
- 	dc_plane_state->global_alpha = plane_info.global_alpha;
- 	dc_plane_state->global_alpha_value = plane_info.global_alpha_value;
- 	dc_plane_state->dcc = plane_info.dcc;
--	dc_plane_state->layer_index = plane_info.layer_index; // Always returns 0
-+	dc_plane_state->layer_index = plane_info.layer_index;
- 	dc_plane_state->flip_int_enabled = true;
- 
- 	/*
-@@ -11147,6 +11147,14 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
- 		}
- 	}
- 
-+	/*
-+	 * DC consults the zpos (layer_index in DC terminology) to determine the
-+	 * hw plane on which to enable the hw cursor (see
-+	 * `dcn10_can_pipe_disable_cursor`). By now, all modified planes are in
-+	 * atomic state, so call drm helper to normalize zpos.
-+	 */
-+	drm_atomic_normalize_zpos(dev, state);
+@@ -205,11 +203,12 @@ int inode_init_always(struct super_block
+ 	inode->i_fsnotify_mask = 0;
+ #endif
+ 	inode->i_flctx = NULL;
 +
- 	/* Remove exiting planes if they are modified */
- 	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
- 		ret = dm_update_plane_state(dc, state, plane,
--- 
-2.35.1
-
++	if (unlikely(security_inode_alloc(inode)))
++		return -ENOMEM;
+ 	this_cpu_inc(nr_inodes);
+ 
+ 	return 0;
+-out:
+-	return -ENOMEM;
+ }
+ EXPORT_SYMBOL(inode_init_always);
+ 
 
 
