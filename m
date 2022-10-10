@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E3055F9930
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3525F992B
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbiJJHIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
+        id S230294AbiJJHIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230345AbiJJHIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:08:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC4C122BE9;
-        Mon, 10 Oct 2022 00:05:40 -0700 (PDT)
+        with ESMTP id S231470AbiJJHHw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:07:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF4E1D678;
+        Mon, 10 Oct 2022 00:05:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8061B80E5C;
-        Mon, 10 Oct 2022 07:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 344ACC433C1;
-        Mon, 10 Oct 2022 07:05:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA66960E08;
+        Mon, 10 Oct 2022 07:05:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2406C433D6;
+        Mon, 10 Oct 2022 07:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385537;
-        bh=2eEzG9gMoeCDqrQE6PVnB7Na/A3URZNcMUiHeCsODx0=;
+        s=korg; t=1665385540;
+        bh=6JffHU6PnRtlmn1w09erYXoEyaJBI9+hx8PzX9HTScw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATCYCJFjHPNjq/+KXG2Ukcy/TncdiF05rI9dkL3YU0ReFJ0kDMJiXJERsbu+NzjEK
-         5vtZbdgrX2rPoz5M9ebRLTyx5b5v2PgTwW2jW9YpumtPAlNJzweImNYQWzIYcEVBPL
-         Q3cnidnK/5yE0h2qTLaD5VcaISJICQ1HnYGX+ImU=
+        b=t2qq3vp/NpuK+fy3bD9QtVKJ7ognRPfjNkYvuBNgHffIicntEgXKq6uwdX3JDQOwa
+         /XYYCTRsznXcs8oW2JBGl1xz5BlsdcZwKaUv0qfa/fj0kCx4LiEky0mOUiVKqCDKcr
+         mhkE+A+qwZTNgxFdjViEm48kva9SCOlzokA0icsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 15/48] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
-Date:   Mon, 10 Oct 2022 09:05:13 +0200
-Message-Id: <20221010070334.108085226@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 16/48] wifi: iwlwifi: dont spam logs with NSS>2 messages
+Date:   Mon, 10 Oct 2022 09:05:14 +0200
+Message-Id: <20221010070334.133086627@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
 References: <20221010070333.676316214@linuxfoundation.org>
@@ -53,44 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swati Agarwal <swati.agarwal@xilinx.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
+[ Upstream commit 4d8421f2dd88583cc7a4d6c2a5532c35e816a52a ]
 
-The driver does not handle the failure case while calling
-dma_set_mask_and_coherent API.
+I get a log line like this every 4 seconds when connected to my AP:
 
-In case of failure, capture the return value of API and then report an
-error.
+[15650.221468] iwlwifi 0000:09:00.0: Got NSS = 4 - trimming to 2
 
-Addresses-coverity: Unchecked return value (CHECKED_RETURN)
+Looking at the code, this seems to be related to a hardware limitation,
+and there's nothing to be done. In an effort to keep my dmesg
+manageable, downgrade this error to "debug" rather than "info".
 
-Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220905172246.105383-1-Jason@zx2c4.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index f63ec9d862ff..7ce8bb160a59 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -3211,7 +3211,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		xdev->ext_addr = false;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index c5626ff83805..640e3786c244 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -1833,8 +1833,8 @@ static void iwl_mvm_parse_ppe(struct iwl_mvm *mvm,
+ 	* If nss < MAX: we can set zeros in other streams
+ 	*/
+ 	if (nss > MAX_HE_SUPP_NSS) {
+-		IWL_INFO(mvm, "Got NSS = %d - trimming to %d\n", nss,
+-			 MAX_HE_SUPP_NSS);
++		IWL_DEBUG_INFO(mvm, "Got NSS = %d - trimming to %d\n", nss,
++			       MAX_HE_SUPP_NSS);
+ 		nss = MAX_HE_SUPP_NSS;
+ 	}
  
- 	/* Set the dma mask bits */
--	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	if (err < 0) {
-+		dev_err(xdev->dev, "DMA mask error %d\n", err);
-+		goto disable_clks;
-+	}
- 
- 	/* Initialize the DMA engine */
- 	xdev->common.dev = &pdev->dev;
 -- 
 2.35.1
 
