@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4A85F9981
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 989AC5F99A4
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231815AbiJJHNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:13:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34406 "EHLO
+        id S231863AbiJJHOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:14:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231214AbiJJHLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F6C5A166;
-        Mon, 10 Oct 2022 00:07:58 -0700 (PDT)
+        with ESMTP id S232192AbiJJHNi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:13:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BDB5A2C7;
+        Mon, 10 Oct 2022 00:09:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBF5DB80E5E;
-        Mon, 10 Oct 2022 07:07:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA5BC433C1;
-        Mon, 10 Oct 2022 07:07:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6FB160E8A;
+        Mon, 10 Oct 2022 07:08:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C4EC433D7;
+        Mon, 10 Oct 2022 07:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385623;
-        bh=lPKcDtfBkw81BZ1ZRxlUP0s5ImWOvfOBFzo7y33aLBc=;
+        s=korg; t=1665385694;
+        bh=0452Ih+dYMop1HKkBlAPiOxWLga9SLTq7ov9aO4GTnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yxa01gzVeyBP68nAmom9KKqE/sxRWZ1MoAsJNtWNB9kKz0q6TIdOoVeeb1uqgkGLN
-         1sWTZ6phLfgCfibBgynTSEBJRoaR55wces7Mz6rcnA1bKlFg6V8l52UMNDU+SRBA70
-         Dus68Bf+Jw3GHFlO99WyxivjIFMdEhkoLIK+5LWE=
+        b=AcX+qzdpENtaCw3PJNib57C/kMJLo+Fpd98ycmYxwdZCxU7DKZH2Vp/AbP5SdDfVC
+         cG29v4N+k/sJMAckWEXmv7qTTwvnVWI/a+K6mEb4xkmtANY3YllifT5h+FW+M6uBlz
+         juoq1woYdH8W0p7CZOUAfbPmzZvmqyNZkOsfNLU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Shen <George.Shen@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>,
-        Michael Strauss <michael.strauss@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 30/48] drm/amd/display: Assume an LTTPR is always present on fixed_vs links
+Subject: [PATCH 5.15 09/37] firmware: arm_scmi: Improve checks in the info_get operations
 Date:   Mon, 10 Oct 2022 09:05:28 +0200
-Message-Id: <20221010070334.481514127@linuxfoundation.org>
+Message-Id: <20221010070331.530278673@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
+References: <20221010070331.211113813@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Strauss <michael.strauss@amd.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 29956d0fded036a570bd8e7d4ea4b1a1730307d2 ]
+[ Upstream commit 1ecb7d27b1af6705e9a4e94415b4d8cc8cf2fbfb ]
 
-[WHY]
-LTTPRs can in very rare instsances fail to increment DPCD LTTPR count.
-This results in aux-i LTTPR requests to be sent to the wrong DPCD
-address, which causes link training failure.
+SCMI protocols abstract and expose a number of protocol specific
+resources like clocks, sensors and so on. Information about such
+specific domain resources are generally exposed via an `info_get`
+protocol operation.
 
-[HOW]
-Override internal repeater count if fixed_vs flag is set for a given link
+Improve the sanity check on these operations where needed.
 
-Reviewed-by: George Shen <George.Shen@amd.com>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Michael Strauss <michael.strauss@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20220817172731.1185305-3-cristian.marussi@arm.com
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/firmware/arm_scmi/clock.c   | 6 +++++-
+ drivers/firmware/arm_scmi/sensors.c | 3 +++
+ include/linux/scmi_protocol.h       | 4 ++--
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index a4fc9a6c850e..0c52506b367d 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -5211,6 +5211,14 @@ bool dp_retrieve_lttpr_cap(struct dc_link *link)
- 				lttpr_dpcd_data[DP_PHY_REPEATER_128B132B_RATES -
- 								DP_LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV];
+diff --git a/drivers/firmware/arm_scmi/clock.c b/drivers/firmware/arm_scmi/clock.c
+index 492f3a9197ec..e76194a60edf 100644
+--- a/drivers/firmware/arm_scmi/clock.c
++++ b/drivers/firmware/arm_scmi/clock.c
+@@ -315,9 +315,13 @@ static int scmi_clock_count_get(const struct scmi_protocol_handle *ph)
+ static const struct scmi_clock_info *
+ scmi_clock_info_get(const struct scmi_protocol_handle *ph, u32 clk_id)
+ {
++	struct scmi_clock_info *clk;
+ 	struct clock_info *ci = ph->get_priv(ph);
+-	struct scmi_clock_info *clk = ci->clk + clk_id;
  
-+		/* If this chip cap is set, at least one retimer must exist in the chain
-+		 * Override count to 1 if we receive a known bad count (0 or an invalid value) */
-+		if (link->chip_caps & EXT_DISPLAY_PATH_CAPS__DP_FIXED_VS_EN &&
-+				(dp_convert_to_count(link->dpcd_caps.lttpr_caps.phy_repeater_cnt) == 0)) {
-+			ASSERT(0);
-+			link->dpcd_caps.lttpr_caps.phy_repeater_cnt = 0x80;
-+		}
++	if (clk_id >= ci->num_clocks)
++		return NULL;
 +
- 		/* Attempt to train in LTTPR transparent mode if repeater count exceeds 8. */
- 		is_lttpr_present = (link->dpcd_caps.lttpr_caps.max_lane_count > 0 &&
- 				link->dpcd_caps.lttpr_caps.max_lane_count <= 4 &&
++	clk = ci->clk + clk_id;
+ 	if (!clk->name[0])
+ 		return NULL;
+ 
+diff --git a/drivers/firmware/arm_scmi/sensors.c b/drivers/firmware/arm_scmi/sensors.c
+index cdbb287bd8bc..b479a9e29c96 100644
+--- a/drivers/firmware/arm_scmi/sensors.c
++++ b/drivers/firmware/arm_scmi/sensors.c
+@@ -817,6 +817,9 @@ scmi_sensor_info_get(const struct scmi_protocol_handle *ph, u32 sensor_id)
+ {
+ 	struct sensors_info *si = ph->get_priv(ph);
+ 
++	if (sensor_id >= si->num_sensors)
++		return NULL;
++
+ 	return si->sensors + sensor_id;
+ }
+ 
+diff --git a/include/linux/scmi_protocol.h b/include/linux/scmi_protocol.h
+index 80e781c51ddc..d22f62203ee3 100644
+--- a/include/linux/scmi_protocol.h
++++ b/include/linux/scmi_protocol.h
+@@ -74,7 +74,7 @@ struct scmi_protocol_handle;
+ struct scmi_clk_proto_ops {
+ 	int (*count_get)(const struct scmi_protocol_handle *ph);
+ 
+-	const struct scmi_clock_info *(*info_get)
++	const struct scmi_clock_info __must_check *(*info_get)
+ 		(const struct scmi_protocol_handle *ph, u32 clk_id);
+ 	int (*rate_get)(const struct scmi_protocol_handle *ph, u32 clk_id,
+ 			u64 *rate);
+@@ -452,7 +452,7 @@ enum scmi_sensor_class {
+  */
+ struct scmi_sensor_proto_ops {
+ 	int (*count_get)(const struct scmi_protocol_handle *ph);
+-	const struct scmi_sensor_info *(*info_get)
++	const struct scmi_sensor_info __must_check *(*info_get)
+ 		(const struct scmi_protocol_handle *ph, u32 sensor_id);
+ 	int (*trip_point_config)(const struct scmi_protocol_handle *ph,
+ 				 u32 sensor_id, u8 trip_id, u64 trip_value);
 -- 
 2.35.1
 
