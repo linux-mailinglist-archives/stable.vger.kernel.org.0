@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2E45F9912
+	by mail.lfdr.de (Postfix) with ESMTP id 5F7C05F9911
 	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbiJJHGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:06:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
+        id S231663AbiJJHGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:06:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231577AbiJJHFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:05:18 -0400
+        with ESMTP id S231459AbiJJHFc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:05:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89924631E;
-        Mon, 10 Oct 2022 00:04:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27111B4B0;
+        Mon, 10 Oct 2022 00:04:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E13260E8D;
-        Mon, 10 Oct 2022 07:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 543CEC433D6;
-        Mon, 10 Oct 2022 07:04:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBD0D60AB4;
+        Mon, 10 Oct 2022 07:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB08C433D6;
+        Mon, 10 Oct 2022 07:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385482;
-        bh=Jq8qMOMnQ5EYQxwRItUaZQpYLQUALXFqrahrT5nE/nU=;
+        s=korg; t=1665385485;
+        bh=xxDHkhWXn9LWoUKnTOuFYR63Zphxmul0hUMh47XisPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wivghXBt3Z3xCsTW92eiq2xH5FXOuAQZqnutUAJ4QdKThlW45KNlxMT1TBQXItOxY
-         mtiUMb2/TsOZRS9/cnVqOzVL8Q5hO2LDlYQWBR8h7PT6t7BdM37S2nCHScXF9A6Q0V
-         T2txNCbUTahGFz7o6BTj5JHRPzyd0O7TEpxqXS7U=
+        b=uFYS5ls7MO0lzpXIUvMDVcHPV77mAGMNsXxqK3eItYSJJMRf0zXTiFHwTPxMkmAJb
+         Gs9N7M1BRm/TLiOggSRfWaeF0eG64IeTHpexcTI9W5lhbLie+3FB9R/0s5TB43eonA
+         OZuEDruy2qhNooBVo3kU2zfNsRySg9e2tVyGMRdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksa Savic <savicaleksa83@gmail.com>,
-        stable@vger.kenrel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 6.0 08/17] hwmon: (aquacomputer_d5next) Fix Quadro fan speed offsets
-Date:   Mon, 10 Oct 2022 09:04:31 +0200
-Message-Id: <20221010070330.443889502@linuxfoundation.org>
+        stable@vger.kernel.org, "Dmitry Vyukov" <dvyukov@google.com>,
+        stable <stable@kernel.org>,
+        syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        PaX Team <pageexec@freemail.hu>
+Subject: [PATCH 6.0 09/17] usb: mon: make mmapped memory read only
+Date:   Mon, 10 Oct 2022 09:04:32 +0200
+Message-Id: <20221010070330.478301738@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
 References: <20221010070330.159911806@linuxfoundation.org>
@@ -52,38 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksa Savic <savicaleksa83@gmail.com>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-commit b7f3e9650f12d1e06b94a0257bcb90279f691bf5 upstream.
+commit a659daf63d16aa883be42f3f34ff84235c302198 upstream.
 
-The offsets for setting speeds of fans connected to Quadro are off by one.
-Set them to their correct values.
+Syzbot found an issue in usbmon module, where the user space client can
+corrupt the monitor's internal memory, causing the usbmon module to
+crash the kernel with segfault, UAF, etc.
 
-The offsets as shown point to registers for setting the fan control mode,
-which will be explored in future patches, but slipped in here. When
-setting fan speeds, the resulting values were overlapping, which made the
-fans still run in my initial testing.
+The reproducer mmaps the /dev/usbmon memory to user space, and
+overwrites it with arbitrary data, which causes all kinds of issues.
 
-Fixes: cdbe34da01e3 ("hwmon: (aquacomputer_d5next) Add support for Aquacomputer Quadro fan controller")
-Signed-off-by: Aleksa Savic <savicaleksa83@gmail.com>
-Link: https://lore.kernel.org/r/20220914114327.6941-1-savicaleksa83@gmail.com
-Cc: stable@vger.kenrel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Return an -EPERM error from mon_bin_mmap() if the flag VM_WRTIE is set.
+Also clear VM_MAYWRITE to make it impossible to change it to writable
+later.
+
+Cc: "Dmitry Vyukov" <dvyukov@google.com>
+Cc: stable <stable@kernel.org>
+Fixes: 6f23ee1fefdc ("USB: add binary API to usbmon")
+Suggested-by: PaX Team <pageexec@freemail.hu>	# for the VM_MAYRITE portion
+Link: https://syzkaller.appspot.com/bug?id=2eb1f35d6525fa4a74d75b4244971e5b1411c95a
+Reported-by: syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220919215957.205681-1-tadeusz.struk@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/aquacomputer_d5next.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/mon/mon_bin.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/hwmon/aquacomputer_d5next.c
-+++ b/drivers/hwmon/aquacomputer_d5next.c
-@@ -110,7 +110,7 @@ static u16 octo_ctrl_fan_offsets[] = { 0
- static u8 quadro_sensor_fan_offsets[] = { 0x70, 0x7D, 0x8A, 0x97 };
- 
- /* Fan speed registers in Quadro control report (from 0-100%) */
--static u16 quadro_ctrl_fan_offsets[] = { 0x36, 0x8b, 0xe0, 0x135 };
-+static u16 quadro_ctrl_fan_offsets[] = { 0x37, 0x8c, 0xe1, 0x136 };
- 
- /* Labels for D5 Next */
- static const char *const label_d5next_temp[] = {
+--- a/drivers/usb/mon/mon_bin.c
++++ b/drivers/usb/mon/mon_bin.c
+@@ -1268,6 +1268,11 @@ static int mon_bin_mmap(struct file *fil
+ {
+ 	/* don't do anything here: "fault" will set up page table entries */
+ 	vma->vm_ops = &mon_bin_vm_ops;
++
++	if (vma->vm_flags & VM_WRITE)
++		return -EPERM;
++
++	vma->vm_flags &= ~VM_MAYWRITE;
+ 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+ 	vma->vm_private_data = filp->private_data;
+ 	mon_bin_vma_open(vma);
 
 
