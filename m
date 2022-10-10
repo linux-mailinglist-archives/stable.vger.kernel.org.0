@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 989AC5F99A4
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4D75F996E
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231863AbiJJHOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:14:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
+        id S231799AbiJJHMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:12:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232192AbiJJHNi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:13:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BDB5A2C7;
-        Mon, 10 Oct 2022 00:09:15 -0700 (PDT)
+        with ESMTP id S231852AbiJJHLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE95A5E65B;
+        Mon, 10 Oct 2022 00:07:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6FB160E8A;
-        Mon, 10 Oct 2022 07:08:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C4EC433D7;
-        Mon, 10 Oct 2022 07:08:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 978A2B80E61;
+        Mon, 10 Oct 2022 07:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00AAC433C1;
+        Mon, 10 Oct 2022 07:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385694;
-        bh=0452Ih+dYMop1HKkBlAPiOxWLga9SLTq7ov9aO4GTnQ=;
+        s=korg; t=1665385652;
+        bh=Rn3Y7qyfne6XgeYpbkCUNoInyYRAAlw9Fj2WspqhhaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcX+qzdpENtaCw3PJNib57C/kMJLo+Fpd98ycmYxwdZCxU7DKZH2Vp/AbP5SdDfVC
-         cG29v4N+k/sJMAckWEXmv7qTTwvnVWI/a+K6mEb4xkmtANY3YllifT5h+FW+M6uBlz
-         juoq1woYdH8W0p7CZOUAfbPmzZvmqyNZkOsfNLU4=
+        b=NrhzXTEjInR9r07E351xn3bzi52/dleQaB50LcqKahzZ4oNQ11nxtS3kn9p7ltlk+
+         oQSnEf1FUl6BrwYJRK7v3TsQOsmYwCs+bCeoXUhLKlS0f3ea+0YEY4Bc0JCbiPl7af
+         dB6WHxJdDMyL/CezYBsYnWZlVIaV10fm4X+3pMHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Cristian Marussi <cristian.marussi@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 09/37] firmware: arm_scmi: Improve checks in the info_get operations
-Date:   Mon, 10 Oct 2022 09:05:28 +0200
-Message-Id: <20221010070331.530278673@linuxfoundation.org>
+Subject: [PATCH 5.15 10/37] firmware: arm_scmi: Harden accesses to the sensor domains
+Date:   Mon, 10 Oct 2022 09:05:29 +0200
+Message-Id: <20221010070331.554869212@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
 References: <20221010070331.211113813@linuxfoundation.org>
@@ -56,80 +56,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 1ecb7d27b1af6705e9a4e94415b4d8cc8cf2fbfb ]
+[ Upstream commit 76f89c954788763db575fb512a40bd483864f1e9 ]
 
-SCMI protocols abstract and expose a number of protocol specific
-resources like clocks, sensors and so on. Information about such
-specific domain resources are generally exposed via an `info_get`
-protocol operation.
+Accessing sensor domains descriptors by the index upon the SCMI drivers
+requests through the SCMI sensor operations interface can potentially
+lead to out-of-bound violations if the SCMI driver misbehave.
 
-Improve the sanity check on these operations where needed.
+Add an internal consistency check before any such domains descriptors
+accesses.
 
-Link: https://lore.kernel.org/r/20220817172731.1185305-3-cristian.marussi@arm.com
+Link: https://lore.kernel.org/r/20220817172731.1185305-4-cristian.marussi@arm.com
 Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
 Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/clock.c   | 6 +++++-
- drivers/firmware/arm_scmi/sensors.c | 3 +++
- include/linux/scmi_protocol.h       | 4 ++--
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/firmware/arm_scmi/sensors.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/clock.c b/drivers/firmware/arm_scmi/clock.c
-index 492f3a9197ec..e76194a60edf 100644
---- a/drivers/firmware/arm_scmi/clock.c
-+++ b/drivers/firmware/arm_scmi/clock.c
-@@ -315,9 +315,13 @@ static int scmi_clock_count_get(const struct scmi_protocol_handle *ph)
- static const struct scmi_clock_info *
- scmi_clock_info_get(const struct scmi_protocol_handle *ph, u32 clk_id)
- {
-+	struct scmi_clock_info *clk;
- 	struct clock_info *ci = ph->get_priv(ph);
--	struct scmi_clock_info *clk = ci->clk + clk_id;
- 
-+	if (clk_id >= ci->num_clocks)
-+		return NULL;
-+
-+	clk = ci->clk + clk_id;
- 	if (!clk->name[0])
- 		return NULL;
- 
 diff --git a/drivers/firmware/arm_scmi/sensors.c b/drivers/firmware/arm_scmi/sensors.c
-index cdbb287bd8bc..b479a9e29c96 100644
+index b479a9e29c96..1ed66d13c06c 100644
 --- a/drivers/firmware/arm_scmi/sensors.c
 +++ b/drivers/firmware/arm_scmi/sensors.c
-@@ -817,6 +817,9 @@ scmi_sensor_info_get(const struct scmi_protocol_handle *ph, u32 sensor_id)
+@@ -631,6 +631,10 @@ static int scmi_sensor_config_get(const struct scmi_protocol_handle *ph,
  {
+ 	int ret;
+ 	struct scmi_xfer *t;
++	struct sensors_info *si = ph->get_priv(ph);
++
++	if (sensor_id >= si->num_sensors)
++		return -EINVAL;
+ 
+ 	ret = ph->xops->xfer_get_init(ph, SENSOR_CONFIG_GET,
+ 				      sizeof(__le32), sizeof(__le32), &t);
+@@ -640,7 +644,6 @@ static int scmi_sensor_config_get(const struct scmi_protocol_handle *ph,
+ 	put_unaligned_le32(sensor_id, t->tx.buf);
+ 	ret = ph->xops->do_xfer(ph, t);
+ 	if (!ret) {
+-		struct sensors_info *si = ph->get_priv(ph);
+ 		struct scmi_sensor_info *s = si->sensors + sensor_id;
+ 
+ 		*sensor_config = get_unaligned_le64(t->rx.buf);
+@@ -657,6 +660,10 @@ static int scmi_sensor_config_set(const struct scmi_protocol_handle *ph,
+ 	int ret;
+ 	struct scmi_xfer *t;
+ 	struct scmi_msg_sensor_config_set *msg;
++	struct sensors_info *si = ph->get_priv(ph);
++
++	if (sensor_id >= si->num_sensors)
++		return -EINVAL;
+ 
+ 	ret = ph->xops->xfer_get_init(ph, SENSOR_CONFIG_SET,
+ 				      sizeof(*msg), 0, &t);
+@@ -669,7 +676,6 @@ static int scmi_sensor_config_set(const struct scmi_protocol_handle *ph,
+ 
+ 	ret = ph->xops->do_xfer(ph, t);
+ 	if (!ret) {
+-		struct sensors_info *si = ph->get_priv(ph);
+ 		struct scmi_sensor_info *s = si->sensors + sensor_id;
+ 
+ 		s->sensor_config = sensor_config;
+@@ -700,8 +706,11 @@ static int scmi_sensor_reading_get(const struct scmi_protocol_handle *ph,
+ 	int ret;
+ 	struct scmi_xfer *t;
+ 	struct scmi_msg_sensor_reading_get *sensor;
++	struct scmi_sensor_info *s;
  	struct sensors_info *si = ph->get_priv(ph);
+-	struct scmi_sensor_info *s = si->sensors + sensor_id;
++
++	if (sensor_id >= si->num_sensors)
++		return -EINVAL;
+ 
+ 	ret = ph->xops->xfer_get_init(ph, SENSOR_READING_GET,
+ 				      sizeof(*sensor), 0, &t);
+@@ -710,6 +719,7 @@ static int scmi_sensor_reading_get(const struct scmi_protocol_handle *ph,
+ 
+ 	sensor = t->tx.buf;
+ 	sensor->id = cpu_to_le32(sensor_id);
++	s = si->sensors + sensor_id;
+ 	if (s->async) {
+ 		sensor->flags = cpu_to_le32(SENSOR_READ_ASYNC);
+ 		ret = ph->xops->do_xfer_with_response(ph, t);
+@@ -764,9 +774,13 @@ scmi_sensor_reading_get_timestamped(const struct scmi_protocol_handle *ph,
+ 	int ret;
+ 	struct scmi_xfer *t;
+ 	struct scmi_msg_sensor_reading_get *sensor;
++	struct scmi_sensor_info *s;
+ 	struct sensors_info *si = ph->get_priv(ph);
+-	struct scmi_sensor_info *s = si->sensors + sensor_id;
  
 +	if (sensor_id >= si->num_sensors)
-+		return NULL;
++		return -EINVAL;
 +
- 	return si->sensors + sensor_id;
- }
- 
-diff --git a/include/linux/scmi_protocol.h b/include/linux/scmi_protocol.h
-index 80e781c51ddc..d22f62203ee3 100644
---- a/include/linux/scmi_protocol.h
-+++ b/include/linux/scmi_protocol.h
-@@ -74,7 +74,7 @@ struct scmi_protocol_handle;
- struct scmi_clk_proto_ops {
- 	int (*count_get)(const struct scmi_protocol_handle *ph);
- 
--	const struct scmi_clock_info *(*info_get)
-+	const struct scmi_clock_info __must_check *(*info_get)
- 		(const struct scmi_protocol_handle *ph, u32 clk_id);
- 	int (*rate_get)(const struct scmi_protocol_handle *ph, u32 clk_id,
- 			u64 *rate);
-@@ -452,7 +452,7 @@ enum scmi_sensor_class {
-  */
- struct scmi_sensor_proto_ops {
- 	int (*count_get)(const struct scmi_protocol_handle *ph);
--	const struct scmi_sensor_info *(*info_get)
-+	const struct scmi_sensor_info __must_check *(*info_get)
- 		(const struct scmi_protocol_handle *ph, u32 sensor_id);
- 	int (*trip_point_config)(const struct scmi_protocol_handle *ph,
- 				 u32 sensor_id, u8 trip_id, u64 trip_value);
++	s = si->sensors + sensor_id;
+ 	if (!count || !readings ||
+ 	    (!s->num_axis && count > 1) || (s->num_axis && count > s->num_axis))
+ 		return -EINVAL;
 -- 
 2.35.1
 
