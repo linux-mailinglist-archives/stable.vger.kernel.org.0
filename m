@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E339F5F9934
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2FC5F9937
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbiJJHIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
+        id S231656AbiJJHJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:09:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231287AbiJJHIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:08:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05225A2ED;
-        Mon, 10 Oct 2022 00:05:46 -0700 (PDT)
+        with ESMTP id S231548AbiJJHI0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:08:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE8A58DDF;
+        Mon, 10 Oct 2022 00:05:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF9B460E9A;
-        Mon, 10 Oct 2022 07:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01A9EC433C1;
-        Mon, 10 Oct 2022 07:05:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28518B80E4D;
+        Mon, 10 Oct 2022 07:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95798C433D6;
+        Mon, 10 Oct 2022 07:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385545;
-        bh=rmXLxzGf9Iaux4QL9qj05LHuT3qVQhmty6LBfQnYxuQ=;
+        s=korg; t=1665385547;
+        bh=EyS2H66dvolNP6xiUcKq1qUgivYU/HqvLxRNpK5DOg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcUifL0lndk6VFTSqHJfmOQQ5NXYYeYesNzQkhOn3NgDXxvNzKJmGzBJetIoanOub
-         olQ7jFFO9mMW7BIlUKTAuOYLn1I+4ds6KMeVA4cHtpDhI8D00hwujG78QfQNILveg7
-         CpB3HD0xmAKhveyAb1+KB0lw/zim/QJjtrnxA3h0=
+        b=FruHpnvtC3FsrqY2+GXksG+fPdZwrQdmH97XBEWwlNk1/9PMqNnNRftWlhSd+SBAi
+         of3uttTRWzp0YXdaVn6Fvw0PnP47Fojwxh2CHCjlb53W3U/WNvQuo9oaPUUmMCt13V
+         DqHuxvMISiH1odKQBCyuB+oZK7EoLCvH8Fup3Axw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifan Zhang <yifan1.zhang@amd.com>,
-        Tim Huang <Tim.Huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Wende Tan <twd2.me@gmail.com>, Letu Ren <fantasquex@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 18/48] drm/amdgpu/mes: zero the sdma_hqd_mask of 2nd SDMA engine for SDMA 6.0.1
-Date:   Mon, 10 Oct 2022 09:05:16 +0200
-Message-Id: <20221010070334.182866385@linuxfoundation.org>
+Subject: [PATCH 5.19 19/48] scsi: qedf: Fix a UAF bug in __qedf_probe()
+Date:   Mon, 10 Oct 2022 09:05:17 +0200
+Message-Id: <20221010070334.207130765@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
 References: <20221010070333.676316214@linuxfoundation.org>
@@ -54,36 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit 0af4ed0c329ebb4cef95fda4fcdbfcdea0255442 ]
+[ Upstream commit fbfe96869b782364caebae0445763969ddb6ea67 ]
 
-there is only one SDMA engine in SDMA 6.0.1, the sdma_hqd_mask has to be
-zeroed for the 2nd engine, otherwise MES scheduler will consider 2nd
-engine exists and map/unmap SDMA queues to the non-existent engine.
+In __qedf_probe(), if qedf->cdev is NULL which means
+qed_ops->common->probe() failed, then the program will goto label err1, and
+scsi_host_put() will free lport->host pointer. Because the memory qedf
+points to is allocated by libfc_host_alloc(), it will be freed by
+scsi_host_put(). However, the if statement below label err0 only checks
+whether qedf is NULL but doesn't check whether the memory has been freed.
+So a UAF bug can occur.
 
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: Tim Huang <Tim.Huang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+There are two ways to reach the statements below err0. The first one is
+described as before, "qedf" should be set to NULL. The second one is goto
+"err0" directly. In the latter scenario qedf hasn't been changed and it has
+the initial value NULL. As a result the if statement is not reachable in
+any situation.
+
+The KASAN logs are as follows:
+
+[    2.312969] BUG: KASAN: use-after-free in __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]
+[    2.312969] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    2.312969] Call Trace:
+[    2.312969]  dump_stack_lvl+0x59/0x7b
+[    2.312969]  print_address_description+0x7c/0x3b0
+[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]  __kasan_report+0x160/0x1c0
+[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]  kasan_report+0x4b/0x70
+[    2.312969]  ? kobject_put+0x25d/0x290
+[    2.312969]  kasan_check_range+0x2ca/0x310
+[    2.312969]  __qedf_probe+0x5dcf/0x6bc0
+[    2.312969]  ? selinux_kernfs_init_security+0xdc/0x5f0
+[    2.312969]  ? trace_rpm_return_int_rcuidle+0x18/0x120
+[    2.312969]  ? rpm_resume+0xa5c/0x16e0
+[    2.312969]  ? qedf_get_generic_tlv_data+0x160/0x160
+[    2.312969]  local_pci_probe+0x13c/0x1f0
+[    2.312969]  pci_device_probe+0x37e/0x6c0
+
+Link: https://lore.kernel.org/r/20211112120641.16073-1-fantasquex@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Acked-by: Saurav Kashyap <skashyap@marvell.com>
+Co-developed-by: Wende Tan <twd2.me@gmail.com>
+Signed-off-by: Wende Tan <twd2.me@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/qedf/qedf_main.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c
-index 69a70a0aaed9..6ab062c63da1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c
-@@ -169,6 +169,9 @@ int amdgpu_mes_init(struct amdgpu_device *adev)
- 	for (i = 0; i < AMDGPU_MES_MAX_SDMA_PIPES; i++) {
- 		if (adev->ip_versions[SDMA0_HWIP][0] < IP_VERSION(6, 0, 0))
- 			adev->mes.sdma_hqd_mask[i] = i ? 0 : 0x3fc;
-+		/* zero sdma_hqd_mask for non-existent engine */
-+		else if (adev->sdma.num_instances == 1)
-+			adev->mes.sdma_hqd_mask[i] = i ? 0 : 0xfc;
- 		else
- 			adev->mes.sdma_hqd_mask[i] = 0xfc;
- 	}
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 3d6b137314f3..bbc4d5890ae6 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -3686,11 +3686,6 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+ err1:
+ 	scsi_host_put(lport->host);
+ err0:
+-	if (qedf) {
+-		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
+-
+-		clear_bit(QEDF_PROBING, &qedf->flags);
+-	}
+ 	return rc;
+ }
+ 
 -- 
 2.35.1
 
