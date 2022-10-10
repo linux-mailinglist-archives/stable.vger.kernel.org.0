@@ -2,48 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E85E5F98FE
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27695F9960
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbiJJHFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:05:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
+        id S231510AbiJJHLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbiJJHEs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:04:48 -0400
+        with ESMTP id S231214AbiJJHLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A320052E61;
-        Mon, 10 Oct 2022 00:04:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 791735E33E;
+        Mon, 10 Oct 2022 00:06:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6069CB80E54;
-        Mon, 10 Oct 2022 07:04:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8F1C433D6;
-        Mon, 10 Oct 2022 07:04:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52B6FB80E57;
+        Mon, 10 Oct 2022 07:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90AD6C433C1;
+        Mon, 10 Oct 2022 07:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385464;
-        bh=9TaVU9acwI902OnE6elPW0nf4T3kB68NpMHKm/VssLs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1S8N2lZM53YkviKs/uF27Y3bYCEBFfelcclRChyrsmypg6sMF5KGBr77GpZUYaGoO
-         aKHobOtsQrQlQcq7YcNxlR6a0fz8IecS/++4n8lmRZnpXqUMCCEzrc4KnMW3oEkdSL
-         SWmCpds7fo/KchTH59m7fkN2Mw3lSdANM2loGi44=
+        s=korg; t=1665385592;
+        bh=D00ujr8sqmBLVpy8nSYMVt/IPKJ0fx85f0i4Zp9BL2E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kOA0YUWyRTBwIGwa+mEVUrhWgYBUpQmu/yG2QRYZTG0ezHyCagrJOp6ORylMtqeSO
+         krfc9jg6GRFIz1li5MR+/8q/T08u5ZHuqDRCFpJWai2bZMUkZbQ/tvZEjVdEkUwjPK
+         2X+FNUf+nzqIy3ir7oR9nKUcXd/WC90H2m1wQMjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+243b7d89777f90f7613b@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 6.0 17/17] Bluetooth: use hdev->workqueue when queuing hdev->{cmd,ncmd}_timer works
-Date:   Mon, 10 Oct 2022 09:04:40 +0200
-Message-Id: <20221010070330.725277419@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+Subject: [PATCH 5.19 00/48] 5.19.15-rc1 review
+Date:   Mon, 10 Oct 2022 09:04:58 +0200
+Message-Id: <20221010070333.676316214@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
-References: <20221010070330.159911806@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.15-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.19.15-rc1
+X-KernelTest-Deadline: 2022-10-12T07:03+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -54,91 +60,250 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+This is the start of the stable review cycle for the 5.19.15 release.
+There are 48 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit deee93d13d385103205879a8a0915036ecd83261 upstream.
+Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
+Anything received after that time might be too late.
 
-syzbot is reporting attempt to schedule hdev->cmd_work work from system_wq
-WQ into hdev->workqueue WQ which is under draining operation [1], for
-commit c8efcc2589464ac7 ("workqueue: allow chained queueing during
-destruction") does not allow such operation.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.15-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+and the diffstat can be found below.
 
-The check introduced by commit 877afadad2dce8aa ("Bluetooth: When HCI work
-queue is drained, only queue chained work") was incomplete.
+thanks,
 
-Use hdev->workqueue WQ when queuing hdev->{cmd,ncmd}_timer works because
-hci_{cmd,ncmd}_timeout() calls queue_work(hdev->workqueue). Also, protect
-the queuing operation with RCU read lock in order to avoid calling
-queue_delayed_work() after cancel_delayed_work() completed.
+greg k-h
 
-Link: https://syzkaller.appspot.com/bug?extid=243b7d89777f90f7613b [1]
-Reported-by: syzbot <syzbot+243b7d89777f90f7613b@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 877afadad2dce8aa ("Bluetooth: When HCI work queue is drained, only queue chained work")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/bluetooth/hci_core.c  |   15 +++++++++++++--
- net/bluetooth/hci_event.c |    6 ++++--
- 2 files changed, 17 insertions(+), 4 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -597,6 +597,15 @@ static int hci_dev_do_reset(struct hci_d
- 
- 	/* Cancel these to avoid queueing non-chained pending work */
- 	hci_dev_set_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE);
-+	/* Wait for
-+	 *
-+	 *    if (!hci_dev_test_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE))
-+	 *        queue_delayed_work(&hdev->{cmd,ncmd}_timer)
-+	 *
-+	 * inside RCU section to see the flag or complete scheduling.
-+	 */
-+	synchronize_rcu();
-+	/* Explicitly cancel works in case scheduled after setting the flag. */
- 	cancel_delayed_work(&hdev->cmd_timer);
- 	cancel_delayed_work(&hdev->ncmd_timer);
- 
-@@ -4056,12 +4065,14 @@ static void hci_cmd_work(struct work_str
- 			if (res < 0)
- 				__hci_cmd_sync_cancel(hdev, -res);
- 
-+			rcu_read_lock();
- 			if (test_bit(HCI_RESET, &hdev->flags) ||
- 			    hci_dev_test_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE))
- 				cancel_delayed_work(&hdev->cmd_timer);
- 			else
--				schedule_delayed_work(&hdev->cmd_timer,
--						      HCI_CMD_TIMEOUT);
-+				queue_delayed_work(hdev->workqueue, &hdev->cmd_timer,
-+						   HCI_CMD_TIMEOUT);
-+			rcu_read_unlock();
- 		} else {
- 			skb_queue_head(&hdev->cmd_q, skb);
- 			queue_work(hdev->workqueue, &hdev->cmd_work);
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -3766,16 +3766,18 @@ static inline void handle_cmd_cnt_and_ti
- {
- 	cancel_delayed_work(&hdev->cmd_timer);
- 
-+	rcu_read_lock();
- 	if (!test_bit(HCI_RESET, &hdev->flags)) {
- 		if (ncmd) {
- 			cancel_delayed_work(&hdev->ncmd_timer);
- 			atomic_set(&hdev->cmd_cnt, 1);
- 		} else {
- 			if (!hci_dev_test_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE))
--				schedule_delayed_work(&hdev->ncmd_timer,
--						      HCI_NCMD_TIMEOUT);
-+				queue_delayed_work(hdev->workqueue, &hdev->ncmd_timer,
-+						   HCI_NCMD_TIMEOUT);
- 		}
- 	}
-+	rcu_read_unlock();
- }
- 
- static u8 hci_cc_le_read_buffer_size_v2(struct hci_dev *hdev, void *data,
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.19.15-rc1
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    Bluetooth: use hdev->workqueue when queuing hdev->{cmd,ncmd}_timer works
+
+Jules Irenge <jbi.octave@gmail.com>
+    bpf: Fix resetting logic for unreferenced kptrs
+
+Daniel Golle <daniel@makrotopia.org>
+    net: ethernet: mtk_eth_soc: fix state in __mtk_foe_entry_clear
+
+Kumar Kartikeya Dwivedi <memxor@gmail.com>
+    bpf: Gate dynptr API behind CAP_BPF
+
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+    rpmsg: qcom: glink: replace strncpy() with strscpy_pad()
+
+Brian Norris <briannorris@chromium.org>
+    mmc: core: Terminate infinite loop in SD-UHS voltage switch
+
+ChanWoo Lee <cw9316.lee@samsung.com>
+    mmc: core: Replace with already defined values for readability
+
+Mario Limonciello <mario.limonciello@amd.com>
+    gpiolib: acpi: Add a quirk for Asus UM325UAZ
+
+Mario Limonciello <mario.limonciello@amd.com>
+    gpiolib: acpi: Add support to ignore programming an interrupt
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: ftdi_sio: fix 300 bps rate for SIO
+
+Tadeusz Struk <tadeusz.struk@linaro.org>
+    usb: mon: make mmapped memory read only
+
+Zhang Qilong <zhangqilong3@huawei.com>
+    i2c: davinci: fix PM disable depth imbalance in davinci_i2c_probe
+
+Al Viro <viro@zeniv.linux.org.uk>
+    don't use __kernel_write() on kmap_local_page()
+
+Kan Liang <kan.liang@linux.intel.com>
+    perf/x86/intel: Fix unchecked MSR access error for Alder Lake N
+
+Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+    drm/amd/display: increase dcn315 pstate change latency
+
+Cruise Hung <Cruise.Hung@amd.com>
+    drm/amd/display: Fix DP MST timeslot issue when fallback happened
+
+zhikzhai <zhikai.zhai@amd.com>
+    drm/amd/display: skip audio setup when audio stream is enabled
+
+Hugo Hu <hugo.hu@amd.com>
+    drm/amd/display: update gamut remap if plane has changed
+
+Michael Strauss <michael.strauss@amd.com>
+    drm/amd/display: Assume an LTTPR is always present on fixed_vs links
+
+Leo Li <sunpeng.li@amd.com>
+    drm/amd/display: Fix double cursor on non-video RGB MPO
+
+Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+    KVM: s390: Pass initialized arg even if unused
+
+Jianglei Nie <niejianglei2021@163.com>
+    net: atlantic: fix potential memory leak in aq_ndev_close()
+
+David Gow <davidgow@google.com>
+    arch: um: Mark the stack non-executable to fix a binutils warning
+
+Linus Walleij <linus.walleij@linaro.org>
+    gpio: ftgpio010: Make irqchip immutable
+
+Lukas Straub <lukasstraub2@web.de>
+    um: Cleanup compiler warning in arch/x86/um/tls_32.c
+
+Lukas Straub <lukasstraub2@web.de>
+    um: Cleanup syscall_handler_t cast in syscalls_32.h
+
+Jaroslav Kysela <perex@perex.cz>
+    ALSA: hda/hdmi: Fix the converter reuse for the silent stream
+
+Oleksandr Mazur <oleksandr.mazur@plvision.eu>
+    net: marvell: prestera: add support for for Aldrin2
+
+Haimin Zhang <tcs.kernel@gmail.com>
+    net/ieee802154: fix uninit value bug in dgram_sendmsg
+
+Letu Ren <fantasquex@gmail.com>
+    scsi: qedf: Fix a UAF bug in __qedf_probe()
+
+Yifan Zhang <yifan1.zhang@amd.com>
+    drm/amdgpu/mes: zero the sdma_hqd_mask of 2nd SDMA engine for SDMA 6.0.1
+
+Sergei Antonov <saproj@gmail.com>
+    ARM: dts: fix Moxa SDIO 'compatible', remove 'sdhci' misnomer
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    wifi: iwlwifi: don't spam logs with NSS>2 messages
+
+Swati Agarwal <swati.agarwal@xilinx.com>
+    dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
+
+Swati Agarwal <swati.agarwal@xilinx.com>
+    dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
+
+Swati Agarwal <swati.agarwal@xilinx.com>
+    dmaengine: xilinx_dma: Fix devm_platform_ioremap_resource error handling
+
+Frank Wunderlich <frank-w@public-files.de>
+    arm64: dts: rockchip: fix upper usb port on BPI-R2-Pro
+
+Cristian Marussi <cristian.marussi@arm.com>
+    firmware: arm_scmi: Add SCMI PM driver remove routine
+
+Cristian Marussi <cristian.marussi@arm.com>
+    firmware: arm_scmi: Harden accesses to the sensor domains
+
+Cristian Marussi <cristian.marussi@arm.com>
+    firmware: arm_scmi: Improve checks in the info_get operations
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    fs: fix UAF/GPF bug in nilfs_mdt_destroy
+
+Mikulas Patocka <mpatocka@redhat.com>
+    provide arch_test_bit_acquire for architectures that define test_bit
+
+Mikulas Patocka <mpatocka@redhat.com>
+    wait_on_bit: add an acquire memory barrier
+
+Jalal Mostafa <jalal.a.mostapha@gmail.com>
+    xsk: Inherit need_wakeup flag for shared sockets
+
+Shuah Khan <skhan@linuxfoundation.org>
+    docs: update mediator information in CoC docs
+
+Kees Cook <keescook@chromium.org>
+    hardening: Remove Clang's enable flag for -ftrivial-auto-var-init=zero
+
+Sami Tolvanen <samitolvanen@google.com>
+    Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
+
+Bart Van Assche <bvanassche@acm.org>
+    sparc: Unbreak the build
+
+
+-------------
+
+Diffstat:
+
+ .../devicetree/bindings/dma/moxa,moxart-dma.txt    |  4 +--
+ .../process/code-of-conduct-interpretation.rst     |  2 +-
+ Makefile                                           |  8 ++---
+ arch/alpha/include/asm/bitops.h                    |  7 ++++
+ arch/arm/boot/dts/moxart-uc7112lx.dts              |  2 +-
+ arch/arm/boot/dts/moxart.dtsi                      |  4 +--
+ arch/arm64/boot/dts/rockchip/rk3568-bpi-r2-pro.dts |  2 +-
+ arch/hexagon/include/asm/bitops.h                  | 15 ++++++++
+ arch/ia64/include/asm/bitops.h                     |  7 ++++
+ arch/m68k/include/asm/bitops.h                     |  6 ++++
+ arch/s390/include/asm/bitops.h                     |  7 ++++
+ arch/s390/kvm/gaccess.c                            | 16 +++++++--
+ arch/sh/include/asm/bitops-op32.h                  |  7 ++++
+ arch/sparc/include/asm/smp_32.h                    | 15 ++++----
+ arch/sparc/kernel/leon_smp.c                       | 12 ++++---
+ arch/sparc/kernel/sun4d_smp.c                      | 12 ++++---
+ arch/sparc/kernel/sun4m_smp.c                      | 10 +++---
+ arch/sparc/mm/srmmu.c                              | 29 +++++++--------
+ arch/um/Makefile                                   |  8 +++++
+ arch/x86/events/intel/core.c                       | 40 ++++++++++++++++++++-
+ arch/x86/events/intel/ds.c                         |  9 +++--
+ arch/x86/events/perf_event.h                       |  2 ++
+ arch/x86/include/asm/bitops.h                      | 21 +++++++++++
+ arch/x86/um/shared/sysdep/syscalls_32.h            |  5 ++-
+ arch/x86/um/tls_32.c                               |  6 ----
+ arch/x86/um/vdso/Makefile                          |  2 +-
+ drivers/dma/xilinx/xilinx_dma.c                    | 21 ++++++-----
+ drivers/firmware/arm_scmi/clock.c                  |  6 +++-
+ drivers/firmware/arm_scmi/scmi_pm_domain.c         | 20 +++++++++++
+ drivers/firmware/arm_scmi/sensors.c                | 25 ++++++++++---
+ drivers/gpio/gpio-ftgpio010.c                      | 22 +++++++-----
+ drivers/gpio/gpiolib-acpi.c                        | 38 +++++++++++++++++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c            |  3 ++
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  | 12 +++++--
+ .../amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c | 22 +++++++-----
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   | 16 ++++++++-
+ .../amd/display/dc/dce110/dce110_hw_sequencer.c    |  6 ++--
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c |  1 +
+ drivers/i2c/busses/i2c-davinci.c                   |  3 +-
+ drivers/mmc/core/sd.c                              |  3 +-
+ drivers/net/ethernet/aquantia/atlantic/aq_main.c   |  3 --
+ .../net/ethernet/marvell/prestera/prestera_pci.c   |  1 +
+ drivers/net/ethernet/mediatek/mtk_ppe.c            |  2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  |  4 +--
+ drivers/rpmsg/qcom_glink_native.c                  |  2 +-
+ drivers/rpmsg/qcom_smd.c                           |  4 +--
+ drivers/scsi/qedf/qedf_main.c                      |  5 ---
+ drivers/usb/mon/mon_bin.c                          |  5 +++
+ drivers/usb/serial/ftdi_sio.c                      |  3 +-
+ fs/coredump.c                                      | 38 +++++++++++++++++---
+ fs/inode.c                                         |  7 ++--
+ fs/internal.h                                      |  3 ++
+ fs/read_write.c                                    | 22 +++++++-----
+ .../asm-generic/bitops/instrumented-non-atomic.h   | 12 +++++++
+ include/asm-generic/bitops/non-atomic.h            | 14 ++++++++
+ include/linux/buffer_head.h                        |  2 +-
+ include/linux/scmi_protocol.h                      |  4 +--
+ include/linux/wait_bit.h                           |  8 ++---
+ include/net/ieee802154_netdev.h                    | 37 +++++++++++++++++++
+ include/net/xsk_buff_pool.h                        |  2 +-
+ kernel/bpf/helpers.c                               | 28 +++++++--------
+ kernel/bpf/syscall.c                               |  2 +-
+ kernel/sched/wait_bit.c                            |  2 +-
+ net/bluetooth/hci_core.c                           | 15 ++++++--
+ net/bluetooth/hci_event.c                          |  6 ++--
+ net/ieee802154/socket.c                            | 42 ++++++++++++----------
+ net/xdp/xsk.c                                      |  4 +--
+ net/xdp/xsk_buff_pool.c                            |  5 +--
+ scripts/Makefile.extrawarn                         |  1 +
+ security/Kconfig.hardening                         | 14 +++++---
+ sound/pci/hda/patch_hdmi.c                         |  1 +
+ 71 files changed, 559 insertions(+), 195 deletions(-)
 
 
