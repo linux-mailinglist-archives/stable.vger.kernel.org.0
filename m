@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 295765F9961
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0D55F99C6
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbiJJHLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:11:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33978 "EHLO
+        id S232125AbiJJHQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231751AbiJJHLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0820C10062;
-        Mon, 10 Oct 2022 00:07:28 -0700 (PDT)
+        with ESMTP id S231823AbiJJHO0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:14:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A02D183B5;
+        Mon, 10 Oct 2022 00:10:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC8860E7F;
-        Mon, 10 Oct 2022 07:06:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E344BC433D7;
-        Mon, 10 Oct 2022 07:06:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFA6F60EA4;
+        Mon, 10 Oct 2022 07:08:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2530C433B5;
+        Mon, 10 Oct 2022 07:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385610;
-        bh=BObix2i7mUZ+lMAmfQwJ48HjJ9ZIzJkF5djtyduVrOM=;
+        s=korg; t=1665385728;
+        bh=kEVzyc8uT2RwjoKkZI5RjRz4QrD+XKGFvbKecr0kE8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAZFUKzv+eS6zxtWGb2z37ptFcBlTnEF07fLKYrpMk3OoDjqW4eNlKrmF5a/J5P9y
-         cUE4yWHgK3jarQC562+foZIvHet9kytzsmjrxYJLROE4UouKX1jbh4791RboyknAdh
-         MEancDFR4SC5BlFBVAhMIP4QQEt13MhPfXa3qlBQ=
+        b=MlbHmTr3RS9Qz0HHiUexw5ep+cpHUxWLv1fUFFF8DAueug+4kBvtSXA/kOhpDw1fD
+         aI1gT0SVTtB/f48EnP/wdykLbeqCiVZ5EpLcAMnCSnb/cXbe/89jobV2i4WzJb4rB7
+         QV8Wm5QKWmjZuESHaSnPbA34/WPUsEssZlZUy/q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 43/48] mmc: core: Terminate infinite loop in SD-UHS voltage switch
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Lukas Straub <lukasstraub2@web.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.15 22/37] arch: um: Mark the stack non-executable to fix a binutils warning
 Date:   Mon, 10 Oct 2022 09:05:41 +0200
-Message-Id: <20221010070334.814015235@linuxfoundation.org>
+Message-Id: <20221010070331.857422916@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-References: <20221010070333.676316214@linuxfoundation.org>
+In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
+References: <20221010070331.211113813@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: David Gow <davidgow@google.com>
 
-commit e9233917a7e53980664efbc565888163c0a33c3f upstream.
+[ Upstream commit bd71558d585ac61cfd799db7f25e78dca404dd7a ]
 
-This loop intends to retry a max of 10 times, with some implicit
-termination based on the SD_{R,}OCR_S18A bit. Unfortunately, the
-termination condition depends on the value reported by the SD card
-(*rocr), which may or may not correctly reflect what we asked it to do.
+Since binutils 2.39, ld will print a warning if any stack section is
+executable, which is the default for stack sections on files without a
+.note.GNU-stack section.
 
-Needless to say, it's not wise to rely on the card doing what we expect;
-we should at least terminate the loop regardless. So, check both the
-input and output values, so we ensure we will terminate regardless of
-the SD card behavior.
+This was fixed for x86 in commit ffcf9c5700e4 ("x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments"),
+but remained broken for UML, resulting in several warnings:
 
-Note that SDIO learned a similar retry loop in commit 0797e5f1453b
-("mmc: core: Fixup signal voltage switch"), but that used the 'ocr'
-result, and so the current pre-terminating condition looks like:
+/usr/bin/ld: warning: arch/x86/um/vdso/vdso.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1 has a LOAD segment with RWX permissions
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2 has a LOAD segment with RWX permissions
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: vmlinux has a LOAD segment with RWX permissions
 
-    rocr & ocr & R4_18V_PRESENT
+Link both the VDSO and vmlinux with -z noexecstack, fixing the warnings
+about .note.GNU-stack sections. In addition, pass --no-warn-rwx-segments
+to dodge the remaining warnings about LOAD segments with RWX permissions
+in the kallsyms objects. (Note that this flag is apparently not
+available on lld, so hide it behind a test for BFD, which is what the
+x86 patch does.)
 
-(i.e., it doesn't have the same bug.)
-
-This addresses a number of crash reports seen on ChromeOS that look
-like the following:
-
-    ... // lots of repeated: ...
-    <4>[13142.846061] mmc1: Skipping voltage switch
-    <4>[13143.406087] mmc1: Skipping voltage switch
-    <4>[13143.964724] mmc1: Skipping voltage switch
-    <4>[13144.526089] mmc1: Skipping voltage switch
-    <4>[13145.086088] mmc1: Skipping voltage switch
-    <4>[13145.645941] mmc1: Skipping voltage switch
-    <3>[13146.153969] INFO: task halt:30352 blocked for more than 122 seconds.
-    ...
-
-Fixes: f2119df6b764 ("mmc: sd: add support for signal voltage switch procedure")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220914014010.2076169-1-briannorris@chromium.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ffcf9c5700e49c0aee42dcba9a12ba21338e8136
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Lukas Straub <lukasstraub2@web.de>
+Tested-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/um/Makefile          | 8 ++++++++
+ arch/x86/um/vdso/Makefile | 2 +-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -870,7 +870,8 @@ try_again:
- 	 * the CCS bit is set as well. We deliberately deviate from the spec in
- 	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
-+	if (!mmc_host_is_spi(host) && (ocr & SD_OCR_S18R) &&
-+	    rocr && (*rocr & SD_ROCR_S18A)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+diff --git a/arch/um/Makefile b/arch/um/Makefile
+index f2fe63bfd819..f1d4d67157be 100644
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -132,10 +132,18 @@ export LDS_ELF_FORMAT := $(ELF_FORMAT)
+ # The wrappers will select whether using "malloc" or the kernel allocator.
+ LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
+ 
++# Avoid binutils 2.39+ warnings by marking the stack non-executable and
++# ignorning warnings for the kallsyms sections.
++LDFLAGS_EXECSTACK = -z noexecstack
++ifeq ($(CONFIG_LD_IS_BFD),y)
++LDFLAGS_EXECSTACK += $(call ld-option,--no-warn-rwx-segments)
++endif
++
+ LD_FLAGS_CMDLINE = $(foreach opt,$(KBUILD_LDFLAGS),-Wl,$(opt))
+ 
+ # Used by link-vmlinux.sh which has special support for um link
+ export CFLAGS_vmlinux := $(LINK-y) $(LINK_WRAPS) $(LD_FLAGS_CMDLINE)
++export LDFLAGS_vmlinux := $(LDFLAGS_EXECSTACK)
+ 
+ # When cleaning we don't include .config, so we don't include
+ # TT or skas makefiles and don't clean skas_ptregs.h.
+diff --git a/arch/x86/um/vdso/Makefile b/arch/x86/um/vdso/Makefile
+index 5943387e3f35..5ca366e15c76 100644
+--- a/arch/x86/um/vdso/Makefile
++++ b/arch/x86/um/vdso/Makefile
+@@ -62,7 +62,7 @@ quiet_cmd_vdso = VDSO    $@
+ 		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+-VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv
++VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv -z noexecstack
+ GCOV_PROFILE := n
+ 
+ #
+-- 
+2.35.1
+
 
 
