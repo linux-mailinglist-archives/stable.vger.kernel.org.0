@@ -2,68 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E74135F9A5B
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FFEE5F9A60
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232535AbiJJHrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38752 "EHLO
+        id S231417AbiJJHsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:48:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231984AbiJJHrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:47:17 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D8D1C921;
-        Mon, 10 Oct 2022 00:44:13 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id n18-20020a17090ade9200b0020b0012097cso8010533pjv.0;
-        Mon, 10 Oct 2022 00:44:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=byYv+p4uc+egG0+zuLE4MMW1fuarHCm8QYsjJ5KX+/g=;
-        b=JEJ9mBjH45J+pWURJLiPEp4ZCHXwV75nr955I1u3f7eUUneGg/usBui1mNS8ePqtIV
-         VSqexjBb9RMIf3FvNi1Qmn73rJQObFN9cv4S+yi29om5TDsYaj7tr42edstRWKO71wV7
-         qZtUs4dB/t90W10sCMNEkMBJYqZe0wZva38qFR8FQpIbKDs88D6sR/3ql2tNNrhEn6Gh
-         gEd/AUjtyp/6vJdhSoam1ckZ8jHKeWE0YroIu7eAfpMpAypDHqZ/HqybfWzP6+ONzxQB
-         MfUNbGDQcAB9A3dTZhElz+NEbUVPLtFuIzF+iepAGCLC7Drscxnn1b0sZG07l8VZIufr
-         Fq5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=byYv+p4uc+egG0+zuLE4MMW1fuarHCm8QYsjJ5KX+/g=;
-        b=dw9OwjW4hXp89aUkEYG/Z19/BcTOpuIpWnqliAeeGz73XgUGVOjNPhnKJilV7WfYJA
-         nn5ZUeAf8LZQqqqoCeVuvkJQlOKCgHBaOv+PRc0Q6FfXxVguEMWCBRkrA0cEzDtKNiuD
-         agbF7+iru4AvmUihadctOvVn58OhtNNkqY+MEUbr0AbZcbld1fFZYONTSB4yrOTRoWrx
-         0FuZCnsUM/IKAIRpiea8m0jjs1Zt4ms3njakCflgYMLeStIYiBjDtvuSC8cPkA4iXT21
-         144xfyaBrxDZbq1I0nPqmkGrMjiXgvAvuNNdAWVQjcoy+J2kyZyl8YGV9BQt45VyMeJB
-         bLEQ==
-X-Gm-Message-State: ACrzQf1x4Ac1MyRRCgWxrbFeQKBMEtbRmcGNq4XTAh+w+VfUJqz1/QF0
-        s60zu3YYGEs5ntW1OXHDHGJrS1205nDH0r6EnVU=
-X-Google-Smtp-Source: AMsMyM7KRGGyZHJ2tp41WQTQeyJuRXK5xKHwabpO1RzA3t42hFOcYnAtPxG5XCB34B5qhzzDPh8QLbFyG0lXZSwjLxI=
-X-Received: by 2002:a17:902:c94e:b0:181:4ab4:179b with SMTP id
- i14-20020a170902c94e00b001814ab4179bmr9753809pla.126.1665387839925; Mon, 10
- Oct 2022 00:43:59 -0700 (PDT)
+        with ESMTP id S231360AbiJJHro (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:47:44 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA0A2635
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:44:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1665387892; x=1696923892;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=+xYBzkJJbEswt3Udi7rw2jLreR3Vwbfut7+yRDH0aa4=;
+  b=Gq59wpPGrMxHibtq5esatsTq1quQZEljkowOa4oOXo1WwcBPrd6PpwLd
+   XCCtY2pX3iDbtUgl+FJeZpFQR8vrzifQnd2nGUzAykHr1FPoHlbg5hFlj
+   3iuj5Bbx4SxM3rFd1502S4pn3ksCjrTC/NnSnC1OraNKhjuqWpO/4DxwS
+   wv+CQULHbLV8Ot9HNQfd8WjbaivONaJRk0ljh3dKg/4m9OtNowF4pVty4
+   UrF99ZrrKedNTLRHcdF0tnR2UWpR4+vWhrJYGPLDMPmRD1k/Y4Zfa++wQ
+   +oMabebpiyDU1q7NTXM/v39JnjQ7/UGWJpHQmUKDrKofAzR/x65A/CAK2
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10495"; a="284545131"
+X-IronPort-AV: E=Sophos;i="5.95,173,1661842800"; 
+   d="scan'208";a="284545131"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Oct 2022 00:44:30 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10495"; a="603628611"
+X-IronPort-AV: E=Sophos;i="5.95,173,1661842800"; 
+   d="scan'208";a="603628611"
+Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.213.10.52]) ([10.213.10.52])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Oct 2022 00:44:23 -0700
+Message-ID: <10268aa0-6d76-2635-79f8-f450f11e01d0@intel.com>
+Date:   Mon, 10 Oct 2022 09:44:20 +0200
 MIME-Version: 1.0
-References: <20221010070330.159911806@linuxfoundation.org>
-In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
-From:   Luna Jernberg <droidbittin@gmail.com>
-Date:   Mon, 10 Oct 2022 09:43:47 +0200
-Message-ID: <CADo9pHgdB7Czsuw=gxv9jAyrUJLjFNCVLW0CGXfszKrj1EfK1A@mail.gmail.com>
-Subject: Re: [PATCH 6.0 00/17] 6.0.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Luna Jernberg <droidbittin@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.3.1
+Subject: Re: [Intel-gfx] [PATCH RESEND] drm/i915: Fix display problems after
+ resume
+Content-Language: en-US
+To:     =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>, intel-gfx@lists.freedesktop.org
+Cc:     Kevin Boulain <kevinboulain@gmail.com>,
+        David de Sousa <davidesousa@gmail.com>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
+        Matthew Auld <matthew.auld@intel.com>
+References: <20221005121159.340245-1-thomas.hellstrom@linux.intel.com>
+From:   Andrzej Hajda <andrzej.hajda@intel.com>
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
+ Gdansk - KRS 101882 - NIP 957-07-52-316
+In-Reply-To: <20221005121159.340245-1-thomas.hellstrom@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,118 +68,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Works on Arch Linux
+On 05.10.2022 14:11, Thomas Hellström wrote:
+> Commit 39a2bd34c933 ("drm/i915: Use the vma resource as argument for gtt
+> binding / unbinding") introduced a regression that due to the vma resource
+> tracking of the binding state, dpt ptes were not correctly repopulated.
+> Fix this by clearing the vma resource state before repopulating.
+> The state will subsequently be restored by the bind_vma operation.
+> 
+> Fixes: 39a2bd34c933 ("drm/i915: Use the vma resource as argument for gtt binding / unbinding")
+> Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20220912121957.31310-1-thomas.hellstrom@linux.intel.com
+> Cc: Matthew Auld <matthew.auld@intel.com>
+> Cc: intel-gfx@lists.freedesktop.org
+> Cc: <stable@vger.kernel.org> # v5.18+
+> Reported-and-tested-by: Kevin Boulain <kevinboulain@gmail.com>
+> Tested-by: David de Sousa <davidesousa@gmail.com>
+> ---
+>   drivers/gpu/drm/i915/gt/intel_ggtt.c | 8 +++++++-
+>   1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt.c b/drivers/gpu/drm/i915/gt/intel_ggtt.c
+> index b31fe0fb013f..5c67e49aacf6 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_ggtt.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_ggtt.c
+> @@ -1275,10 +1275,16 @@ bool i915_ggtt_resume_vm(struct i915_address_space *vm)
+>   			atomic_read(&vma->flags) & I915_VMA_BIND_MASK;
+>   
+>   		GEM_BUG_ON(!was_bound);
+> -		if (!retained_ptes)
+> +		if (!retained_ptes) {
+> +			/*
+> +			 * Clear the bound flags of the vma resource to allow
+> +			 * ptes to be repopulated.
+> +			 */
+> +			vma->resource->bound_flags = 0;
 
-Tested-by: Luna Jernberg <droidbittin@gmail.com>
+Personally I would put this at suspend path, if possible.
+Anyway:
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+
+Regards
+Andrzej
 
 
-On Mon, Oct 10, 2022 at 9:07 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.0.1 release.
-> There are 17 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.1-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
-> Pseudo-Shortlog of commits:
->
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->     Linux 6.0.1-rc1
->
-> Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
->     Bluetooth: use hdev->workqueue when queuing hdev->{cmd,ncmd}_timer works
->
-> Jules Irenge <jbi.octave@gmail.com>
->     bpf: Fix resetting logic for unreferenced kptrs
->
-> Daniel Golle <daniel@makrotopia.org>
->     net: ethernet: mtk_eth_soc: fix state in __mtk_foe_entry_clear
->
-> Kumar Kartikeya Dwivedi <memxor@gmail.com>
->     bpf: Gate dynptr API behind CAP_BPF
->
-> Palmer Dabbelt <palmer@rivosinc.com>
->     RISC-V: Print SSTC in canonical order
->
-> Mario Limonciello <mario.limonciello@amd.com>
->     gpiolib: acpi: Add a quirk for Asus UM325UAZ
->
-> Mario Limonciello <mario.limonciello@amd.com>
->     gpiolib: acpi: Add support to ignore programming an interrupt
->
-> Johan Hovold <johan@kernel.org>
->     USB: serial: ftdi_sio: fix 300 bps rate for SIO
->
-> Tadeusz Struk <tadeusz.struk@linaro.org>
->     usb: mon: make mmapped memory read only
->
-> Aleksa Savic <savicaleksa83@gmail.com>
->     hwmon: (aquacomputer_d5next) Fix Quadro fan speed offsets
->
-> Shuah Khan <skhan@linuxfoundation.org>
->     docs: update mediator information in CoC docs
->
-> Kees Cook <keescook@chromium.org>
->     hardening: Remove Clang's enable flag for -ftrivial-auto-var-init=zero
->
-> Sami Tolvanen <samitolvanen@google.com>
->     Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
->
-> Bart Van Assche <bvanassche@acm.org>
->     sparc: Unbreak the build
->
-> Al Viro <viro@zeniv.linux.org.uk>
->     fix coredump breakage
->
-> Dongliang Mu <mudongliangabcd@gmail.com>
->     fs: fix UAF/GPF bug in nilfs_mdt_destroy
->
-> Jalal Mostafa <jalal.a.mostapha@gmail.com>
->     xsk: Inherit need_wakeup flag for shared sockets
->
->
-> -------------
->
-> Diffstat:
->
->  .../process/code-of-conduct-interpretation.rst     |  2 +-
->  Makefile                                           |  8 ++---
->  arch/riscv/kernel/cpu.c                            |  2 +-
->  arch/sparc/include/asm/smp_32.h                    | 15 ++++-----
->  arch/sparc/kernel/leon_smp.c                       | 12 ++++---
->  arch/sparc/kernel/sun4d_smp.c                      | 12 ++++---
->  arch/sparc/kernel/sun4m_smp.c                      | 10 +++---
->  arch/sparc/mm/srmmu.c                              | 29 ++++++++---------
->  drivers/gpio/gpiolib-acpi.c                        | 38 +++++++++++++++++++---
->  drivers/hwmon/aquacomputer_d5next.c                |  2 +-
->  drivers/net/ethernet/mediatek/mtk_ppe.c            |  2 +-
->  drivers/usb/mon/mon_bin.c                          |  5 +++
->  drivers/usb/serial/ftdi_sio.c                      |  3 +-
->  fs/coredump.c                                      |  3 +-
->  fs/inode.c                                         |  7 ++--
->  include/net/xsk_buff_pool.h                        |  2 +-
->  kernel/bpf/helpers.c                               | 28 ++++++++--------
->  kernel/bpf/syscall.c                               |  2 +-
->  net/bluetooth/hci_core.c                           | 15 +++++++--
->  net/bluetooth/hci_event.c                          |  6 ++--
->  net/xdp/xsk.c                                      |  4 +--
->  net/xdp/xsk_buff_pool.c                            |  5 +--
->  scripts/Makefile.extrawarn                         |  1 +
->  security/Kconfig.hardening                         | 14 +++++---
->  24 files changed, 141 insertions(+), 86 deletions(-)
->
->
+>   			vma->ops->bind_vma(vm, NULL, vma->resource,
+>   					   obj ? obj->cache_level : 0,
+>   					   was_bound);
+> +		}
+>   		if (obj) { /* only used during resume => exclusive access */
+>   			write_domain_objs |= fetch_and_zero(&obj->write_domain);
+>   			obj->read_domains |= I915_GEM_DOMAIN_GTT;
+
