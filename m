@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 919EB5F992E
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E339F5F9934
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231529AbiJJHIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:08:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
+        id S231679AbiJJHIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231667AbiJJHHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:07:55 -0400
+        with ESMTP id S231287AbiJJHIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:08:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92AFF58DDE;
-        Mon, 10 Oct 2022 00:05:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05225A2ED;
+        Mon, 10 Oct 2022 00:05:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5208B60E84;
-        Mon, 10 Oct 2022 07:05:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 663D2C433D6;
-        Mon, 10 Oct 2022 07:05:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF9B460E9A;
+        Mon, 10 Oct 2022 07:05:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01A9EC433C1;
+        Mon, 10 Oct 2022 07:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385542;
-        bh=snTKj5uUCniAAmOx2ttL6/s1ceXhHSHr5CwfTfYUtug=;
+        s=korg; t=1665385545;
+        bh=rmXLxzGf9Iaux4QL9qj05LHuT3qVQhmty6LBfQnYxuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGFd2dzycqNlfK20EyT+F7iBbVhPGnPh/cxdraIcuZ6fAlz8OPhLBORNM8CUmlUAQ
-         Tiilkm39HRdtYb1P9E1+hBcZhOHMk/de4pyuVTSRfmv6SZBr/WjvFaMBjbO0onS3DT
-         W/BfJxLmgkWdhN9ail3rzM4cI0Ix6E+d8oNPx7iY=
+        b=jcUifL0lndk6VFTSqHJfmOQQ5NXYYeYesNzQkhOn3NgDXxvNzKJmGzBJetIoanOub
+         olQ7jFFO9mMW7BIlUKTAuOYLn1I+4ds6KMeVA4cHtpDhI8D00hwujG78QfQNILveg7
+         CpB3HD0xmAKhveyAb1+KB0lw/zim/QJjtrnxA3h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Sergei Antonov <saproj@gmail.com>,
-        Jonas Jensen <jonas.jensen@gmail.com>,
+        stable@vger.kernel.org, Yifan Zhang <yifan1.zhang@amd.com>,
+        Tim Huang <Tim.Huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 17/48] ARM: dts: fix Moxa SDIO compatible, remove sdhci misnomer
-Date:   Mon, 10 Oct 2022 09:05:15 +0200
-Message-Id: <20221010070334.158173147@linuxfoundation.org>
+Subject: [PATCH 5.19 18/48] drm/amdgpu/mes: zero the sdma_hqd_mask of 2nd SDMA engine for SDMA 6.0.1
+Date:   Mon, 10 Oct 2022 09:05:16 +0200
+Message-Id: <20221010070334.182866385@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
 References: <20221010070333.676316214@linuxfoundation.org>
@@ -54,75 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Antonov <saproj@gmail.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-[ Upstream commit 02181e68275d28cab3c3f755852770367f1bc229 ]
+[ Upstream commit 0af4ed0c329ebb4cef95fda4fcdbfcdea0255442 ]
 
-Driver moxart-mmc.c has .compatible = "moxa,moxart-mmc".
+there is only one SDMA engine in SDMA 6.0.1, the sdma_hqd_mask has to be
+zeroed for the 2nd engine, otherwise MES scheduler will consider 2nd
+engine exists and map/unmap SDMA queues to the non-existent engine.
 
-But moxart .dts/.dtsi and the documentation file moxa,moxart-dma.txt
-contain compatible = "moxa,moxart-sdhci".
-
-Change moxart .dts/.dtsi files and moxa,moxart-dma.txt to match the driver.
-
-Replace 'sdhci' with 'mmc' in names too, since SDHCI is a different
-controller from FTSDC010.
-
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Cc: Jonas Jensen <jonas.jensen@gmail.com>
-Link: https://lore.kernel.org/r/20220907175341.1477383-1-saproj@gmail.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Tim Huang <Tim.Huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt | 4 ++--
- arch/arm/boot/dts/moxart-uc7112lx.dts                     | 2 +-
- arch/arm/boot/dts/moxart.dtsi                             | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt b/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
-index 8a9f3559335b..7e14e26676ec 100644
---- a/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
-+++ b/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
-@@ -34,8 +34,8 @@ Example:
- Use specific request line passing from dma
- For example, MMC request line is 5
- 
--	sdhci: sdhci@98e00000 {
--		compatible = "moxa,moxart-sdhci";
-+	mmc: mmc@98e00000 {
-+		compatible = "moxa,moxart-mmc";
- 		reg = <0x98e00000 0x5C>;
- 		interrupts = <5 0>;
- 		clocks = <&clk_apb>;
-diff --git a/arch/arm/boot/dts/moxart-uc7112lx.dts b/arch/arm/boot/dts/moxart-uc7112lx.dts
-index eb5291b0ee3a..e07b807b4cec 100644
---- a/arch/arm/boot/dts/moxart-uc7112lx.dts
-+++ b/arch/arm/boot/dts/moxart-uc7112lx.dts
-@@ -79,7 +79,7 @@ &clk_pll {
- 	clocks = <&ref12>;
- };
- 
--&sdhci {
-+&mmc {
- 	status = "okay";
- };
- 
-diff --git a/arch/arm/boot/dts/moxart.dtsi b/arch/arm/boot/dts/moxart.dtsi
-index f5f070a87482..764832ddfa78 100644
---- a/arch/arm/boot/dts/moxart.dtsi
-+++ b/arch/arm/boot/dts/moxart.dtsi
-@@ -93,8 +93,8 @@ watchdog: watchdog@98500000 {
- 			clock-names = "PCLK";
- 		};
- 
--		sdhci: sdhci@98e00000 {
--			compatible = "moxa,moxart-sdhci";
-+		mmc: mmc@98e00000 {
-+			compatible = "moxa,moxart-mmc";
- 			reg = <0x98e00000 0x5C>;
- 			interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&clk_apb>;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c
+index 69a70a0aaed9..6ab062c63da1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_mes.c
+@@ -169,6 +169,9 @@ int amdgpu_mes_init(struct amdgpu_device *adev)
+ 	for (i = 0; i < AMDGPU_MES_MAX_SDMA_PIPES; i++) {
+ 		if (adev->ip_versions[SDMA0_HWIP][0] < IP_VERSION(6, 0, 0))
+ 			adev->mes.sdma_hqd_mask[i] = i ? 0 : 0x3fc;
++		/* zero sdma_hqd_mask for non-existent engine */
++		else if (adev->sdma.num_instances == 1)
++			adev->mes.sdma_hqd_mask[i] = i ? 0 : 0xfc;
+ 		else
+ 			adev->mes.sdma_hqd_mask[i] = 0xfc;
+ 	}
 -- 
 2.35.1
 
