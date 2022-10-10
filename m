@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B495F9989
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966A15F9980
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbiJJHOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:14:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36474 "EHLO
+        id S232083AbiJJHNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:13:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232152AbiJJHNe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:13:34 -0400
+        with ESMTP id S231939AbiJJHLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5A15EDD1;
-        Mon, 10 Oct 2022 00:09:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850D55E64E;
+        Mon, 10 Oct 2022 00:07:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4F81B80E5D;
-        Mon, 10 Oct 2022 07:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F4B9C433D6;
-        Mon, 10 Oct 2022 07:08:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1ED49B80E59;
+        Mon, 10 Oct 2022 07:07:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87295C433C1;
+        Mon, 10 Oct 2022 07:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385738;
-        bh=CI2x29Kh96i4pZ8HOsJ5fJRoVt7QxvZwLaxm9zV61KA=;
+        s=korg; t=1665385620;
+        bh=N+KfCRxX1t/yyKxANDtaUUgj6VN8/odcAxx/cAj/G0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G51x2CyiQ5JJSczSOclEJ/2fbSeSt6UTeJ3IwWXpGiOvfH6gEi43tTF751/60c2Tm
-         cq/UKXIOlUFDKsnyUJmpsydilDNe+5vz98xsHsyR1WnOwRTBaxMQZRJAP6bXogCa+S
-         kj9I/2b3w4Frm0Eg0SdXfyyrDs2agK5xamg+WG2M=
+        b=SYr94tcQnyLidiaVFZmnpYyw4/idDA8j18vthyeK4e6EV2bLmogT4m5y2+jwZpZvp
+         evSowVLqCQ60FOLGwvPSNVIG7NDvBxasmiQrS+gFdLBYsUgRq1YcP8DsHqc+8tNs7+
+         YYw7iGpJHSP8TduapCQ8Ph59dWvNDVv8X5ABcuVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>, Hugo Hu <hugo.hu@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 26/37] drm/amd/display: update gamut remap if plane has changed
+        stable@vger.kernel.org, Jules Irenge <jbi.octave@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.19 47/48] bpf: Fix resetting logic for unreferenced kptrs
 Date:   Mon, 10 Oct 2022 09:05:45 +0200
-Message-Id: <20221010070331.970858371@linuxfoundation.org>
+Message-Id: <20221010070334.914562306@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
-References: <20221010070331.211113813@linuxfoundation.org>
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+References: <20221010070333.676316214@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugo Hu <hugo.hu@amd.com>
+From: Jules Irenge <jbi.octave@gmail.com>
 
-[ Upstream commit 52bb21499cf54fa65b56d97cd0d68579c90207dd ]
+commit 9fad7fe5b29803584c7f17a2abe6c2936fec6828 upstream.
 
-[Why]
-The desktop plane and full-screen game plane may have different
-gamut remap coefficients, if switching between desktop and
-full-screen game without updating the gamut remap will cause
-incorrect color.
+Sparse reported a warning at bpf_map_free_kptrs()
+"warning: Using plain integer as NULL pointer"
+During the process of fixing this warning, it was discovered that the current
+code erroneously writes to the pointer variable instead of deferencing and
+writing to the actual kptr. Hence, Sparse tool accidentally helped to uncover
+this problem. Fix this by doing WRITE_ONCE(*p, 0) instead of WRITE_ONCE(p, 0).
 
-[How]
-Update gamut remap if planes change.
+Note that the effect of this bug is that unreferenced kptrs will not be cleared
+during check_and_free_fields. It is not a problem if the clearing is not done
+during map_free stage, as there is nothing to free for them.
 
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Hugo Hu <hugo.hu@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 14a324f6a67e ("bpf: Wire up freeing of referenced kptr")
+Signed-off-by: Jules Irenge <jbi.octave@gmail.com>
+Link: https://lore.kernel.org/r/Yxi3pJaK6UDjVJSy@playground
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/syscall.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 9f8d7f92300b..0de1bbbabf9a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1513,6 +1513,7 @@ static void dcn20_update_dchubp_dpp(
- 	/* Any updates are handled in dc interface, just need
- 	 * to apply existing for plane enable / opp change */
- 	if (pipe_ctx->update_flags.bits.enable || pipe_ctx->update_flags.bits.opp_changed
-+			|| pipe_ctx->update_flags.bits.plane_changed
- 			|| pipe_ctx->stream->update_flags.bits.gamut_remap
- 			|| pipe_ctx->stream->update_flags.bits.out_csc) {
- 		/* dpp/cm gamut remap*/
--- 
-2.35.1
-
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -578,7 +578,7 @@ void bpf_map_free_kptrs(struct bpf_map *
+ 		if (off_desc->type == BPF_KPTR_UNREF) {
+ 			u64 *p = (u64 *)btf_id_ptr;
+ 
+-			WRITE_ONCE(p, 0);
++			WRITE_ONCE(*p, 0);
+ 			continue;
+ 		}
+ 		old_ptr = xchg(btf_id_ptr, 0);
 
 
