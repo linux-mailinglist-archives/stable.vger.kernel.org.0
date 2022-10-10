@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B35955F9973
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4565F9951
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:10:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232022AbiJJHMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:12:35 -0400
+        id S231442AbiJJHKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:10:49 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231789AbiJJHLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 074265E30D;
-        Mon, 10 Oct 2022 00:06:55 -0700 (PDT)
+        with ESMTP id S231804AbiJJHKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:10:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E93AE5C9F3;
+        Mon, 10 Oct 2022 00:06:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E122F60E55;
-        Mon, 10 Oct 2022 07:06:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01EBDC433D6;
-        Mon, 10 Oct 2022 07:06:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2842CB80E5A;
+        Mon, 10 Oct 2022 07:06:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93402C433C1;
+        Mon, 10 Oct 2022 07:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385584;
-        bh=IL/d8xPFJDTPLYkDrOpJX95Dqn7qSOWOI6FKgv976lM=;
+        s=korg; t=1665385586;
+        bh=HNPPtoQnYBQEA6aJUF+GOhYCaUNi2L9VMOgqLx3VwZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMrvNC1ISusmDZ7EO2Rgw8WPPrJqqE16ggedJG/N40bgP9jww9IcsCJ01PUJDkzap
-         eiCJ+5tMWwndaC+dxS+E6lwQa42l2ZgyYBCJ6c9qjcsJspNaBCFVStXp4bQ3+FMrHR
-         ds+XIw0N8BO4NQEJODDhB6l1T/wJRynjN2ZfqPnU=
+        b=mfmiHjXcXU0o7v9WDg+/gRQRdR1JkbvKdmd4qmDGGGneaaCObFncTK6TIVvdVHKKr
+         H67bZ4AiMSh/UkhyLcKc/9q7QGY51IcMN4qQWiOGpthZrNV1Ics237vps4yWbjEhFu
+         5NW6pgkzx+CyI81IBbVOw+LclEJEfH65eqy2tKLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.19 07/48] provide arch_test_bit_acquire for architectures that define test_bit
-Date:   Mon, 10 Oct 2022 09:05:05 +0200
-Message-Id: <20221010070333.890399278@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.19 08/48] fs: fix UAF/GPF bug in nilfs_mdt_destroy
+Date:   Mon, 10 Oct 2022 09:05:06 +0200
+Message-Id: <20221010070333.919705923@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
 References: <20221010070333.676316214@linuxfoundation.org>
@@ -52,130 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit d6ffe6067a54972564552ea45d320fb98db1ac5e upstream.
+commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
 
-Some architectures define their own arch_test_bit and they also need
-arch_test_bit_acquire, otherwise they won't compile.  We also clean up
-the code by using the generic test_bit if that is equivalent to the
-arch-specific version.
+In alloc_inode, inode_init_always() could return -ENOMEM if
+security_inode_alloc() fails, which causes inode->i_private
+uninitialized. Then nilfs_is_metadata_file_inode() returns
+true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
+which frees the uninitialized inode->i_private
+and leads to crashes(e.g., UAF/GPF).
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fix this by moving security_inode_alloc just prior to
+this_cpu_inc(nr_inodes)
+
+Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: stable@vger.kernel.org
-Fixes: 8238b4579866 ("wait_on_bit: add an acquire memory barrier")
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/include/asm/bitops.h   |    7 +++++++
- arch/hexagon/include/asm/bitops.h |   15 +++++++++++++++
- arch/ia64/include/asm/bitops.h    |    7 +++++++
- arch/m68k/include/asm/bitops.h    |    6 ++++++
- arch/s390/include/asm/bitops.h    |    7 +++++++
- arch/sh/include/asm/bitops-op32.h |    7 +++++++
- 6 files changed, 49 insertions(+)
+ fs/inode.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/arch/alpha/include/asm/bitops.h
-+++ b/arch/alpha/include/asm/bitops.h
-@@ -289,6 +289,13 @@ test_bit(int nr, const volatile void * a
- 	return (1UL & (((const int *) addr)[nr >> 5] >> (nr & 31))) != 0UL;
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -192,8 +192,6 @@ int inode_init_always(struct super_block
+ 	inode->i_wb_frn_history = 0;
+ #endif
+ 
+-	if (security_inode_alloc(inode))
+-		goto out;
+ 	spin_lock_init(&inode->i_lock);
+ 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
+ 
+@@ -228,11 +226,12 @@ int inode_init_always(struct super_block
+ 	inode->i_fsnotify_mask = 0;
+ #endif
+ 	inode->i_flctx = NULL;
++
++	if (unlikely(security_inode_alloc(inode)))
++		return -ENOMEM;
+ 	this_cpu_inc(nr_inodes);
+ 
+ 	return 0;
+-out:
+-	return -ENOMEM;
  }
+ EXPORT_SYMBOL(inode_init_always);
  
-+static __always_inline bool
-+test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
-+}
-+
- /*
-  * ffz = Find First Zero in word. Undefined if no zero exists,
-  * so code should check against ~0UL first..
---- a/arch/hexagon/include/asm/bitops.h
-+++ b/arch/hexagon/include/asm/bitops.h
-@@ -172,7 +172,22 @@ static inline int __test_bit(int nr, con
- 	return retval;
- }
- 
-+static inline int __test_bit_acquire(int nr, const volatile unsigned long *addr)
-+{
-+	int retval;
-+
-+	asm volatile(
-+	"{P0 = tstbit(%1,%2); if (P0.new) %0 = #1; if (!P0.new) %0 = #0;}\n"
-+	: "=&r" (retval)
-+	: "r" (addr[BIT_WORD(nr)]), "r" (nr % BITS_PER_LONG)
-+	: "p0", "memory"
-+	);
-+
-+	return retval;
-+}
-+
- #define test_bit(nr, addr) __test_bit(nr, addr)
-+#define test_bit_acquire(nr, addr) __test_bit_acquire(nr, addr)
- 
- /*
-  * ffz - find first zero in word.
---- a/arch/ia64/include/asm/bitops.h
-+++ b/arch/ia64/include/asm/bitops.h
-@@ -337,6 +337,13 @@ test_bit (int nr, const volatile void *a
- 	return 1 & (((const volatile __u32 *) addr)[nr >> 5] >> (nr & 31));
- }
- 
-+static __always_inline bool
-+test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
-+}
-+
- /**
-  * ffz - find the first zero bit in a long word
-  * @x: The long word to find the bit in
---- a/arch/m68k/include/asm/bitops.h
-+++ b/arch/m68k/include/asm/bitops.h
-@@ -153,6 +153,12 @@ static inline int test_bit(int nr, const
- 	return (vaddr[nr >> 5] & (1UL << (nr & 31))) != 0;
- }
- 
-+static __always_inline bool
-+test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
-+}
- 
- static inline int bset_reg_test_and_set_bit(int nr,
- 					    volatile unsigned long *vaddr)
---- a/arch/s390/include/asm/bitops.h
-+++ b/arch/s390/include/asm/bitops.h
-@@ -184,6 +184,13 @@ static inline bool arch_test_bit(unsigne
- 	return *addr & mask;
- }
- 
-+static __always_inline bool
-+arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
-+}
-+
- static inline bool arch_test_and_set_bit_lock(unsigned long nr,
- 					      volatile unsigned long *ptr)
- {
---- a/arch/sh/include/asm/bitops-op32.h
-+++ b/arch/sh/include/asm/bitops-op32.h
-@@ -138,4 +138,11 @@ static inline int test_bit(int nr, const
- 	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
- }
- 
-+static __always_inline bool
-+test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
-+}
-+
- #endif /* __ASM_SH_BITOPS_OP32_H */
 
 
