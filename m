@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C44C95F9984
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578B35F999D
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231217AbiJJHNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:13:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34718 "EHLO
+        id S231981AbiJJHOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:14:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231823AbiJJHMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:12:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D843D581;
-        Mon, 10 Oct 2022 00:08:00 -0700 (PDT)
+        with ESMTP id S232160AbiJJHNf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:13:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346825F20F;
+        Mon, 10 Oct 2022 00:09:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9F1BB80E5A;
-        Mon, 10 Oct 2022 07:07:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 150D6C43142;
-        Mon, 10 Oct 2022 07:07:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5298AB80E28;
+        Mon, 10 Oct 2022 07:08:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86401C433C1;
+        Mon, 10 Oct 2022 07:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385678;
-        bh=nXpnHUemPMZd/uSdarw/+5i9ZWbahJz7ynIzHMImX1A=;
+        s=korg; t=1665385681;
+        bh=hMHzpVQnPkwTUKlFXD5mDuykfmMuApxzcyQ6YHSEOcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkJSnonjxkqUQRUAw+7YUz/d9iSTBpiZIxi4eUbKE0Xl9K7wkcBF2z+2M+QUxdJxR
-         PzUpIjN/ZvwkRmlt8CPYExdT1abCy4zzozh9RG+wQvddBv7ZlkL0A8YVmDDi0S6zr3
-         o4CCi5Udeii3y5eq+HVZ0f0nBoYqfz13LWiIjH5g=
+        b=LCNUiX8wLLHoRkwDAEGZuzEQKY1GUoJ1MMl0D/9/Sd7sdq/u8yWhoN4cN8Tdvfq5O
+         xXeTd1nrLDXhK414Dp+1ryICV9QGnMyNF7u4+XKh1uCdhMcRbkU23aAtGS+W4EcL2Z
+         fTJDbSpoI3ufNXqvVfBp4+6XpKpC5Ir1XLxqbh0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jalal Mostafa <jalal.a.mostapha@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>
-Subject: [PATCH 5.15 03/37] xsk: Inherit need_wakeup flag for shared sockets
-Date:   Mon, 10 Oct 2022 09:05:22 +0200
-Message-Id: <20221010070331.340024906@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>, Yang Shi <shy828301@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Hugh Dickins <hughd@google.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 04/37] mm: gup: fix the fast GUP race against THP collapse
+Date:   Mon, 10 Oct 2022 09:05:23 +0200
+Message-Id: <20221010070331.375282952@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070331.211113813@linuxfoundation.org>
 References: <20221010070331.211113813@linuxfoundation.org>
@@ -53,73 +61,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jalal Mostafa <jalal.a.mostapha@gmail.com>
+From: Yang Shi <shy828301@gmail.com>
 
-commit 60240bc26114543fcbfcd8a28466e67e77b20388 upstream.
+commit 70cbc3cc78a997d8247b50389d37c4e1736019da upstream.
 
-The flag for need_wakeup is not set for xsks with `XDP_SHARED_UMEM`
-flag and of different queue ids and/or devices. They should inherit
-the flag from the first socket buffer pool since no flags can be
-specified once `XDP_SHARED_UMEM` is specified.
+Since general RCU GUP fast was introduced in commit 2667f50e8b81 ("mm:
+introduce a general RCU get_user_pages_fast()"), a TLB flush is no longer
+sufficient to handle concurrent GUP-fast in all cases, it only handles
+traditional IPI-based GUP-fast correctly.  On architectures that send an
+IPI broadcast on TLB flush, it works as expected.  But on the
+architectures that do not use IPI to broadcast TLB flush, it may have the
+below race:
 
-Fixes: b5aea28dca134 ("xsk: Add shared umem support between queue ids")
-Signed-off-by: Jalal Mostafa <jalal.a.mostapha@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20220921135701.10199-1-jalal.a.mostapha@gmail.com
+   CPU A                                          CPU B
+THP collapse                                     fast GUP
+                                              gup_pmd_range() <-- see valid pmd
+                                                  gup_pte_range() <-- work on pte
+pmdp_collapse_flush() <-- clear pmd and flush
+__collapse_huge_page_isolate()
+    check page pinned <-- before GUP bump refcount
+                                                      pin the page
+                                                      check PTE <-- no change
+__collapse_huge_page_copy()
+    copy data to huge page
+    ptep_clear()
+install huge pmd for the huge page
+                                                      return the stale page
+discard the stale page
+
+The race can be fixed by checking whether PMD is changed or not after
+taking the page pin in fast GUP, just like what it does for PTE.  If the
+PMD is changed it means there may be parallel THP collapse, so GUP should
+back off.
+
+Also update the stale comment about serializing against fast GUP in
+khugepaged.
+
+Link: https://lkml.kernel.org/r/20220907180144.555485-1-shy828301@gmail.com
+Fixes: 2667f50e8b81 ("mm: introduce a general RCU get_user_pages_fast()")
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/xsk_buff_pool.h |    2 +-
- net/xdp/xsk.c               |    4 ++--
- net/xdp/xsk_buff_pool.c     |    5 +++--
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ mm/gup.c        |   34 ++++++++++++++++++++++++++++------
+ mm/khugepaged.c |   10 ++++++----
+ 2 files changed, 34 insertions(+), 10 deletions(-)
 
---- a/include/net/xsk_buff_pool.h
-+++ b/include/net/xsk_buff_pool.h
-@@ -87,7 +87,7 @@ struct xsk_buff_pool *xp_create_and_assi
- 						struct xdp_umem *umem);
- int xp_assign_dev(struct xsk_buff_pool *pool, struct net_device *dev,
- 		  u16 queue_id, u16 flags);
--int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_umem *umem,
-+int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_sock *umem_xs,
- 			 struct net_device *dev, u16 queue_id);
- int xp_alloc_tx_descs(struct xsk_buff_pool *pool, struct xdp_sock *xs);
- void xp_destroy(struct xsk_buff_pool *pool);
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -968,8 +968,8 @@ static int xsk_bind(struct socket *sock,
- 				goto out_unlock;
- 			}
- 
--			err = xp_assign_dev_shared(xs->pool, umem_xs->umem,
--						   dev, qid);
-+			err = xp_assign_dev_shared(xs->pool, umem_xs, dev,
-+						   qid);
- 			if (err) {
- 				xp_destroy(xs->pool);
- 				xs->pool = NULL;
---- a/net/xdp/xsk_buff_pool.c
-+++ b/net/xdp/xsk_buff_pool.c
-@@ -206,17 +206,18 @@ err_unreg_pool:
- 	return err;
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -2266,8 +2266,28 @@ static void __maybe_unused undo_dev_page
  }
  
--int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_umem *umem,
-+int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_sock *umem_xs,
- 			 struct net_device *dev, u16 queue_id)
+ #ifdef CONFIG_ARCH_HAS_PTE_SPECIAL
+-static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+-			 unsigned int flags, struct page **pages, int *nr)
++/*
++ * Fast-gup relies on pte change detection to avoid concurrent pgtable
++ * operations.
++ *
++ * To pin the page, fast-gup needs to do below in order:
++ * (1) pin the page (by prefetching pte), then (2) check pte not changed.
++ *
++ * For the rest of pgtable operations where pgtable updates can be racy
++ * with fast-gup, we need to do (1) clear pte, then (2) check whether page
++ * is pinned.
++ *
++ * Above will work for all pte-level operations, including THP split.
++ *
++ * For THP collapse, it's a bit more complicated because fast-gup may be
++ * walking a pgtable page that is being freed (pte is still valid but pmd
++ * can be cleared already).  To avoid race in such condition, we need to
++ * also check pmd here to make sure pmd doesn't change (corresponds to
++ * pmdp_collapse_flush() in the THP collapse code path).
++ */
++static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
++			 unsigned long end, unsigned int flags,
++			 struct page **pages, int *nr)
  {
- 	u16 flags;
-+	struct xdp_umem *umem = umem_xs->umem;
+ 	struct dev_pagemap *pgmap = NULL;
+ 	int nr_start = *nr, ret = 0;
+@@ -2312,7 +2332,8 @@ static int gup_pte_range(pmd_t pmd, unsi
+ 			goto pte_unmap;
+ 		}
  
- 	/* One fill and completion ring required for each queue id. */
- 	if (!pool->fq || !pool->cq)
- 		return -EINVAL;
+-		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
++		if (unlikely(pmd_val(pmd) != pmd_val(*pmdp)) ||
++		    unlikely(pte_val(pte) != pte_val(*ptep))) {
+ 			put_compound_head(head, 1, flags);
+ 			goto pte_unmap;
+ 		}
+@@ -2357,8 +2378,9 @@ pte_unmap:
+  * get_user_pages_fast_only implementation that can pin pages. Thus it's still
+  * useful to have gup_huge_pmd even if we can't operate on ptes.
+  */
+-static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+-			 unsigned int flags, struct page **pages, int *nr)
++static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
++			 unsigned long end, unsigned int flags,
++			 struct page **pages, int *nr)
+ {
+ 	return 0;
+ }
+@@ -2667,7 +2689,7 @@ static int gup_pmd_range(pud_t *pudp, pu
+ 			if (!gup_huge_pd(__hugepd(pmd_val(pmd)), addr,
+ 					 PMD_SHIFT, next, flags, pages, nr))
+ 				return 0;
+-		} else if (!gup_pte_range(pmd, addr, next, flags, pages, nr))
++		} else if (!gup_pte_range(pmd, pmdp, addr, next, flags, pages, nr))
+ 			return 0;
+ 	} while (pmdp++, addr = next, addr != end);
  
- 	flags = umem->zc ? XDP_ZEROCOPY : XDP_COPY;
--	if (pool->uses_need_wakeup)
-+	if (umem_xs->pool->uses_need_wakeup)
- 		flags |= XDP_USE_NEED_WAKEUP;
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1146,10 +1146,12 @@ static void collapse_huge_page(struct mm
  
- 	return xp_assign_dev(pool, dev, queue_id, flags);
+ 	pmd_ptl = pmd_lock(mm, pmd); /* probably unnecessary */
+ 	/*
+-	 * After this gup_fast can't run anymore. This also removes
+-	 * any huge TLB entry from the CPU so we won't allow
+-	 * huge and small TLB entries for the same virtual address
+-	 * to avoid the risk of CPU bugs in that area.
++	 * This removes any huge TLB entry from the CPU so we won't allow
++	 * huge and small TLB entries for the same virtual address to
++	 * avoid the risk of CPU bugs in that area.
++	 *
++	 * Parallel fast GUP is fine since fast GUP will back off when
++	 * it detects PMD is changed.
+ 	 */
+ 	_pmd = pmdp_collapse_flush(vma, address, pmd);
+ 	spin_unlock(pmd_ptl);
 
 
