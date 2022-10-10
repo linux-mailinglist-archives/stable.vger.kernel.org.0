@@ -2,140 +2,435 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 399665F979F
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 07:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3370B5F984F
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 08:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230230AbiJJFMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 01:12:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
+        id S231522AbiJJGYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 02:24:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbiJJFMX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 01:12:23 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2072.outbound.protection.outlook.com [40.107.243.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABD44C606
-        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 22:12:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lFSc1zuZLn0Rt7YGMxgdwDNWdrg0xuXiNFvNLYGF3Z9UvZGcdq8Lbknrr0TOkF2CcFvWtldMCw4DS6s4XUddtDRCNVyIs6zsf/tRMtfHv+sRv9mkeUXi+MT+eYi1mcuETDl6DgMiZo/DRiaHGK56xSEgANl/pC6SpYlu80tqyRVKbyQWC40y0JVuI/7WIts3K3xGMZ4SALGjS/cLKXZxxLj/tytjssV2xLtSEADoKYLSCX53aOz/EYlISOth0q+IvChwfxZJxqZlQ0TgOrWsa1vKuvMobriuGuUyMZ0VtFIpmiFeDszHEYYt8pj3E2df7hS4Fr4PnoDBXSdWEb/KMA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MjW4yaX3XLJRjeJUbbMAaIfGkadRHjnBKFzRKag03yg=;
- b=TY1d87Rn9NO5QNkXdDNeNlL340QFZig8a+GcMXHGUxiCgh17lirbnCEcyx1WkF5CbSQaGfp1aAWc1vG8s221BZ+JxO54JtGz9/bQvZa1zhnDu1msSbcDKzwwJmX8UQa+//9vveWeV47ELxcYFFpozitZHd0lWuqG1Qo6yElZ8MnxCPNWpaW7hbVdDRq2WBHFV3Zd5Rijcd5o7QzZC7JUiAezKpnbMi6E+P4ftIer7EHJDwUYwofvmRjn2CUztxz4xLMPskbTpB+SRYYIp9ciW/EaEvNoFNMsj71MDCVuLr510ihQnCghCcJyVydiMYfUBkt9DxuJbKnSo+rj967b9w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MjW4yaX3XLJRjeJUbbMAaIfGkadRHjnBKFzRKag03yg=;
- b=s9DAeNf52paUwOmnmcDxanUf1abUWMiUOGP+OQvYy/SzMcUmNtvVSjWG5plopW8xaK//X8ib2dstwRAVXMCi0c2T9xTnnZ9kh3yaReM7wsWnBDcmaQ5yLzZg3+yV4UlNHDlsjMjtwl3F+vfwxIkfpWePenCgRi1cjOlxYPm5aJY=
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
- by BL1PR12MB5222.namprd12.prod.outlook.com (2603:10b6:208:31e::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.28; Mon, 10 Oct
- 2022 05:12:20 +0000
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::76ec:6acf:dd4d:76a3]) by MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::76ec:6acf:dd4d:76a3%9]) with mapi id 15.20.5676.030; Mon, 10 Oct 2022
- 05:12:20 +0000
-From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Fix IRQ storm on ASUS UM325UAZ
-Thread-Topic: Fix IRQ storm on ASUS UM325UAZ
-Thread-Index: AdjcZeDzDJMAM5NQQzq4hNuiUB5kcw==
-Date:   Mon, 10 Oct 2022 05:12:20 +0000
-Message-ID: <MN0PR12MB610115BC9826AB2E3449D064E2209@MN0PR12MB6101.namprd12.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Enabled=true;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_SetDate=2022-10-10T05:04:27Z;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Method=Standard;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Name=General;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_ActionId=96f9f72e-777d-448d-8b60-4d8a1ec68ddb;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_ContentBits=1
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_enabled: true
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_setdate: 2022-10-10T05:12:19Z
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_method: Standard
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_name: General
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_actionid: 13eadb56-c644-433f-b077-a9d13bbfce0f
-msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_contentbits: 0
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MN0PR12MB6101:EE_|BL1PR12MB5222:EE_
-x-ms-office365-filtering-correlation-id: a01cbcc1-3731-4e48-7cd3-08daaa7e01f1
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: TyTSJ8HaP5D7OUhlBjzJR3RkH86chRNc34yhlzmxOUyprXcwP85kkDld5iJgkU+qUeC09g5RZ4AXpdZrIWmLpz1PsXYC4l78GmfOQfE2FzQpf5DsagFpYcg4nq80YDq4Cb+flL2rQIy4Fo6KDwgbu0rm2Dk/gKg0MQ5AEh3e7EFihZ8lBiSIdeNqiaLlelBslILt2U4dqgQmjcgGProSnkOBOMwesrV4N+uegN6cwLLyutCokYH5TtBz5E1x1oCaQN3PF0u2mSxElKts8WkEV982Cc1H1pY9Y/zDLOpOQpJZZ8d6umwAz3GaA5nLuqKqEWcQmgMmtoDP7VmW6KgQfWgcHuacHKXpzd4bszvl3h9v6B+L5O3JC2KF3uVc61Ybox8A4DED+dkL/WZXQtth93qbHT92G9b0bDqfscpT7qEWPInC/liLP/TXYAwhPO5uw6/lDjF3/iqdT4n+x3Mt6wOkOGb49/AxnGGpSHmvRkWW13xu4NbeWMvQKESATg/Zk2aPa3f9gJ0B3Ms1yWTlYrVB+z8gYen37RKVIFjT+c1glXZ0crV5vxVYK3L/YMcbuj7vfHF+3RpKFkiKfh6P3+C67aQ5awKOgcwh+MsdHnbtgS+fuWU5BplOI4JnMFzRTXlVwxppbRh/KhPhSpQGC6bxL2g9nJacWGk43Ci8E4vC71yixqtznYwPAXePWVYso56/PPT2Qxo0ND9TfkafSmDSAjx/AwLbby4hUS/p054u2xynigyOMHLDXQ4UwTV5LhSHtfMVPCWq+Lwhf8usgg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(376002)(366004)(346002)(396003)(451199015)(64756008)(66476007)(6916009)(66556008)(316002)(66946007)(76116006)(66446008)(8676002)(8936002)(38100700002)(122000001)(6506007)(7696005)(2906002)(33656002)(26005)(71200400001)(83380400001)(86362001)(478600001)(38070700005)(5660300002)(9686003)(55016003)(52536014)(4744005)(41300700001)(186003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?tFgY8tMtsaxqGUC16Y+pnqhWq4/2aES7Z8cHRdMfpLg9XdtifNruh5NR2lOT?=
- =?us-ascii?Q?5ABLa+8oWAMgPt1WCwgQ10j/pMUlJ3joTcyU9uc2n1Lu7AJd0JVVYHMvgiic?=
- =?us-ascii?Q?gBZpAxShRjnBNwqJ7eS4FIO2or55R3rNgR/DjUckmffRuXwGG9FMLTTHBhdj?=
- =?us-ascii?Q?2bxEtSTE/jRFS48YVm1Y+sPOlD/swsELXR4zTZP/azD2Uj/cZQPAp0nqt4V4?=
- =?us-ascii?Q?9l7cGVFDLPNWWUkeH1iR6WYJdnxwJqkagVFka8T4fOPKl/B981+wRwy0Ug9S?=
- =?us-ascii?Q?fYQnUaUAZlO3QUE9gCU5MofzWVLF+ln2gP8iWlMKuiiZGiONgurkEQFz3Yko?=
- =?us-ascii?Q?m65Dy2OldP+Sm6Ba2fUYu8+KCSb4dLJru+0Svvfu0t3T96C0zj8MZGljTuiW?=
- =?us-ascii?Q?f9mzhqo8nClFRVp/dBEit8kizDJZmubeAENs+/7JLw6c1AQwOaJu3iKZ3490?=
- =?us-ascii?Q?d2BU584JedZp+JE7gFuWNNDZqX7diXy36vvBSESIrmDzSBC1DSk8q4pjHwkH?=
- =?us-ascii?Q?DTpEleazItBKTyv3VhchlhLn7X5HgEp7ii2aSInh/e9LPQGMtNIi3B+Zul/Q?=
- =?us-ascii?Q?E2sANMqJpZayNuMxls3mij1WoPJ6rR6Xk6ZMtoYT37eHTcRMH2nEkOkKGNv/?=
- =?us-ascii?Q?AUgT+6YRGD7DxdkFARA5Z+zjGSztUcpr/NDMyOJD/boNz0ib9O8OByaTL+hN?=
- =?us-ascii?Q?oOeWxHE93E+op6DULrstnsrD94vmjwaOBmRIXiaDUbbYWc02aPr9K7kKEuXl?=
- =?us-ascii?Q?1DzAp5aZI+qxi1SbZOz3JK5k/WVtjApTVKaJiRilI/OVYXUsVnScpOX1CMcI?=
- =?us-ascii?Q?IFvXMixEOhzFv+DL3IwItzTRVaFTKp91urShQb+fD6wP8TdRLR9Ll2XnGdOE?=
- =?us-ascii?Q?T3SmgTEoLzMp2TOHQkaDin9WFxKeMMzcbU40j6fwbMIEi54iZwROs7lkUIrU?=
- =?us-ascii?Q?zDEVip18SmOiGbWRLW/Uz2HRHt/ftLB2uNSqZ8I4R3nBJxPUhHpEKFfHerpA?=
- =?us-ascii?Q?0gdC+MyT996GYgNpBFclFPgsCbM3NknE2Z0rC2mAdBcWTM3x7LWAf0xIcdRZ?=
- =?us-ascii?Q?b3wfqCTKJ6e4nIgvmLpmBUyl8E9HXofLUqs4KdawknrsiIO3RqAC2TgH6CIG?=
- =?us-ascii?Q?8j4RJEKWheTImzfjDXrcLKVnRy5Cih73I0v8Ss2QulCI9NXhUHur3AJRXGEU?=
- =?us-ascii?Q?W5wLqU++i5VlrNw2h+eB4byIpgRYN35PXTgJ5PSrmIFggsXPRF9tuHLNtq7p?=
- =?us-ascii?Q?iEXmM+7NiOXLyCOqHs5GrGs28KAhcyAeCxkzaVLJxuDw9xuJp6pf1wgMw5A4?=
- =?us-ascii?Q?UtMeMDxlAdRopwApqU5I/NBTlm/FsdQlkXRvEMbEnQP/twKwSWcBqqSjiyIK?=
- =?us-ascii?Q?sU/FW174qviIeG1JCsWi+te5Y6I1sZRuoFV+DXM9sKdQDRqJbZsXmfx3pT/4?=
- =?us-ascii?Q?6zSgx8ESoBJEEgm1uW5jy/dgGu78hN8P6/Ll3aRRl82bEFmZvwZXax+TNsdW?=
- =?us-ascii?Q?GEee0QhNseSk1Cbf2aJk+Tai49xxHSvh0xYNKCLSWTsdG32quzobiLvQmjwY?=
- =?us-ascii?Q?TVQRvnu0QB2djFNidVY=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S231627AbiJJGYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 02:24:06 -0400
+X-Greylist: delayed 392 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 09 Oct 2022 23:24:02 PDT
+Received: from gw.atmark-techno.com (gw.atmark-techno.com [13.115.124.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7784E550AD
+        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 23:24:02 -0700 (PDT)
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
+        by gw.atmark-techno.com (Postfix) with ESMTPS id B85686010A
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 15:17:28 +0900 (JST)
+Received: by mail-pj1-f71.google.com with SMTP id y16-20020a17090aa41000b001fdf0a76a4eso4645244pjp.3
+        for <stable@vger.kernel.org>; Sun, 09 Oct 2022 23:17:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XhY/YBolv8hSqOo4abkV8XSXC2M5ryJYicZWaAOYbjY=;
+        b=NHqWTWUreJK4RI+0xoANkMi+KtucaACClP11/FC8MoPKLaIBLqwLT/jjSBWJ4xXOAY
+         jrZqTaGlGx4CucULq6WEmKcNn41ETkAeOjBfHuJAnPzIS6pkFynY2DLRbuL8hnKx7IaS
+         dAVHzmM1OK6crKPQg+KSkJ2jCLloPYzS9mnydO0wOSvUMBz+dVMZkoW2CDOlkmsj0xFl
+         daiErJCc6AM8X/saCu6aJHyUsobNf1pEqpjkOtIT/+9dRBSg4QuHe6YqOpBMn2hbewX1
+         eAcL+RX9LPGGk378II9fM3nrqsSRUrHMlxEo2q8gtkiBKGkiKX0RDH9JCwedY9QLINO8
+         7gyg==
+X-Gm-Message-State: ACrzQf0zseubGpPTZqrEHHTmzfxVSd9md9z3g8SqKwR0LcrXx2W9Magv
+        iR7goiHQ/Vuf5WwGZ7o3mg0VBhu3aeCdlpgrLJqpqTG2Xg3Kl95NM3jjZ9+YVLlqWl+D5hO1Wtz
+        dNlWIQt7L7ocHi1ZPDs4U
+X-Received: by 2002:a17:903:22c8:b0:17f:7039:a2d4 with SMTP id y8-20020a17090322c800b0017f7039a2d4mr17774189plg.2.1665382647639;
+        Sun, 09 Oct 2022 23:17:27 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7wCJtVEObVEUdWCWNNYw39aS08xIF7xSWA9UN1W/C+mlmVKBmLQW4p7XQbRpgO7YTJkMZoHQ==
+X-Received: by 2002:a17:903:22c8:b0:17f:7039:a2d4 with SMTP id y8-20020a17090322c800b0017f7039a2d4mr17774173plg.2.1665382647220;
+        Sun, 09 Oct 2022 23:17:27 -0700 (PDT)
+Received: from pc-zest.atmarktech (117.209.187.35.bc.googleusercontent.com. [35.187.209.117])
+        by smtp.gmail.com with ESMTPSA id m9-20020a17090a2c0900b00202fbd9c21dsm5322580pjd.48.2022.10.09.23.17.25
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 09 Oct 2022 23:17:26 -0700 (PDT)
+Received: from martinet by pc-zest.atmarktech with local (Exim 4.96)
+        (envelope-from <martinet@pc-zest>)
+        id 1ohm6O-007qTx-1V;
+        Mon, 10 Oct 2022 15:17:24 +0900
+Date:   Mon, 10 Oct 2022 15:17:14 +0900
+From:   Dominique MARTINET <dominique.martinet@atmark-techno.com>
+To:     Lukas Wunner <lukas@wunner.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-serial@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4] serial: Deassert Transmit Enable on probe in
+ driver-specific way
+Message-ID: <Y0O46rcQap99fZVC@atmark-techno.com>
+References: <2de36eba3fbe11278d5002e4e501afe0ceaca039.1663863805.git.lukas@wunner.de>
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a01cbcc1-3731-4e48-7cd3-08daaa7e01f1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Oct 2022 05:12:20.1082
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jpMygUNSBh5OTODe53CHaBWB2msn26yG9ygzVaRHlCouy7CKej+fGuTKhRWCb/jhtLT5v+fXYdhIwAVPbBebKw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5222
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <2de36eba3fbe11278d5002e4e501afe0ceaca039.1663863805.git.lukas@wunner.de>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[AMD Official Use Only - General]
++Cc stable
 
-Hi,
+Lukas Wunner wrote on Thu, Sep 22, 2022 at 06:27:33PM +0200:
+> When a UART port is newly registered, uart_configure_port() seeks to
+> deassert RS485 Transmit Enable by setting the RTS bit in port->mctrl.
+> However a number of UART drivers interpret a set RTS bit as *assertion*
+> instead of deassertion:  Affected drivers include those using
+> serial8250_em485_config() (except 8250_bcm2835aux.c) and some using
+> mctrl_gpio (e.g. imx.c).
+> 
+> Since the interpretation of the RTS bit is driver-specific, it is not
+> suitable as a means to centrally deassert Transmit Enable in the serial
+> core.  Instead, the serial core must call on drivers to deassert it in
+> their driver-specific way.  One way to achieve that is to call
+> ->rs485_config().  It implicitly deasserts Transmit Enable.
+> 
+> So amend uart_configure_port() and uart_resume_port() to invoke
+> uart_rs485_config().  That allows removing calls to uart_rs485_config()
+> from drivers' ->probe() hooks and declaring the function static.
+> 
+> Skip any invocation of ->set_mctrl() if RS485 is enabled.  RS485 has no
+> hardware flow control, so the modem control lines are irrelevant and
+> need not be touched.  When leaving RS485 mode, reset the modem control
+> lines to the state stored in port->mctrl.  That way, UARTs which are
+> muxed between RS485 and RS232 transceivers drive the lines correctly
+> when switched to RS232.  (serial8250_do_startup() historically raises
+> the OUT1 modem signal because otherwise interrupts are not signaled on
+> ancient PC UARTs, but I believe that no longer applies to modern,
+> RS485-capable UARTs and is thus safe to be skipped.)
+> 
+> imx.c modifies port->mctrl whenever Transmit Enable is asserted and
+> deasserted.  Stop it from doing that so port->mctrl reflects the RS232
+> line state.
+> 
+> 8250_omap.c deasserts Transmit Enable on ->runtime_resume() by calling
+> ->set_mctrl().  Because that is now a no-op in RS485 mode, amend the
+> function to call serial8250_em485_stop_tx().
+> 
+> fsl_lpuart.c retrieves and applies the RS485 device tree properties
+> after registering the UART port.  Because applying now happens on
+> registration in uart_configure_port(), move retrieval of the properties
+> ahead of uart_add_one_port().
+> 
+> Fixes: d3b3404df318 ("serial: Fix incorrect rs485 polarity on uart open")
 
-ASUS UM325UAZ encounters an IRQ storm at runtime due to a BIOS error by the=
- vendor that they programmed a floating pin as an interrupt source. It's av=
-oided by a workaround to gpiolib-acpi to detect this situation.
+Thanks for this fix!
+We also noticed rs485 DE was initially wrong last week and I noticed
+this when I was about to send a patch that just inverted the
+SER_RS485_RTS_AFTER_SEND check in uart_configure_port, but after reading
+the commit message here it's a lot more complicated than that depending
+on the serial driver...
+(fixing commit 2dd8a74fddd2 ("serial: core: Initialize rs485 RTS
+polarity already on probe"), but it's actually the same problem in the
+opposite direction)
 
-Can you please backport these commits to 5.19.y and 6.0.y:
 
-6b6af7bd5718 ("gpiolib: acpi: Add support to ignore programming an interrup=
-t")
-0ea76c401f92 ("gpiolib: acpi: Add a quirk for Asus UM325UAZ")
+Unfortunately you've marked this for v4.14+ stable, but it doesn't even
+apply to 5.19.14 due to (at least) commit d8fcd9cfbde5 ("serial: core:
+move sanitizing of RS485 delays into own function"), so it hasn't been
+picked up yet; since quite a bit of code was cleaned up/moved one will
+need to pay a bit attention when doing that.
 
-Thanks,
+What would you like to do for stable branches?
+Would you be able to send a patch that applies on older 5.10 and 5.15
+where commit d3b3404df318 ("serial: Fix incorrect rs485 polarity on uart
+open") has been backported?
+
+If that sounds too complicated we could probably just revert a handful
+of serial_core/rs485 commits, but going forward sounds more future-proof
+to me.
+
+Thanks!
+(nothing below, leaving quote for stable@)
+
+> Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> Link: https://lore.kernel.org/all/20220329085050.311408-1-matthias.schiffer@ew.tq-group.com/
+> Reported-by: Roosen Henri <Henri.Roosen@ginzinger.com>
+> Link: https://lore.kernel.org/all/8f538a8903795f22f9acc94a9a31b03c9c4ccacb.camel@ginzinger.com/
+> Signed-off-by: Lukas Wunner <lukas@wunner.de>
+> Cc: stable@vger.kernel.org # v4.14+
+> ---
+>  v1 -> v2:
+>  Deassert RTS in serial8250_em485_init() only if no transmission is
+>  currently ongoing (Ilpo)
+> 
+>  v2 -> v3:
+>  Drop superfluous newline
+> 
+>  v3 -> v4:
+>  Resend with changelog at maintainer's request
+> 
+>  drivers/tty/serial/8250/8250_omap.c |  3 +++
+>  drivers/tty/serial/8250/8250_pci.c  |  9 +--------
+>  drivers/tty/serial/8250/8250_port.c | 12 +++++++-----
+>  drivers/tty/serial/fsl_lpuart.c     | 10 ++++------
+>  drivers/tty/serial/imx.c            |  8 ++------
+>  drivers/tty/serial/serial_core.c    | 36 ++++++++++++++++++++----------------
+>  include/linux/serial_core.h         |  1 -
+>  7 files changed, 37 insertions(+), 42 deletions(-)
+> 
+> diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+> index b43894e..2e67754 100644
+> --- a/drivers/tty/serial/8250/8250_omap.c
+> +++ b/drivers/tty/serial/8250/8250_omap.c
+> @@ -342,6 +342,9 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
+>  	omap8250_update_mdr1(up, priv);
+>  
+>  	up->port.ops->set_mctrl(&up->port, up->port.mctrl);
+> +
+> +	if (up->port.rs485.flags & SER_RS485_ENABLED)
+> +		serial8250_em485_stop_tx(up);
+>  }
+>  
+>  /*
+> diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+> index 6f66dc2..b260c55 100644
+> --- a/drivers/tty/serial/8250/8250_pci.c
+> +++ b/drivers/tty/serial/8250/8250_pci.c
+> @@ -1627,7 +1627,6 @@ static int pci_fintek_init(struct pci_dev *dev)
+>  	resource_size_t bar_data[3];
+>  	u8 config_base;
+>  	struct serial_private *priv = pci_get_drvdata(dev);
+> -	struct uart_8250_port *port;
+>  
+>  	if (!(pci_resource_flags(dev, 5) & IORESOURCE_IO) ||
+>  			!(pci_resource_flags(dev, 4) & IORESOURCE_IO) ||
+> @@ -1674,13 +1673,7 @@ static int pci_fintek_init(struct pci_dev *dev)
+>  
+>  		pci_write_config_byte(dev, config_base + 0x06, dev->irq);
+>  
+> -		if (priv) {
+> -			/* re-apply RS232/485 mode when
+> -			 * pciserial_resume_ports()
+> -			 */
+> -			port = serial8250_get_port(priv->line[i]);
+> -			uart_rs485_config(&port->port);
+> -		} else {
+> +		if (!priv) {
+>  			/* First init without port data
+>  			 * force init to RS232 Mode
+>  			 */
+> diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+> index 907c5ff..b21550c 100644
+> --- a/drivers/tty/serial/8250/8250_port.c
+> +++ b/drivers/tty/serial/8250/8250_port.c
+> @@ -600,7 +600,7 @@ void serial8250_rpm_put(struct uart_8250_port *p)
+>  static int serial8250_em485_init(struct uart_8250_port *p)
+>  {
+>  	if (p->em485)
+> -		return 0;
+> +		goto deassert_rts;
+>  
+>  	p->em485 = kmalloc(sizeof(struct uart_8250_em485), GFP_ATOMIC);
+>  	if (!p->em485)
+> @@ -616,7 +616,9 @@ static int serial8250_em485_init(struct uart_8250_port *p)
+>  	p->em485->active_timer = NULL;
+>  	p->em485->tx_stopped = true;
+>  
+> -	p->rs485_stop_tx(p);
+> +deassert_rts:
+> +	if (p->em485->tx_stopped)
+> +		p->rs485_stop_tx(p);
+>  
+>  	return 0;
+>  }
+> @@ -2047,6 +2049,9 @@ void serial8250_do_set_mctrl(struct uart_port *port, unsigned int mctrl)
+>  
+>  static void serial8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+>  {
+> +	if (port->rs485.flags & SER_RS485_ENABLED)
+> +		return;
+> +
+>  	if (port->set_mctrl)
+>  		port->set_mctrl(port, mctrl);
+>  	else
+> @@ -3189,9 +3194,6 @@ static void serial8250_config_port(struct uart_port *port, int flags)
+>  	if (flags & UART_CONFIG_TYPE)
+>  		autoconfig(up);
+>  
+> -	if (port->rs485.flags & SER_RS485_ENABLED)
+> -		uart_rs485_config(port);
+> -
+>  	/* if access method is AU, it is a 16550 with a quirk */
+>  	if (port->type == PORT_16550A && port->iotype == UPIO_AU)
+>  		up->bugs |= UART_BUG_NOMSR;
+> diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+> index e9d5b48..dfc73fe 100644
+> --- a/drivers/tty/serial/fsl_lpuart.c
+> +++ b/drivers/tty/serial/fsl_lpuart.c
+> @@ -2724,15 +2724,13 @@ static int lpuart_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		goto failed_reset;
+>  
+> -	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+> -	if (ret)
+> -		goto failed_attach_port;
+> -
+>  	ret = uart_get_rs485_mode(&sport->port);
+>  	if (ret)
+>  		goto failed_get_rs485;
+>  
+> -	uart_rs485_config(&sport->port);
+> +	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+> +	if (ret)
+> +		goto failed_attach_port;
+>  
+>  	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
+>  				DRIVER_NAME, sport);
+> @@ -2742,9 +2740,9 @@ static int lpuart_probe(struct platform_device *pdev)
+>  	return 0;
+>  
+>  failed_irq_request:
+> -failed_get_rs485:
+>  	uart_remove_one_port(&lpuart_reg, &sport->port);
+>  failed_attach_port:
+> +failed_get_rs485:
+>  failed_reset:
+>  	lpuart_disable_clks(sport);
+>  	return ret;
+> diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+> index 5875ee6..05b432d 100644
+> --- a/drivers/tty/serial/imx.c
+> +++ b/drivers/tty/serial/imx.c
+> @@ -380,8 +380,7 @@ static void imx_uart_rts_active(struct imx_port *sport, u32 *ucr2)
+>  {
+>  	*ucr2 &= ~(UCR2_CTSC | UCR2_CTS);
+>  
+> -	sport->port.mctrl |= TIOCM_RTS;
+> -	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
+> +	mctrl_gpio_set(sport->gpios, sport->port.mctrl | TIOCM_RTS);
+>  }
+>  
+>  /* called with port.lock taken and irqs caller dependent */
+> @@ -390,8 +389,7 @@ static void imx_uart_rts_inactive(struct imx_port *sport, u32 *ucr2)
+>  	*ucr2 &= ~UCR2_CTSC;
+>  	*ucr2 |= UCR2_CTS;
+>  
+> -	sport->port.mctrl &= ~TIOCM_RTS;
+> -	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
+> +	mctrl_gpio_set(sport->gpios, sport->port.mctrl & ~TIOCM_RTS);
+>  }
+>  
+>  static void start_hrtimer_ms(struct hrtimer *hrt, unsigned long msec)
+> @@ -2347,8 +2345,6 @@ static int imx_uart_probe(struct platform_device *pdev)
+>  		dev_err(&pdev->dev,
+>  			"low-active RTS not possible when receiver is off, enabling receiver\n");
+>  
+> -	uart_rs485_config(&sport->port);
+> -
+>  	/* Disable interrupts before requesting them */
+>  	ucr1 = imx_uart_readl(sport, UCR1);
+>  	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN | UCR1_RTSDEN);
+> diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+> index c711318..179ee19 100644
+> --- a/drivers/tty/serial/serial_core.c
+> +++ b/drivers/tty/serial/serial_core.c
+> @@ -158,15 +158,10 @@ static void uart_start(struct tty_struct *tty)
+>  	unsigned long flags;
+>  	unsigned int old;
+>  
+> -	if (port->rs485.flags & SER_RS485_ENABLED) {
+> -		set &= ~TIOCM_RTS;
+> -		clear &= ~TIOCM_RTS;
+> -	}
+> -
+>  	spin_lock_irqsave(&port->lock, flags);
+>  	old = port->mctrl;
+>  	port->mctrl = (old & ~clear) | set;
+> -	if (old != port->mctrl)
+> +	if (old != port->mctrl && !(port->rs485.flags & SER_RS485_ENABLED))
+>  		port->ops->set_mctrl(port, port->mctrl);
+>  	spin_unlock_irqrestore(&port->lock, flags);
+>  }
+> @@ -1391,7 +1386,7 @@ static void uart_set_rs485_termination(struct uart_port *port,
+>  				 !!(rs485->flags & SER_RS485_TERMINATE_BUS));
+>  }
+>  
+> -int uart_rs485_config(struct uart_port *port)
+> +static int uart_rs485_config(struct uart_port *port)
+>  {
+>  	struct serial_rs485 *rs485 = &port->rs485;
+>  	int ret;
+> @@ -1405,7 +1400,6 @@ int uart_rs485_config(struct uart_port *port)
+>  
+>  	return ret;
+>  }
+> -EXPORT_SYMBOL_GPL(uart_rs485_config);
+>  
+>  static int uart_get_rs485_config(struct uart_port *port,
+>  			 struct serial_rs485 __user *rs485)
+> @@ -1444,8 +1438,13 @@ static int uart_set_rs485_config(struct tty_struct *tty, struct uart_port *port,
+>  
+>  	spin_lock_irqsave(&port->lock, flags);
+>  	ret = port->rs485_config(port, &tty->termios, &rs485);
+> -	if (!ret)
+> +	if (!ret) {
+>  		port->rs485 = rs485;
+> +
+> +		/* Reset RTS and other mctrl lines when disabling RS485 */
+> +		if (!(rs485.flags & SER_RS485_ENABLED))
+> +			port->ops->set_mctrl(port, port->mctrl);
+> +	}
+>  	spin_unlock_irqrestore(&port->lock, flags);
+>  	if (ret)
+>  		return ret;
+> @@ -2352,7 +2351,8 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+>  
+>  		spin_lock_irq(&uport->lock);
+>  		ops->stop_tx(uport);
+> -		ops->set_mctrl(uport, 0);
+> +		if (!(uport->rs485.flags & SER_RS485_ENABLED))
+> +			ops->set_mctrl(uport, 0);
+>  		/* save mctrl so it can be restored on resume */
+>  		mctrl = uport->mctrl;
+>  		uport->mctrl = 0;
+> @@ -2440,7 +2440,8 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+>  
+>  		uart_change_pm(state, UART_PM_STATE_ON);
+>  		spin_lock_irq(&uport->lock);
+> -		ops->set_mctrl(uport, 0);
+> +		if (!(uport->rs485.flags & SER_RS485_ENABLED))
+> +			ops->set_mctrl(uport, 0);
+>  		spin_unlock_irq(&uport->lock);
+>  		if (console_suspend_enabled || !uart_console(uport)) {
+>  			/* Protected by port mutex for now */
+> @@ -2451,7 +2452,10 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+>  				if (tty)
+>  					uart_change_speed(tty, state, NULL);
+>  				spin_lock_irq(&uport->lock);
+> -				ops->set_mctrl(uport, uport->mctrl);
+> +				if (!(uport->rs485.flags & SER_RS485_ENABLED))
+> +					ops->set_mctrl(uport, uport->mctrl);
+> +				else
+> +					uart_rs485_config(uport);
+>  				ops->start_tx(uport);
+>  				spin_unlock_irq(&uport->lock);
+>  				tty_port_set_initialized(port, 1);
+> @@ -2558,10 +2562,10 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+>  		 */
+>  		spin_lock_irqsave(&port->lock, flags);
+>  		port->mctrl &= TIOCM_DTR;
+> -		if (port->rs485.flags & SER_RS485_ENABLED &&
+> -		    !(port->rs485.flags & SER_RS485_RTS_AFTER_SEND))
+> -			port->mctrl |= TIOCM_RTS;
+> -		port->ops->set_mctrl(port, port->mctrl);
+> +		if (!(port->rs485.flags & SER_RS485_ENABLED))
+> +			port->ops->set_mctrl(port, port->mctrl);
+> +		else
+> +			uart_rs485_config(port);
+>  		spin_unlock_irqrestore(&port->lock, flags);
+>  
+>  		/*
+> diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+> index 02a4299..0354369 100644
+> --- a/include/linux/serial_core.h
+> +++ b/include/linux/serial_core.h
+> @@ -933,5 +933,4 @@ static inline int uart_handle_break(struct uart_port *port)
+>  					 !((cflag) & CLOCAL))
+>  
+>  int uart_get_rs485_mode(struct uart_port *port);
+> -int uart_rs485_config(struct uart_port *port);
+>  #endif /* LINUX_SERIAL_CORE_H */
+-- 
+Dominique Martinet
