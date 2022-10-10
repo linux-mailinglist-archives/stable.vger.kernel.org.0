@@ -2,75 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 615F35F979A
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 07:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 399665F979F
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 07:12:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231150AbiJJFCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 01:02:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35306 "EHLO
+        id S230230AbiJJFMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 01:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbiJJFCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 01:02:41 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8263646215;
-        Sun,  9 Oct 2022 22:02:39 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id l22so14324789edj.5;
-        Sun, 09 Oct 2022 22:02:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=RfV1A5FbliAxtV5EyErKlwh4h1CaLc3axhskvRyDgT8=;
-        b=DdqczOFeZqbzbcQJO3IrNYmAqqUI1tZqZWu4MA+v0yOu6lBswJVnqgyfTQ7rneAShD
-         NdU34Eh4yH1KOyLM63A733zA/uTplMmzsWHZHTtIJ2a7Va+uVDUf6ssTqYPpcbgh1krQ
-         fXQYXKr7W2CFOL56pBMVq00Vvfb88vnx/DTx7p2ii301j9XEDaVUjroSvW5w8IhKNnx/
-         JyAwOqGFEXRJcn5BNfPU0mGcKBDjmSnl9dcmxcRBvKLVqNeIiqrkim80wlV6h8P9KC20
-         v06OhDYixLnHjjLRZHWqcnLTarR1ow7mYJysBM3k3T2joRkDeehxoz1fSKd2fcaRUr/h
-         KFzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=RfV1A5FbliAxtV5EyErKlwh4h1CaLc3axhskvRyDgT8=;
-        b=frtHX4z5fhMqOYgNAvJElZfQE9CURfX4vjZBlaHDTNMR1oeduzXljUbU5SCZ2bl/L2
-         jRDZq1yy4lAII9XB+zT53R2y80iAVHtHo4Z9KOysfosyOktstG4nUmRxt/Em6HAisZgR
-         6PP10+kHLoPRoPi2KJMa8+2TBeCTDvkwyY9mzBOURguSLehJswsyXSGmWpUl8N3m5Acn
-         9LjQkgwp2wLj9F+xCqVvPaCIzChXRr5xJ+L1nJbGu+nsSUUoWpFvMdmc51qCv0cV6pZB
-         feNk877JD+0sfgS7N5plHG++M8W80gah8NZTTcQ9ZmCPSAKDj8dueDFAjWScutU3o5n0
-         S4lg==
-X-Gm-Message-State: ACrzQf0BZSJ7JesgCOZ6C5dijeICJRpizn313va1EQKrYSMRlxengsEA
-        QI6azGYS32+qEzMcekg6U8xrsVsimw0eIeNvNEw=
-X-Google-Smtp-Source: AMsMyM7k+ghtcK+fuakj1I9EMT42VpLsinCJ3ArbHx/0wlUl7k9Ae5FsoIrH6CEJza0EtTiUuK6m63a/2TalKbmCapY=
-X-Received: by 2002:a05:6402:27c9:b0:45c:3c77:8881 with SMTP id
- c9-20020a05640227c900b0045c3c778881mr605677ede.250.1665378157860; Sun, 09 Oct
- 2022 22:02:37 -0700 (PDT)
+        with ESMTP id S229546AbiJJFMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 01:12:23 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2072.outbound.protection.outlook.com [40.107.243.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABD44C606
+        for <stable@vger.kernel.org>; Sun,  9 Oct 2022 22:12:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lFSc1zuZLn0Rt7YGMxgdwDNWdrg0xuXiNFvNLYGF3Z9UvZGcdq8Lbknrr0TOkF2CcFvWtldMCw4DS6s4XUddtDRCNVyIs6zsf/tRMtfHv+sRv9mkeUXi+MT+eYi1mcuETDl6DgMiZo/DRiaHGK56xSEgANl/pC6SpYlu80tqyRVKbyQWC40y0JVuI/7WIts3K3xGMZ4SALGjS/cLKXZxxLj/tytjssV2xLtSEADoKYLSCX53aOz/EYlISOth0q+IvChwfxZJxqZlQ0TgOrWsa1vKuvMobriuGuUyMZ0VtFIpmiFeDszHEYYt8pj3E2df7hS4Fr4PnoDBXSdWEb/KMA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MjW4yaX3XLJRjeJUbbMAaIfGkadRHjnBKFzRKag03yg=;
+ b=TY1d87Rn9NO5QNkXdDNeNlL340QFZig8a+GcMXHGUxiCgh17lirbnCEcyx1WkF5CbSQaGfp1aAWc1vG8s221BZ+JxO54JtGz9/bQvZa1zhnDu1msSbcDKzwwJmX8UQa+//9vveWeV47ELxcYFFpozitZHd0lWuqG1Qo6yElZ8MnxCPNWpaW7hbVdDRq2WBHFV3Zd5Rijcd5o7QzZC7JUiAezKpnbMi6E+P4ftIer7EHJDwUYwofvmRjn2CUztxz4xLMPskbTpB+SRYYIp9ciW/EaEvNoFNMsj71MDCVuLr510ihQnCghCcJyVydiMYfUBkt9DxuJbKnSo+rj967b9w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MjW4yaX3XLJRjeJUbbMAaIfGkadRHjnBKFzRKag03yg=;
+ b=s9DAeNf52paUwOmnmcDxanUf1abUWMiUOGP+OQvYy/SzMcUmNtvVSjWG5plopW8xaK//X8ib2dstwRAVXMCi0c2T9xTnnZ9kh3yaReM7wsWnBDcmaQ5yLzZg3+yV4UlNHDlsjMjtwl3F+vfwxIkfpWePenCgRi1cjOlxYPm5aJY=
+Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
+ by BL1PR12MB5222.namprd12.prod.outlook.com (2603:10b6:208:31e::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.28; Mon, 10 Oct
+ 2022 05:12:20 +0000
+Received: from MN0PR12MB6101.namprd12.prod.outlook.com
+ ([fe80::76ec:6acf:dd4d:76a3]) by MN0PR12MB6101.namprd12.prod.outlook.com
+ ([fe80::76ec:6acf:dd4d:76a3%9]) with mapi id 15.20.5676.030; Mon, 10 Oct 2022
+ 05:12:20 +0000
+From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Fix IRQ storm on ASUS UM325UAZ
+Thread-Topic: Fix IRQ storm on ASUS UM325UAZ
+Thread-Index: AdjcZeDzDJMAM5NQQzq4hNuiUB5kcw==
+Date:   Mon, 10 Oct 2022 05:12:20 +0000
+Message-ID: <MN0PR12MB610115BC9826AB2E3449D064E2209@MN0PR12MB6101.namprd12.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Enabled=true;
+ MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_SetDate=2022-10-10T05:04:27Z;
+ MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Method=Standard;
+ MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Name=General;
+ MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
+ MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_ActionId=96f9f72e-777d-448d-8b60-4d8a1ec68ddb;
+ MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_ContentBits=1
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_enabled: true
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_setdate: 2022-10-10T05:12:19Z
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_method: Standard
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_name: General
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_actionid: 13eadb56-c644-433f-b077-a9d13bbfce0f
+msip_label_4342314e-0df4-4b58-84bf-38bed6170a0f_contentbits: 0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MN0PR12MB6101:EE_|BL1PR12MB5222:EE_
+x-ms-office365-filtering-correlation-id: a01cbcc1-3731-4e48-7cd3-08daaa7e01f1
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: TyTSJ8HaP5D7OUhlBjzJR3RkH86chRNc34yhlzmxOUyprXcwP85kkDld5iJgkU+qUeC09g5RZ4AXpdZrIWmLpz1PsXYC4l78GmfOQfE2FzQpf5DsagFpYcg4nq80YDq4Cb+flL2rQIy4Fo6KDwgbu0rm2Dk/gKg0MQ5AEh3e7EFihZ8lBiSIdeNqiaLlelBslILt2U4dqgQmjcgGProSnkOBOMwesrV4N+uegN6cwLLyutCokYH5TtBz5E1x1oCaQN3PF0u2mSxElKts8WkEV982Cc1H1pY9Y/zDLOpOQpJZZ8d6umwAz3GaA5nLuqKqEWcQmgMmtoDP7VmW6KgQfWgcHuacHKXpzd4bszvl3h9v6B+L5O3JC2KF3uVc61Ybox8A4DED+dkL/WZXQtth93qbHT92G9b0bDqfscpT7qEWPInC/liLP/TXYAwhPO5uw6/lDjF3/iqdT4n+x3Mt6wOkOGb49/AxnGGpSHmvRkWW13xu4NbeWMvQKESATg/Zk2aPa3f9gJ0B3Ms1yWTlYrVB+z8gYen37RKVIFjT+c1glXZ0crV5vxVYK3L/YMcbuj7vfHF+3RpKFkiKfh6P3+C67aQ5awKOgcwh+MsdHnbtgS+fuWU5BplOI4JnMFzRTXlVwxppbRh/KhPhSpQGC6bxL2g9nJacWGk43Ci8E4vC71yixqtznYwPAXePWVYso56/PPT2Qxo0ND9TfkafSmDSAjx/AwLbby4hUS/p054u2xynigyOMHLDXQ4UwTV5LhSHtfMVPCWq+Lwhf8usgg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(376002)(366004)(346002)(396003)(451199015)(64756008)(66476007)(6916009)(66556008)(316002)(66946007)(76116006)(66446008)(8676002)(8936002)(38100700002)(122000001)(6506007)(7696005)(2906002)(33656002)(26005)(71200400001)(83380400001)(86362001)(478600001)(38070700005)(5660300002)(9686003)(55016003)(52536014)(4744005)(41300700001)(186003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?tFgY8tMtsaxqGUC16Y+pnqhWq4/2aES7Z8cHRdMfpLg9XdtifNruh5NR2lOT?=
+ =?us-ascii?Q?5ABLa+8oWAMgPt1WCwgQ10j/pMUlJ3joTcyU9uc2n1Lu7AJd0JVVYHMvgiic?=
+ =?us-ascii?Q?gBZpAxShRjnBNwqJ7eS4FIO2or55R3rNgR/DjUckmffRuXwGG9FMLTTHBhdj?=
+ =?us-ascii?Q?2bxEtSTE/jRFS48YVm1Y+sPOlD/swsELXR4zTZP/azD2Uj/cZQPAp0nqt4V4?=
+ =?us-ascii?Q?9l7cGVFDLPNWWUkeH1iR6WYJdnxwJqkagVFka8T4fOPKl/B981+wRwy0Ug9S?=
+ =?us-ascii?Q?fYQnUaUAZlO3QUE9gCU5MofzWVLF+ln2gP8iWlMKuiiZGiONgurkEQFz3Yko?=
+ =?us-ascii?Q?m65Dy2OldP+Sm6Ba2fUYu8+KCSb4dLJru+0Svvfu0t3T96C0zj8MZGljTuiW?=
+ =?us-ascii?Q?f9mzhqo8nClFRVp/dBEit8kizDJZmubeAENs+/7JLw6c1AQwOaJu3iKZ3490?=
+ =?us-ascii?Q?d2BU584JedZp+JE7gFuWNNDZqX7diXy36vvBSESIrmDzSBC1DSk8q4pjHwkH?=
+ =?us-ascii?Q?DTpEleazItBKTyv3VhchlhLn7X5HgEp7ii2aSInh/e9LPQGMtNIi3B+Zul/Q?=
+ =?us-ascii?Q?E2sANMqJpZayNuMxls3mij1WoPJ6rR6Xk6ZMtoYT37eHTcRMH2nEkOkKGNv/?=
+ =?us-ascii?Q?AUgT+6YRGD7DxdkFARA5Z+zjGSztUcpr/NDMyOJD/boNz0ib9O8OByaTL+hN?=
+ =?us-ascii?Q?oOeWxHE93E+op6DULrstnsrD94vmjwaOBmRIXiaDUbbYWc02aPr9K7kKEuXl?=
+ =?us-ascii?Q?1DzAp5aZI+qxi1SbZOz3JK5k/WVtjApTVKaJiRilI/OVYXUsVnScpOX1CMcI?=
+ =?us-ascii?Q?IFvXMixEOhzFv+DL3IwItzTRVaFTKp91urShQb+fD6wP8TdRLR9Ll2XnGdOE?=
+ =?us-ascii?Q?T3SmgTEoLzMp2TOHQkaDin9WFxKeMMzcbU40j6fwbMIEi54iZwROs7lkUIrU?=
+ =?us-ascii?Q?zDEVip18SmOiGbWRLW/Uz2HRHt/ftLB2uNSqZ8I4R3nBJxPUhHpEKFfHerpA?=
+ =?us-ascii?Q?0gdC+MyT996GYgNpBFclFPgsCbM3NknE2Z0rC2mAdBcWTM3x7LWAf0xIcdRZ?=
+ =?us-ascii?Q?b3wfqCTKJ6e4nIgvmLpmBUyl8E9HXofLUqs4KdawknrsiIO3RqAC2TgH6CIG?=
+ =?us-ascii?Q?8j4RJEKWheTImzfjDXrcLKVnRy5Cih73I0v8Ss2QulCI9NXhUHur3AJRXGEU?=
+ =?us-ascii?Q?W5wLqU++i5VlrNw2h+eB4byIpgRYN35PXTgJ5PSrmIFggsXPRF9tuHLNtq7p?=
+ =?us-ascii?Q?iEXmM+7NiOXLyCOqHs5GrGs28KAhcyAeCxkzaVLJxuDw9xuJp6pf1wgMw5A4?=
+ =?us-ascii?Q?UtMeMDxlAdRopwApqU5I/NBTlm/FsdQlkXRvEMbEnQP/twKwSWcBqqSjiyIK?=
+ =?us-ascii?Q?sU/FW174qviIeG1JCsWi+te5Y6I1sZRuoFV+DXM9sKdQDRqJbZsXmfx3pT/4?=
+ =?us-ascii?Q?6zSgx8ESoBJEEgm1uW5jy/dgGu78hN8P6/Ll3aRRl82bEFmZvwZXax+TNsdW?=
+ =?us-ascii?Q?GEee0QhNseSk1Cbf2aJk+Tai49xxHSvh0xYNKCLSWTsdG32quzobiLvQmjwY?=
+ =?us-ascii?Q?TVQRvnu0QB2djFNidVY=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
- <20220927155332.10762-3-andriy.shevchenko@linux.intel.com>
- <20221003215734.7l3cnb2zy57nrxkk@synopsys.com> <YzvusOI89ju9e5+0@smile.fi.intel.com>
- <a7724993-6c04-92c5-3a26-3aef6d29c9e3@gmail.com> <20221005021212.qwnbmq6p7t26c3a4@synopsys.com>
- <2886b82d-a1f6-d288-e8d1-edae54046b4f@gmail.com> <20221006021204.hz7iteao65dgsev6@synopsys.com>
- <d52cc102-6a4f-78e9-6176-b33e2813fd1d@gmail.com> <20221007021122.nnwmqc6sq43e5xbn@synopsys.com>
- <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com>
-In-Reply-To: <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com>
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-Date:   Sun, 9 Oct 2022 22:02:26 -0700
-Message-ID: <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
- if extcon is present"
-To:     Ferry Toth <fntoth@gmail.com>
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a01cbcc1-3731-4e48-7cd3-08daaa7e01f1
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Oct 2022 05:12:20.1082
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: jpMygUNSBh5OTODe53CHaBWB2msn26yG9ygzVaRHlCouy7CKej+fGuTKhRWCb/jhtLT5v+fXYdhIwAVPbBebKw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5222
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,139 +124,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 7, 2022 at 6:07 AM Ferry Toth <fntoth@gmail.com> wrote:
->
->
-> On 07-10-2022 04:11, Thinh Nguyen wrote:
-> > On Thu, Oct 06, 2022, Ferry Toth wrote:
-> >> Hi
-> >>
-> >> On 06-10-2022 04:12, Thinh Nguyen wrote:
-> >>> On Wed, Oct 05, 2022, Ferry Toth wrote:
-> >>>> Hi,
-> >>>>
-> >>>>       Thanks!
-> >>>>
-> >>>>       Does the failure only happen the first time host is initialized? Or can
-> >>>>       it recover after switching to device then back to host mode?
-> >>>>
-> >>>> I can switch back and forth and device mode works each time, host mode remains
-> >>>> dead.
-> >>> Ok.
-> >>>
-> >>>>       Probably the failure happens if some step(s) in dwc3_core_init() hasn't
-> >>>>       completed.
-> >>>>
-> >>>>       tusb1210 is a phy driver right? The issue is probably because we didn't
-> >>>>       initialize the phy yet. So, I suspect placing dwc3_get_extcon() after
-> >>>>       initializing the phy will probably solve the dependency problem.
-> >>>>
-> >>>>       You can try something for yourself or I can provide something to test
-> >>>>       later if you don't mind (maybe next week if it's ok).
-> >>>>
-> >>>> Yes, the code move I mentioned above "moves dwc3_get_extcon() until after
-> >>>> dwc3_core_init() but just before dwc3_core_init_mode(). AFAIU initially
-> >>>> dwc3_get_extcon() was called from within dwc3_core_init_mode() but only for
-> >>>> case USB_DR_MODE_OTG. So with this change order of events is more or less
-> >>>> unchanged" solves the issue.
-> >>>>
-> >>> I saw the experiment you did from the link you provided. We want to also
-> >>> confirm exactly which step in dwc3_core_init() was needed.
-> >> Ok. I first tried the code move suggested by Andrey (didn't work). Then
-> >> after reading the actual code I moved a bit further.
-> >>
-> >> This move was on top of -rc6 without any reverts. I did not make additional
-> >> changes to dwc3_core_init()
-> >>
-> >> So current v6.0 has: dwc3_get_extcon - dwc3_get_dr_mode - ... -
-> >> dwc3_core_init - .. - dwc3_core_init_mode (not working)
-> >>
-> >> I changed to: dwc3_get_dr_mode - dwc3_get_extcon - .. - dwc3_core_init - ..
-> >> - dwc3_core_init_mode (no change)
-> >>
-> >> Then to: dwc3_get_dr_mode - .. - dwc3_core_init - .. - dwc3_get_extcon -
-> >> dwc3_core_init_mode (works)
-> >>
-> >> .. are what I believe for this issue irrelevant calls to
-> >> dwc3_alloc_scratch_buffers, dwc3_check_params and dwc3_debugfs_init.
-> >>
-> > Right. Thanks for narrowing it down. There are still many steps in
-> > dwc3_core_init(). We have some suspicion, but we still haven't confirmed
-> > the exact cause of the failure. We can write a proper patch once we know
-> > the reason.
-> If you would like me to test your suspicion, just tell me what to do :-)
+[AMD Official Use Only - General]
 
+Hi,
 
-OK, Ferry, I think I'm going to need clarification on specifics on
-your test setup. Can you share your kernel config, maybe your
-"/proc/config.gz", somewhere? When you say you are running vanilla
-Linux, do you mean it or do you mean vanilla tree + some patch delta?
+ASUS UM325UAZ encounters an IRQ storm at runtime due to a BIOS error by the=
+ vendor that they programmed a floating pin as an interrupt source. It's av=
+oided by a workaround to gpiolib-acpi to detect this situation.
 
-The reason I'm asking is because I'm having a hard time reproducing
-the problem on my end. In fact, when I build v6.0
-(4fe89d07dcc2804c8b562f6c7896a45643d34b2f) and then do a
+Can you please backport these commits to 5.19.y and 6.0.y:
 
-git revert 8bd6b8c4b100 0f0101719138 (original revert proposed by Andy)
+6b6af7bd5718 ("gpiolib: acpi: Add support to ignore programming an interrup=
+t")
+0ea76c401f92 ("gpiolib: acpi: Add a quirk for Asus UM325UAZ")
 
-I get an infinite loop of reprobing that looks something like (some
-debug tracing, function name + line number, included):
-
-[    6.160732] tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41
-to reg 0x80
-[    6.172299] XXXXXXXXXXX: dwc3_probe 1834
-[    6.172426] XXXXXXXXXXX: dwc3_core_init_mode 1386
-[    6.176391] XXXXXXXXXXX: dwc3_drd_init 593
-[    6.181573] dwc3 dwc3.0.auto: Driver dwc3 requests probe deferral
-[    6.191886] platform dwc3.0.auto: Added to deferred list
-[    6.197249] platform dwc3.0.auto: Retrying from deferred list
-[    6.203057] bus: 'platform': __driver_probe_device: matched device
-dwc3.0.auto with driver dwc3
-[    6.211783] bus: 'platform': really_probe: probing driver dwc3 with
-device dwc3.0.auto
-[    6.219935] XXXXXXXXXXX: dwc3_probe 1822
-[    6.219952] XXXXXXXXXXX: dwc3_core_init 1092
-[    6.223903] XXXXXXXXXXX: dwc3_core_init 1095
-[    6.234839] bus: 'ulpi': __driver_probe_device: matched device
-dwc3.0.auto.ulpi with driver tusb1210
-[    6.248335] bus: 'ulpi': really_probe: probing driver tusb1210 with
-device dwc3.0.auto.ulpi
-[    6.257039] driver: 'tusb1210': driver_bound: bound to device
-'dwc3.0.auto.ulpi'
-[    6.264501] bus: 'ulpi': really_probe: bound device
-dwc3.0.auto.ulpi to driver tusb1210
-[    6.272553] debugfs: Directory 'dwc3.0.auto' with parent 'ulpi'
-already present!
-[    6.279978] XXXXXXXXXXX: dwc3_core_init 1099
-[    6.279991] XXXXXXXXXXX: dwc3_core_init 1103
-[    6.345769] tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41
-to reg 0x80
-[    6.357316] XXXXXXXXXXX: dwc3_probe 1834
-[    6.357447] XXXXXXXXXXX: dwc3_core_init_mode 1386
-[    6.361402] XXXXXXXXXXX: dwc3_drd_init 593
-[    6.366589] dwc3 dwc3.0.auto: Driver dwc3 requests probe deferral
-[    6.376901] platform dwc3.0.auto: Added to deferred list
-
-which renders the system completely unusable, but USB host is
-definitely going to be broken too. Now, ironically, with my patch
-in-place, an attempt to probe extcon that ends up deferring the probe
-happens before the ULPI driver failure (which wasn't failing driver
-probe prior to https://lore.kernel.org/all/20220213130524.18748-7-hdegoede@redhat.com/),
-there no "driver binding" event that re-triggers deferred probe
-causing the loop, so the system progresses to a point where extcon is
-available and dwc3 driver eventually loads.
-
-After that, and I don't know if I'm doing the same test, USB host
-seems to work as expected. lsusb works, my USB stick enumerates as
-expected. Switching the USB mux to micro-USB and back shuts the host
-functionality down and brings it up as expected. Now I didn't try to
-load any gadgets to make sure USB gadget works 100%, but since you
-were saying it was USB host that was broken, I wasn't concerned with
-that. Am I doing the right test?
-
-For the reference what I test with is:
- - vanilla kernel, no patch delta (sans minor debug tracing) + initrd
-built with Buildroot 2022.08.1
- - Initrd is using systemd (don't think that really matters, but who knows)
- - U-Boot 2022.04 (built with Buildroot as well)
- - kernel config is x86_64_defconfig + whatever I gathered from *.cfg
-files in https://github.com/edison-fw/meta-intel-edison/tree/master/meta-intel-edison-bsp/recipes-kernel/linux/files
+Thanks,
