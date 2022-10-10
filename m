@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C2C5F9965
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F08D5F9975
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:12:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbiJJHLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34450 "EHLO
+        id S232031AbiJJHMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:12:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231895AbiJJHLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAF05E550;
-        Mon, 10 Oct 2022 00:07:32 -0700 (PDT)
+        with ESMTP id S231735AbiJJHLY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:11:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5551F63F;
+        Mon, 10 Oct 2022 00:07:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2947560E75;
-        Mon, 10 Oct 2022 07:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DB90C433D6;
-        Mon, 10 Oct 2022 07:06:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F222B80E28;
+        Mon, 10 Oct 2022 07:06:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF315C433C1;
+        Mon, 10 Oct 2022 07:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665385615;
-        bh=x0fo3YqqUYZJis+tob3naJg9hU3t1zBGM7M3bSodLh0=;
+        s=korg; t=1665385618;
+        bh=wWIt7W38r1172jhSxno5+FW8NgxPwz1Fi0FdN/Yqt7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NdgOOdPnwNc3HufrXVxGp+Wcf+LaerSeOz1CB3HxwnWmwfZH2i9sBgVP2qN7WZyy6
-         b6FQQoRogvj30Al1g3cFeUTLtMoaBs1P09jvLUh7ViO/f6omp6Tmh6oxBdCyXS/5fS
-         XuXCi6gfH7zLIVAQ/idzTdua1T9B2J4eTDBXRx9c=
+        b=YjirBdYgNdTSrj+EGX0RteJ0PGFdedEwYKTMftKQ05clN0YucebRKgjiLLaPk3VEb
+         SOajAWcD2uxhehCK+SUzZ/eQfUsWmN+RDNr52njNp8PLVbxuIwG1dUaW6jRrhcKEjH
+         C7z2eXh3zjSfvmkuS2ZCoDimlmOfqffeoxzMwS3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.19 45/48] bpf: Gate dynptr API behind CAP_BPF
-Date:   Mon, 10 Oct 2022 09:05:43 +0200
-Message-Id: <20221010070334.864403313@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 46/48] net: ethernet: mtk_eth_soc: fix state in __mtk_foe_entry_clear
+Date:   Mon, 10 Oct 2022 09:05:44 +0200
+Message-Id: <20221010070334.889462162@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
 References: <20221010070333.676316214@linuxfoundation.org>
@@ -53,85 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-commit 8addbfc7b308d591f8a5f2f6bb24d08d9d79dfbb upstream.
+commit ae3ed15da5889263de372ff9df2e83e16acca4cb upstream.
 
-This has been enabled for unprivileged programs for only one kernel
-release, hence the expected annoyances due to this move are low. Users
-using ringbuf can stick to non-dynptr APIs. The actual use cases dynptr
-is meant to serve may not make sense in unprivileged BPF programs.
+Setting ib1 state to MTK_FOE_STATE_UNBIND in __mtk_foe_entry_clear
+routine as done by commit 0e80707d94e4c8 ("net: ethernet: mtk_eth_soc:
+fix typo in __mtk_foe_entry_clear") breaks flow offloading, at least
+on older MTK_NETSYS_V1 SoCs, OpenWrt users have confirmed the bug on
+MT7622 and MT7621 systems.
+Felix Fietkau suggested to use MTK_FOE_STATE_INVALID instead which
+works well on both, MTK_NETSYS_V1 and MTK_NETSYS_V2.
 
-Hence, gate these helpers behind CAP_BPF and limit use to privileged
-BPF programs.
+Tested on MT7622 (Linksys E8450) and MT7986 (BananaPi BPI-R3).
 
-Fixes: 263ae152e962 ("bpf: Add bpf_dynptr_from_mem for local dynptrs")
-Fixes: bc34dee65a65 ("bpf: Dynptr support for ring buffers")
-Fixes: 13bbbfbea759 ("bpf: Add bpf_dynptr_read and bpf_dynptr_write")
-Fixes: 34d4ef5775f7 ("bpf: Add dynptr data slices")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20220921143550.30247-1-memxor@gmail.com
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Suggested-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 0e80707d94e4c8 ("net: ethernet: mtk_eth_soc: fix typo in __mtk_foe_entry_clear")
+Fixes: 33fc42de33278b ("net: ethernet: mtk_eth_soc: support creating mac address based offload entries")
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Link: https://lore.kernel.org/r/YzY+1Yg0FBXcnrtc@makrotopia.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/helpers.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_ppe.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
-index 1f961f9982d2..3814b0fd3a2c 100644
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -1627,26 +1627,12 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 		return &bpf_ringbuf_discard_proto;
- 	case BPF_FUNC_ringbuf_query:
- 		return &bpf_ringbuf_query_proto;
--	case BPF_FUNC_ringbuf_reserve_dynptr:
--		return &bpf_ringbuf_reserve_dynptr_proto;
--	case BPF_FUNC_ringbuf_submit_dynptr:
--		return &bpf_ringbuf_submit_dynptr_proto;
--	case BPF_FUNC_ringbuf_discard_dynptr:
--		return &bpf_ringbuf_discard_dynptr_proto;
- 	case BPF_FUNC_for_each_map_elem:
- 		return &bpf_for_each_map_elem_proto;
- 	case BPF_FUNC_loop:
- 		return &bpf_loop_proto;
- 	case BPF_FUNC_strncmp:
- 		return &bpf_strncmp_proto;
--	case BPF_FUNC_dynptr_from_mem:
--		return &bpf_dynptr_from_mem_proto;
--	case BPF_FUNC_dynptr_read:
--		return &bpf_dynptr_read_proto;
--	case BPF_FUNC_dynptr_write:
--		return &bpf_dynptr_write_proto;
--	case BPF_FUNC_dynptr_data:
--		return &bpf_dynptr_data_proto;
- 	default:
- 		break;
+--- a/drivers/net/ethernet/mediatek/mtk_ppe.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
+@@ -412,7 +412,7 @@ __mtk_foe_entry_clear(struct mtk_ppe *pp
+ 	if (entry->hash != 0xffff) {
+ 		ppe->foe_table[entry->hash].ib1 &= ~MTK_FOE_IB1_STATE;
+ 		ppe->foe_table[entry->hash].ib1 |= FIELD_PREP(MTK_FOE_IB1_STATE,
+-							      MTK_FOE_STATE_UNBIND);
++							      MTK_FOE_STATE_INVALID);
+ 		dma_wmb();
  	}
-@@ -1675,6 +1661,20 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 		return &bpf_timer_cancel_proto;
- 	case BPF_FUNC_kptr_xchg:
- 		return &bpf_kptr_xchg_proto;
-+	case BPF_FUNC_ringbuf_reserve_dynptr:
-+		return &bpf_ringbuf_reserve_dynptr_proto;
-+	case BPF_FUNC_ringbuf_submit_dynptr:
-+		return &bpf_ringbuf_submit_dynptr_proto;
-+	case BPF_FUNC_ringbuf_discard_dynptr:
-+		return &bpf_ringbuf_discard_dynptr_proto;
-+	case BPF_FUNC_dynptr_from_mem:
-+		return &bpf_dynptr_from_mem_proto;
-+	case BPF_FUNC_dynptr_read:
-+		return &bpf_dynptr_read_proto;
-+	case BPF_FUNC_dynptr_write:
-+		return &bpf_dynptr_write_proto;
-+	case BPF_FUNC_dynptr_data:
-+		return &bpf_dynptr_data_proto;
- 	default:
- 		break;
- 	}
--- 
-2.38.0
-
+ 	entry->hash = 0xffff;
 
 
