@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBBE5F9A36
-	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D60335F9A3C
+	for <lists+stable@lfdr.de>; Mon, 10 Oct 2022 09:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbiJJHm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Oct 2022 03:42:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40522 "EHLO
+        id S232516AbiJJHmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Oct 2022 03:42:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231749AbiJJHlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:41:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4D782B4
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:36:58 -0700 (PDT)
+        with ESMTP id S231847AbiJJHmB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Oct 2022 03:42:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC64E4B0E4
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:37:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665387417;
+        s=mimecast20190719; t=1665387443;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=5D/0ptM0mq2jELn0o53/s/8oJ9fCmptsdKH7DRxNtGw=;
-        b=gr7AvGINJ8ma47Vxal34SRVUTUkbG8VMiaQYmDdFs7bJv4dAN6naEdWs4pMGC6Lr7L57Kp
-        axiFDCoqGIXJoSyjfJXDXQXAvTnX0rT9GLKdfiZIyyEBVdOSlcHNMtXEzECeKucNhTYwVM
-        sqYVcNgFiMR521OY9WuavpwhayVzBq0=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Ud93KJJkCZzSClERMM/p1ephAQ7PSqhTgaZWI2tdGjo=;
+        b=grYjm07CnJHKkmPR3umrTxu28XOZP5ooqv3gKn707c/coVv+CJmzH15soQT7CkAZ8rVpu2
+        OS6Gr+26/FKJdVahm7uN5Uk6YyTM4w9vYJN8GWZt5RxrFnCgJyyNDdmGdnzAOL02A+bJfs
+        t4pDg9MaQxc0FMP8R73kCcd+CSz/lTA=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-62-IMXWlkCIMP6znrzJXtCk3A-1; Mon, 10 Oct 2022 03:36:56 -0400
-X-MC-Unique: IMXWlkCIMP6znrzJXtCk3A-1
-Received: by mail-ej1-f70.google.com with SMTP id sb13-20020a1709076d8d00b0078d8e1f6f7aso1291472ejc.8
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:36:56 -0700 (PDT)
+ us-mta-201-Y-hOJD0cPWGXWoNGVD07Sg-1; Mon, 10 Oct 2022 03:37:19 -0400
+X-MC-Unique: Y-hOJD0cPWGXWoNGVD07Sg-1
+Received: by mail-ej1-f71.google.com with SMTP id xc12-20020a170907074c00b007416699ea14so4016752ejb.19
+        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 00:37:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5D/0ptM0mq2jELn0o53/s/8oJ9fCmptsdKH7DRxNtGw=;
-        b=A6zsxpX2uvdr9crejnws/Tvo2uufLJvIsCygQl4wk7j1HDGjx3O4FwzsTEGHvn8Uoq
-         x08UqU1CTNOBku11o913wOR1zd1zoiK9PQmelXPYgtoBcU5yfGQiRBaru8w5Z5lXL5ZQ
-         DgtXgEAsKMljK4Rw99WF5ig3geE+5p03W2O5F8GeSvoLXVb7YMuCNlK1BIEZ6evWdeqh
-         pPOQh4Ct8+cE/lHQt3RPY7fKQ9RZrcSB6LPhiI5LcotP270T1igJYl+U/DBMtoKD7EBb
-         jilWCrDeFBpNo+3kNT9tS4uMDrzwEx5nxteIGp/v4kUcmr0vMO/manV7YleQW0qQcuWs
-         LwHQ==
-X-Gm-Message-State: ACrzQf2BYbOY1xFT2wCGKB2qXRmdo/42yt5VWHLkNs8lDqcmktq2oXmE
-        PqDfqjznw4qUcychGlNLC8Bj0awAEndW2DkvxaO6MoGOSnQziUgTE7eP+eaVGr3CDHafMUlLtLA
-        b6NQgLaYjYSq17rvx
-X-Received: by 2002:a17:907:3c81:b0:77a:327a:815f with SMTP id gl1-20020a1709073c8100b0077a327a815fmr14001774ejc.422.1665387415419;
-        Mon, 10 Oct 2022 00:36:55 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM47SQMv715Io/bXc/MJd2HwmzP721cBGNQJX/6D8+uHuA4m5H0tqEjtqWwJNCq/W7N2o0qvyw==
-X-Received: by 2002:a17:907:3c81:b0:77a:327a:815f with SMTP id gl1-20020a1709073c8100b0077a327a815fmr14001762ejc.422.1665387415205;
-        Mon, 10 Oct 2022 00:36:55 -0700 (PDT)
+        bh=Ud93KJJkCZzSClERMM/p1ephAQ7PSqhTgaZWI2tdGjo=;
+        b=Q+Igh3AOcTnkaTBPDY+dKyhtixxn0nVJXZ0Cesl6s6/2rBAkR7hbxbqV5+PMvR6hzo
+         /8qWztO01CpNJFyKbBmyNRp5whMeNK/TaVM8o99K7bD1elfmkABfAEGtyPgt/W4jQxvL
+         DdWmVpHm3Oo7riKEpy87jJtYQLLkwS4YJV+FAFlp2V6m/MTsAgN86gIyRtulj8RcD86X
+         C1EeUCGWRrTSsZrFOsEl16x6vi4z3WUhzyYDiENmiiJxEPpkFB3mkYsG19aVAPC8ukre
+         IDFLa2HIo2w+6UJw4ONjU8PaAt0Q9B+q6UZokodbtIfg3bLImwyD0Kjdor+AICxxcxK3
+         myPA==
+X-Gm-Message-State: ACrzQf3s5s9MLORTOlxYa5Nqx0hNPiu97afaqkuxR2XJiKTsrwEPIsYl
+        SOBYeez9xP1Ia6Anzy84evfOK+xtNfsCmhGKjdJHJe0ly/vnOQBIM82gB5fbdsC52BlQljht1f0
+        DLegIyXrCXugOK6U6
+X-Received: by 2002:a05:6402:2949:b0:451:fabf:d88a with SMTP id ed9-20020a056402294900b00451fabfd88amr16281466edb.324.1665387438428;
+        Mon, 10 Oct 2022 00:37:18 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6qUXXfgF/tbt5Fu0TXOBayxdXXf+OGmwpNaoJNWLEiAQR7MHjTSkGYtp2ZlsUbnKWPwatT0Q==
+X-Received: by 2002:a05:6402:2949:b0:451:fabf:d88a with SMTP id ed9-20020a056402294900b00451fabfd88amr16281454edb.324.1665387438192;
+        Mon, 10 Oct 2022 00:37:18 -0700 (PDT)
 Received: from [10.40.98.142] ([78.108.130.194])
-        by smtp.gmail.com with ESMTPSA id z25-20020aa7cf99000000b0044e9601e53fsm6569108edx.19.2022.10.10.00.36.54
+        by smtp.gmail.com with ESMTPSA id ha6-20020a170906a88600b00780f24b797dsm4899797ejb.108.2022.10.10.00.37.17
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Oct 2022 00:36:54 -0700 (PDT)
-Message-ID: <f634ad7f-92f0-ee22-8a9a-51e1852f6826@redhat.com>
-Date:   Mon, 10 Oct 2022 09:36:53 +0200
+        Mon, 10 Oct 2022 00:37:17 -0700 (PDT)
+Message-ID: <610e3232-d66c-cac3-b13d-ec8b24a1de6e@redhat.com>
+Date:   Mon, 10 Oct 2022 09:37:16 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.1
-Subject: Re: [PATCH AUTOSEL 4.19 06/10] ACPI: video: Change
+Subject: Re: [PATCH AUTOSEL 4.14 4/6] ACPI: video: Change
  disable_backlight_sysfs_if quirks to acpi_backlight=native
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
@@ -68,15 +68,15 @@ To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
 Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Arvid Norlander <lkml@vorpal.se>, rafael@kernel.org,
         linux-acpi@vger.kernel.org
-References: <20221009235746.1232129-1-sashal@kernel.org>
- <20221009235746.1232129-6-sashal@kernel.org>
+References: <20221009235808.1232269-1-sashal@kernel.org>
+ <20221009235808.1232269-4-sashal@kernel.org>
 From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20221009235746.1232129-6-sashal@kernel.org>
+In-Reply-To: <20221009235808.1232269-4-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -86,7 +86,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi,
 
-On 10/10/22 01:57, Sasha Levin wrote:
+On 10/10/22 01:58, Sasha Levin wrote:
 > From: Hans de Goede <hdegoede@redhat.com>
 > 
 > [ Upstream commit c5b94f5b7819348c59f9949b2b75c341a114cdd4 ]
@@ -150,14 +150,13 @@ Regards,
 Hans
 
 
-
 > ---
 >  drivers/acpi/acpi_video.c   | 48 -------------------------------------
 >  drivers/acpi/video_detect.c | 35 +++++++++++++++++++++++++++
 >  2 files changed, 35 insertions(+), 48 deletions(-)
 > 
 > diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-> index ac54fc03cf81..51a9937e6e3e 100644
+> index 5a69260edf80..324be2a29d68 100644
 > --- a/drivers/acpi/acpi_video.c
 > +++ b/drivers/acpi/acpi_video.c
 > @@ -63,9 +63,6 @@ module_param(brightness_switch_enabled, bool, 0644);
@@ -226,7 +225,7 @@ Hans
 >  	/*
 >  	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
 >  	 * but the IDs actually follow the Device ID Scheme.
-> @@ -1773,9 +1728,6 @@ static void acpi_video_dev_register_backlight(struct acpi_video_device *device)
+> @@ -1772,9 +1727,6 @@ static void acpi_video_dev_register_backlight(struct acpi_video_device *device)
 >  	if (result)
 >  		return;
 >  
