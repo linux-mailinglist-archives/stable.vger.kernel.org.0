@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 072B05FB5F7
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9905FB5FD
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230498AbiJKPAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
+        id S231144AbiJKPAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:00:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231283AbiJKO6p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:45 -0400
+        with ESMTP id S231315AbiJKO6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE6D498C8B;
-        Tue, 11 Oct 2022 07:52:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E849E6B7;
+        Tue, 11 Oct 2022 07:52:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5436A611AC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0D8611B1;
+        Tue, 11 Oct 2022 14:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59606C433D6;
         Tue, 11 Oct 2022 14:52:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3277C43143;
-        Tue, 11 Oct 2022 14:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499951;
-        bh=TvPV0O+Kmdv7gIYS3XYbXJAt0YZQk0UJbeoYiMjrHmI=;
+        s=k20201202; t=1665499953;
+        bh=ojCmeGHkofBLPO9rvISVcCUKCRfazna5eqPo7nU17v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcMlDUGyT6WakJg/WaVLieaFKDogKb83td/f9CKsJnabq2lWj+zX3dQwQf2AtbT0W
-         tyJiTMqiC+u1mLxv5L7/7gUpjoXEBfGxTUbMq5su4887f2TrB58aLVvZkyuvnhVWNy
-         e2S6jN6vkjlBJh0yGPYkslNmJH2SsLFhFMjJuiUaRmSaIpK8JY2Qsre21ECOW4wKjX
-         Bil81d7wKCM93T1keyhmiWch8N0Evg26ee8RAB8F4aky6QvtK3/SG5Dwv2ZQWkbvCl
-         t430FDgyR7uerCHyfzqHjLozbBx/GC4s8PfbIk6NT3ZTrzCrngS0HswKKDwjYizPF/
-         Jkb6UiVvkkehQ==
+        b=j7DROpI1HTpPJ/RPIIIduv5ZLctAg0KT0J/piNwCQn0c9c80xmQJVE5j9XjDyLasS
+         0zCUi8FVjiKevYGZAG9Nh2rdwpmXr9cuQd/z9j95HJBntKnuwI8USXD/Gost8JGhZf
+         uJMDeBVq6ZtbALTeln4aHpC/9FA1PViosS4+p1J1cHw0IXr+yztYh2fetFNGWX7GWN
+         joqhEox24QOeLBSFBmlUnIpAob6WgGLNy4qKPCFQ9RKvKOrpVfIg59xV6eRbumBru+
+         77chLi2Q62XF32Y8e49G+35/oxP1ow2/R5AGYGGDbsTXx13+kCLTamsKnfBgstXX9L
+         Ehn8tSrZkifSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Sverdlin <alexander.sverdlin@nokia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, aryabinin@virtuozzo.com,
-        linux@armlinux.org.uk, kasan-dev@googlegroups.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 39/40] ARM: 9242/1: kasan: Only map modules if CONFIG_KASAN_VMALLOC=n
-Date:   Tue, 11 Oct 2022 10:51:28 -0400
-Message-Id: <20221011145129.1623487-39-sashal@kernel.org>
+Cc:     Zhao Gongyi <zhaogongyi@huawei.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 40/40] selftests/cpu-hotplug: Use return instead of exit
+Date:   Tue, 11 Oct 2022 10:51:29 -0400
+Message-Id: <20221011145129.1623487-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145129.1623487-1-sashal@kernel.org>
 References: <20221011145129.1623487-1-sashal@kernel.org>
@@ -58,75 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+From: Zhao Gongyi <zhaogongyi@huawei.com>
 
-[ Upstream commit 823f606ab6b4759a1faf0388abcf4fb0776710d2 ]
+[ Upstream commit 972cf4ce51ef5532d56822af17defb148aac0ccb ]
 
-In case CONFIG_KASAN_VMALLOC=y kasan_populate_vmalloc() allocates the
-shadow pages dynamically. But even worse is that kasan_release_vmalloc()
-releases them, which is not compatible with create_mapping() of
-MODULES_VADDR..MODULES_END range:
+Some cpus will be left in offline state when online
+function exits in some error conditions. Use return
+instead of exit to fix it.
 
-BUG: Bad page state in process kworker/9:1  pfn:2068b
-page:e5e06160 refcount:0 mapcount:0 mapping:00000000 index:0x0
-flags: 0x1000(reserved)
-raw: 00001000 e5e06164 e5e06164 00000000 00000000 00000000 ffffffff 00000000
-page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
-bad because of flags: 0x1000(reserved)
-Modules linked in: ip_tables
-CPU: 9 PID: 154 Comm: kworker/9:1 Not tainted 5.4.188-... #1
-Hardware name: LSI Axxia AXM55XX
-Workqueue: events do_free_init
-unwind_backtrace
-show_stack
-dump_stack
-bad_page
-free_pcp_prepare
-free_unref_page
-kasan_depopulate_vmalloc_pte
-__apply_to_page_range
-apply_to_existing_page_range
-kasan_release_vmalloc
-__purge_vmap_area_lazy
-_vm_unmap_aliases.part.0
-__vunmap
-do_free_init
-process_one_work
-worker_thread
-kthread
-
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/kasan_init.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ .../selftests/cpu-hotplug/cpu-on-off-test.sh        | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
-index 5ad0d6c56d56..29d7233e5ad2 100644
---- a/arch/arm/mm/kasan_init.c
-+++ b/arch/arm/mm/kasan_init.c
-@@ -264,12 +264,17 @@ void __init kasan_init(void)
+diff --git a/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh b/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
+index 0d26b5e3f966..940b68c940bb 100755
+--- a/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
++++ b/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
+@@ -4,6 +4,7 @@
+ SYSFS=
+ # Kselftest framework requirement - SKIP code is 4.
+ ksft_skip=4
++retval=0
  
- 	/*
- 	 * 1. The module global variables are in MODULES_VADDR ~ MODULES_END,
--	 *    so we need to map this area.
-+	 *    so we need to map this area if CONFIG_KASAN_VMALLOC=n. With
-+	 *    VMALLOC support KASAN will manage this region dynamically,
-+	 *    refer to kasan_populate_vmalloc() and ARM's implementation of
-+	 *    module_alloc().
- 	 * 2. PKMAP_BASE ~ PKMAP_BASE+PMD_SIZE's shadow and MODULES_VADDR
- 	 *    ~ MODULES_END's shadow is in the same PMD_SIZE, so we can't
- 	 *    use kasan_populate_zero_shadow.
- 	 */
--	create_mapping((void *)MODULES_VADDR, (void *)(PKMAP_BASE + PMD_SIZE));
-+	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) && IS_ENABLED(CONFIG_MODULES))
-+		create_mapping((void *)MODULES_VADDR, (void *)(MODULES_END));
-+	create_mapping((void *)PKMAP_BASE, (void *)(PKMAP_BASE + PMD_SIZE));
+ prerequisite()
+ {
+@@ -102,10 +103,10 @@ online_cpu_expect_success()
  
- 	/*
- 	 * KAsan may reuse the contents of kasan_early_shadow_pte directly, so
+ 	if ! online_cpu $cpu; then
+ 		echo $FUNCNAME $cpu: unexpected fail >&2
+-		exit 1
++		retval=1
+ 	elif ! cpu_is_online $cpu; then
+ 		echo $FUNCNAME $cpu: unexpected offline >&2
+-		exit 1
++		retval=1
+ 	fi
+ }
+ 
+@@ -128,10 +129,10 @@ offline_cpu_expect_success()
+ 
+ 	if ! offline_cpu $cpu; then
+ 		echo $FUNCNAME $cpu: unexpected fail >&2
+-		exit 1
++		retval=1
+ 	elif ! cpu_is_offline $cpu; then
+ 		echo $FUNCNAME $cpu: unexpected offline >&2
+-		exit 1
++		retval=1
+ 	fi
+ }
+ 
+@@ -201,7 +202,7 @@ if [ $allcpus -eq 0 ]; then
+ 		offline_cpu_expect_success $present_max
+ 		online_cpu $present_max
+ 	fi
+-	exit 0
++	exit $retval
+ else
+ 	echo "Full scope test: all hotplug cpus"
+ 	echo -e "\t online all offline cpus"
+@@ -291,3 +292,5 @@ done
+ 
+ echo 0 > $NOTIFIER_ERR_INJECT_DIR/actions/CPU_DOWN_PREPARE/error
+ /sbin/modprobe -q -r cpu-notifier-error-inject
++
++exit $retval
 -- 
 2.35.1
 
