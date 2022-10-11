@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA4B5FB5D8
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 375DE5FB5F2
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbiJKPAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:00:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52628 "EHLO
+        id S230439AbiJKPAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:00:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231202AbiJKO5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:57:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E6D9DFB9;
-        Tue, 11 Oct 2022 07:52:29 -0700 (PDT)
+        with ESMTP id S229879AbiJKO6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A98297D78;
+        Tue, 11 Oct 2022 07:52:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BB41B811F5;
-        Tue, 11 Oct 2022 14:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2516C433D6;
-        Tue, 11 Oct 2022 14:52:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D4D6B8136F;
+        Tue, 11 Oct 2022 14:52:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B6DBC433C1;
+        Tue, 11 Oct 2022 14:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499948;
-        bh=eHV1aJFxZYib1ONBCUtCKxxKWY0nN7MLKb5IBx+tpRE=;
+        s=k20201202; t=1665499950;
+        bh=G8CuIdsxyRmJZ0HZZZ+6AWbhH4w906IufRABNPKTnM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCumYCYvhuD0j3oj49VO808uctajQThBGjihRwpDxW/G+eM/z2giOchli8h97CQX2
-         n5nx6sBrHmIT46Oj957prlFv29BHBA0ANlMepAkLuW65bCwlYkuGyY06Rdr4433HOA
-         en4Tm/JMURlEVPJeHLhKytn1SljDhX4r3B2+bPwtl5ZFzPMk5qxXrhltFGTu3Leezr
-         hAeEVdoP5MZki5Hxwf4aS0B3ABwfy2tERyTGXbMTsy1Q2gBXHdYZFkNTj0zADWwkFx
-         1eaE9TEzMPBiLwURJ+0qWRecp9hmuJsx8gUD/H4evQrp0DQBWzPuTjnCVA/u74AFh+
-         s15Wk7ZkAA7uA==
+        b=Wc/MQEl1w8pWCqYPfs1Iupb3SOMq0njTIvFvlSZU/QWnu0tznXlkFe+EE1zXY3vkc
+         ibROCdk5hEuG9IU2685EkEyzVWwloAmMZwZVGxUDUrCVi+jpZZG3NFStG8CB++bUUB
+         s9OOt5//65mlb9EGkG8oNLwqsTpiLfnOs/FoZNONbQVNraRjOzOcZKB489o3yJIktE
+         TKl3KxBpkHHJWACuJU0PiAqzSSutFARwUKnY0kX1DgTda8yNOoeafILICjXMEfFF2I
+         tHgOMYjt4tbf/QAVpBmXATjQ0Kf2Du4Hzbow3f5sZj20zzrLCF2Dvz9XK5BGcZivJL
+         mtBPi7h4RCK+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Li Huafei <lihuafei1@huawei.com>,
         Linus Waleij <linus.walleij@linaro.org>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        mhiramat@kernel.org, linyujun809@huawei.com, rostedt@goodmis.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 37/40] ARM: 9233/1: stacktrace: Skip frame pointer boundary check for call_with_stack()
-Date:   Tue, 11 Oct 2022 10:51:26 -0400
-Message-Id: <20221011145129.1623487-37-sashal@kernel.org>
+        ndesaulniers@google.com, mhiramat@kernel.org, rostedt@goodmis.org,
+        linyujun809@huawei.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 38/40] ARM: 9234/1: stacktrace: Avoid duplicate saving of exception PC value
+Date:   Tue, 11 Oct 2022 10:51:27 -0400
+Message-Id: <20221011145129.1623487-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145129.1623487-1-sashal@kernel.org>
 References: <20221011145129.1623487-1-sashal@kernel.org>
@@ -60,126 +60,173 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 5854e4d8530e6ed4c2532a71a6b0474e199d44dd ]
+[ Upstream commit 752ec621ef5c30777958cc5eb5f1cf394f7733f4 ]
 
-When using the frame pointer unwinder, it was found that the stack trace
-output of stack_trace_save() is incomplete if the stack contains
-call_with_stack():
+Because an exception stack frame is not created in the exception entry,
+save_trace() does special handling for the exception PC, but this is
+only needed when CONFIG_FRAME_POINTER_UNWIND=y. When
+CONFIG_ARM_UNWIND=y, unwind annotations have been added to the exception
+entry and save_trace() will repeatedly save the exception PC:
 
- [0x7f00002c] dump_stack_task+0x2c/0x90 [hrtimer]
- [0x7f0000a0] hrtimer_hander+0x10/0x18 [hrtimer]
- [0x801a67f0] __hrtimer_run_queues+0x1b0/0x3b4
- [0x801a7350] hrtimer_run_queues+0xc4/0xd8
- [0x801a597c] update_process_times+0x3c/0x88
- [0x801b5a98] tick_periodic+0x50/0xd8
- [0x801b5bf4] tick_handle_periodic+0x24/0x84
- [0x8010ffc4] twd_handler+0x38/0x48
- [0x8017d220] handle_percpu_devid_irq+0xa8/0x244
- [0x80176e9c] generic_handle_domain_irq+0x2c/0x3c
- [0x8052e3a8] gic_handle_irq+0x7c/0x90
- [0x808ab15c] generic_handle_arch_irq+0x60/0x80
- [0x8051191c] call_with_stack+0x1c/0x20
+    [0x7f000090] hrtimer_hander+0x8/0x10 [hrtimer]
+    [0x8019ec50] __hrtimer_run_queues+0x18c/0x394
+    [0x8019f760] hrtimer_run_queues+0xbc/0xd0
+    [0x8019def0] update_process_times+0x34/0x80
+    [0x801ad2a4] tick_periodic+0x48/0xd0
+    [0x801ad3dc] tick_handle_periodic+0x1c/0x7c
+    [0x8010f2e0] twd_handler+0x30/0x40
+    [0x80177620] handle_percpu_devid_irq+0xa0/0x23c
+    [0x801718d0] generic_handle_domain_irq+0x24/0x34
+    [0x80502d28] gic_handle_irq+0x74/0x88
+    [0x8085817c] generic_handle_arch_irq+0x58/0x78
+    [0x80100ba8] __irq_svc+0x88/0xc8
+    [0x80108114] arch_cpu_idle+0x38/0x3c
+    [0x80108114] arch_cpu_idle+0x38/0x3c    <==== duplicate saved exception PC
+    [0x80861bf8] default_idle_call+0x38/0x130
+    [0x8015d5cc] do_idle+0x150/0x214
+    [0x8015d978] cpu_startup_entry+0x18/0x1c
+    [0x808589c0] rest_init+0xd8/0xdc
+    [0x80c00a44] arch_post_acpi_subsys_init+0x0/0x8
 
-For the frame pointer unwinder, unwind_frame() checks stackframe::fp by
-stackframe::sp. Since call_with_stack() switches the SP from one stack
-to another, stackframe::fp and stackframe: :sp will point to different
-stacks, so we can no longer check stackframe::fp by stackframe::sp. Skip
-checking stackframe::fp at this point to avoid this problem.
+We can move the special handling of the exception PC in save_trace() to
+the unwind_frame() of the frame pointer unwinder.
 
 Signed-off-by: Li Huafei <lihuafei1@huawei.com>
 Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/stacktrace.c   | 40 ++++++++++++++++++++++++++++------
- arch/arm/lib/call_with_stack.S |  2 ++
- 2 files changed, 35 insertions(+), 7 deletions(-)
+ arch/arm/include/asm/stacktrace.h |  6 +++++
+ arch/arm/kernel/return_address.c  |  1 +
+ arch/arm/kernel/stacktrace.c      | 44 +++++++++++++++++++++----------
+ 3 files changed, 37 insertions(+), 14 deletions(-)
 
+diff --git a/arch/arm/include/asm/stacktrace.h b/arch/arm/include/asm/stacktrace.h
+index 3e78f921b8b2..39be2d1aa27b 100644
+--- a/arch/arm/include/asm/stacktrace.h
++++ b/arch/arm/include/asm/stacktrace.h
+@@ -21,6 +21,9 @@ struct stackframe {
+ 	struct llist_node *kr_cur;
+ 	struct task_struct *tsk;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++	bool ex_frame;
++#endif
+ };
+ 
+ static __always_inline
+@@ -34,6 +37,9 @@ void arm_get_current_stackframe(struct pt_regs *regs, struct stackframe *frame)
+ 		frame->kr_cur = NULL;
+ 		frame->tsk = current;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++		frame->ex_frame = in_entry_text(frame->pc);
++#endif
+ }
+ 
+ extern int unwind_frame(struct stackframe *frame);
+diff --git a/arch/arm/kernel/return_address.c b/arch/arm/kernel/return_address.c
+index 8aac1e10b117..38f1ea9c724d 100644
+--- a/arch/arm/kernel/return_address.c
++++ b/arch/arm/kernel/return_address.c
+@@ -47,6 +47,7 @@ void *return_address(unsigned int level)
+ 	frame.kr_cur = NULL;
+ 	frame.tsk = current;
+ #endif
++	frame.ex_frame = false;
+ 
+ 	walk_stackframe(&frame, save_return_addr, &data);
+ 
 diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
-index d0fa2037460a..af87040b0353 100644
+index af87040b0353..85443b5d1922 100644
 --- a/arch/arm/kernel/stacktrace.c
 +++ b/arch/arm/kernel/stacktrace.c
-@@ -9,6 +9,8 @@
- #include <asm/stacktrace.h>
- #include <asm/traps.h>
+@@ -82,6 +82,27 @@ int notrace unwind_frame(struct stackframe *frame)
+ 	if (frame_pointer_check(frame))
+ 		return -EINVAL;
  
-+#include "reboot.h"
-+
- #if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND)
- /*
-  * Unwind the current stack frame and store the new register values in the
-@@ -39,29 +41,53 @@
-  * Note that with framepointer enabled, even the leaf functions have the same
-  * prologue and epilogue, therefore we can ignore the LR value in this case.
-  */
--int notrace unwind_frame(struct stackframe *frame)
-+
-+extern unsigned long call_with_stack_end;
-+
-+static int frame_pointer_check(struct stackframe *frame)
- {
- 	unsigned long high, low;
- 	unsigned long fp = frame->fp;
-+	unsigned long pc = frame->pc;
-+
 +	/*
-+	 * call_with_stack() is the only place we allow SP to jump from one
-+	 * stack to another, with FP and SP pointing to different stacks,
-+	 * skipping the FP boundary check at this point.
++	 * When we unwind through an exception stack, include the saved PC
++	 * value into the stack trace.
 +	 */
-+	if (pc >= (unsigned long)&call_with_stack &&
-+			pc < (unsigned long)&call_with_stack_end)
++	if (frame->ex_frame) {
++		struct pt_regs *regs = (struct pt_regs *)frame->sp;
++
++		/*
++		 * We check that 'regs + sizeof(struct pt_regs)' (that is,
++		 * &regs[1]) does not exceed the bottom of the stack to avoid
++		 * accessing data outside the task's stack. This may happen
++		 * when frame->ex_frame is a false positive.
++		 */
++		if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
++			return -EINVAL;
++
++		frame->pc = regs->ARM_pc;
++		frame->ex_frame = false;
 +		return 0;
- 
- 	/* only go to a higher address on the stack */
- 	low = frame->sp;
- 	high = ALIGN(low, THREAD_SIZE);
- 
--#ifdef CONFIG_CC_IS_CLANG
- 	/* check current frame pointer is within bounds */
-+#ifdef CONFIG_CC_IS_CLANG
- 	if (fp < low + 4 || fp > high - 4)
- 		return -EINVAL;
--
--	frame->sp = frame->fp;
--	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
--	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
- #else
--	/* check current frame pointer is within bounds */
- 	if (fp < low + 12 || fp > high - 4)
- 		return -EINVAL;
-+#endif
++	}
 +
-+	return 0;
-+}
-+
-+int notrace unwind_frame(struct stackframe *frame)
-+{
-+	unsigned long fp = frame->fp;
-+
-+	if (frame_pointer_check(frame))
-+		return -EINVAL;
- 
  	/* restore the registers from the stack frame */
-+#ifdef CONFIG_CC_IS_CLANG
-+	frame->sp = frame->fp;
-+	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
-+	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
-+#else
- 	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
- 	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
- 	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
-diff --git a/arch/arm/lib/call_with_stack.S b/arch/arm/lib/call_with_stack.S
-index 0a268a6c513c..5030d4e8d126 100644
---- a/arch/arm/lib/call_with_stack.S
-+++ b/arch/arm/lib/call_with_stack.S
-@@ -46,4 +46,6 @@ UNWIND( .setfp	fpreg, sp	)
- 	pop	{fpreg, pc}
- UNWIND( .fnend			)
+ #ifdef CONFIG_CC_IS_CLANG
+ 	frame->sp = frame->fp;
+@@ -98,6 +119,9 @@ int notrace unwind_frame(struct stackframe *frame)
+ 					(void *)frame->fp, &frame->kr_cur);
  #endif
-+	.globl call_with_stack_end
-+call_with_stack_end:
- ENDPROC(call_with_stack)
+ 
++	if (in_entry_text(frame->pc))
++		frame->ex_frame = true;
++
+ 	return 0;
+ }
+ #endif
+@@ -128,7 +152,6 @@ static int save_trace(struct stackframe *frame, void *d)
+ {
+ 	struct stack_trace_data *data = d;
+ 	struct stack_trace *trace = data->trace;
+-	struct pt_regs *regs;
+ 	unsigned long addr = frame->pc;
+ 
+ 	if (data->no_sched_functions && in_sched_functions(addr))
+@@ -139,19 +162,6 @@ static int save_trace(struct stackframe *frame, void *d)
+ 	}
+ 
+ 	trace->entries[trace->nr_entries++] = addr;
+-
+-	if (trace->nr_entries >= trace->max_entries)
+-		return 1;
+-
+-	if (!in_entry_text(frame->pc))
+-		return 0;
+-
+-	regs = (struct pt_regs *)frame->sp;
+-	if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
+-		return 0;
+-
+-	trace->entries[trace->nr_entries++] = regs->ARM_pc;
+-
+ 	return trace->nr_entries >= trace->max_entries;
+ }
+ 
+@@ -193,6 +203,9 @@ static noinline void __save_stack_trace(struct task_struct *tsk,
+ 	frame.kr_cur = NULL;
+ 	frame.tsk = tsk;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++	frame.ex_frame = false;
++#endif
+ 
+ 	walk_stackframe(&frame, save_trace, &data);
+ }
+@@ -214,6 +227,9 @@ void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
+ 	frame.kr_cur = NULL;
+ 	frame.tsk = current;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++	frame.ex_frame = in_entry_text(frame.pc);
++#endif
+ 
+ 	walk_stackframe(&frame, save_trace, &data);
+ }
 -- 
 2.35.1
 
