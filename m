@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E445FB721
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EBA5FB664
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230190AbiJKP3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:29:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
+        id S231267AbiJKPER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:04:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231779AbiJKP2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:28:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D60B03D3;
-        Tue, 11 Oct 2022 08:19:02 -0700 (PDT)
+        with ESMTP id S231479AbiJKPDE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:03:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F611A4BBC;
+        Tue, 11 Oct 2022 07:58:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CF8C611CB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B19F1611CA;
+        Tue, 11 Oct 2022 14:53:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A15C43470;
         Tue, 11 Oct 2022 14:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53D9C433D6;
-        Tue, 11 Oct 2022 14:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500021;
-        bh=hLRDqKpU8NCQ6gseRmtzQqT678P4Fbj2rKxKZCNBxkU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NaLxQcIY4Tk/NCjnvVYIUsia2UHV+6hh7qm1lumvfuamhHhRzO7boaQVqxTGPDcBS
-         /H3DWoXBbyi2Tdv33/zUGmVZyrYUZVa9Auaw9yjBweCmexEp9/V+uVN9tnpXn8bKTc
-         xLXQSOIf/OuYhUgRf0DzAmWQh6utMey0ZFsWSFoZM2XADQaC1PUUEfQRtJRXc8/5jB
-         VWMv8MFUBN2YEba0NqcdS9+qrYQ+mQSsEXjTLvyZ201G1WS7bdi0Dpw4+/BfJTKaFW
-         04HQj4fyZgkCEuzfqqwKIxqmxRImXUGCgxNvl4xNsRtFjvNqWTeC8OslIpu1Zv14al
-         oxCKye03vny0w==
+        s=k20201202; t=1665500023;
+        bh=AR6+LkSWQRvqQ4waEvGAI/mSjP4Q1oC/1cRlHn/FVkE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=bIrTYv62VbOkfrcHlrP3DaEF/SzksylksDjWP8plYa/gvXp3nhBke1wSomxvjO+vm
+         zXaqTtzjA90P6Bsi7cqdhgZs49QkzBSRC3FlXHjc80e40KMnj2SMm/gPiTY9Gq0M7h
+         8Df11iYLwmrUcE46hRBhYkSP4zkdRTXDMprDu1G31LXh4DsPXv20n4uswU1bilXRxq
+         LD/dOoDYR5ek6FRCADaP3GxdmvCVyeXEdIDTGGYrbhKDcgFOziJeovtK3SlRfcR+Ey
+         ke+drXfnniLreLRhe5lVYrVpXt20z0kingF5dnR0cdXQ0DyTUZA1xvEDTfZFEkPg+7
+         rxw0jiJGoGzyw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rajendra Nayak <quic_rjendra@quicinc.com>,
-        Sibi Sankar <quic_sibis@quicinc.com>,
-        Steev Klimaszewski <steev@kali.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        robh+dt@kernel.org, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 01/13] arm64: dts: qcom: sdm845: narrow LLCC address space
-Date:   Tue, 11 Oct 2022 10:53:26 -0400
-Message-Id: <20221011145338.1624591-1-sashal@kernel.org>
+Cc:     Haibo Chen <haibo.chen@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 02/13] ARM: dts: imx7d-sdb: config the max pressure for tsc2046
+Date:   Tue, 11 Oct 2022 10:53:27 -0400
+Message-Id: <20221011145338.1624591-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221011145338.1624591-1-sashal@kernel.org>
+References: <20221011145338.1624591-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,42 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit 300b5f661eebefb8571841b78091343eb87eca54 ]
+[ Upstream commit e7c4ebe2f9cd68588eb24ba4ed122e696e2d5272 ]
 
-The Last Level Cache Controller (LLCC) device does not need to access
-entire LLCC address space.  Currently driver uses only hardware info and
-status registers which both reside in LLCC0_COMMON range (offset
-0x30000, size 0x1000).  Narrow the address space to allow binding other
-drivers to rest of LLCC address space.
+Use the general touchscreen method to config the max pressure for
+touch tsc2046(data sheet suggest 8 bit pressure), otherwise, for
+ABS_PRESSURE, when config the same max and min value, weston will
+meet the following issue,
 
-Cc: Rajendra Nayak <quic_rjendra@quicinc.com>
-Cc: Sibi Sankar <quic_sibis@quicinc.com>
-Reported-by: Steev Klimaszewski <steev@kali.org>
-Suggested-by: Sibi Sankar <quic_sibis@quicinc.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Tested-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220728113748.170548-11-krzysztof.kozlowski@linaro.org
+[17:19:39.183] event1  - ADS7846 Touchscreen: is tagged by udev as: Touchscreen
+[17:19:39.183] event1  - ADS7846 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE
+[17:19:39.183] event1  - ADS7846 Touchscreen: was rejected
+[17:19:39.183] event1  - not using input device '/dev/input/event1'
+
+This will then cause the APP weston-touch-calibrator can't list touch devices.
+
+root@imx6ul7d:~# weston-touch-calibrator
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+No devices listed.
+
+And accroding to binding Doc, "ti,x-max", "ti,y-max", "ti,pressure-max"
+belong to the deprecated properties, so remove them. Also for "ti,x-min",
+"ti,y-min", "ti,x-plate-ohms", the value set in dts equal to the default
+value in driver, so are redundant, also remove here.
+
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx7d-sdb.dts | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-index 2287354fef86..76f905c32aee 100644
---- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-@@ -1359,7 +1359,7 @@ uart15: serial@a9c000 {
- 
- 		cache-controller@1100000 {
- 			compatible = "qcom,sdm845-llcc";
--			reg = <0 0x01100000 0 0x200000>, <0 0x01300000 0 0x50000>;
-+			reg = <0 0x01100000 0 0x31000>, <0 0x01300000 0 0x50000>;
- 			reg-names = "llcc_base", "llcc_broadcast_base";
- 			interrupts = <GIC_SPI 582 IRQ_TYPE_LEVEL_HIGH>;
- 		};
+diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
+index a97cda17e484..363d1f57a608 100644
+--- a/arch/arm/boot/dts/imx7d-sdb.dts
++++ b/arch/arm/boot/dts/imx7d-sdb.dts
+@@ -177,12 +177,7 @@ tsc2046@0 {
+ 		interrupt-parent = <&gpio2>;
+ 		interrupts = <29 0>;
+ 		pendown-gpio = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+-		ti,x-min = /bits/ 16 <0>;
+-		ti,x-max = /bits/ 16 <0>;
+-		ti,y-min = /bits/ 16 <0>;
+-		ti,y-max = /bits/ 16 <0>;
+-		ti,pressure-max = /bits/ 16 <0>;
+-		ti,x-plate-ohms = /bits/ 16 <400>;
++		touchscreen-max-pressure = <255>;
+ 		wakeup-source;
+ 	};
+ };
 -- 
 2.35.1
 
