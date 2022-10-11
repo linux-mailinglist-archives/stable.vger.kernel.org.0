@@ -2,68 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF605FBC53
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 22:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5325FBC68
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 22:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiJKUnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 16:43:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60412 "EHLO
+        id S229776AbiJKUuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 16:50:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbiJKUne (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 16:43:34 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D96F7268E
-        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 13:43:33 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id h13so13168424pfr.7
-        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 13:43:33 -0700 (PDT)
+        with ESMTP id S229714AbiJKUuo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 16:50:44 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9DC942D40;
+        Tue, 11 Oct 2022 13:50:39 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id d26so26907701eje.10;
+        Tue, 11 Oct 2022 13:50:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tp2YChV0mjrjZpeDGcg82JBD/nBr4nEZVyD7vtYV9JM=;
-        b=KG8ZicsT9qc7fFJsFPyLg2937bG4eBnYTiy0E1W/7GWh+davFtuqWHkP0BeFgjRymD
-         ycS00S8Si2ibMEfN9CSLZFxUur0qqNwDquKZxkg7sKfh46seJoTq6geE/GO/hHfanMY0
-         ofpfAnZv2NQkYmzanrRKAVvVJgnhGaGOMv8ahVW+2zH6CRQND0aUIAiefdWJBw1CRb2b
-         1vmQbsKzWvKwMwliOWX3gtEt1ZP/QDFf7S6mTtb5Ts1QpvHkKAYZN8ejnMy2VKRWHPvo
-         CKUwKy3+LsXmXR04zVJXu+3wenASTN3rDNtV8BZBdcS19ktysIMj5eBAbcLZXqfo1FV4
-         8DKA==
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Fe7XjBQImoVR/7Yg3d8CLvyPWKwPTR7FimDEzcmfzLs=;
+        b=H4pM24GGFpZoHSX9joVwRib7IbLoSalsJAiNeSjzeea7szx0Ce6vTGKIHaWakVXpt/
+         z7kC18z1SrI9Q3IPINzapnvwyu6fWdO0S0fUx2wkLn3AagDywclbRfhw0iakZcoXjCdB
+         aO2xCfriaIijUqy0+9c/ujGfP+KAJ6+aR/PmNjoLZSWCY4yzl+iVANa9DT0ShZ1XDAPB
+         wOshwqu+AJpbKL95hMWh5hfwplpzAddJoaBx8KnnlOrzH5916ejdPDMFjxfg0meK3Wp3
+         bS0IwOdYXS2a16wLBXm7ixCfhh2oeXHw3LpU0eQutaEOxAunnQ1G9wvssv9OdtXH6uou
+         EGnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Tp2YChV0mjrjZpeDGcg82JBD/nBr4nEZVyD7vtYV9JM=;
-        b=Oz5xxGRirfJRe8HRjoOQ+LTOZ7SDc2HL4M++nOxmFRoVOcMkgPgDeio8NmVj1kccHf
-         nsGBrfJQwPAzeXDIUkmdWzdmLidolXs5v+melIeSMwKWG8BvaS0SFNsxBFTD8aaBAt9i
-         bvcpv9ghiBNbHCSNSeGMEAXZR/gmP693crHy8jydPOy2/JZSDqmb/LehgluVq9HPgQsD
-         H9AqsG0KumRSHw2/PkzSIAlxtD/VCPA65IfHK/kug79mhIVWVx8e6vPBRrN3hLPhFsFg
-         KtMRxlwNPz2A/lWudmbpjfylnsDBXLM9vb/HD+R7IC90Kt7mfB+ICjFFCyO5Tbj70TX6
-         YXVA==
-X-Gm-Message-State: ACrzQf2qVnMap/5me89daea6t8NPzD2b6uIjbpqTb2V+c/2KWQem607r
-        zb4oCD5ku5dpWPXMEVWpQF0bHGgHlYQRdBoUFsI=
-X-Google-Smtp-Source: AMsMyM6T5HekC4kUMsJi36G/Q2GHWwZPwnVqowDwgHbmzmcGdQloBBmX4TM8fHTF98FVGrqr35XLUw==
-X-Received: by 2002:a63:2143:0:b0:462:48b5:fcd4 with SMTP id s3-20020a632143000000b0046248b5fcd4mr11091343pgm.150.1665521012569;
-        Tue, 11 Oct 2022 13:43:32 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g12-20020a170902868c00b0017f7f8bb718sm8981208plo.232.2022.10.11.13.43.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Oct 2022 13:43:32 -0700 (PDT)
-Message-ID: <6345d574.170a0220.fcf3c.f807@mx.google.com>
-Date:   Tue, 11 Oct 2022 13:43:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        bh=Fe7XjBQImoVR/7Yg3d8CLvyPWKwPTR7FimDEzcmfzLs=;
+        b=K3GGYoLWYMlwh0lhEt0XNk3UnYQLNLFj+HKp+b9TuFIYvJp16mNO840KFCmB7tGkjs
+         uISNaXLi999MqznZ6FGUZcvJOmMev7Uftl4UeUO8Zkt16RFNBONGvHT/iaRrLpbRz8jE
+         6YwyXHMUY4jkI3+DFlwl5AZPbJDx1Mbw34K4CPURSZEV10B3PEJhsYNGsLD/A98Spcpp
+         7XXeB/WxdWVHWAPxzs1IgBfHam7Cx8DQXFIy1pREhrJUTdK5Lji9pRSSOGFOWvvNLdsr
+         0wvLr30i0jlsuAHU6k/N+VO/L4O/IW2Kn9eK6d3jq9EiX0OKfuWW7SZDK5l+F3p8L7TU
+         Te6A==
+X-Gm-Message-State: ACrzQf0vPyqeunhoVZZJ9M0aMeTDZ24XrvOcC3Mw6ne7mUFkH1B2Co+x
+        zR2ImXL4rvlsYfl74M+9IcTKi/wWHMTqZ9C+m4E=
+X-Google-Smtp-Source: AMsMyM4iTn2kz4FRww30FBKHFu4zBWvp+AG5rCOx3+3oPbVaNKDliCrghKodEkXStmtiuOCv3tY5oCVPrPRU3veklf4=
+X-Received: by 2002:a17:907:31c9:b0:740:ef93:2ffd with SMTP id
+ xf9-20020a17090731c900b00740ef932ffdmr20001930ejb.584.1665521438163; Tue, 11
+ Oct 2022 13:50:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.19.14-47-g0f2b1a82748ec
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.19 baseline: 151 runs,
- 2 regressions (v5.19.14-47-g0f2b1a82748ec)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
+ <20220927155332.10762-3-andriy.shevchenko@linux.intel.com>
+ <20221003215734.7l3cnb2zy57nrxkk@synopsys.com> <YzvusOI89ju9e5+0@smile.fi.intel.com>
+ <a7724993-6c04-92c5-3a26-3aef6d29c9e3@gmail.com> <20221005021212.qwnbmq6p7t26c3a4@synopsys.com>
+ <2886b82d-a1f6-d288-e8d1-edae54046b4f@gmail.com> <20221006021204.hz7iteao65dgsev6@synopsys.com>
+ <d52cc102-6a4f-78e9-6176-b33e2813fd1d@gmail.com> <20221007021122.nnwmqc6sq43e5xbn@synopsys.com>
+ <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com> <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
+ <4e73bbb9-eae1-6a90-d716-c721a1eeced3@gmail.com> <7e9519c6-f65f-5f83-1d17-a3510103469f@gmail.com>
+ <CAHQ1cqE5=j9i8uYvBwdNUK8TrX3Wxy7iUML6K+gBQx-KRtkS7w@mail.gmail.com> <644adb7b-0438-e37c-222c-71bf261369b0@gmail.com>
+In-Reply-To: <644adb7b-0438-e37c-222c-71bf261369b0@gmail.com>
+From:   Andrey Smirnov <andrew.smirnov@gmail.com>
+Date:   Tue, 11 Oct 2022 13:50:26 -0700
+Message-ID: <CAHQ1cqGSXoUTopwvrQtLww5M0Tf=6F505ziLn+wGHhW_8-JhFQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
+ if extcon is present"
+To:     Ferry Toth <fntoth@gmail.com>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,103 +80,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.19 baseline: 151 runs, 2 regressions (v5.19.14-47-g0f2b1a=
-82748ec)
+On Tue, Oct 11, 2022 at 11:54 AM Ferry Toth <fntoth@gmail.com> wrote:
+>
+> Hi,
+>
+> Op 10-10-2022 om 23:35 schreef Andrey Smirnov:
+> > On Mon, Oct 10, 2022 at 1:52 PM Ferry Toth <fntoth@gmail.com> wrote:
+> >>
+> >> Hi
+> >>
+> >> Op 10-10-2022 om 13:04 schreef Ferry Toth:
+> >>> Hi
+> >>>
+> >>> On 10-10-2022 07:02, Andrey Smirnov wrote:
+> >>>> On Fri, Oct 7, 2022 at 6:07 AM Ferry Toth <fntoth@gmail.com> wrote:
+> >>>>>
+> >>>>> On 07-10-2022 04:11, Thinh Nguyen wrote:
+> >>>>>> On Thu, Oct 06, 2022, Ferry Toth wrote:
+> >>>>>>> Hi
+> >>>>>>>
+> >>>>>>> On 06-10-2022 04:12, Thinh Nguyen wrote:
+> >>>>>>>> On Wed, Oct 05, 2022, Ferry Toth wrote:
+> >>>>>>>>> Hi,
+> >>>>>>>>>
+> >>>>>>>>>         Thanks!
+> >>>>>>>>>
+> >>>>>>>>>         Does the failure only happen the first time host is
+> >>>>>>>>> initialized? Or can
+> >>>>>>>>>         it recover after switching to device then back to host mode?
+> >>>>>>>>>
+> >>>>>>>>> I can switch back and forth and device mode works each time,
+> >>>>>>>>> host mode remains
+> >>>>>>>>> dead.
+> >>>>>>>> Ok.
+> >>>>>>>>
+> >>>>>>>>>         Probably the failure happens if some step(s) in
+> >>>>>>>>> dwc3_core_init() hasn't
+> >>>>>>>>>         completed.
+> >>>>>>>>>
+> >>>>>>>>>         tusb1210 is a phy driver right? The issue is probably
+> >>>>>>>>> because we didn't
+> >>>>>>>>>         initialize the phy yet. So, I suspect placing
+> >>>>>>>>> dwc3_get_extcon() after
+> >>>>>>>>>         initializing the phy will probably solve the dependency
+> >>>>>>>>> problem.
+> >>>>>>>>>
+> >>>>>>>>>         You can try something for yourself or I can provide
+> >>>>>>>>> something to test
+> >>>>>>>>>         later if you don't mind (maybe next week if it's ok).
+> >>>>>>>>>
+> >>>>>>>>> Yes, the code move I mentioned above "moves dwc3_get_extcon()
+> >>>>>>>>> until after
+> >>>>>>>>> dwc3_core_init() but just before dwc3_core_init_mode(). AFAIU
+> >>>>>>>>> initially
+> >>>>>>>>> dwc3_get_extcon() was called from within dwc3_core_init_mode()
+> >>>>>>>>> but only for
+> >>>>>>>>> case USB_DR_MODE_OTG. So with this change order of events is
+> >>>>>>>>> more or less
+> >>>>>>>>> unchanged" solves the issue.
+> >>>>>>>>>
+> >>>>>>>> I saw the experiment you did from the link you provided. We want
+> >>>>>>>> to also
+> >>>>>>>> confirm exactly which step in dwc3_core_init() was needed.
+> >>>>>>> Ok. I first tried the code move suggested by Andrey (didn't work).
+> >>>>>>> Then
+> >>>>>>> after reading the actual code I moved a bit further.
+> >>>>>>>
+> >>>>>>> This move was on top of -rc6 without any reverts. I did not make
+> >>>>>>> additional
+> >>>>>>> changes to dwc3_core_init()
+> >>>>>>>
+> >>>>>>> So current v6.0 has: dwc3_get_extcon - dwc3_get_dr_mode - ... -
+> >>>>>>> dwc3_core_init - .. - dwc3_core_init_mode (not working)
+> >>>>>>>
+> >>>>>>> I changed to: dwc3_get_dr_mode - dwc3_get_extcon - .. -
+> >>>>>>> dwc3_core_init - ..
+> >>>>>>> - dwc3_core_init_mode (no change)
+> >>>>>>>
+> >>>>>>> Then to: dwc3_get_dr_mode - .. - dwc3_core_init - .. -
+> >>>>>>> dwc3_get_extcon -
+> >>>>>>> dwc3_core_init_mode (works)
+> >>>>>>>
+> >>>>>>> .. are what I believe for this issue irrelevant calls to
+> >>>>>>> dwc3_alloc_scratch_buffers, dwc3_check_params and dwc3_debugfs_init.
+> >>>>>>>
+> >>>>>> Right. Thanks for narrowing it down. There are still many steps in
+> >>>>>> dwc3_core_init(). We have some suspicion, but we still haven't
+> >>>>>> confirmed
+> >>>>>> the exact cause of the failure. We can write a proper patch once we
+> >>>>>> know
+> >>>>>> the reason.
+> >>>>> If you would like me to test your suspicion, just tell me what to do
+> >>>>> :-)
+> >>>>
+> >>>> OK, Ferry, I think I'm going to need clarification on specifics on
+> >>>> your test setup. Can you share your kernel config, maybe your
+> >>>> "/proc/config.gz", somewhere? When you say you are running vanilla
+> >>>> Linux, do you mean it or do you mean vanilla tree + some patch delta?
+> >>>
+> >>> For v6.0 I can get the exacts tonight. But earlier I had this for v5.17:
+> >>>
+> >>> https://github.com/htot/meta-intel-edison/blob/master/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_5.17.bb
+> >>>
+> >>>
+> >>> There are 2 patches referred in #67 and #68. One is related to the
+> >>> infinite loop. The other is I believe also needed to get dwc3 to work.
+> >>>
+> >>> All the kernel config are applied as .cfg.
+> >>>
+> >>> Patches and cfs's here:
+> >>>
+> >>> https://github.com/htot/meta-intel-edison/tree/master/meta-intel-edison-bsp/recipes-kernel/linux/files
+> >>>
+> >>
+> >> Updated Yocto recipe for v6.0 here:
+> >>
+> >> https://github.com/htot/meta-intel-edison/blob/honister/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_6.0.bb
+> >>
+> >> #75-#77 are the 2 reverts from Andy, + one SOF revert (not related to
+> >> this thread).
+> >
+> > Please drop all of this
+> > https://github.com/htot/meta-intel-edison/blob/honister/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_6.0.bb#L69-L77
+> > and re do the testing. Assuming things are still broken, that's how
+> > you want to do the bisecting.
+>
+> I removed 4 patches:
+> 0043b-TODO-driver-core-Break-infinite-loop-when-deferred-p.patch
+> 0044-REVERTME-usb-dwc3-gadget-skip-endpoints-ep-18-in-out.patch
+> 0001-Revert-USB-fixup-for-merge-issue-with-usb-dwc3-Don-t.patch
+> 0001-Revert-usb-dwc3-Don-t-switch-OTG-peripheral-if-extco.patch
 
-Regressions Summary
--------------------
+Please remove all custom patches so we are on the same page. I don't
+suspect the 8250 related changes to affect anything, but I also would
+like to be testing the same thing. I'm testing vanilla v6.0
 
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-imx7ulp-evk     | arm   | lab-nxp       | gcc-10   | multi_v7_defconfig    =
-     | 1          =
+>
+> and indeed as you expect kernel boots (no infinite loop). However dwc3
+> host mode is not working as in your case, device mode works fine (Yocto
+> configures a set of gadgets for me).
 
-mt8173-elm-hana | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrome=
-book | 1          =
+What do you do to test host mode working? lsusb? Something else?
+Asking to make sure I'm doing something equivalent on my end.
 
+>
+> Just to be sure if I could have bisected without 0043a I added back the
+> 2 0001-Revert* and indeed I run into the infinite loop with the console
+> spitting out continuous:
+> debugfs: Directory 'dwc3.0.auto' with parent 'ulpi' already present!
+> tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41 to reg 0x80
+>
+> so yes it seems either 0043b or your patch "usb: dwc3: Don't switch OTG
+> -> peripheral if extcon is present" is needed to boot (break the
+> infinite loop). But your patch is in my case not sufficient to make host
+> mode work.
+>
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
-nel/v5.19.14-47-g0f2b1a82748ec/plan/baseline/
+Next step would be to establish if USB is working before my patch. You
+should be able to avoid the boot loop if you disable the
+"phy-tusb1210" driver. The driver fails to probe anyway, so it's not
+very likely to be crucial for functioning, so it should allow you to
+try things with my patch reverted:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.19
-  Describe: v5.19.14-47-g0f2b1a82748ec
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0f2b1a82748ec4e3eea4e03114ba56e1e1cdad16 =
+git revert 8bd6b8c4b100 0f0101719138
 
+After that, if things start working, it'd make sense to re-do your
+function re-arranging experiment to re-validate it.
 
+> As I understand it depends a bit on the timing, I might have a different
+> initrd (built by Yocto vs. Buildroot). F.i. I see I have
+> extcon-intel-mrfld in initrd and dwc3 / phy-tusb1210 built-in.
+>
 
-Test Regressions
----------------- =
+You mentioned that your rootfs image does some gadget configuration
+for you. Can this be disabled? If yes, it'd make sense to check if
+this could be a variable explaining the difference.
 
-
-
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-imx7ulp-evk     | arm   | lab-nxp       | gcc-10   | multi_v7_defconfig    =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6345a28c57cef58d4ecab64a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
-47-g0f2b1a82748ec/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
-47-g0f2b1a82748ec/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6345a28c57cef58d4ecab=
-64b
-        failing since 14 days (last pass: v5.19.11-158-gc8a84e45064d0, firs=
-t fail: v5.19.11-206-g444111497b13) =
-
- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-mt8173-elm-hana | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrome=
-book | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6345a5b015fc723317cab5ec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
-47-g0f2b1a82748ec/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-mt8173-elm-hana.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
-47-g0f2b1a82748ec/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-mt8173-elm-hana.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220919.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6345a5b015fc723317cab=
-5ed
-        failing since 1 day (last pass: v5.19.14-7-gf73a6cd88959d, first fa=
-il: v5.19.14-39-g57fa2dcf24d2) =
-
- =20
+What U-Boot version are you running? AFACT U-Boot will touch that
+particular IP block, so this might be somewhat relevant.
