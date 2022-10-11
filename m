@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E35D5FB609
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D125FB65E
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231192AbiJKPAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:00:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54398 "EHLO
+        id S230089AbiJKPEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231328AbiJKO6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FECD9E2E4;
-        Tue, 11 Oct 2022 07:53:10 -0700 (PDT)
+        with ESMTP id S231383AbiJKPCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:02:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22B5A4BA6;
+        Tue, 11 Oct 2022 07:58:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CFD6B815A6;
-        Tue, 11 Oct 2022 14:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 543C4C433D6;
-        Tue, 11 Oct 2022 14:53:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBC47B8124C;
+        Tue, 11 Oct 2022 14:53:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D8CAC4314C;
+        Tue, 11 Oct 2022 14:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499989;
-        bh=/vjPFn6aiS8PXqIl4mDIzUxIFIt0BU90h2SuA14McLg=;
+        s=k20201202; t=1665499990;
+        bh=emIx/+3Q8BsgCf+v6rmowQa5eTKpefi3ZwOFOIBfSkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7Rz9QNotWxWsoNQgs6BDysMFBJzLsJMIaGnMgnuzQ1HJ9wPwdZ/wR0RJACYPqhMa
-         rhNhNiogygW/M7/tlLaizJnwqqVoVze9lvZjpUxI30WVAo8drZrXmHXSipOuDm2QN3
-         U1gbE6kn0ZJtJNeh45DfTkkW8G4e/4l6+8Cb+hE2coxWT7rNYcLNOUqeAPNDZ/Fn8O
-         JXOpE7WIlpcoHH5BrGpTlnTl3KJSbJSaL8vtbZOQxXY7aHsiiv4EyziOArPP359A8w
-         luZ2+fYDHajG/f5Zi3sCppbi9ATinFacxIiLMdH7sJOYF9vLsEebQILpt/f7Ja2nkd
-         adUN6IrRwHeuw==
+        b=oi0POXSBdZcy3Nty7Qj2gvcEkqT30BQK/H3HSM0WScypoRcKlakEvVwhnXfEDCfbl
+         KgTSv3iVepuyxWZPyNjzSJe7Xx2SumEa8OV9LdaG3Cy8luAozjw3cY2oq6U3q/keU6
+         22NFZTWRuZjc8SMxI0bqCxqsOAxt5k9MSVh8SMJWIOeh9jroI/EZuF6SSrURh48U7V
+         Apj/2Xmbb5HsmUJ8TTs0kNrEbOJH9ZbKg6m3ONdHO/w+H4hB69C5HRIuhs/DPUbn4V
+         pDvpPK8Mo+Ynsa2y/Sus+qvTFQqJktPq6ydVyRyKUxq6QCSqiNq8EdxctxwIzxgXIT
+         p1vOJfpDwFS7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        robh+dt@kernel.org, devicetree@vger.kernel.org,
+Cc:     Alex Sverdlin <alexander.sverdlin@nokia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, aryabinin@virtuozzo.com,
+        linux@armlinux.org.uk, kasan-dev@googlegroups.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 24/26] arm64: dts: uniphier: Add USB-device support for PXs3 reference board
-Date:   Tue, 11 Oct 2022 10:52:31 -0400
-Message-Id: <20221011145233.1624013-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 25/26] ARM: 9242/1: kasan: Only map modules if CONFIG_KASAN_VMALLOC=n
+Date:   Tue, 11 Oct 2022 10:52:32 -0400
+Message-Id: <20221011145233.1624013-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145233.1624013-1-sashal@kernel.org>
 References: <20221011145233.1624013-1-sashal@kernel.org>
@@ -56,160 +58,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 19fee1a1096d21ab1f1e712148b5417bda2939a2 ]
+[ Upstream commit 823f606ab6b4759a1faf0388abcf4fb0776710d2 ]
 
-PXs3 reference board can change each USB port 0 and 1 to device mode
-with jumpers. Prepare devicetree sources for USB port 0 and 1.
+In case CONFIG_KASAN_VMALLOC=y kasan_populate_vmalloc() allocates the
+shadow pages dynamically. But even worse is that kasan_release_vmalloc()
+releases them, which is not compatible with create_mapping() of
+MODULES_VADDR..MODULES_END range:
 
-This specifies dr_mode, pinctrl, and some quirks and removes nodes for
-unused phys and vbus-supply properties.
+BUG: Bad page state in process kworker/9:1  pfn:2068b
+page:e5e06160 refcount:0 mapcount:0 mapping:00000000 index:0x0
+flags: 0x1000(reserved)
+raw: 00001000 e5e06164 e5e06164 00000000 00000000 00000000 ffffffff 00000000
+page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+bad because of flags: 0x1000(reserved)
+Modules linked in: ip_tables
+CPU: 9 PID: 154 Comm: kworker/9:1 Not tainted 5.4.188-... #1
+Hardware name: LSI Axxia AXM55XX
+Workqueue: events do_free_init
+unwind_backtrace
+show_stack
+dump_stack
+bad_page
+free_pcp_prepare
+free_unref_page
+kasan_depopulate_vmalloc_pte
+__apply_to_page_range
+apply_to_existing_page_range
+kasan_release_vmalloc
+__purge_vmap_area_lazy
+_vm_unmap_aliases.part.0
+__vunmap
+do_free_init
+process_one_work
+worker_thread
+kthread
 
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/20220913042321.4817-8-hayashi.kunihiko@socionext.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/uniphier-pinctrl.dtsi       | 10 +++++
- arch/arm64/boot/dts/socionext/Makefile        |  4 +-
- .../socionext/uniphier-pxs3-ref-gadget0.dts   | 41 +++++++++++++++++++
- .../socionext/uniphier-pxs3-ref-gadget1.dts   | 40 ++++++++++++++++++
- 4 files changed, 94 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
- create mode 100644 arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
+ arch/arm/mm/kasan_init.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/uniphier-pinctrl.dtsi b/arch/arm/boot/dts/uniphier-pinctrl.dtsi
-index c0fd029b37e5..f909ec2e5333 100644
---- a/arch/arm/boot/dts/uniphier-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/uniphier-pinctrl.dtsi
-@@ -196,11 +196,21 @@ pinctrl_usb0: usb0 {
- 		function = "usb0";
- 	};
+diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
+index 4b1619584b23..948ada4a2938 100644
+--- a/arch/arm/mm/kasan_init.c
++++ b/arch/arm/mm/kasan_init.c
+@@ -264,12 +264,17 @@ void __init kasan_init(void)
  
-+	pinctrl_usb0_device: usb0-device {
-+		groups = "usb0_device";
-+		function = "usb0";
-+	};
-+
- 	pinctrl_usb1: usb1 {
- 		groups = "usb1";
- 		function = "usb1";
- 	};
+ 	/*
+ 	 * 1. The module global variables are in MODULES_VADDR ~ MODULES_END,
+-	 *    so we need to map this area.
++	 *    so we need to map this area if CONFIG_KASAN_VMALLOC=n. With
++	 *    VMALLOC support KASAN will manage this region dynamically,
++	 *    refer to kasan_populate_vmalloc() and ARM's implementation of
++	 *    module_alloc().
+ 	 * 2. PKMAP_BASE ~ PKMAP_BASE+PMD_SIZE's shadow and MODULES_VADDR
+ 	 *    ~ MODULES_END's shadow is in the same PMD_SIZE, so we can't
+ 	 *    use kasan_populate_zero_shadow.
+ 	 */
+-	create_mapping((void *)MODULES_VADDR, (void *)(PKMAP_BASE + PMD_SIZE));
++	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) && IS_ENABLED(CONFIG_MODULES))
++		create_mapping((void *)MODULES_VADDR, (void *)(MODULES_END));
++	create_mapping((void *)PKMAP_BASE, (void *)(PKMAP_BASE + PMD_SIZE));
  
-+	pinctrl_usb1_device: usb1-device {
-+		groups = "usb1_device";
-+		function = "usb1";
-+	};
-+
- 	pinctrl_usb2: usb2 {
- 		groups = "usb2";
- 		function = "usb2";
-diff --git a/arch/arm64/boot/dts/socionext/Makefile b/arch/arm64/boot/dts/socionext/Makefile
-index dda3da33614b..33989a9643ac 100644
---- a/arch/arm64/boot/dts/socionext/Makefile
-+++ b/arch/arm64/boot/dts/socionext/Makefile
-@@ -5,4 +5,6 @@ dtb-$(CONFIG_ARCH_UNIPHIER) += \
- 	uniphier-ld20-akebi96.dtb \
- 	uniphier-ld20-global.dtb \
- 	uniphier-ld20-ref.dtb \
--	uniphier-pxs3-ref.dtb
-+	uniphier-pxs3-ref.dtb \
-+	uniphier-pxs3-ref-gadget0.dtb \
-+	uniphier-pxs3-ref-gadget1.dtb
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
-new file mode 100644
-index 000000000000..7069f51bc120
---- /dev/null
-+++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
-@@ -0,0 +1,41 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
-+//
-+// Device Tree Source for UniPhier PXs3 Reference Board (for USB-Device #0)
-+//
-+// Copyright (C) 2021 Socionext Inc.
-+//   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-+
-+/dts-v1/;
-+#include "uniphier-pxs3-ref.dts"
-+
-+/ {
-+	model = "UniPhier PXs3 Reference Board (USB-Device #0)";
-+};
-+
-+/* I2C3 pinctrl is shared with USB*VBUSIN */
-+&i2c3 {
-+	status = "disabled";
-+};
-+
-+&usb0 {
-+	status = "okay";
-+	dr_mode = "peripheral";
-+	pinctrl-0 = <&pinctrl_usb0_device>;
-+	snps,dis_enblslpm_quirk;
-+	snps,dis_u2_susphy_quirk;
-+	snps,dis_u3_susphy_quirk;
-+	snps,usb2_gadget_lpm_disable;
-+	phy-names = "usb2-phy", "usb3-phy";
-+	phys = <&usb0_hsphy0>, <&usb0_ssphy0>;
-+};
-+
-+&usb0_hsphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+&usb0_ssphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+/delete-node/ &usb0_hsphy1;
-+/delete-node/ &usb0_ssphy1;
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
-new file mode 100644
-index 000000000000..a3cfa8113ffb
---- /dev/null
-+++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
-@@ -0,0 +1,40 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
-+//
-+// Device Tree Source for UniPhier PXs3 Reference Board (for USB-Device #1)
-+//
-+// Copyright (C) 2021 Socionext Inc.
-+//   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-+
-+/dts-v1/;
-+#include "uniphier-pxs3-ref.dts"
-+
-+/ {
-+	model = "UniPhier PXs3 Reference Board (USB-Device #1)";
-+};
-+
-+/* I2C3 pinctrl is shared with USB*VBUSIN */
-+&i2c3 {
-+	status = "disabled";
-+};
-+
-+&usb1 {
-+	status = "okay";
-+	dr_mode = "peripheral";
-+	pinctrl-0 = <&pinctrl_usb1_device>;
-+	snps,dis_enblslpm_quirk;
-+	snps,dis_u2_susphy_quirk;
-+	snps,dis_u3_susphy_quirk;
-+	snps,usb2_gadget_lpm_disable;
-+	phy-names = "usb2-phy", "usb3-phy";
-+	phys = <&usb1_hsphy0>, <&usb1_ssphy0>;
-+};
-+
-+&usb1_hsphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+&usb1_ssphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+/delete-node/ &usb1_hsphy1;
+ 	/*
+ 	 * KAsan may reuse the contents of kasan_early_shadow_pte directly, so
 -- 
 2.35.1
 
