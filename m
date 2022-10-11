@@ -2,120 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48AD25FB1A4
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 13:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DB5F5FB1CA
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 13:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229456AbiJKLmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 07:42:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
+        id S229993AbiJKLq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 07:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbiJKLmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 07:42:19 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081557C32E;
-        Tue, 11 Oct 2022 04:42:17 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 9C7A91C0025; Tue, 11 Oct 2022 13:42:15 +0200 (CEST)
-Date:   Tue, 11 Oct 2022 13:42:15 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
-        nathan@kernel.org, ndesaulniers@google.com, llvm@lists.linux.dev
-Subject: Re: [PATCH AUTOSEL 4.19 5/6] x86/entry: Work around Clang __bdos()
- bug
-Message-ID: <20221011114215.GA12851@duo.ucw.cz>
-References: <20221009205443.1203725-1-sashal@kernel.org>
- <20221009205443.1203725-5-sashal@kernel.org>
+        with ESMTP id S229999AbiJKLqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 07:46:13 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56869378A
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 04:45:19 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id d26so23657140eje.10
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 04:45:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=r/G7Viduy1q12MSxFmqoKNXmv93wLfiRLHtzJhLt738=;
+        b=yozCrNjiHXBa8wGFvIMC8yUJeFiyfDJJMytqgTFNOatnN5tfeB7+lrW/Obhpk+fbca
+         FLsx1YAZDvDDWhH2/bu81YuWQoMz0zSOprAnepYkjNUvPFvW2c3+3qdqSXnVTSWvFoR6
+         WsHzflnqngPInyVThxbVevk+L1wAG+Ly+TyBLaoQmu+DkyImN3IAFypcSFV2bJEt5p2H
+         ugAJJHJXzq49SVnwHHR6QZijFXCLOmlsgzUsekSfAAT8DmAKCbM0gfCxjcNsWYeSktDf
+         w7A3XZ8m6mVPBWEslgzi/zL197/wHrH3FeEvErrP6kHPiIH9z6oymb0mKoZ4H9wYK/Ap
+         /E+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=r/G7Viduy1q12MSxFmqoKNXmv93wLfiRLHtzJhLt738=;
+        b=5JaRVsCPtXNvbtXVttK4FGsB2PVd4P7N8yTnEcmZbtDUsz133ZseXHhxB9kZMrzwYj
+         hRzaoQWX2Pcg9OiINry8PlNgPfy3OXGcXZT3J3aIi0fVhbdb5wn5KX3t/SoF0ft6aLIL
+         y43eT3C7c86lEGWDTnZUE2lcCqZQqrhyPn4chTqnpJxr7GuFI+gWD06GhC0mhYaHrApc
+         o5lGVxzIxVTsx/d/9EAzt94gRuZlvjWomBXzIdn4LXET+U569YYQBbnf5QHZ7x+f4kf3
+         GwIvD3yJy2nFqPyM22jOEQG08UmgprzHJFo7PhLIc7O+tFVWKOqP59dsDV3U+kq6QQau
+         7iFg==
+X-Gm-Message-State: ACrzQf2Y+ULnl9zSBFD8sxkAoTsofK9QorPBgRoj2vVZOV2LAxvz9P7A
+        c/A9L0gHmU5pYxIl+BYGGT3tL9e5txRDekpivl9YAcAAg6h39A==
+X-Google-Smtp-Source: AMsMyM7f8YXkK4kLNMpvuHUahcCsdDuelOk96lqLJNoKQcJ2UfLuaazXvHiQuFpY5FEph1ouZdNJG2EoDbi078cgpUU=
+X-Received: by 2002:a17:906:fd85:b0:77b:b538:6472 with SMTP id
+ xa5-20020a170906fd8500b0077bb5386472mr18273873ejb.48.1665488717399; Tue, 11
+ Oct 2022 04:45:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-In-Reply-To: <20221009205443.1203725-5-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+References: <20221010191226.167997210@linuxfoundation.org>
+In-Reply-To: <20221010191226.167997210@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 11 Oct 2022 17:15:04 +0530
+Message-ID: <CA+G9fYuZZ3aQsH-cdgW6jrmMPVADYGokp1iz993fJ-rs=W7+OA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/35] 5.15.73-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 11 Oct 2022 at 00:42, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.73 release.
+> There are 35 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 12 Oct 2022 19:12:17 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.73-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi!
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> From: Kees Cook <keescook@chromium.org>
->=20
-> [ Upstream commit 3e1730842f142add55dc658929221521a9ea62b6 ]
->=20
-> Clang produces a false positive when building with CONFIG_FORTIFY_SOURCE=
-=3Dy
-> and CONFIG_UBSAN_BOUNDS=3Dy when operating on an array with a dynamic
-> offset. Work around this by using a direct assignment of an empty
-> instance. Avoids this warning:
->=20
-> ../include/linux/fortify-string.h:309:4: warning: call to __write_overflo=
-w_field declared with 'warn
-> ing' attribute: detected write beyond size of field (1st parameter); mayb=
-e use struct_group()? [-Wat
-> tribute-warning]
->                         __write_overflow_field(p_size_field, size);
->                         ^
->=20
-> which was isolated to the memset() call in xen_load_idt().
->=20
-> Note that this looks very much like another bug that was worked around:
-> https://github.com/ClangBuiltLinux/linux/issues/1592
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-At least in 4.19, there's no UBSAN_BOUNDS. Sounds like we don't need
-it in old kernels?
+## Build
+* kernel: 5.15.73-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 197d9e17aabe8a6d8a323d8dd3d08487fd9cb33e
+* git describe: v5.15.72-36-g197d9e17aabe
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.72-36-g197d9e17aabe
 
-Best regards,
-								Pavel
-> +++ b/arch/x86/xen/enlighten_pv.c
-> @@ -752,6 +752,7 @@ static void xen_load_idt(const struct desc_ptr *desc)
->  {
->  	static DEFINE_SPINLOCK(lock);
->  	static struct trap_info traps[257];
-> +	static const struct trap_info zero =3D { };
->  	unsigned out;
-> =20
->  	trace_xen_cpu_load_idt(desc);
-> @@ -761,7 +762,7 @@ static void xen_load_idt(const struct desc_ptr *desc)
->  	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
-> =20
->  	out =3D xen_convert_trap_info(desc, traps, false);
-> -	memset(&traps[out], 0, sizeof(traps[0]));
-> +	traps[out] =3D zero;
-> =20
->  	xen_mc_flush();
->  	if (HYPERVISOR_set_trap_table(traps))
-> --=20
-> 2.35.1
+## No Test Regressions (compared to v5.15.71-71-gc68173b2012b)
 
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+## No Metric Regressions (compared to v5.15.71-71-gc68173b2012b)
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature; name="signature.asc"
+## No Test Fixes (compared to v5.15.71-71-gc68173b2012b)
 
------BEGIN PGP SIGNATURE-----
+## No Metric Fixes (compared to v5.15.71-71-gc68173b2012b)
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY0VWlwAKCRAw5/Bqldv6
-8ohVAJsF4vk8+1nzRcz7J6Zq4UFdI6Kl8ACffFGKzc5xIB2EYvVi0yKvMcv+Y2Y=
-=eeGa
------END PGP SIGNATURE-----
 
---ZGiS0Q5IWpPtfppv--
+## Test result summary
+total: 105666, pass: 93487, fail: 668, skip: 11215, xfail: 296
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 333 total, 333 passed, 0 failed
+* arm64: 65 total, 63 passed, 2 failed
+* i386: 55 total, 53 passed, 2 failed
+* mips: 56 total, 56 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 63 total, 63 passed, 0 failed
+* riscv: 22 total, 22 passed, 0 failed
+* s390: 24 total, 24 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 58 total, 56 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
