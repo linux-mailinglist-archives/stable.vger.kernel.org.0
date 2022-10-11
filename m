@@ -2,52 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DBF5FAD1E
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 08:57:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2295FAD70
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 09:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229851AbiJKG5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 02:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38624 "EHLO
+        id S230000AbiJKH0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 03:26:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229698AbiJKG5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 02:57:41 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33F3814F7
-        for <stable@vger.kernel.org>; Mon, 10 Oct 2022 23:57:40 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1oi9Cs-0001ZS-7h; Tue, 11 Oct 2022 08:57:38 +0200
-Received: from pengutronix.de (unknown [IPv6:2a01:4f8:1c1c:29e9:22:41ff:fe00:1400])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id BA5E6F9C0B;
-        Tue, 11 Oct 2022 06:57:36 +0000 (UTC)
-Date:   Tue, 11 Oct 2022 08:57:34 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Jimmy Assarsson <extja@kvaser.com>
-Cc:     linux-can@vger.kernel.org,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Jimmy Assarsson <jimmyassarsson@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v5 0/4] can: kvaser_usb: Various fixes
-Message-ID: <20221011065734.a3mjk7hnx4xtuvfk@pengutronix.de>
-References: <20221010150829.199676-1-extja@kvaser.com>
+        with ESMTP id S229949AbiJKHZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 03:25:46 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC136CF64;
+        Tue, 11 Oct 2022 00:25:44 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id 67so12732609pfz.12;
+        Tue, 11 Oct 2022 00:25:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=wd+OsNE6zqh97BOKU0txUIV7KGAtQ5iyptGYKgyWnSw=;
+        b=QcRruwiAMxS7K590tgy+ClH5TagGlThX17evPDX8lOp1KEC5sl9GY7X0Z8MqiqOxwM
+         v4v2dIbNScfLwu1nV7I3JWv0TG+JjP5r4K2c3ohwSIoK+C6TiK/sSQUtLHMTlUuxnE8l
+         xzli+zbZlNbnp2CHdGi88vYQToGBHbksiiFaB1f89/eiGR73xmXewFhrgcm7c/ZWSOgx
+         zd7svLOKhZdlV7zpDxtVg8mIUCpYQSVjlFjJQq1F1rJ27/Q1aPUUgqI6lhNVfmgegic+
+         Isd9mRbNjaNYpavRq3me0LHEXYU1F+TI0eHNjlao0PoHX9+hiMNM2ziOCFTCXKIUTbik
+         xgPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wd+OsNE6zqh97BOKU0txUIV7KGAtQ5iyptGYKgyWnSw=;
+        b=BxT4pL17mdpi1eRCCC/63vuoMw/vDOAwatG93Viwi8uyfFoP27y/GGdCjnAgSFkDpE
+         D004f1TePK22I3PikfAVuF0fhtMaUbEV5QSByLeDCZ0NexRSQ3pRS9C1iXY918IRIFc5
+         3omgWIMPDAe6wjrEgZFrQWMQuLYuPjGAeFxFjoLipQcqIEHisI7TUmj/lNicPuwcaTFR
+         9SiKFFbWE1ER528dsj5ly1jNa0QQqgalYcR9MAn2FT/mhjqyG4mxD8MJR4y+qt+9pPVt
+         COiSSjCepSo6Rli9FI5znPmb8cYBi9vemFf/godEhgKxEF9g6r6IL81VbcZX91pGSlI0
+         zRdg==
+X-Gm-Message-State: ACrzQf37tTm1TXB74buHCQOM4QWSKDWyT7wZeyq62/LXB7QF1v3rEI/H
+        Axr3hNQijC4xhljiQAkxQ4g=
+X-Google-Smtp-Source: AMsMyM7ciCGClD3hIDJnmHnwHUkwGrhO9dzEQsE0FcIMtS612OIRipaha9kj3gieBMFiRmFoBTRfNw==
+X-Received: by 2002:a05:6a00:4093:b0:563:2d96:8f44 with SMTP id bw19-20020a056a00409300b005632d968f44mr12698175pfb.4.1665473143601;
+        Tue, 11 Oct 2022 00:25:43 -0700 (PDT)
+Received: from debian.me (subs03-180-214-233-84.three.co.id. [180.214.233.84])
+        by smtp.gmail.com with ESMTPSA id n12-20020a170902e54c00b0017ca9f4d22fsm7891197plf.209.2022.10.11.00.25.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Oct 2022 00:25:42 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id 1CDBD10381D; Tue, 11 Oct 2022 14:25:36 +0700 (WIB)
+Date:   Tue, 11 Oct 2022 14:25:36 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 5.19 00/48] 5.19.15-rc1 review
+Message-ID: <Y0UacPPulRDKZFpg@debian.me>
+References: <20221010070333.676316214@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zcbitiktxcidjbv2"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="FxRAQvLLauovVzdx"
 Content-Disposition: inline
-In-Reply-To: <20221010150829.199676-1-extja@kvaser.com>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -55,41 +78,35 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---zcbitiktxcidjbv2
+--FxRAQvLLauovVzdx
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On 10.10.2022 17:08:25, Jimmy Assarsson wrote:
-> Changes in v5:
->  - Split series [1], keept only critical bug fixes that should go into
->    stable, since v4 got rejected [2].
->    Non-critical fixes are posted in a separate series.
+On Mon, Oct 10, 2022 at 09:04:58AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.15 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
-Looks much better now. Added to linux-can/main.
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.1.0).
 
-Thanks,
-Marc
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
 --=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+An old man doll... just what I always wanted! - Clara
 
---zcbitiktxcidjbv2
+--FxRAQvLLauovVzdx
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmNFE9sACgkQrX5LkNig
-011M7Af+OR297o5tgXYrzju+6oGAPkfxisg0d7gDb3OqlHHaYUpHbwCtf/0xmnzr
-dwJ2oXyMdn6UW8R142YXQSfZzlYbPWMyld/JS7VC80IzVyUqxMpjR1Bkn9L3EtCx
-EbgpnzXF/SixttsfRp5Yw+zFUgB7fes3bZaqQUEWWiNWr4zabKagFG+b7VJIgaGb
-l6pjNE514S+xPYuZYHlr3NNPiF6AWjURF98ZcCYBSCJRioZ0rMCOwBk3xWCdMyed
-zGER/IG7rkyzVST8OsYiYeqBMuuS4k45wZC1TS+5lTLxHZIkD+SoIxGuqNZZpZ5C
-0JofmRq/QYSnIvB6CiEBb+OQBtXqAg==
-=L4z0
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY0UaaAAKCRD2uYlJVVFO
+o4cjAP94keXmukA1+jJJgMNrIJCsr3QjQCKb83BO/vtN/XiHaQEAqCx4FY9N7yOl
+RcpttLRUb9JCVjS87Lg+AFAXJpfjdw8=
+=k8qT
 -----END PGP SIGNATURE-----
 
---zcbitiktxcidjbv2--
+--FxRAQvLLauovVzdx--
