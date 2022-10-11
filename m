@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF83F5FB50F
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685E35FB519
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:51:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229936AbiJKOuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:50:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35458 "EHLO
+        id S230090AbiJKOvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:51:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229929AbiJKOun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:50:43 -0400
+        with ESMTP id S229963AbiJKOur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:50:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140C3937B9;
-        Tue, 11 Oct 2022 07:50:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4A397ECF;
+        Tue, 11 Oct 2022 07:50:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9685611CB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17A61611CE;
+        Tue, 11 Oct 2022 14:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D71C433C1;
         Tue, 11 Oct 2022 14:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A27C43141;
-        Tue, 11 Oct 2022 14:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499834;
-        bh=Egm4MdP0NHVzUlEWm6pobpbnZfwGNN+TlkYTi/H0mow=;
+        s=k20201202; t=1665499835;
+        bh=gDTh/xKEFGKKo13t9yNjObc/OhXJ5Xj9ooYHUhlu1AA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMMXa83R+7oF+D/SSesJZ3trozomT0wDRxJZcSeVEWB+z3T+RNZ3sQhZoS0Lg0Np0
-         bVgeI29ZX/TQ92sXNj2DV5RbmBiS58rCZFbIJlw2Yqqb1wVBovHC8fJvXUefBSxRZW
-         S6IvyttyivHv9n3I0kDz9OFeMEqhevXTkphPqy4geTEk82tGOWwq7iqqvXGM3J7HhL
-         71BG9r9FtLSwjvBrtFxq2Wc1lqZS7SMjB+CR+YcXn0vM4CuzwKQuK5oZ6mvSP3gASX
-         3LMdxQNIYKRT2aDt6Fi3nfT9g5253DWaS8oKggE6P86lkemL75hq8N03C/e6P+aqHn
-         Mi6vo0PkIgJzg==
+        b=snXYsfcwsTKq7NBYCYeKTSxNV1eayG8uGKSWZ+vlUE43lmDNhHUgWUTCq0XaAb7P2
+         iWNmxNPJU7n5QF3AmsQ1MLiX+JOrD6nzxdLgqz6Fb0jMbMKm8gt2SCq0VI4ntJHKi6
+         /1zCPVuYJQ++quaWdHdWiviW5xY+MG52nFEU3N2/pcABCxE96kg1xTeJ93R6aWj127
+         fz8Xb0/YvzBT/16a/LO/m8fzYjunBJegCG4PjUW5flAKTGy6CEz7+FpAtEjOBvVPdq
+         Rt/49kmaOd3njqVAxDWXkv13iBlxjnyv+Ud4JnAOiWPzd3tLRNuSWjmPXXKVkDWLRo
+         yUEpIg9oUUTXg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Marcel Ziswiler <marcel.ziswiler@toradex.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 12/46] ARM: dts: imx6sl: use tabs for code indent
-Date:   Tue, 11 Oct 2022 10:49:40 -0400
-Message-Id: <20221011145015.1622882-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 13/46] ARM: dts: imx6sx-udoo-neo: don't use multiple blank lines
+Date:   Tue, 11 Oct 2022 10:49:41 -0400
+Message-Id: <20221011145015.1622882-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145015.1622882-1-sashal@kernel.org>
 References: <20221011145015.1622882-1-sashal@kernel.org>
@@ -58,93 +58,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
 
-[ Upstream commit 218db824a7519856d0eaaeb5c41ca504ed550210 ]
+[ Upstream commit fd2dd7077c7498765e7326c1b7f34bde85f1a975 ]
 
-This fixes the following error:
+This fixes the following warning:
 
-arch/arm/boot/dts/imx6sl.dtsi:714: error: code indent should use tabs
-where possible
+arch/arm/boot/dts/imx6sx-udoo-neo.dtsi:309: check: Please don't use multiple
+blank lines
+
+While at it, use tabs indent for some pinctrl entries.
 
 Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sl.dtsi | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/imx6sx-udoo-neo.dtsi | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
-index cfd6b4972ae7..01122ddfdc0d 100644
---- a/arch/arm/boot/dts/imx6sl.dtsi
-+++ b/arch/arm/boot/dts/imx6sl.dtsi
-@@ -61,10 +61,10 @@ cpu0: cpu@0 {
- 				<792000  1175000>,
- 				<396000  975000>;
- 			fsl,soc-operating-points =
--				/* ARM kHz      SOC-PU uV */
--				<996000         1225000>,
--				<792000         1175000>,
--				<396000         1175000>;
-+				/* ARM kHz	SOC-PU uV */
-+				<996000		1225000>,
-+				<792000		1175000>,
-+				<396000		1175000>;
- 			clock-latency = <61036>; /* two CLK32 periods */
- 			#cooling-cells = <2>;
- 			clocks = <&clks IMX6SL_CLK_ARM>, <&clks IMX6SL_CLK_PLL2_PFD2>,
-@@ -225,7 +225,7 @@ ecspi4: spi@2014000 {
+diff --git a/arch/arm/boot/dts/imx6sx-udoo-neo.dtsi b/arch/arm/boot/dts/imx6sx-udoo-neo.dtsi
+index 35861bbea94e..c84ea1fac5e9 100644
+--- a/arch/arm/boot/dts/imx6sx-udoo-neo.dtsi
++++ b/arch/arm/boot/dts/imx6sx-udoo-neo.dtsi
+@@ -226,7 +226,7 @@ lcdc: endpoint {
+ &iomuxc {
+ 	pinctrl_bt_reg: btreggrp {
+ 		fsl,pins =
+-			<MX6SX_PAD_KEY_ROW2__GPIO2_IO_17        0x15059>;
++			<MX6SX_PAD_KEY_ROW2__GPIO2_IO_17	0x15059>;
+ 	};
  
- 				uart5: serial@2018000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02018000 0x4000>;
- 					interrupts = <0 30 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -238,7 +238,7 @@ uart5: serial@2018000 {
+ 	pinctrl_enet1: enet1grp {
+@@ -306,7 +306,6 @@ MX6SX_PAD_LCD1_RESET__GPIO3_IO_27		0x4001b0b0
+ 		>;
+ 	};
  
- 				uart1: serial@2020000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02020000 0x4000>;
- 					interrupts = <0 26 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -251,7 +251,7 @@ uart1: serial@2020000 {
+-
+ 	pinctrl_uart1: uart1grp {
+ 		fsl,pins =
+ 			<MX6SX_PAD_GPIO1_IO04__UART1_DCE_TX	0x1b0b1>,
+@@ -347,24 +346,23 @@ pinctrl_uart6: uart6grp {
  
- 				uart2: serial@2024000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02024000 0x4000>;
- 					interrupts = <0 27 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -312,7 +312,7 @@ ssi3: ssi@2030000 {
+ 	pinctrl_otg1_reg: otg1grp {
+ 		fsl,pins =
+-			<MX6SX_PAD_GPIO1_IO09__GPIO1_IO_9        0x10b0>;
++			<MX6SX_PAD_GPIO1_IO09__GPIO1_IO_9	0x10b0>;
+ 	};
  
- 				uart3: serial@2034000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02034000 0x4000>;
- 					interrupts = <0 28 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -325,7 +325,7 @@ uart3: serial@2034000 {
+-
+ 	pinctrl_otg2_reg: otg2grp {
+ 		fsl,pins =
+-			<MX6SX_PAD_NAND_RE_B__GPIO4_IO_12        0x10b0>;
++			<MX6SX_PAD_NAND_RE_B__GPIO4_IO_12	0x10b0>;
+ 	};
  
- 				uart4: serial@2038000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02038000 0x4000>;
- 					interrupts = <0 29 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -714,7 +714,7 @@ pd_pu: power-domain@1 {
- 						#power-domain-cells = <0>;
- 						power-supply = <&reg_pu>;
- 						clocks = <&clks IMX6SL_CLK_GPU2D_OVG>,
--						         <&clks IMX6SL_CLK_GPU2D_PODF>;
-+							 <&clks IMX6SL_CLK_GPU2D_PODF>;
- 					};
+ 	pinctrl_usb_otg1: usbotg1grp {
+ 		fsl,pins =
+-			<MX6SX_PAD_GPIO1_IO10__ANATOP_OTG1_ID    0x17059>,
+-			<MX6SX_PAD_GPIO1_IO08__USB_OTG1_OC       0x10b0>;
++			<MX6SX_PAD_GPIO1_IO10__ANATOP_OTG1_ID	0x17059>,
++			<MX6SX_PAD_GPIO1_IO08__USB_OTG1_OC	0x10b0>;
+ 	};
  
- 					pd_disp: power-domain@2 {
+ 	pinctrl_usb_otg2: usbot2ggrp {
+ 		fsl,pins =
+-			<MX6SX_PAD_QSPI1A_DATA0__USB_OTG2_OC     0x10b0>;
++			<MX6SX_PAD_QSPI1A_DATA0__USB_OTG2_OC	0x10b0>;
+ 	};
+ 
+ 	pinctrl_usdhc2: usdhc2grp {
 -- 
 2.35.1
 
