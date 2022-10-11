@@ -2,128 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF925FB7D1
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CFF65FB7F7
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 18:08:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbiJKP5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
+        id S230032AbiJKQIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 12:08:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230078AbiJKP45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:56:57 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246CE32EDB;
-        Tue, 11 Oct 2022 08:56:55 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id B2AEF1F8B0;
-        Tue, 11 Oct 2022 15:56:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1665503813; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=BzpXv8ILApfxNxoDpsT73KKx7K6rQNTPNbrtke8IbdE=;
-        b=q7KoTaoPrNUqHpu3g+sxiU/YiIPTSMdtDECUwXFNLzdOaYTLxnLONnKE6Eze7EFvTkZrtl
-        K6mt2gIRHICzwYi/Yv7xvWC6rDQ+vIVbvPJdgPPK1hJr09cTQ33tuOsWZQBAnE+To0u3+v
-        +g+ZZc25kbowBu2eNZumsBJ2gFdnwfA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1665503813;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=BzpXv8ILApfxNxoDpsT73KKx7K6rQNTPNbrtke8IbdE=;
-        b=ITJ3z81uGnfrZNDiFTVif3RqESm0gw4tIh5i2zvFM4Av1gVfAH6wrenz2hdpDWGnTATEtY
-        PiX3BnV9dlSm+aDg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3FCEA13AAC;
-        Tue, 11 Oct 2022 15:56:53 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id PG/RDEWSRWPEYwAAMHmgww
-        (envelope-from <lhenriques@suse.de>); Tue, 11 Oct 2022 15:56:53 +0000
-Received: from localhost (brahms.olymp [local])
-        by brahms.olymp (OpenSMTPD) with ESMTPA id 2c98b2e4;
-        Tue, 11 Oct 2022 15:57:49 +0000 (UTC)
-From:   =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>
-To:     "Theodore Ts'o" <tytso@mit.edu>,
-        Andreas Dilger <adilger.kernel@dilger.ca>
-Cc:     linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        stable@vger.kernel.org
-Subject: [PATCH] ext4: fix BUG_ON() when a directory entry has an invalid rec_len
-Date:   Tue, 11 Oct 2022 16:57:45 +0100
-Message-Id: <20221011155745.15264-1-lhenriques@suse.de>
+        with ESMTP id S230113AbiJKQIc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 12:08:32 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on20630.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eab::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7719F53D32;
+        Tue, 11 Oct 2022 09:08:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=M0M0Zmmkr1RuBwc4t83qWApTCdID9bdhqJmPw/Xj1PYi7WbMTZnAj7YIR8znZT4j3OWi63mQqlZ544+KQYysgtR508OOHw5sqviMlNJ/90cfULbSCLJJPCw1JQ7BrxRUJ9h6NdA9eP5r9w1ZJKI5XCWSCU7SXfDTezg2zFBgB5XSjc+Bpp7NbDqZGsjXg/RO+VS2Him36GH+ii8D4PVMh4HKaGxqQMTlWMcS/OVLc5aHeXn1SuFzv4YAeMYk2F9AcFDMzGFfrcDRM9nOnF04TYD/bjKTB7dkpZKWwxIKglwUNrmiupoDv/Cjff3/7lIRlkRDYraSY9ZVMretkjgaxA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=nElGiXX+SUO/vxx32xfcKugUwn6/meG/8MxFjjRROSI=;
+ b=k1m2UHsfLip58Je0UFBoxJIlMoBfdU+HIN/qxAxERY+a+ctqPzInxejsdUymjCueOxjW0Prgyvrvi4kvfMRpknlqwHRFkySM7d7loUarL0ALtX8kKMeIWkp6O8/TcB/ivs1xbfr4QYEkle19WieI6sOciHfzE8WCiFVlN5RfId16U3Ahumgk3WzfrX5aBG84Ko5UKSRA7zU/i3URjb1OiIvrS4rFCQIOwqbrc+eFVqo6k6cX20GU0FlFkENk7ByhTJSJytcG+BUokgssKWaSMpbxde2nhJQtNDqIl0t4rfKsPDGRgImzA1aNMcQLYa32bheld9S0zsB9e3LJTcfv7A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=reject sp=reject pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nElGiXX+SUO/vxx32xfcKugUwn6/meG/8MxFjjRROSI=;
+ b=fKx0PnkkN13R5UsN1Y00cgJfFZoiaHmwO9+yOZh9t/78cMpYl1mj/bf3oPm+tG2g37zuoW04a3LKyj8RcKpabg5U+wHAdgmF2IWv7IuBptkf6/KlVoQ9niHgfj82gbGSRstmpyWaz/GrO9n7dyNHzTsBF4QrTUx1frywo68lsMC2RN2w0gueNT4GQk32dl9bDzKObtgltPXmB9uCTFwZFsHP/iU+2BRaeAEjDx2ceK85PAaMbWtWV/XiaGBrykdqQ/TonA71o1PalyOA9wm3QCNWPG448RFN8Tz6IcSenZbqnnvAMTLyYyUfZ32GyLthhmhYkaPc4EeykPMMcFmT2Q==
+Received: from BN9PR03CA0754.namprd03.prod.outlook.com (2603:10b6:408:13a::9)
+ by MN2PR12MB4253.namprd12.prod.outlook.com (2603:10b6:208:1de::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5709.21; Tue, 11 Oct
+ 2022 16:08:28 +0000
+Received: from BN8NAM11FT032.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:13a:cafe::14) by BN9PR03CA0754.outlook.office365.com
+ (2603:10b6:408:13a::9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5709.21 via Frontend
+ Transport; Tue, 11 Oct 2022 16:08:28 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ BN8NAM11FT032.mail.protection.outlook.com (10.13.177.88) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5709.10 via Frontend Transport; Tue, 11 Oct 2022 16:08:28 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Tue, 11 Oct
+ 2022 09:08:15 -0700
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.29; Tue, 11 Oct 2022 09:08:15 -0700
+Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29 via Frontend
+ Transport; Tue, 11 Oct 2022 09:08:15 -0700
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <srw@sladewatkins.net>,
+        <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.15 00/35] 5.15.73-rc2 review
+In-Reply-To: <20221010191226.167997210@linuxfoundation.org>
+References: <20221010191226.167997210@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <30fdeee4-86a7-47ee-813c-32094de0d8cc@drhqmail201.nvidia.com>
+Date:   Tue, 11 Oct 2022 09:08:15 -0700
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT032:EE_|MN2PR12MB4253:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3efb0129-6938-4006-4f00-08daaba2d58f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: APGhPi0GLHapl7QtAv1ckk8spYvjru49JiiQjlvNoxAEwXNKiRDErS2aN7PYsu4+vzfODxo60gVaVe6+vXulk50W/HjeLqAfswlwQCc2dxXTcV+MR9wScPuur2AjHu8qwnWrr9XtQiacX2nQfnUId24xq7GhSO+U87mOsMms1z/ZZP3aM7DTMR2bhRwAudWipQ9XROY1EE7lNwdzwDYIlEO8quyFnDgP6Pcj9F/uuks9AyBz2RfTsp++Cb76LIval3742+uAS4tYPvXRHLP9FpVWG46XQfK6U7ffH0tAC74hS4NRIowMsJDiUOmrgpojg+0C7HbommmJKBSukRepbwjtzx7P1+vPEV9Z7XGS56YgbqDA6jsXm7y2FRcmqbjiZmJRRXc7SZjZ9bFkpEIYHcn//F/fQcVhBhKWMaqYKahExykQAEZhcpnOAFU0pSacwO6ZBFR5/irVyJ5wmy+h0cqdXPbBD5Moi2UG+gyhGK4/HyfQcg0S1T/PvpNmTsJSm+OP6Pp/8uG8amhRUmfZLv9VuXQq8rIM9OFGDf1YfGSrXUtCv1vNVMecJYQVZJR5GBeCklGQWjmeuPFp++fDJdJnwaZEy4kiVa4rFZNAAa/SbbyOpfYlnlb5cpJcI/sMt6nDEelsNr+4Zvzfhu9fpCD1Gl6qVYJqt0gsX2SwrlD11CxBNaDkZis33Kq76mBXT7gHO/khDk23Bve0EB7QdPv+7S9f4RJkZyrvKv1NXk2uoNOOAWHlkXYQ69STsfvwpl4/zlMKjnX1F4cflV9FOB8Lry2otM8YutalpRPuK0y7KCK9c7IGCDlUkHH3jz29A2zuCIosf9BB1xjZ1qi55APnxNk2KdTWD6OJjLbeJUs=
+X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(136003)(396003)(346002)(376002)(451199015)(40470700004)(46966006)(36840700001)(26005)(31686004)(6916009)(316002)(40460700003)(356005)(8676002)(54906003)(7416002)(36860700001)(7636003)(31696002)(86362001)(82740400003)(426003)(47076005)(186003)(966005)(478600001)(5660300002)(40480700001)(8936002)(2906002)(82310400005)(336012)(41300700001)(70206006)(70586007)(4326008);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Oct 2022 16:08:28.0462
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3efb0129-6938-4006-4f00-08daaba2d58f
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT032.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4253
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        SPF_HELO_PASS,SPF_NONE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The rec_len field in the directory entry has to be a multiple of 4.  A
-corrupted filesystem image can be used to hit a BUG_ON() in
-ext4_rec_len_to_disk(), called from make_indexed_dir().
+On Mon, 10 Oct 2022 21:12:52 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.73 release.
+> There are 35 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 12 Oct 2022 19:12:17 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.73-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
- ------------[ cut here ]------------
- kernel BUG at fs/ext4/ext4.h:2413!
- ...
- RIP: 0010:make_indexed_dir+0x53f/0x5f0
- ...
- Call Trace:
-  <TASK>
-  ? add_dirent_to_buf+0x1b2/0x200
-  ext4_add_entry+0x36e/0x480
-  ext4_add_nondir+0x2b/0xc0
-  ext4_create+0x163/0x200
-  path_openat+0x635/0xe90
-  do_filp_open+0xb4/0x160
-  ? __create_object.isra.0+0x1de/0x3b0
-  ? _raw_spin_unlock+0x12/0x30
-  do_sys_openat2+0x91/0x150
-  __x64_sys_open+0x6c/0xa0
-  do_syscall_64+0x3c/0x80
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+All tests passing for Tegra ...
 
-This fix simply returns -EFSCORRUPTED when this happens.
+Test results for stable-v5.15:
+    10 builds:	10 pass, 0 fail
+    28 boots:	28 pass, 0 fail
+    114 tests:	114 pass, 0 fail
 
-CC: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216540
-Signed-off-by: Luís Henriques <lhenriques@suse.de>
----
- fs/ext4/namei.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+Linux version:	5.15.73-rc2-g197d9e17aabe
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
+                tegra20-ventana, tegra210-p2371-2180,
+                tegra210-p3450-0000, tegra30-cardhu-a04
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 3a31b662f661..06803292e394 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2254,8 +2254,18 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
- 	memset(de, 0, len); /* wipe old data */
- 	de = (struct ext4_dir_entry_2 *) data2;
- 	top = data2 + len;
--	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top)
-+	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top) {
-+		if (de->rec_len & 3) {
-+			EXT4_ERROR_INODE(
-+				dir,
-+				"rec_len for '..' not multiple of 4 (%u)",
-+				de->rec_len);
-+			brelse(bh2);
-+			brelse(bh);
-+			return -EFSCORRUPTED;
-+		}
- 		de = de2;
-+	}
- 	de->rec_len = ext4_rec_len_to_disk(data2 + (blocksize - csum_size) -
- 					   (char *) de, blocksize);
- 
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
