@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 981A25FB58E
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DE715FB58B
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230181AbiJKOzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:55:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36188 "EHLO
+        id S230480AbiJKOzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:55:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230269AbiJKOye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:54:34 -0400
+        with ESMTP id S230399AbiJKOyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:54:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 803369C223;
-        Tue, 11 Oct 2022 07:51:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098489C2C5;
+        Tue, 11 Oct 2022 07:51:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 775CCB81606;
-        Tue, 11 Oct 2022 14:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44444C433D6;
-        Tue, 11 Oct 2022 14:51:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48904B8160D;
+        Tue, 11 Oct 2022 14:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4B81C433D7;
+        Tue, 11 Oct 2022 14:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499897;
-        bh=7y/kZxGIpgau87KGJ1DC9SqHsMTdMws0Pl+L6IUmCWE=;
+        s=k20201202; t=1665499899;
+        bh=PaC8jEflw0FOLaGuYNpIga/kLtJ4AMUin+oxJxX25Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brUYtgFo1vrMXGYrq3iYlbBk1U4PXwvQxKbip12YQF5Hdsqo71g/ptN7716oT6cBE
-         ubxtKhHBJC2eef0YES3+EQN36FmFCOW9IlPIoK3t5fgMfLQtIlXwSFJFXiP1sVW7YY
-         sQmyOPDCuTdADi01Q4s/TYFj/F8J174Z+L7+Jd0htaqk5fh0gysvfGurC21EcAGbDa
-         RxutKX5BEJOSeQQQwr5qzJhJbmRJYHsmZaFHecj/yL5wxCpT3r+bq5luagoLmWIXY8
-         e7ZYAlVdv7G6hOQ/1mGWdmvuZJl5OYU8VUjA/IpORte6PuZa8E2KqEcZbbR4OFTt0w
-         YThTtEPBSFPsA==
+        b=jj5aYtko6xKq35+uzYl3bFNTiDUFp9S7kDEO9YnpcpaHYzacUg/JCoHyD0WahmASx
+         zBidJKD3i9W7f/0M7uv21Z1EvUFhY1wQL/QwBPyl4B0GZtTTRRhr5Hieccu8f8dRf1
+         uEX9dEuMU1OlLBJmL99O5iw+ohUxUPi4BqbEWwx5xFbwKMw7rWHcefSGkAx60yrtrE
+         t9d/73ZPIr9EZ+jfKbhvRnpaOzP5TWZlswoRh5suCmjWQYo3QxB+XGhAzpyeRwkzKp
+         IS0KlP5sQXfc70SdLYJEjreglCtVABwyCeOIZgPKNT048y0GWuUBxacf9OcJ8s3jGg
+         aybQpYJxGjYdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean Delvare <jdelvare@suse.de>, kernel test robot <lkp@intel.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Chenglin Xu <chenglin.xu@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 04/40] soc: mediatek: Let PMIC Wrapper and SCPSYS depend on OF
-Date:   Tue, 11 Oct 2022 10:50:53 -0400
-Message-Id: <20221011145129.1623487-4-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, robh+dt@kernel.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 05/40] arm64: dts: qcom: sc7280-idp: correct ADC channel node name and unit address
+Date:   Tue, 11 Oct 2022 10:50:54 -0400
+Message-Id: <20221011145129.1623487-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145129.1623487-1-sashal@kernel.org>
 References: <20221011145129.1623487-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,93 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 2778caedb5667239823a29148dfc48b26a8b3c2a ]
+[ Upstream commit 5589ffb2da2a66988ab3a68334dad3e68b42e3a9 ]
 
-With the following configuration options:
-CONFIG_OF is not set
-CONFIG_MTK_PMIC_WRAP=y
-CONFIG_MTK_SCPSYS=y
-we get the following build warnings:
+Correct SPMI PMIC VADC channel node name:
+1. Use hyphens instead of underscores,
+2. Add missing unit address.
 
-  CC      drivers/soc/mediatek/mtk-pmic-wrap.o
-drivers/soc/mediatek/mtk-pmic-wrap.c:2138:34: warning: ‘of_pwrap_match_tbl’ defined but not used [-Wunused-const-variable=]
-drivers/soc/mediatek/mtk-pmic-wrap.c:1953:34: warning: ‘of_slave_match_tbl’ defined but not used [-Wunused-const-variable=]
-  CC      drivers/soc/mediatek/mtk-scpsys.o
-drivers/soc/mediatek/mtk-scpsys.c:1084:34: warning: ‘of_scpsys_match_tbl’ defined but not used [-Wunused-const-variable=]
+This fixes `make dtbs_check` warnings like:
 
-Looking at the code, both drivers can only bind to OF-defined device
-nodes, so these drivers are useless without OF and should therefore
-depend on it.
+  qcom/sc7280-idp.dtb: pmic@0: adc@3100: 'pmk8350_die_temp', 'pmr735a_die_temp' do not match any of the regexes: '^.*@[0-9a-f]+$', 'pinctrl-[0-9]+'
 
-Also drop of_match_ptr() from both drivers. We already know what it
-will resolve to, so we might as well save cpp some work.
-
-Developers or QA teams who wish to test-build the code can still do
-so by enabling CONFIG_OF, which is available on all architectures and
-has no dependencies.
-
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/all/202207240252.ZY5hSCNB-lkp@intel.com/
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Chenglin Xu <chenglin.xu@mediatek.com>
-Link: https://lore.kernel.org/r/20220730144833.0a0d9825@endymion.delvare
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220828084341.112146-12-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/Kconfig         | 2 ++
- drivers/soc/mediatek/mtk-pmic-wrap.c | 2 +-
- drivers/soc/mediatek/mtk-scpsys.c    | 2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280-idp.dts  | 2 +-
+ arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/mediatek/Kconfig b/drivers/soc/mediatek/Kconfig
-index fdd8bc08569e..2da67dc72f65 100644
---- a/drivers/soc/mediatek/Kconfig
-+++ b/drivers/soc/mediatek/Kconfig
-@@ -37,6 +37,7 @@ config MTK_INFRACFG
- config MTK_PMIC_WRAP
- 	tristate "MediaTek PMIC Wrapper Support"
- 	depends on RESET_CONTROLLER
-+	depends on OF
- 	select REGMAP
- 	help
- 	  Say yes here to add support for MediaTek PMIC Wrapper found
-@@ -46,6 +47,7 @@ config MTK_PMIC_WRAP
- config MTK_SCPSYS
- 	bool "MediaTek SCPSYS Support"
- 	default ARCH_MEDIATEK
-+	depends on OF
- 	select REGMAP
- 	select MTK_INFRACFG
- 	select PM_GENERIC_DOMAINS if PM
-diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
-index bf39a64f3ecc..ff2ee7ff5df3 100644
---- a/drivers/soc/mediatek/mtk-pmic-wrap.c
-+++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
-@@ -2347,7 +2347,7 @@ static int pwrap_probe(struct platform_device *pdev)
- static struct platform_driver pwrap_drv = {
- 	.driver = {
- 		.name = "mt-pmic-pwrap",
--		.of_match_table = of_match_ptr(of_pwrap_match_tbl),
-+		.of_match_table = of_pwrap_match_tbl,
- 	},
- 	.probe = pwrap_probe,
+diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dts b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
+index 6d3ff80582ae..e2e37a0292ad 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280-idp.dts
++++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
+@@ -78,7 +78,7 @@ &nvme_3v3_regulator {
  };
-diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
-index ca75b14931ec..7a668888111c 100644
---- a/drivers/soc/mediatek/mtk-scpsys.c
-+++ b/drivers/soc/mediatek/mtk-scpsys.c
-@@ -1141,7 +1141,7 @@ static struct platform_driver scpsys_drv = {
- 		.name = "mtk-scpsys",
- 		.suppress_bind_attrs = true,
- 		.owner = THIS_MODULE,
--		.of_match_table = of_match_ptr(of_scpsys_match_tbl),
-+		.of_match_table = of_scpsys_match_tbl,
- 	},
+ 
+ &pmk8350_vadc {
+-	pmr735a_die_temp {
++	pmr735a-die-temp@403 {
+ 		reg = <PMR735A_ADC7_DIE_TEMP>;
+ 		label = "pmr735a_die_temp";
+ 		qcom,pre-scaling = <1 1>;
+diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
+index 5eb668991e24..893d3031cfd5 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
+@@ -264,7 +264,7 @@ &pcie1_phy {
  };
- builtin_platform_driver(scpsys_drv);
+ 
+ &pmk8350_vadc {
+-	pmk8350_die_temp {
++	pmk8350-die-temp@3 {
+ 		reg = <PMK8350_ADC7_DIE_TEMP>;
+ 		label = "pmk8350_die_temp";
+ 		qcom,pre-scaling = <1 1>;
 -- 
 2.35.1
 
