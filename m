@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A94F65FB684
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57BA15FB687
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231551AbiJKPGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44658 "EHLO
+        id S231628AbiJKPG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231577AbiJKPGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:06:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC65B41D30;
-        Tue, 11 Oct 2022 07:59:56 -0700 (PDT)
+        with ESMTP id S231641AbiJKPG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:06:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D5C2BB26;
+        Tue, 11 Oct 2022 07:59:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56A83B81632;
-        Tue, 11 Oct 2022 14:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B760C433C1;
-        Tue, 11 Oct 2022 14:53:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F306611AB;
+        Tue, 11 Oct 2022 14:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3E8C433D6;
+        Tue, 11 Oct 2022 14:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499992;
-        bh=ojCmeGHkofBLPO9rvISVcCUKCRfazna5eqPo7nU17v0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENTD9QJJIonOXqUnyIaZM0BofS5NtLnsm3z0iI2wsl79HvSe4HViaph7OY02XsREq
-         X4+rUhFKcc6EShrHx+niAlbYJnPWPc36R1BOYIRX60x7idfSXu14Payi0UvKUl9Uwo
-         U4GsoJlFC8kA37TlO5zHkxPyaOSw0qinlD02YpnF9iIYExKXd0SQLleHRe5Xc9wqRJ
-         UdVTT4g9eCXv8l7IFkxiF9hLWQYUrcfcILPwGoDqk05JDfMOG03zTzifsjX62QYapY
-         TUb8iNvnOiD565/iCn3JSbAHP0G1Z1BmYHls8+qRuMpdKKdQOS/nMzKVQrSQlEV204
-         /jW+DKn+D4JPA==
+        s=k20201202; t=1665499995;
+        bh=q337bmgmSCgHjUZD+SRKEYiynZHWjNpeSn6ty6gNDXM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=m6a6GAQgk4cTK4orbSan5HFXF4M2uIpGFLX8go+yjBO2r9iM2pV8i9Z8lUIAYR2Fv
+         O64eF/LBJaKWemJNCY/vAZGHE06Rw1eT+G0xRV3cl/5NfXY+hxUA6dDBEv31ISEA+a
+         ZfHyzA4LNL8UO8MU3tB/n1bvj6xMVI/nB5OnvjFrtK23jag3pgmppy8CV/VkpOPPJ7
+         BOjLziLmOzjhKiE8X6Rz78axV94fGH8ZEu/+AFZk5AAFEp99H1uQ2Tm/dwIfi0wQEY
+         F91nWsaR7gOMnYRKlpLvQXf1rwitkZIP+wbt5j1CCQM+7tBJ9UHDSXvGXHX59wC4n4
+         16MiTh/bH4FtQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhao Gongyi <zhaogongyi@huawei.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 26/26] selftests/cpu-hotplug: Use return instead of exit
-Date:   Tue, 11 Oct 2022 10:52:33 -0400
-Message-Id: <20221011145233.1624013-26-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rajendra Nayak <quic_rjendra@quicinc.com>,
+        Sibi Sankar <quic_sibis@quicinc.com>,
+        Steev Klimaszewski <steev@kali.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        robh+dt@kernel.org, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/17] arm64: dts: qcom: sdm845: narrow LLCC address space
+Date:   Tue, 11 Oct 2022 10:52:56 -0400
+Message-Id: <20221011145312.1624341-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221011145233.1624013-1-sashal@kernel.org>
-References: <20221011145233.1624013-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,74 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Gongyi <zhaogongyi@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 972cf4ce51ef5532d56822af17defb148aac0ccb ]
+[ Upstream commit 300b5f661eebefb8571841b78091343eb87eca54 ]
 
-Some cpus will be left in offline state when online
-function exits in some error conditions. Use return
-instead of exit to fix it.
+The Last Level Cache Controller (LLCC) device does not need to access
+entire LLCC address space.  Currently driver uses only hardware info and
+status registers which both reside in LLCC0_COMMON range (offset
+0x30000, size 0x1000).  Narrow the address space to allow binding other
+drivers to rest of LLCC address space.
 
-Signed-off-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Rajendra Nayak <quic_rjendra@quicinc.com>
+Cc: Sibi Sankar <quic_sibis@quicinc.com>
+Reported-by: Steev Klimaszewski <steev@kali.org>
+Suggested-by: Sibi Sankar <quic_sibis@quicinc.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220728113748.170548-11-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/cpu-hotplug/cpu-on-off-test.sh        | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm845.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh b/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
-index 0d26b5e3f966..940b68c940bb 100755
---- a/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
-+++ b/tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
-@@ -4,6 +4,7 @@
- SYSFS=
- # Kselftest framework requirement - SKIP code is 4.
- ksft_skip=4
-+retval=0
+diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+index 9beb3c34fcdb..068fad00e615 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+@@ -1796,7 +1796,7 @@ uart15: serial@a9c000 {
  
- prerequisite()
- {
-@@ -102,10 +103,10 @@ online_cpu_expect_success()
- 
- 	if ! online_cpu $cpu; then
- 		echo $FUNCNAME $cpu: unexpected fail >&2
--		exit 1
-+		retval=1
- 	elif ! cpu_is_online $cpu; then
- 		echo $FUNCNAME $cpu: unexpected offline >&2
--		exit 1
-+		retval=1
- 	fi
- }
- 
-@@ -128,10 +129,10 @@ offline_cpu_expect_success()
- 
- 	if ! offline_cpu $cpu; then
- 		echo $FUNCNAME $cpu: unexpected fail >&2
--		exit 1
-+		retval=1
- 	elif ! cpu_is_offline $cpu; then
- 		echo $FUNCNAME $cpu: unexpected offline >&2
--		exit 1
-+		retval=1
- 	fi
- }
- 
-@@ -201,7 +202,7 @@ if [ $allcpus -eq 0 ]; then
- 		offline_cpu_expect_success $present_max
- 		online_cpu $present_max
- 	fi
--	exit 0
-+	exit $retval
- else
- 	echo "Full scope test: all hotplug cpus"
- 	echo -e "\t online all offline cpus"
-@@ -291,3 +292,5 @@ done
- 
- echo 0 > $NOTIFIER_ERR_INJECT_DIR/actions/CPU_DOWN_PREPARE/error
- /sbin/modprobe -q -r cpu-notifier-error-inject
-+
-+exit $retval
+ 		system-cache-controller@1100000 {
+ 			compatible = "qcom,sdm845-llcc";
+-			reg = <0 0x01100000 0 0x200000>, <0 0x01300000 0 0x50000>;
++			reg = <0 0x01100000 0 0x31000>, <0 0x01300000 0 0x50000>;
+ 			reg-names = "llcc_base", "llcc_broadcast_base";
+ 			interrupts = <GIC_SPI 582 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
 -- 
 2.35.1
 
