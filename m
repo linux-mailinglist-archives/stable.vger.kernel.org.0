@@ -2,94 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 001C35FB8ED
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 19:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EDB25FB902
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 19:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229641AbiJKRGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 13:06:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45136 "EHLO
+        id S229487AbiJKROY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 13:14:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbiJKRGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 13:06:14 -0400
-Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1206C82743;
-        Tue, 11 Oct 2022 10:06:13 -0700 (PDT)
+        with ESMTP id S229977AbiJKROW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 13:14:22 -0400
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC41AA36E
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 10:14:20 -0700 (PDT)
+Received: by mail-io1-xd2d.google.com with SMTP id 137so7148242iou.9
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 10:14:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1665507974; x=1697043974;
-  h=message-id:date:mime-version:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:subject;
-  bh=07xQWyffa4Ix1g/pvcHIWfwGdtig1uyAadKbd+ed3as=;
-  b=oqJeyYaFTMT3zENT96T0UAvQigcVzmo/s3kPmts04gN6w0KEot5gPH2p
-   5uOlK8NbwRdJCwmdbc2GcnQ6w418dgCcgqNftprnBDhHEmFonQTPIeXtd
-   3jfDL0lpSOklCy4S2XdHma/nXNhpZWnu76QoNoDy6uBOx1RbUSm35dTGB
-   Y=;
-Subject: Re: [PATCH v2] nvme-pci: Set min align mask before calculating max_hw_sectors
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1d-54a073b7.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6001.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2022 17:06:12 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1d-54a073b7.us-east-1.amazon.com (Postfix) with ESMTPS id 5E2D49BC32;
-        Tue, 11 Oct 2022 17:06:10 +0000 (UTC)
-Received: from EX19D002UWC004.ant.amazon.com (10.13.138.186) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Tue, 11 Oct 2022 17:05:40 +0000
-Received: from [10.85.223.213] (10.43.162.213) by
- EX19D002UWC004.ant.amazon.com (10.13.138.186) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.12;
- Tue, 11 Oct 2022 17:05:39 +0000
-Message-ID: <8f451a9e-3324-c7d4-cf61-a105fd087192@amazon.com>
-Date:   Tue, 11 Oct 2022 10:05:38 -0700
+        d=linuxfoundation.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=pDLbMMyVql0t8YQHrpoFb/mrSX/wy9E8ZPnLS8f6/sg=;
+        b=QXHxzennHT0jWhFoHwN6F4UG3DVi7ZCQCmnNa4hVa1YpzqTEJ2H2thcKZZtDII+5Ri
+         Ln3OIwIuzi7P85Z7IaTZwJXP6TiBkUHXzZ+er3QEjKMDrkQdf9n/lAbe7xuOVqvm4bZL
+         IxZZXf4C3hBQzqz76jjrQR75Ds7/2VEhAhUVA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pDLbMMyVql0t8YQHrpoFb/mrSX/wy9E8ZPnLS8f6/sg=;
+        b=FXcDwemW5EFa2REqBGUgbH4YGstMnUiK4Au1NjMff+jpGiobIpxxp+OUOy98AD0rP+
+         t9AUGX6tkzotxR7tOXaTkTQPhju2kP2Hu2IvH0FkIzx5mB/Utw04ZEFIS0YfmfpTZH8S
+         VkhmRfydU0BZkY9olTfnAZwNzV94dNw/Lvo/JuEsfOW/k7IKyqx73UTzxTBYTPOKrEtO
+         CSfEt4BmpSWivwffStC5kSIwunV1MeIh0CmEfkYmkfq1LqcuEEhyYNHdeefTolq0dOHj
+         S7HLYvL7UNePkJF186lJ20UWBGJBJSlVIfCsUNaMFHGC/JzFBgrdqtoxQWHTj9PdIiys
+         LJQA==
+X-Gm-Message-State: ACrzQf2xJWZnrmeRYgoYM7D9QJ4vekwM2NrimG5B2P9Ud34I0lJpvGAU
+        KGx0p0HWBpnNRUsEyzWh6MG2dEK6RKW0yw==
+X-Google-Smtp-Source: AMsMyM4/OpJoLj6r1F+/wC8QgtHX8DjKlVz9AT1JvWxmVE0aHwN3eNgc+aaDUSRj2vDk34JD7p5pdQ==
+X-Received: by 2002:a05:6638:4782:b0:363:c5a0:2aec with SMTP id cq2-20020a056638478200b00363c5a02aecmr4483441jab.242.1665508459629;
+        Tue, 11 Oct 2022 10:14:19 -0700 (PDT)
+Received: from shuah-tx13.internal ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id g18-20020a056e02131200b002eb3b43cd63sm5088215ilr.18.2022.10.11.10.14.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Oct 2022 10:14:19 -0700 (PDT)
+From:   Shuah Khan <skhan@linuxfoundation.org>
+To:     gregkh@linuxfoundation.org, corbet@lwn.net
+Cc:     Shuah Khan <skhan@linuxfoundation.org>, conduct@kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        jlee@linuxfoundation.org, stable@vger.kernel.org
+Subject: [PATCH] docs: update mediator contact information in CoC doc
+Date:   Tue, 11 Oct 2022 11:14:17 -0600
+Message-Id: <20221011171417.34286-1-skhan@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.3.2
-Content-Language: en-US
-To:     "hch@lst.de" <hch@lst.de>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "sagi@grimberg.me" <sagi@grimberg.me>,
-        "axboe@fb.com" <axboe@fb.com>,
-        "kbusch@kernel.org" <kbusch@kernel.org>,
-        "Bacco, Mike" <mbacco@amazon.com>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>,
-        "Park, SeongJae" <sjpark@amazon.com>
-References: <20220929182259.22523-1-risbhat@amazon.com>
- <EB43F4D1-BFD0-408B-93E7-10643B59F766@amazon.com>
- <b73250f3-2dd6-36da-4d69-3149959f2e67@amazon.com>
- <20221011060829.GA3172@lst.de>
-From:   "Bhatnagar, Rishabh" <risbhat@amazon.com>
-In-Reply-To: <20221011060829.GA3172@lst.de>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.162.213]
-X-ClientProxiedBy: EX13D41UWC002.ant.amazon.com (10.43.162.127) To
- EX19D002UWC004.ant.amazon.com (10.13.138.186)
-X-Spam-Status: No, score=-14.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Update mediator contact information in CoC interpretation document.
 
-On 10/10/22 11:08 PM, hch@lst.de wrote:
-> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
->
->
->
-> The patch already made it to Linux 6.0, so I'm not sure what we need
-> to review again.
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+---
+ Documentation/process/code-of-conduct-interpretation.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Oh, I never got any email that this was being picked up so sent it 
-again. Anyways thanks for taking it.
-We need this patch for 5.10/5.15 stable kernels as well. I can send 
-backport patches to stable tree
-maintainers unless there is a way for you to mark it so that its 
-automatically picked for stable trees.
-
-Thanks
-Rishabh
+diff --git a/Documentation/process/code-of-conduct-interpretation.rst b/Documentation/process/code-of-conduct-interpretation.rst
+index 4f8a06b00f60..43da2cc2e3b9 100644
+--- a/Documentation/process/code-of-conduct-interpretation.rst
++++ b/Documentation/process/code-of-conduct-interpretation.rst
+@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or other maintainers if you're
+ uncertain how to handle situations that come up.  It will not be
+ considered a violation report unless you want it to be.  If you are
+ uncertain about approaching the TAB or any other maintainers, please
+-reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
++reach out to our conflict mediator, Joanna Lee <jlee@linuxfoundation.org>.
+ 
+ In the end, "be kind to each other" is really what the end goal is for
+ everybody.  We know everyone is human and we all fail at times, but the
+-- 
+2.34.1
 
