@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AA65FB797
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:44:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E9C25FB6FF
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiJKPoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:44:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38258 "EHLO
+        id S230523AbiJKP0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:26:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230121AbiJKPnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:43:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6982043ACE;
-        Tue, 11 Oct 2022 08:33:17 -0700 (PDT)
+        with ESMTP id S231133AbiJKP0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:26:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2B4DB767;
+        Tue, 11 Oct 2022 08:17:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDE33611C6;
-        Tue, 11 Oct 2022 14:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53352C43143;
-        Tue, 11 Oct 2022 14:54:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3865B8136F;
+        Tue, 11 Oct 2022 15:04:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5680C433B5;
+        Tue, 11 Oct 2022 15:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500074;
-        bh=poWo66Ew23pjdPqCySrVu6RmHwqjHqXtnGvPjkXg3qc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4qBdYry9ww6dWsESk9mA+brGkQPIZe0k+IJSgb7nA1cL2jD1U6D7Ml4kmrDYf7eE
-         8PlIFfp9wVzrvUMIG/dQqgMnx6o3dnLtHqro3G7CptXluQhXIsmJ3hJzOqoT0Vi/Uy
-         22WeGZzW28rhpGZMaObFGy5OgeRE7UxmieZxo7fGKtl6Q1anmm/LbNGIrccAJXie6P
-         IYMsP5xZ8LFD/4ia06j3HkTY9OroOBh2sReADDEnQVGCnofVBI2liWrubINgtzE4BC
-         LMtiCbJGCLSb/ZegsxL5/v6N2kOiXpLvEceTVtfrOqoaDuWvxtH7XmRHjNMEQrtBqA
-         A1Xc+jjEeRt5A==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
-        sebastian.hesselbarth@gmail.com, gregory.clement@bootlin.com,
-        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 6/6] ARM: orion: fix include path
-Date:   Tue, 11 Oct 2022 10:54:25 -0400
-Message-Id: <20221011145425.1625494-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221011145425.1625494-1-sashal@kernel.org>
-References: <20221011145425.1625494-1-sashal@kernel.org>
+        s=k20201202; t=1665500687;
+        bh=n7jP6tXz9ptPp7fQFOYcwp6XPTxuRhGbK+fN6cHhBhc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dReV+Hp//vdyymJcPPt2oz+mvhKJpMhgwTCoVslc6Zg266GXgE6+fzGOFxAlVpVou
+         FriXPXGSPKLU2xe1NzGP94w+mpEgRnI/eajv0ijyse7W16RZWbPhy3q/Gcj7OD6eib
+         GDNyCrZmwO8Hg0uGhgXGRNPHttIci3octka66gFsOmibm0F8ZNdHINVLjE640OVaUY
+         1V4+VcBDS5S16YeAEMuh7jbWrX/8mkZc7AcOkYiT3LM9hDdScSXw4U6/vgbitRViyY
+         1jAl/Gdvpck4S1wQZ/ggLWx000INrWFixrNCwIc0VQZksPkwVfujcFTquBi0xe29VG
+         fuM7agerep7Gg==
+Date:   Tue, 11 Oct 2022 16:04:42 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>, will@kernel.org,
+        shuah@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 6.0 15/46] kselftest/arm64: Allow larger buffers
+ in get_signal_context()
+Message-ID: <Y0WGCuHDriRctkeL@sirena.org.uk>
+References: <20221011145015.1622882-1-sashal@kernel.org>
+ <20221011145015.1622882-15-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ZXVbpL80mW+WN6mn"
+Content-Disposition: inline
+In-Reply-To: <20221011145015.1622882-15-sashal@kernel.org>
+X-Cookie: I had pancake makeup for brunch!
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,37 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 63872304bdb3decd5454f4dd210c25395278ed13 ]
+--ZXVbpL80mW+WN6mn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Now that CONFIG_ARCH_MULTIPLATFORM can be disabled anywhere,
-there is a build failure for plat-orion:
+On Tue, Oct 11, 2022 at 10:49:43AM -0400, Sasha Levin wrote:
+> From: Mark Brown <broonie@kernel.org>
+>=20
+> [ Upstream commit 38150a6204c731a4846786682e500d132571fd82 ]
+>=20
+> In order to allow testing of signal contexts that overflow the base signal
+> frame allow callers to pass the buffer size for the user context into
+> get_signal_context(). No functional change.
 
-arch/arm/plat-orion/irq.c:19:10: fatal error: plat/irq.h: No such file or directory
+This doesn't obviously make sense independently, even by the relaxed
+standards stable uses these days?
 
-Make the include path unconditional.
+--ZXVbpL80mW+WN6mn
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/arm/plat-orion/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/arch/arm/plat-orion/Makefile b/arch/arm/plat-orion/Makefile
-index 9433605cd290..06c3530d8ad5 100644
---- a/arch/arm/plat-orion/Makefile
-+++ b/arch/arm/plat-orion/Makefile
-@@ -1,7 +1,7 @@
- #
- # Makefile for the linux kernel.
- #
--ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include
-+ccflags-y := -I$(srctree)/$(src)/include
- 
- orion-gpio-$(CONFIG_GPIOLIB)      += gpio.o
- obj-$(CONFIG_PLAT_ORION_LEGACY)   += irq.o pcie.o time.o common.o mpp.o
--- 
-2.35.1
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmNFhgkACgkQJNaLcl1U
+h9B99Af+J61/eNy1lXZrZld4WN7Zff8TQf6QIsHw0uhVuMdtgiiS0YOHH45HzaSh
+FkSNR7bkWv42XQMeLONOVCISMuy93stVc0lFZuzfTW2ByxUSLJ8FwICVZxRc8azL
+LVhH4xLAQCVq1NVzNEhhA1P9xQlvEIgDh2IN+Pg7Fxnp4uLRSNWu1ngdm0r1Tsm2
+qTAZfaCDnJ6jza1IphzUtN6QyKyvyq7mNVVBpW4tPHGdwD+/dXtwppfckrEC4aiP
+dNPnCr/OW1RNrMgVvt+1KNt6cnNfdUf5lnxYGKjsmTAxEf7e0JZ2o6Pdp5oGPmNv
+qBlr5Gf8L8WTFTAdx/MXePRE+LrjxQ==
+=mPaI
+-----END PGP SIGNATURE-----
 
+--ZXVbpL80mW+WN6mn--
