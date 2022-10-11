@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51DB15FB759
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4368E5FB606
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230416AbiJKPd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:33:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57850 "EHLO
+        id S231205AbiJKPA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:00:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231411AbiJKPcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:32:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405691144D9;
-        Tue, 11 Oct 2022 08:22:22 -0700 (PDT)
+        with ESMTP id S231326AbiJKO6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1E99F77A;
+        Tue, 11 Oct 2022 07:53:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8ECD611E2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0823B8162F;
+        Tue, 11 Oct 2022 14:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4232C433D6;
         Tue, 11 Oct 2022 14:53:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E39C433C1;
-        Tue, 11 Oct 2022 14:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499998;
-        bh=0T5thCeuAQBDjPgScIrhMjSebOMUUXWigAmKar+WvWA=;
+        s=k20201202; t=1665499999;
+        bh=blKXXUXwH/+nmutP5yeNinOAuQ7DOhqybko/wHMpDcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ejrji6uuTq2mMU8DbiX9ZRrYvEU5LOcuvQCkKXbokPFL/EoHHJO324gNm26IRnNJo
-         +LJ91CIi0nj/ry7O17oOIaU2KBhtv00WX67jIWul50AD6iNsQm0aA84naFQcW96Nt/
-         Ksw6wbAUkdvLy6uK+oBw0t1DwY34JLxGwTmrrIcuh7Hzb7S1mSqo0XYb6wWIkKtwr6
-         JtVJJt7w33mhWeVAdupgEwYQC6FBRbsSGWwVprFkm5+q6vgcjWg6+B44pa5UKNXPk+
-         q5RS/e/ZgzleCZTsUgyZ95k5+2l+JxRgtiKdj/d9Z0lf0gVAeKrevdsN7Om4bI1LVm
-         0Qho4Wj8J3k7w==
+        b=aXjEBwpNJZFpXhMTCka86GZtnbCMcCWQR3wz3zhN+BZyFRJSi4B598qc+tLV/CG9v
+         ZbyM9kOkBb/XjR6KYyICZZwLutTS3qbxVRqH3N5wfRvk1pVtkxn3lsXMf8qQ1UYD1r
+         7ux0N6YSns3nSkppS+aGHKYjUBrNt6K4bAgKkcwbd0RnQhggGW0Sd09pXdIDkIsPU7
+         Tfh2MZEbLpvXilN/vqjieuCCI8F6WvlfFX5FIJcBG9VpiZEYMqiF5uN4+7S2tf8b8f
+         6PHqyYFEloK4NWzMfCo13QotVln4owH4lzx8miZUS4jdHJBSwzca3ukQjWw7StcQW0
+         jUiUAvhdijlfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean Delvare <jdelvare@suse.de>, kernel test robot <lkp@intel.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Chenglin Xu <chenglin.xu@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 03/17] soc: mediatek: Let PMIC Wrapper and SCPSYS depend on OF
-Date:   Tue, 11 Oct 2022 10:52:58 -0400
-Message-Id: <20221011145312.1624341-3-sashal@kernel.org>
+Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 04/17] ARM: dts: imx6q: add missing properties for sram
+Date:   Tue, 11 Oct 2022 10:52:59 -0400
+Message-Id: <20221011145312.1624341-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145312.1624341-1-sashal@kernel.org>
 References: <20221011145312.1624341-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,93 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 2778caedb5667239823a29148dfc48b26a8b3c2a ]
+[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
 
-With the following configuration options:
-CONFIG_OF is not set
-CONFIG_MTK_PMIC_WRAP=y
-CONFIG_MTK_SCPSYS=y
-we get the following build warnings:
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-  CC      drivers/soc/mediatek/mtk-pmic-wrap.o
-drivers/soc/mediatek/mtk-pmic-wrap.c:2138:34: warning: ‘of_pwrap_match_tbl’ defined but not used [-Wunused-const-variable=]
-drivers/soc/mediatek/mtk-pmic-wrap.c:1953:34: warning: ‘of_slave_match_tbl’ defined but not used [-Wunused-const-variable=]
-  CC      drivers/soc/mediatek/mtk-scpsys.o
-drivers/soc/mediatek/mtk-scpsys.c:1084:34: warning: ‘of_scpsys_match_tbl’ defined but not used [-Wunused-const-variable=]
-
-Looking at the code, both drivers can only bind to OF-defined device
-nodes, so these drivers are useless without OF and should therefore
-depend on it.
-
-Also drop of_match_ptr() from both drivers. We already know what it
-will resolve to, so we might as well save cpp some work.
-
-Developers or QA teams who wish to test-build the code can still do
-so by enabling CONFIG_OF, which is available on all architectures and
-has no dependencies.
-
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/all/202207240252.ZY5hSCNB-lkp@intel.com/
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Chenglin Xu <chenglin.xu@mediatek.com>
-Link: https://lore.kernel.org/r/20220730144833.0a0d9825@endymion.delvare
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/Kconfig         | 2 ++
- drivers/soc/mediatek/mtk-pmic-wrap.c | 2 +-
- drivers/soc/mediatek/mtk-scpsys.c    | 2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6q.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/soc/mediatek/Kconfig b/drivers/soc/mediatek/Kconfig
-index 59a56cd790ec..9f1477712845 100644
---- a/drivers/soc/mediatek/Kconfig
-+++ b/drivers/soc/mediatek/Kconfig
-@@ -28,6 +28,7 @@ config MTK_INFRACFG
- config MTK_PMIC_WRAP
- 	tristate "MediaTek PMIC Wrapper Support"
- 	depends on RESET_CONTROLLER
-+	depends on OF
- 	select REGMAP
- 	help
- 	  Say yes here to add support for MediaTek PMIC Wrapper found
-@@ -37,6 +38,7 @@ config MTK_PMIC_WRAP
- config MTK_SCPSYS
- 	bool "MediaTek SCPSYS Support"
- 	default ARCH_MEDIATEK
-+	depends on OF
- 	select REGMAP
- 	select MTK_INFRACFG
- 	select PM_GENERIC_DOMAINS if PM
-diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
-index 5d34e8b9c988..af5ff9b030b2 100644
---- a/drivers/soc/mediatek/mtk-pmic-wrap.c
-+++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
-@@ -2174,7 +2174,7 @@ static int pwrap_probe(struct platform_device *pdev)
- static struct platform_driver pwrap_drv = {
- 	.driver = {
- 		.name = "mt-pmic-pwrap",
--		.of_match_table = of_match_ptr(of_pwrap_match_tbl),
-+		.of_match_table = of_pwrap_match_tbl,
- 	},
- 	.probe = pwrap_probe,
- };
-diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
-index ca75b14931ec..7a668888111c 100644
---- a/drivers/soc/mediatek/mtk-scpsys.c
-+++ b/drivers/soc/mediatek/mtk-scpsys.c
-@@ -1141,7 +1141,7 @@ static struct platform_driver scpsys_drv = {
- 		.name = "mtk-scpsys",
- 		.suppress_bind_attrs = true,
- 		.owner = THIS_MODULE,
--		.of_match_table = of_match_ptr(of_scpsys_match_tbl),
-+		.of_match_table = of_scpsys_match_tbl,
- 	},
- };
- builtin_platform_driver(scpsys_drv);
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 5277e3903291..afec1677e6ba 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -163,6 +163,9 @@ soc {
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x40000>;
++			ranges = <0 0x00900000 0x40000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
+ 
 -- 
 2.35.1
 
