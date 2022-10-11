@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC9BE5FBA73
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 20:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360335FBA76
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 20:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiJKSfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 14:35:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34222 "EHLO
+        id S229689AbiJKSfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 14:35:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229638AbiJKSf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 14:35:26 -0400
-Received: from mail1.bemta33.messagelabs.com (mail1.bemta33.messagelabs.com [67.219.247.4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD1F57275;
-        Tue, 11 Oct 2022 11:35:23 -0700 (PDT)
+        with ESMTP id S229675AbiJKSfe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 14:35:34 -0400
+Received: from mail1.bemta35.messagelabs.com (mail1.bemta35.messagelabs.com [67.219.250.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F13E3ECF1;
+        Tue, 11 Oct 2022 11:35:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1665513322; i=@motorola.com;
-        bh=8xAKx9WelUadk1WJptoi1rKhb4SCSiYFaWXHRX9ktkU=;
+        s=Selector; t=1665513332; i=@motorola.com;
+        bh=evEITZy7I0DTnMVz5F/vBcq9MsXeTBrpOLV85p5AA1I=;
         h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version:Content-Transfer-Encoding;
-        b=TlCKBTKGxFM3kO2GMj9+I0ydLOJx6Ow+OU0EHKRf32YMT0SgHP5QVCuLLvTzrPggU
-         se8Q/GV8W3pBpBz8paZA7ANiNwNZsMKIYBgNLuX04WydpQK2C4MhbVIXkE40mSmBNu
-         M4HN8JWEq4uvYepHF2Rowy4rNzLxdL24JR/+FDvwkRvZE+6wx9ZOYTuZM8GFxLP5IA
-         1/zsYdZ3D6lhTRpd+RHsfn4AXCevIP/WXoKuPmucNNdBbAKfLDw6shuuu5yrANI5KB
-         OOoWWBgrFZTu5CYzdeY4QgokfB9khQvlrYnDRJzU4Kp+TdYI9kE0Ci/d5kDS3Mv+Gy
-         9iwZQIvcZbnbQ==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgleJIrShJLcpLzFFi42LJePFEVDdju2u
-  ywakjNhbH2p6wWzw50M5o0btsD5tF8+L1bBadE5ewWyxsW8JicXnXHDaLRctamS22tF1hsvjx
-  p4/ZYsHGR4wWqxYcYHfg8ZjdMZPVY9OqTjaP/XPXsHss7pvM6tH/18Bjy/7PjB6fN8kFsEexZ
-  uYl5VcksGZcuvmaseC+fsWUeVPYGxinaHYxcnEICUxlkuifvZUVwlnLJLHw2nwgh5ODTUBNYs
-  HrVcwgtoiArMThK7+ZQYqYBW4zS0y6sIwNJCEsECAx8dABRhCbRUBV4uWXfrBmXgFLiSMrj7O
-  A2BIC8hL7D54FG8QpYCXx+mwzUC8H0DZLiWPX1CDKBSVOznwCVs4MVN68dTbzBEbeWUhSs5Ck
-  FjAyrWK0TirKTM8oyU3MzNE1NDDQNTQ00TWz1DUyNtNLrNJN1Cst1k1NLC7RNdJLLC/WSy0u1
-  iuuzE3OSdHLSy3ZxAiMhpQi1zc7GJ+v+Kl3iFGSg0lJlFelxzVZiC8pP6UyI7E4I76oNCe1+B
-  CjDAeHkgSv5kqgnGBRanpqRVpmDjAyYdISHDxKIrzvNwOleYsLEnOLM9MhUqcYjTmmzv63n5m
-  jc3/XAWYhlrz8vFQpcd6CrUClAiClGaV5cINgCeMSo6yUMC8jAwODEE9BalFuZgmq/CtGcQ5G
-  JWFetm1AU3gy80rg9r0COoUJ6JSTV51ATilJREhJNTDNc/CI1Ty5/+ySNbplnUyqRdM2svfVX
-  PUROZ2r3stq/zPcf+ZWjboeScFGzcumAZUqhffWnfBqfBepHa3RsGil+oONS4taH3lnnc+blt
-  J8rUD3qEJ6YILR07yvJb/WT/6amXnA6U+Wfsafv5yt5/7Ntkrh1q9rYcxXD+SLcHXs3ZH4Jvy
-  j/gO9aQvN5a+4vZm6llGl3CU2fLbAt77etzfmK4ZtXrRWfId65/Ud87YJaBZGn97Bn/WN3yvJ
-  8FHg8/sc1tI3702fJPhH5Wy2zKLbCSorTM4fLP8ozpxit3TJdcf9hpPkLsq8mLqg5J2PQrFLk
-  G/jixk7rP8ny15u32fT3/PI5MzdhBtHPq9xE1JiKc5INNRiLipOBAC8+gcAkwMAAA==
+        b=UX2kesligIbpfv+YBD7O/9yExg0sBJ6GcfToJNHOxD65vjAuSQo4ng+2CwlgODMpI
+         qzY3oe+CI9DignnXd5lH+WoxSgYTpEuixas9XgtTEp/1CT76rCme0y6gNdBgPAqXQk
+         QbAKv8wuVFam9nOsg35JVJbp/rDKZP7qD0+SXxAFNUEVEL0kblKYdfIXD5AT4UfJIa
+         JS84l+sWaEu7JXsH7Mi0J8Fun1pgR/wenGEaHnJsgPRmFz2So7CbADBBKnnPs//C+l
+         6GvkPde8/K51BW09in4tnDLcUaAItKBTNqkv65pRG0PNBYvZ2qlUkqB0390vWzP7wQ
+         3plGWGSM7/t7w==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgleJIrShJLcpLzFFi42LJePFEXLd4u2u
+  ywe4GA4tjbU/YLZ4caGe06F22h82iefF6NovOiUvYLRa2LWGxuLxrDpvFomWtzBZb2q4wWfz4
+  08dssWDjI0aLVQsOsDvweMzumMnqsWlVJ5vH/rlr2D0W901m9ej/a+CxZf9nRo/Pm+QC2KNYM
+  /OS8isSWDMerfnDWjBBreLArpXsDYxnFLoYuTiEBKYxSax9tYYVwlnLJHHzcS9bFyMnB5uAms
+  SC16uYQWwRAVmJw1d+M4MUMQvcZpaYdGEZWJGwgLvEuy+TWUBsFgFVia4Jk1lBbF4BS4m3P2e
+  D2RIC8hL7D54FG8QpYCXx+mwzUC8H0DZLiWPX1CDKBSVOznwCNoYZqLx562zmCYy8s5CkZiFJ
+  LWBkWsVonVSUmZ5RkpuYmaNraGCga2hoAqSNdM1M9BKrdBP1Sot1y1OLS3SN9BLLi/VSi4v1i
+  itzk3NS9PJSSzYxAqMhpSjNYQfjvP6feocYJTmYlER5VXpck4X4kvJTKjMSizPii0pzUosPMc
+  pwcChJ8GquBMoJFqWmp1akZeYAIxMmLcHBoyTC+34zUJq3uCAxtzgzHSJ1itGYY+rsf/uZOTr
+  3dx1gFmLJy89LlRLnLdgKVCoAUppRmgc3CJYwLjHKSgnzMjIwMAjxFKQW5WaWoMq/YhTnYFQS
+  5mXbBjSFJzOvBG7fK6BTmIBOOXnVCeSUkkSElFQDU+tVtq+rlwXbuzTlmAi/9trdGd5br9Tw6
+  PK/G8VpQf3ie5O1DCZ+DvFg9H5fVtz5sIHp7MXnWbcu5G+blWr3dOl99id3mA3SHGa3Xr/s+6
+  drh9hTkytJvFOfzGA+wLNF6Z1+1pXzDecaG2cwvXm1kcU2kN3yyDzLmw5qlpMnXo3ZfGZOXO3
+  6mC++h24UqXM9zrsftCzh05lnvw0ct9cuTlza9OnG5Nb10SEnZA4t1XZzcvThm/9P95dTw86H
+  UyYuz2j1Cfr7+2WxV3/DadN+XjZG5m/9burPuUUfLd6c+Kn206OGPM4TE12VoialTzbU+SL1+
+  kaAau5Lx0sToi+UlaVM+JtQbb41ql84/6bfCSWW4oxEQy3mouJEABLUyyWTAwAA
 X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-5.tower-635.messagelabs.com!1665513320!35716!1
-X-Originating-IP: [104.232.228.21]
+X-Msg-Ref: server-22.tower-636.messagelabs.com!1665513330!512975!1
+X-Originating-IP: [104.232.228.23]
 X-SYMC-ESS-Client-Auth: outbound-route-from=pass
 X-StarScan-Received: 
 X-StarScan-Version: 9.87.3; banners=-,-,-
 X-VirusChecked: Checked
-Received: (qmail 19303 invoked from network); 11 Oct 2022 18:35:20 -0000
-Received: from unknown (HELO va32lpfpp01.lenovo.com) (104.232.228.21)
-  by server-5.tower-635.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 11 Oct 2022 18:35:20 -0000
+Received: (qmail 5318 invoked from network); 11 Oct 2022 18:35:31 -0000
+Received: from unknown (HELO va32lpfpp03.lenovo.com) (104.232.228.23)
+  by server-22.tower-636.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 11 Oct 2022 18:35:31 -0000
 Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by va32lpfpp01.lenovo.com (Postfix) with ESMTPS id 4Mn4GJ3Vmkzf6md;
-        Tue, 11 Oct 2022 18:35:20 +0000 (UTC)
+        by va32lpfpp03.lenovo.com (Postfix) with ESMTPS id 4Mn4GV4v8jz50WfM;
+        Tue, 11 Oct 2022 18:35:30 +0000 (UTC)
 Received: from p1g3.mot.com (unknown [100.64.172.121])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
         (Authenticated sender: w36195)
-        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4Mn4GJ27YPzbvDd;
-        Tue, 11 Oct 2022 18:35:20 +0000 (UTC)
+        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4Mn4GV34bTzbvDd;
+        Tue, 11 Oct 2022 18:35:30 +0000 (UTC)
 From:   Dan Vacura <w36195@motorola.com>
 To:     linux-usb@vger.kernel.org
 Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
@@ -74,9 +74,9 @@ Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
         Paul Elder <paul.elder@ideasonboard.com>,
         Michael Grzeschik <m.grzeschik@pengutronix.de>,
         linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH v2 1/3] usb: gadget: uvc: make interrupt skip logic configurable
-Date:   Tue, 11 Oct 2022 13:34:33 -0500
-Message-Id: <20221011183437.298437-2-w36195@motorola.com>
+Subject: [PATCH v2 2/3] usb: gadget: uvc: fix sg handling in error case
+Date:   Tue, 11 Oct 2022 13:34:34 -0500
+Message-Id: <20221011183437.298437-3-w36195@motorola.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221011183437.298437-1-w36195@motorola.com>
 References: <20221011183437.298437-1-w36195@motorola.com>
@@ -84,7 +84,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -92,149 +92,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some UDC hw may not support skipping interrupts, but still support the
-request. Allow the interrupt frequency to be configurable to the user.
-Default to not skip interrupts, a value of 0. This fixes a smmu panic
-that is occurring on dwc3 hw.
+If there is a transmission error the buffer will be returned too early,
+causing a memory fault as subsequent requests for that buffer are still
+queued up to be sent. Refactor the error handling to wait for the final
+request to come in before reporting back the buffer to userspace for all
+transfer types (bulk/isoc/isoc_sg). This ensures userspace knows if the
+frame was successfully sent.
 
-Fixes: fc78941d8169 ("usb: gadget: uvc: decrease the interrupt load to a quarter")
+Fixes: e81e7f9a0eb9 ("usb: gadget: uvc: add scatter gather support")
+Cc: <stable@vger.kernel.org> # 859c675d84d4: usb: gadget: uvc: consistently use define for headerlen
+Cc: <stable@vger.kernel.org> # f262ce66d40c: usb: gadget: uvc: use on returned header len in video_encode_isoc_sg
+Cc: <stable@vger.kernel.org> # 61aa709ca58a: usb: gadget: uvc: rework uvcg_queue_next_buffer to uvcg_complete_buffer
+Cc: <stable@vger.kernel.org> # 9b969f93bcef: usb: gadget: uvc: giveback vb2 buffer on req complete
+Cc: <stable@vger.kernel.org> # aef11279888c: usb: gadget: uvc: improve sg exit condition
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Dan Vacura <w36195@motorola.com>
 ---
 V1 -> V2:
-- no change, new patch in series
+- undo error rename
+- change uvcg_info to uvcg_dbg
 
- Documentation/ABI/testing/configfs-usb-gadget-uvc | 1 +
- Documentation/usb/gadget-testing.rst              | 2 ++
- drivers/usb/gadget/function/f_uvc.c               | 3 +++
- drivers/usb/gadget/function/u_uvc.h               | 1 +
- drivers/usb/gadget/function/uvc.h                 | 1 +
- drivers/usb/gadget/function/uvc_configfs.c        | 2 ++
- drivers/usb/gadget/function/uvc_queue.c           | 6 ++++++
- drivers/usb/gadget/function/uvc_video.c           | 3 ++-
- 8 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_queue.c |  8 +++++---
+ drivers/usb/gadget/function/uvc_video.c | 18 ++++++++++++++----
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/ABI/testing/configfs-usb-gadget-uvc b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-index 611b23e6488d..5dfaa3f7f6a4 100644
---- a/Documentation/ABI/testing/configfs-usb-gadget-uvc
-+++ b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-@@ -8,6 +8,7 @@ Description:	UVC function directory
- 		streaming_maxpacket	1..1023 (fs), 1..3072 (hs/ss)
- 		streaming_interval	1..16
- 		function_name		string [32]
-+		req_int_skip_div	unsigned int
- 		===================	=============================
- 
- What:		/config/usb-gadget/gadget/functions/uvc.name/control
-diff --git a/Documentation/usb/gadget-testing.rst b/Documentation/usb/gadget-testing.rst
-index 2278c9ffb74a..f9b5a09be1f4 100644
---- a/Documentation/usb/gadget-testing.rst
-+++ b/Documentation/usb/gadget-testing.rst
-@@ -794,6 +794,8 @@ The uvc function provides these attributes in its function directory:
- 			    sending or receiving when this configuration is
- 			    selected
- 	function_name       name of the interface
-+	req_int_skip_div    divisor of total requests to aid in calculating
-+			    interrupt frequency, 0 indicates all interrupt
- 	=================== ================================================
- 
- There are also "control" and "streaming" subdirectories, each of which contain
-diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
-index 6e196e06181e..75f524c83996 100644
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -655,6 +655,8 @@ uvc_function_bind(struct usb_configuration *c, struct usb_function *f)
- 		cpu_to_le16(max_packet_size * max_packet_mult *
- 			    (opts->streaming_maxburst + 1));
- 
-+	uvc->video.req_int_skip_div = opts->req_int_skip_div;
-+
- 	/* Allocate endpoints. */
- 	ep = usb_ep_autoconfig(cdev->gadget, &uvc_control_ep);
- 	if (!ep) {
-@@ -872,6 +874,7 @@ static struct usb_function_instance *uvc_alloc_inst(void)
- 
- 	opts->streaming_interval = 1;
- 	opts->streaming_maxpacket = 1024;
-+	opts->req_int_skip_div = 0;
- 	snprintf(opts->function_name, sizeof(opts->function_name), "UVC Camera");
- 
- 	ret = uvcg_attach_configfs(opts);
-diff --git a/drivers/usb/gadget/function/u_uvc.h b/drivers/usb/gadget/function/u_uvc.h
-index 24b8681b0d6f..6f73bd5638ed 100644
---- a/drivers/usb/gadget/function/u_uvc.h
-+++ b/drivers/usb/gadget/function/u_uvc.h
-@@ -24,6 +24,7 @@ struct f_uvc_opts {
- 	unsigned int					streaming_interval;
- 	unsigned int					streaming_maxpacket;
- 	unsigned int					streaming_maxburst;
-+	unsigned int					req_int_skip_div;
- 
- 	unsigned int					control_interface;
- 	unsigned int					streaming_interface;
-diff --git a/drivers/usb/gadget/function/uvc.h b/drivers/usb/gadget/function/uvc.h
-index 40226b1f7e14..53175cd564e5 100644
---- a/drivers/usb/gadget/function/uvc.h
-+++ b/drivers/usb/gadget/function/uvc.h
-@@ -107,6 +107,7 @@ struct uvc_video {
- 	spinlock_t req_lock;
- 
- 	unsigned int req_int_count;
-+	unsigned int req_int_skip_div;
- 
- 	void (*encode) (struct usb_request *req, struct uvc_video *video,
- 			struct uvc_buffer *buf);
-diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
-index 4303a3283ba0..419e926ab57e 100644
---- a/drivers/usb/gadget/function/uvc_configfs.c
-+++ b/drivers/usb/gadget/function/uvc_configfs.c
-@@ -2350,6 +2350,7 @@ UVC_ATTR(f_uvc_opts_, cname, cname)
- UVCG_OPTS_ATTR(streaming_interval, streaming_interval, 16);
- UVCG_OPTS_ATTR(streaming_maxpacket, streaming_maxpacket, 3072);
- UVCG_OPTS_ATTR(streaming_maxburst, streaming_maxburst, 15);
-+UVCG_OPTS_ATTR(req_int_skip_div, req_int_skip_div, UINT_MAX);
- 
- #undef UVCG_OPTS_ATTR
- 
-@@ -2399,6 +2400,7 @@ static struct configfs_attribute *uvc_attrs[] = {
- 	&f_uvc_opts_attr_streaming_interval,
- 	&f_uvc_opts_attr_streaming_maxpacket,
- 	&f_uvc_opts_attr_streaming_maxburst,
-+	&f_uvc_opts_attr_req_int_skip_div,
- 	&f_uvc_opts_string_attr_function_name,
- 	NULL,
- };
 diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
-index ec500ee499ee..872d545838ee 100644
+index 872d545838ee..fc65f8e73732 100644
 --- a/drivers/usb/gadget/function/uvc_queue.c
 +++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -63,6 +63,12 @@ static int uvc_queue_setup(struct vb2_queue *vq,
- 	 */
- 	nreq = DIV_ROUND_UP(DIV_ROUND_UP(sizes[0], 2), req_size);
- 	nreq = clamp(nreq, 4U, 64U);
-+	if (0 == video->req_int_skip_div) {
-+		video->req_int_skip_div = nreq;
-+	} else {
-+		video->req_int_skip_div =
-+			min_t(unsigned int, nreq, video->req_int_skip_div);
-+	}
- 	video->uvc_num_requests = nreq;
+@@ -310,6 +310,7 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
  
- 	return 0;
+ 		queue->sequence = 0;
+ 		queue->buf_used = 0;
++		queue->flags &= ~UVC_QUEUE_DROP_INCOMPLETE;
+ 	} else {
+ 		ret = vb2_streamoff(&queue->queue, queue->queue.type);
+ 		if (ret < 0)
+@@ -335,10 +336,11 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
+ void uvcg_complete_buffer(struct uvc_video_queue *queue,
+ 					  struct uvc_buffer *buf)
+ {
+-	if ((queue->flags & UVC_QUEUE_DROP_INCOMPLETE) &&
+-	     buf->length != buf->bytesused) {
+-		buf->state = UVC_BUF_STATE_QUEUED;
++	if (queue->flags & UVC_QUEUE_DROP_INCOMPLETE) {
++		queue->flags &= ~UVC_QUEUE_DROP_INCOMPLETE;
++		buf->state = UVC_BUF_STATE_ERROR;
+ 		vb2_set_plane_payload(&buf->buf.vb2_buf, 0, 0);
++		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+ 		return;
+ 	}
+ 
 diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index bb037fcc90e6..241df42ce0ae 100644
+index 241df42ce0ae..9d76101c699d 100644
 --- a/drivers/usb/gadget/function/uvc_video.c
 +++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -413,7 +413,8 @@ static void uvcg_video_pump(struct work_struct *work)
- 		if (list_empty(&video->req_free) ||
- 		    buf->state == UVC_BUF_STATE_DONE ||
- 		    !(video->req_int_count %
--		       DIV_ROUND_UP(video->uvc_num_requests, 4))) {
-+		       DIV_ROUND_UP(video->uvc_num_requests,
-+			       video->req_int_skip_div))) {
- 			video->req_int_count = 0;
- 			req->no_interrupt = 0;
- 		} else {
+@@ -88,6 +88,7 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
+ 		struct uvc_buffer *buf)
+ {
+ 	void *mem = req->buf;
++	struct uvc_request *ureq = req->context;
+ 	int len = video->req_size;
+ 	int ret;
+ 
+@@ -113,13 +114,14 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
+ 		video->queue.buf_used = 0;
+ 		buf->state = UVC_BUF_STATE_DONE;
+ 		list_del(&buf->queue);
+-		uvcg_complete_buffer(&video->queue, buf);
+ 		video->fid ^= UVC_STREAM_FID;
++		ureq->last_buf = buf;
+ 
+ 		video->payload_size = 0;
+ 	}
+ 
+ 	if (video->payload_size == video->max_payload_size ||
++	    video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE ||
+ 	    buf->bytesused == video->queue.buf_used)
+ 		video->payload_size = 0;
+ }
+@@ -180,7 +182,8 @@ uvc_video_encode_isoc_sg(struct usb_request *req, struct uvc_video *video,
+ 	req->length -= len;
+ 	video->queue.buf_used += req->length - header_len;
+ 
+-	if (buf->bytesused == video->queue.buf_used || !buf->sg) {
++	if (buf->bytesused == video->queue.buf_used || !buf->sg ||
++			video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE) {
+ 		video->queue.buf_used = 0;
+ 		buf->state = UVC_BUF_STATE_DONE;
+ 		buf->offset = 0;
+@@ -195,6 +198,7 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
+ 		struct uvc_buffer *buf)
+ {
+ 	void *mem = req->buf;
++	struct uvc_request *ureq = req->context;
+ 	int len = video->req_size;
+ 	int ret;
+ 
+@@ -209,12 +213,13 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
+ 
+ 	req->length = video->req_size - len;
+ 
+-	if (buf->bytesused == video->queue.buf_used) {
++	if (buf->bytesused == video->queue.buf_used ||
++			video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE) {
+ 		video->queue.buf_used = 0;
+ 		buf->state = UVC_BUF_STATE_DONE;
+ 		list_del(&buf->queue);
+-		uvcg_complete_buffer(&video->queue, buf);
+ 		video->fid ^= UVC_STREAM_FID;
++		ureq->last_buf = buf;
+ 	}
+ }
+ 
+@@ -255,6 +260,11 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+ 	case 0:
+ 		break;
+ 
++	case -EXDEV:
++		uvcg_dbg(&video->uvc->func, "VS request missed xfer.\n");
++		queue->flags |= UVC_QUEUE_DROP_INCOMPLETE;
++		break;
++
+ 	case -ESHUTDOWN:	/* disconnect from host. */
+ 		uvcg_dbg(&video->uvc->func, "VS request cancelled.\n");
+ 		uvcg_queue_cancel(queue, 1);
 -- 
 2.34.1
 
