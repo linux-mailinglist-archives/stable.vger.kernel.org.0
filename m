@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD45A5FB5B7
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9A35FB5CD
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbiJKO4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:56:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        id S231230AbiJKO5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:57:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230452AbiJKO4L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:56:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674EA9D503;
-        Tue, 11 Oct 2022 07:52:03 -0700 (PDT)
+        with ESMTP id S231178AbiJKO4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:56:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5A49D512;
+        Tue, 11 Oct 2022 07:52:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3874B611B0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAFE9611B1;
+        Tue, 11 Oct 2022 14:52:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C2CFC433D6;
         Tue, 11 Oct 2022 14:52:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD40C433C1;
-        Tue, 11 Oct 2022 14:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499921;
-        bh=Bb/rRHpADtqTAyYYszzslC2hoX8aQ5jvr2HwAzBRSxE=;
+        s=k20201202; t=1665499923;
+        bh=ja63l6fWkyIo6KJfs31Ijpq9Ie4oX6paXQj4eLkITmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlBCWc7Igw3Svl5gDKDYMYcFIlM+lenuDtLM0P2HfhvZtCL78CslqA8pnfy/Vgn03
-         tkywCkyZX0aa57kzLgReOeBBjjvrTlkHJNBi0CMAvC0tcJqBpldoUSYhvGGz0Tlktv
-         O3zH5mUGNZ0CzH0D+naZ6yqlrpYnroWzEP+LHOdh7f882wpcEBZ9xZ/pCYBeY1ktIs
-         v2TR5JFjsdfsll1OQVB5VDur7Axuaq3U/bx/N8JXJXllgPbL4t8Zg3zOBg2mxYkdat
-         eKiwuFmvl6fMt0t9PN/MQfP1TalWY2Vtj0ZsKC4FcWteFCnJIBdz136fWdlwGh9Rw0
-         SjrxBrsCD12kA==
+        b=cAP/ZpD9Tng4yGYbtfO8wKzIaLH/FfGdfC2fxr3rdf55DAsaNYTOMtA7/G+EB9egR
+         qiIJFz0H0QRSF4hx/2Dmkus28ZBk9GalhJ3/vTEkMpcbXSxRxangQp7Xe4vP3c9TDe
+         FVdVAF5WvNGIYDEN2G6O60CFkvr0bZMInpsn8qh/2YcQe1t872ZxGFhLFafQ88EB26
+         9jTP1fYypsvQYfHUECptx7zZLYvQjLO+0zWEU2AO50kaa8fZPl9iz0Fa/1S0fjPAO3
+         30A2GoJXWulqpVYh45SK+Uk8x/GCzodWYAw22bs6rQFhvZ0scxZ48p5TN3ywqNLzSU
+         Tw2FfF4AkIPDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Heiko Thiery <heiko.thiery@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+Cc:     Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 19/40] arm64: dts: imx8mm-kontron: Use the VSELECT signal to switch SD card IO voltage
-Date:   Tue, 11 Oct 2022 10:51:08 -0400
-Message-Id: <20221011145129.1623487-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 20/40] arm64: dts: imx8ulp: no executable source file permission
+Date:   Tue, 11 Oct 2022 10:51:09 -0400
+Message-Id: <20221011145129.1623487-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145129.1623487-1-sashal@kernel.org>
 References: <20221011145129.1623487-1-sashal@kernel.org>
@@ -57,78 +56,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
 
-[ Upstream commit eef2c0217e02b6c7ed5b10b82ea944127145e113 ]
+[ Upstream commit 7db9905d48e1b9a97a28224c5a201262ebce7489 ]
 
-It turns out that it is not necessary to declare the VSELECT signal as
-GPIO and let the PMIC driver set it to a fixed high level. This switches
-the voltage between 3.3V and 1.8V by setting the PMIC register for LDO5
-accordingly.
+This fixes the following error:
 
-Instead we can do it like other boards already do and simply mux the
-VSELECT signal of the USDHC interface to the pin. This makes sure that
-the correct voltage is selected by setting the PMIC's SD_VSEL input
-to high or low accordingly.
+arch/arm64/boot/dts/freescale/imx8ulp-pinfunc.h: error: do not set
+ execute permissions for source files
 
-Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Heiko Thiery <heiko.thiery@gmail.com>
+Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Acked-by: Peng Fan <peng.fan@nxp.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts    | 3 +++
- arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi | 2 --
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8ulp-pinfunc.h | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ mode change 100755 => 100644 arch/arm64/boot/dts/freescale/imx8ulp-pinfunc.h
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-index 23be1ec538ba..c54536c0a2ba 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-@@ -321,6 +321,7 @@ MX8MM_IOMUXC_SD2_DATA1_USDHC2_DATA1		0x1d0
- 			MX8MM_IOMUXC_SD2_DATA2_USDHC2_DATA2		0x1d0
- 			MX8MM_IOMUXC_SD2_DATA3_USDHC2_DATA3		0x1d0
- 			MX8MM_IOMUXC_SD2_CD_B_GPIO2_IO12		0x019
-+			MX8MM_IOMUXC_GPIO1_IO04_USDHC2_VSELECT		0x1d0
- 		>;
- 	};
- 
-@@ -333,6 +334,7 @@ MX8MM_IOMUXC_SD2_DATA1_USDHC2_DATA1		0x1d4
- 			MX8MM_IOMUXC_SD2_DATA2_USDHC2_DATA2		0x1d4
- 			MX8MM_IOMUXC_SD2_DATA3_USDHC2_DATA3		0x1d4
- 			MX8MM_IOMUXC_SD2_CD_B_GPIO2_IO12		0x019
-+			MX8MM_IOMUXC_GPIO1_IO04_USDHC2_VSELECT		0x1d0
- 		>;
- 	};
- 
-@@ -345,6 +347,7 @@ MX8MM_IOMUXC_SD2_DATA1_USDHC2_DATA1		0x1d6
- 			MX8MM_IOMUXC_SD2_DATA2_USDHC2_DATA2		0x1d6
- 			MX8MM_IOMUXC_SD2_DATA3_USDHC2_DATA3		0x1d6
- 			MX8MM_IOMUXC_SD2_CD_B_GPIO2_IO12		0x019
-+			MX8MM_IOMUXC_GPIO1_IO04_USDHC2_VSELECT		0x1d0
- 		>;
- 	};
- };
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-index 8f90eb02550d..6307af803429 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-@@ -86,7 +86,6 @@ pca9450: pmic@25 {
- 		pinctrl-0 = <&pinctrl_pmic>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
--		sd-vsel-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
- 
- 		regulators {
- 			reg_vdd_soc: BUCK1 {
-@@ -229,7 +228,6 @@ MX8MM_IOMUXC_I2C1_SDA_I2C1_SDA			0x400001c3
- 	pinctrl_pmic: pmicgrp {
- 		fsl,pins = <
- 			MX8MM_IOMUXC_GPIO1_IO00_GPIO1_IO0		0x141
--			MX8MM_IOMUXC_GPIO1_IO04_GPIO1_IO4		0x141
- 		>;
- 	};
- 
+diff --git a/arch/arm64/boot/dts/freescale/imx8ulp-pinfunc.h b/arch/arm64/boot/dts/freescale/imx8ulp-pinfunc.h
+old mode 100755
+new mode 100644
 -- 
 2.35.1
 
