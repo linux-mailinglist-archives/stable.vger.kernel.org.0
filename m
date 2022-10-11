@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2545FB669
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53BF35FB790
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231345AbiJKPEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:04:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44484 "EHLO
+        id S230006AbiJKPnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:43:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231400AbiJKPCx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:02:53 -0400
+        with ESMTP id S230009AbiJKPmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:42:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F63A487D;
-        Tue, 11 Oct 2022 07:58:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C6FABD55;
+        Tue, 11 Oct 2022 08:32:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F533B8136F;
-        Tue, 11 Oct 2022 14:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12ADCC433B5;
-        Tue, 11 Oct 2022 14:53:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6025FB81627;
+        Tue, 11 Oct 2022 14:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F4AC4347C;
+        Tue, 11 Oct 2022 14:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499985;
-        bh=V37ACzZGKfNVfpL704pwR4/Jx6t/n1/AnsCEMH3CZC0=;
+        s=k20201202; t=1665499987;
+        bh=1pVX9rksVRwtq2NovXP4JcEYv/3m4lpwbJLpsdXjXAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkDRiPJFOwqJb2HMhECq/8uMkXj2ziVHjyb4+ehFsaA6+qCL2yO5GhIxFqp6IAYcg
-         hHSEpNj/Qz5WCGvopP67P5MjowfSytgkWV2DG4CRbf0EmL8znztcF9bKrMPNcdXV92
-         7c6FZtiEvQrY6iTeljTj0qfJURR0ANGprI5SRLC8N/wU8UAlSw3m52F1p3Vvg+eJtj
-         7kn0mFx9IBXpYNiSbF6c76tXqKfvpNwJVqaR5T6sUpOfI3CSYpcqGx+ST1sLXnQaud
-         OnVWSLxms0hS444Yw2duhk1ViQtVlk39ZpOSVfgJZYItmUzIHVP8+puOHDQY/+Z4O9
-         /CfUlMjBIpszg==
+        b=f5LXIUzyKkVfBEiPfdYMeVxCOMJHNnQZH0TUyCYzwnf2CJV9QYu5Gl6pgrhJiud1E
+         wUFsIThfP+qI1BGK0863VNrFUXh0gZuxzp5elMmXUViX2omgfv/v4YRxyM1WLnjgQJ
+         wAIbIwrJAUqKjHF1RaxC9fXiqkdmBsYuQAaRFcBLLbrUWt7vz2IVLlfKrGd2hOHA45
+         y9pg/w/5MZBNXbPTPldIvRYqyZP4TaVu9V1OlvyKbgR4V8mVH9N4ShDihbYvbLVsKb
+         Cjrj8zc90rCrusv89ayHywt/sDzLywpocLkV6+Wyh8EA8nRpEjPdSxP+Lxld1gnJ/h
+         ivco3v9O7zCNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>,
-        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 22/26] btrfs: add KCSAN annotations for unlocked access to block_rsv->full
-Date:   Tue, 11 Oct 2022 10:52:29 -0400
-Message-Id: <20221011145233.1624013-22-sashal@kernel.org>
+        linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 23/26] btrfs: separate out the eb and extent state leak helpers
+Date:   Tue, 11 Oct 2022 10:52:30 -0400
+Message-Id: <20221011145233.1624013-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145233.1624013-1-sashal@kernel.org>
 References: <20221011145233.1624013-1-sashal@kernel.org>
@@ -56,88 +56,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 748f553c3c4c4f175c6c834358632aff802d72cf ]
+[ Upstream commit a40246e8afc0af3ffdee21854fb755c9364b8346 ]
 
-KCSAN reports that there's unlocked access mixed with locked access,
-which is technically correct but is not a bug.  To avoid false alerts at
-least from KCSAN, add annotation and use a wrapper whenever ->full is
-accessed for read outside of lock.
+Currently we have the add/del functions generic so that we can use them
+for both extent buffers and extent states.  We want to separate this
+code however, so separate these helpers into per-object helpers in
+anticipation of the split.
 
-It is used as a fast check and only advisory.  In the worst case the
-block reserve is found !full and becomes full in the meantime, but
-properly handled.
-
-Depending on the value of ->full, btrfs_block_rsv_release decides
-where to return the reservation, and block_rsv_release_bytes handles a
-NULL pointer for block_rsv and if it's not NULL then it double checks
-the full status under a lock.
-
-Link: https://lore.kernel.org/linux-btrfs/CAAwBoOJDjei5Hnem155N_cJwiEkVwJYvgN-tQrwWbZQGhFU=cA@mail.gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/YvHU/vsXd7uz5V6j@hungrycats.org
-Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-rsv.c   | 2 +-
- fs/btrfs/block-rsv.h   | 9 +++++++++
- fs/btrfs/transaction.c | 4 ++--
- 3 files changed, 12 insertions(+), 3 deletions(-)
+ fs/btrfs/extent_io.c | 58 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 38 insertions(+), 20 deletions(-)
 
-diff --git a/fs/btrfs/block-rsv.c b/fs/btrfs/block-rsv.c
-index 04a6226e0388..3e0eb69b6d4e 100644
---- a/fs/btrfs/block-rsv.c
-+++ b/fs/btrfs/block-rsv.c
-@@ -285,7 +285,7 @@ u64 btrfs_block_rsv_release(struct btrfs_fs_info *fs_info,
- 	 */
- 	if (block_rsv == delayed_rsv)
- 		target = global_rsv;
--	else if (block_rsv != global_rsv && !delayed_rsv->full)
-+	else if (block_rsv != global_rsv && !btrfs_block_rsv_full(delayed_rsv))
- 		target = delayed_rsv;
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 7bd704779a99..eef6e38915ab 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -43,25 +43,42 @@ static inline bool extent_state_in_tree(const struct extent_state *state)
+ static LIST_HEAD(states);
+ static DEFINE_SPINLOCK(leak_lock);
  
- 	if (target && block_rsv->space_info != target->space_info)
-diff --git a/fs/btrfs/block-rsv.h b/fs/btrfs/block-rsv.h
-index 0b6ae5302837..f0431547acf2 100644
---- a/fs/btrfs/block-rsv.h
-+++ b/fs/btrfs/block-rsv.h
-@@ -90,4 +90,13 @@ static inline void btrfs_unuse_block_rsv(struct btrfs_fs_info *fs_info,
- 	btrfs_block_rsv_release(fs_info, block_rsv, 0, NULL);
- }
- 
-+/*
-+ * Fast path to check if the reserve is full, may be carefully used outside of
-+ * locks.
-+ */
-+static inline bool btrfs_block_rsv_full(const struct btrfs_block_rsv *rsv)
+-static inline void btrfs_leak_debug_add(spinlock_t *lock,
+-					struct list_head *new,
+-					struct list_head *head)
++static inline void btrfs_leak_debug_add_eb(struct extent_buffer *eb)
 +{
-+	return data_race(rsv->full);
++	struct btrfs_fs_info *fs_info = eb->fs_info;
++	unsigned long flags;
++
++	spin_lock_irqsave(&fs_info->eb_leak_lock, flags);
++	list_add(&eb->leak_list, &fs_info->allocated_ebs);
++	spin_unlock_irqrestore(&fs_info->eb_leak_lock, flags);
 +}
 +
- #endif /* BTRFS_BLOCK_RSV_H */
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 642cd2b55fa0..6b6a1a277f01 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -619,7 +619,7 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
- 		 */
- 		num_bytes = btrfs_calc_insert_metadata_size(fs_info, num_items);
- 		if (flush == BTRFS_RESERVE_FLUSH_ALL &&
--		    delayed_refs_rsv->full == 0) {
-+		    btrfs_block_rsv_full(delayed_refs_rsv) == 0) {
- 			delayed_refs_bytes = num_bytes;
- 			num_bytes <<= 1;
++static inline void btrfs_leak_debug_add_state(struct extent_state *state)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(lock, flags);
+-	list_add(new, head);
+-	spin_unlock_irqrestore(lock, flags);
++	spin_lock_irqsave(&leak_lock, flags);
++	list_add(&state->leak_list, &states);
++	spin_unlock_irqrestore(&leak_lock, flags);
++}
++
++static inline void btrfs_leak_debug_del_eb(struct extent_buffer *eb)
++{
++	struct btrfs_fs_info *fs_info = eb->fs_info;
++	unsigned long flags;
++
++	spin_lock_irqsave(&fs_info->eb_leak_lock, flags);
++	list_del(&eb->leak_list);
++	spin_unlock_irqrestore(&fs_info->eb_leak_lock, flags);
+ }
+ 
+-static inline void btrfs_leak_debug_del(spinlock_t *lock,
+-					struct list_head *entry)
++static inline void btrfs_leak_debug_del_state(struct extent_state *state)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(lock, flags);
+-	list_del(entry);
+-	spin_unlock_irqrestore(lock, flags);
++	spin_lock_irqsave(&leak_lock, flags);
++	list_del(&state->leak_list);
++	spin_unlock_irqrestore(&leak_lock, flags);
+ }
+ 
+ void btrfs_extent_buffer_leak_debug_check(struct btrfs_fs_info *fs_info)
+@@ -124,9 +141,11 @@ static inline void __btrfs_debug_check_extent_io_range(const char *caller,
+ 	}
+ }
+ #else
+-#define btrfs_leak_debug_add(lock, new, head)	do {} while (0)
+-#define btrfs_leak_debug_del(lock, entry)	do {} while (0)
+-#define btrfs_extent_state_leak_debug_check()	do {} while (0)
++#define btrfs_leak_debug_add_eb(eb)			do {} while (0)
++#define btrfs_leak_debug_add_state(state)		do {} while (0)
++#define btrfs_leak_debug_del_eb(eb)			do {} while (0)
++#define btrfs_leak_debug_del_state(state)		do {} while (0)
++#define btrfs_extent_state_leak_debug_check()		do {} while (0)
+ #define btrfs_debug_check_extent_io_range(c, s, e)	do {} while (0)
+ #endif
+ 
+@@ -343,7 +362,7 @@ static struct extent_state *alloc_extent_state(gfp_t mask)
+ 	state->state = 0;
+ 	state->failrec = NULL;
+ 	RB_CLEAR_NODE(&state->rb_node);
+-	btrfs_leak_debug_add(&leak_lock, &state->leak_list, &states);
++	btrfs_leak_debug_add_state(state);
+ 	refcount_set(&state->refs, 1);
+ 	init_waitqueue_head(&state->wq);
+ 	trace_alloc_extent_state(state, mask, _RET_IP_);
+@@ -356,7 +375,7 @@ void free_extent_state(struct extent_state *state)
+ 		return;
+ 	if (refcount_dec_and_test(&state->refs)) {
+ 		WARN_ON(extent_state_in_tree(state));
+-		btrfs_leak_debug_del(&leak_lock, &state->leak_list);
++		btrfs_leak_debug_del_state(state);
+ 		trace_free_extent_state(state, _RET_IP_);
+ 		kmem_cache_free(extent_state_cache, state);
+ 	}
+@@ -5830,7 +5849,7 @@ static void btrfs_release_extent_buffer_pages(struct extent_buffer *eb)
+ static inline void btrfs_release_extent_buffer(struct extent_buffer *eb)
+ {
+ 	btrfs_release_extent_buffer_pages(eb);
+-	btrfs_leak_debug_del(&eb->fs_info->eb_leak_lock, &eb->leak_list);
++	btrfs_leak_debug_del_eb(eb);
+ 	__free_extent_buffer(eb);
+ }
+ 
+@@ -5847,8 +5866,7 @@ __alloc_extent_buffer(struct btrfs_fs_info *fs_info, u64 start,
+ 	eb->bflags = 0;
+ 	init_rwsem(&eb->lock);
+ 
+-	btrfs_leak_debug_add(&fs_info->eb_leak_lock, &eb->leak_list,
+-			     &fs_info->allocated_ebs);
++	btrfs_leak_debug_add_eb(eb);
+ 	INIT_LIST_HEAD(&eb->release_list);
+ 
+ 	spin_lock_init(&eb->refs_lock);
+@@ -6294,7 +6312,7 @@ static int release_extent_buffer(struct extent_buffer *eb)
+ 			spin_unlock(&eb->refs_lock);
  		}
-@@ -644,7 +644,7 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
- 		if (rsv->space_info->force_alloc)
- 			do_chunk_alloc = true;
- 	} else if (num_items == 0 && flush == BTRFS_RESERVE_FLUSH_ALL &&
--		   !delayed_refs_rsv->full) {
-+		   !btrfs_block_rsv_full(delayed_refs_rsv)) {
- 		/*
- 		 * Some people call with btrfs_start_transaction(root, 0)
- 		 * because they can be throttled, but have some other mechanism
+ 
+-		btrfs_leak_debug_del(&eb->fs_info->eb_leak_lock, &eb->leak_list);
++		btrfs_leak_debug_del_eb(eb);
+ 		/* Should be safe to release our pages at this point */
+ 		btrfs_release_extent_buffer_pages(eb);
+ #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
 -- 
 2.35.1
 
