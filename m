@@ -2,111 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2295FAD70
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 09:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DEB85FADB5
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 09:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230000AbiJKH0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 03:26:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59764 "EHLO
+        id S229849AbiJKHs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 03:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229949AbiJKHZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 03:25:46 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC136CF64;
-        Tue, 11 Oct 2022 00:25:44 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id 67so12732609pfz.12;
-        Tue, 11 Oct 2022 00:25:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wd+OsNE6zqh97BOKU0txUIV7KGAtQ5iyptGYKgyWnSw=;
-        b=QcRruwiAMxS7K590tgy+ClH5TagGlThX17evPDX8lOp1KEC5sl9GY7X0Z8MqiqOxwM
-         v4v2dIbNScfLwu1nV7I3JWv0TG+JjP5r4K2c3ohwSIoK+C6TiK/sSQUtLHMTlUuxnE8l
-         xzli+zbZlNbnp2CHdGi88vYQToGBHbksiiFaB1f89/eiGR73xmXewFhrgcm7c/ZWSOgx
-         zd7svLOKhZdlV7zpDxtVg8mIUCpYQSVjlFjJQq1F1rJ27/Q1aPUUgqI6lhNVfmgegic+
-         Isd9mRbNjaNYpavRq3me0LHEXYU1F+TI0eHNjlao0PoHX9+hiMNM2ziOCFTCXKIUTbik
-         xgPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wd+OsNE6zqh97BOKU0txUIV7KGAtQ5iyptGYKgyWnSw=;
-        b=BxT4pL17mdpi1eRCCC/63vuoMw/vDOAwatG93Viwi8uyfFoP27y/GGdCjnAgSFkDpE
-         D004f1TePK22I3PikfAVuF0fhtMaUbEV5QSByLeDCZ0NexRSQ3pRS9C1iXY918IRIFc5
-         3omgWIMPDAe6wjrEgZFrQWMQuLYuPjGAeFxFjoLipQcqIEHisI7TUmj/lNicPuwcaTFR
-         9SiKFFbWE1ER528dsj5ly1jNa0QQqgalYcR9MAn2FT/mhjqyG4mxD8MJR4y+qt+9pPVt
-         COiSSjCepSo6Rli9FI5znPmb8cYBi9vemFf/godEhgKxEF9g6r6IL81VbcZX91pGSlI0
-         zRdg==
-X-Gm-Message-State: ACrzQf37tTm1TXB74buHCQOM4QWSKDWyT7wZeyq62/LXB7QF1v3rEI/H
-        Axr3hNQijC4xhljiQAkxQ4g=
-X-Google-Smtp-Source: AMsMyM7ciCGClD3hIDJnmHnwHUkwGrhO9dzEQsE0FcIMtS612OIRipaha9kj3gieBMFiRmFoBTRfNw==
-X-Received: by 2002:a05:6a00:4093:b0:563:2d96:8f44 with SMTP id bw19-20020a056a00409300b005632d968f44mr12698175pfb.4.1665473143601;
-        Tue, 11 Oct 2022 00:25:43 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-84.three.co.id. [180.214.233.84])
-        by smtp.gmail.com with ESMTPSA id n12-20020a170902e54c00b0017ca9f4d22fsm7891197plf.209.2022.10.11.00.25.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Oct 2022 00:25:42 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 1CDBD10381D; Tue, 11 Oct 2022 14:25:36 +0700 (WIB)
-Date:   Tue, 11 Oct 2022 14:25:36 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.19 00/48] 5.19.15-rc1 review
-Message-ID: <Y0UacPPulRDKZFpg@debian.me>
-References: <20221010070333.676316214@linuxfoundation.org>
+        with ESMTP id S229573AbiJKHsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 03:48:25 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED44787F9F
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 00:48:23 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1oi9zy-0007fS-Cn
+        for stable@vger.kernel.org; Tue, 11 Oct 2022 09:48:22 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id 8E843F9CA8
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 07:48:21 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id 0B37DF9C8D;
+        Tue, 11 Oct 2022 07:48:19 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 4bb0170b;
+        Tue, 11 Oct 2022 07:48:17 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 1/4] can: kvaser_usb_leaf: Fix overread with an invalid command
+Date:   Tue, 11 Oct 2022 09:48:12 +0200
+Message-Id: <20221011074815.397301-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221011074815.397301-1-mkl@pengutronix.de>
+References: <20221011074815.397301-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="FxRAQvLLauovVzdx"
-Content-Disposition: inline
-In-Reply-To: <20221010070333.676316214@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
---FxRAQvLLauovVzdx
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For command events read from the device,
+kvaser_usb_leaf_read_bulk_callback() verifies that cmd->len does not
+exceed the size of the received data, but the actual kvaser_cmd handlers
+will happily read any kvaser_cmd fields without checking for cmd->len.
 
-On Mon, Oct 10, 2022 at 09:04:58AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.15 release.
-> There are 48 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+This can cause an overread if the last cmd in the buffer is shorter than
+expected for the command type (with cmd->len showing the actual short
+size).
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
+Maximum overread seems to be 22 bytes (CMD_LEAF_LOG_MESSAGE), some of
+which are delivered to userspace as-is.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Fix that by verifying the length of command before handling it.
 
---=20
-An old man doll... just what I always wanted! - Clara
+This issue can only occur after RX URBs have been set up, i.e. the
+interface has been opened at least once.
 
---FxRAQvLLauovVzdx
-Content-Type: application/pgp-signature; name="signature.asc"
+Cc: stable@vger.kernel.org
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010150829.199676-2-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 75 +++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
------BEGIN PGP SIGNATURE-----
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 07f687f29b34..8e11cda85624 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -310,6 +310,38 @@ struct kvaser_cmd {
+ 	} u;
+ } __packed;
+ 
++#define CMD_SIZE_ANY 0xff
++#define kvaser_fsize(field) sizeof_field(struct kvaser_cmd, field)
++
++static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
++	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
++	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
++	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.leaf.softinfo),
++	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
++	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
++	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
++	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
++	/* ignored events: */
++	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
++};
++
++static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
++	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
++	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
++	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.usbcan.softinfo),
++	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
++	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
++	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
++	/* ignored events: */
++	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
++};
++
+ /* Summary of a kvaser error event, for a unified Leaf/Usbcan error
+  * handling. Some discrepancies between the two families exist:
+  *
+@@ -397,6 +429,43 @@ static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_imx_dev_cfg_32mhz = {
+ 	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
+ };
+ 
++static int kvaser_usb_leaf_verify_size(const struct kvaser_usb *dev,
++				       const struct kvaser_cmd *cmd)
++{
++	/* buffer size >= cmd->len ensured by caller */
++	u8 min_size = 0;
++
++	switch (dev->driver_info->family) {
++	case KVASER_LEAF:
++		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_leaf))
++			min_size = kvaser_usb_leaf_cmd_sizes_leaf[cmd->id];
++		break;
++	case KVASER_USBCAN:
++		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_usbcan))
++			min_size = kvaser_usb_leaf_cmd_sizes_usbcan[cmd->id];
++		break;
++	}
++
++	if (min_size == CMD_SIZE_ANY)
++		return 0;
++
++	if (min_size) {
++		min_size += CMD_HEADER_LEN;
++		if (cmd->len >= min_size)
++			return 0;
++
++		dev_err_ratelimited(&dev->intf->dev,
++				    "Received command %u too short (size %u, needed %u)",
++				    cmd->id, cmd->len, min_size);
++		return -EIO;
++	}
++
++	dev_warn_ratelimited(&dev->intf->dev,
++			     "Unhandled command (%d, size %d)\n",
++			     cmd->id, cmd->len);
++	return -EINVAL;
++}
++
+ static void *
+ kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
+ 			     const struct sk_buff *skb, int *cmd_len,
+@@ -502,6 +571,9 @@ static int kvaser_usb_leaf_wait_cmd(const struct kvaser_usb *dev, u8 id,
+ end:
+ 	kfree(buf);
+ 
++	if (err == 0)
++		err = kvaser_usb_leaf_verify_size(dev, cmd);
++
+ 	return err;
+ }
+ 
+@@ -1133,6 +1205,9 @@ static void kvaser_usb_leaf_stop_chip_reply(const struct kvaser_usb *dev,
+ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
+ 					   const struct kvaser_cmd *cmd)
+ {
++	if (kvaser_usb_leaf_verify_size(dev, cmd) < 0)
++		return;
++
+ 	switch (cmd->id) {
+ 	case CMD_START_CHIP_REPLY:
+ 		kvaser_usb_leaf_start_chip_reply(dev, cmd);
 
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY0UaaAAKCRD2uYlJVVFO
-o4cjAP94keXmukA1+jJJgMNrIJCsr3QjQCKb83BO/vtN/XiHaQEAqCx4FY9N7yOl
-RcpttLRUb9JCVjS87Lg+AFAXJpfjdw8=
-=k8qT
------END PGP SIGNATURE-----
+base-commit: b15e2e49bfc4965d86b9bc4a8426d53ec90a7192
+-- 
+2.35.1
 
---FxRAQvLLauovVzdx--
+
