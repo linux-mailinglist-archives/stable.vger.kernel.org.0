@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 828C65FB618
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C48EA5FB60E
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231210AbiJKPA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:00:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54400 "EHLO
+        id S231247AbiJKPAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:00:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231331AbiJKO6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA9D9AFAD;
-        Tue, 11 Oct 2022 07:53:24 -0700 (PDT)
+        with ESMTP id S231346AbiJKO6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203DE9A9F7;
+        Tue, 11 Oct 2022 07:53:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC3E4611C9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EB97611C6;
+        Tue, 11 Oct 2022 14:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8D68C43143;
         Tue, 11 Oct 2022 14:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEAFCC433C1;
-        Tue, 11 Oct 2022 14:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499961;
-        bh=k/P/+8apvR+nKqsIqNpoZ2Fh4WvI6Jj+cjMa42qQVgk=;
+        s=k20201202; t=1665499962;
+        bh=Nkk1MLpn8PdOSGJq2nel3BTAVMp566ajCwG56b1BRv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZhGMkkL1j0p4yFML5xYvPwVMIuUjeZrW7L7x2uS8/QtOWaE3ECvVWmW2D8Niu624
-         ZoBrBCAyVnzyLCuygHxzdL9PfCVE+B1pGOcCsAqZWzkWiCYKkyPzlFdxkdRCf7eCIc
-         rgCr+cSvfQHs10gAVTIlGBYZhzfR0kz16bhKNbe5H2ZHx6ic4+XDB8NBdlXrEC6A7X
-         MM2PeJX4R0xFwSzX/k9+TyEmVwz2jE4zZo8aQ596OlXyT6HVQgHUmXodz82DG0Uaoa
-         D/ekJBgM6ZPC3CDDIK68CMIhKGLldAC9O7yz8M2Br4bPxO+ArboqnO7m5Eyucr3OJt
-         lRJje1XzHbYCQ==
+        b=hBMFEWOyZek4TnWWkk2y57PVM04punUeDX0cDV2eWrk2W5uuKhdb4s78eyWvJFRHP
+         x54H1CwWa9fGBXuqebYXbNGzUNjCRfOH6XUxb3vEy80QBaB1y6I33wQxvvAKOdzCOn
+         XSmszrmuiw0BjbSepJApwiNOmmBBjFCfOTp3pF/jg8NAyMmN1muXNkYQHEgLIK0IXF
+         Fv1jKp/EbT6ilq4zFvjbV18PdvSjayAmxaMbhihsacE4QS2/yMu6ADyTDOmOpxzKJQ
+         RprX5atcopvT6iEybWAp/51vI+vZ+WliURxmgyK319H/4eY7spaNtsWO0O1+FG/OZr
+         9s3LsQ+9immjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        bjorn.andersson@linaro.org, robh+dt@kernel.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 04/26] arm64: dts: qcom: sc7280-idp: correct ADC channel node name and unit address
-Date:   Tue, 11 Oct 2022 10:52:11 -0400
-Message-Id: <20221011145233.1624013-4-sashal@kernel.org>
+Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 05/26] ARM: dts: imx6q: add missing properties for sram
+Date:   Tue, 11 Oct 2022 10:52:12 -0400
+Message-Id: <20221011145233.1624013-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145233.1624013-1-sashal@kernel.org>
 References: <20221011145233.1624013-1-sashal@kernel.org>
@@ -59,56 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 5589ffb2da2a66988ab3a68334dad3e68b42e3a9 ]
+[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
 
-Correct SPMI PMIC VADC channel node name:
-1. Use hyphens instead of underscores,
-2. Add missing unit address.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-This fixes `make dtbs_check` warnings like:
-
-  qcom/sc7280-idp.dtb: pmic@0: adc@3100: 'pmk8350_die_temp', 'pmr735a_die_temp' do not match any of the regexes: '^.*@[0-9a-f]+$', 'pinctrl-[0-9]+'
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220828084341.112146-12-krzysztof.kozlowski@linaro.org
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280-idp.dts  | 2 +-
- arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6q.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dts b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-index 64fc22aff33d..0b4bcc34b794 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-@@ -62,7 +62,7 @@ &ipa {
- };
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 9caba4529c71..a8069e0a8fe8 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -163,6 +163,9 @@ soc {
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x40000>;
++			ranges = <0 0x00900000 0x40000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
  
- &pmk8350_vadc {
--	pmr735a_die_temp {
-+	pmr735a-die-temp@403 {
- 		reg = <PMR735A_ADC7_DIE_TEMP>;
- 		label = "pmr735a_die_temp";
- 		qcom,pre-scaling = <1 1>;
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-index 371a2a9dcf7a..1948b8011d2b 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-@@ -200,7 +200,7 @@ &ipa {
- };
- 
- &pmk8350_vadc {
--	pmk8350_die_temp {
-+	pmk8350-die-temp@3 {
- 		reg = <PMK8350_ADC7_DIE_TEMP>;
- 		label = "pmk8350_die_temp";
- 		qcom,pre-scaling = <1 1>;
 -- 
 2.35.1
 
