@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F15385FB62B
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E3CF5FB6E3
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231296AbiJKPA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:00:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
+        id S230483AbiJKPWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:22:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231566AbiJKO7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:59:38 -0400
+        with ESMTP id S231717AbiJKPWV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:22:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D22A033A;
-        Tue, 11 Oct 2022 07:55:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6C93120EF8;
+        Tue, 11 Oct 2022 08:13:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CD08611EF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7FE0611E3;
+        Tue, 11 Oct 2022 14:54:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7897BC433D7;
         Tue, 11 Oct 2022 14:54:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47562C433C1;
-        Tue, 11 Oct 2022 14:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500060;
-        bh=8Y0V5QaeKGsFKRr9T1jC7dJh3pXXUz0p8T5E1saUCcM=;
+        s=k20201202; t=1665500061;
+        bh=DsEm4B5eM384zX7FuS5sZlf+cikKCsf/fQmUm9ZDqTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TwjMrSDvvvPx0L3gL1SFzR16GvYpnZT4CgfYb/QmRp71IXNROz6OyxuEg7VGC35qN
-         s5+W55U/yxJySHo5Y5qZPiPRSV3r+QRZ5BQ1DzUYBQOXe9WuLyduGAfYO7NA+a308x
-         ke5+AYsD7xyt2peuvv6KpSx/vAjRmBIRkZjWoI2viThXOtjJOd8Kac9Lf/QuN+Mq+W
-         t1pAqmJPtvIKMI6QCmsmlCbRCOAlzLTUIYqwRb9xLJYXgezgmYn/hHelvRpLmw+YOy
-         1Zl4kjKfSNBQ6/P+OSd+fG3pXAaZgBtExkfsqAMyPQ1B/URC/gHeCQdrjosHdFrzKG
-         PkHd1uOIux3Ww==
+        b=B3pER9th2oBVHe3hJIeLQqrFBeGpWERFDZBUvGvrozJv9kuDEhWfKK77vIxvmgdxy
+         ucv0XzgJIxAYqtOCpc9XxsdhzeP9UAqDuVijqwyKlbXPiShu+OYUMM8D765z18sg29
+         6SJsiQ2moBo/Tw5+WO0g+CtmiHQkOlPS0B4NPro6aUNyCfU36y9EZnioevYRSIfv1b
+         VdHVZCaB/B+ah3WO/zKRb+4lmqAXryJajRkObIGla2YoHHW0So0qu/Uv54WmPaX3Gq
+         6q19xKo0LiCmlW/noNG0aYd9aeOoUUWNtn4qMpcF7sn7ImNy+KajoxMKrLyrWDb1Jg
+         M4TwjDVUGfdVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 3/7] ARM: dts: imx6q: add missing properties for sram
-Date:   Tue, 11 Oct 2022 10:54:10 -0400
-Message-Id: <20221011145414.1625237-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 4/7] ARM: dts: imx6dl: add missing properties for sram
+Date:   Tue, 11 Oct 2022 10:54:11 -0400
+Message-Id: <20221011145414.1625237-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145414.1625237-1-sashal@kernel.org>
 References: <20221011145414.1625237-1-sashal@kernel.org>
@@ -58,7 +58,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
+[ Upstream commit f5848b95633d598bacf0500e0108dc5961af88c0 ]
 
 All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
 sram@900000: '#address-cells' is a required property
@@ -69,18 +69,18 @@ Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6q.dtsi | 3 +++
+ arch/arm/boot/dts/imx6dl.dtsi | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index 4747ede61acd..7b335e8050d3 100644
---- a/arch/arm/boot/dts/imx6q.dtsi
-+++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -82,6 +82,9 @@ soc {
+diff --git a/arch/arm/boot/dts/imx6dl.dtsi b/arch/arm/boot/dts/imx6dl.dtsi
+index 8475e6cc59ac..71e7c87c7497 100644
+--- a/arch/arm/boot/dts/imx6dl.dtsi
++++ b/arch/arm/boot/dts/imx6dl.dtsi
+@@ -63,6 +63,9 @@ soc {
  		ocram: sram@00900000 {
  			compatible = "mmio-sram";
- 			reg = <0x00900000 0x40000>;
-+			ranges = <0 0x00900000 0x40000>;
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
 +			#address-cells = <1>;
 +			#size-cells = <1>;
  			clocks = <&clks IMX6QDL_CLK_OCRAM>;
