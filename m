@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACD3E5FB5CE
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:58:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 466AA5FB5D5
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231181AbiJKO5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:57:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54372 "EHLO
+        id S231160AbiJKO6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:58:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbiJKO4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:56:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624539DDBD;
-        Tue, 11 Oct 2022 07:52:15 -0700 (PDT)
+        with ESMTP id S231158AbiJKO5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:57:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E629DF97;
+        Tue, 11 Oct 2022 07:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BE55B8160D;
-        Tue, 11 Oct 2022 14:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D5C5C433C1;
-        Tue, 11 Oct 2022 14:52:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFA95B81627;
+        Tue, 11 Oct 2022 14:52:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C490EC433B5;
+        Tue, 11 Oct 2022 14:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499931;
-        bh=mZXZ26tA7ttCTsWuOIwX3tsboXgN7RDn17R3Kdc+NzI=;
+        s=k20201202; t=1665499932;
+        bh=utvZx2zyUFJMYQMIX7YK1QsEzU1Uj+lHms/CgOf1vGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktd7wEbnR4NZqa8eQjVU7Hk8EaeMermA/M9q9UuYuog5JuOsANxQkfZtZk9NRUyuq
-         TaGH8xSCxNPyNF/a5H0emxVGn53/QBjPpblXYQTvhDoPv99pD3VqRgXVI81QNrC0zA
-         SpEDUgv5e6e0glJgov31SuOQgDQ+yuA/PicLPcVikcb+i/jqI35Yo4RSvIZNbx7/PK
-         uPdxB9Gyo7fwUiHE3DTf/WX2oAOEQLjMyb56aP7RMeMXY4ZfAmDvzeEVfKSxEOXa3U
-         yrr0dhBO5MhnM2qUgntX9tDNbuJs0HoofE7C8UeflbTdyOQdTC46t4XTDps6obCGUp
-         wS3DQ0/LVroGw==
+        b=XYcRWjacPUJ4kaNgYf73OUuuwcLUrk9u+G3+dHEjq9oqt24Q8ODtb8b5yRzsBg4Va
+         dQrVyBnE0RzivEMPhE7049oI40Bk22bW347TFJwOCW2LumcgivAejM1fcL6s1uJIaq
+         RtR/5gI4YEd5Eb96s1LqC3S65p2ykZfypmLsdrZvEZSOsnrIsUcrTCU/CrsRBcvLwG
+         LTt3sbpj7NDncNInALDa0YhhEk+fI8NZc+TzZ62QdDGHuzSyToWeEMyLotKwF0eonW
+         qgoBlBFpbOdZHXNadiwcZMv4LM7eJcA7zpyXHsWRbiQBQiRW8i2tZo1ammr36xgMmS
+         kHp9JPIxiFlIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
         josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 26/40] btrfs: scrub: properly report super block errors in system log
-Date:   Tue, 11 Oct 2022 10:51:15 -0400
-Message-Id: <20221011145129.1623487-26-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 27/40] btrfs: scrub: try to fix super block errors
+Date:   Tue, 11 Oct 2022 10:51:16 -0400
+Message-Id: <20221011145129.1623487-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145129.1623487-1-sashal@kernel.org>
 References: <20221011145129.1623487-1-sashal@kernel.org>
@@ -57,141 +57,143 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit e69bf81c9a339f1b2c041b112a6fbb9f60fc9340 ]
+[ Upstream commit f9eab5f0bba76742af654f33d517bf62a0db8f12 ]
 
-[PROBLEM]
+[BUG]
+The following script shows that, although scrub can detect super block
+errors, it never tries to fix it:
 
-Unlike data/metadata corruption, if scrub detected some error in the
-super block, the only error message is from the updated device status:
+	mkfs.btrfs -f -d raid1 -m raid1 $dev1 $dev2
+	xfs_io -c "pwrite 67108864 4k" $dev2
 
-  BTRFS info (device dm-1): scrub: started on devid 2
-  BTRFS error (device dm-1): bdev /dev/mapper/test-scratch2 errs: wr 0, rd 0, flush 0, corrupt 1, gen 0
-  BTRFS info (device dm-1): scrub: finished on devid 2 with status: 0
+	mount $dev1 $mnt
+	btrfs scrub start -B $dev2
+	btrfs scrub start -Br $dev2
+	umount $mnt
 
-This is not helpful at all.
+The first scrub reports the super error correctly:
+
+  scrub done for f3289218-abd3-41ac-a630-202f766c0859
+  Scrub started:    Tue Aug  2 14:44:11 2022
+  Status:           finished
+  Duration:         0:00:00
+  Total to scrub:   1.26GiB
+  Rate:             0.00B/s
+  Error summary:    super=1
+    Corrected:      0
+    Uncorrectable:  0
+    Unverified:     0
+
+But the second read-only scrub still reports the same super error:
+
+  Scrub started:    Tue Aug  2 14:44:11 2022
+  Status:           finished
+  Duration:         0:00:00
+  Total to scrub:   1.26GiB
+  Rate:             0.00B/s
+  Error summary:    super=1
+    Corrected:      0
+    Uncorrectable:  0
+    Unverified:     0
 
 [CAUSE]
-Unlike data/metadata error reporting, there is no visible report in
-kernel dmesg to report supper block errors.
+The comments already shows that super block can be easily fixed by
+committing a transaction:
 
-In fact, return value of scrub_checksum_super() is intentionally
-skipped, thus scrub_handle_errored_block() will never be called for
-super blocks.
+	/*
+	 * If we find an error in a super block, we just report it.
+	 * They will get written with the next transaction commit
+	 * anyway
+	 */
+
+But the truth is, such assumption is not always true, and since scrub
+should try to repair every error it found (except for read-only scrub),
+we should really actively commit a transaction to fix this.
 
 [FIX]
-Make super block errors to output an error message, now the full
-dmesg would looks like this:
+Just commit a transaction if we found any super block errors, after
+everything else is done.
 
-  BTRFS info (device dm-1): scrub: started on devid 2
-  BTRFS warning (device dm-1): super block error on device /dev/mapper/test-scratch2, physical 67108864
-  BTRFS error (device dm-1): bdev /dev/mapper/test-scratch2 errs: wr 0, rd 0, flush 0, corrupt 1, gen 0
-  BTRFS info (device dm-1): scrub: finished on devid 2 with status: 0
-  BTRFS info (device dm-1): scrub: started on devid 2
-
-This fix involves:
-
-- Move the super_errors reporting to scrub_handle_errored_block()
-  This allows the device status message to show after the super block
-  error message.
-  But now we no longer distinguish super block corruption and generation
-  mismatch, now all counted as corruption.
-
-- Properly check the return value from scrub_checksum_super()
-- Add extra super block error reporting for scrub_print_warning().
+We cannot do this just after scrub_supers(), as
+btrfs_commit_transaction() will try to pause and wait for the running
+scrub, thus we can not call it with scrub_lock hold.
 
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/scrub.c | 33 ++++++++++++---------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+ fs/btrfs/scrub.c | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
 diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index e7b0323e6efd..f62bfa023178 100644
+index f62bfa023178..a14f97bf2a40 100644
 --- a/fs/btrfs/scrub.c
 +++ b/fs/btrfs/scrub.c
-@@ -731,6 +731,13 @@ static void scrub_print_warning(const char *errstr, struct scrub_block *sblock)
- 	dev = sblock->sectors[0]->dev;
- 	fs_info = sblock->sctx->fs_info;
+@@ -4112,6 +4112,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	int ret;
+ 	struct btrfs_device *dev;
+ 	unsigned int nofs_flag;
++	bool need_commit = false;
  
-+	/* Super block error, no need to search extent tree. */
-+	if (sblock->sectors[0]->flags & BTRFS_EXTENT_FLAG_SUPER) {
-+		btrfs_warn_in_rcu(fs_info, "%s on device %s, physical %llu",
-+			errstr, rcu_str_deref(dev->name),
-+			sblock->sectors[0]->physical);
-+		return;
-+	}
- 	path = btrfs_alloc_path();
- 	if (!path)
- 		return;
-@@ -806,7 +813,7 @@ static inline void scrub_put_recover(struct btrfs_fs_info *fs_info,
- static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
- {
- 	struct scrub_ctx *sctx = sblock_to_check->sctx;
--	struct btrfs_device *dev;
-+	struct btrfs_device *dev = sblock_to_check->sectors[0]->dev;
- 	struct btrfs_fs_info *fs_info;
- 	u64 logical;
- 	unsigned int failed_mirror_index;
-@@ -827,13 +834,15 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
- 	fs_info = sctx->fs_info;
- 	if (sblock_to_check->sectors[0]->flags & BTRFS_EXTENT_FLAG_SUPER) {
+ 	if (btrfs_fs_closing(fs_info))
+ 		return -EAGAIN;
+@@ -4215,6 +4216,12 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	 */
+ 	nofs_flag = memalloc_nofs_save();
+ 	if (!is_dev_replace) {
++		u64 old_super_errors;
++
++		spin_lock(&sctx->stat_lock);
++		old_super_errors = sctx->stat.super_errors;
++		spin_unlock(&sctx->stat_lock);
++
+ 		btrfs_info(fs_info, "scrub: started on devid %llu", devid);
  		/*
--		 * if we find an error in a super block, we just report it.
-+		 * If we find an error in a super block, we just report it.
- 		 * They will get written with the next transaction commit
- 		 * anyway
- 		 */
-+		scrub_print_warning("super block error", sblock_to_check);
- 		spin_lock(&sctx->stat_lock);
- 		++sctx->stat.super_errors;
- 		spin_unlock(&sctx->stat_lock);
-+		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_CORRUPTION_ERRS);
- 		return 0;
+ 		 * by holding device list mutex, we can
+@@ -4223,6 +4230,16 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 		mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 		ret = scrub_supers(sctx, dev);
+ 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
++
++		spin_lock(&sctx->stat_lock);
++		/*
++		 * Super block errors found, but we can not commit transaction
++		 * at current context, since btrfs_commit_transaction() needs
++		 * to pause the current running scrub (hold by ourselves).
++		 */
++		if (sctx->stat.super_errors > old_super_errors && !sctx->readonly)
++			need_commit = true;
++		spin_unlock(&sctx->stat_lock);
  	}
- 	logical = sblock_to_check->sectors[0]->logical;
-@@ -842,7 +851,6 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
- 	is_metadata = !(sblock_to_check->sectors[0]->flags &
- 			BTRFS_EXTENT_FLAG_DATA);
- 	have_csum = sblock_to_check->sectors[0]->have_csum;
--	dev = sblock_to_check->sectors[0]->dev;
  
- 	if (!sctx->is_dev_replace && btrfs_repair_one_zone(fs_info, logical))
- 		return 0;
-@@ -1773,7 +1781,7 @@ static int scrub_checksum(struct scrub_block *sblock)
- 	else if (flags & BTRFS_EXTENT_FLAG_TREE_BLOCK)
- 		ret = scrub_checksum_tree_block(sblock);
- 	else if (flags & BTRFS_EXTENT_FLAG_SUPER)
--		(void)scrub_checksum_super(sblock);
-+		ret = scrub_checksum_super(sblock);
- 	else
- 		WARN_ON(1);
- 	if (ret)
-@@ -1912,23 +1920,6 @@ static int scrub_checksum_super(struct scrub_block *sblock)
- 	if (memcmp(calculated_csum, s->csum, sctx->fs_info->csum_size))
- 		++fail_cor;
+ 	if (!ret)
+@@ -4249,6 +4266,25 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	scrub_workers_put(fs_info);
+ 	scrub_put_ctx(sctx);
  
--	if (fail_cor + fail_gen) {
--		/*
--		 * if we find an error in a super block, we just report it.
--		 * They will get written with the next transaction commit
--		 * anyway
--		 */
--		spin_lock(&sctx->stat_lock);
--		++sctx->stat.super_errors;
--		spin_unlock(&sctx->stat_lock);
--		if (fail_cor)
--			btrfs_dev_stat_inc_and_print(sector->dev,
--				BTRFS_DEV_STAT_CORRUPTION_ERRS);
--		else
--			btrfs_dev_stat_inc_and_print(sector->dev,
--				BTRFS_DEV_STAT_GENERATION_ERRS);
--	}
--
- 	return fail_cor + fail_gen;
- }
- 
++	/*
++	 * We found some super block errors before, now try to force a
++	 * transaction commit, as scrub has finished.
++	 */
++	if (need_commit) {
++		struct btrfs_trans_handle *trans;
++
++		trans = btrfs_start_transaction(fs_info->tree_root, 0);
++		if (IS_ERR(trans)) {
++			ret = PTR_ERR(trans);
++			btrfs_err(fs_info,
++	"scrub: failed to start transaction to fix super block errors: %d", ret);
++			return ret;
++		}
++		ret = btrfs_commit_transaction(trans);
++		if (ret < 0)
++			btrfs_err(fs_info,
++	"scrub: failed to commit transaction to fix super block errors: %d", ret);
++	}
+ 	return ret;
+ out:
+ 	scrub_workers_put(fs_info);
 -- 
 2.35.1
 
