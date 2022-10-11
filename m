@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 018BB5FB698
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F17C75FB72A
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231521AbiJKPHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:07:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35190 "EHLO
+        id S229911AbiJKP3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbiJKPHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:07:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47934A59B9;
-        Tue, 11 Oct 2022 08:00:24 -0700 (PDT)
+        with ESMTP id S229971AbiJKP2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:28:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62196F87CF;
+        Tue, 11 Oct 2022 08:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 49AB7CE1888;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 876AD611C9;
         Tue, 11 Oct 2022 14:53:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6C96C433D6;
-        Tue, 11 Oct 2022 14:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04895C43143;
+        Tue, 11 Oct 2022 14:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500031;
-        bh=jOnvxPOlS7nQTT9ZZlU3TtblQ0j6+VfiHg7bt6mihaM=;
+        s=k20201202; t=1665500033;
+        bh=Kl9RoFAq3sCIwA5R+gllPUC3sCxEPBv5CtTb6Rfc7FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZnykGs6CSHuoT9YOj68qj5a4sjlDG1JmVsbBWqTN+kfz4owh6sIemXDqcgdw//eP
-         sFg6TeH+T5n7UY1egrWuFeDCDbAqOQ7qtcVqrloxFK3w6ehxOwJKcFApCy/RdDiabw
-         WTDnx1FfB2G3gXR6lOozZ3bQGuP3JvfS8APl8mENeqmeJZGFjiXhxFVo2tTfQ1c2od
-         5Aw2A6JIi/ZQz9BkjxLysdjdqEdU/hYpgEOyZ8cU31TS6yrAazT5LmWETjYTJq0B+A
-         TPJymmcqhDidJewDqhPRE8WH6soHn2Xk8oN+/muNNflR5V5SVaUJgwL98AqkX39iIo
-         TGE1LA0pgTOHQ==
+        b=SnJxh6qbUZXDlL6GAW6bdFWaP8UIKIkaKOi/rKMMG/T6t0dX8r3Rlq6UiVgPLU4NP
+         7AGfekGNSVgGL2dFiYyOCbc2zovwOaHyBggT/mMUteSLj1d3r8i8/yKF7x6X1VyLLP
+         A7DmUHtT3w7MFC/1f/5kZ1j6shK0zKIuYnxhKmQ5rHgSps3prTia1WSCD0q8xb31ui
+         JJjJHropVJpUr5lvo4LsiyeHXwN+TEp7a3y9ZsbTiVUX6aLdAB7szEG2nDyMUHWWXX
+         hNJLP7ypGRW91RoIehK1srsOX/JVf+HJUbvu8LG4xGda6wpgRKI1lsuIA0tsf8+2dM
+         bEDuldAbddAgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 09/13] ARM: dts: imx6sx: add missing properties for sram
-Date:   Tue, 11 Oct 2022 10:53:34 -0400
-Message-Id: <20221011145338.1624591-9-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
+        sebastian.hesselbarth@gmail.com, gregory.clement@bootlin.com,
+        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 10/13] ARM: orion: fix include path
+Date:   Tue, 11 Oct 2022 10:53:35 -0400
+Message-Id: <20221011145338.1624591-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145338.1624591-1-sashal@kernel.org>
 References: <20221011145338.1624591-1-sashal@kernel.org>
@@ -56,45 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 415432c008b2bce8138841356ba444631cabaa50 ]
+[ Upstream commit 63872304bdb3decd5454f4dd210c25395278ed13 ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+Now that CONFIG_ARCH_MULTIPLATFORM can be disabled anywhere,
+there is a build failure for plat-orion:
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+arch/arm/plat-orion/irq.c:19:10: fatal error: plat/irq.h: No such file or directory
+
+Make the include path unconditional.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sx.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/plat-orion/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 531a52c1e987..b3e24d8bd299 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -163,12 +163,18 @@ soc {
- 		ocram_s: sram@8f8000 {
- 			compatible = "mmio-sram";
- 			reg = <0x008f8000 0x4000>;
-+			ranges = <0 0x008f8000 0x4000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SX_CLK_OCRAM_S>;
- 		};
+diff --git a/arch/arm/plat-orion/Makefile b/arch/arm/plat-orion/Makefile
+index 4e3f25de13c1..830b0be038c6 100644
+--- a/arch/arm/plat-orion/Makefile
++++ b/arch/arm/plat-orion/Makefile
+@@ -2,7 +2,7 @@
+ #
+ # Makefile for the linux kernel.
+ #
+-ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include
++ccflags-y := -I$(srctree)/$(src)/include
  
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SX_CLK_OCRAM>;
- 		};
- 
+ orion-gpio-$(CONFIG_GPIOLIB)      += gpio.o
+ obj-$(CONFIG_PLAT_ORION_LEGACY)   += irq.o pcie.o time.o common.o mpp.o
 -- 
 2.35.1
 
