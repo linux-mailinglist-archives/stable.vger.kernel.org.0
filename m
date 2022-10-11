@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4C25FB708
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 028BB5FB628
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230274AbiJKP1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
+        id S229698AbiJKPA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:00:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230199AbiJKP1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:27:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AEBD38E4;
-        Tue, 11 Oct 2022 08:18:04 -0700 (PDT)
+        with ESMTP id S231528AbiJKO7c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:59:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2C422BDB;
+        Tue, 11 Oct 2022 07:54:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 88651CE188E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B508611C0;
+        Tue, 11 Oct 2022 14:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20158C433D7;
         Tue, 11 Oct 2022 14:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE58BC433C1;
-        Tue, 11 Oct 2022 14:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500050;
-        bh=poWo66Ew23pjdPqCySrVu6RmHwqjHqXtnGvPjkXg3qc=;
+        s=k20201202; t=1665500053;
+        bh=zoFxjc2mgYvumVpJfu85SBiBqI1woCwVxCC0Oqpikew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TS0G0hU1DTqSUENlWMXlmEa48RlQgIQNtzqbWrkbB12b9fLrfEVrtkOb5LHNEiB6a
-         wv5NtgtCSA3FUTtnqsItGVNxd0pPTMwEsFb0BdQDzNcDKTCEIQo1h4NLgUNmQfnH1J
-         4sdOirjqOW0S6t2NgfOlTHLsb3f+yz7qU1wsVivuyhPeD0N6AD6eL0f8J46fU9qfcz
-         3Z/tKwopazNPysIUKO9VxgGeRpmlknv/yz4igZa8BVur1r4PwC+bvSg1Q3pcgW7bQy
-         SAUDjSeHhBI6qgrqYSZ6JEc5WbTTowRkcQVgjFOZkKExOEwwq6z1YPG+gT7OOWzdRz
-         H6ES77fFT9r7g==
+        b=rNFCeZCHDFbRsbnb2wh5OFi/1SgF2Po8zUJ6UiS0eT5XYuDWlJUv+vwb4+nP0XnKQ
+         Ae0nJTgHqhL6i9WzcGmErRNxRb+n5pYILofvHZqa8h1WL944IV7iagoVwbVOQTfcWE
+         Bihq6b6mXdEXPLBFj0sQHiSZWgkfrnXgIhemeyG7/GK9sZqkV+OADQ7oTIAtJpk9Fk
+         4BEEFFRdMqdnG/QEjieM4S/7fNRjmr4Hgq+LocZ1f/NuKu4gG4CsC+41v/YAb9llPi
+         D484zVkUfUBwvfVHAYUPg3uRuDnagJ0bQ6gT2LGY0Hi+2zAkeutnkxoBFZ5jn5YIBB
+         Y1e1eY87rB8EA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
-        sebastian.hesselbarth@gmail.com, gregory.clement@bootlin.com,
-        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 09/11] ARM: orion: fix include path
-Date:   Tue, 11 Oct 2022 10:53:56 -0400
-Message-Id: <20221011145358.1624959-9-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 10/11] arm64: dts: uniphier: Add USB-device support for PXs3 reference board
+Date:   Tue, 11 Oct 2022 10:53:57 -0400
+Message-Id: <20221011145358.1624959-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145358.1624959-1-sashal@kernel.org>
 References: <20221011145358.1624959-1-sashal@kernel.org>
@@ -56,37 +56,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 63872304bdb3decd5454f4dd210c25395278ed13 ]
+[ Upstream commit 19fee1a1096d21ab1f1e712148b5417bda2939a2 ]
 
-Now that CONFIG_ARCH_MULTIPLATFORM can be disabled anywhere,
-there is a build failure for plat-orion:
+PXs3 reference board can change each USB port 0 and 1 to device mode
+with jumpers. Prepare devicetree sources for USB port 0 and 1.
 
-arch/arm/plat-orion/irq.c:19:10: fatal error: plat/irq.h: No such file or directory
+This specifies dr_mode, pinctrl, and some quirks and removes nodes for
+unused phys and vbus-supply properties.
 
-Make the include path unconditional.
-
-Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/20220913042321.4817-8-hayashi.kunihiko@socionext.com'
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/plat-orion/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/uniphier-pinctrl.dtsi       | 10 +++++
+ arch/arm64/boot/dts/socionext/Makefile        |  4 +-
+ .../socionext/uniphier-pxs3-ref-gadget0.dts   | 41 +++++++++++++++++++
+ .../socionext/uniphier-pxs3-ref-gadget1.dts   | 40 ++++++++++++++++++
+ 4 files changed, 94 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
+ create mode 100644 arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
 
-diff --git a/arch/arm/plat-orion/Makefile b/arch/arm/plat-orion/Makefile
-index 9433605cd290..06c3530d8ad5 100644
---- a/arch/arm/plat-orion/Makefile
-+++ b/arch/arm/plat-orion/Makefile
-@@ -1,7 +1,7 @@
- #
- # Makefile for the linux kernel.
- #
--ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include
-+ccflags-y := -I$(srctree)/$(src)/include
+diff --git a/arch/arm/boot/dts/uniphier-pinctrl.dtsi b/arch/arm/boot/dts/uniphier-pinctrl.dtsi
+index 51f0e69f49fd..21cc91110439 100644
+--- a/arch/arm/boot/dts/uniphier-pinctrl.dtsi
++++ b/arch/arm/boot/dts/uniphier-pinctrl.dtsi
+@@ -156,11 +156,21 @@ pinctrl_usb0: usb0 {
+ 		function = "usb0";
+ 	};
  
- orion-gpio-$(CONFIG_GPIOLIB)      += gpio.o
- obj-$(CONFIG_PLAT_ORION_LEGACY)   += irq.o pcie.o time.o common.o mpp.o
++	pinctrl_usb0_device: usb0-device {
++		groups = "usb0_device";
++		function = "usb0";
++	};
++
+ 	pinctrl_usb1: usb1 {
+ 		groups = "usb1";
+ 		function = "usb1";
+ 	};
+ 
++	pinctrl_usb1_device: usb1-device {
++		groups = "usb1_device";
++		function = "usb1";
++	};
++
+ 	pinctrl_usb2: usb2 {
+ 		groups = "usb2";
+ 		function = "usb2";
+diff --git a/arch/arm64/boot/dts/socionext/Makefile b/arch/arm64/boot/dts/socionext/Makefile
+index d45441249cb5..c922d9303b69 100644
+--- a/arch/arm64/boot/dts/socionext/Makefile
++++ b/arch/arm64/boot/dts/socionext/Makefile
+@@ -4,4 +4,6 @@ dtb-$(CONFIG_ARCH_UNIPHIER) += \
+ 	uniphier-ld11-ref.dtb \
+ 	uniphier-ld20-global.dtb \
+ 	uniphier-ld20-ref.dtb \
+-	uniphier-pxs3-ref.dtb
++	uniphier-pxs3-ref.dtb \
++	uniphier-pxs3-ref-gadget0.dtb \
++	uniphier-pxs3-ref-gadget1.dtb
+diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
+new file mode 100644
+index 000000000000..7069f51bc120
+--- /dev/null
++++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
++//
++// Device Tree Source for UniPhier PXs3 Reference Board (for USB-Device #0)
++//
++// Copyright (C) 2021 Socionext Inc.
++//   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
++
++/dts-v1/;
++#include "uniphier-pxs3-ref.dts"
++
++/ {
++	model = "UniPhier PXs3 Reference Board (USB-Device #0)";
++};
++
++/* I2C3 pinctrl is shared with USB*VBUSIN */
++&i2c3 {
++	status = "disabled";
++};
++
++&usb0 {
++	status = "okay";
++	dr_mode = "peripheral";
++	pinctrl-0 = <&pinctrl_usb0_device>;
++	snps,dis_enblslpm_quirk;
++	snps,dis_u2_susphy_quirk;
++	snps,dis_u3_susphy_quirk;
++	snps,usb2_gadget_lpm_disable;
++	phy-names = "usb2-phy", "usb3-phy";
++	phys = <&usb0_hsphy0>, <&usb0_ssphy0>;
++};
++
++&usb0_hsphy0 {
++	/delete-property/ vbus-supply;
++};
++
++&usb0_ssphy0 {
++	/delete-property/ vbus-supply;
++};
++
++/delete-node/ &usb0_hsphy1;
++/delete-node/ &usb0_ssphy1;
+diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
+new file mode 100644
+index 000000000000..a3cfa8113ffb
+--- /dev/null
++++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
+@@ -0,0 +1,40 @@
++// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
++//
++// Device Tree Source for UniPhier PXs3 Reference Board (for USB-Device #1)
++//
++// Copyright (C) 2021 Socionext Inc.
++//   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
++
++/dts-v1/;
++#include "uniphier-pxs3-ref.dts"
++
++/ {
++	model = "UniPhier PXs3 Reference Board (USB-Device #1)";
++};
++
++/* I2C3 pinctrl is shared with USB*VBUSIN */
++&i2c3 {
++	status = "disabled";
++};
++
++&usb1 {
++	status = "okay";
++	dr_mode = "peripheral";
++	pinctrl-0 = <&pinctrl_usb1_device>;
++	snps,dis_enblslpm_quirk;
++	snps,dis_u2_susphy_quirk;
++	snps,dis_u3_susphy_quirk;
++	snps,usb2_gadget_lpm_disable;
++	phy-names = "usb2-phy", "usb3-phy";
++	phys = <&usb1_hsphy0>, <&usb1_ssphy0>;
++};
++
++&usb1_hsphy0 {
++	/delete-property/ vbus-supply;
++};
++
++&usb1_ssphy0 {
++	/delete-property/ vbus-supply;
++};
++
++/delete-node/ &usb1_hsphy1;
 -- 
 2.35.1
 
