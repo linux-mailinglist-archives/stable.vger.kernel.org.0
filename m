@@ -2,109 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C90B05FB1D1
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 13:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D0445FB2B0
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 14:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229669AbiJKLtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 07:49:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45494 "EHLO
+        id S229762AbiJKMyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 08:54:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229658AbiJKLte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 07:49:34 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C8F1DD;
-        Tue, 11 Oct 2022 04:49:33 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 5F6AF1C0025; Tue, 11 Oct 2022 13:49:32 +0200 (CEST)
-Date:   Tue, 11 Oct 2022 13:49:31 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.10 07/10] ARM: decompressor: Include
- .data.rel.ro.local
-Message-ID: <20221011114931.GB12851@duo.ucw.cz>
-References: <20221009205350.1203176-1-sashal@kernel.org>
- <20221009205350.1203176-7-sashal@kernel.org>
+        with ESMTP id S229468AbiJKMyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 08:54:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79CE6AA3E;
+        Tue, 11 Oct 2022 05:54:07 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 731056118B;
+        Tue, 11 Oct 2022 12:54:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD79C433D6;
+        Tue, 11 Oct 2022 12:54:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1665492846;
+        bh=nh65NVKv0f/DCts1WL21izVNMZRkVYtBQtPfD3HlRy8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SLmbr4qtja7crhjbRR+UprzGTbAjLxtTWlZM+NmKJZt5pfW1FwGqtTe9b71cQJBby
+         ygsrz3MmzE3UjfbdO/fOPTtZDHgVznjjSXxQXxjp0lNBoPVbqGAbkVQE3m94Xgp6wo
+         iH9L0l/qWEVJOcuJlWGnk1MC+Q1/SuD26HCy1vJEKAB5ZcBm9VJ2aRVtC+PslGFoTP
+         48oniDRVXdyeOhaGkqoE5+oyskCkNLfBkmDTek8tHqCiKgjckLkBWX5HSY8u2gfb2a
+         ztSSpEINz19kcXycB2Ay76BTrz+CUXraoSBizfWsgDZxox88d1NwAxSqIeI6YGUpGt
+         mAIZMzRUcurZA==
+Date:   Tue, 11 Oct 2022 08:54:05 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Stephen Boyd <sboyd@kernel.org>,
+        Tero Kristo <kristo@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        kernelci-results@groups.io, bot@kernelci.org,
+        gtucker@collabora.com, stable@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-clk@vger.kernel.org
+Subject: Re: stable-rc/linux-5.10.y bisection: baseline.login on panda
+Message-ID: <Y0VnbVAyHng7KHI4@sashalap>
+References: <6341c30d.170a0220.2bfa7.6117@mx.google.com>
+ <Y0QB/9dmTwd1tx11@sirena.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="PmA2V3Z32TCmWXqI"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20221009205350.1203176-7-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <Y0QB/9dmTwd1tx11@sirena.org.uk>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Oct 10, 2022 at 12:29:03PM +0100, Mark Brown wrote:
+>The KernelCI bisection bot bisected a boot failure on the 5.10-rc stable
+>tree on Panda to d86c6447ee250 ("clk: ti: Stop using legacy clkctrl names
+>for omap4") in the v5.10 stable tree.  There's a lot of clock related
+>warnings/errors including:
 
---PmA2V3Z32TCmWXqI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'll revert it, thanks!
 
-Hi!
-
-> From: Kees Cook <keescook@chromium.org>
->=20
-> [ Upstream commit 1b64daf413acd86c2c13f5443f6b4ef3690c8061 ]
->=20
-> The .data.rel.ro.local section has the same semantics as .data.rel.ro
-> here, so include it in the .rodata section of the decompressor.
-> Additionally since the .printk_index section isn't usable outside of
-> the core kernel, discard it in the decompressor. Avoids these warnings:
->=20
-> arm-linux-gnueabi-ld: warning: orphan section `.data.rel.ro.local' from `=
-arch/arm/boot/compressed/fdt_rw.o' being placed in section `.data.rel.ro.lo=
-cal'
-> arm-linux-gnueabi-ld: warning: orphan section `.printk_index' from `arch/=
-arm/boot/compressed/fdt_rw.o' being placed in section `.printk_index'
->
-
-There's no printk_index in 5.10. Perhaps this does not need to be
-backported?
-
-Best regards,
-							Pavel
-
-> +++ b/arch/arm/boot/compressed/vmlinux.lds.S
-> @@ -23,6 +23,7 @@ SECTIONS
->      *(.ARM.extab*)
->      *(.note.*)
->      *(.rel.*)
-> +    *(.printk_index)
->      /*
->       * Discard any r/w data - this produces a link error if we have any,
->       * which is required for PIC decompression.  Local data generates
-> @@ -57,6 +58,7 @@ SECTIONS
->      *(.rodata)
->      *(.rodata.*)
->      *(.data.rel.ro)
-> +    *(.data.rel.ro.*)
->    }
->    .piggydata : {
->      *(.piggydata)
-> --=20
-> 2.35.1
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---PmA2V3Z32TCmWXqI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY0VYSwAKCRAw5/Bqldv6
-8uFAAJsFBphUKE9odWnrQVbCd7RKpnLTxQCeO8kRkJIJEMSEVmW3OQp4mFFDXeE=
-=CNMf
------END PGP SIGNATURE-----
-
---PmA2V3Z32TCmWXqI--
+-- 
+Thanks,
+Sasha
