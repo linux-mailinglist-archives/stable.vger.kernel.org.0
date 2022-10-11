@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E982F5FB662
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430915FB624
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbiJKPEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:04:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43916 "EHLO
+        id S231286AbiJKPAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231605AbiJKPDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:03:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA9EA4B8A;
-        Tue, 11 Oct 2022 07:59:03 -0700 (PDT)
+        with ESMTP id S231469AbiJKO7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:59:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFEE4647EC;
+        Tue, 11 Oct 2022 07:54:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E469611DF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B50C2B8162C;
+        Tue, 11 Oct 2022 14:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862D9C43142;
         Tue, 11 Oct 2022 14:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 251F5C433D6;
-        Tue, 11 Oct 2022 14:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500041;
-        bh=8WrLiAaN2f6wpV8GCLNnPxL7lrDtRcB5ZCim2x89qrc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ctB4SSYGJMF0NJXMiaUqJZxk54jzgLa3aTlINRg9xaOZ56hhvn1lTF3BP4IGy5Bq0
-         S/qvj4XDdkilVKXBYnI/RwYBiR4Buvbezp5yESfGP7ssPGmfS70uFhHBowCwSyjUrZ
-         FHjZpq7IddwDFQbkv3t2cC+p5MRwQu+KZNs32w3j0Je4a0EfKzVEBgE5+3dHtsZWel
-         23v8vI6pZoP2tUa7xoSRvtTyJ+gg8p7iKjA/atZaV/2MG1JgEAe7tpkdm4zlTLLgOh
-         AiID2NRFziTHTJNtLef3qTOWRb1Vh6OoQHrn0wuTxVLW4AXcaRH9SqhnwXvvNjsqck
-         NSYN26EVf0URg==
+        s=k20201202; t=1665500042;
+        bh=in2WENQ3DnZ5Wbx8A8rV5WBddompOUq8UbqsLWOkxjk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=oxQyINalp3s14334abYuAms81/3/CdA3hpYU1lBX0zlWD9zgv5lujWqtGAtL3OEAq
+         PyS8fMZznuDkcLXWuo6BC56Wq/gJhsbA45nGqCmWTpys+Emh+W76/R4Uh8EEGXw9D0
+         apQ8GR5BYEu+7p+uyzLN5H9KDb1S6n4iMooSutPp71JYE2zxIo+ah5ciSnCFxgC0je
+         yFdW5A+a13HJau+HyWgustAiWpW4riotvEHf/o3A0/x0p3Q6iq3D45Wehmq8j1zePa
+         X5nkBsUZjfLk5b/Dms1zBD2bcUwLbNUkPkaSSdPr+tQwzXBopVEwnnz5hq00XtnAQc
+         evUaEwEduGvKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haibo Chen <haibo.chen@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 01/11] ARM: dts: imx7d-sdb: config the max pressure for tsc2046
-Date:   Tue, 11 Oct 2022 10:53:48 -0400
-Message-Id: <20221011145358.1624959-1-sashal@kernel.org>
+Cc:     Jean Delvare <jdelvare@suse.de>, kernel test robot <lkp@intel.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Chenglin Xu <chenglin.xu@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 02/11] soc: mediatek: Let PMIC Wrapper and SCPSYS depend on OF
+Date:   Tue, 11 Oct 2022 10:53:49 -0400
+Message-Id: <20221011145358.1624959-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221011145358.1624959-1-sashal@kernel.org>
+References: <20221011145358.1624959-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,58 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit e7c4ebe2f9cd68588eb24ba4ed122e696e2d5272 ]
+[ Upstream commit 2778caedb5667239823a29148dfc48b26a8b3c2a ]
 
-Use the general touchscreen method to config the max pressure for
-touch tsc2046(data sheet suggest 8 bit pressure), otherwise, for
-ABS_PRESSURE, when config the same max and min value, weston will
-meet the following issue,
+With the following configuration options:
+CONFIG_OF is not set
+CONFIG_MTK_PMIC_WRAP=y
+CONFIG_MTK_SCPSYS=y
+we get the following build warnings:
 
-[17:19:39.183] event1  - ADS7846 Touchscreen: is tagged by udev as: Touchscreen
-[17:19:39.183] event1  - ADS7846 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE
-[17:19:39.183] event1  - ADS7846 Touchscreen: was rejected
-[17:19:39.183] event1  - not using input device '/dev/input/event1'
+  CC      drivers/soc/mediatek/mtk-pmic-wrap.o
+drivers/soc/mediatek/mtk-pmic-wrap.c:2138:34: warning: ‘of_pwrap_match_tbl’ defined but not used [-Wunused-const-variable=]
+drivers/soc/mediatek/mtk-pmic-wrap.c:1953:34: warning: ‘of_slave_match_tbl’ defined but not used [-Wunused-const-variable=]
+  CC      drivers/soc/mediatek/mtk-scpsys.o
+drivers/soc/mediatek/mtk-scpsys.c:1084:34: warning: ‘of_scpsys_match_tbl’ defined but not used [-Wunused-const-variable=]
 
-This will then cause the APP weston-touch-calibrator can't list touch devices.
+Looking at the code, both drivers can only bind to OF-defined device
+nodes, so these drivers are useless without OF and should therefore
+depend on it.
 
-root@imx6ul7d:~# weston-touch-calibrator
-could not load cursor 'dnd-move'
-could not load cursor 'dnd-copy'
-could not load cursor 'dnd-none'
-No devices listed.
+Also drop of_match_ptr() from both drivers. We already know what it
+will resolve to, so we might as well save cpp some work.
 
-And accroding to binding Doc, "ti,x-max", "ti,y-max", "ti,pressure-max"
-belong to the deprecated properties, so remove them. Also for "ti,x-min",
-"ti,y-min", "ti,x-plate-ohms", the value set in dts equal to the default
-value in driver, so are redundant, also remove here.
+Developers or QA teams who wish to test-build the code can still do
+so by enabling CONFIG_OF, which is available on all architectures and
+has no dependencies.
 
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/all/202207240252.ZY5hSCNB-lkp@intel.com/
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Chenglin Xu <chenglin.xu@mediatek.com>
+Link: https://lore.kernel.org/r/20220730144833.0a0d9825@endymion.delvare
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7d-sdb.dts | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/soc/mediatek/Kconfig         | 2 ++
+ drivers/soc/mediatek/mtk-pmic-wrap.c | 2 +-
+ drivers/soc/mediatek/mtk-scpsys.c    | 2 +-
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
-index 317f1bcc56e2..bd2c3c8f4ebb 100644
---- a/arch/arm/boot/dts/imx7d-sdb.dts
-+++ b/arch/arm/boot/dts/imx7d-sdb.dts
-@@ -163,12 +163,7 @@ tsc2046@0 {
- 		interrupt-parent = <&gpio2>;
- 		interrupts = <29 0>;
- 		pendown-gpio = <&gpio2 29 GPIO_ACTIVE_HIGH>;
--		ti,x-min = /bits/ 16 <0>;
--		ti,x-max = /bits/ 16 <0>;
--		ti,y-min = /bits/ 16 <0>;
--		ti,y-max = /bits/ 16 <0>;
--		ti,pressure-max = /bits/ 16 <0>;
--		ti,x-plate-ohms = /bits/ 16 <400>;
-+		touchscreen-max-pressure = <255>;
- 		wakeup-source;
- 	};
+diff --git a/drivers/soc/mediatek/Kconfig b/drivers/soc/mediatek/Kconfig
+index a7d0667338f2..2bb92efd01a8 100644
+--- a/drivers/soc/mediatek/Kconfig
++++ b/drivers/soc/mediatek/Kconfig
+@@ -15,6 +15,7 @@ config MTK_INFRACFG
+ config MTK_PMIC_WRAP
+ 	tristate "MediaTek PMIC Wrapper Support"
+ 	depends on RESET_CONTROLLER
++	depends on OF
+ 	select REGMAP
+ 	help
+ 	  Say yes here to add support for MediaTek PMIC Wrapper found
+@@ -24,6 +25,7 @@ config MTK_PMIC_WRAP
+ config MTK_SCPSYS
+ 	bool "MediaTek SCPSYS Support"
+ 	default ARCH_MEDIATEK
++	depends on OF
+ 	select REGMAP
+ 	select MTK_INFRACFG
+ 	select PM_GENERIC_DOMAINS if PM
+diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
+index 011a40b5fb49..0e7dc2f01296 100644
+--- a/drivers/soc/mediatek/mtk-pmic-wrap.c
++++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
+@@ -1672,7 +1672,7 @@ static int pwrap_probe(struct platform_device *pdev)
+ static struct platform_driver pwrap_drv = {
+ 	.driver = {
+ 		.name = "mt-pmic-pwrap",
+-		.of_match_table = of_match_ptr(of_pwrap_match_tbl),
++		.of_match_table = of_pwrap_match_tbl,
+ 	},
+ 	.probe = pwrap_probe,
  };
+diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
+index ef54f1638d20..06543e41d015 100644
+--- a/drivers/soc/mediatek/mtk-scpsys.c
++++ b/drivers/soc/mediatek/mtk-scpsys.c
+@@ -1071,7 +1071,7 @@ static struct platform_driver scpsys_drv = {
+ 		.name = "mtk-scpsys",
+ 		.suppress_bind_attrs = true,
+ 		.owner = THIS_MODULE,
+-		.of_match_table = of_match_ptr(of_scpsys_match_tbl),
++		.of_match_table = of_scpsys_match_tbl,
+ 	},
+ };
+ builtin_platform_driver(scpsys_drv);
 -- 
 2.35.1
 
