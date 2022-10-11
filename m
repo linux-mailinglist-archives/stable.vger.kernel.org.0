@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3112D5FB560
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2193A5FB571
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230205AbiJKOxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36230 "EHLO
+        id S230376AbiJKOyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230204AbiJKOwd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:52:33 -0400
+        with ESMTP id S230050AbiJKOxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:53:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F1B9AFC9;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83FB49AFCA;
         Tue, 11 Oct 2022 07:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C29E2611C0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36852611C6;
+        Tue, 11 Oct 2022 14:51:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B99B9C433C1;
         Tue, 11 Oct 2022 14:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5824DC4347C;
-        Tue, 11 Oct 2022 14:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499875;
-        bh=01ACih7RDRoJVsPEoE2qtPSXDZdNEOzvssyyJNaROlc=;
+        s=k20201202; t=1665499876;
+        bh=m5XLNmell0PrmFO8ifP66AP9KRaK8RMcLJHNEUlfM0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3npX2j22JSRUwk22fliG1AwCVWXiuqHiIGMvCKqhEM8FdQruBVvE5P+1AXEYhvLf
-         8sgXn1/yJ564Q5YDDOSGL/DTt3r5EMCdRrcuoUp2t/qZyCCTKyMB0r37tlakBHrFiT
-         FG/aAoT6ZAK8BemSqe5gJ0CQGdHftSqvhhPS9L7z3JhysYCzNtRT1GXv95yXp9CRxo
-         Sj7ui31ynns8fhC1jYbsygQl3ZuWUzhKG8Yo+XJLqBZYIMABV+5Lcabxv3YnicTQ3/
-         V/KVIX0Udot3y3ZgTaX8ULflX3ZmGZUFenF+kdrotfHjQnmaZ9r2i9Zv4GAiy0NFLh
-         Lq+pv7wNDUmIw==
+        b=L9v+QSpCGQBdxjwMnPQ0DdivuRJtHhVBm72NwUn3JNEg6CQaAZERrP09HXSPdpoG/
+         JXiqr8lARkSLnVsfjrgPneVnI5hW/hIy85tDjOJCUrxD+ZhZST/HrX36l8NmPKQbta
+         C4EAAgjH90Y+Bt2n9x+AaB3I28a8vfuWbS+uNFAxHRq2ZW/3nOTUG9lybCQd+1HOYz
+         jR2Qo7FG3ZMrwNqMcNDbU3ZQULM0CJDghEggo+y5NdbyQyu/y4HQXDZYh8ArjdAbyb
+         qBPpyKCDkpd4v6PCuQAu/1QUsDdqWObPnWD3TL+wi25SPYTSCDVoI6xQ17AX0AvldW
+         C+fsEw80Z44hA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+Cc:     David Sterba <dsterba@suse.com>,
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
         josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 38/46] btrfs: introduce BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN
-Date:   Tue, 11 Oct 2022 10:50:06 -0400
-Message-Id: <20221011145015.1622882-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 39/46] btrfs: add KCSAN annotations for unlocked access to block_rsv->full
+Date:   Tue, 11 Oct 2022 10:50:07 -0400
+Message-Id: <20221011145015.1622882-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145015.1622882-1-sashal@kernel.org>
 References: <20221011145015.1622882-1-sashal@kernel.org>
@@ -55,217 +56,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit e562a8bdf652b010ce2525bcf15d145c9d3932bf ]
+[ Upstream commit 748f553c3c4c4f175c6c834358632aff802d72cf ]
 
-Introduce a new runtime flag, BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN,
-which will inform qgroup rescan to cancel its work asynchronously.
+KCSAN reports that there's unlocked access mixed with locked access,
+which is technically correct but is not a bug.  To avoid false alerts at
+least from KCSAN, add annotation and use a wrapper whenever ->full is
+accessed for read outside of lock.
 
-This is to address the window when an operation makes qgroup numbers
-inconsistent (like qgroup inheriting) while a qgroup rescan is running.
+It is used as a fast check and only advisory.  In the worst case the
+block reserve is found !full and becomes full in the meantime, but
+properly handled.
 
-In that case, qgroup inconsistent flag will be cleared when qgroup
-rescan finishes.
-But we changed the ownership of some extents, which means the rescan is
-already meaningless, and the qgroup inconsistent flag should not be
-cleared.
+Depending on the value of ->full, btrfs_block_rsv_release decides
+where to return the reservation, and block_rsv_release_bytes handles a
+NULL pointer for block_rsv and if it's not NULL then it double checks
+the full status under a lock.
 
-With the new flag, each time we set INCONSISTENT flag, we also set this
-new flag to inform any running qgroup rescan to exit immediately, and
-leaving the INCONSISTENT flag there.
-
-The new runtime flag can only be cleared when a new rescan is started.
-
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Link: https://lore.kernel.org/linux-btrfs/CAAwBoOJDjei5Hnem155N_cJwiEkVwJYvgN-tQrwWbZQGhFU=cA@mail.gmail.com/
+Link: https://lore.kernel.org/linux-btrfs/YvHU/vsXd7uz5V6j@hungrycats.org
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c | 43 ++++++++++++++++++++++++++-----------------
- fs/btrfs/qgroup.h |  2 ++
- 2 files changed, 28 insertions(+), 17 deletions(-)
+ fs/btrfs/block-rsv.c   | 2 +-
+ fs/btrfs/block-rsv.h   | 9 +++++++++
+ fs/btrfs/transaction.c | 4 ++--
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index db723c0026bd..8e7b188d1dc1 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -333,6 +333,12 @@ int btrfs_verify_qgroup_counts(struct btrfs_fs_info *fs_info, u64 qgroupid,
- }
- #endif
+diff --git a/fs/btrfs/block-rsv.c b/fs/btrfs/block-rsv.c
+index 06be0644dd37..046caf14a4bb 100644
+--- a/fs/btrfs/block-rsv.c
++++ b/fs/btrfs/block-rsv.c
+@@ -286,7 +286,7 @@ u64 btrfs_block_rsv_release(struct btrfs_fs_info *fs_info,
+ 	 */
+ 	if (block_rsv == delayed_rsv)
+ 		target = global_rsv;
+-	else if (block_rsv != global_rsv && !delayed_rsv->full)
++	else if (block_rsv != global_rsv && !btrfs_block_rsv_full(delayed_rsv))
+ 		target = delayed_rsv;
  
-+static void qgroup_mark_inconsistent(struct btrfs_fs_info *fs_info)
+ 	if (target && block_rsv->space_info != target->space_info)
+diff --git a/fs/btrfs/block-rsv.h b/fs/btrfs/block-rsv.h
+index 0c183709be00..578c3497a455 100644
+--- a/fs/btrfs/block-rsv.h
++++ b/fs/btrfs/block-rsv.h
+@@ -92,4 +92,13 @@ static inline void btrfs_unuse_block_rsv(struct btrfs_fs_info *fs_info,
+ 	btrfs_block_rsv_release(fs_info, block_rsv, 0, NULL);
+ }
+ 
++/*
++ * Fast path to check if the reserve is full, may be carefully used outside of
++ * locks.
++ */
++static inline bool btrfs_block_rsv_full(const struct btrfs_block_rsv *rsv)
 +{
-+	fs_info->qgroup_flags |= (BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT |
-+				  BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN);
++	return data_race(rsv->full);
 +}
 +
- /*
-  * The full config is read in one go, only called from open_ctree()
-  * It doesn't use any locking, as at this point we're still single-threaded
-@@ -401,7 +407,7 @@ int btrfs_read_qgroup_config(struct btrfs_fs_info *fs_info)
- 			}
- 			if (btrfs_qgroup_status_generation(l, ptr) !=
- 			    fs_info->generation) {
--				flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+				qgroup_mark_inconsistent(fs_info);
- 				btrfs_err(fs_info,
- 					"qgroup generation mismatch, marked as inconsistent");
- 			}
-@@ -419,7 +425,7 @@ int btrfs_read_qgroup_config(struct btrfs_fs_info *fs_info)
- 		if ((qgroup && found_key.type == BTRFS_QGROUP_INFO_KEY) ||
- 		    (!qgroup && found_key.type == BTRFS_QGROUP_LIMIT_KEY)) {
- 			btrfs_err(fs_info, "inconsistent qgroup config");
--			flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+			qgroup_mark_inconsistent(fs_info);
+ #endif /* BTRFS_BLOCK_RSV_H */
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 4c87bf2abc14..49570ad23f2e 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -594,7 +594,7 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
+ 		 */
+ 		num_bytes = btrfs_calc_insert_metadata_size(fs_info, num_items);
+ 		if (flush == BTRFS_RESERVE_FLUSH_ALL &&
+-		    delayed_refs_rsv->full == 0) {
++		    btrfs_block_rsv_full(delayed_refs_rsv) == 0) {
+ 			delayed_refs_bytes = num_bytes;
+ 			num_bytes <<= 1;
  		}
- 		if (!qgroup) {
- 			qgroup = add_qgroup_rb(fs_info, found_key.offset);
-@@ -1717,7 +1723,7 @@ int btrfs_limit_qgroup(struct btrfs_trans_handle *trans, u64 qgroupid,
- 
- 	ret = update_qgroup_limit_item(trans, qgroup);
- 	if (ret) {
--		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(fs_info);
- 		btrfs_info(fs_info, "unable to update quota limit for %llu",
- 		       qgroupid);
- 	}
-@@ -1793,7 +1799,7 @@ int btrfs_qgroup_trace_extent_post(struct btrfs_trans_handle *trans,
- 	ret = btrfs_find_all_roots(NULL, trans->fs_info, bytenr, 0, &old_root,
- 				   true);
- 	if (ret < 0) {
--		trans->fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(trans->fs_info);
- 		btrfs_warn(trans->fs_info,
- "error accounting new delayed refs extent (err code: %d), quota inconsistent",
- 			ret);
-@@ -2269,7 +2275,7 @@ static int qgroup_trace_subtree_swap(struct btrfs_trans_handle *trans,
- out:
- 	btrfs_free_path(dst_path);
- 	if (ret < 0)
--		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(fs_info);
- 	return ret;
- }
- 
-@@ -2773,12 +2779,10 @@ int btrfs_run_qgroups(struct btrfs_trans_handle *trans)
- 		spin_unlock(&fs_info->qgroup_lock);
- 		ret = update_qgroup_info_item(trans, qgroup);
- 		if (ret)
--			fs_info->qgroup_flags |=
--					BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+			qgroup_mark_inconsistent(fs_info);
- 		ret = update_qgroup_limit_item(trans, qgroup);
- 		if (ret)
--			fs_info->qgroup_flags |=
--					BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+			qgroup_mark_inconsistent(fs_info);
- 		spin_lock(&fs_info->qgroup_lock);
- 	}
- 	if (test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags))
-@@ -2789,7 +2793,7 @@ int btrfs_run_qgroups(struct btrfs_trans_handle *trans)
- 
- 	ret = update_qgroup_status_item(trans);
- 	if (ret)
--		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(fs_info);
- 
- 	return ret;
- }
-@@ -2907,7 +2911,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 
- 		ret = update_qgroup_limit_item(trans, dstgroup);
- 		if (ret) {
--			fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+			qgroup_mark_inconsistent(fs_info);
- 			btrfs_info(fs_info,
- 				   "unable to update quota limit for %llu",
- 				   dstgroup->qgroupid);
-@@ -3013,7 +3017,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 	if (!committing)
- 		mutex_unlock(&fs_info->qgroup_ioctl_lock);
- 	if (need_rescan)
--		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(fs_info);
- 	return ret;
- }
- 
-@@ -3286,7 +3290,8 @@ static bool rescan_should_stop(struct btrfs_fs_info *fs_info)
- {
- 	return btrfs_fs_closing(fs_info) ||
- 		test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state) ||
--		!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
-+		!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags) ||
-+			  fs_info->qgroup_flags & BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN;
- }
- 
- static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
-@@ -3351,7 +3356,8 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
- 	}
- 
- 	mutex_lock(&fs_info->qgroup_rescan_lock);
--	if (!stopped)
-+	if (!stopped ||
-+	    fs_info->qgroup_flags & BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN)
- 		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_RESCAN;
- 	if (trans) {
- 		ret = update_qgroup_status_item(trans);
-@@ -3362,6 +3368,7 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
- 		}
- 	}
- 	fs_info->qgroup_rescan_running = false;
-+	fs_info->qgroup_flags &= ~BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN;
- 	complete_all(&fs_info->qgroup_rescan_completion);
- 	mutex_unlock(&fs_info->qgroup_rescan_lock);
- 
-@@ -3372,6 +3379,8 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
- 
- 	if (stopped) {
- 		btrfs_info(fs_info, "qgroup scan paused");
-+	} else if (fs_info->qgroup_flags & BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN) {
-+		btrfs_info(fs_info, "qgroup scan cancelled");
- 	} else if (err >= 0) {
- 		btrfs_info(fs_info, "qgroup scan completed%s",
- 			err > 0 ? " (inconsistency flag cleared)" : "");
-@@ -3434,6 +3443,7 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
- 
- 	memset(&fs_info->qgroup_rescan_progress, 0,
- 		sizeof(fs_info->qgroup_rescan_progress));
-+	fs_info->qgroup_flags &= ~BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN;
- 	fs_info->qgroup_rescan_progress.objectid = progress_objectid;
- 	init_completion(&fs_info->qgroup_rescan_completion);
- 	mutex_unlock(&fs_info->qgroup_rescan_lock);
-@@ -4231,8 +4241,7 @@ int btrfs_qgroup_add_swapped_blocks(struct btrfs_trans_handle *trans,
- 	spin_unlock(&blocks->lock);
- out:
- 	if (ret < 0)
--		fs_info->qgroup_flags |=
--			BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(fs_info);
- 	return ret;
- }
- 
-@@ -4319,7 +4328,7 @@ int btrfs_qgroup_trace_subtree_after_cow(struct btrfs_trans_handle *trans,
- 		btrfs_err_rl(fs_info,
- 			     "failed to account subtree at bytenr %llu: %d",
- 			     subvol_eb->start, ret);
--		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		qgroup_mark_inconsistent(fs_info);
- 	}
- 	return ret;
- }
-diff --git a/fs/btrfs/qgroup.h b/fs/btrfs/qgroup.h
-index 0c4dd2a9af96..90d3632c5524 100644
---- a/fs/btrfs/qgroup.h
-+++ b/fs/btrfs/qgroup.h
-@@ -100,6 +100,8 @@
-  *     subtree rescan for them.
-  */
- 
-+#define BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN		(1UL << 3)
-+
- /*
-  * Record a dirty extent, and info qgroup to update quota on it
-  * TODO: Use kmem cache to alloc it.
+@@ -619,7 +619,7 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
+ 		if (rsv->space_info->force_alloc)
+ 			do_chunk_alloc = true;
+ 	} else if (num_items == 0 && flush == BTRFS_RESERVE_FLUSH_ALL &&
+-		   !delayed_refs_rsv->full) {
++		   !btrfs_block_rsv_full(delayed_refs_rsv)) {
+ 		/*
+ 		 * Some people call with btrfs_start_transaction(root, 0)
+ 		 * because they can be throttled, but have some other mechanism
 -- 
 2.35.1
 
