@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6205FB747
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDFC5FB680
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:06:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230458AbiJKPcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35432 "EHLO
+        id S231626AbiJKPG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230515AbiJKPbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:31:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1790AAE214;
-        Tue, 11 Oct 2022 08:21:18 -0700 (PDT)
+        with ESMTP id S231669AbiJKPFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:05:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B34218378;
+        Tue, 11 Oct 2022 07:59:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DEE6B8160D;
-        Tue, 11 Oct 2022 14:53:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F7AFC433D7;
-        Tue, 11 Oct 2022 14:52:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45768611B0;
+        Tue, 11 Oct 2022 14:53:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF333C433B5;
+        Tue, 11 Oct 2022 14:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499980;
-        bh=qCCQDJV4MDq7Ys5QWkmIcDTZEvK17HR7pBaG2uA5NDU=;
+        s=k20201202; t=1665499981;
+        bh=7FXfU3fxAOkwYQHvDuPlODgyMhi5tjDD9JNi8SuERLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMR8vrT5e2YYSVS+l9vUVIAdeC8kGDdW++MG5IeljrHM0+F3b2zSvL9GbyiRAMy1a
-         pPn7hRxKeM5I4xGu37QjQy5sRiRxOdnal8FLxMKcMYIW2OCN15P5PXhv8lnh1CtgfP
-         OFnqCV30m36wLHCK/IqP+LqiY5udFNsOzdx5ltR1TBXK1keRI6qA57QNfnr4VtK1eX
-         F7n0xqgWE7RD3+ICvqRt2z8r6Ke4y34OKdre2iarf9hDfyIkZVBUHJmaaJJAIx6wYe
-         OXym6NV0fjItcYJfqtIDFXG+tZAsZHMzGLZW8jDUYSxa9Lcrlz26xkYyn9ezlVnoEj
-         Us1ICJwb+fQxQ==
+        b=JHj+1yUdnkLO0iqOdOQ/GHLtQM/pAnp9X6KPasjQzdPpg1IsbJtAn4+DazVlyPBXa
+         M2R25yjAbO1mHrkorRgDT8Uft4F2vslfM0LsBwyPsEVPkt3YniEgXt81Dj/gJgeSAQ
+         SdwHC5NTtlJy9K4Bkh+E267w/fWS34SKHN26070K3l89Wnwzfz8Bako2D5ciTMHX0a
+         ogr1iBJZdv/5WjrWa6nSNCB1dtUwS0f9smCpt8UKFh3EV84IMQ8fxVEHXjo0o5fhQH
+         Vam00LPLOWemhAInHb6PcoTolHVSjFpWEkXgY0jr9zuHsTqK2Oudr6ISoYThZTJg2O
+         dL4cM8qqatf1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ioannis Angelakopoulos <iangelak@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 18/26] btrfs: change the lockdep class of free space inode's invalidate_lock
-Date:   Tue, 11 Oct 2022 10:52:25 -0400
-Message-Id: <20221011145233.1624013-18-sashal@kernel.org>
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 19/26] btrfs: scrub: try to fix super block errors
+Date:   Tue, 11 Oct 2022 10:52:26 -0400
+Message-Id: <20221011145233.1624013-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145233.1624013-1-sashal@kernel.org>
 References: <20221011145233.1624013-1-sashal@kernel.org>
@@ -57,59 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioannis Angelakopoulos <iangelak@fb.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 9d7464c87b159bbf763c24faeb7a2dcaac96e4a1 ]
+[ Upstream commit f9eab5f0bba76742af654f33d517bf62a0db8f12 ]
 
-Reinitialize the class of the lockdep map for struct inode's
-mapping->invalidate_lock in load_free_space_cache() function in
-fs/btrfs/free-space-cache.c. This will prevent lockdep from producing
-false positives related to execution paths that make use of free space
-inodes and paths that make use of normal inodes.
+[BUG]
+The following script shows that, although scrub can detect super block
+errors, it never tries to fix it:
 
-Specifically, with this change lockdep will create separate lock
-dependencies that include the invalidate_lock, in the case that free
-space inodes are used and in the case that normal inodes are used.
+	mkfs.btrfs -f -d raid1 -m raid1 $dev1 $dev2
+	xfs_io -c "pwrite 67108864 4k" $dev2
 
-The lockdep class for this lock was first initialized in
-inode_init_always() in fs/inode.c.
+	mount $dev1 $mnt
+	btrfs scrub start -B $dev2
+	btrfs scrub start -Br $dev2
+	umount $mnt
 
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Ioannis Angelakopoulos <iangelak@fb.com>
+The first scrub reports the super error correctly:
+
+  scrub done for f3289218-abd3-41ac-a630-202f766c0859
+  Scrub started:    Tue Aug  2 14:44:11 2022
+  Status:           finished
+  Duration:         0:00:00
+  Total to scrub:   1.26GiB
+  Rate:             0.00B/s
+  Error summary:    super=1
+    Corrected:      0
+    Uncorrectable:  0
+    Unverified:     0
+
+But the second read-only scrub still reports the same super error:
+
+  Scrub started:    Tue Aug  2 14:44:11 2022
+  Status:           finished
+  Duration:         0:00:00
+  Total to scrub:   1.26GiB
+  Rate:             0.00B/s
+  Error summary:    super=1
+    Corrected:      0
+    Uncorrectable:  0
+    Unverified:     0
+
+[CAUSE]
+The comments already shows that super block can be easily fixed by
+committing a transaction:
+
+	/*
+	 * If we find an error in a super block, we just report it.
+	 * They will get written with the next transaction commit
+	 * anyway
+	 */
+
+But the truth is, such assumption is not always true, and since scrub
+should try to repair every error it found (except for read-only scrub),
+we should really actively commit a transaction to fix this.
+
+[FIX]
+Just commit a transaction if we found any super block errors, after
+everything else is done.
+
+We cannot do this just after scrub_supers(), as
+btrfs_commit_transaction() will try to pause and wait for the running
+scrub, thus we can not call it with scrub_lock hold.
+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/free-space-cache.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/btrfs/scrub.c | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
-index 529907ea3825..456da08feccd 100644
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -899,6 +899,8 @@ static int copy_free_space_cache(struct btrfs_block_group *block_group,
- 	return ret;
- }
+diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
+index 0785d9d645fc..ca8d6979c788 100644
+--- a/fs/btrfs/scrub.c
++++ b/fs/btrfs/scrub.c
+@@ -4072,6 +4072,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	int ret;
+ 	struct btrfs_device *dev;
+ 	unsigned int nofs_flag;
++	bool need_commit = false;
  
-+static struct lock_class_key btrfs_free_space_inode_key;
+ 	if (btrfs_fs_closing(fs_info))
+ 		return -EAGAIN;
+@@ -4177,6 +4178,12 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	 */
+ 	nofs_flag = memalloc_nofs_save();
+ 	if (!is_dev_replace) {
++		u64 old_super_errors;
 +
- int load_free_space_cache(struct btrfs_block_group *block_group)
- {
- 	struct btrfs_fs_info *fs_info = block_group->fs_info;
-@@ -968,6 +970,14 @@ int load_free_space_cache(struct btrfs_block_group *block_group)
++		spin_lock(&sctx->stat_lock);
++		old_super_errors = sctx->stat.super_errors;
++		spin_unlock(&sctx->stat_lock);
++
+ 		btrfs_info(fs_info, "scrub: started on devid %llu", devid);
+ 		/*
+ 		 * by holding device list mutex, we can
+@@ -4185,6 +4192,16 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 		mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 		ret = scrub_supers(sctx, dev);
+ 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
++
++		spin_lock(&sctx->stat_lock);
++		/*
++		 * Super block errors found, but we can not commit transaction
++		 * at current context, since btrfs_commit_transaction() needs
++		 * to pause the current running scrub (hold by ourselves).
++		 */
++		if (sctx->stat.super_errors > old_super_errors && !sctx->readonly)
++			need_commit = true;
++		spin_unlock(&sctx->stat_lock);
  	}
- 	spin_unlock(&block_group->lock);
+ 
+ 	if (!ret)
+@@ -4211,6 +4228,25 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	scrub_workers_put(fs_info);
+ 	scrub_put_ctx(sctx);
  
 +	/*
-+	 * Reinitialize the class of struct inode's mapping->invalidate_lock for
-+	 * free space inodes to prevent false positives related to locks for normal
-+	 * inodes.
++	 * We found some super block errors before, now try to force a
++	 * transaction commit, as scrub has finished.
 +	 */
-+	lockdep_set_class(&(&inode->i_data)->invalidate_lock,
-+			  &btrfs_free_space_inode_key);
++	if (need_commit) {
++		struct btrfs_trans_handle *trans;
 +
- 	ret = __load_free_space_cache(fs_info->tree_root, inode, &tmp_ctl,
- 				      path, block_group->start);
- 	btrfs_free_path(path);
++		trans = btrfs_start_transaction(fs_info->tree_root, 0);
++		if (IS_ERR(trans)) {
++			ret = PTR_ERR(trans);
++			btrfs_err(fs_info,
++	"scrub: failed to start transaction to fix super block errors: %d", ret);
++			return ret;
++		}
++		ret = btrfs_commit_transaction(trans);
++		if (ret < 0)
++			btrfs_err(fs_info,
++	"scrub: failed to commit transaction to fix super block errors: %d", ret);
++	}
+ 	return ret;
+ out:
+ 	scrub_workers_put(fs_info);
 -- 
 2.35.1
 
