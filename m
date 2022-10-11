@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E3CF5FB6E3
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8645FB67D
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230483AbiJKPWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56804 "EHLO
+        id S231684AbiJKPFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:05:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231717AbiJKPWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:22:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6C93120EF8;
-        Tue, 11 Oct 2022 08:13:46 -0700 (PDT)
+        with ESMTP id S231823AbiJKPEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:04:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02394A50FC;
+        Tue, 11 Oct 2022 07:59:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7FE0611E3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18732611EC;
+        Tue, 11 Oct 2022 14:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4744C43143;
         Tue, 11 Oct 2022 14:54:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7897BC433D7;
-        Tue, 11 Oct 2022 14:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500061;
-        bh=DsEm4B5eM384zX7FuS5sZlf+cikKCsf/fQmUm9ZDqTQ=;
+        s=k20201202; t=1665500062;
+        bh=z1nZ5R0Es66jpD56Q/P7v3Ds575aQ9G/uGoybDehYUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3pER9th2oBVHe3hJIeLQqrFBeGpWERFDZBUvGvrozJv9kuDEhWfKK77vIxvmgdxy
-         ucv0XzgJIxAYqtOCpc9XxsdhzeP9UAqDuVijqwyKlbXPiShu+OYUMM8D765z18sg29
-         6SJsiQ2moBo/Tw5+WO0g+CtmiHQkOlPS0B4NPro6aUNyCfU36y9EZnioevYRSIfv1b
-         VdHVZCaB/B+ah3WO/zKRb+4lmqAXryJajRkObIGla2YoHHW0So0qu/Uv54WmPaX3Gq
-         6q19xKo0LiCmlW/noNG0aYd9aeOoUUWNtn4qMpcF7sn7ImNy+KajoxMKrLyrWDb1Jg
-         M4TwjDVUGfdVQ==
+        b=k0CbvEwKLIFRwn9pE2PENMj7T3P2L4/gfgsIhP4eccsUFYiJTmEOcWAl72zocaUY6
+         iBNVbI/C8y7t1qs7QhWAZSNbyB4F5ZLfnImHQbPn16sS0nVtw0o1dL1ERhzoAd4ji4
+         cD68YzRvhNcFRx5zhkZshFPjpJaeUxljNhDzWGuSQpBGpUB1yx9iBrNcN6jP1LKr8q
+         8kLqScTI3Wa8tKFoORVKASXCTIv03j7sfy4s12VvMjfyPJJaXPCIYp5Yr+zFDQzPCP
+         x37nIxeixMj8A3mNn7GBwkd0IOgXZ18R3RPjSyOWwcOfF/f58whox5Qfwz/b90EVer
+         f0kHxTLYP4jFQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 4/7] ARM: dts: imx6dl: add missing properties for sram
-Date:   Tue, 11 Oct 2022 10:54:11 -0400
-Message-Id: <20221011145414.1625237-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 5/7] ARM: dts: imx6qp: add missing properties for sram
+Date:   Tue, 11 Oct 2022 10:54:12 -0400
+Message-Id: <20221011145414.1625237-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145414.1625237-1-sashal@kernel.org>
 References: <20221011145414.1625237-1-sashal@kernel.org>
@@ -58,29 +58,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit f5848b95633d598bacf0500e0108dc5961af88c0 ]
+[ Upstream commit 088fe5237435ee2f7ed4450519b2ef58b94c832f ]
 
 All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+sram@940000: '#address-cells' is a required property
+sram@940000: '#size-cells' is a required property
+sram@940000: 'ranges' is a required property
 
 Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/imx6qp.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6dl.dtsi b/arch/arm/boot/dts/imx6dl.dtsi
-index 8475e6cc59ac..71e7c87c7497 100644
---- a/arch/arm/boot/dts/imx6dl.dtsi
-+++ b/arch/arm/boot/dts/imx6dl.dtsi
-@@ -63,6 +63,9 @@ soc {
- 		ocram: sram@00900000 {
+diff --git a/arch/arm/boot/dts/imx6qp.dtsi b/arch/arm/boot/dts/imx6qp.dtsi
+index 299d863690c5..6cf0f9e18b70 100644
+--- a/arch/arm/boot/dts/imx6qp.dtsi
++++ b/arch/arm/boot/dts/imx6qp.dtsi
+@@ -47,12 +47,18 @@ soc {
+ 		ocram2: sram@00940000 {
  			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
+ 			reg = <0x00940000 0x20000>;
++			ranges = <0 0x00940000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
+ 
+ 		ocram3: sram@00960000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00960000 0x20000>;
++			ranges = <0 0x00960000 0x20000>;
 +			#address-cells = <1>;
 +			#size-cells = <1>;
  			clocks = <&clks IMX6QDL_CLK_OCRAM>;
