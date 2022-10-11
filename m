@@ -2,114 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DB55FBC2D
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 22:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0F35FBC31
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 22:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiJKUfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 16:35:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
+        id S229813AbiJKUgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 16:36:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230010AbiJKUf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 16:35:26 -0400
-Received: from smtp-fw-33001.amazon.com (smtp-fw-33001.amazon.com [207.171.190.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174BA1B78D;
-        Tue, 11 Oct 2022 13:35:16 -0700 (PDT)
+        with ESMTP id S229994AbiJKUf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 16:35:58 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28669DF97;
+        Tue, 11 Oct 2022 13:35:51 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id b4so23371734wrs.1;
+        Tue, 11 Oct 2022 13:35:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1665520516; x=1697056516;
-  h=message-id:date:mime-version:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:subject;
-  bh=l+UDoqY8SAjjQoyPGhCWbqLhxgeVvuWrW3n0iwV8+4c=;
-  b=KZ2g6FxMbjTjUBrQgsTT81KhYqtldxjQPUXh0nqij5S6GtcgT5pGHr3v
-   0t+LU5qxWJq56ahoD4b8rGqxhi3WlE+O6PL+nEIqsRPdgSiu9bpZ/zn60
-   7CPvIFGu92VmJj+oWTD3RcbLG2JmvR9RxvdgdlhCTniB9lxrdvEEzADsH
-   E=;
-X-IronPort-AV: E=Sophos;i="5.95,177,1661817600"; 
-   d="scan'208";a="232474151"
-Subject: Re: [PATCH v2] nvme-pci: Set min align mask before calculating max_hw_sectors
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-pdx-2a-e6c05252.us-west-2.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-33001.sea14.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2022 20:35:15 +0000
-Received: from EX13MTAUWC002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-2a-e6c05252.us-west-2.amazon.com (Postfix) with ESMTPS id 19E9045542;
-        Tue, 11 Oct 2022 20:35:13 +0000 (UTC)
-Received: from EX19D002UWC004.ant.amazon.com (10.13.138.186) by
- EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Tue, 11 Oct 2022 20:35:12 +0000
-Received: from [192.168.21.170] (10.43.162.208) by
- EX19D002UWC004.ant.amazon.com (10.13.138.186) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.12;
- Tue, 11 Oct 2022 20:35:12 +0000
-Message-ID: <bc7b08f4-673d-538f-e053-4edf899b9d60@amazon.com>
-Date:   Tue, 11 Oct 2022 13:35:11 -0700
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=yM7le9rhqxSXpgbFxwaPbQQ1TFrB7VRUEQW1kSUpXmU=;
+        b=T+d2Slk5PbXg8XMD5Lg1iNy0E+lWg7JGmKWaDHQORIt/6M9zo1p/sCf1uf2Jd1E74Y
+         tOxGSAmxiV6L3AvtJ/c/Otf0aQPYrejk48fs+4Rni8rhb0zkKiqqcJfcq/Pvkjw36MQV
+         F2ZifXwkXJ2isQuYUrCbUtV8EE6TDU/1QIWGHJPZ7F7S/5X3V2GD2dqZqB+ddJtvYxdd
+         bLNkjJHfb4lq/fJPnOZDIv5M9M6eeUjsKxXtJWYurwVYxTqT6a0zcOxz357Gqd2/CgUZ
+         4DAE8dGdTnWWxjX9KaYw1GnvWH+JRg6USOzhRa17JrXses9NYUlwz2YH7BsdeOCViRnf
+         pOhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yM7le9rhqxSXpgbFxwaPbQQ1TFrB7VRUEQW1kSUpXmU=;
+        b=pYXrEeYP0HLQjsmYx5W4N8ELlc1jJvCzsJLU8spiQ8dE4Dh2Yc/siL+oPL7wii6eq3
+         1DotPh8PvEo5EJBJEyTUeWYo2NyqOpOAmmnd16NX5/V2KffVE/17pLHmrAausdOq/8MY
+         kHsbJMws5yD/TuXqiIXsv9hxWtuEf1KSLZwgzsR97/QhWrA3K8QGe8ZABUNnoa3bpKJJ
+         xnReqLFh3lZlmGWQ0U/zHwdByxXzkF2ElowpKHJV1VHjUJNK0ebDZopaCxdZeco5A4bn
+         uPJa1LAmxAItUh64r+u6gcnpqHX9PdkMqM66ZDor3QArioig7NGfrtystT0TrzK26umy
+         ieSg==
+X-Gm-Message-State: ACrzQf19G62ObIrFJt2aZGK330oghkXn/yy6V15yyd9feSlaCjbiHhLX
+        TWKIWWzYBDoAAEC2O9zp4F0=
+X-Google-Smtp-Source: AMsMyM6sizIYtV1Qi03T5A5crlK+OcFeVVmzMXvjlAtziQBR7R5nRi8mpVjFGnhcOD/o19ihGzv9uQ==
+X-Received: by 2002:a5d:59a4:0:b0:230:eaa4:88d7 with SMTP id p4-20020a5d59a4000000b00230eaa488d7mr6513585wrr.35.1665520549917;
+        Tue, 11 Oct 2022 13:35:49 -0700 (PDT)
+Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
+        by smtp.gmail.com with ESMTPSA id g17-20020a05600c001100b003c6bbe910fdsm23178wmc.9.2022.10.11.13.35.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Oct 2022 13:35:49 -0700 (PDT)
+Date:   Tue, 11 Oct 2022 21:35:47 +0100
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, srw@sladewatkins.net
+Subject: Re: [PATCH 6.0 00/17] 6.0.1-rc1 review
+Message-ID: <Y0XTo4tY61WmnidK@debian>
+References: <20221010070330.159911806@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.3.2
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "hch@lst.de" <hch@lst.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "sagi@grimberg.me" <sagi@grimberg.me>,
-        "axboe@fb.com" <axboe@fb.com>,
-        "kbusch@kernel.org" <kbusch@kernel.org>,
-        "Bacco, Mike" <mbacco@amazon.com>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>,
-        "Park, SeongJae" <sjpark@amazon.com>
-References: <20220929182259.22523-1-risbhat@amazon.com>
- <EB43F4D1-BFD0-408B-93E7-10643B59F766@amazon.com>
- <b73250f3-2dd6-36da-4d69-3149959f2e67@amazon.com>
- <20221011060829.GA3172@lst.de>
- <8f451a9e-3324-c7d4-cf61-a105fd087192@amazon.com>
- <Y0W09tcGK/1ZAhQh@kroah.com>
-From:   "Bhatnagar, Rishabh" <risbhat@amazon.com>
-In-Reply-To: <Y0W09tcGK/1ZAhQh@kroah.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.162.208]
-X-ClientProxiedBy: EX13D36UWA002.ant.amazon.com (10.43.160.24) To
- EX19D002UWC004.ant.amazon.com (10.13.138.186)
-X-Spam-Status: No, score=-14.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-On 10/11/22 11:24 AM, Greg KH wrote:
-> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
->
->
->
-> On Tue, Oct 11, 2022 at 10:05:38AM -0700, Bhatnagar, Rishabh wrote:
->> On 10/10/22 11:08 PM, hch@lst.de wrote:
->>> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
->>>
->>>
->>>
->>> The patch already made it to Linux 6.0, so I'm not sure what we need
->>> to review again.
->> Oh, I never got any email that this was being picked up so sent it again.
->> Anyways thanks for taking it.
->> We need this patch for 5.10/5.15 stable kernels as well. I can send backport
->> patches to stable tree
->> maintainers unless there is a way for you to mark it so that its
->> automatically picked for stable trees.
-> <formletter>
->
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
->
-> </formletter>
+On Mon, Oct 10, 2022 at 09:04:23AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.1 release.
+> There are 17 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
+> Anything received after that time might be too late.
 
-Since the original patch doesn't contain the CC:stable@vger.kernel.org, 
-using option 2
-makes sense as there is no special handling required to apply this for 
-5.10/5.15.
+Build test (gcc version 12.2.1 20220925):
+mips: 52 configs -> no failure
+arm: 100 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+-- 
+Regards
+Sudip
