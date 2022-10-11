@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EEF5FB61B
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A7D45FB754
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 17:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbiJKPAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 11:00:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54912 "EHLO
+        id S231728AbiJKPcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 11:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbiJKO65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:58:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E52D9F768;
-        Tue, 11 Oct 2022 07:53:32 -0700 (PDT)
+        with ESMTP id S231797AbiJKPc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 11:32:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C48629DDA9;
+        Tue, 11 Oct 2022 08:21:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4086D611C3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A79EB81633;
+        Tue, 11 Oct 2022 14:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5628FC43470;
         Tue, 11 Oct 2022 14:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C15B8C433D6;
-        Tue, 11 Oct 2022 14:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665500011;
-        bh=DldUW7Lm57Tuv67v64bf+Aur5Zpyj3o2v/3TEU1dk1o=;
+        s=k20201202; t=1665500013;
+        bh=wEdwXKsCN6anstaaDpgBE/tfOjXSIg8GvgNaZFp6SOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvlQCMTkRGU/ECK0Mo/FL/XBOZECPuD1/Caeaphm25V4s9uaWhIVXqskasCvMP9ro
-         w4rRjUhK+DpLB8JnwlhDHil58hy9HB7bNXBL0fTw8N/dj+3pYdklTSae/EgALX2qjD
-         M7kx3IdlV5ibq1JaggtfFBo+qSZqZbskriYesyr4qQMDKE1Jf2x7h3YcLbiZ320IBq
-         4x1GFGxeHLwCUS7Z5Qequk9M8jZeB1pDb52NeCjidv1fYjS0djDMC/c/hgkg11Q3vu
-         5vVFSD25Mp0vgQl3ankzXIzgIr5ZEngOSIJlGZSgA3uIx8L4IdsMKrhcoWteB/0g7p
-         NUA7+P3PSdrKw==
+        b=AHEiENsB9hm/mfeBgO9ClUW/wySVJppssV9oaiU0QswpHMfTCGQYlcbeT2DW+VvVs
+         h3hfI8jc+c1aCfBo4vKz6GZR7illyrUM+3DlZvuD2R47/1Vorx9jpp15BltGevsV7I
+         SAmv7hkYEca5dqykBn1pBcrte+AxyMK3NrBxXor0VBMmMwHqSB8DrBVT1vx/EITZqB
+         +fiHM62PHV8pkPKN4yk8BwGQspwyeXB7eY5fQQIRTpofMLGbbYcpdSG9p5OUOwChmH
+         RDqsMhc2zgX4XZZQ825sbFdC2lq3wfoEJFx90zXPOMqJt660hIq3HewwXhEc21GE++
+         n815pX7Sg0Obw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+Cc:     Qu Wenruo <wqu@suse.com>, Goffredo Baroncelli <kreijack@libero.it>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
         josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 13/17] btrfs: scrub: try to fix super block errors
-Date:   Tue, 11 Oct 2022 10:53:08 -0400
-Message-Id: <20221011145312.1624341-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 14/17] btrfs: check superblock to ensure the fs was not modified at thaw time
+Date:   Tue, 11 Oct 2022 10:53:09 -0400
+Message-Id: <20221011145312.1624341-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145312.1624341-1-sashal@kernel.org>
 References: <20221011145312.1624341-1-sashal@kernel.org>
@@ -57,143 +59,249 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit f9eab5f0bba76742af654f33d517bf62a0db8f12 ]
+[ Upstream commit a05d3c9153145283ce9c58a1d7a9056fbb85f6a1 ]
 
-[BUG]
-The following script shows that, although scrub can detect super block
-errors, it never tries to fix it:
+[BACKGROUND]
+There is an incident report that, one user hibernated the system, with
+one btrfs on removable device still mounted.
 
-	mkfs.btrfs -f -d raid1 -m raid1 $dev1 $dev2
-	xfs_io -c "pwrite 67108864 4k" $dev2
+Then by some incident, the btrfs got mounted and modified by another
+system/OS, then back to the hibernated system.
 
-	mount $dev1 $mnt
-	btrfs scrub start -B $dev2
-	btrfs scrub start -Br $dev2
-	umount $mnt
+After resuming from the hibernation, new write happened into the victim btrfs.
 
-The first scrub reports the super error correctly:
+Now the fs is completely broken, since the underlying btrfs is no longer
+the same one before the hibernation, and the user lost their data due to
+various transid mismatch.
 
-  scrub done for f3289218-abd3-41ac-a630-202f766c0859
-  Scrub started:    Tue Aug  2 14:44:11 2022
-  Status:           finished
-  Duration:         0:00:00
-  Total to scrub:   1.26GiB
-  Rate:             0.00B/s
-  Error summary:    super=1
-    Corrected:      0
-    Uncorrectable:  0
-    Unverified:     0
+[REPRODUCER]
+We can emulate the situation using the following small script:
 
-But the second read-only scrub still reports the same super error:
+  truncate -s 1G $dev
+  mkfs.btrfs -f $dev
+  mount $dev $mnt
+  fsstress -w -d $mnt -n 500
+  sync
+  xfs_freeze -f $mnt
+  cp $dev $dev.backup
 
-  Scrub started:    Tue Aug  2 14:44:11 2022
-  Status:           finished
-  Duration:         0:00:00
-  Total to scrub:   1.26GiB
-  Rate:             0.00B/s
-  Error summary:    super=1
-    Corrected:      0
-    Uncorrectable:  0
-    Unverified:     0
+  # There is no way to mount the same cloned fs on the same system,
+  # as the conflicting fsid will be rejected by btrfs.
+  # Thus here we have to wipe the fs using a different btrfs.
+  mkfs.btrfs -f $dev.backup
 
-[CAUSE]
-The comments already shows that super block can be easily fixed by
-committing a transaction:
+  dd if=$dev.backup of=$dev bs=1M
+  xfs_freeze -u $mnt
+  fsstress -w -d $mnt -n 20
+  umount $mnt
+  btrfs check $dev
 
-	/*
-	 * If we find an error in a super block, we just report it.
-	 * They will get written with the next transaction commit
-	 * anyway
-	 */
+The final fsck will fail due to some tree blocks has incorrect fsid.
 
-But the truth is, such assumption is not always true, and since scrub
-should try to repair every error it found (except for read-only scrub),
-we should really actively commit a transaction to fix this.
+This is enough to emulate the problem hit by the unfortunate user.
 
-[FIX]
-Just commit a transaction if we found any super block errors, after
-everything else is done.
+[ENHANCEMENT]
+Although such case should not be that common, it can still happen from
+time to time.
 
-We cannot do this just after scrub_supers(), as
-btrfs_commit_transaction() will try to pause and wait for the running
-scrub, thus we can not call it with scrub_lock hold.
+From the view of btrfs, we can detect any unexpected super block change,
+and if there is any unexpected change, we just mark the fs read-only,
+and thaw the fs.
 
+By this we can limit the damage to minimal, and I hope no one would lose
+their data by this anymore.
+
+Suggested-by: Goffredo Baroncelli <kreijack@libero.it>
+Link: https://lore.kernel.org/linux-btrfs/83bf3b4b-7f4c-387a-b286-9251e3991e34@bluemole.com/
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/scrub.c | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ fs/btrfs/disk-io.c | 25 ++++++++++++++-----
+ fs/btrfs/disk-io.h |  4 +++-
+ fs/btrfs/super.c   | 60 ++++++++++++++++++++++++++++++++++++++++++++++
+ fs/btrfs/volumes.c |  2 +-
+ 4 files changed, 83 insertions(+), 8 deletions(-)
 
-diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index 0392c556af60..88b9a5394561 100644
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -3811,6 +3811,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index f2abd8bfd4a0..8af0d722ab9a 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2400,8 +2400,8 @@ static int btrfs_read_roots(struct btrfs_fs_info *fs_info)
+  * 		1, 2	2nd and 3rd backup copy
+  * 	       -1	skip bytenr check
+  */
+-static int validate_super(struct btrfs_fs_info *fs_info,
+-			    struct btrfs_super_block *sb, int mirror_num)
++int btrfs_validate_super(struct btrfs_fs_info *fs_info,
++			 struct btrfs_super_block *sb, int mirror_num)
+ {
+ 	u64 nodesize = btrfs_super_nodesize(sb);
+ 	u64 sectorsize = btrfs_super_sectorsize(sb);
+@@ -2576,7 +2576,7 @@ static int validate_super(struct btrfs_fs_info *fs_info,
+  */
+ static int btrfs_validate_mount_super(struct btrfs_fs_info *fs_info)
+ {
+-	return validate_super(fs_info, fs_info->super_copy, 0);
++	return btrfs_validate_super(fs_info, fs_info->super_copy, 0);
+ }
+ 
+ /*
+@@ -2590,7 +2590,7 @@ static int btrfs_validate_write_super(struct btrfs_fs_info *fs_info,
+ {
  	int ret;
- 	struct btrfs_device *dev;
- 	unsigned int nofs_flag;
-+	bool need_commit = false;
  
- 	if (btrfs_fs_closing(fs_info))
- 		return -EAGAIN;
-@@ -3924,6 +3925,12 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	 */
- 	nofs_flag = memalloc_nofs_save();
- 	if (!is_dev_replace) {
-+		u64 old_super_errors;
+-	ret = validate_super(fs_info, sb, -1);
++	ret = btrfs_validate_super(fs_info, sb, -1);
+ 	if (ret < 0)
+ 		goto out;
+ 	if (!btrfs_supported_super_csum(btrfs_super_csum_type(sb))) {
+@@ -3500,7 +3500,7 @@ static void btrfs_end_super_write(struct bio *bio)
+ }
+ 
+ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
+-						   int copy_num)
++						   int copy_num, bool drop_cache)
+ {
+ 	struct btrfs_super_block *super;
+ 	struct page *page;
+@@ -3511,6 +3511,19 @@ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
+ 	if (bytenr + BTRFS_SUPER_INFO_SIZE >= i_size_read(bdev->bd_inode))
+ 		return ERR_PTR(-EINVAL);
+ 
++	if (drop_cache) {
++		/* This should only be called with the primary sb. */
++		ASSERT(copy_num == 0);
 +
-+		spin_lock(&sctx->stat_lock);
-+		old_super_errors = sctx->stat.super_errors;
-+		spin_unlock(&sctx->stat_lock);
-+
- 		btrfs_info(fs_info, "scrub: started on devid %llu", devid);
- 		/*
- 		 * by holding device list mutex, we can
-@@ -3932,6 +3939,16 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 		mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 		ret = scrub_supers(sctx, dev);
- 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
-+
-+		spin_lock(&sctx->stat_lock);
 +		/*
-+		 * Super block errors found, but we can not commit transaction
-+		 * at current context, since btrfs_commit_transaction() needs
-+		 * to pause the current running scrub (hold by ourselves).
++		 * Drop the page of the primary superblock, so later read will
++		 * always read from the device.
 +		 */
-+		if (sctx->stat.super_errors > old_super_errors && !sctx->readonly)
-+			need_commit = true;
-+		spin_unlock(&sctx->stat_lock);
- 	}
++		invalidate_inode_pages2_range(mapping,
++				bytenr >> PAGE_SHIFT,
++				(bytenr + BTRFS_SUPER_INFO_SIZE) >> PAGE_SHIFT);
++	}
++
+ 	page = read_cache_page_gfp(mapping, bytenr >> PAGE_SHIFT, GFP_NOFS);
+ 	if (IS_ERR(page))
+ 		return ERR_CAST(page);
+@@ -3542,7 +3555,7 @@ struct btrfs_super_block *btrfs_read_dev_super(struct block_device *bdev)
+ 	 * later supers, using BTRFS_SUPER_MIRROR_MAX instead
+ 	 */
+ 	for (i = 0; i < 1; i++) {
+-		super = btrfs_read_dev_one_super(bdev, i);
++		super = btrfs_read_dev_one_super(bdev, i, false);
+ 		if (IS_ERR(super))
+ 			continue;
  
- 	if (!ret)
-@@ -3958,6 +3975,25 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	scrub_workers_put(fs_info);
- 	scrub_put_ctx(sctx);
+diff --git a/fs/btrfs/disk-io.h b/fs/btrfs/disk-io.h
+index 182540bdcea0..a1bcd388dfec 100644
+--- a/fs/btrfs/disk-io.h
++++ b/fs/btrfs/disk-io.h
+@@ -54,10 +54,12 @@ int __cold open_ctree(struct super_block *sb,
+ 	       struct btrfs_fs_devices *fs_devices,
+ 	       char *options);
+ void __cold close_ctree(struct btrfs_fs_info *fs_info);
++int btrfs_validate_super(struct btrfs_fs_info *fs_info,
++			 struct btrfs_super_block *sb, int mirror_num);
+ int write_all_supers(struct btrfs_fs_info *fs_info, int max_mirrors);
+ struct btrfs_super_block *btrfs_read_dev_super(struct block_device *bdev);
+ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
+-						   int copy_num);
++						   int copy_num, bool drop_cache);
+ int btrfs_commit_super(struct btrfs_fs_info *fs_info);
+ struct btrfs_root *btrfs_read_tree_root(struct btrfs_root *tree_root,
+ 					struct btrfs_key *key);
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 8bf8cdb62a3a..97b06c24e443 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2400,11 +2400,71 @@ static int btrfs_freeze(struct super_block *sb)
+ 	return btrfs_commit_transaction(trans);
+ }
+ 
++static int check_dev_super(struct btrfs_device *dev)
++{
++	struct btrfs_fs_info *fs_info = dev->fs_info;
++	struct btrfs_super_block *sb;
++	int ret = 0;
++
++	/* This should be called with fs still frozen. */
++	ASSERT(test_bit(BTRFS_FS_FROZEN, &fs_info->flags));
++
++	/* Missing dev, no need to check. */
++	if (!dev->bdev)
++		return 0;
++
++	/* Only need to check the primary super block. */
++	sb = btrfs_read_dev_one_super(dev->bdev, 0, true);
++	if (IS_ERR(sb))
++		return PTR_ERR(sb);
++
++	/* Btrfs_validate_super() includes fsid check against super->fsid. */
++	ret = btrfs_validate_super(fs_info, sb, 0);
++	if (ret < 0)
++		goto out;
++
++	if (btrfs_super_generation(sb) != fs_info->last_trans_committed) {
++		btrfs_err(fs_info, "transid mismatch, has %llu expect %llu",
++			btrfs_super_generation(sb),
++			fs_info->last_trans_committed);
++		ret = -EUCLEAN;
++		goto out;
++	}
++out:
++	btrfs_release_disk_super(sb);
++	return ret;
++}
++
+ static int btrfs_unfreeze(struct super_block *sb)
+ {
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
++	struct btrfs_device *device;
++	int ret = 0;
  
 +	/*
-+	 * We found some super block errors before, now try to force a
-+	 * transaction commit, as scrub has finished.
++	 * Make sure the fs is not changed by accident (like hibernation then
++	 * modified by other OS).
++	 * If we found anything wrong, we mark the fs error immediately.
++	 *
++	 * And since the fs is frozen, no one can modify the fs yet, thus
++	 * we don't need to hold device_list_mutex.
 +	 */
-+	if (need_commit) {
-+		struct btrfs_trans_handle *trans;
-+
-+		trans = btrfs_start_transaction(fs_info->tree_root, 0);
-+		if (IS_ERR(trans)) {
-+			ret = PTR_ERR(trans);
-+			btrfs_err(fs_info,
-+	"scrub: failed to start transaction to fix super block errors: %d", ret);
-+			return ret;
++	list_for_each_entry(device, &fs_info->fs_devices->devices, dev_list) {
++		ret = check_dev_super(device);
++		if (ret < 0) {
++			btrfs_handle_fs_error(fs_info, ret,
++				"super block on devid %llu got modified unexpectedly",
++				device->devid);
++			break;
 +		}
-+		ret = btrfs_commit_transaction(trans);
-+		if (ret < 0)
-+			btrfs_err(fs_info,
-+	"scrub: failed to commit transaction to fix super block errors: %d", ret);
 +	}
- 	return ret;
- out:
- 	scrub_workers_put(fs_info);
+ 	clear_bit(BTRFS_FS_FROZEN, &fs_info->flags);
++
++	/*
++	 * We still return 0, to allow VFS layer to unfreeze the fs even the
++	 * above checks failed. Since the fs is either fine or read-only, we're
++	 * safe to continue, without causing further damage.
++	 */
+ 	return 0;
+ }
+ 
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index d4d89e0738ff..e14bd23cc75c 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2069,7 +2069,7 @@ void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
+ 		struct page *page;
+ 		int ret;
+ 
+-		disk_super = btrfs_read_dev_one_super(bdev, copy_num);
++		disk_super = btrfs_read_dev_one_super(bdev, copy_num, false);
+ 		if (IS_ERR(disk_super))
+ 			continue;
+ 
 -- 
 2.35.1
 
