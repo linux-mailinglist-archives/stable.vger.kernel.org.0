@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E605FB510
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 325BC5FB526
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbiJKOu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35746 "EHLO
+        id S229945AbiJKOvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:51:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229984AbiJKOun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:50:43 -0400
+        with ESMTP id S229890AbiJKOu7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:50:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0B498340;
-        Tue, 11 Oct 2022 07:50:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 776F43FA0D;
+        Tue, 11 Oct 2022 07:50:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD72A61198;
-        Tue, 11 Oct 2022 14:50:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F96C433C1;
-        Tue, 11 Oct 2022 14:50:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AEA561198;
+        Tue, 11 Oct 2022 14:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA0BC433C1;
+        Tue, 11 Oct 2022 14:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499837;
-        bh=xlDA8pfPkFAaw/9xQEsxhHEEkQh9btgLLPQGvlm7iec=;
+        s=k20201202; t=1665499841;
+        bh=x32F4CsgPwMHtEyCKulF2Xq3YJudJVWiV7tN9IUCuYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oqyCg1CsBkS3J0V+zznBQUGsjnNiqA7v5vK7MFsf/KfH9Jpke+wNX/KckEYazrU2m
-         SkAARd0AOOWT2F5HtIZQKia3w3ES4sACwR/c+p6M9vPyTpYU6KGL4SvxTdnXqu+5BS
-         pKU61dJ3xliAVCFOLkZ+IaOkEPlBnmB7TleMYE+cQhpV0D9wFR0K4NI1Mh06VNUQr+
-         bMjlj68Qj5LG7DNacJaDxgbX8gRBfedmEVBsYGRDX3WSDE04b3FMZNPmIGqCJzIrEa
-         K+7qGVLYe75USITyTDS3/CfJ1Gdo1R/Rs/41hzRWZA2VxeU7ofbpPt20XwWzLhmwy4
-         bzK5oCeIdfurA==
+        b=FTN2/sbyTB14xRTUgN4+7Pqx3iNl/qhiLxzDUPAfVT8l1/RIEpLDJLtjjpgpdhqPu
+         JA2heAkAAocQE5zen2mQ/J4NkalgqTUYpKmH7rrdFa47hRH0cAIilyiQ/4WA9Z7qv9
+         AphPk2NNnfnJwYOHmApibbTPdatpBDJb1Mypp0Q/JbBZHTae/cef1s/YYpQqc4ooE/
+         nfpY8vFbzLsN2e2wUu2YFhX/XBM9WAiBBeEqhWRCKEznqvqNNOQH+Vxp+HqFz2YGxj
+         X16S1DazgIruSpl7BxWBh/H/tpF9+fPnAox0RVQR2eMw3BL35Pc4vYh880ZKZ2U1z6
+         TEVQErh9s6L9g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mark Brown <broonie@kernel.org>,
@@ -38,9 +38,9 @@ Cc:     Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, will@kernel.org,
         shuah@kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 14/46] kselftest/arm64: Fix validatation termination record after EXTRA_CONTEXT
-Date:   Tue, 11 Oct 2022 10:49:42 -0400
-Message-Id: <20221011145015.1622882-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 15/46] kselftest/arm64: Allow larger buffers in get_signal_context()
+Date:   Tue, 11 Oct 2022 10:49:43 -0400
+Message-Id: <20221011145015.1622882-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145015.1622882-1-sashal@kernel.org>
 References: <20221011145015.1622882-1-sashal@kernel.org>
@@ -59,42 +59,225 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 5c152c2f66f9368394b89ac90dc7483476ef7b88 ]
+[ Upstream commit 38150a6204c731a4846786682e500d132571fd82 ]
 
-When arm64 signal context data overflows the base struct sigcontext it gets
-placed in an extra buffer pointed to by a record of type EXTRA_CONTEXT in
-the base struct sigcontext which is required to be the last record in the
-base struct sigframe. The current validation code attempts to check this
-by using GET_RESV_NEXT_HEAD() to step forward from the current record to
-the next but that is a macro which assumes it is being provided with a
-struct _aarch64_ctx and uses the size there to skip forward to the next
-record. Instead validate_extra_context() passes it a struct extra_context
-which has a separate size field. This compiles but results in us trying
-to validate a termination record in completely the wrong place, at best
-failing validation and at worst just segfaulting. Fix this by passing
-the struct _aarch64_ctx we meant to into the macro.
+In order to allow testing of signal contexts that overflow the base signal
+frame allow callers to pass the buffer size for the user context into
+get_signal_context(). No functional change.
 
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220829160703.874492-4-broonie@kernel.org
+Link: https://lore.kernel.org/r/20220829160703.874492-10-broonie@kernel.org
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/arm64/signal/testcases/testcases.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/arm64/signal/test_signals_utils.h    | 5 +++--
+ .../arm64/signal/testcases/fake_sigreturn_bad_magic.c        | 2 +-
+ .../arm64/signal/testcases/fake_sigreturn_bad_size.c         | 2 +-
+ .../signal/testcases/fake_sigreturn_bad_size_for_magic0.c    | 2 +-
+ .../signal/testcases/fake_sigreturn_duplicated_fpsimd.c      | 2 +-
+ .../arm64/signal/testcases/fake_sigreturn_misaligned_sp.c    | 2 +-
+ .../arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c   | 2 +-
+ .../arm64/signal/testcases/fake_sigreturn_sme_change_vl.c    | 2 +-
+ .../arm64/signal/testcases/fake_sigreturn_sve_change_vl.c    | 2 +-
+ tools/testing/selftests/arm64/signal/testcases/sme_vl.c      | 2 +-
+ tools/testing/selftests/arm64/signal/testcases/ssve_regs.c   | 2 +-
+ tools/testing/selftests/arm64/signal/testcases/sve_regs.c    | 2 +-
+ tools/testing/selftests/arm64/signal/testcases/sve_vl.c      | 2 +-
+ tools/testing/selftests/arm64/signal/testcases/za_regs.c     | 2 +-
+ 14 files changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/tools/testing/selftests/arm64/signal/testcases/testcases.c b/tools/testing/selftests/arm64/signal/testcases/testcases.c
-index 84c36bee4d82..d98828cb542b 100644
---- a/tools/testing/selftests/arm64/signal/testcases/testcases.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/testcases.c
-@@ -33,7 +33,7 @@ bool validate_extra_context(struct extra_context *extra, char **err)
- 		return false;
+diff --git a/tools/testing/selftests/arm64/signal/test_signals_utils.h b/tools/testing/selftests/arm64/signal/test_signals_utils.h
+index f3aa99ba67bb..222093f51b67 100644
+--- a/tools/testing/selftests/arm64/signal/test_signals_utils.h
++++ b/tools/testing/selftests/arm64/signal/test_signals_utils.h
+@@ -56,7 +56,8 @@ static inline bool feats_ok(struct tdescr *td)
+  * at sizeof(ucontext_t).
+  */
+ static __always_inline bool get_current_context(struct tdescr *td,
+-						ucontext_t *dest_uc)
++						ucontext_t *dest_uc,
++						size_t dest_sz)
+ {
+ 	static volatile bool seen_already;
  
- 	fprintf(stderr, "Validating EXTRA...\n");
--	term = GET_RESV_NEXT_HEAD(extra);
-+	term = GET_RESV_NEXT_HEAD(&extra->head);
- 	if (!term || term->magic || term->size) {
- 		*err = "Missing terminator after EXTRA context";
- 		return false;
+@@ -64,7 +65,7 @@ static __always_inline bool get_current_context(struct tdescr *td,
+ 	/* it's a genuine invocation..reinit */
+ 	seen_already = 0;
+ 	td->live_uc_valid = 0;
+-	td->live_sz = sizeof(*dest_uc);
++	td->live_sz = dest_sz;
+ 	memset(dest_uc, 0x00, td->live_sz);
+ 	td->live_uc = dest_uc;
+ 	/*
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c
+index 8dc600a7d4fd..8c7f00ea9823 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c
+@@ -21,7 +21,7 @@ static int fake_sigreturn_bad_magic_run(struct tdescr *td,
+ 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
+ 
+ 	/* just to fill the ucontext_t with something real */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	/* need at least 2*HDR_SZ space: KSFT_BAD_MAGIC + terminator. */
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c
+index b3c362100666..1c03f6b638e0 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c
+@@ -24,7 +24,7 @@ static int fake_sigreturn_bad_size_run(struct tdescr *td,
+ 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
+ 
+ 	/* just to fill the ucontext_t with something real */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c
+index a44b88bfc81a..bc22f64b544e 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c
+@@ -21,7 +21,7 @@ static int fake_sigreturn_bad_size_for_magic0_run(struct tdescr *td,
+ 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
+ 
+ 	/* just to fill the ucontext_t with something real */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	/* at least HDR_SZ for the badly sized terminator. */
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c
+index afe8915f0998..63e3906b631c 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c
+@@ -21,7 +21,7 @@ static int fake_sigreturn_duplicated_fpsimd_run(struct tdescr *td,
+ 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
+ 
+ 	/* just to fill the ucontext_t with something real */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	head = get_starting_head(shead, sizeof(struct fpsimd_context) + HDR_SZ,
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c
+index 1e089e66f9f3..d00625ff12c2 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c
+@@ -19,7 +19,7 @@ static int fake_sigreturn_misaligned_run(struct tdescr *td,
+ 					 siginfo_t *si, ucontext_t *uc)
+ {
+ 	/* just to fill the ucontext_t with something real */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	/* Forcing sigframe on misaligned SP (16 + 3) */
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c
+index 08ecd8073a1a..f805138cb20d 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c
+@@ -23,7 +23,7 @@ static int fake_sigreturn_missing_fpsimd_run(struct tdescr *td,
+ 	struct _aarch64_ctx *head = GET_SF_RESV_HEAD(sf);
+ 
+ 	/* just to fill the ucontext_t with something real */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c
+index 7ed762b7202f..ebd5815b54bb 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c
+@@ -54,7 +54,7 @@ static int fake_sigreturn_ssve_change_vl(struct tdescr *td,
+ 	struct sve_context *sve;
+ 
+ 	/* Get a signal context with a SME ZA frame in it */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c
+index 915821375b0a..e2a452190511 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c
++++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c
+@@ -56,7 +56,7 @@ static int fake_sigreturn_sve_change_vl(struct tdescr *td,
+ 	struct sve_context *sve;
+ 
+ 	/* Get a signal context with a SVE frame in it */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/sme_vl.c b/tools/testing/selftests/arm64/signal/testcases/sme_vl.c
+index 13ff3b35cbaf..75f387f2db81 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/sme_vl.c
++++ b/tools/testing/selftests/arm64/signal/testcases/sme_vl.c
+@@ -34,7 +34,7 @@ static int sme_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc)
+ 	struct za_context *za;
+ 
+ 	/* Get a signal context which should have a ZA frame in it */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c b/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
+index 9022a6cab4b3..71f14632c524 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
++++ b/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
+@@ -73,7 +73,7 @@ static int do_one_sme_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc,
+ 	 * in it.
+ 	 */
+ 	setup_ssve_regs();
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/sve_regs.c b/tools/testing/selftests/arm64/signal/testcases/sve_regs.c
+index 4b2418aa08a9..4cdedb706786 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/sve_regs.c
++++ b/tools/testing/selftests/arm64/signal/testcases/sve_regs.c
+@@ -71,7 +71,7 @@ static int do_one_sve_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc,
+ 	 * in it.
+ 	 */
+ 	setup_sve_regs();
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/sve_vl.c b/tools/testing/selftests/arm64/signal/testcases/sve_vl.c
+index 92904653add1..aa835acec062 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/sve_vl.c
++++ b/tools/testing/selftests/arm64/signal/testcases/sve_vl.c
+@@ -34,7 +34,7 @@ static int sve_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc)
+ 	struct sve_context *sve;
+ 
+ 	/* Get a signal context which should have a SVE frame in it */
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
+diff --git a/tools/testing/selftests/arm64/signal/testcases/za_regs.c b/tools/testing/selftests/arm64/signal/testcases/za_regs.c
+index b94e4f99fcac..70c00ca6eded 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/za_regs.c
++++ b/tools/testing/selftests/arm64/signal/testcases/za_regs.c
+@@ -71,7 +71,7 @@ static int do_one_sme_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc,
+ 	 * in it.
+ 	 */
+ 	setup_za_regs();
+-	if (!get_current_context(td, &sf.uc))
++	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
+ 		return 1;
+ 
+ 	resv_sz = GET_SF_RESV_SIZE(sf);
 -- 
 2.35.1
 
