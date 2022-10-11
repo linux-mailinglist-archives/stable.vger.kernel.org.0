@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2505FB5AA
-	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C905FB5C0
+	for <lists+stable@lfdr.de>; Tue, 11 Oct 2022 16:57:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbiJKO4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 10:56:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
+        id S231191AbiJKO5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 10:57:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbiJKOzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:55:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF26C6C13C;
-        Tue, 11 Oct 2022 07:51:55 -0700 (PDT)
+        with ESMTP id S231165AbiJKO4R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 10:56:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 610D99C7F2;
+        Tue, 11 Oct 2022 07:52:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D0DD61166;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BCA3B8124C;
+        Tue, 11 Oct 2022 14:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3749C433D6;
         Tue, 11 Oct 2022 14:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0137BC433D7;
-        Tue, 11 Oct 2022 14:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665499915;
-        bh=x32F4CsgPwMHtEyCKulF2Xq3YJudJVWiV7tN9IUCuYs=;
+        s=k20201202; t=1665499916;
+        bh=8MLmv8j3T46AmOBVlkUxEoYYnaocUtHwPDy2md3Eo98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hf/C+tNor6OKuxzDSW/QxxrSoXYEFi5B7N6bTHNXxQ1vGaqIYiTsqfPIAeA0NHzfs
-         eZB+XcKN8VLu9i0otiqtLxfnoR6HcmPng1tEFVtsLmx3aj6AFWWjmVC7vEk5wF2jCY
-         MlT6UtluigJeScRd8Ubl9/9h7DfZfXLD0Pg1ORNWG0Kr6Tunjc5oYPP2safm1af0SS
-         1hysELnb9UOxvB+YHcgZisy7Vo8vz/0aCouDvsltBK41JS55+/LKKkfDt94el01KS5
-         H92wi6VUuH0DV9IEQmWGQlFbDeceAWA9yoQ1zuEmjv1kmh6feAbpmSwu9VrpQ6p0Wy
-         KWD+U3y9tm1ow==
+        b=ecpMmIqI46gxEhu1bc02eEV4lCPiWNia7aOcLOwZg6tEKKL/AZTlU3Jqham16fUvF
+         gVxccj2i0xG3i88iPeVAAqlO4O/VmnjKXQjtSMc/U34myoPlruAskEEXiJaRUG/QNa
+         RS1X+jQddI0SrR7o/FYCFhjRFpCGgUrCkrqj280UJTIII5V3ZIfbLxLjaom32gJ3LK
+         +Kk6STDASiH3YIwSR2o6pXB3+cRS06AzyAoRWbTaC045kT986FeBaioLYVhMub/lzV
+         oiTr9JmbkxVsMndcR24r1MJUCHYfvhzMV3GC2ZNRa6f90dR1zvBuDryuFG2qF6fBdU
+         78ppW0ZUijZfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>, will@kernel.org,
-        shuah@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 15/40] kselftest/arm64: Allow larger buffers in get_signal_context()
-Date:   Tue, 11 Oct 2022 10:51:04 -0400
-Message-Id: <20221011145129.1623487-15-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        kernel test robot <lkp@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 16/40] sparc: Fix the generic IO helpers
+Date:   Tue, 11 Oct 2022 10:51:05 -0400
+Message-Id: <20221011145129.1623487-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221011145129.1623487-1-sashal@kernel.org>
 References: <20221011145129.1623487-1-sashal@kernel.org>
@@ -57,227 +58,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 38150a6204c731a4846786682e500d132571fd82 ]
+[ Upstream commit 2c230431e1e809270178905974f57cf3878939f5 ]
 
-In order to allow testing of signal contexts that overflow the base signal
-frame allow callers to pass the buffer size for the user context into
-get_signal_context(). No functional change.
+This enables the Sparc to use <asm-generic/io.h> to fill in the
+missing (undefined) [read|write]sq I/O accessor functions.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220829160703.874492-10-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+This is needed if Sparc[64] ever wants to uses CONFIG_REGMAP_MMIO
+which has been patches to use accelerated _noinc accessors
+such as readsq/writesq that Sparc64, while being a 64bit platform,
+as of now not yet provide.
+
+This comes with the requirement that everything the architecture
+already provides needs to be defined, rather than just being,
+say, static inline functions.
+
+Bite the bullet and just provide the definitions and make it work.
+Compile-tested on sparc32 and sparc64.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: sparclinux@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/linux-arm-kernel/202208201639.HXye3ke4-lkp@intel.com/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/arm64/signal/test_signals_utils.h    | 5 +++--
- .../arm64/signal/testcases/fake_sigreturn_bad_magic.c        | 2 +-
- .../arm64/signal/testcases/fake_sigreturn_bad_size.c         | 2 +-
- .../signal/testcases/fake_sigreturn_bad_size_for_magic0.c    | 2 +-
- .../signal/testcases/fake_sigreturn_duplicated_fpsimd.c      | 2 +-
- .../arm64/signal/testcases/fake_sigreturn_misaligned_sp.c    | 2 +-
- .../arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c   | 2 +-
- .../arm64/signal/testcases/fake_sigreturn_sme_change_vl.c    | 2 +-
- .../arm64/signal/testcases/fake_sigreturn_sve_change_vl.c    | 2 +-
- tools/testing/selftests/arm64/signal/testcases/sme_vl.c      | 2 +-
- tools/testing/selftests/arm64/signal/testcases/ssve_regs.c   | 2 +-
- tools/testing/selftests/arm64/signal/testcases/sve_regs.c    | 2 +-
- tools/testing/selftests/arm64/signal/testcases/sve_vl.c      | 2 +-
- tools/testing/selftests/arm64/signal/testcases/za_regs.c     | 2 +-
- 14 files changed, 16 insertions(+), 15 deletions(-)
+ arch/sparc/include/asm/io.h    |  2 ++
+ arch/sparc/include/asm/io_64.h | 22 ++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/tools/testing/selftests/arm64/signal/test_signals_utils.h b/tools/testing/selftests/arm64/signal/test_signals_utils.h
-index f3aa99ba67bb..222093f51b67 100644
---- a/tools/testing/selftests/arm64/signal/test_signals_utils.h
-+++ b/tools/testing/selftests/arm64/signal/test_signals_utils.h
-@@ -56,7 +56,8 @@ static inline bool feats_ok(struct tdescr *td)
-  * at sizeof(ucontext_t).
-  */
- static __always_inline bool get_current_context(struct tdescr *td,
--						ucontext_t *dest_uc)
-+						ucontext_t *dest_uc,
-+						size_t dest_sz)
+diff --git a/arch/sparc/include/asm/io.h b/arch/sparc/include/asm/io.h
+index 2eefa526b38f..2dad9be9ec75 100644
+--- a/arch/sparc/include/asm/io.h
++++ b/arch/sparc/include/asm/io.h
+@@ -19,4 +19,6 @@
+ #define writel_be(__w, __addr)	__raw_writel(__w, __addr)
+ #define writew_be(__l, __addr)	__raw_writew(__l, __addr)
+ 
++#include <asm-generic/io.h>
++
+ #endif
+diff --git a/arch/sparc/include/asm/io_64.h b/arch/sparc/include/asm/io_64.h
+index 5ffa820dcd4d..9303270b22f3 100644
+--- a/arch/sparc/include/asm/io_64.h
++++ b/arch/sparc/include/asm/io_64.h
+@@ -9,6 +9,7 @@
+ #include <asm/page.h>      /* IO address mapping routines need this */
+ #include <asm/asi.h>
+ #include <asm-generic/pci_iomap.h>
++#define pci_iomap pci_iomap
+ 
+ /* BIO layer definitions. */
+ extern unsigned long kern_base, kern_size;
+@@ -239,38 +240,51 @@ static inline void outl(u32 l, unsigned long addr)
+ void outsb(unsigned long, const void *, unsigned long);
+ void outsw(unsigned long, const void *, unsigned long);
+ void outsl(unsigned long, const void *, unsigned long);
++#define outsb outsb
++#define outsw outsw
++#define outsl outsl
+ void insb(unsigned long, void *, unsigned long);
+ void insw(unsigned long, void *, unsigned long);
+ void insl(unsigned long, void *, unsigned long);
++#define insb insb
++#define insw insw
++#define insl insl
+ 
+ static inline void readsb(void __iomem *port, void *buf, unsigned long count)
  {
- 	static volatile bool seen_already;
- 
-@@ -64,7 +65,7 @@ static __always_inline bool get_current_context(struct tdescr *td,
- 	/* it's a genuine invocation..reinit */
- 	seen_already = 0;
- 	td->live_uc_valid = 0;
--	td->live_sz = sizeof(*dest_uc);
-+	td->live_sz = dest_sz;
- 	memset(dest_uc, 0x00, td->live_sz);
- 	td->live_uc = dest_uc;
- 	/*
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c
-index 8dc600a7d4fd..8c7f00ea9823 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_magic.c
-@@ -21,7 +21,7 @@ static int fake_sigreturn_bad_magic_run(struct tdescr *td,
- 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
- 
- 	/* just to fill the ucontext_t with something real */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
- 
- 	/* need at least 2*HDR_SZ space: KSFT_BAD_MAGIC + terminator. */
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c
-index b3c362100666..1c03f6b638e0 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size.c
-@@ -24,7 +24,7 @@ static int fake_sigreturn_bad_size_run(struct tdescr *td,
- 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
- 
- 	/* just to fill the ucontext_t with something real */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
- 
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c
-index a44b88bfc81a..bc22f64b544e 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_bad_size_for_magic0.c
-@@ -21,7 +21,7 @@ static int fake_sigreturn_bad_size_for_magic0_run(struct tdescr *td,
- 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
- 
- 	/* just to fill the ucontext_t with something real */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
- 
- 	/* at least HDR_SZ for the badly sized terminator. */
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c
-index afe8915f0998..63e3906b631c 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_duplicated_fpsimd.c
-@@ -21,7 +21,7 @@ static int fake_sigreturn_duplicated_fpsimd_run(struct tdescr *td,
- 	struct _aarch64_ctx *shead = GET_SF_RESV_HEAD(sf), *head;
- 
- 	/* just to fill the ucontext_t with something real */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
- 
- 	head = get_starting_head(shead, sizeof(struct fpsimd_context) + HDR_SZ,
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c
-index 1e089e66f9f3..d00625ff12c2 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_misaligned_sp.c
-@@ -19,7 +19,7 @@ static int fake_sigreturn_misaligned_run(struct tdescr *td,
- 					 siginfo_t *si, ucontext_t *uc)
+ 	insb((unsigned long __force)port, buf, count);
+ }
++#define readsb readsb
++
+ static inline void readsw(void __iomem *port, void *buf, unsigned long count)
  {
- 	/* just to fill the ucontext_t with something real */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+ 	insw((unsigned long __force)port, buf, count);
+ }
++#define readsw readsw
  
- 	/* Forcing sigframe on misaligned SP (16 + 3) */
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c
-index 08ecd8073a1a..f805138cb20d 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_missing_fpsimd.c
-@@ -23,7 +23,7 @@ static int fake_sigreturn_missing_fpsimd_run(struct tdescr *td,
- 	struct _aarch64_ctx *head = GET_SF_RESV_HEAD(sf);
+ static inline void readsl(void __iomem *port, void *buf, unsigned long count)
+ {
+ 	insl((unsigned long __force)port, buf, count);
+ }
++#define readsl readsl
  
- 	/* just to fill the ucontext_t with something real */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+ static inline void writesb(void __iomem *port, const void *buf, unsigned long count)
+ {
+ 	outsb((unsigned long __force)port, buf, count);
+ }
++#define writesb writesb
  
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c
-index 7ed762b7202f..ebd5815b54bb 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sme_change_vl.c
-@@ -54,7 +54,7 @@ static int fake_sigreturn_ssve_change_vl(struct tdescr *td,
- 	struct sve_context *sve;
+ static inline void writesw(void __iomem *port, const void *buf, unsigned long count)
+ {
+ 	outsw((unsigned long __force)port, buf, count);
+ }
++#define writesw writesw
  
- 	/* Get a signal context with a SME ZA frame in it */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+ static inline void writesl(void __iomem *port, const void *buf, unsigned long count)
+ {
+ 	outsl((unsigned long __force)port, buf, count);
+ }
++#define writesl writesl
  
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c
-index 915821375b0a..e2a452190511 100644
---- a/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/fake_sigreturn_sve_change_vl.c
-@@ -56,7 +56,7 @@ static int fake_sigreturn_sve_change_vl(struct tdescr *td,
- 	struct sve_context *sve;
+ #define ioread8_rep(p,d,l)	readsb(p,d,l)
+ #define ioread16_rep(p,d,l)	readsw(p,d,l)
+@@ -344,6 +358,7 @@ static inline void memset_io(volatile void __iomem *dst, int c, __kernel_size_t
+ 		d++;
+ 	}
+ }
++#define memset_io memset_io
  
- 	/* Get a signal context with a SVE frame in it */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+ static inline void sbus_memcpy_fromio(void *dst, const volatile void __iomem *src,
+ 				      __kernel_size_t n)
+@@ -369,6 +384,7 @@ static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
+ 		src++;
+ 	}
+ }
++#define memcpy_fromio memcpy_fromio
  
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/sme_vl.c b/tools/testing/selftests/arm64/signal/testcases/sme_vl.c
-index 13ff3b35cbaf..75f387f2db81 100644
---- a/tools/testing/selftests/arm64/signal/testcases/sme_vl.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/sme_vl.c
-@@ -34,7 +34,7 @@ static int sme_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc)
- 	struct za_context *za;
+ static inline void sbus_memcpy_toio(volatile void __iomem *dst, const void *src,
+ 				    __kernel_size_t n)
+@@ -395,6 +411,7 @@ static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
+ 		d++;
+ 	}
+ }
++#define memcpy_toio memcpy_toio
  
- 	/* Get a signal context which should have a ZA frame in it */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+ #ifdef __KERNEL__
  
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c b/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
-index 9022a6cab4b3..71f14632c524 100644
---- a/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
-@@ -73,7 +73,7 @@ static int do_one_sme_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc,
- 	 * in it.
- 	 */
- 	setup_ssve_regs();
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+@@ -412,7 +429,9 @@ static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+ static inline void __iomem *ioremap_np(unsigned long offset, unsigned long size)
+ {
+ 	return NULL;
++
+ }
++#define ioremap_np ioremap_np
  
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/sve_regs.c b/tools/testing/selftests/arm64/signal/testcases/sve_regs.c
-index 4b2418aa08a9..4cdedb706786 100644
---- a/tools/testing/selftests/arm64/signal/testcases/sve_regs.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/sve_regs.c
-@@ -71,7 +71,7 @@ static int do_one_sve_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc,
- 	 * in it.
- 	 */
- 	setup_sve_regs();
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
+ static inline void iounmap(volatile void __iomem *addr)
+ {
+@@ -432,10 +451,13 @@ static inline void iounmap(volatile void __iomem *addr)
+ /* Create a virtual mapping cookie for an IO port range */
+ void __iomem *ioport_map(unsigned long port, unsigned int nr);
+ void ioport_unmap(void __iomem *);
++#define ioport_map ioport_map
++#define ioport_unmap ioport_unmap
  
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/sve_vl.c b/tools/testing/selftests/arm64/signal/testcases/sve_vl.c
-index 92904653add1..aa835acec062 100644
---- a/tools/testing/selftests/arm64/signal/testcases/sve_vl.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/sve_vl.c
-@@ -34,7 +34,7 @@ static int sve_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc)
- 	struct sve_context *sve;
+ /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+ struct pci_dev;
+ void pci_iounmap(struct pci_dev *dev, void __iomem *);
++#define pci_iounmap pci_iounmap
  
- 	/* Get a signal context which should have a SVE frame in it */
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
- 
- 	resv_sz = GET_SF_RESV_SIZE(sf);
-diff --git a/tools/testing/selftests/arm64/signal/testcases/za_regs.c b/tools/testing/selftests/arm64/signal/testcases/za_regs.c
-index b94e4f99fcac..70c00ca6eded 100644
---- a/tools/testing/selftests/arm64/signal/testcases/za_regs.c
-+++ b/tools/testing/selftests/arm64/signal/testcases/za_regs.c
-@@ -71,7 +71,7 @@ static int do_one_sme_vl(struct tdescr *td, siginfo_t *si, ucontext_t *uc,
- 	 * in it.
- 	 */
- 	setup_za_regs();
--	if (!get_current_context(td, &sf.uc))
-+	if (!get_current_context(td, &sf.uc, sizeof(sf.uc)))
- 		return 1;
- 
- 	resv_sz = GET_SF_RESV_SIZE(sf);
+ static inline int sbus_can_dma_64bit(void)
+ {
 -- 
 2.35.1
 
