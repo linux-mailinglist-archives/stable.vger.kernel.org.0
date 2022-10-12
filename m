@@ -2,206 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3B5F5FC72D
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 16:23:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E428E5FC828
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 17:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbiJLOXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 10:23:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51418 "EHLO
+        id S229513AbiJLPR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 11:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229550AbiJLOX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 10:23:29 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6A9CAE58
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 07:23:28 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id n7so16410952plp.1
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 07:23:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=V7sNxjMfjrfoGVIR88rHQ8GpTjbWZ5Dyitx2gQerPGw=;
-        b=YJbPMqVM+e/NkW7L2p16RofV+WVxn+HNGVfrtAUBOi2Yw79MGcSDJcetPqpCuJsfsh
-         RLxHRtTesVXNDqin/KXxHI7xnkSkyrOz0bRYVREONuZUgoy3VrVci18EGWxGMj/CN769
-         QbKwdsDVHEjfKs3NK61deT0ry8VCkAg/2BjjrsZ3ptoR8rdFMG8XuzWYRB9Ujz52FW9f
-         wplj/Us2SfciishvfHJZQHl/8IaaT9Gxyy8tJuPyDqLuVGWqqBhiFD1oyPjs9ChOCbS1
-         4MrJ4vob5KVM2n8HjjTffQQsE8hqV+QsBwB+0YC8RYVASkIH2wXcJnp5To0m/wsIlUt0
-         be2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=V7sNxjMfjrfoGVIR88rHQ8GpTjbWZ5Dyitx2gQerPGw=;
-        b=K+cX2Gk+4/kgmZ+zkuf4kpbJV8zeaojUW9Ws8zjc4HQ39cKjqkeRxbKgL62kKMiYbd
-         jPcn+foeBW2FOYwxcTyHJZOlunCl4MEamYWoxXVK8xUVdy4vMWcaq99xKpAgpAEodtSV
-         HOWvROBUzGD4HBH33ow8t0c1I5cd0rMxwyA5yNEvVhbAegosCOfS3WQZ6DuhteahTRP3
-         ClljfpKqbs342psNIq2aZPw0IeV4ZtmYgV5eps2WWbiUw6dALwRVbuTx1kTWzTSwMEAK
-         uoj9+3dt1nbJjLEX01pKFbzyBDothS9D89c2DPeJlYpmaQpLYvclWHQhs/w+mnvq5Hy5
-         jtwQ==
-X-Gm-Message-State: ACrzQf0SK74IfCt7EckokvJRER+hbQnumxp34Up0JFdOd7IDM7MAn+fY
-        0AN74VECyzaeaxeU/je/uEizjxhqEmsD6fW9iIY=
-X-Google-Smtp-Source: AMsMyM5tlzTzh3pz/1nmqHIUx/az55PDQ+2okaGiU9YwBBNILE2jsuh+cuS/xkIgkHORCv1Q73JJmg==
-X-Received: by 2002:a17:90b:1bd0:b0:205:ed0c:7e84 with SMTP id oa16-20020a17090b1bd000b00205ed0c7e84mr5589528pjb.234.1665584607497;
-        Wed, 12 Oct 2022 07:23:27 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b23-20020aa79517000000b00562eff85594sm9106824pfp.121.2022.10.12.07.23.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Oct 2022 07:23:27 -0700 (PDT)
-Message-ID: <6346cddf.a70a0220.42175.f55b@mx.google.com>
-Date:   Wed, 12 Oct 2022 07:23:27 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229691AbiJLPRx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 11:17:53 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D579D18C9;
+        Wed, 12 Oct 2022 08:17:48 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 8B28A1F381;
+        Wed, 12 Oct 2022 15:17:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1665587864; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YUQdCV8qiu2z5cZbzxSEaEkk7or+cErTkTgKM6DkvSE=;
+        b=TQBH6wZEfg2J4/JXfuz2CUfAw1+Wpt5z7yW90MCznNrPc1PrIJijJ1VCqid5Cvm+eI60qQ
+        5WWug0YABffQ/hGUHPcDgZhagmRKLa90pB0Wew+DeotunOyVKjqfwfB6eOJem5VKN1lmll
+        uCEHtshMka44Sj3n5sJJu1jBIKwEHAQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1665587864;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YUQdCV8qiu2z5cZbzxSEaEkk7or+cErTkTgKM6DkvSE=;
+        b=ZGqGu7Q+iBgrLcvuZ+tMwCZGjy+Qc/1rmPnZpoX8IMOOWToDcLWEdjt38F6XYNAO2Xee72
+        Q3pu8bOFCyF3fiDw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1219F13ACD;
+        Wed, 12 Oct 2022 15:17:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 78FiAZjaRmM4PAAAMHmgww
+        (envelope-from <lhenriques@suse.de>); Wed, 12 Oct 2022 15:17:44 +0000
+Received: from localhost (brahms.olymp [local])
+        by brahms.olymp (OpenSMTPD) with ESMTPA id a8723c1a;
+        Wed, 12 Oct 2022 15:18:39 +0000 (UTC)
+Date:   Wed, 12 Oct 2022 16:18:39 +0100
+From:   =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
+        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] ext4: fix BUG_ON() when directory entry has invalid
+ rec_len
+Message-ID: <Y0baz6C1aKRjKzvJ@suse.de>
+References: <20221010142035.2051-1-lhenriques@suse.de>
+ <20221012131330.32456-1-lhenriques@suse.de>
+ <Y0a+Ommsgm4ogo7u@suse.de>
+ <Y0bNc9XZA5wXNJMX@mit.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.15.73
-X-Kernelci-Report-Type: test
-Subject: stable/linux-5.15.y baseline: 111 runs, 3 regressions (v5.15.73)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y0bNc9XZA5wXNJMX@mit.edu>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.15.y baseline: 111 runs, 3 regressions (v5.15.73)
+On Wed, Oct 12, 2022 at 10:21:39AM -0400, Theodore Ts'o wrote:
+> On Wed, Oct 12, 2022 at 02:16:42PM +0100, Luís Henriques wrote:
+> > Grr, looks like I accidentally reused a 'git send-email' from shell
+> > history which had a '--in-reply-to' in it.  Please ignore and sorry about
+> > that.  I've just resent a new email.
+> 
+> No worries!  The --in-reply-to wasn't actually a problem, since b4
+> generally will do the right thing (and sometimes humans prefer the
+> in-reply-to since they can more easily see the patch that it is
+> replacing/obsoleting).
+> 
+> b4 can sometimes get confused when a patch series gets split, and both
+> parts of the patch series are in a reply-to mail thread to the
+> original patch series, since if it can't use the -vn+1 hueristic or
+> the "subject line has stayed the same but has a newer date" hueristic,
+> it falls back to "latest patch in the mail thread".  So if there are
+> two "valid" patches or patch series in an e-mail thread, b4 -c
+> (--check-newer-revisions) can get confused.  But even in that case,
+> that it's more a minor annoyance than anything else.
+> 
+> So in the future, don't feel that you need to resend a patch if
+> there's an incorrect/older --in-reply-to; it's not a big deal.
 
-Regressions Summary
--------------------
+Great, I haven't yet included b4 in my workflow so, to be honest, I didn't
+really thought about that tool being confused.  What really made me resend
+the patch was that I used the *wrong message-ID in the "--in-reply-to"!
+And that thread already had a v2 patch, which would could easily confuse
+humans.  Hopefully, b4 won't be confused by that either.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-imx7ulp-evk      | arm   | lab-nxp       | gcc-10   | imx_v6_v7_defconfig  =
-      | 1          =
-
-imx7ulp-evk      | arm   | lab-nxp       | gcc-10   | multi_v7_defconfig   =
-      | 1          =
-
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
-/v5.15.73/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.15.y
-  Describe: v5.15.73
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      17aac9b7af2bc5f7b4426603940e92ae8aa73d5d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-imx7ulp-evk      | arm   | lab-nxp       | gcc-10   | imx_v6_v7_defconfig  =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/634694d54ea40a2e96cab5ec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.73/a=
-rm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.73/a=
-rm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221007.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/634694d54ea40a2e96cab=
-5ed
-        failing since 13 days (last pass: v5.15.67, first fail: v5.15.71) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-imx7ulp-evk      | arm   | lab-nxp       | gcc-10   | multi_v7_defconfig   =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63469b2a837cce819ccab614
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.73/a=
-rm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.73/a=
-rm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221007.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63469b2a837cce819ccab=
-615
-        failing since 6 days (last pass: v5.15.70, first fail: v5.15.72) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/634696dac67ee506c6cab5f2
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.73/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.73/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221007.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/634696dac67ee506c6cab626
-        failing since 217 days (last pass: v5.15.25, first fail: v5.15.27)
-
-    2022-10-12T10:28:25.207771  <8>[   59.820160] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-10-12T10:28:26.228596  /lava-7562799/1/../bin/lava-test-case
-    2022-10-12T10:28:26.239685  <8>[   60.854085] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+Cheers,
+--
+Luís
