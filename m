@@ -2,138 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE4A5FC5CA
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 15:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F15B25FC5CC
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 15:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229788AbiJLNBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 09:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32886 "EHLO
+        id S229950AbiJLNB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 09:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229785AbiJLNBy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 09:01:54 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECCC42700;
-        Wed, 12 Oct 2022 06:01:52 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 96FD221E5F;
-        Wed, 12 Oct 2022 13:01:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1665579711;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ow3cw4JlyoLITqPKZ7rmGOf5DZypBIDDz4xaPhgVi6M=;
-        b=u503n1p2Ark1GuEffAyqjUwCRw4E6OFa+hDwqF1OzqyN551pnEhvt5Z86gnTut02yOq+vK
-        8+mXw+IE0uIyFs7Ey6M+vZT9K7fxHSbEQVUMs7DeszOZCpwx729X87EWrfwJFUxUaCcjLT
-        c3yGwRsaBzvV73xKIRUyFc1+SpUviOE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1665579711;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ow3cw4JlyoLITqPKZ7rmGOf5DZypBIDDz4xaPhgVi6M=;
-        b=SrYY1712Av/PpT11639oBzmcGrL56eQ3plaqiaeqO6NvF8pR5h6XiAVcoxRNCoaw2zCX9t
-        kzyIFG6V8bZotvAg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4B32313ACD;
-        Wed, 12 Oct 2022 13:01:51 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id okVlEb+6RmMnbQAAMHmgww
-        (envelope-from <dsterba@suse.cz>); Wed, 12 Oct 2022 13:01:51 +0000
-Date:   Wed, 12 Oct 2022 15:01:45 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        clm@fb.com, josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.0 41/46] btrfs: relax block-group-tree feature
- dependency checks
-Message-ID: <20221012130145.GY13389@suse.cz>
-Reply-To: dsterba@suse.cz
-References: <20221011145015.1622882-1-sashal@kernel.org>
- <20221011145015.1622882-41-sashal@kernel.org>
+        with ESMTP id S229886AbiJLNB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 09:01:56 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 809D824094
+        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 06:01:55 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id h10so16168905plb.2
+        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 06:01:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=JDgaBX/8LUkCL6RrWOQpIRhwPNx8mMtsKAIy2n3C+e0=;
+        b=Uc5HwAj4p/R+JIjGKJq1+61nhjewgC+LhYlsNMn1uoP5ZFbwEWlp1H3k9S5oA64/pU
+         l3L8XfQOF+FSIo34LKICoFjg8wgbgUUVdv1cLwQMc3eFBxQ23vsxmMar7fDxkQvJ1lZp
+         /8/2Qog5I+VjnWI75f9OTpmOplr7Rou94sN+2kI4jOMFPeAZM+HdRBsYMQK6gJy1l4yA
+         +aUg1e13EgZH5Yxj0RvvsdaGYvXkh8iHUNauA8VJA4EAn7Xmk87j8KbgXCZJkRvU4PVW
+         Nvk8x16Gx482w83hTnJVYhZ1VOvARrQwbHJEIcC5x2i8ZemunCkY4y10rVcGRIsW8Z4w
+         GuEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JDgaBX/8LUkCL6RrWOQpIRhwPNx8mMtsKAIy2n3C+e0=;
+        b=PbcCQUlKM6j/JVhV7t4mkiThHpqkGxMH7ktt+N8Syjj+7MP0g+sttJdGpKjd0F+qwP
+         fxFyRnfDBamMRFSdFYkqBpJEB6uH0JeUSmQTfCK5iOYPcFJNDPRwV6G29k1dh9R6TTrj
+         iWFchgMluyYrFrA/txCRps8iuSCX2pvs+nxpZaW9KHKXYEjEKFzuOpL3wh0R56+v2u/R
+         2S9zYRKCndakPi5l2wJPJnQbQWc7UnQGfoBkaFbCldMBmdUisLYuffnosoNd81ln6/Mr
+         CtFmxv5Thk/YAzK7+TII3rtbdNSy8XirLXJvWBqZ4auZscjQxSpHh9JOLUQ/jcYIYdHA
+         4AAw==
+X-Gm-Message-State: ACrzQf1yuEETu396a0kk0OE3N7Zrcdh/J6tmOHgyLmFezi99rgFscgoT
+        H+/QFeMxDW133RB1u3JxLokY2cnl8zzT+lB0SWQ=
+X-Google-Smtp-Source: AMsMyM6Op0EC9nS8/kvwP7qGrb4/eEekelHaXw+iOi/2DnSNQL0rSiCVHprVdn100dhfkGoe4fJKuQ==
+X-Received: by 2002:a17:902:724b:b0:183:16f:fae4 with SMTP id c11-20020a170902724b00b00183016ffae4mr12647723pll.88.1665579714850;
+        Wed, 12 Oct 2022 06:01:54 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a17-20020aa794b1000000b00553d5920a29sm11026627pfl.101.2022.10.12.06.01.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Oct 2022 06:01:54 -0700 (PDT)
+Message-ID: <6346bac2.a70a0220.f5272.2d2c@mx.google.com>
+Date:   Wed, 12 Oct 2022 06:01:54 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221011145015.1622882-41-sashal@kernel.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.19.14-47-ga0c4ea5443da5
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.19 baseline: 95 runs,
+ 3 regressions (v5.19.14-47-ga0c4ea5443da5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 11, 2022 at 10:50:09AM -0400, Sasha Levin wrote:
-> From: Qu Wenruo <wqu@suse.com>
-> 
-> [ Upstream commit d7f67ac9a928fa158a95573406eac0a887bbc28c ]
-> 
-> [BUG]
-> When one user did a wrong attempt to clear block group tree, which can
-> not be done through mount option, by using "-o clear_cache,space_cache=v2",
-> it will cause the following error on a fs with block-group-tree feature:
-> 
->   BTRFS info (device dm-1): force clearing of disk cache
->   BTRFS info (device dm-1): using free space tree
->   BTRFS info (device dm-1): clearing free space tree
->   BTRFS info (device dm-1): clearing compat-ro feature flag for FREE_SPACE_TREE (0x1)
->   BTRFS info (device dm-1): clearing compat-ro feature flag for FREE_SPACE_TREE_VALID (0x2)
->   BTRFS error (device dm-1): block-group-tree feature requires fres-space-tree and no-holes
->   BTRFS error (device dm-1): super block corruption detected before writing it to disk
->   BTRFS: error (device dm-1) in write_all_supers:4318: errno=-117 Filesystem corrupted (unexpected superblock corruption detected)
->   BTRFS warning (device dm-1: state E): Skipping commit of aborted transaction.
-> 
-> [CAUSE]
-> Although the dependency for block-group-tree feature is just an
-> artificial one (to reduce test matrix), we put the dependency check into
-> btrfs_validate_super().
-> 
-> This is too strict, and during space cache clearing, we will have a
-> window where free space tree is cleared, and we need to commit the super
-> block.
-> 
-> In that window, we had block group tree without v2 cache, and triggered
-> the artificial dependency check.
-> 
-> This is not necessary at all, especially for such a soft dependency.
-> 
-> [FIX]
-> Introduce a new helper, btrfs_check_features(), to do all the runtime
-> limitation checks, including:
-> 
-> - Unsupported incompat flags check
-> 
-> - Unsupported compat RO flags check
-> 
-> - Setting missing incompat flags
-> 
-> - Artificial feature dependency checks
->   Currently only block group tree will rely on this.
-> 
-> - Subpage runtime check for v1 cache
-> 
-> With this helper, we can move quite some checks from
-> open_ctree()/btrfs_remount() into it, and just call it after
-> btrfs_parse_options().
-> 
-> Now "-o clear_cache,space_cache=v2" will not trigger the above error
-> anymore.
-> 
-> Signed-off-by: Qu Wenruo <wqu@suse.com>
-> Reviewed-by: David Sterba <dsterba@suse.com>
-> [ edit messages ]
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+stable-rc/queue/5.19 baseline: 95 runs, 3 regressions (v5.19.14-47-ga0c4ea5=
+443da5)
 
-Please drop this from the stable queue, it's for an unreleased feature
-(ETA 6.1).
+Regressions Summary
+-------------------
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | imx_v6_v7=
+_defconfig        | 1          =
+
+imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
+nel/v5.19.14-47-ga0c4ea5443da5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.19
+  Describe: v5.19.14-47-ga0c4ea5443da5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a0c4ea5443da558143791f65be4778834050e507 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | imx_v6_v7=
+_defconfig        | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6346881a82a29720bbcab5f3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
+47-ga0c4ea5443da5/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
+47-ga0c4ea5443da5/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221007.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6346881a82a29720bbcab=
+5f4
+        failing since 16 days (last pass: v5.19.11-158-gc8a84e45064d0, firs=
+t fail: v5.19.11-186-ge96864168d41) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+imx7ulp-evk                  | arm   | lab-nxp       | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63468c8d1c65c336c7cab5f7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
+47-ga0c4ea5443da5/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
+k.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
+47-ga0c4ea5443da5/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
+k.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221007.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63468c8d1c65c336c7cab=
+5f8
+        failing since 15 days (last pass: v5.19.11-158-gc8a84e45064d0, firs=
+t fail: v5.19.11-206-g444111497b13) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/634687d88f200a9d4dcab61d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
+47-ga0c4ea5443da5/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-sc7180-trogdor-lazor-limozeen.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.14-=
+47-ga0c4ea5443da5/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-sc7180-trogdor-lazor-limozeen.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221007.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/634687d88f200a9d4dcab=
+61e
+        failing since 0 day (last pass: v5.19.14-47-g0f2b1a82748ec, first f=
+ail: v5.19.14-47-gc70148895c5c) =
+
+ =20
