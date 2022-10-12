@@ -2,158 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 435295FBEF9
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 03:52:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6805B5FBF03
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 04:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiJLBwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 21:52:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
+        id S229561AbiJLCGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 22:06:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbiJLBwC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 21:52:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E956DA4B93
-        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 18:52:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665539519;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/aoFTKs1+i/r1hVVhJXeOSGerK3qdHj+SZOhT30koZ8=;
-        b=QpG2I5NKJq13jU3M7LDYQQTaBXQu1Tq0TqfHO7h7xXam9lhMIetdDCXhMHagmu6QtwtnbM
-        wWBxd3Kk/NvAK0sBUMDyipiNEHizl3ewmtC7ljtxRY7wAOimh1knck2UZeFvObQoPHEOgn
-        NWYupJmTHpHctc5/Oz2hJhGWy0tSQZw=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-378-HNHL_uEeP9CzQp0I7f1R7A-1; Tue, 11 Oct 2022 21:51:51 -0400
-X-MC-Unique: HNHL_uEeP9CzQp0I7f1R7A-1
-Received: by mail-pg1-f200.google.com with SMTP id k64-20020a638443000000b004620970e0dbso3721579pgd.6
-        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 18:51:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-language:content-transfer-encoding:in-reply-to:mime-version
-         :user-agent:date:message-id:from:references:to:subject
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/aoFTKs1+i/r1hVVhJXeOSGerK3qdHj+SZOhT30koZ8=;
-        b=gX++R9Ifkhjc3emlP5MY7jHdsk1S8tqKHmqRHhhApWyM/pskN90+5uzMD6cNqbgbSK
-         23adIu6Qak1tKKmFAPSjsGL2wXXy/6z3OI4BSEVzfYW18qSPQQyA3I1i4aauSTorI7PI
-         3bE+Oceag+5p3ZamLW8X1JaxvQ7RR/19wf8/HmJV9Xyxj75nmi3DShDXp4gTKpLLyDbV
-         W4IrEZdDBzSjN5sMcfvdUIIER45LEr5afLjaHo3+HF1S6p1rsPeo/dDBmh1yD4oNALxE
-         2jH6/r56lbNj1RlT5h2ytHtzJ6/JZ7rUlyX/prNuW0Tr20kMNFH5tTGNzd4GWdKS36sd
-         BsoA==
-X-Gm-Message-State: ACrzQf3ikIDUK+OuBjfzeet8u0u88DSaHMZXFzS7mPEdYtsckvwTbadn
-        6l3k5tA9QBeFpy5wq/prul3ha2I3LE4Amhf6XnK4taiTIFVsvwVJl8iULenbDUbKhSqzcYQ0gFJ
-        QsVHnmSW0l7OyqLI0b1e9pw8WYev3rPLJMUWNGUsSPY4EUiywZO3icAcENyA/7YZpVg==
-X-Received: by 2002:a17:90b:2643:b0:205:bd0d:bdff with SMTP id pa3-20020a17090b264300b00205bd0dbdffmr2236861pjb.99.1665539509843;
-        Tue, 11 Oct 2022 18:51:49 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4JbZ2tluRah5wFlLgizcV59zIqG1blSiKf601GHfEoTdxTNK/36+HeZsdsDSEnyyqZnLHXWg==
-X-Received: by 2002:a17:90b:2643:b0:205:bd0d:bdff with SMTP id pa3-20020a17090b264300b00205bd0dbdffmr2236839pjb.99.1665539509410;
-        Tue, 11 Oct 2022 18:51:49 -0700 (PDT)
-Received: from [10.72.12.247] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id u187-20020a6279c4000000b0053725e331a1sm9682581pfc.82.2022.10.11.18.51.47
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Oct 2022 18:51:49 -0700 (PDT)
-Subject: ceph: don't truncate file in atomic_open
-To:     stable@vger.kernel.org
-References: <59d7c10f-7419-971b-c13c-71865f897953@redhat.com>
- <20220701025227.21636-1-sehuww@mail.scut.edu.cn>
-From:   Xiubo Li <xiubli@redhat.com>
-Message-ID: <f87ea616-674b-2aad-f853-c28ea928ad4d@redhat.com>
-Date:   Wed, 12 Oct 2022 09:51:43 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <20220701025227.21636-1-sehuww@mail.scut.edu.cn>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229520AbiJLCGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 22:06:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC984F664;
+        Tue, 11 Oct 2022 19:06:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80F71612A3;
+        Wed, 12 Oct 2022 02:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7962C433D6;
+        Wed, 12 Oct 2022 02:06:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1665540362;
+        bh=NDmqdurVMEZynKiYzeFXlCzx9NkYx8XiUCzH02FD8T8=;
+        h=Date:To:From:Subject:From;
+        b=1A+zWY+xwHPdkjwH4T+b8yF9/AMezrruQhBNfoMtckedhJzAR4MafxDxbn0yF0kQS
+         8GUYL3TYW/Au7wVEvlEflqQTFMMEgy/b3kTER7l2V9STVEchsU88oiWZ/nlWVDLi1T
+         xmfZ42+0eFM4aYyHkDJVuvFZ/WubYx9aCMPMwyu4=
+Date:   Tue, 11 Oct 2022 19:06:02 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, mike.kravetz@oracle.com,
+        david@redhat.com, baolin.wang@linux.alibaba.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page.patch removed from -mm tree
+Message-Id: <20221012020602.C7962C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Maitainers
 
-This patch is a fix in kceph module and should be backported to any 
-affected stable old kernels. And the original patch missed tagging 
-stable and got merged already months ago:
+The quilt patch titled
+     Subject: mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
+has been removed from the -mm tree.  Its filename was
+     mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page.patch
 
-commit 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832
-Author: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Date:   Fri Jul 1 10:52:27 2022 +0800
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-     ceph: don't truncate file in atomic_open
+------------------------------------------------------
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
+Subject: mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
+Date: Thu, 1 Sep 2022 18:41:31 +0800
 
-     Clear O_TRUNC from the flags sent in the MDS create request.
+On some architectures (like ARM64), it can support CONT-PTE/PMD size
+hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
+1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
 
-     `atomic_open' is called before permission check. We should not do any
-     modification to the file here. The caller will do the truncation
-     afterward.
+So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
+use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
+hugetlb in follow_page_pte().  However this pte entry lock is incorrect
+for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
+the correct lock, which is mm->page_table_lock.
 
-     Fixes: 124e68e74099 ("ceph: file operations")
-     Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-     Reviewed-by: Xiubo Li <xiubli@redhat.com>
-     Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+That means the pte entry of the CONT-PTE size hugetlb under current pte
+lock is unstable in follow_page_pte(), we can continue to migrate or
+poison the pte entry of the CONT-PTE size hugetlb, which can cause some
+potential race issues, even though they are under the 'pte lock'.
 
+For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
+page by move_pages() syscall under the lock, however antoher thread B can
+migrate the CONT-PTE hugetlb page at the same time, which will cause
+thread A to get an incorrect page, if thread A also wants to do page
+migration, then data inconsistency error occurs.
 
-Just a single patch.
+Moreover we have the same issue for CONT-PMD size hugetlb in
+follow_huge_pmd().
 
-I am not very sure this is the correct way to do this, if anything else 
-I need to do to backport this to old kernels please let me know.
+To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
+to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
+get the correct pte entry lock to make the pte entry stable.
 
-Thanks!
+Mike said:
 
-- Xiubo
+Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
+refactor find_num_contig()").  Patch series "Support for contiguous pte
+hugepages", v4.  However, I do not believe these code paths were
+executed until migration support was added with 5480280d3f2d ("arm64/mm:
+enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
+with 5480280d3f2d for the Fixes: targe.
 
+Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
+Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
+Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ include/linux/hugetlb.h |    8 ++++----
+ mm/gup.c                |   14 +++++++++++++-
+ mm/hugetlb.c            |   27 +++++++++++++--------------
+ 3 files changed, 30 insertions(+), 19 deletions(-)
 
-On 01/07/2022 10:52, Hu Weiwen wrote:
-> Clear O_TRUNC from the flags sent in the MDS create request.
->
-> `atomic_open' is called before permission check. We should not do any
-> modification to the file here. The caller will do the truncation
-> afterward.
->
-> Fixes: 124e68e74099 ("ceph: file operations")
-> Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-> ---
-> rebased onto ceph_client repo testing branch
->
->   fs/ceph/file.c | 9 ++++++---
->   1 file changed, 6 insertions(+), 3 deletions(-)
->
-> diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-> index 296fd1c7ece8..289e66e9cbb0 100644
-> --- a/fs/ceph/file.c
-> +++ b/fs/ceph/file.c
-> @@ -745,6 +745,11 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
->   	err = ceph_wait_on_conflict_unlink(dentry);
->   	if (err)
->   		return err;
-> +	/*
-> +	 * Do not truncate the file, since atomic_open is called before the
-> +	 * permission check. The caller will do the truncation afterward.
-> +	 */
-> +	flags &= ~O_TRUNC;
->   
->   retry:
->   	if (flags & O_CREAT) {
-> @@ -836,9 +841,7 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
->   	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
->   	req->r_new_inode = new_inode;
->   	new_inode = NULL;
-> -	err = ceph_mdsc_do_request(mdsc,
-> -				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
-> -				   req);
-> +	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
->   	if (err == -ENOENT) {
->   		dentry = ceph_handle_snapdir(req, dentry);
->   		if (IS_ERR(dentry)) {
+--- a/include/linux/hugetlb.h~mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page
++++ a/include/linux/hugetlb.h
+@@ -207,8 +207,8 @@ struct page *follow_huge_addr(struct mm_
+ struct page *follow_huge_pd(struct vm_area_struct *vma,
+ 			    unsigned long address, hugepd_t hpd,
+ 			    int flags, int pdshift);
+-struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+-				pmd_t *pmd, int flags);
++struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
++				 int flags);
+ struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
+ 				pud_t *pud, int flags);
+ struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
+@@ -312,8 +312,8 @@ static inline struct page *follow_huge_p
+ 	return NULL;
+ }
+ 
+-static inline struct page *follow_huge_pmd(struct mm_struct *mm,
+-				unsigned long address, pmd_t *pmd, int flags)
++static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
++				unsigned long address, int flags)
+ {
+ 	return NULL;
+ }
+--- a/mm/gup.c~mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page
++++ a/mm/gup.c
+@@ -530,6 +530,18 @@ static struct page *follow_page_pte(stru
+ 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+ 			 (FOLL_PIN | FOLL_GET)))
+ 		return ERR_PTR(-EINVAL);
++
++	/*
++	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
++	 * ARM64 architecture.
++	 */
++	if (is_vm_hugetlb_page(vma)) {
++		page = follow_huge_pmd_pte(vma, address, flags);
++		if (page)
++			return page;
++		return no_page_table(vma, flags);
++	}
++
+ retry:
+ 	if (unlikely(pmd_bad(*pmd)))
+ 		return no_page_table(vma, flags);
+@@ -662,7 +674,7 @@ static struct page *follow_pmd_mask(stru
+ 	if (pmd_none(pmdval))
+ 		return no_page_table(vma, flags);
+ 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
+-		page = follow_huge_pmd(mm, address, pmd, flags);
++		page = follow_huge_pmd_pte(vma, address, flags);
+ 		if (page)
+ 			return page;
+ 		return no_page_table(vma, flags);
+--- a/mm/hugetlb.c~mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page
++++ a/mm/hugetlb.c
+@@ -6946,12 +6946,13 @@ follow_huge_pd(struct vm_area_struct *vm
+ }
+ 
+ struct page * __weak
+-follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+-		pmd_t *pmd, int flags)
++follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
+ {
++	struct hstate *h = hstate_vma(vma);
++	struct mm_struct *mm = vma->vm_mm;
+ 	struct page *page = NULL;
+ 	spinlock_t *ptl;
+-	pte_t pte;
++	pte_t *ptep, pte;
+ 
+ 	/*
+ 	 * FOLL_PIN is not supported for follow_page(). Ordinary GUP goes via
+@@ -6961,17 +6962,15 @@ follow_huge_pmd(struct mm_struct *mm, un
+ 		return NULL;
+ 
+ retry:
+-	ptl = pmd_lockptr(mm, pmd);
+-	spin_lock(ptl);
+-	/*
+-	 * make sure that the address range covered by this pmd is not
+-	 * unmapped from other threads.
+-	 */
+-	if (!pmd_huge(*pmd))
+-		goto out;
+-	pte = huge_ptep_get((pte_t *)pmd);
++	ptep = huge_pte_offset(mm, address, huge_page_size(h));
++	if (!ptep)
++		return NULL;
++
++	ptl = huge_pte_lock(h, mm, ptep);
++	pte = huge_ptep_get(ptep);
+ 	if (pte_present(pte)) {
+-		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
++		page = pte_page(pte) +
++			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
+ 		/*
+ 		 * try_grab_page() should always succeed here, because: a) we
+ 		 * hold the pmd (ptl) lock, and b) we've just checked that the
+@@ -6987,7 +6986,7 @@ retry:
+ 	} else {
+ 		if (is_hugetlb_entry_migration(pte)) {
+ 			spin_unlock(ptl);
+-			__migration_entry_wait_huge((pte_t *)pmd, ptl);
++			__migration_entry_wait_huge(ptep, ptl);
+ 			goto retry;
+ 		}
+ 		/*
+_
+
+Patches currently in -mm which might be from baolin.wang@linux.alibaba.com are
+
 
