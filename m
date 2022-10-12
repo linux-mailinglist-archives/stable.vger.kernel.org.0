@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C15805FBE96
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 02:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ECB05FBEA8
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 02:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229504AbiJLAFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 20:05:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40000 "EHLO
+        id S229695AbiJLA0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 20:26:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229511AbiJLAFW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 20:05:22 -0400
-X-Greylist: delayed 104710 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 11 Oct 2022 17:05:19 PDT
-Received: from gproxy2-pub.mail.unifiedlayer.com (gproxy2-pub.mail.unifiedlayer.com [69.89.18.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF962DAAC
-        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 17:05:19 -0700 (PDT)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway4.mail.pro1.eigbox.com (Postfix) with ESMTP id CC7571004438B
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 00:05:07 +0000 (UTC)
+        with ESMTP id S229672AbiJLA0P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 20:26:15 -0400
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09FD87EFE8
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 17:26:13 -0700 (PDT)
+Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 5945C802AC6C
+        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 00:26:13 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 6114E10040DD0
+        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 00:25:51 +0000 (UTC)
 Received: from box5620.bluehost.com ([162.241.219.59])
         by cmsmtp with ESMTP
-        id iPFDolyHfby5yiPFDoBBLY; Wed, 12 Oct 2022 00:05:07 +0000
+        id iPZGoEMNxCJYCiPZHohMx0; Wed, 12 Oct 2022 00:25:51 +0000
 X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=ErwXEQQA c=1 sm=1 tr=0 ts=634604b3
+X-Authority-Analysis: v=2.4 cv=Y9s9DjSN c=1 sm=1 tr=0 ts=6346098f
  a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
  a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
  a=Qawa6l4ZSaYA:10:nop_rcvd_month_year
@@ -35,19 +37,19 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=APC8vf3ohry5Cf9G3SNY3FtlPWiA2NcQoRjDk33UlVs=; b=QiZaQNcO35eb/BPMut16hczcyv
-        kqOtvWqDhPYHJVg/ziI78Ho9oNzvSGMOGGnU+Dy5kAgsBd0hWXmC9hCfMpFWTlgoAxwfuHG8L5xtt
-        6rdbUKcrAD/PZ23NnJZx940mmcmwaAKupncIeE9CvHtbe36b3XEFLUYbJ87WCxlsm0CXB2AvAUM88
-        qjNLgm19DNfeBAvyLtBI91EqSNrMUnEsifK72xkTAZHbUxcYz9dQnZVI5oSaiF5XTr5ExnNzDND8b
-        QhAT0cPJwvjQQsCdsr7v48MP5ExXSWPpBXvk4c5l9qXaB9f4a9I3FUnuXgiXalXhb2GrT+98U4GLq
-        8+wpGbGA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53442 helo=[10.0.1.48])
+        bh=nGTssDer9ZusJeYVUULlKNZ7pNC4oNVyeuAvEq5s8ck=; b=L/iGxK9LkgqkfG2kWiWl8ly9TB
+        C6hBdKcH2qfe09kTebf2vhl/QH89VQ3BdrPtLTiPi/eQvtJkJKhF0XumGlb1nTB1deNo2TSaeEjQL
+        jrn8ki3AFQ9EIAATqQ2cFAFkQazu+IpVPvRHA+L8UuW+ry6I3QUGIXvIFgbrpI+M37lx+esOI/E2p
+        qW+x080+EdyuI99PXa8MrfzJ270D8yKlVQzvlJGYJiSydWRQEIpgpyElmgadldltNY5jnlcPqrHBU
+        PD+vPe+EnJNIhLapSmN/fuoUJpmNTgapzeaqC0nAEvwyPVSQcJWvi/MKTw4s5Qtq4tG4UTBrdx9mP
+        VkuZIFGw==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53450 helo=[10.0.1.48])
         by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.95)
         (envelope-from <re@w6rz.net>)
-        id 1oiPFB-0014iR-4K;
-        Tue, 11 Oct 2022 18:05:05 -0600
-Subject: Re: [PATCH 5.15 00/35] 5.15.73-rc2 review
+        id 1oiPZE-001BVA-ON;
+        Tue, 11 Oct 2022 18:25:48 -0600
+Subject: Re: [PATCH 6.0 00/17] 6.0.1-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
@@ -55,11 +57,11 @@ Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-References: <20221010191226.167997210@linuxfoundation.org>
-In-Reply-To: <20221010191226.167997210@linuxfoundation.org>
+References: <20221010070330.159911806@linuxfoundation.org>
+In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
 From:   Ron Economos <re@w6rz.net>
-Message-ID: <56a3aa5c-98f0-be7d-c54f-d886eec3753c@w6rz.net>
-Date:   Tue, 11 Oct 2022 17:04:59 -0700
+Message-ID: <d54d833c-90c5-3047-5d27-70335c4158e8@w6rz.net>
+Date:   Tue, 11 Oct 2022 17:25:43 -0700
 User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
  Thunderbird/78.14.0
 MIME-Version: 1.0
@@ -74,18 +76,18 @@ X-AntiAbuse: Sender Address Domain - w6rz.net
 X-BWhitelist: no
 X-Source-IP: 73.162.232.9
 X-Source-L: No
-X-Exim-ID: 1oiPFB-0014iR-4K
+X-Exim-ID: 1oiPZE-001BVA-ON
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53442
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53450
 X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
+X-Email-Count: 17
 X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
 X-Local-Domain: yes
 X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -93,19 +95,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/10/22 12:12 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.73 release.
-> There are 35 patches in this series, all will be posted as a response
+On 10/10/22 12:04 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.1 release.
+> There are 17 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Wed, 12 Oct 2022 19:12:17 +0000.
+> Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.73-rc2.gz
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.1-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
 > and the diffstat can be found below.
 >
 > thanks,
