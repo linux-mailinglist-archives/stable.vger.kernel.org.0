@@ -2,41 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8BA15FBF06
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 04:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E825FBF25
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 04:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiJLCGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 22:06:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38812 "EHLO
+        id S229506AbiJLCYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 22:24:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229572AbiJLCGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 22:06:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADAD0A50DA;
-        Tue, 11 Oct 2022 19:06:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D7E86134C;
-        Wed, 12 Oct 2022 02:06:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD8C7C433D6;
-        Wed, 12 Oct 2022 02:06:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1665540367;
-        bh=MBtsSsti3goRMhyBXZ8vCDizFi/uNYMRmIYkhxGUfDE=;
-        h=Date:To:From:Subject:From;
-        b=vzCMJ/X7yc8b2TU7y6dv7XgJPQ7QoCWXDmWq7yyqF9VOZY776XdsQAexyUjueIU67
-         qJCkDyU4AEAt27v4mhWf3NOVI+UOjQ2BfaC1LX0fCMygI2DZI2HBS4Nml5ulAfBDK7
-         CqwZJREaQ16ZT9JmfZ1YQkAzSKsSk0dXYWM47ANs=
-Date:   Tue, 11 Oct 2022 19:06:07 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        konishi.ryusuke@gmail.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] nilfs2-fix-leak-of-nilfs_root-in-case-of-writer-thread-creation-failure.patch removed from -mm tree
-Message-Id: <20221012020607.BD8C7C433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229490AbiJLCYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 22:24:33 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E24DA487F;
+        Tue, 11 Oct 2022 19:24:32 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id d24so14970211pls.4;
+        Tue, 11 Oct 2022 19:24:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=iuu19vNPsdKZJ7tUMTlg7a+dW8+2WEUouEX5Ysyg0gY=;
+        b=bR83FdKc/UPG4CVWKH0yJvVuh4i+G095sL3+MiYXf7RZ9s/mOfT5SB92K6LBzF5POv
+         3fVny9oQ6rgsuBYpP38fdKT66Izo+s4JD/xTn/wjYQr/anyf1v9IOb5WqvW3pM7XQN8o
+         05eduyNHfgiOJfhPZpQAOJevQHB6Lnk/kpBWR/umcPb2ZmVrrXi58ZRRbJev89Eryz7n
+         qF/LtVjfGLHc0ctMsPXqnc8DpEoyPgmww+NQpDrhBKrpZh3cXhzlKspEfOyHL0Nid4xR
+         SBmsH6KIucwenTkMRzukOdczknPbuTw7LJwnIWkOK0Wyp/6cT/pAc+EmRhayHcPMTdAO
+         lleg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iuu19vNPsdKZJ7tUMTlg7a+dW8+2WEUouEX5Ysyg0gY=;
+        b=CYQ3hRG8zAozJjDyKCOGNZX7/Cq7VSEdISNN7o4OJatAjayi97YRlbSiDx7J+NVHK0
+         QZTcplmZud8a9KelEQ5eNQqWT7FDd+Cdk3KzmdRV9CwtXaA77bgI9ni++hGuEmE3JI+r
+         vBpWvamhQbDkg5S8rhUtdirXMSGa5GGwUQ9Rr4/CxUvz2z53nYTt6Hg0FEu8B9xtdklZ
+         cqswDPEewoyJ8irtppgiCn7cqNCTUi90Wz/SMRiDkhrUHYZeWYhbjOM/Ri1tLthDSsCB
+         HXNBfrbQw3WTnqsjdbNjgy1TZei+PEfSBk71/0aFCk1/cD4YFPXpt+WTEEmXGL1ggyZk
+         6/Dw==
+X-Gm-Message-State: ACrzQf2Om0ZacEtjK5czJFvuArfulv3B3OZBFvMAV9ny7cz3k8qu06kj
+        0aN3pN/4R8ihjq1nHg+ieA4=
+X-Google-Smtp-Source: AMsMyM57Rs4H8t3P5/pReG3+s9TZJgDlJeDj5OPdsn4ktepgUxsDceG2SA/oR/y3GrIZ8RU9FpXA+A==
+X-Received: by 2002:a17:90a:1b0d:b0:20d:69b1:70c3 with SMTP id q13-20020a17090a1b0d00b0020d69b170c3mr2472366pjq.5.1665541471811;
+        Tue, 11 Oct 2022 19:24:31 -0700 (PDT)
+Received: from debian.me (subs03-180-214-233-91.three.co.id. [180.214.233.91])
+        by smtp.gmail.com with ESMTPSA id z18-20020a170903019200b00176c6738d13sm5815859plg.169.2022.10.11.19.24.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Oct 2022 19:24:31 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id ECD4D103687; Wed, 12 Oct 2022 09:24:27 +0700 (WIB)
+Date:   Wed, 12 Oct 2022 09:24:27 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 5.15 00/37] 5.15.73-rc1 review
+Message-ID: <Y0YlW/PZDH4NRzUP@debian.me>
+References: <20221010070331.211113813@linuxfoundation.org>
+ <Y0Tv0S3zfZlEtii2@debian.me>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="8WqC/1b9AYVVSfgK"
+Content-Disposition: inline
+In-Reply-To: <Y0Tv0S3zfZlEtii2@debian.me>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -44,83 +79,39 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The quilt patch titled
-     Subject: nilfs2: fix leak of nilfs_root in case of writer thread creation failure
-has been removed from the -mm tree.  Its filename was
-     nilfs2-fix-leak-of-nilfs_root-in-case-of-writer-thread-creation-failure.patch
+--8WqC/1b9AYVVSfgK
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+On Tue, Oct 11, 2022 at 11:23:45AM +0700, Bagas Sanjaya wrote:
+> On Mon, Oct 10, 2022 at 09:05:19AM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.15.73 release.
+> > There are 37 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >=20
+>=20
+> Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+> powerpc (ps3_defconfig, GCC 12.1.0).
+>=20
+> Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+>=20
 
-------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: fix leak of nilfs_root in case of writer thread creation failure
-Date: Fri, 7 Oct 2022 17:52:26 +0900
+Oops, replied to wrong -rc; please ignore the trailer above.
 
-If nilfs_attach_log_writer() failed to create a log writer thread, it
-frees a data structure of the log writer without any cleanup.  After
-commit e912a5b66837 ("nilfs2: use root object to get ifile"), this causes
-a leak of struct nilfs_root, which started to leak an ifile metadata inode
-and a kobject on that struct.
+--=20
+An old man doll... just what I always wanted! - Clara
 
-In addition, if the kernel is booted with panic_on_warn, the above
-ifile metadata inode leak will cause the following panic when the
-nilfs2 kernel module is removed:
+--8WqC/1b9AYVVSfgK
+Content-Type: application/pgp-signature; name="signature.asc"
 
-  kmem_cache_destroy nilfs2_inode_cache: Slab cache still has objects when
-  called from nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-  WARNING: CPU: 8 PID: 1464 at mm/slab_common.c:494 kmem_cache_destroy+0x138/0x140
-  ...
-  RIP: 0010:kmem_cache_destroy+0x138/0x140
-  Code: 00 20 00 00 e8 a9 55 d8 ff e9 76 ff ff ff 48 8b 53 60 48 c7 c6 20 70 65 86 48 c7 c7 d8 69 9c 86 48 8b 4c 24 28 e8 ef 71 c7 00 <0f> 0b e9 53 ff ff ff c3 48 81 ff ff 0f 00 00 77 03 31 c0 c3 53 48
-  ...
-  Call Trace:
-   <TASK>
-   ? nilfs_palloc_freev.cold.24+0x58/0x58 [nilfs2]
-   nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-   exit_nilfs_fs+0xa/0x1b [nilfs2]
-    __x64_sys_delete_module+0x1d9/0x3a0
-   ? __sanitizer_cov_trace_pc+0x1a/0x50
-   ? syscall_trace_enter.isra.19+0x119/0x190
-   do_syscall_64+0x34/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   ...
-   </TASK>
-  Kernel panic - not syncing: panic_on_warn set ...
+-----BEGIN PGP SIGNATURE-----
 
-This patch fixes these issues by calling nilfs_detach_log_writer() cleanup
-function if spawning the log writer thread fails.
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY0YlVwAKCRD2uYlJVVFO
+oysPAQD4lH6Xj5RnBuPl7zyyMlNjDOFkAtcB92AJSFQ1cq5yswEA+ZwNHoU6CJZ5
+miGTY5pE2Gdfdltd2DeYgs/NUUb7CAI=
+=46e3
+-----END PGP SIGNATURE-----
 
-Link: https://lkml.kernel.org/r/20221007085226.57667-1-konishi.ryusuke@gmail.com
-Fixes: e912a5b66837 ("nilfs2: use root object to get ifile")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/nilfs2/segment.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
---- a/fs/nilfs2/segment.c~nilfs2-fix-leak-of-nilfs_root-in-case-of-writer-thread-creation-failure
-+++ a/fs/nilfs2/segment.c
-@@ -2786,10 +2786,9 @@ int nilfs_attach_log_writer(struct super
- 	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
- 
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
--	if (err) {
--		kfree(nilfs->ns_writer);
--		nilfs->ns_writer = NULL;
--	}
-+	if (unlikely(err))
-+		nilfs_detach_log_writer(sb);
-+
- 	return err;
- }
- 
-_
-
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
-
-
+--8WqC/1b9AYVVSfgK--
