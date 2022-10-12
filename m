@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3747C5FC616
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 15:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1915FC628
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 15:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229700AbiJLNM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 09:12:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52466 "EHLO
+        id S229566AbiJLNPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 09:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229989AbiJLNMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 09:12:41 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D663ACD5D1;
-        Wed, 12 Oct 2022 06:12:39 -0700 (PDT)
+        with ESMTP id S229696AbiJLNPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 09:15:12 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718F04DF32;
+        Wed, 12 Oct 2022 06:15:09 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 7CB9F21A30;
-        Wed, 12 Oct 2022 13:12:38 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 58B8B1F37C;
+        Wed, 12 Oct 2022 13:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1665580358; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1665580508; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
+         content-transfer-encoding:content-transfer-encoding;
         bh=PsXqFi/QyBBQvf+ZBOFYCVIG2VhKmDNKpOSFFp52hGY=;
-        b=aFsQGU2GPlWu/jFYXTosig0hLfY0vcYLMsZzlGXDqko+lSBKDBCiO0LBzq+mOY+b1G2jBo
-        roK3mR0jfU0BU2TnUGx6Xr7+rPyQ4wZiAdIYEdOuAs9B6GNrn7rX6t46sejMeMqpfzWgr3
-        9bWc6C8t/mKcKQt27HSigUzlssXPjAA=
+        b=mc4JspB0mQWlNaAkWjaMB3UXlyD3C5Sjy5DssODX190Q+1vnocbD5X9NhSaT7NXRpttntn
+        awaC76uph9pf+XJkIcwGXCA8u4phQFKSa5dQEn6bel0jBEYbC9bbdl9Huv7P6jG0dRVJOl
+        7ZSDOKnbH1zkHmrhoohkg5PCGoWV4oQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1665580358;
+        s=susede2_ed25519; t=1665580508;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
+         content-transfer-encoding:content-transfer-encoding;
         bh=PsXqFi/QyBBQvf+ZBOFYCVIG2VhKmDNKpOSFFp52hGY=;
-        b=utcN9WsRYJwYppnzp5XhJicTUSvcwvOKtfINJVmdhAOIEh1yhTKxv6K+ZhOQpDCk0UrCMz
-        nFJ9CjRKXSrmUXBw==
+        b=E1Z8ytamuaTSUJh2wCdZRdckLYz/s8KvkQrQnuagz3eIJNtGsWLTmLhp45EEQSOoCJfmUJ
+        rGEiRhJ5ZvA7C6CQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id EA74613ACD;
-        Wed, 12 Oct 2022 13:12:37 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D4CAA13ACD;
+        Wed, 12 Oct 2022 13:15:07 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id qfABNkW9RmPJcgAAMHmgww
-        (envelope-from <lhenriques@suse.de>); Wed, 12 Oct 2022 13:12:37 +0000
+        id 5WvJMNu9RmM8dAAAMHmgww
+        (envelope-from <lhenriques@suse.de>); Wed, 12 Oct 2022 13:15:07 +0000
 Received: from localhost (brahms.olymp [local])
-        by brahms.olymp (OpenSMTPD) with ESMTPA id 1cf78ce1;
-        Wed, 12 Oct 2022 13:13:32 +0000 (UTC)
+        by brahms.olymp (OpenSMTPD) with ESMTPA id 4bb4f812;
+        Wed, 12 Oct 2022 13:16:03 +0000 (UTC)
 From:   =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>
 To:     "Theodore Ts'o" <tytso@mit.edu>,
         Andreas Dilger <adilger.kernel@dilger.ca>
@@ -58,10 +56,8 @@ Cc:     linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
         stable@vger.kernel.org
 Subject: [PATCH v2] ext4: fix BUG_ON() when directory entry has invalid rec_len
-Date:   Wed, 12 Oct 2022 14:13:30 +0100
-Message-Id: <20221012131330.32456-1-lhenriques@suse.de>
-In-Reply-To: <20221010142035.2051-1-lhenriques@suse.de>
-References: <20221010142035.2051-1-lhenriques@suse.de>
+Date:   Wed, 12 Oct 2022 14:16:01 +0100
+Message-Id: <20221012131601.383-1-lhenriques@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
