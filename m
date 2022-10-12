@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D44E5FCEA5
+	by mail.lfdr.de (Postfix) with ESMTP id 12AE95FCEA4
 	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 00:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229511AbiJLW5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 18:57:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42402 "EHLO
+        id S229502AbiJLW53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 18:57:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229519AbiJLW5W (ORCPT
+        with ESMTP id S229511AbiJLW5W (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 18:57:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 283BE11C6FE;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDA0411C27A;
         Wed, 12 Oct 2022 15:57:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BACB0B819BB;
-        Wed, 12 Oct 2022 22:57:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F861C433D6;
-        Wed, 12 Oct 2022 22:57:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 578206164F;
+        Wed, 12 Oct 2022 22:57:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0667C433B5;
+        Wed, 12 Oct 2022 22:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1665615439;
-        bh=BGQoCt6v92VMXJ/4SdRFCZH0IdSAVLlybHH/gzwxFUg=;
+        s=korg; t=1665615440;
+        bh=6BoOH70UzCMoCrpF4dL3Wa+cZO4IkunzOyYriXPjjJI=;
         h=Date:To:From:Subject:From;
-        b=amejY5gcrKvMmaroygjOoAQHUIpKSRLM0aoMMK+PXjV4ZOvyiOH38Wtd5jhQPuz0l
-         kTnhgBDKGjR5/EyHGbYYAuCFD0aAVFsv270AkB0+iVwKeTln/BxXcfrab4tYgIXjmt
-         doDqUl0eGTmcR6jYafXDsug9ZPqSwvKc7ocB8ayk=
-Date:   Wed, 12 Oct 2022 15:57:18 -0700
-To:     mm-commits@vger.kernel.org,
-        syzbot+2b9b4f0895be09a6dec3@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, mike.kravetz@oracle.com,
-        liushixin2@huawei.com, edliaw@google.com, bgeffon@google.com,
-        axelrasmussen@google.com, peterx@redhat.com,
-        akpm@linux-foundation.org
+        b=Vd6GU6pc95/rkzbb1FHZwfw75Y/THXn3psF5l/Cc34MqGAC4f5wHDCkCa1M41DvCB
+         //u21kcUT739nP3fnqf5xjGQ58O8U+lZFkT0diSNvTA0+nA18MdrhN/qmmYamzwWyi
+         eTObgjv7bwuo2pm+IasYWT4kFr4owi+xjEVXpIM8=
+Date:   Wed, 12 Oct 2022 15:57:19 -0700
+To:     mm-commits@vger.kernel.org, surenb@google.com,
+        stable@vger.kernel.org, mhocko@suse.com, liam.howlett@oracle.com,
+        catalin.marinas@arm.com, brauner@kernel.org, andrii@kernel.org,
+        cmllamas@google.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-stable] mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in.patch removed from -mm tree
-Message-Id: <20221012225719.4F861C433D6@smtp.kernel.org>
+Subject: [merged mm-stable] mm-mmap-undo-mmap-when-arch_validate_flags-fails.patch removed from -mm tree
+Message-Id: <20221012225720.B0667C433B5@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -49,110 +47,122 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/uffd: fix warning without PTE_MARKER_UFFD_WP compiled in
+     Subject: mm/mmap: undo ->mmap() when arch_validate_flags() fails
 has been removed from the -mm tree.  Its filename was
-     mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in.patch
+     mm-mmap-undo-mmap-when-arch_validate_flags-fails.patch
 
 This patch was dropped because it was merged into the mm-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/uffd: fix warning without PTE_MARKER_UFFD_WP compiled in
-Date: Fri, 30 Sep 2022 20:25:55 -0400
+From: Carlos Llamas <cmllamas@google.com>
+Subject: mm/mmap: undo ->mmap() when arch_validate_flags() fails
+Date: Fri, 30 Sep 2022 00:38:43 +0000
 
-When PTE_MARKER_UFFD_WP not configured, it's still possible to reach pte
-marker code and trigger an warning. Add a few CONFIG_PTE_MARKER_UFFD_WP
-ifdefs to make sure the code won't be reached when not compiled in.
+Commit c462ac288f2c ("mm: Introduce arch_validate_flags()") added a late
+check in mmap_region() to let architectures validate vm_flags.  The check
+needs to happen after calling ->mmap() as the flags can potentially be
+modified during this callback.
 
-Link: https://lkml.kernel.org/r/YzeR+R6b4bwBlBHh@x1n
-Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: <syzbot+2b9b4f0895be09a6dec3@syzkaller.appspotmail.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Brian Geffon <bgeffon@google.com>
-Cc: Edward Liaw <edliaw@google.com>
-Cc: Liu Shixin <liushixin2@huawei.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
+If arch_validate_flags() check fails we unmap and free the vma.  However,
+the error path fails to undo the ->mmap() call that previously succeeded
+and depending on the specific ->mmap() implementation this translates to
+reference increments, memory allocations and other operations what will
+not be cleaned up.
+
+There are several places (mainly device drivers) where this is an issue. 
+However, one specific example is bpf_map_mmap() which keeps count of the
+mappings in map->writecnt.  The count is incremented on ->mmap() and then
+decremented on vm_ops->close().  When arch_validate_flags() fails this
+count is off since bpf_map_mmap_close() is never called.
+
+One can reproduce this issue in arm64 devices with MTE support.  Here the
+vm_flags are checked to only allow VM_MTE if VM_MTE_ALLOWED has been set
+previously.  From userspace then is enough to pass the PROT_MTE flag to
+mmap() syscall to trigger the arch_validate_flags() failure.
+
+The following program reproduces this issue:
+
+  #include <stdio.h>
+  #include <unistd.h>
+  #include <linux/unistd.h>
+  #include <linux/bpf.h>
+  #include <sys/mman.h>
+
+  int main(void)
+  {
+	union bpf_attr attr = {
+		.map_type = BPF_MAP_TYPE_ARRAY,
+		.key_size = sizeof(int),
+		.value_size = sizeof(long long),
+		.max_entries = 256,
+		.map_flags = BPF_F_MMAPABLE,
+	};
+	int fd;
+
+	fd = syscall(__NR_bpf, BPF_MAP_CREATE, &attr, sizeof(attr));
+	mmap(NULL, 4096, PROT_WRITE | PROT_MTE, MAP_SHARED, fd, 0);
+
+	return 0;
+  }
+
+By manually adding some log statements to the vm_ops callbacks we can
+confirm that when passing PROT_MTE to mmap() the map->writecnt is off upon
+->release():
+
+With PROT_MTE flag:
+  root@debian:~# ./bpf-test
+  [  111.263874] bpf_map_write_active_inc: map=9 writecnt=1
+  [  111.288763] bpf_map_release: map=9 writecnt=1
+
+Without PROT_MTE flag:
+  root@debian:~# ./bpf-test
+  [  157.816912] bpf_map_write_active_inc: map=10 writecnt=1
+  [  157.830442] bpf_map_write_active_dec: map=10 writecnt=0
+  [  157.832396] bpf_map_release: map=10 writecnt=0
+
+This patch fixes the above issue by calling vm_ops->close() when the
+arch_validate_flags() check fails, after this we can proceed to unmap and
+free the vma on the error path.
+
+Link: https://lkml.kernel.org/r/20220930003844.1210987-1-cmllamas@google.com
+Fixes: c462ac288f2c ("mm: Introduce arch_validate_flags()")
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Liam Howlett <liam.howlett@oracle.com>
+Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: <stable@vger.kernel.org>	[5.10+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/hugetlb.c  |    4 ++++
- mm/memory.c   |    2 ++
- mm/mprotect.c |    2 ++
- 3 files changed, 8 insertions(+)
+ mm/mmap.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/mm/hugetlb.c~mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in
-+++ a/mm/hugetlb.c
-@@ -5096,6 +5096,7 @@ static void __unmap_hugepage_range(struc
- 		 * unmapped and its refcount is dropped, so just clear pte here.
- 		 */
- 		if (unlikely(!pte_present(pte))) {
-+#ifdef CONFIG_PTE_MARKER_UFFD_WP
- 			/*
- 			 * If the pte was wr-protected by uffd-wp in any of the
- 			 * swap forms, meanwhile the caller does not want to
-@@ -5107,6 +5108,7 @@ static void __unmap_hugepage_range(struc
- 				set_huge_pte_at(mm, address, ptep,
- 						make_pte_marker(PTE_MARKER_UFFD_WP));
- 			else
-+#endif
- 				huge_pte_clear(mm, address, ptep, sz);
- 			spin_unlock(ptl);
- 			continue;
-@@ -5135,11 +5137,13 @@ static void __unmap_hugepage_range(struc
- 		tlb_remove_huge_tlb_entry(h, tlb, ptep, address);
- 		if (huge_pte_dirty(pte))
- 			set_page_dirty(page);
-+#ifdef CONFIG_PTE_MARKER_UFFD_WP
- 		/* Leave a uffd-wp pte marker if needed */
- 		if (huge_pte_uffd_wp(pte) &&
- 		    !(zap_flags & ZAP_FLAG_DROP_MARKER))
- 			set_huge_pte_at(mm, address, ptep,
- 					make_pte_marker(PTE_MARKER_UFFD_WP));
-+#endif
- 		hugetlb_count_sub(pages_per_huge_page(h), mm);
- 		page_remove_rmap(page, vma, true);
+--- a/mm/mmap.c~mm-mmap-undo-mmap-when-arch_validate_flags-fails
++++ a/mm/mmap.c
+@@ -2673,7 +2673,7 @@ cannot_expand:
+ 	if (!arch_validate_flags(vma->vm_flags)) {
+ 		error = -EINVAL;
+ 		if (file)
+-			goto unmap_and_free_vma;
++			goto close_and_free_vma;
+ 		else
+ 			goto free_vma;
+ 	}
+@@ -2742,6 +2742,9 @@ expanded:
+ 	validate_mm(mm);
+ 	return addr;
  
---- a/mm/memory.c~mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in
-+++ a/mm/memory.c
-@@ -1393,10 +1393,12 @@ zap_install_uffd_wp_if_needed(struct vm_
- 			      unsigned long addr, pte_t *pte,
- 			      struct zap_details *details, pte_t pteval)
- {
-+#ifdef CONFIG_PTE_MARKER_UFFD_WP
- 	if (zap_drop_file_uffd_wp(details))
- 		return;
- 
- 	pte_install_uffd_wp_if_needed(vma, addr, pte, pteval);
-+#endif
- }
- 
- static unsigned long zap_pte_range(struct mmu_gather *tlb,
---- a/mm/mprotect.c~mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in
-+++ a/mm/mprotect.c
-@@ -267,6 +267,7 @@ static unsigned long change_pte_range(st
- 		} else {
- 			/* It must be an none page, or what else?.. */
- 			WARN_ON_ONCE(!pte_none(oldpte));
-+#ifdef CONFIG_PTE_MARKER_UFFD_WP
- 			if (unlikely(uffd_wp && !vma_is_anonymous(vma))) {
- 				/*
- 				 * For file-backed mem, we need to be able to
-@@ -278,6 +279,7 @@ static unsigned long change_pte_range(st
- 					   make_pte_marker(PTE_MARKER_UFFD_WP));
- 				pages++;
- 			}
-+#endif
- 		}
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
- 	arch_leave_lazy_mmu_mode();
++close_and_free_vma:
++	if (vma->vm_ops && vma->vm_ops->close)
++		vma->vm_ops->close(vma);
+ unmap_and_free_vma:
+ 	fput(vma->vm_file);
+ 	vma->vm_file = NULL;
 _
 
-Patches currently in -mm which might be from peterx@redhat.com are
+Patches currently in -mm which might be from cmllamas@google.com are
 
-mm-hugetlb-fix-race-condition-of-uffd-missing-minor-handling.patch
-mm-hugetlb-use-hugetlb_pte_stable-in-migration-race-check.patch
-mm-selftest-uffd-explain-the-write-missing-fault-check.patch
 
