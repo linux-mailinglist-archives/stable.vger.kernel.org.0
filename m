@@ -2,822 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67215FC2FB
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 11:21:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0FCD5FC313
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 11:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229906AbiJLJVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 05:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44312 "EHLO
+        id S229928AbiJLJaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 05:30:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbiJLJUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 05:20:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CECBE503;
-        Wed, 12 Oct 2022 02:20:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 586CC6147A;
-        Wed, 12 Oct 2022 09:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 401F2C433D7;
-        Wed, 12 Oct 2022 09:20:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665566444;
-        bh=mcR8F3rNvLSHn5oWY6nqDTFjjXCGN0JHWLU72zKSbVs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y99ZFjae30OWuXdWeRCCIvATxCQmA+OEUNFx/mA3E8gHbIL6+2eGFYWdbF2+WmE4m
-         gSpdAHYUftvIB4esw+6oI2p4rTHCcFAo1//EyaOmfrM7azdm8+gP7qn4S3pqEs7tth
-         LqGZpAdHhoKrhBwE0GQQPTcFcwHFQzZsMEbNEA3I=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 6.0.1
-Date:   Wed, 12 Oct 2022 11:21:20 +0200
-Message-Id: <166556647974127@kroah.com>
-X-Mailer: git-send-email 2.38.0
-In-Reply-To: <166556647915255@kroah.com>
-References: <166556647915255@kroah.com>
+        with ESMTP id S229816AbiJLJaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 05:30:21 -0400
+Received: from radex-web.radex.nl (smtp.radex.nl [178.250.146.7])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A77145E57E;
+        Wed, 12 Oct 2022 02:30:18 -0700 (PDT)
+Received: from [192.168.1.35] (cust-178-250-146-69.breedbanddelft.nl [178.250.146.69])
+        by radex-web.radex.nl (Postfix) with ESMTPS id 701502406A;
+        Wed, 12 Oct 2022 11:30:17 +0200 (CEST)
+Message-ID: <113fe314-0f5c-f53f-db78-c93bd4515260@gmail.com>
+Date:   Wed, 12 Oct 2022 11:30:17 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
+ if extcon is present"
+Content-Language: en-US
+To:     Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
+ <20220927155332.10762-3-andriy.shevchenko@linux.intel.com>
+ <20221003215734.7l3cnb2zy57nrxkk@synopsys.com>
+ <YzvusOI89ju9e5+0@smile.fi.intel.com>
+ <a7724993-6c04-92c5-3a26-3aef6d29c9e3@gmail.com>
+ <20221005021212.qwnbmq6p7t26c3a4@synopsys.com>
+ <2886b82d-a1f6-d288-e8d1-edae54046b4f@gmail.com>
+ <20221006021204.hz7iteao65dgsev6@synopsys.com>
+ <d52cc102-6a4f-78e9-6176-b33e2813fd1d@gmail.com>
+ <20221007021122.nnwmqc6sq43e5xbn@synopsys.com>
+ <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com>
+ <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
+ <4e73bbb9-eae1-6a90-d716-c721a1eeced3@gmail.com>
+ <7e9519c6-f65f-5f83-1d17-a3510103469f@gmail.com>
+ <CAHQ1cqE5=j9i8uYvBwdNUK8TrX3Wxy7iUML6K+gBQx-KRtkS7w@mail.gmail.com>
+ <644adb7b-0438-e37c-222c-71bf261369b0@gmail.com>
+ <CAHQ1cqGSXoUTopwvrQtLww5M0Tf=6F505ziLn+wGHhW_8-JhFQ@mail.gmail.com>
+From:   Ferry Toth <fntoth@gmail.com>
+In-Reply-To: <CAHQ1cqGSXoUTopwvrQtLww5M0Tf=6F505ziLn+wGHhW_8-JhFQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=0.1 required=5.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+        FORGED_GMAIL_RCVD,FREEMAIL_FROM,NICE_REPLY_A,NML_ADSP_CUSTOM_MED,
+        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/process/code-of-conduct-interpretation.rst b/Documentation/process/code-of-conduct-interpretation.rst
-index e899f14a4ba2..4f8a06b00f60 100644
---- a/Documentation/process/code-of-conduct-interpretation.rst
-+++ b/Documentation/process/code-of-conduct-interpretation.rst
-@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or other maintainers if you're
- uncertain how to handle situations that come up.  It will not be
- considered a violation report unless you want it to be.  If you are
- uncertain about approaching the TAB or any other maintainers, please
--reach out to our conflict mediator, Mishi Choudhary <mishi@linux.com>.
-+reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
- 
- In the end, "be kind to each other" is really what the end goal is for
- everybody.  We know everyone is human and we all fail at times, but the
-diff --git a/Makefile b/Makefile
-index 8478e13e9424..3193969f1eb3 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 6
- PATCHLEVEL = 0
--SUBLEVEL = 0
-+SUBLEVEL = 1
- EXTRAVERSION =
- NAME = Hurr durr I'ma ninja sloth
- 
-@@ -831,8 +831,8 @@ endif
- # Initialize all stack variables with a zero value.
- ifdef CONFIG_INIT_STACK_ALL_ZERO
- KBUILD_CFLAGS	+= -ftrivial-auto-var-init=zero
--ifdef CONFIG_CC_IS_CLANG
--# https://bugs.llvm.org/show_bug.cgi?id=45497
-+ifdef CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
-+# https://github.com/llvm/llvm-project/issues/44842
- KBUILD_CFLAGS	+= -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
- endif
- endif
-diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
-index 0be8a2403212..87455d12970f 100644
---- a/arch/riscv/kernel/cpu.c
-+++ b/arch/riscv/kernel/cpu.c
-@@ -92,10 +92,10 @@ int riscv_of_parent_hartid(struct device_node *node, unsigned long *hartid)
-  */
- static struct riscv_isa_ext_data isa_ext_arr[] = {
- 	__RISCV_ISA_EXT_DATA(sscofpmf, RISCV_ISA_EXT_SSCOFPMF),
-+	__RISCV_ISA_EXT_DATA(sstc, RISCV_ISA_EXT_SSTC),
- 	__RISCV_ISA_EXT_DATA(svpbmt, RISCV_ISA_EXT_SVPBMT),
- 	__RISCV_ISA_EXT_DATA(zicbom, RISCV_ISA_EXT_ZICBOM),
- 	__RISCV_ISA_EXT_DATA(zihintpause, RISCV_ISA_EXT_ZIHINTPAUSE),
--	__RISCV_ISA_EXT_DATA(sstc, RISCV_ISA_EXT_SSTC),
- 	__RISCV_ISA_EXT_DATA("", RISCV_ISA_EXT_MAX),
- };
- 
-diff --git a/arch/sparc/include/asm/smp_32.h b/arch/sparc/include/asm/smp_32.h
-index 856081761b0f..2cf7971d7f6c 100644
---- a/arch/sparc/include/asm/smp_32.h
-+++ b/arch/sparc/include/asm/smp_32.h
-@@ -33,9 +33,6 @@ extern volatile unsigned long cpu_callin_map[NR_CPUS];
- extern cpumask_t smp_commenced_mask;
- extern struct linux_prom_registers smp_penguin_ctable;
- 
--typedef void (*smpfunc_t)(unsigned long, unsigned long, unsigned long,
--		       unsigned long, unsigned long);
--
- void cpu_panic(void);
- 
- /*
-@@ -57,7 +54,7 @@ void smp_bogo(struct seq_file *);
- void smp_info(struct seq_file *);
- 
- struct sparc32_ipi_ops {
--	void (*cross_call)(smpfunc_t func, cpumask_t mask, unsigned long arg1,
-+	void (*cross_call)(void *func, cpumask_t mask, unsigned long arg1,
- 			   unsigned long arg2, unsigned long arg3,
- 			   unsigned long arg4);
- 	void (*resched)(int cpu);
-@@ -66,28 +63,28 @@ struct sparc32_ipi_ops {
- };
- extern const struct sparc32_ipi_ops *sparc32_ipi_ops;
- 
--static inline void xc0(smpfunc_t func)
-+static inline void xc0(void *func)
- {
- 	sparc32_ipi_ops->cross_call(func, *cpu_online_mask, 0, 0, 0, 0);
- }
- 
--static inline void xc1(smpfunc_t func, unsigned long arg1)
-+static inline void xc1(void *func, unsigned long arg1)
- {
- 	sparc32_ipi_ops->cross_call(func, *cpu_online_mask, arg1, 0, 0, 0);
- }
--static inline void xc2(smpfunc_t func, unsigned long arg1, unsigned long arg2)
-+static inline void xc2(void *func, unsigned long arg1, unsigned long arg2)
- {
- 	sparc32_ipi_ops->cross_call(func, *cpu_online_mask, arg1, arg2, 0, 0);
- }
- 
--static inline void xc3(smpfunc_t func, unsigned long arg1, unsigned long arg2,
-+static inline void xc3(void *func, unsigned long arg1, unsigned long arg2,
- 		       unsigned long arg3)
- {
- 	sparc32_ipi_ops->cross_call(func, *cpu_online_mask,
- 				    arg1, arg2, arg3, 0);
- }
- 
--static inline void xc4(smpfunc_t func, unsigned long arg1, unsigned long arg2,
-+static inline void xc4(void *func, unsigned long arg1, unsigned long arg2,
- 		       unsigned long arg3, unsigned long arg4)
- {
- 	sparc32_ipi_ops->cross_call(func, *cpu_online_mask,
-diff --git a/arch/sparc/kernel/leon_smp.c b/arch/sparc/kernel/leon_smp.c
-index 1eed26d423fb..991e9ad3d3e8 100644
---- a/arch/sparc/kernel/leon_smp.c
-+++ b/arch/sparc/kernel/leon_smp.c
-@@ -359,7 +359,7 @@ void leonsmp_ipi_interrupt(void)
- }
- 
- static struct smp_funcall {
--	smpfunc_t func;
-+	void *func;
- 	unsigned long arg1;
- 	unsigned long arg2;
- 	unsigned long arg3;
-@@ -372,7 +372,7 @@ static struct smp_funcall {
- static DEFINE_SPINLOCK(cross_call_lock);
- 
- /* Cross calls must be serialized, at least currently. */
--static void leon_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
-+static void leon_cross_call(void *func, cpumask_t mask, unsigned long arg1,
- 			    unsigned long arg2, unsigned long arg3,
- 			    unsigned long arg4)
- {
-@@ -384,7 +384,7 @@ static void leon_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
- 
- 		{
- 			/* If you make changes here, make sure gcc generates proper code... */
--			register smpfunc_t f asm("i0") = func;
-+			register void *f asm("i0") = func;
- 			register unsigned long a1 asm("i1") = arg1;
- 			register unsigned long a2 asm("i2") = arg2;
- 			register unsigned long a3 asm("i3") = arg3;
-@@ -444,11 +444,13 @@ static void leon_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
- /* Running cross calls. */
- void leon_cross_call_irq(void)
- {
-+	void (*func)(unsigned long, unsigned long, unsigned long, unsigned long,
-+		     unsigned long) = ccall_info.func;
- 	int i = smp_processor_id();
- 
- 	ccall_info.processors_in[i] = 1;
--	ccall_info.func(ccall_info.arg1, ccall_info.arg2, ccall_info.arg3,
--			ccall_info.arg4, ccall_info.arg5);
-+	func(ccall_info.arg1, ccall_info.arg2, ccall_info.arg3, ccall_info.arg4,
-+	     ccall_info.arg5);
- 	ccall_info.processors_out[i] = 1;
- }
- 
-diff --git a/arch/sparc/kernel/sun4d_smp.c b/arch/sparc/kernel/sun4d_smp.c
-index ff30f03beb7c..9a62a5cf3337 100644
---- a/arch/sparc/kernel/sun4d_smp.c
-+++ b/arch/sparc/kernel/sun4d_smp.c
-@@ -268,7 +268,7 @@ static void sun4d_ipi_resched(int cpu)
- }
- 
- static struct smp_funcall {
--	smpfunc_t func;
-+	void *func;
- 	unsigned long arg1;
- 	unsigned long arg2;
- 	unsigned long arg3;
-@@ -281,7 +281,7 @@ static struct smp_funcall {
- static DEFINE_SPINLOCK(cross_call_lock);
- 
- /* Cross calls must be serialized, at least currently. */
--static void sun4d_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
-+static void sun4d_cross_call(void *func, cpumask_t mask, unsigned long arg1,
- 			     unsigned long arg2, unsigned long arg3,
- 			     unsigned long arg4)
- {
-@@ -296,7 +296,7 @@ static void sun4d_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
- 			 * If you make changes here, make sure
- 			 * gcc generates proper code...
- 			 */
--			register smpfunc_t f asm("i0") = func;
-+			register void *f asm("i0") = func;
- 			register unsigned long a1 asm("i1") = arg1;
- 			register unsigned long a2 asm("i2") = arg2;
- 			register unsigned long a3 asm("i3") = arg3;
-@@ -353,11 +353,13 @@ static void sun4d_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
- /* Running cross calls. */
- void smp4d_cross_call_irq(void)
- {
-+	void (*func)(unsigned long, unsigned long, unsigned long, unsigned long,
-+		     unsigned long) = ccall_info.func;
- 	int i = hard_smp_processor_id();
- 
- 	ccall_info.processors_in[i] = 1;
--	ccall_info.func(ccall_info.arg1, ccall_info.arg2, ccall_info.arg3,
--			ccall_info.arg4, ccall_info.arg5);
-+	func(ccall_info.arg1, ccall_info.arg2, ccall_info.arg3, ccall_info.arg4,
-+	     ccall_info.arg5);
- 	ccall_info.processors_out[i] = 1;
- }
- 
-diff --git a/arch/sparc/kernel/sun4m_smp.c b/arch/sparc/kernel/sun4m_smp.c
-index 228a6527082d..056df034e79e 100644
---- a/arch/sparc/kernel/sun4m_smp.c
-+++ b/arch/sparc/kernel/sun4m_smp.c
-@@ -157,7 +157,7 @@ static void sun4m_ipi_mask_one(int cpu)
- }
- 
- static struct smp_funcall {
--	smpfunc_t func;
-+	void *func;
- 	unsigned long arg1;
- 	unsigned long arg2;
- 	unsigned long arg3;
-@@ -170,7 +170,7 @@ static struct smp_funcall {
- static DEFINE_SPINLOCK(cross_call_lock);
- 
- /* Cross calls must be serialized, at least currently. */
--static void sun4m_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
-+static void sun4m_cross_call(void *func, cpumask_t mask, unsigned long arg1,
- 			     unsigned long arg2, unsigned long arg3,
- 			     unsigned long arg4)
- {
-@@ -230,11 +230,13 @@ static void sun4m_cross_call(smpfunc_t func, cpumask_t mask, unsigned long arg1,
- /* Running cross calls. */
- void smp4m_cross_call_irq(void)
- {
-+	void (*func)(unsigned long, unsigned long, unsigned long, unsigned long,
-+		     unsigned long) = ccall_info.func;
- 	int i = smp_processor_id();
- 
- 	ccall_info.processors_in[i] = 1;
--	ccall_info.func(ccall_info.arg1, ccall_info.arg2, ccall_info.arg3,
--			ccall_info.arg4, ccall_info.arg5);
-+	func(ccall_info.arg1, ccall_info.arg2, ccall_info.arg3, ccall_info.arg4,
-+	     ccall_info.arg5);
- 	ccall_info.processors_out[i] = 1;
- }
- 
-diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-index a9aa6a92c7fe..13f027afc875 100644
---- a/arch/sparc/mm/srmmu.c
-+++ b/arch/sparc/mm/srmmu.c
-@@ -1636,19 +1636,19 @@ static void __init get_srmmu_type(void)
- /* Local cross-calls. */
- static void smp_flush_page_for_dma(unsigned long page)
- {
--	xc1((smpfunc_t) local_ops->page_for_dma, page);
-+	xc1(local_ops->page_for_dma, page);
- 	local_ops->page_for_dma(page);
- }
- 
- static void smp_flush_cache_all(void)
- {
--	xc0((smpfunc_t) local_ops->cache_all);
-+	xc0(local_ops->cache_all);
- 	local_ops->cache_all();
- }
- 
- static void smp_flush_tlb_all(void)
- {
--	xc0((smpfunc_t) local_ops->tlb_all);
-+	xc0(local_ops->tlb_all);
- 	local_ops->tlb_all();
- }
- 
-@@ -1659,7 +1659,7 @@ static void smp_flush_cache_mm(struct mm_struct *mm)
- 		cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 		cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 		if (!cpumask_empty(&cpu_mask))
--			xc1((smpfunc_t) local_ops->cache_mm, (unsigned long) mm);
-+			xc1(local_ops->cache_mm, (unsigned long)mm);
- 		local_ops->cache_mm(mm);
- 	}
- }
-@@ -1671,7 +1671,7 @@ static void smp_flush_tlb_mm(struct mm_struct *mm)
- 		cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 		cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 		if (!cpumask_empty(&cpu_mask)) {
--			xc1((smpfunc_t) local_ops->tlb_mm, (unsigned long) mm);
-+			xc1(local_ops->tlb_mm, (unsigned long)mm);
- 			if (atomic_read(&mm->mm_users) == 1 && current->active_mm == mm)
- 				cpumask_copy(mm_cpumask(mm),
- 					     cpumask_of(smp_processor_id()));
-@@ -1691,8 +1691,8 @@ static void smp_flush_cache_range(struct vm_area_struct *vma,
- 		cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 		cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 		if (!cpumask_empty(&cpu_mask))
--			xc3((smpfunc_t) local_ops->cache_range,
--			    (unsigned long) vma, start, end);
-+			xc3(local_ops->cache_range, (unsigned long)vma, start,
-+			    end);
- 		local_ops->cache_range(vma, start, end);
- 	}
- }
-@@ -1708,8 +1708,8 @@ static void smp_flush_tlb_range(struct vm_area_struct *vma,
- 		cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 		cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 		if (!cpumask_empty(&cpu_mask))
--			xc3((smpfunc_t) local_ops->tlb_range,
--			    (unsigned long) vma, start, end);
-+			xc3(local_ops->tlb_range, (unsigned long)vma, start,
-+			    end);
- 		local_ops->tlb_range(vma, start, end);
- 	}
- }
-@@ -1723,8 +1723,7 @@ static void smp_flush_cache_page(struct vm_area_struct *vma, unsigned long page)
- 		cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 		cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 		if (!cpumask_empty(&cpu_mask))
--			xc2((smpfunc_t) local_ops->cache_page,
--			    (unsigned long) vma, page);
-+			xc2(local_ops->cache_page, (unsigned long)vma, page);
- 		local_ops->cache_page(vma, page);
- 	}
- }
-@@ -1738,8 +1737,7 @@ static void smp_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
- 		cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 		cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 		if (!cpumask_empty(&cpu_mask))
--			xc2((smpfunc_t) local_ops->tlb_page,
--			    (unsigned long) vma, page);
-+			xc2(local_ops->tlb_page, (unsigned long)vma, page);
- 		local_ops->tlb_page(vma, page);
- 	}
- }
-@@ -1753,7 +1751,7 @@ static void smp_flush_page_to_ram(unsigned long page)
- 	 * XXX This experiment failed, research further... -DaveM
- 	 */
- #if 1
--	xc1((smpfunc_t) local_ops->page_to_ram, page);
-+	xc1(local_ops->page_to_ram, page);
- #endif
- 	local_ops->page_to_ram(page);
- }
-@@ -1764,8 +1762,7 @@ static void smp_flush_sig_insns(struct mm_struct *mm, unsigned long insn_addr)
- 	cpumask_copy(&cpu_mask, mm_cpumask(mm));
- 	cpumask_clear_cpu(smp_processor_id(), &cpu_mask);
- 	if (!cpumask_empty(&cpu_mask))
--		xc2((smpfunc_t) local_ops->sig_insns,
--		    (unsigned long) mm, insn_addr);
-+		xc2(local_ops->sig_insns, (unsigned long)mm, insn_addr);
- 	local_ops->sig_insns(mm, insn_addr);
- }
- 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 9be1376f9a62..285ecbf107c9 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -32,9 +32,16 @@ MODULE_PARM_DESC(ignore_wake,
- 		 "controller@pin combos on which to ignore the ACPI wake flag "
- 		 "ignore_wake=controller@pin[,controller@pin[,...]]");
- 
-+static char *ignore_interrupt;
-+module_param(ignore_interrupt, charp, 0444);
-+MODULE_PARM_DESC(ignore_interrupt,
-+		 "controller@pin combos on which to ignore interrupt "
-+		 "ignore_interrupt=controller@pin[,controller@pin[,...]]");
-+
- struct acpi_gpiolib_dmi_quirk {
- 	bool no_edge_events_on_boot;
- 	char *ignore_wake;
-+	char *ignore_interrupt;
- };
- 
- /**
-@@ -317,14 +324,15 @@ static struct gpio_desc *acpi_request_own_gpiod(struct gpio_chip *chip,
- 	return desc;
- }
- 
--static bool acpi_gpio_in_ignore_list(const char *controller_in, unsigned int pin_in)
-+static bool acpi_gpio_in_ignore_list(const char *ignore_list, const char *controller_in,
-+				     unsigned int pin_in)
- {
- 	const char *controller, *pin_str;
- 	unsigned int pin;
- 	char *endp;
- 	int len;
- 
--	controller = ignore_wake;
-+	controller = ignore_list;
- 	while (controller) {
- 		pin_str = strchr(controller, '@');
- 		if (!pin_str)
-@@ -348,7 +356,7 @@ static bool acpi_gpio_in_ignore_list(const char *controller_in, unsigned int pin
- 
- 	return false;
- err:
--	pr_err_once("Error: Invalid value for gpiolib_acpi.ignore_wake: %s\n", ignore_wake);
-+	pr_err_once("Error: Invalid value for gpiolib_acpi.ignore_...: %s\n", ignore_list);
- 	return false;
- }
- 
-@@ -360,7 +368,7 @@ static bool acpi_gpio_irq_is_wake(struct device *parent,
- 	if (agpio->wake_capable != ACPI_WAKE_CAPABLE)
- 		return false;
- 
--	if (acpi_gpio_in_ignore_list(dev_name(parent), pin)) {
-+	if (acpi_gpio_in_ignore_list(ignore_wake, dev_name(parent), pin)) {
- 		dev_info(parent, "Ignoring wakeup on pin %u\n", pin);
- 		return false;
- 	}
-@@ -427,6 +435,11 @@ static acpi_status acpi_gpiochip_alloc_event(struct acpi_resource *ares,
- 		goto fail_unlock_irq;
- 	}
- 
-+	if (acpi_gpio_in_ignore_list(ignore_interrupt, dev_name(chip->parent), pin)) {
-+		dev_info(chip->parent, "Ignoring interrupt on pin %u\n", pin);
-+		return AE_OK;
-+	}
-+
- 	event = kzalloc(sizeof(*event), GFP_KERNEL);
- 	if (!event)
- 		goto fail_unlock_irq;
-@@ -1563,6 +1576,20 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] __initconst = {
- 			.ignore_wake = "INT33FF:01@0",
- 		},
- 	},
-+	{
-+		/*
-+		 * Interrupt storm caused from edge triggered floating pin
-+		 * Found in BIOS UX325UAZ.300
-+		 * https://bugzilla.kernel.org/show_bug.cgi?id=216208
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UAZ_UM325UAZ"),
-+		},
-+		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
-+			.ignore_interrupt = "AMDI0030:00@18",
-+		},
-+	},
- 	{} /* Terminating entry */
- };
- 
-@@ -1585,6 +1612,9 @@ static int __init acpi_gpio_setup_params(void)
- 	if (ignore_wake == NULL && quirk && quirk->ignore_wake)
- 		ignore_wake = quirk->ignore_wake;
- 
-+	if (ignore_interrupt == NULL && quirk && quirk->ignore_interrupt)
-+		ignore_interrupt = quirk->ignore_interrupt;
-+
- 	return 0;
- }
- 
-diff --git a/drivers/hwmon/aquacomputer_d5next.c b/drivers/hwmon/aquacomputer_d5next.c
-index 66430553cc45..36752cf2cac9 100644
---- a/drivers/hwmon/aquacomputer_d5next.c
-+++ b/drivers/hwmon/aquacomputer_d5next.c
-@@ -110,7 +110,7 @@ static u16 octo_ctrl_fan_offsets[] = { 0x5B, 0xB0, 0x105, 0x15A, 0x1AF, 0x204, 0
- static u8 quadro_sensor_fan_offsets[] = { 0x70, 0x7D, 0x8A, 0x97 };
- 
- /* Fan speed registers in Quadro control report (from 0-100%) */
--static u16 quadro_ctrl_fan_offsets[] = { 0x36, 0x8b, 0xe0, 0x135 };
-+static u16 quadro_ctrl_fan_offsets[] = { 0x37, 0x8c, 0xe1, 0x136 };
- 
- /* Labels for D5 Next */
- static const char *const label_d5next_temp[] = {
-diff --git a/drivers/net/ethernet/mediatek/mtk_ppe.c b/drivers/net/ethernet/mediatek/mtk_ppe.c
-index cfe804bc8d20..148ea636ef97 100644
---- a/drivers/net/ethernet/mediatek/mtk_ppe.c
-+++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
-@@ -412,7 +412,7 @@ __mtk_foe_entry_clear(struct mtk_ppe *ppe, struct mtk_flow_entry *entry)
- 	if (entry->hash != 0xffff) {
- 		ppe->foe_table[entry->hash].ib1 &= ~MTK_FOE_IB1_STATE;
- 		ppe->foe_table[entry->hash].ib1 |= FIELD_PREP(MTK_FOE_IB1_STATE,
--							      MTK_FOE_STATE_UNBIND);
-+							      MTK_FOE_STATE_INVALID);
- 		dma_wmb();
- 	}
- 	entry->hash = 0xffff;
-diff --git a/drivers/usb/mon/mon_bin.c b/drivers/usb/mon/mon_bin.c
-index f48a23adbc35..094e812e9e69 100644
---- a/drivers/usb/mon/mon_bin.c
-+++ b/drivers/usb/mon/mon_bin.c
-@@ -1268,6 +1268,11 @@ static int mon_bin_mmap(struct file *filp, struct vm_area_struct *vma)
- {
- 	/* don't do anything here: "fault" will set up page table entries */
- 	vma->vm_ops = &mon_bin_vm_ops;
-+
-+	if (vma->vm_flags & VM_WRITE)
-+		return -EPERM;
-+
-+	vma->vm_flags &= ~VM_MAYWRITE;
- 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_private_data = filp->private_data;
- 	mon_bin_vma_open(vma);
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 52d59be92034..787e63fd7f99 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1319,8 +1319,7 @@ static u32 get_ftdi_divisor(struct tty_struct *tty,
- 		case 38400: div_value = ftdi_sio_b38400; break;
- 		case 57600: div_value = ftdi_sio_b57600;  break;
- 		case 115200: div_value = ftdi_sio_b115200; break;
--		} /* baud */
--		if (div_value == 0) {
-+		default:
- 			dev_dbg(dev, "%s - Baudrate (%d) requested is not supported\n",
- 				__func__,  baud);
- 			div_value = ftdi_sio_b9600;
-diff --git a/fs/coredump.c b/fs/coredump.c
-index 1ab4f5b76a1e..3538f3a63965 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -841,7 +841,7 @@ static int dump_emit_page(struct coredump_params *cprm, struct page *page)
- 	};
- 	struct iov_iter iter;
- 	struct file *file = cprm->file;
--	loff_t pos = file->f_pos;
-+	loff_t pos;
- 	ssize_t n;
- 
- 	if (cprm->to_skip) {
-@@ -853,6 +853,7 @@ static int dump_emit_page(struct coredump_params *cprm, struct page *page)
- 		return 0;
- 	if (dump_interrupted())
- 		return 0;
-+	pos = file->f_pos;
- 	iov_iter_bvec(&iter, WRITE, &bvec, 1, PAGE_SIZE);
- 	n = __kernel_write_iter(cprm->file, &iter, &pos);
- 	if (n != PAGE_SIZE)
-diff --git a/fs/inode.c b/fs/inode.c
-index ba1de23c13c1..b608528efd3a 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -192,8 +192,6 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
- 	inode->i_wb_frn_history = 0;
- #endif
- 
--	if (security_inode_alloc(inode))
--		goto out;
- 	spin_lock_init(&inode->i_lock);
- 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
- 
-@@ -228,11 +226,12 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
- 	inode->i_fsnotify_mask = 0;
- #endif
- 	inode->i_flctx = NULL;
-+
-+	if (unlikely(security_inode_alloc(inode)))
-+		return -ENOMEM;
- 	this_cpu_inc(nr_inodes);
- 
- 	return 0;
--out:
--	return -ENOMEM;
- }
- EXPORT_SYMBOL(inode_init_always);
- 
-diff --git a/include/net/xsk_buff_pool.h b/include/net/xsk_buff_pool.h
-index 647722e847b4..f787c3f524b0 100644
---- a/include/net/xsk_buff_pool.h
-+++ b/include/net/xsk_buff_pool.h
-@@ -95,7 +95,7 @@ struct xsk_buff_pool *xp_create_and_assign_umem(struct xdp_sock *xs,
- 						struct xdp_umem *umem);
- int xp_assign_dev(struct xsk_buff_pool *pool, struct net_device *dev,
- 		  u16 queue_id, u16 flags);
--int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_umem *umem,
-+int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_sock *umem_xs,
- 			 struct net_device *dev, u16 queue_id);
- int xp_alloc_tx_descs(struct xsk_buff_pool *pool, struct xdp_sock *xs);
- void xp_destroy(struct xsk_buff_pool *pool);
-diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
-index 1f961f9982d2..3814b0fd3a2c 100644
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -1627,26 +1627,12 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 		return &bpf_ringbuf_discard_proto;
- 	case BPF_FUNC_ringbuf_query:
- 		return &bpf_ringbuf_query_proto;
--	case BPF_FUNC_ringbuf_reserve_dynptr:
--		return &bpf_ringbuf_reserve_dynptr_proto;
--	case BPF_FUNC_ringbuf_submit_dynptr:
--		return &bpf_ringbuf_submit_dynptr_proto;
--	case BPF_FUNC_ringbuf_discard_dynptr:
--		return &bpf_ringbuf_discard_dynptr_proto;
- 	case BPF_FUNC_for_each_map_elem:
- 		return &bpf_for_each_map_elem_proto;
- 	case BPF_FUNC_loop:
- 		return &bpf_loop_proto;
- 	case BPF_FUNC_strncmp:
- 		return &bpf_strncmp_proto;
--	case BPF_FUNC_dynptr_from_mem:
--		return &bpf_dynptr_from_mem_proto;
--	case BPF_FUNC_dynptr_read:
--		return &bpf_dynptr_read_proto;
--	case BPF_FUNC_dynptr_write:
--		return &bpf_dynptr_write_proto;
--	case BPF_FUNC_dynptr_data:
--		return &bpf_dynptr_data_proto;
- 	default:
- 		break;
- 	}
-@@ -1675,6 +1661,20 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 		return &bpf_timer_cancel_proto;
- 	case BPF_FUNC_kptr_xchg:
- 		return &bpf_kptr_xchg_proto;
-+	case BPF_FUNC_ringbuf_reserve_dynptr:
-+		return &bpf_ringbuf_reserve_dynptr_proto;
-+	case BPF_FUNC_ringbuf_submit_dynptr:
-+		return &bpf_ringbuf_submit_dynptr_proto;
-+	case BPF_FUNC_ringbuf_discard_dynptr:
-+		return &bpf_ringbuf_discard_dynptr_proto;
-+	case BPF_FUNC_dynptr_from_mem:
-+		return &bpf_dynptr_from_mem_proto;
-+	case BPF_FUNC_dynptr_read:
-+		return &bpf_dynptr_read_proto;
-+	case BPF_FUNC_dynptr_write:
-+		return &bpf_dynptr_write_proto;
-+	case BPF_FUNC_dynptr_data:
-+		return &bpf_dynptr_data_proto;
- 	default:
- 		break;
- 	}
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 27760627370d..f798acd43a28 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -598,7 +598,7 @@ void bpf_map_free_kptrs(struct bpf_map *map, void *map_value)
- 		if (off_desc->type == BPF_KPTR_UNREF) {
- 			u64 *p = (u64 *)btf_id_ptr;
- 
--			WRITE_ONCE(p, 0);
-+			WRITE_ONCE(*p, 0);
- 			continue;
- 		}
- 		old_ptr = xchg(btf_id_ptr, 0);
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index b3a5a3cc9372..9873d2e67988 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -597,6 +597,15 @@ static int hci_dev_do_reset(struct hci_dev *hdev)
- 
- 	/* Cancel these to avoid queueing non-chained pending work */
- 	hci_dev_set_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE);
-+	/* Wait for
-+	 *
-+	 *    if (!hci_dev_test_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE))
-+	 *        queue_delayed_work(&hdev->{cmd,ncmd}_timer)
-+	 *
-+	 * inside RCU section to see the flag or complete scheduling.
-+	 */
-+	synchronize_rcu();
-+	/* Explicitly cancel works in case scheduled after setting the flag. */
- 	cancel_delayed_work(&hdev->cmd_timer);
- 	cancel_delayed_work(&hdev->ncmd_timer);
- 
-@@ -4056,12 +4065,14 @@ static void hci_cmd_work(struct work_struct *work)
- 			if (res < 0)
- 				__hci_cmd_sync_cancel(hdev, -res);
- 
-+			rcu_read_lock();
- 			if (test_bit(HCI_RESET, &hdev->flags) ||
- 			    hci_dev_test_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE))
- 				cancel_delayed_work(&hdev->cmd_timer);
- 			else
--				schedule_delayed_work(&hdev->cmd_timer,
--						      HCI_CMD_TIMEOUT);
-+				queue_delayed_work(hdev->workqueue, &hdev->cmd_timer,
-+						   HCI_CMD_TIMEOUT);
-+			rcu_read_unlock();
- 		} else {
- 			skb_queue_head(&hdev->cmd_q, skb);
- 			queue_work(hdev->workqueue, &hdev->cmd_work);
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 6643c9c20fa4..d6f0e6ca0e7e 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -3766,16 +3766,18 @@ static inline void handle_cmd_cnt_and_timer(struct hci_dev *hdev, u8 ncmd)
- {
- 	cancel_delayed_work(&hdev->cmd_timer);
- 
-+	rcu_read_lock();
- 	if (!test_bit(HCI_RESET, &hdev->flags)) {
- 		if (ncmd) {
- 			cancel_delayed_work(&hdev->ncmd_timer);
- 			atomic_set(&hdev->cmd_cnt, 1);
- 		} else {
- 			if (!hci_dev_test_flag(hdev, HCI_CMD_DRAIN_WORKQUEUE))
--				schedule_delayed_work(&hdev->ncmd_timer,
--						      HCI_NCMD_TIMEOUT);
-+				queue_delayed_work(hdev->workqueue, &hdev->ncmd_timer,
-+						   HCI_NCMD_TIMEOUT);
- 		}
- 	}
-+	rcu_read_unlock();
- }
- 
- static u8 hci_cc_le_read_buffer_size_v2(struct hci_dev *hdev, void *data,
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 5b4ce6ba1bc7..7bada4e8460b 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -954,8 +954,8 @@ static int xsk_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
- 				goto out_unlock;
- 			}
- 
--			err = xp_assign_dev_shared(xs->pool, umem_xs->umem,
--						   dev, qid);
-+			err = xp_assign_dev_shared(xs->pool, umem_xs, dev,
-+						   qid);
- 			if (err) {
- 				xp_destroy(xs->pool);
- 				xs->pool = NULL;
-diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
-index a71a8c6edf55..ed6c71826d31 100644
---- a/net/xdp/xsk_buff_pool.c
-+++ b/net/xdp/xsk_buff_pool.c
-@@ -212,17 +212,18 @@ int xp_assign_dev(struct xsk_buff_pool *pool,
- 	return err;
- }
- 
--int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_umem *umem,
-+int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_sock *umem_xs,
- 			 struct net_device *dev, u16 queue_id)
- {
- 	u16 flags;
-+	struct xdp_umem *umem = umem_xs->umem;
- 
- 	/* One fill and completion ring required for each queue id. */
- 	if (!pool->fq || !pool->cq)
- 		return -EINVAL;
- 
- 	flags = umem->zc ? XDP_ZEROCOPY : XDP_COPY;
--	if (pool->uses_need_wakeup)
-+	if (umem_xs->pool->uses_need_wakeup)
- 		flags |= XDP_USE_NEED_WAKEUP;
- 
- 	return xp_assign_dev(pool, dev, queue_id, flags);
-diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
-index 6ae482158bc4..52bd7df84fd6 100644
---- a/scripts/Makefile.extrawarn
-+++ b/scripts/Makefile.extrawarn
-@@ -64,6 +64,7 @@ KBUILD_CFLAGS += -Wno-sign-compare
- KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
- KBUILD_CFLAGS += -Wno-tautological-constant-out-of-range-compare
- KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
-+KBUILD_CFLAGS += $(call cc-disable-warning, cast-function-type-strict)
- endif
- 
- endif
-diff --git a/security/Kconfig.hardening b/security/Kconfig.hardening
-index bd2aabb2c60f..995bc42003e6 100644
---- a/security/Kconfig.hardening
-+++ b/security/Kconfig.hardening
-@@ -22,11 +22,17 @@ menu "Memory initialization"
- config CC_HAS_AUTO_VAR_INIT_PATTERN
- 	def_bool $(cc-option,-ftrivial-auto-var-init=pattern)
- 
--config CC_HAS_AUTO_VAR_INIT_ZERO
--	# GCC ignores the -enable flag, so we can test for the feature with
--	# a single invocation using the flag, but drop it as appropriate in
--	# the Makefile, depending on the presence of Clang.
-+config CC_HAS_AUTO_VAR_INIT_ZERO_BARE
-+	def_bool $(cc-option,-ftrivial-auto-var-init=zero)
-+
-+config CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
-+	# Clang 16 and later warn about using the -enable flag, but it
-+	# is required before then.
- 	def_bool $(cc-option,-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang)
-+	depends on !CC_HAS_AUTO_VAR_INIT_ZERO_BARE
-+
-+config CC_HAS_AUTO_VAR_INIT_ZERO
-+	def_bool CC_HAS_AUTO_VAR_INIT_ZERO_BARE || CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
- 
- choice
- 	prompt "Initialize kernel stack variables at function entry"
+Hi
+
+On 11-10-2022 22:50, Andrey Smirnov wrote:
+> On Tue, Oct 11, 2022 at 11:54 AM Ferry Toth <fntoth@gmail.com> wrote:
+>> Hi,
+>>
+>> Op 10-10-2022 om 23:35 schreef Andrey Smirnov:
+>>> On Mon, Oct 10, 2022 at 1:52 PM Ferry Toth <fntoth@gmail.com> wrote:
+>>>> Hi
+>>>>
+>>>> Op 10-10-2022 om 13:04 schreef Ferry Toth:
+>>>>> Hi
+>>>>>
+>>>>> On 10-10-2022 07:02, Andrey Smirnov wrote:
+>>>>>> On Fri, Oct 7, 2022 at 6:07 AM Ferry Toth <fntoth@gmail.com> wrote:
+>>>>>>> On 07-10-2022 04:11, Thinh Nguyen wrote:
+>>>>>>>> On Thu, Oct 06, 2022, Ferry Toth wrote:
+>>>>>>>>> Hi
+>>>>>>>>>
+>>>>>>>>> On 06-10-2022 04:12, Thinh Nguyen wrote:
+>>>>>>>>>> On Wed, Oct 05, 2022, Ferry Toth wrote:
+>>>>>>>>>>> Hi,
+>>>>>>>>>>>
+>>>>>>>>>>>          Thanks!
+>>>>>>>>>>>
+>>>>>>>>>>>          Does the failure only happen the first time host is
+>>>>>>>>>>> initialized? Or can
+>>>>>>>>>>>          it recover after switching to device then back to host mode?
+>>>>>>>>>>>
+>>>>>>>>>>> I can switch back and forth and device mode works each time,
+>>>>>>>>>>> host mode remains
+>>>>>>>>>>> dead.
+>>>>>>>>>> Ok.
+>>>>>>>>>>
+>>>>>>>>>>>          Probably the failure happens if some step(s) in
+>>>>>>>>>>> dwc3_core_init() hasn't
+>>>>>>>>>>>          completed.
+>>>>>>>>>>>
+>>>>>>>>>>>          tusb1210 is a phy driver right? The issue is probably
+>>>>>>>>>>> because we didn't
+>>>>>>>>>>>          initialize the phy yet. So, I suspect placing
+>>>>>>>>>>> dwc3_get_extcon() after
+>>>>>>>>>>>          initializing the phy will probably solve the dependency
+>>>>>>>>>>> problem.
+>>>>>>>>>>>
+>>>>>>>>>>>          You can try something for yourself or I can provide
+>>>>>>>>>>> something to test
+>>>>>>>>>>>          later if you don't mind (maybe next week if it's ok).
+>>>>>>>>>>>
+>>>>>>>>>>> Yes, the code move I mentioned above "moves dwc3_get_extcon()
+>>>>>>>>>>> until after
+>>>>>>>>>>> dwc3_core_init() but just before dwc3_core_init_mode(). AFAIU
+>>>>>>>>>>> initially
+>>>>>>>>>>> dwc3_get_extcon() was called from within dwc3_core_init_mode()
+>>>>>>>>>>> but only for
+>>>>>>>>>>> case USB_DR_MODE_OTG. So with this change order of events is
+>>>>>>>>>>> more or less
+>>>>>>>>>>> unchanged" solves the issue.
+>>>>>>>>>>>
+>>>>>>>>>> I saw the experiment you did from the link you provided. We want
+>>>>>>>>>> to also
+>>>>>>>>>> confirm exactly which step in dwc3_core_init() was needed.
+>>>>>>>>> Ok. I first tried the code move suggested by Andrey (didn't work).
+>>>>>>>>> Then
+>>>>>>>>> after reading the actual code I moved a bit further.
+>>>>>>>>>
+>>>>>>>>> This move was on top of -rc6 without any reverts. I did not make
+>>>>>>>>> additional
+>>>>>>>>> changes to dwc3_core_init()
+>>>>>>>>>
+>>>>>>>>> So current v6.0 has: dwc3_get_extcon - dwc3_get_dr_mode - ... -
+>>>>>>>>> dwc3_core_init - .. - dwc3_core_init_mode (not working)
+>>>>>>>>>
+>>>>>>>>> I changed to: dwc3_get_dr_mode - dwc3_get_extcon - .. -
+>>>>>>>>> dwc3_core_init - ..
+>>>>>>>>> - dwc3_core_init_mode (no change)
+>>>>>>>>>
+>>>>>>>>> Then to: dwc3_get_dr_mode - .. - dwc3_core_init - .. -
+>>>>>>>>> dwc3_get_extcon -
+>>>>>>>>> dwc3_core_init_mode (works)
+>>>>>>>>>
+>>>>>>>>> .. are what I believe for this issue irrelevant calls to
+>>>>>>>>> dwc3_alloc_scratch_buffers, dwc3_check_params and dwc3_debugfs_init.
+>>>>>>>>>
+>>>>>>>> Right. Thanks for narrowing it down. There are still many steps in
+>>>>>>>> dwc3_core_init(). We have some suspicion, but we still haven't
+>>>>>>>> confirmed
+>>>>>>>> the exact cause of the failure. We can write a proper patch once we
+>>>>>>>> know
+>>>>>>>> the reason.
+>>>>>>> If you would like me to test your suspicion, just tell me what to do
+>>>>>>> :-)
+>>>>>> OK, Ferry, I think I'm going to need clarification on specifics on
+>>>>>> your test setup. Can you share your kernel config, maybe your
+>>>>>> "/proc/config.gz", somewhere? When you say you are running vanilla
+>>>>>> Linux, do you mean it or do you mean vanilla tree + some patch delta?
+>>>>> For v6.0 I can get the exacts tonight. But earlier I had this for v5.17:
+>>>>>
+>>>>> https://github.com/htot/meta-intel-edison/blob/master/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_5.17.bb
+>>>>>
+>>>>>
+>>>>> There are 2 patches referred in #67 and #68. One is related to the
+>>>>> infinite loop. The other is I believe also needed to get dwc3 to work.
+>>>>>
+>>>>> All the kernel config are applied as .cfg.
+>>>>>
+>>>>> Patches and cfs's here:
+>>>>>
+>>>>> https://github.com/htot/meta-intel-edison/tree/master/meta-intel-edison-bsp/recipes-kernel/linux/files
+>>>>>
+>>>> Updated Yocto recipe for v6.0 here:
+>>>>
+>>>> https://github.com/htot/meta-intel-edison/blob/honister/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_6.0.bb
+>>>>
+>>>> #75-#77 are the 2 reverts from Andy, + one SOF revert (not related to
+>>>> this thread).
+>>> Please drop all of this
+>>> https://github.com/htot/meta-intel-edison/blob/honister/meta-intel-edison-bsp/recipes-kernel/linux/linux-yocto_6.0.bb#L69-L77
+>>> and re do the testing. Assuming things are still broken, that's how
+>>> you want to do the bisecting.
+>> I removed 4 patches:
+>> 0043b-TODO-driver-core-Break-infinite-loop-when-deferred-p.patch
+>> 0044-REVERTME-usb-dwc3-gadget-skip-endpoints-ep-18-in-out.patch
+>> 0001-Revert-USB-fixup-for-merge-issue-with-usb-dwc3-Don-t.patch
+>> 0001-Revert-usb-dwc3-Don-t-switch-OTG-peripheral-if-extco.patch
+> Please remove all custom patches so we are on the same page. I don't
+> suspect the 8250 related changes to affect anything, but I also would
+> like to be testing the same thing. I'm testing vanilla v6.0
+Alright, but don't expect any change. The 8250 patches are related to 
+using DMA for the serial ports (except the console). It may affect 
+bluetooth, the serial port on the arduino connector, but not the console.
+>> and indeed as you expect kernel boots (no infinite loop). However dwc3
+>> host mode is not working as in your case, device mode works fine (Yocto
+>> configures a set of gadgets for me).
+> What do you do to test host mode working? lsusb? Something else?
+> Asking to make sure I'm doing something equivalent on my end.
+>
+I have a smsc95xx 4p usb hub with 1 eth port continuously plugged. It 
+has leds on all ports so when it works it lights up like a Christmas tree.
+
+But I also tried plugging a usb stick.
+
+It maybe that lsusb is not enough. Iirc the root hub is there, but the 
+tusb1210 not and then device plugs are not detected. So in my case none 
+of the leds on the hub turn on.
+
+>> Just to be sure if I could have bisected without 0043a I added back the
+>> 2 0001-Revert* and indeed I run into the infinite loop with the console
+>> spitting out continuous:
+>> debugfs: Directory 'dwc3.0.auto' with parent 'ulpi' already present!
+>> tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41 to reg 0x80
+>>
+>> so yes it seems either 0043b or your patch "usb: dwc3: Don't switch OTG
+>> -> peripheral if extcon is present" is needed to boot (break the
+>> infinite loop). But your patch is in my case not sufficient to make host
+>> mode work.
+>>
+> Next step would be to establish if USB is working before my patch. You
+> should be able to avoid the boot loop if you disable the
+> "phy-tusb1210" driver. The driver fails to probe anyway, so it's not
+> very likely to be crucial for functioning, so it should allow you to
+> try things with my patch reverted:
+
+You lost me here. With "boot loop" you mean "probe loop" right? Why do 
+you think the tusb1210 driver is not crucial?
+
+See "phy: ti: tusb1210: Don't check for write errors when powering on"
+
+It should not be failing to probe (and with Andy's "Break-infinite-loop" 
+patch is doesn't) as without the tusb1210 usb host mode won't work as 
+device plugs are not detected.
+
+Earlier in this thread we had:
+
+"The effect of the patch is that on Merrifield (I tested with Intel 
+Edison Arduino board which has a HW switch to select between host and 
+device mode) device mode works but in host mode USB is completely not 
+working.
+
+Currently on host mode - when working - superfluous error messages from 
+tusb1210 appear. When host mode is not working there are no tusb1210 
+messages in the logs / on the console at all. Seemingly tusb1210 is not 
+probed, which points in the direction of a relation to extcon."
+
+> git revert 8bd6b8c4b100 0f0101719138
+>
+> After that, if things start working, it'd make sense to re-do your
+> function re-arranging experiment to re-validate it.
+>
+>> As I understand it depends a bit on the timing, I might have a different
+>> initrd (built by Yocto vs. Buildroot). F.i. I see I have
+>> extcon-intel-mrfld in initrd and dwc3 / phy-tusb1210 built-in.
+>>
+> You mentioned that your rootfs image does some gadget configuration
+> for you. Can this be disabled? If yes, it'd make sense to check if
+> this could be a variable explaining the difference.
+This is done through configfs only when the switch is set to device mode.
+> What U-Boot version are you running? AFACT U-Boot will touch that
+> particular IP block, so this might be somewhat relevant.
+IIRC if have v2022.04 but tested v2021.10 earlier (no difference).
