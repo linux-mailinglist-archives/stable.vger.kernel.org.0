@@ -2,85 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC7575FC451
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 13:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EFF5FC48A
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 13:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbiJLL2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 07:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
+        id S229462AbiJLLy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 07:54:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbiJLL2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 07:28:44 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A762C2CAD
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 04:28:41 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id y5so25307978lfl.4
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 04:28:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=5N+aMihLorZXBHcklDfHgYNT/W4ZQvt0cLc1vwY1KVE=;
-        b=hQySPeeSDIJTMDjjZs6W7x5hh8J3ucAy8EIBU2MEaIZQ36IOIvqaP8lxBiABUDnG7v
-         qBFfID+SoUkd+4Vi9qisd2SgpedzWjuNLHBhLRxZJkJmo9hlmhnn7hpVF8ecDnV4lJnx
-         UqNDDYUOuSc06E1QrhwWVzMB1PSz7Zv4H81Wmxg8hgWEI6QCJ//wfnNbgrRSSs45KKzz
-         +aVMzbQnAJdch96RUHj6MoXfsjVoM1/wy9YEY7lA9QiQWNZf0i/eN3mSuL4nTBli1xEf
-         eVvgGpdS8WH10TMKlhMZ1SQvUeOuhvOB6csYCVbuqgUEaSqNSuQB44sjpOcXPzMcMZ6e
-         OvsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5N+aMihLorZXBHcklDfHgYNT/W4ZQvt0cLc1vwY1KVE=;
-        b=Cq+n6sU39sYgPnNzM3HHPMPTO5rsMrZakvOKlUR+3xLKy8VLs9OQGCcTCz1gABToQ9
-         e3LsdAaS3g/Q3CR7jwDyEGdfgLAkSxLFwj/MpOERCZiw/+B9islpv/d7xHY0TcIvoLNf
-         ATdfshanPsM3Cw6Lak9+waYsfP2TFr3FMkTXHqohBKk0D5MAakWowDHdlqXv4bxKMBvR
-         36MDUeBPSFyG6hZATx7TQI2a0TVAhu0qVYMT2rNqodo9gtUFQAJg8bXx3BDEHJURdKuv
-         xhlF4T2I/QfvUTLOrMgld76tVBkXJFNmkHaswsKwLwi87EK82b+FIkYUdSN4ilCcHxTD
-         dtEg==
-X-Gm-Message-State: ACrzQf2xOX734QKV/bb8ykqSbnnBjGuLNHxRZlWlAjRiRMnSx0rlJSGm
-        lNuwyvr9P/GBgpkDsb3YBUEzY0BvpVqs1geKOdI=
-X-Google-Smtp-Source: AMsMyM5qjnCzSScxRgtnvyIpxKKphXBWSxe7CMhm1Ln2tAg4cEAadiKDJkEg8rSp8EwFuc0ZbLkxoh/Lyarb79TDRQo=
-X-Received: by 2002:a05:6512:298d:b0:4a3:371d:6cc3 with SMTP id
- du13-20020a056512298d00b004a3371d6cc3mr5837611lfb.422.1665574119155; Wed, 12
- Oct 2022 04:28:39 -0700 (PDT)
+        with ESMTP id S229468AbiJLLy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 07:54:28 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D36EFB277B;
+        Wed, 12 Oct 2022 04:54:26 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 7754B21C2B;
+        Wed, 12 Oct 2022 11:54:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1665575665;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3zSpgWBUTLEADiWqyI4QhLUqGwSaF+lXEnhQbQY0U8U=;
+        b=A5bcXFgEFjvk6f598N+eoADmwbueIEgZ0Pghde9GtseBeW0+OrnQAIHM7FOkGmhDlsjwOQ
+        WL9C53wWyo/9t3RTbk94HMNnd45r4nNTTidD+TK1mnYRYrld6mgKaYjpCM0OAWjBeTP9SK
+        w1zf5FNtJhcISMpntoAa2vyDE/PKouk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1665575665;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3zSpgWBUTLEADiWqyI4QhLUqGwSaF+lXEnhQbQY0U8U=;
+        b=EUlk8H5n56NSFO3OVh8L62EUH2UMFWOizQMG+1CzCH7gnM8wzy8H6csM4R3owf/NnEY8FQ
+        PePWXNQefNsvzWAA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 00D7113A5C;
+        Wed, 12 Oct 2022 11:54:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id +tkfOvCqRmOoQgAAMHmgww
+        (envelope-from <dsterba@suse.cz>); Wed, 12 Oct 2022 11:54:24 +0000
+Date:   Wed, 12 Oct 2022 13:54:18 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        zhang songyi <zhang.songyi@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 6.0 37/46] btrfs: remove the unnecessary result
+ variables
+Message-ID: <20221012115418.GW13389@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <20221011145015.1622882-1-sashal@kernel.org>
+ <20221011145015.1622882-37-sashal@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:ab3:540f:0:b0:1f6:633b:2c2c with HTTP; Wed, 12 Oct 2022
- 04:28:38 -0700 (PDT)
-Reply-To: jennifermbaya036@gmail.com
-From:   "Mrs.Jennifer Mbaya" <desouzathierry16@gmail.com>
-Date:   Wed, 12 Oct 2022 12:28:38 +0100
-Message-ID: <CACNLYXjtmXMoj8aJNSm+LaWnGHVKFkw4QM=EyGZ99j1RfE8DrQ@mail.gmail.com>
-Subject: Edunsaaja
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221011145015.1622882-37-sashal@kernel.org>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Edunsaaja
+On Tue, Oct 11, 2022 at 10:50:05AM -0400, Sasha Levin wrote:
+> From: zhang songyi <zhang.songyi@zte.com.cn>
+> 
+> [ Upstream commit bd64f6221a98fb1857485c63fd3d8da8d47406c6 ]
+> 
+> Return the sysfs_emit() and iterate_object_props() directly instead of
+> using unnecessary variables.
+> 
+> Reported-by: Zeal Robot <zealci@zte.com.cn>
+> Reviewed-by: Anand Jain <anand.jain@oracle.com>
+> Signed-off-by: zhang songyi <zhang.songyi@zte.com.cn>
+> Reviewed-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/btrfs/props.c |  5 +----
+>  fs/btrfs/sysfs.c | 10 ++--------
+>  2 files changed, 3 insertions(+), 12 deletions(-)
+> 
+> diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
+> index a2ec8ecae8de..055a631276ce 100644
+> --- a/fs/btrfs/props.c
+> +++ b/fs/btrfs/props.c
+> @@ -270,11 +270,8 @@ int btrfs_load_inode_props(struct inode *inode, struct btrfs_path *path)
+>  {
+>  	struct btrfs_root *root = BTRFS_I(inode)->root;
+>  	u64 ino = btrfs_ino(BTRFS_I(inode));
+> -	int ret;
+> -
+> -	ret = iterate_object_props(root, path, ino, inode_prop_iterator, inode);
+>  
+> -	return ret;
+> +	return iterate_object_props(root, path, ino, inode_prop_iterator, inode);
 
-Nimess=C3=A4si on palkinto Yhdistyneilt=C3=A4 Kansakunnilta ja Maailman
-terveysj=C3=A4rjest=C3=B6lt=C3=A4, joka on osa kansainv=C3=A4list=C3=A4 val=
-uuttarahastoa, johon
-s=C3=A4hk=C3=B6postisi, osoite ja raha on luovutettu meille siirtoa varten,
-vahvista yst=C3=A4v=C3=A4llisesti tietosi siirtoa varten.
-Meit=C3=A4 kehotettiin siirt=C3=A4m=C3=A4=C3=A4n kaikki vireill=C3=A4 oleva=
-t tapahtumat
-seuraavien kahden aikana, mutta jos olet vastaanottanut rahasi, j=C3=A4t=C3=
-=A4
-t=C3=A4m=C3=A4 viesti huomioimatta, jos et toimi heti.
-Tarvitsemme kiireellist=C3=A4 vastausta t=C3=A4h=C3=A4n viestiin, t=C3=A4m=
-=C3=A4 ei ole yksi
-niist=C3=A4 Internet-huijareista, se on pandemiaapu.
-Jennifer
+Please drop the patch from stable queues, it's an obvious cleanup.
