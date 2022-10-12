@@ -2,73 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2B45FC95F
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 18:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D560D5FC999
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 18:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbiJLQg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 12:36:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59960 "EHLO
+        id S229618AbiJLQ64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 12:58:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbiJLQg6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 12:36:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0FEA2864
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 09:36:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 595C1B81B7B
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 16:36:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC21C433D6;
-        Wed, 12 Oct 2022 16:36:53 +0000 (UTC)
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Will Deacon <will@kernel.org>, Steven Price <steven.price@arm.com>,
-        stable@vger.kernel.org,
-        syzbot+c2c79c6d6eddc5262b77@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@gmail.com>, james.morse@arm.com,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        dvyukov@google.com
-Subject: Re: [PATCH] arm64: mte: Avoid setting PG_mte_tagged if no tags cleared or restored
-Date:   Wed, 12 Oct 2022 17:36:50 +0100
-Message-Id: <166559260711.1183596.702987381991575705.b4-ty@arm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20221006163354.3194102-1-catalin.marinas@arm.com>
-References: <20221006163354.3194102-1-catalin.marinas@arm.com>
+        with ESMTP id S229526AbiJLQ6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 12:58:55 -0400
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55115DED17;
+        Wed, 12 Oct 2022 09:58:54 -0700 (PDT)
+Received: by mail-qt1-f172.google.com with SMTP id a24so3006865qto.10;
+        Wed, 12 Oct 2022 09:58:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5vBHj8epZRV6r337mAeq8QE108Ef9pXuaSsp4XqN2Uk=;
+        b=Gb/EH5aKWlECGmXyOVAcbJxze8i6OWvlcr7CGGEvnu51SGCfqRfotUjPLeiulhWCSU
+         5tSNwRnKp2tY1cZax0EOUxpF+QV0mm1sCvFlGl0c73lTKCmyxmpZi1ZEqK/S0KNyllrU
+         9WVFxddOZMnpigpNAkwpECsxuC+fD3+pGWKgT1fC9hMEXYqmnGgo2ZgQVFk16Tcx2zr4
+         bYbyYHnGu1vI6I6LmF2u2WlHU+PIzDbK2pZM1foSstgTOauftzDddgkF7RRBMG64PYeg
+         3JUOzZIITFd2EE24svJNgNUKa+pgxxdnMmo3mv991uSh9v8dwmOpm1OH88Y0SYiJplxt
+         MtMA==
+X-Gm-Message-State: ACrzQf1fwcB9xhW2X1L0FgHebONhOtrbZKJiZtXlU8vbOmgDGpolM/pF
+        Z6TBEO7FTAaZZwP6rC6hhujrAEFb9Lka9ix4d0E=
+X-Google-Smtp-Source: AMsMyM5Lvg1ooUuM9Fb/ql4O0ZXlsMI64qCW+6Yz0+tjKs/OW14aLENf5EDw+Gl+F34qXcmdrDEPYN45B/hK0VB4LGY=
+X-Received: by 2002:a05:622a:11c7:b0:39c:b4bc:7030 with SMTP id
+ n7-20020a05622a11c700b0039cb4bc7030mr6813339qtk.17.1665593933419; Wed, 12 Oct
+ 2022 09:58:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20221009205508.1204042-1-sashal@kernel.org> <20221009205508.1204042-4-sashal@kernel.org>
+ <20221011113646.GA12080@duo.ucw.cz> <Y0VuKmt5BGfB6nAE@chenyu5-mobl1>
+In-Reply-To: <Y0VuKmt5BGfB6nAE@chenyu5-mobl1>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 12 Oct 2022 18:58:42 +0200
+Message-ID: <CAJZ5v0iHu3ZZuHeC7q6x4ZERaAu0pP2ubqzUv3v2upxLwOFXsg@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.9 4/4] thermal: intel_powerclamp: Use get_cpu()
+ instead of smp_processor_id() to avoid crash
+To:     Chen Yu <yu.c.chen@intel.com>
+Cc:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        rafael@kernel.org, daniel.lezcano@linaro.org,
+        linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Oct 2022 17:33:54 +0100, Catalin Marinas wrote:
-> Prior to commit 69e3b846d8a7 ("arm64: mte: Sync tags for pages where PTE
-> is untagged"), mte_sync_tags() was only called for pte_tagged() entries
-> (those mapped with PROT_MTE). Therefore mte_sync_tags() could safely use
-> test_and_set_bit(PG_mte_tagged, &page->flags) without inadvertently
-> setting PG_mte_tagged on an untagged page.
-> 
-> The above commit was required as guests may enable MTE without any
-> control at the stage 2 mapping, nor a PROT_MTE mapping in the VMM.
-> However, the side-effect was that any page with a PTE that looked like
-> swap (or migration) was getting PG_mte_tagged set automatically. A
-> subsequent page copy (e.g. migration) copied the tags to the destination
-> page even if the tags were owned by KASAN.
-> 
-> [...]
+On Tue, Oct 11, 2022 at 3:23 PM Chen Yu <yu.c.chen@intel.com> wrote:
+>
+> Hi Pavel,
+> On 2022-10-11 at 13:36:46 +0200, Pavel Machek wrote:
+> > Hi!
+> >
+> > > From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> > >
+> > > [ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
+> > >
+> > > When CPU 0 is offline and intel_powerclamp is used to inject
+> > > idle, it generates kernel BUG:
+> > >
+> > > BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+> > > caller is debug_smp_processor_id+0x17/0x20
+> > > CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
+> > > Call Trace:
+> > > <TASK>
+> > > dump_stack_lvl+0x49/0x63
+> > > dump_stack+0x10/0x16
+> > > check_preemption_disabled+0xdd/0xe0
+> > > debug_smp_processor_id+0x17/0x20
+> > > powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+> > > ...
+> > > ...
+> > >
+> > > Here CPU 0 is the control CPU by default and changed to the current CPU,
+> > > if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+> > > hence the above warning.
+> > >
+> > > Use get_cpu() instead of smp_processor_id() to avoid this BUG.
+> >
+> > This has exactly the same problem as smp_processor_id(), you just
+> > worked around the warning. If it is okay that control_cpu contains
+> > stale value, could we have a comment explaining why?
+> >
+> May I know why does control_cpu have stale value? The control_cpu
+> is a random picked online CPU which will be used later to collect statistics.
+> As long as the control_cpu is online, it is valid IMO.
 
-Applied to arm64 (for-next/core), thanks!
+So this is confusing, because the code makes the impression that
+getting the number of the CPU running the code matters in some way,
+which isn't the case.
 
-[1/1] arm64: mte: Avoid setting PG_mte_tagged if no tags cleared or restored
-      https://git.kernel.org/arm64/c/a8e5e5146ad0
-
--- 
-Catalin
-
+Something like cpumask_first(cpu_online_mask) should work as well if
+I'm not mistaken and it would be less confusing to use this instead
+IMO.
