@@ -2,81 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B89805FBEC5
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 02:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435295FBEF9
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 03:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbiJLA5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 20:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53164 "EHLO
+        id S229572AbiJLBwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 21:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbiJLA5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 20:57:15 -0400
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A5776554;
-        Tue, 11 Oct 2022 17:57:14 -0700 (PDT)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 29C0v7uB018230
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Oct 2022 20:57:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1665536229; bh=SJ07M6yWasK9iiukuBymLIFLZ79Thg5ed7O8f39WZrc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=Ug7qUNgYjI4okdf7skzS7qOcEr0wFx1ngm9zBQqLkFxgOlFFK0eU8Zy/xeUjvF71n
-         faZCktFmQ9bE/y3gyiYNBsec+ihxyygklUprfVyxNoaa6/Yuz1BokK3VVNDlzRhvE6
-         EBaUCK6FFQyv+SLTSbc4wEAGb6XoHFe1TwjWFiXlhe/dlid/O/gpP06GckatNAT8bI
-         t+3JhmOAb3h5/K7nBo16RGEWN6KKVzDiLDZZeLC7/0RZcXRSieXKPNey/auVQmWJ8x
-         VzQiVo8R1xSkGkH1Mgz0lXiiw1/cCN6bwSzA51wHLG/HWATOfSDGryaUoi0Pm2z9wm
-         CzVU28suFpoWA==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 171F915C3AC9; Tue, 11 Oct 2022 20:57:07 -0400 (EDT)
-Date:   Tue, 11 Oct 2022 20:57:07 -0400
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
-Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ext4: fix BUG_ON() when a directory entry has an invalid
- rec_len
-Message-ID: <Y0YQ42Z/XPuHZRS8@mit.edu>
-References: <20221011155745.15264-1-lhenriques@suse.de>
+        with ESMTP id S229589AbiJLBwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 21:52:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E956DA4B93
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 18:52:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665539519;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/aoFTKs1+i/r1hVVhJXeOSGerK3qdHj+SZOhT30koZ8=;
+        b=QpG2I5NKJq13jU3M7LDYQQTaBXQu1Tq0TqfHO7h7xXam9lhMIetdDCXhMHagmu6QtwtnbM
+        wWBxd3Kk/NvAK0sBUMDyipiNEHizl3ewmtC7ljtxRY7wAOimh1knck2UZeFvObQoPHEOgn
+        NWYupJmTHpHctc5/Oz2hJhGWy0tSQZw=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-378-HNHL_uEeP9CzQp0I7f1R7A-1; Tue, 11 Oct 2022 21:51:51 -0400
+X-MC-Unique: HNHL_uEeP9CzQp0I7f1R7A-1
+Received: by mail-pg1-f200.google.com with SMTP id k64-20020a638443000000b004620970e0dbso3721579pgd.6
+        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 18:51:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-language:content-transfer-encoding:in-reply-to:mime-version
+         :user-agent:date:message-id:from:references:to:subject
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/aoFTKs1+i/r1hVVhJXeOSGerK3qdHj+SZOhT30koZ8=;
+        b=gX++R9Ifkhjc3emlP5MY7jHdsk1S8tqKHmqRHhhApWyM/pskN90+5uzMD6cNqbgbSK
+         23adIu6Qak1tKKmFAPSjsGL2wXXy/6z3OI4BSEVzfYW18qSPQQyA3I1i4aauSTorI7PI
+         3bE+Oceag+5p3ZamLW8X1JaxvQ7RR/19wf8/HmJV9Xyxj75nmi3DShDXp4gTKpLLyDbV
+         W4IrEZdDBzSjN5sMcfvdUIIER45LEr5afLjaHo3+HF1S6p1rsPeo/dDBmh1yD4oNALxE
+         2jH6/r56lbNj1RlT5h2ytHtzJ6/JZ7rUlyX/prNuW0Tr20kMNFH5tTGNzd4GWdKS36sd
+         BsoA==
+X-Gm-Message-State: ACrzQf3ikIDUK+OuBjfzeet8u0u88DSaHMZXFzS7mPEdYtsckvwTbadn
+        6l3k5tA9QBeFpy5wq/prul3ha2I3LE4Amhf6XnK4taiTIFVsvwVJl8iULenbDUbKhSqzcYQ0gFJ
+        QsVHnmSW0l7OyqLI0b1e9pw8WYev3rPLJMUWNGUsSPY4EUiywZO3icAcENyA/7YZpVg==
+X-Received: by 2002:a17:90b:2643:b0:205:bd0d:bdff with SMTP id pa3-20020a17090b264300b00205bd0dbdffmr2236861pjb.99.1665539509843;
+        Tue, 11 Oct 2022 18:51:49 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4JbZ2tluRah5wFlLgizcV59zIqG1blSiKf601GHfEoTdxTNK/36+HeZsdsDSEnyyqZnLHXWg==
+X-Received: by 2002:a17:90b:2643:b0:205:bd0d:bdff with SMTP id pa3-20020a17090b264300b00205bd0dbdffmr2236839pjb.99.1665539509410;
+        Tue, 11 Oct 2022 18:51:49 -0700 (PDT)
+Received: from [10.72.12.247] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id u187-20020a6279c4000000b0053725e331a1sm9682581pfc.82.2022.10.11.18.51.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Oct 2022 18:51:49 -0700 (PDT)
+Subject: ceph: don't truncate file in atomic_open
+To:     stable@vger.kernel.org
+References: <59d7c10f-7419-971b-c13c-71865f897953@redhat.com>
+ <20220701025227.21636-1-sehuww@mail.scut.edu.cn>
+From:   Xiubo Li <xiubli@redhat.com>
+Message-ID: <f87ea616-674b-2aad-f853-c28ea928ad4d@redhat.com>
+Date:   Wed, 12 Oct 2022 09:51:43 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+In-Reply-To: <20220701025227.21636-1-sehuww@mail.scut.edu.cn>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221011155745.15264-1-lhenriques@suse.de>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Language: en-US
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 11, 2022 at 04:57:45PM +0100, Lu�s Henriques wrote:
-> diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-> index 3a31b662f661..06803292e394 100644
-> --- a/fs/ext4/namei.c
-> +++ b/fs/ext4/namei.c
-> @@ -2254,8 +2254,18 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
->  	memset(de, 0, len); /* wipe old data */
->  	de = (struct ext4_dir_entry_2 *) data2;
->  	top = data2 + len;
-> -	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top)
-> +	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top) {
-> +		if (de->rec_len & 3) {
+Hi Maitainers
 
-As the kernel test bot as flaged, de->rec_len needs to be byte swapped
-on big endian machines.  Also, for block sizes larger than 64k the low
-2 bits are used to encode rec_len sizes 256k-4.  All of this is
-encoded in ext4_rec_len_from_disk().
+This patch is a fix in kceph module and should be backported to any 
+affected stable old kernels. And the original patch missed tagging 
+stable and got merged already months ago:
 
-However, I think a better thing to do is instead of doing this one
-check on rec len, that instead we call ext4_check_dir_entry(), which
-will do this check, and many more besides.  It will also avoid some
-code duplication, since it will take care of calling EXT4_ERROR_INODE
-with the appropriate explanatory message.
+commit 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832
+Author: Hu Weiwen <sehuww@mail.scut.edu.cn>
+Date:   Fri Jul 1 10:52:27 2022 +0800
 
-					- Ted
+     ceph: don't truncate file in atomic_open
+
+     Clear O_TRUNC from the flags sent in the MDS create request.
+
+     `atomic_open' is called before permission check. We should not do any
+     modification to the file here. The caller will do the truncation
+     afterward.
+
+     Fixes: 124e68e74099 ("ceph: file operations")
+     Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+     Reviewed-by: Xiubo Li <xiubli@redhat.com>
+     Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+
+
+Just a single patch.
+
+I am not very sure this is the correct way to do this, if anything else 
+I need to do to backport this to old kernels please let me know.
+
+Thanks!
+
+- Xiubo
+
+
+
+On 01/07/2022 10:52, Hu Weiwen wrote:
+> Clear O_TRUNC from the flags sent in the MDS create request.
+>
+> `atomic_open' is called before permission check. We should not do any
+> modification to the file here. The caller will do the truncation
+> afterward.
+>
+> Fixes: 124e68e74099 ("ceph: file operations")
+> Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+> ---
+> rebased onto ceph_client repo testing branch
+>
+>   fs/ceph/file.c | 9 ++++++---
+>   1 file changed, 6 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+> index 296fd1c7ece8..289e66e9cbb0 100644
+> --- a/fs/ceph/file.c
+> +++ b/fs/ceph/file.c
+> @@ -745,6 +745,11 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
+>   	err = ceph_wait_on_conflict_unlink(dentry);
+>   	if (err)
+>   		return err;
+> +	/*
+> +	 * Do not truncate the file, since atomic_open is called before the
+> +	 * permission check. The caller will do the truncation afterward.
+> +	 */
+> +	flags &= ~O_TRUNC;
+>   
+>   retry:
+>   	if (flags & O_CREAT) {
+> @@ -836,9 +841,7 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
+>   	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
+>   	req->r_new_inode = new_inode;
+>   	new_inode = NULL;
+> -	err = ceph_mdsc_do_request(mdsc,
+> -				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
+> -				   req);
+> +	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
+>   	if (err == -ENOENT) {
+>   		dentry = ceph_handle_snapdir(req, dentry);
+>   		if (IS_ERR(dentry)) {
+
