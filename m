@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE4A5FC27B
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 10:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DAF5FC27E
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 10:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229812AbiJLI4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 04:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36160 "EHLO
+        id S229763AbiJLI4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 04:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229714AbiJLIzY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 04:55:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D58272C131;
-        Wed, 12 Oct 2022 01:54:56 -0700 (PDT)
+        with ESMTP id S229831AbiJLI4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 04:56:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 322E73684D;
+        Wed, 12 Oct 2022 01:56:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CEC6B819D9;
-        Wed, 12 Oct 2022 08:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94460C433C1;
-        Wed, 12 Oct 2022 08:53:57 +0000 (UTC)
-Date:   Wed, 12 Oct 2022 09:53:53 +0100
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65F6661484;
+        Wed, 12 Oct 2022 08:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 770D5C433D6;
+        Wed, 12 Oct 2022 08:56:03 +0000 (UTC)
+Date:   Wed, 12 Oct 2022 09:55:59 +0100
 From:   Catalin Marinas <catalin.marinas@arm.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Mark Rutland <mark.rutland@arm.com>,
         Will Deacon <will@kernel.org>, peterz@infradead.org,
         linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.19 17/40] arm64: atomics: remove LL/SC
+Subject: Re: [PATCH AUTOSEL 6.0 17/46] arm64: atomics: remove LL/SC
  trampolines
-Message-ID: <Y0aAoQGH7lzqhv4F@arm.com>
-References: <20221011145129.1623487-1-sashal@kernel.org>
- <20221011145129.1623487-17-sashal@kernel.org>
+Message-ID: <Y0aBH1cWdx9oh0BV@arm.com>
+References: <20221011145015.1622882-1-sashal@kernel.org>
+ <20221011145015.1622882-17-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221011145129.1623487-17-sashal@kernel.org>
+In-Reply-To: <20221011145015.1622882-17-sashal@kernel.org>
 X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
         HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
@@ -46,9 +46,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
-
-On Tue, Oct 11, 2022 at 10:51:06AM -0400, Sasha Levin wrote:
+On Tue, Oct 11, 2022 at 10:49:45AM -0400, Sasha Levin wrote:
 > From: Mark Rutland <mark.rutland@arm.com>
 > 
 > [ Upstream commit b2c3ccbd0011bb3b51d0fec24cb3a5812b1ec8ea ]
@@ -148,10 +146,7 @@ On Tue, Oct 11, 2022 at 10:51:06AM -0400, Sasha Levin wrote:
 > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I don't think we should back-port this. There is no functional change,
-more of a clean-up in preparation for RELIABLE_STACKTRACE. The oops
-message in the log is to show how reporting works rather than a real
-bug.
+Please also drop this here. Thanks.
 
 -- 
 Catalin
