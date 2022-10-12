@@ -2,92 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ECB05FBEA8
-	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 02:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B89805FBEC5
+	for <lists+stable@lfdr.de>; Wed, 12 Oct 2022 02:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229695AbiJLA0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Oct 2022 20:26:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42202 "EHLO
+        id S229452AbiJLA5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Oct 2022 20:57:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229672AbiJLA0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 20:26:15 -0400
-Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09FD87EFE8
-        for <stable@vger.kernel.org>; Tue, 11 Oct 2022 17:26:13 -0700 (PDT)
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 5945C802AC6C
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 00:26:13 +0000 (UTC)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 6114E10040DD0
-        for <stable@vger.kernel.org>; Wed, 12 Oct 2022 00:25:51 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id iPZGoEMNxCJYCiPZHohMx0; Wed, 12 Oct 2022 00:25:51 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=Y9s9DjSN c=1 sm=1 tr=0 ts=6346098f
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=Qawa6l4ZSaYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=nGTssDer9ZusJeYVUULlKNZ7pNC4oNVyeuAvEq5s8ck=; b=L/iGxK9LkgqkfG2kWiWl8ly9TB
-        C6hBdKcH2qfe09kTebf2vhl/QH89VQ3BdrPtLTiPi/eQvtJkJKhF0XumGlb1nTB1deNo2TSaeEjQL
-        jrn8ki3AFQ9EIAATqQ2cFAFkQazu+IpVPvRHA+L8UuW+ry6I3QUGIXvIFgbrpI+M37lx+esOI/E2p
-        qW+x080+EdyuI99PXa8MrfzJ270D8yKlVQzvlJGYJiSydWRQEIpgpyElmgadldltNY5jnlcPqrHBU
-        PD+vPe+EnJNIhLapSmN/fuoUJpmNTgapzeaqC0nAEvwyPVSQcJWvi/MKTw4s5Qtq4tG4UTBrdx9mP
-        VkuZIFGw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53450 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oiPZE-001BVA-ON;
-        Tue, 11 Oct 2022 18:25:48 -0600
-Subject: Re: [PATCH 6.0 00/17] 6.0.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-References: <20221010070330.159911806@linuxfoundation.org>
-In-Reply-To: <20221010070330.159911806@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <d54d833c-90c5-3047-5d27-70335c4158e8@w6rz.net>
-Date:   Tue, 11 Oct 2022 17:25:43 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229470AbiJLA5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Oct 2022 20:57:15 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A5776554;
+        Tue, 11 Oct 2022 17:57:14 -0700 (PDT)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 29C0v7uB018230
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Oct 2022 20:57:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1665536229; bh=SJ07M6yWasK9iiukuBymLIFLZ79Thg5ed7O8f39WZrc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=Ug7qUNgYjI4okdf7skzS7qOcEr0wFx1ngm9zBQqLkFxgOlFFK0eU8Zy/xeUjvF71n
+         faZCktFmQ9bE/y3gyiYNBsec+ihxyygklUprfVyxNoaa6/Yuz1BokK3VVNDlzRhvE6
+         EBaUCK6FFQyv+SLTSbc4wEAGb6XoHFe1TwjWFiXlhe/dlid/O/gpP06GckatNAT8bI
+         t+3JhmOAb3h5/K7nBo16RGEWN6KKVzDiLDZZeLC7/0RZcXRSieXKPNey/auVQmWJ8x
+         VzQiVo8R1xSkGkH1Mgz0lXiiw1/cCN6bwSzA51wHLG/HWATOfSDGryaUoi0Pm2z9wm
+         CzVU28suFpoWA==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 171F915C3AC9; Tue, 11 Oct 2022 20:57:07 -0400 (EDT)
+Date:   Tue, 11 Oct 2022 20:57:07 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
+Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
+        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ext4: fix BUG_ON() when a directory entry has an invalid
+ rec_len
+Message-ID: <Y0YQ42Z/XPuHZRS8@mit.edu>
+References: <20221011155745.15264-1-lhenriques@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oiPZE-001BVA-ON
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53450
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 17
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221011155745.15264-1-lhenriques@suse.de>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -95,26 +55,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/10/22 12:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.1 release.
-> There are 17 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 12 Oct 2022 07:03:19 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Oct 11, 2022 at 04:57:45PM +0100, Luís Henriques wrote:
+> diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+> index 3a31b662f661..06803292e394 100644
+> --- a/fs/ext4/namei.c
+> +++ b/fs/ext4/namei.c
+> @@ -2254,8 +2254,18 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
+>  	memset(de, 0, len); /* wipe old data */
+>  	de = (struct ext4_dir_entry_2 *) data2;
+>  	top = data2 + len;
+> -	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top)
+> +	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top) {
+> +		if (de->rec_len & 3) {
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+As the kernel test bot as flaged, de->rec_len needs to be byte swapped
+on big endian machines.  Also, for block sizes larger than 64k the low
+2 bits are used to encode rec_len sizes 256k-4.  All of this is
+encoded in ext4_rec_len_from_disk().
 
-Tested-by: Ron Economos <re@w6rz.net>
+However, I think a better thing to do is instead of doing this one
+check on rec len, that instead we call ext4_check_dir_entry(), which
+will do this check, and many more besides.  It will also avoid some
+code duplication, since it will take care of calling EXT4_ERROR_INODE
+with the appropriate explanatory message.
 
+					- Ted
