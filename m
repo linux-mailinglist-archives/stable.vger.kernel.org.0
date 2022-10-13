@@ -2,140 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D9A5FE2C7
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 969535FE106
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbiJMTgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 15:36:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32904 "EHLO
+        id S231697AbiJMSXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229762AbiJMTgU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:36:20 -0400
-Received: from nbd.name (nbd.name [46.4.11.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C26317C54A
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 12:36:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-        s=20160729; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=It4jByTPo6kXjsj6KYFguxl1CvHt97DlNU4T6dSsI1I=; b=jWaF8srxFw1c2Vr7VyVPqtRM29
-        o1g5WtWnGGaM+nxggFGsaiFvez0ioND2yNancvCpYyb4JBc9EgsRJwHqSXtglMOoEuzWsSnYQ6aRo
-        q3b+lKkV6P43BHjSudTbp0Wf1Xa5sTSOCNwpKHrz4votoXHKlZyuTHiDg3LuaaDOryV4=;
-Received: from p200300daa7301d0028e1e1004b08c350.dip0.t-ipconnect.de ([2003:da:a730:1d00:28e1:e100:4b08:c350] helo=Maecks.lan)
-        by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
-        (Exim 4.94.2)
-        (envelope-from <nbd@nbd.name>)
-        id 1oj2kU-00CXRx-RC; Thu, 13 Oct 2022 20:16:02 +0200
-From:   Felix Fietkau <nbd@nbd.name>
-To:     stable@vger.kernel.org
-Cc:     johannes@sipsolutions.net
-Subject: [PATCH 5.15 3/6] mac80211: mlme: find auth challenge directly
-Date:   Thu, 13 Oct 2022 20:15:58 +0200
-Message-Id: <20221013181601.5712-3-nbd@nbd.name>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20221013181601.5712-1-nbd@nbd.name>
-References: <20221013181601.5712-1-nbd@nbd.name>
+        with ESMTP id S231707AbiJMSXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:23:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D1F17C573;
+        Thu, 13 Oct 2022 11:18:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0843B81E1B;
+        Thu, 13 Oct 2022 18:16:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57965C433C1;
+        Thu, 13 Oct 2022 18:16:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1665684960;
+        bh=LZk23UAFJwZJIWKNLhyALMYapgUsPfOmRti557QqG80=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DPQ+Tfyju6cHx5rC6s5ILFmn9/Cnt7fntoKg6XDvvgH35hcXpXpgvvRcaXs7jDVlk
+         NVIXu7ZSwR939eEBC/J95PjUKosTzfHlgl1g079Cnid7Bs6ghpc/OGDwBFnZr22EFO
+         V1WboxSnQIyr7dgD1WhQWcncOiwRsA1nTjNlmBHwol3P8UQWU851a603apk7flJhc1
+         rVqgg7WpltxcNy5M/vYV0SIJrGADpZklz88hBmNd8xETc5nZ/0hr6Hin8BTo8PqFvm
+         vT3tfxVWOyMKE0nRM88vQYjnnDtZNVh03rDV3Ytd1/j0IhxOXStBkxT9fW7Kn1Ta0w
+         kKfMNJpRhljOQ==
+Date:   Thu, 13 Oct 2022 14:15:59 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>, andrew@lunn.ch,
+        vivien.didelot@gmail.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 6.0 11/77] net: dsa: all DSA masters must be down
+ when changing the tagging protocol
+Message-ID: <Y0hV36EMAvOOm79K@sashalap>
+References: <20221009220754.1214186-1-sashal@kernel.org>
+ <20221009220754.1214186-11-sashal@kernel.org>
+ <20221010115430.kloc3urkycsbyele@skbuf>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20221010115430.kloc3urkycsbyele@skbuf>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+On Mon, Oct 10, 2022 at 02:54:30PM +0300, Vladimir Oltean wrote:
+>On Sun, Oct 09, 2022 at 06:06:48PM -0400, Sasha Levin wrote:
+>> From: Vladimir Oltean <vladimir.oltean@nxp.com>
+>>
+>> [ Upstream commit f41ec1fd1c20e2a4e60a4ab8490b3e63423c0a8a ]
+>>
+>> The fact that the tagging protocol is set and queried from the
+>> /sys/class/net/<dsa-master>/dsa/tagging file is a bit of a quirk from
+>> the single CPU port days which isn't aging very well now that DSA can
+>> have more than a single CPU port. This is because the tagging protocol
+>> is a switch property, yet in the presence of multiple CPU ports it can
+>> be queried and set from multiple sysfs files, all of which are handled
+>> by the same implementation.
+>>
+>> The current logic ensures that the net device whose sysfs file we're
+>> changing the tagging protocol through must be down. That net device is
+>> the DSA master, and this is fine for single DSA master / CPU port setups.
+>>
+>> But exactly because the tagging protocol is per switch [ tree, in fact ]
+>> and not per DSA master, this isn't fine any longer with multiple CPU
+>> ports, and we must iterate through the tree and find all DSA masters,
+>> and make sure that all of them are down.
+>>
+>> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+>> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+>> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>
+>Not needed for stable kernels, please drop, thanks.
 
-commit 49a765d6785e99157ff5091cc37485732496864e upstream.
+Ack, I'll drop this and the rest of the patches you've pointed out,
+thanks!
 
-There's no need to parse all elements etc. just to find the
-authentication challenge - use cfg80211_find_elem() instead.
-This also allows us to remove WLAN_EID_CHALLENGE handling
-from the element parsing entirely.
-
-Link: https://lore.kernel.org/r/20210920154009.45f9b3a15722.Ice3159ffad03a007d6154cbf1fb3a8c48489e86f@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
----
- net/mac80211/ieee80211_i.h |  2 --
- net/mac80211/mlme.c        | 11 ++++++-----
- net/mac80211/util.c        |  4 ----
- 3 files changed, 6 insertions(+), 11 deletions(-)
-
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 5ea38ae65809..c5f0ff805010 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1542,7 +1542,6 @@ struct ieee802_11_elems {
- 	const u8 *supp_rates;
- 	const u8 *ds_params;
- 	const struct ieee80211_tim_ie *tim;
--	const u8 *challenge;
- 	const u8 *rsn;
- 	const u8 *rsnx;
- 	const u8 *erp_info;
-@@ -1596,7 +1595,6 @@ struct ieee802_11_elems {
- 	u8 ssid_len;
- 	u8 supp_rates_len;
- 	u8 tim_len;
--	u8 challenge_len;
- 	u8 rsn_len;
- 	u8 rsnx_len;
- 	u8 ext_supp_rates_len;
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 4414e82e71d1..548cd14c5503 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -2889,17 +2889,17 @@ static void ieee80211_auth_challenge(struct ieee80211_sub_if_data *sdata,
- {
- 	struct ieee80211_local *local = sdata->local;
- 	struct ieee80211_mgd_auth_data *auth_data = sdata->u.mgd.auth_data;
-+	const struct element *challenge;
- 	u8 *pos;
--	struct ieee802_11_elems elems;
- 	u32 tx_flags = 0;
- 	struct ieee80211_prep_tx_info info = {
- 		.subtype = IEEE80211_STYPE_AUTH,
- 	};
- 
- 	pos = mgmt->u.auth.variable;
--	ieee802_11_parse_elems(pos, len - (pos - (u8 *)mgmt), false, &elems,
--			       mgmt->bssid, auth_data->bss->bssid);
--	if (!elems.challenge)
-+	challenge = cfg80211_find_elem(WLAN_EID_CHALLENGE, pos,
-+				       len - (pos - (u8 *)mgmt));
-+	if (!challenge)
- 		return;
- 	auth_data->expected_transaction = 4;
- 	drv_mgd_prepare_tx(sdata->local, sdata, &info);
-@@ -2907,7 +2907,8 @@ static void ieee80211_auth_challenge(struct ieee80211_sub_if_data *sdata,
- 		tx_flags = IEEE80211_TX_CTL_REQ_TX_STATUS |
- 			   IEEE80211_TX_INTFL_MLME_CONN_TX;
- 	ieee80211_send_auth(sdata, 3, auth_data->algorithm, 0,
--			    elems.challenge - 2, elems.challenge_len + 2,
-+			    (void *)challenge,
-+			    challenge->datalen + sizeof(*challenge),
- 			    auth_data->bss->bssid, auth_data->bss->bssid,
- 			    auth_data->key, auth_data->key_len,
- 			    auth_data->key_idx, tx_flags);
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index ceb6894381e4..664c32b6db19 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1117,10 +1117,6 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			} else
- 				elem_parse_failed = true;
- 			break;
--		case WLAN_EID_CHALLENGE:
--			elems->challenge = pos;
--			elems->challenge_len = elen;
--			break;
- 		case WLAN_EID_VENDOR_SPECIFIC:
- 			if (elen >= 4 && pos[0] == 0x00 && pos[1] == 0x50 &&
- 			    pos[2] == 0xf2) {
 -- 
-2.36.1
-
+Thanks,
+Sasha
