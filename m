@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C2F5FDF7D
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A74535FDFC3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229916AbiJMRzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:55:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54148 "EHLO
+        id S229818AbiJMR6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:58:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229927AbiJMRy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4606715201B;
-        Thu, 13 Oct 2022 10:53:52 -0700 (PDT)
+        with ESMTP id S230230AbiJMR51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380E8659EF;
+        Thu, 13 Oct 2022 10:56:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B97C9B82026;
-        Thu, 13 Oct 2022 17:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F790C433D6;
-        Thu, 13 Oct 2022 17:53:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18BB6B81CF4;
+        Thu, 13 Oct 2022 17:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF15C433D6;
+        Thu, 13 Oct 2022 17:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683630;
-        bh=+hWHjzuNL4/uWC9zqXql+Q2XpFqifgfw5cukpFp5D5I=;
+        s=korg; t=1665683763;
+        bh=NP1XPEhn7jtkvGePO/ii4tg8z2O0BgSRceDNFGGZJbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dL2+05V5FlEPwL1rk5AmL8rtqNvPxMZ/P+XwlknWhJ/Ui9QclB6OIU8FSg9RobnIl
-         gTpxGdAolIbXR5r5/Bdj0ewZtBw7bXmiuydIRj5atBfNGSgZhbQG7yhQD7SdA9TMxN
-         Z8nU3FYCsBEfuMdzLPErZ3Mmrag09LaxEbMvf9kE=
+        b=JXwH/mBoenPXO1zXVoUy4hPIxLn1+pEHD7viMJz/6opnDQaXqqYxHt2ZS/xOc4+5p
+         shgUamLT44+1qZV/Pz9J/McBavNugFAb6SllJMQDX3PMXeqVwP0Oqh4tiJKjHLio72
+         I1+mTSNOdpnfKprSIRfG3qXxBY5iyqhNIos7CIl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 34/38] wifi: cfg80211: avoid nontransmitted BSS list corruption
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 41/54] random: avoid reading two cache lines on irq randomness
 Date:   Thu, 13 Oct 2022 19:52:35 +0200
-Message-Id: <20221013175145.382242160@linuxfoundation.org>
+Message-Id: <20221013175148.335434415@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit bcca852027e5878aec911a347407ecc88d6fff7f upstream.
+commit 9ee0507e896b45af6d65408c77815800bce30008 upstream.
 
-If a non-transmitted BSS shares enough information (both
-SSID and BSSID!) with another non-transmitted BSS of a
-different AP, then we can find and update it, and then
-try to add it to the non-transmitted BSS list. We do a
-search for it on the transmitted BSS, but if it's not
-there (but belongs to another transmitted BSS), the list
-gets corrupted.
+In order to avoid reading and dirtying two cache lines on every IRQ,
+move the work_struct to the bottom of the fast_pool struct. add_
+interrupt_randomness() always touches .pool and .count, which are
+currently split, because .mix pushes everything down. Instead, move .mix
+to the bottom, so that .pool and .count are always in the first cache
+line, since .mix is only accessed when the pool is full.
 
-Since this is an erroneous situation, simply fail the
-list insertion in this case and free the non-transmitted
-BSS.
-
-This fixes CVE-2022-42721.
-
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -386,6 +386,15 @@ cfg80211_add_nontrans_list(struct cfg802
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -895,10 +895,10 @@ void __cold add_bootloader_randomness(co
+ EXPORT_SYMBOL_GPL(add_bootloader_randomness);
  
- 	rcu_read_unlock();
+ struct fast_pool {
+-	struct work_struct mix;
+ 	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
++	struct work_struct mix;
+ };
  
-+	/*
-+	 * This is a bit weird - it's not on the list, but already on another
-+	 * one! The only way that could happen is if there's some BSSID/SSID
-+	 * shared by multiple APs in their multi-BSSID profiles, potentially
-+	 * with hidden SSID mixed in ... ignore it.
-+	 */
-+	if (!list_empty(&nontrans_bss->nontrans_list))
-+		return -EINVAL;
-+
- 	/* add to the list */
- 	list_add_tail(&nontrans_bss->nontrans_list, &trans_bss->nontrans_list);
- 	return 0;
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
 
 
