@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 036485FDF60
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8E45FDFAE
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbiJMRx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:53:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53508 "EHLO
+        id S230169AbiJMR5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229769AbiJMRxL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496AF14FD3B;
-        Thu, 13 Oct 2022 10:53:04 -0700 (PDT)
+        with ESMTP id S230132AbiJMR4r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC723A8CC8;
+        Thu, 13 Oct 2022 10:55:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8421D618F6;
-        Thu, 13 Oct 2022 17:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F00C433C1;
-        Thu, 13 Oct 2022 17:53:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCF0618DE;
+        Thu, 13 Oct 2022 17:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B381C4347C;
+        Thu, 13 Oct 2022 17:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683582;
-        bh=clqMLo8si0W5e46evh3BggiIvOUCFs2EZmoLr7MDpF8=;
+        s=korg; t=1665683675;
+        bh=1NO7INAh9t/nqLkNlb48OrRHodPX0iieToKEAO8MS5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WdgiSEhRho5NR0DsG3DiEM8xrKU1YVXuOi4nEtislT13xWw/oIgHm2pL0uFececbw
-         b36p1q83QiKedFUi0w4dXE6fdB12i4UlzfAfMHSko2SdPV7+KYs1zecbrhz3o6l/ye
-         4dj8iXizDP/J2U6ltn+6kHLdVOC68xjxyFpjgBvg=
+        b=YdJvLLLQzIe7Zs495sVDoK/q6b++D2d7Ukpc6cs+/J1CmzUBq6VGjUmytBuXfG0FK
+         Wk75whIqbzj25LwxQp2UjPjsq/SympkSHxQP8KMYSiBnrlF3N2tDxph8pNsvuka9Fm
+         TCaPE5ogOzGpK7WQqCoSyjFytsJ8vsRAihpytW6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/38] firmware: arm_scmi: Add SCMI PM driver remove routine
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>, Yang Shi <shy828301@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Hugh Dickins <hughd@google.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 11/54] mm: gup: fix the fast GUP race against THP collapse
 Date:   Thu, 13 Oct 2022 19:52:05 +0200
-Message-Id: <20221013175144.417813093@linuxfoundation.org>
+Message-Id: <20221013175147.639795471@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +61,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit dea796fcab0a219830831c070b8dc367d7e0f708 ]
+commit 70cbc3cc78a997d8247b50389d37c4e1736019da upstream.
 
-Currently, when removing the SCMI PM driver not all the resources
-registered with genpd subsystem are properly de-registered.
+Since general RCU GUP fast was introduced in commit 2667f50e8b81 ("mm:
+introduce a general RCU get_user_pages_fast()"), a TLB flush is no longer
+sufficient to handle concurrent GUP-fast in all cases, it only handles
+traditional IPI-based GUP-fast correctly.  On architectures that send an
+IPI broadcast on TLB flush, it works as expected.  But on the
+architectures that do not use IPI to broadcast TLB flush, it may have the
+below race:
 
-As a side effect of this after a driver unload/load cycle you get a
-splat with a few warnings like this:
+   CPU A                                          CPU B
+THP collapse                                     fast GUP
+                                              gup_pmd_range() <-- see valid pmd
+                                                  gup_pte_range() <-- work on pte
+pmdp_collapse_flush() <-- clear pmd and flush
+__collapse_huge_page_isolate()
+    check page pinned <-- before GUP bump refcount
+                                                      pin the page
+                                                      check PTE <-- no change
+__collapse_huge_page_copy()
+    copy data to huge page
+    ptep_clear()
+install huge pmd for the huge page
+                                                      return the stale page
+discard the stale page
 
- | debugfs: Directory 'BIG_CPU0' with parent 'pm_genpd' already present!
- | debugfs: Directory 'BIG_CPU1' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU0' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU1' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU2' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_CPU3' with parent 'pm_genpd' already present!
- | debugfs: Directory 'BIG_SSTOP' with parent 'pm_genpd' already present!
- | debugfs: Directory 'LITTLE_SSTOP' with parent 'pm_genpd' already present!
- | debugfs: Directory 'DBGSYS' with parent 'pm_genpd' already present!
- | debugfs: Directory 'GPUTOP' with parent 'pm_genpd' already present!
+The race can be fixed by checking whether PMD is changed or not after
+taking the page pin in fast GUP, just like what it does for PTE.  If the
+PMD is changed it means there may be parallel THP collapse, so GUP should
+back off.
 
-Add a proper scmi_pm_domain_remove callback to the driver in order to
-take care of all the needed cleanups not handled by devres framework.
+Also update the stale comment about serializing against fast GUP in
+khugepaged.
 
-Link: https://lore.kernel.org/r/20220817172731.1185305-7-cristian.marussi@arm.com
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220907180144.555485-1-shy828301@gmail.com
+Fixes: 2667f50e8b81 ("mm: introduce a general RCU get_user_pages_fast()")
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/scmi_pm_domain.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ mm/gup.c        |   34 ++++++++++++++++++++++++++++------
+ mm/khugepaged.c |   10 ++++++----
+ 2 files changed, 34 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-index 177874adccf0..b0c8962b9885 100644
---- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
-+++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-@@ -106,9 +106,28 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 	scmi_pd_data->domains = domains;
- 	scmi_pd_data->num_domains = num_domains;
- 
-+	dev_set_drvdata(dev, scmi_pd_data);
-+
- 	return of_genpd_add_provider_onecell(np, scmi_pd_data);
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -2128,8 +2128,28 @@ static void __maybe_unused undo_dev_page
  }
  
-+static void scmi_pm_domain_remove(struct scmi_device *sdev)
-+{
-+	int i;
-+	struct genpd_onecell_data *scmi_pd_data;
-+	struct device *dev = &sdev->dev;
-+	struct device_node *np = dev->of_node;
-+
-+	of_genpd_del_provider(np);
-+
-+	scmi_pd_data = dev_get_drvdata(dev);
-+	for (i = 0; i < scmi_pd_data->num_domains; i++) {
-+		if (!scmi_pd_data->domains[i])
-+			continue;
-+		pm_genpd_remove(scmi_pd_data->domains[i]);
-+	}
-+}
-+
- static const struct scmi_device_id scmi_id_table[] = {
- 	{ SCMI_PROTOCOL_POWER },
- 	{ },
-@@ -118,6 +137,7 @@ MODULE_DEVICE_TABLE(scmi, scmi_id_table);
- static struct scmi_driver scmi_power_domain_driver = {
- 	.name = "scmi-power-domain",
- 	.probe = scmi_pm_domain_probe,
-+	.remove = scmi_pm_domain_remove,
- 	.id_table = scmi_id_table,
- };
- module_scmi_driver(scmi_power_domain_driver);
--- 
-2.35.1
-
+ #ifdef CONFIG_ARCH_HAS_PTE_SPECIAL
+-static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+-			 unsigned int flags, struct page **pages, int *nr)
++/*
++ * Fast-gup relies on pte change detection to avoid concurrent pgtable
++ * operations.
++ *
++ * To pin the page, fast-gup needs to do below in order:
++ * (1) pin the page (by prefetching pte), then (2) check pte not changed.
++ *
++ * For the rest of pgtable operations where pgtable updates can be racy
++ * with fast-gup, we need to do (1) clear pte, then (2) check whether page
++ * is pinned.
++ *
++ * Above will work for all pte-level operations, including THP split.
++ *
++ * For THP collapse, it's a bit more complicated because fast-gup may be
++ * walking a pgtable page that is being freed (pte is still valid but pmd
++ * can be cleared already).  To avoid race in such condition, we need to
++ * also check pmd here to make sure pmd doesn't change (corresponds to
++ * pmdp_collapse_flush() in the THP collapse code path).
++ */
++static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
++			 unsigned long end, unsigned int flags,
++			 struct page **pages, int *nr)
+ {
+ 	struct dev_pagemap *pgmap = NULL;
+ 	int nr_start = *nr, ret = 0;
+@@ -2169,7 +2189,8 @@ static int gup_pte_range(pmd_t pmd, unsi
+ 		if (!head)
+ 			goto pte_unmap;
+ 
+-		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
++		if (unlikely(pmd_val(pmd) != pmd_val(*pmdp)) ||
++		    unlikely(pte_val(pte) != pte_val(*ptep))) {
+ 			put_compound_head(head, 1, flags);
+ 			goto pte_unmap;
+ 		}
+@@ -2214,8 +2235,9 @@ pte_unmap:
+  * get_user_pages_fast_only implementation that can pin pages. Thus it's still
+  * useful to have gup_huge_pmd even if we can't operate on ptes.
+  */
+-static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+-			 unsigned int flags, struct page **pages, int *nr)
++static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
++			 unsigned long end, unsigned int flags,
++			 struct page **pages, int *nr)
+ {
+ 	return 0;
+ }
+@@ -2522,7 +2544,7 @@ static int gup_pmd_range(pud_t *pudp, pu
+ 			if (!gup_huge_pd(__hugepd(pmd_val(pmd)), addr,
+ 					 PMD_SHIFT, next, flags, pages, nr))
+ 				return 0;
+-		} else if (!gup_pte_range(pmd, addr, next, flags, pages, nr))
++		} else if (!gup_pte_range(pmd, pmdp, addr, next, flags, pages, nr))
+ 			return 0;
+ 	} while (pmdp++, addr = next, addr != end);
+ 
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1144,10 +1144,12 @@ static void collapse_huge_page(struct mm
+ 
+ 	pmd_ptl = pmd_lock(mm, pmd); /* probably unnecessary */
+ 	/*
+-	 * After this gup_fast can't run anymore. This also removes
+-	 * any huge TLB entry from the CPU so we won't allow
+-	 * huge and small TLB entries for the same virtual address
+-	 * to avoid the risk of CPU bugs in that area.
++	 * This removes any huge TLB entry from the CPU so we won't allow
++	 * huge and small TLB entries for the same virtual address to
++	 * avoid the risk of CPU bugs in that area.
++	 *
++	 * Parallel fast GUP is fine since fast GUP will back off when
++	 * it detects PMD is changed.
+ 	 */
+ 	_pmd = pmdp_collapse_flush(vma, address, pmd);
+ 	spin_unlock(pmd_ptl);
 
 
