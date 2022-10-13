@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F2995FD058
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8C25FD038
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230350AbiJMA0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:26:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S230481AbiJMAZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:25:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230349AbiJMAY2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:24:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CA7EB769;
-        Wed, 12 Oct 2022 17:24:08 -0700 (PDT)
+        with ESMTP id S230244AbiJMAXQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:23:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759E5128CAD;
+        Wed, 12 Oct 2022 17:20:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E77ABB81CD4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85EC061697;
+        Thu, 13 Oct 2022 00:19:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A4E0C4347C;
         Thu, 13 Oct 2022 00:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD8DC433D6;
-        Thu, 13 Oct 2022 00:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620388;
-        bh=i/tyIrXc+85vJqgLz9At/S7sf9MFmgrR55j9ZPV02LE=;
+        s=k20201202; t=1665620390;
+        bh=pyFqEjCsJm/B3AhoMs/+9UBXpGWPBTmE33Qm6IaChXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcvUEC5aNAAd1CQJyCRseEEMPAFyuJ8XtlaMR+kEtBLv96qwtPlTmZVApr/EPI67P
-         VQNk+uTO6Qrp+0LsPYxjy7H1wBVZY64mCH1YQ2odRxoQF9jsb8/9LG1blqasriytTw
-         VYl1lKdhzlMWiSiIr+jl3f7R1ihH9LC2ucjLDsKPIl1pBk/66Irv91/S9+axdzAu+Q
-         5cq+VWR7/Q+Z4deylVPhobV5iAAuk3BIcoXQbfmjwariUa6yxUUICUsyOW1m2X/7o4
-         mXWiT4mK22Pk7Odf7X2Q+zZONh6DZx2xSmsK1W6WIOddZL4ej4WtYeb7lIsEHR/IGw
-         LxpUrhif8ly1g==
+        b=J4BGsqwseNPZViKIT/AH6RfUAu80g7RVqWwD9FbY4YU99+xeTvPQ1xsUcyLWSBXi5
+         UYEXPzR1Em30enlwZcM6z//LNTRPZjyoXfg5QxFJGyJgyEDp+wVKi7Q1edQtfuMOcB
+         kHHMui4oJqd09s9JtUpxddgrlRNz+4hxeSygnNqb1+fgp36f8UyC4YMquPEHQsvAtM
+         57/Oxd7qEMOpFbsD14GqyhzNsuH1cwr7yWO3QAAGNEwX9o5mliSfbd5ghz4Ak2Qqld
+         A11cK+9MJpENLZmQZJRE1oRh6XRUxIzY1NxpohsYrChwuyPP4Lp+/AB76poptISsFD
+         rObvjUktlLBMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        osharabi@habana.ai, ttayar@habana.ai, fkassabri@habana.ai,
-        dliberman@habana.ai, rkatta@habana.ai
-Subject: [PATCH AUTOSEL 5.19 25/63] habanalabs: ignore EEPROM errors during boot
-Date:   Wed, 12 Oct 2022 20:17:59 -0400
-Message-Id: <20221013001842.1893243-25-sashal@kernel.org>
+Cc:     Coly Li <colyli@suse.de>, Mingzhe Zou <mingzhe.zou@easystack.cn>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        kent.overstreet@gmail.com, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 26/63] bcache: fix set_at_max_writeback_rate() for multiple attached devices
+Date:   Wed, 12 Oct 2022 20:18:00 -0400
+Message-Id: <20221013001842.1893243-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -56,71 +55,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Bitton <obitton@habana.ai>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit d155df4f628a5312a485235aa8cc5ba78e11ea65 ]
+[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
 
-EEPROM errors reported by firmware are basically warnings and
-should not fail the boot process.
+Inside set_at_max_writeback_rate() the calculation in following if()
+check is wrong,
+	if (atomic_inc_return(&c->idle_counter) <
+	    atomic_read(&c->attached_dev_nr) * 6)
 
-Signed-off-by: Ofir Bitton <obitton@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Because each attached backing device has its own writeback thread
+running and increasing c->idle_counter, the counter increates much
+faster than expected. The correct calculation should be,
+	(counter / dev_nr) < dev_nr * 6
+which equals to,
+	counter < dev_nr * dev_nr * 6
+
+This patch fixes the above mistake with correct calculation, and helper
+routine idle_counter_exceeded() is added to make code be more clear.
+
+Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/firmware_if.c        | 9 +++++++++
- drivers/misc/habanalabs/include/common/hl_boot_if.h | 5 +++++
- 2 files changed, 14 insertions(+)
+ drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
+ 1 file changed, 52 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
-index 828a36af5b14..bb1b2d6213a5 100644
---- a/drivers/misc/habanalabs/common/firmware_if.c
-+++ b/drivers/misc/habanalabs/common/firmware_if.c
-@@ -521,6 +521,15 @@ static bool fw_report_boot_dev0(struct hl_device *hdev, u32 err_val,
- 		dev_dbg(hdev->dev, "Device status0 %#x\n", sts_val);
+diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
+index 3f0ff3aab6f2..9c227e4a8465 100644
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -157,6 +157,53 @@ static void __update_writeback_rate(struct cached_dev *dc)
+ 	dc->writeback_rate_target = target;
+ }
  
- 	/* All warnings should go here in order not to reach the unknown error validation */
-+	if (err_val & CPU_BOOT_ERR0_EEPROM_FAIL) {
-+		dev_warn(hdev->dev,
-+			"Device boot warning - EEPROM failure detected, default settings applied\n");
-+		/* This is a warning so we don't want it to disable the
-+		 * device
-+		 */
-+		err_val &= ~CPU_BOOT_ERR0_EEPROM_FAIL;
++static bool idle_counter_exceeded(struct cache_set *c)
++{
++	int counter, dev_nr;
++
++	/*
++	 * If c->idle_counter is overflow (idel for really long time),
++	 * reset as 0 and not set maximum rate this time for code
++	 * simplicity.
++	 */
++	counter = atomic_inc_return(&c->idle_counter);
++	if (counter <= 0) {
++		atomic_set(&c->idle_counter, 0);
++		return false;
 +	}
 +
- 	if (err_val & CPU_BOOT_ERR0_DRAM_SKIPPED) {
- 		dev_warn(hdev->dev,
- 			"Device boot warning - Skipped DRAM initialization\n");
-diff --git a/drivers/misc/habanalabs/include/common/hl_boot_if.h b/drivers/misc/habanalabs/include/common/hl_boot_if.h
-index 15f91ae9de6e..d4858e636fa9 100644
---- a/drivers/misc/habanalabs/include/common/hl_boot_if.h
-+++ b/drivers/misc/habanalabs/include/common/hl_boot_if.h
-@@ -34,6 +34,7 @@ enum cpu_boot_err {
- 	CPU_BOOT_ERR_BINNING_FAIL = 19,
- 	CPU_BOOT_ERR_TPM_FAIL = 20,
- 	CPU_BOOT_ERR_TMP_THRESH_INIT_FAIL = 21,
-+	CPU_BOOT_ERR_EEPROM_FAIL = 22,
- 	CPU_BOOT_ERR_ENABLED = 31,
- 	CPU_BOOT_ERR_SCND_EN = 63,
- 	CPU_BOOT_ERR_LAST = 64 /* we have 2 registers of 32 bits */
-@@ -115,6 +116,9 @@ enum cpu_boot_err {
-  * CPU_BOOT_ERR0_TMP_THRESH_INIT_FAIL	Failed to set threshold for tmperature
-  *					sensor.
-  *
-+ * CPU_BOOT_ERR_EEPROM_FAIL		Failed reading EEPROM data. Defaults
-+ *					are used.
-+ *
-  * CPU_BOOT_ERR0_ENABLED		Error registers enabled.
-  *					This is a main indication that the
-  *					running FW populates the error
-@@ -139,6 +143,7 @@ enum cpu_boot_err {
- #define CPU_BOOT_ERR0_BINNING_FAIL		(1 << CPU_BOOT_ERR_BINNING_FAIL)
- #define CPU_BOOT_ERR0_TPM_FAIL			(1 << CPU_BOOT_ERR_TPM_FAIL)
- #define CPU_BOOT_ERR0_TMP_THRESH_INIT_FAIL	(1 << CPU_BOOT_ERR_TMP_THRESH_INIT_FAIL)
-+#define CPU_BOOT_ERR0_EEPROM_FAIL		(1 << CPU_BOOT_ERR_EEPROM_FAIL)
- #define CPU_BOOT_ERR0_ENABLED			(1 << CPU_BOOT_ERR_ENABLED)
- #define CPU_BOOT_ERR1_ENABLED			(1 << CPU_BOOT_ERR_ENABLED)
++	dev_nr = atomic_read(&c->attached_dev_nr);
++	if (dev_nr == 0)
++		return false;
++
++	/*
++	 * c->idle_counter is increased by writeback thread of all
++	 * attached backing devices, in order to represent a rough
++	 * time period, counter should be divided by dev_nr.
++	 * Otherwise the idle time cannot be larger with more backing
++	 * device attached.
++	 * The following calculation equals to checking
++	 *	(counter / dev_nr) < (dev_nr * 6)
++	 */
++	if (counter < (dev_nr * dev_nr * 6))
++		return false;
++
++	return true;
++}
++
++/*
++ * Idle_counter is increased every time when update_writeback_rate() is
++ * called. If all backing devices attached to the same cache set have
++ * identical dc->writeback_rate_update_seconds values, it is about 6
++ * rounds of update_writeback_rate() on each backing device before
++ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
++ * to each dc->writeback_rate.rate.
++ * In order to avoid extra locking cost for counting exact dirty cached
++ * devices number, c->attached_dev_nr is used to calculate the idle
++ * throushold. It might be bigger if not all cached device are in write-
++ * back mode, but it still works well with limited extra rounds of
++ * update_writeback_rate().
++ */
+ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 				       struct cached_dev *dc)
+ {
+@@ -167,21 +214,8 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	/* Don't set max writeback rate if gc is running */
+ 	if (!c->gc_mark_valid)
+ 		return false;
+-	/*
+-	 * Idle_counter is increased everytime when update_writeback_rate() is
+-	 * called. If all backing devices attached to the same cache set have
+-	 * identical dc->writeback_rate_update_seconds values, it is about 6
+-	 * rounds of update_writeback_rate() on each backing device before
+-	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
+-	 * to each dc->writeback_rate.rate.
+-	 * In order to avoid extra locking cost for counting exact dirty cached
+-	 * devices number, c->attached_dev_nr is used to calculate the idle
+-	 * throushold. It might be bigger if not all cached device are in write-
+-	 * back mode, but it still works well with limited extra rounds of
+-	 * update_writeback_rate().
+-	 */
+-	if (atomic_inc_return(&c->idle_counter) <
+-	    atomic_read(&c->attached_dev_nr) * 6)
++
++	if (!idle_counter_exceeded(c))
+ 		return false;
+ 
+ 	if (atomic_read(&c->at_max_writeback_rate) != 1)
+@@ -195,13 +229,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	dc->writeback_rate_change = 0;
+ 
+ 	/*
+-	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
+-	 * new I/O arrives during before set_at_max_writeback_rate() returns.
+-	 * Then the writeback rate is set to 1, and its new value should be
+-	 * decided via __update_writeback_rate().
++	 * In case new I/O arrives during before
++	 * set_at_max_writeback_rate() returns.
+ 	 */
+-	if ((atomic_read(&c->idle_counter) <
+-	     atomic_read(&c->attached_dev_nr) * 6) ||
++	if (!idle_counter_exceeded(c) ||
+ 	    !atomic_read(&c->at_max_writeback_rate))
+ 		return false;
  
 -- 
 2.35.1
