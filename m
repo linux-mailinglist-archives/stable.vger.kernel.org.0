@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7B35FE042
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 945935FE013
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231253AbiJMSGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:06:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38488 "EHLO
+        id S229555AbiJMSEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231197AbiJMSFh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:05:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F15286F3;
-        Thu, 13 Oct 2022 11:04:49 -0700 (PDT)
+        with ESMTP id S230386AbiJMSDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E973152C43;
+        Thu, 13 Oct 2022 11:02:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D278B82051;
-        Thu, 13 Oct 2022 17:58:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFA1AC43147;
-        Thu, 13 Oct 2022 17:58:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5BB61944;
+        Thu, 13 Oct 2022 17:59:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE73C433D6;
+        Thu, 13 Oct 2022 17:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683913;
-        bh=/ENOfpenacNUYYlNZFJ88DSGQqTjUSJmaDxMQfCiVZ8=;
+        s=korg; t=1665683956;
+        bh=4/0gbWRoGgXhcpCItadg29FCqoOIDIWdJPHkOeinRzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgCHOc6R5vhgK6fUQCNEPYEwOQjJe1IfVVwPEt1RrD5XPeXUjPGKrY9riwVVDwxoQ
-         iYNZNCJPrJDE/4W/XI7RaViG3DBbHAsYKtRvkAq3h4hXl8MO22T1mFrUTm3VIU+byj
-         c8spqCC650WuobdzZpnUKV4wmgHMpQ6ro68lpFJ8=
+        b=MKDsUS2ZW3MV2CqY8QXt7BnAgc80+wT+eAjSoeEYLlFRzBz0r+6389psQe/DCEoxk
+         z8OVK77hu9nnTx9ZdB94AksDbcZB0KlMcK4PFuIRCM4k9cEb2PkP/lpdMw9vLFyXIU
+         hAhwXiE30dXofio9WxmvmzeV1dIvIoYKkm81Anf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hu Weiwen <sehuww@mail.scut.edu.cn>,
-        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.15 05/27] ceph: dont truncate file in atomic_open
-Date:   Thu, 13 Oct 2022 19:52:34 +0200
-Message-Id: <20221013175143.724210164@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 03/33] nilfs2: fix leak of nilfs_root in case of writer thread creation failure
+Date:   Thu, 13 Oct 2022 19:52:35 +0200
+Message-Id: <20221013175145.342219247@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
-References: <20221013175143.518476113@linuxfoundation.org>
+In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
+References: <20221013175145.236739253@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hu Weiwen <sehuww@mail.scut.edu.cn>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832 upstream.
+commit d0d51a97063db4704a5ef6bc978dddab1636a306 upstream.
 
-Clear O_TRUNC from the flags sent in the MDS create request.
+If nilfs_attach_log_writer() failed to create a log writer thread, it
+frees a data structure of the log writer without any cleanup.  After
+commit e912a5b66837 ("nilfs2: use root object to get ifile"), this causes
+a leak of struct nilfs_root, which started to leak an ifile metadata inode
+and a kobject on that struct.
 
-`atomic_open' is called before permission check. We should not do any
-modification to the file here. The caller will do the truncation
-afterward.
+In addition, if the kernel is booted with panic_on_warn, the above
+ifile metadata inode leak will cause the following panic when the
+nilfs2 kernel module is removed:
 
-Fixes: 124e68e74099 ("ceph: file operations")
-Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-[Xiubo: fixed a trivial conflict for 5.19 backport]
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
+  kmem_cache_destroy nilfs2_inode_cache: Slab cache still has objects when
+  called from nilfs_destroy_cachep+0x16/0x3a [nilfs2]
+  WARNING: CPU: 8 PID: 1464 at mm/slab_common.c:494 kmem_cache_destroy+0x138/0x140
+  ...
+  RIP: 0010:kmem_cache_destroy+0x138/0x140
+  Code: 00 20 00 00 e8 a9 55 d8 ff e9 76 ff ff ff 48 8b 53 60 48 c7 c6 20 70 65 86 48 c7 c7 d8 69 9c 86 48 8b 4c 24 28 e8 ef 71 c7 00 <0f> 0b e9 53 ff ff ff c3 48 81 ff ff 0f 00 00 77 03 31 c0 c3 53 48
+  ...
+  Call Trace:
+   <TASK>
+   ? nilfs_palloc_freev.cold.24+0x58/0x58 [nilfs2]
+   nilfs_destroy_cachep+0x16/0x3a [nilfs2]
+   exit_nilfs_fs+0xa/0x1b [nilfs2]
+    __x64_sys_delete_module+0x1d9/0x3a0
+   ? __sanitizer_cov_trace_pc+0x1a/0x50
+   ? syscall_trace_enter.isra.19+0x119/0x190
+   do_syscall_64+0x34/0x80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+   ...
+   </TASK>
+  Kernel panic - not syncing: panic_on_warn set ...
+
+This patch fixes these issues by calling nilfs_detach_log_writer() cleanup
+function if spawning the log writer thread fails.
+
+Link: https://lkml.kernel.org/r/20221007085226.57667-1-konishi.ryusuke@gmail.com
+Fixes: e912a5b66837 ("nilfs2: use root object to get ifile")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/nilfs2/segment.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -703,6 +703,12 @@ int ceph_atomic_open(struct inode *dir,
- 	if (dentry->d_name.len > NAME_MAX)
- 		return -ENAMETOOLONG;
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2786,10 +2786,9 @@ int nilfs_attach_log_writer(struct super
+ 	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
  
-+	/*
-+	 * Do not truncate the file, since atomic_open is called before the
-+	 * permission check. The caller will do the truncation afterward.
-+	 */
-+	flags &= ~O_TRUNC;
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+-	if (err) {
+-		kfree(nilfs->ns_writer);
+-		nilfs->ns_writer = NULL;
+-	}
++	if (unlikely(err))
++		nilfs_detach_log_writer(sb);
 +
- 	if (flags & O_CREAT) {
- 		if (ceph_quota_is_max_files_exceeded(dir))
- 			return -EDQUOT;
-@@ -770,9 +776,7 @@ retry:
- 	}
+ 	return err;
+ }
  
- 	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
--	err = ceph_mdsc_do_request(mdsc,
--				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
--				   req);
-+	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
- 	if (err == -ENOENT) {
- 		dentry = ceph_handle_snapdir(req, dentry);
- 		if (IS_ERR(dentry)) {
 
 
