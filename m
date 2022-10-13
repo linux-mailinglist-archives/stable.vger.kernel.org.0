@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 331BF5FDF62
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF70C5FDF65
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiJMRxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:53:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54420 "EHLO
+        id S229827AbiJMRxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:53:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbiJMRxQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0B414FD2D;
-        Thu, 13 Oct 2022 10:53:07 -0700 (PDT)
+        with ESMTP id S229826AbiJMRx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2009915201B;
+        Thu, 13 Oct 2022 10:53:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 633DFB82022;
-        Thu, 13 Oct 2022 17:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C99C433D6;
-        Thu, 13 Oct 2022 17:53:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B7597CE22CB;
+        Thu, 13 Oct 2022 17:53:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A81C433C1;
+        Thu, 13 Oct 2022 17:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683585;
-        bh=C51fN9Flo2zCAj2jCaWdZGHnkUxwUijWwOrzoNiedtg=;
+        s=korg; t=1665683588;
+        bh=gtlsmRQIxOF1aD70zk6aG8lbdASWebPDvTW22e+qgeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LKXRfTevz1UKvjta1+q/nqUNjojqBvEJbUJs9P6vWB6wBkawajnd03X3ksk7DTpM0
-         5OLdiU+fr9S4RsXTMjApYIejjramzMn1v6yr43phbQPjrF4r4g4Am0L5cv94GQS4wn
-         WtzxI9iMh/kQ9l5ZSbAT9QRIDiC3gPQxxPNjhon0=
+        b=0rX8uIQAomkhDJWF59utteLTetuUjGlWPL5pRhiuLu9ef9R2cy3fpCKkGQSxY1TZe
+         xxFPEO9HlsPTzmWHi8ipYo+9zV9hGyZKi3d+gytOPSf1GjmE29mpa6Yvx0Czkj9X5s
+         B06ykDuvzqFpusSKK5y4qTCpA0Ih7a4DBcvBG04s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/38] dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
-Date:   Thu, 13 Oct 2022 19:52:06 +0200
-Message-Id: <20221013175144.449468561@linuxfoundation.org>
+Subject: [PATCH 5.4 06/38] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
+Date:   Thu, 13 Oct 2022 19:52:07 +0200
+Message-Id: <20221013175144.477698452@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
 References: <20221013175144.245431424@linuxfoundation.org>
@@ -54,31 +55,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit 462bce790e6a7e68620a4ce260cc38f7ed0255d5 ]
+[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
 
-Free the allocated resources for missing xlnx,num-fstores property.
+The driver does not handle the failure case while calling
+dma_set_mask_and_coherent API.
+
+In case of failure, capture the return value of API and then report an
+error.
+
+Addresses-coverity: Unchecked return value (CHECKED_RETURN)
 
 Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-3-swati.agarwal@xilinx.com
+Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 7729b8d22553..792776c86ee8 100644
+index 792776c86ee8..3bb711e735ab 100644
 --- a/drivers/dma/xilinx/xilinx_dma.c
 +++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -2683,7 +2683,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		if (err < 0) {
- 			dev_err(xdev->dev,
- 				"missing xlnx,num-fstores property\n");
--			return err;
-+			goto disable_clks;
- 		}
+@@ -2703,7 +2703,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		xdev->ext_addr = false;
  
- 		err = of_property_read_u32(node, "xlnx,flush-fsync",
+ 	/* Set the dma mask bits */
+-	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	if (err < 0) {
++		dev_err(xdev->dev, "DMA mask error %d\n", err);
++		goto disable_clks;
++	}
+ 
+ 	/* Initialize the DMA engine */
+ 	xdev->common.dev = &pdev->dev;
 -- 
 2.35.1
 
