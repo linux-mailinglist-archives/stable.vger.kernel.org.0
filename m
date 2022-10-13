@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BFC5FD07E
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3ECD5FD1D5
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231327AbiJMA1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55368 "EHLO
+        id S232289AbiJMAxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:53:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231197AbiJMA0U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:26:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E1C0B854;
-        Wed, 12 Oct 2022 17:24:42 -0700 (PDT)
+        with ESMTP id S232024AbiJMAwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:52:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01098C786F;
+        Wed, 12 Oct 2022 17:49:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 466BE616F8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CC5A616FC;
+        Thu, 13 Oct 2022 00:24:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A32C433C1;
         Thu, 13 Oct 2022 00:24:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1D3C433D6;
-        Thu, 13 Oct 2022 00:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620654;
-        bh=UMLoBgi4k5Lyf0I6VJ8FPvogfAyJm2Wqk4bnqOfZTXI=;
+        s=k20201202; t=1665620655;
+        bh=Af8giS2+ZfpdZxS5MHM8Plt2o38OtS7fPeNrZbHoCb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XA9R2CGO+L6YktDNF+fPFubtB0rODZ80s9jKLrLU7DkAMHso8x/1QHexkVKKK59f4
-         KCVwlQW0nNP82FWdGw9LsyhwlPkNmIfjX3l4ssBkBTT+2uX0Wh6WhYNu5onv+eRFA3
-         zzFYs/QfVX0sdP7LJwZ92kKqnEYMAAfIlgtZ2llhUqiyS8gwCGqKbENgkfaaZSwyLc
-         AjOiae7Xnxit/XqOs0C4EUWGQEyiahYtlYJQ6BullniWGq7iHGdlFN+hMhlSH7McD4
-         FQEPBC8Vv/m7sUId4J+kYG5uvHazp7UnhXz/59rVpDC0mtHLPSmP9w0p6i1T2AbRzT
-         28/hrEKg60oOQ==
+        b=Q/f68lHg47fS8OBF/c1oED9rcZir5yso1sW6zvyVN/QyE6r3brKA03aFWdx8N8BUk
+         87DK+z/2gc1Q9ZLZPWoQF3AvHTw/xasy/fdfA0wxJ86ExMboBX7M8G1KLTNmTMzI0b
+         FSuUvuDljJSp+vJ2rrsbanNWlK4TZ7gj2JxK8EhybA3qVLue93phK7Nax9tiXIwDR+
+         NDQdVqyemmmQDFA2T9y+WFPpGAmxVCxXPcE14OVPC6VMSX2ufF4r2jNbSVfBIt0GRZ
+         JSt0PQmNWOWeOZyBQQFaZEnR1baS5Dl5D8Pq3MnqHdhZS2Lz2DtLUxDBAiM8TCyO23
+         gYP3uhN51u/Kg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, Mingzhe Zou <mingzhe.zou@easystack.cn>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        kent.overstreet@gmail.com, linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 15/33] bcache: fix set_at_max_writeback_rate() for multiple attached devices
-Date:   Wed, 12 Oct 2022 20:23:14 -0400
-Message-Id: <20221013002334.1894749-15-sashal@kernel.org>
+Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 16/33] soundwire: cadence: Don't overwrite msg->buf during write commands
+Date:   Wed, 12 Oct 2022 20:23:15 -0400
+Message-Id: <20221013002334.1894749-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -55,134 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
+[ Upstream commit ba05b39d265bdd16913f7684600d9d41e2796745 ]
 
-Inside set_at_max_writeback_rate() the calculation in following if()
-check is wrong,
-	if (atomic_inc_return(&c->idle_counter) <
-	    atomic_read(&c->attached_dev_nr) * 6)
+The buf passed in struct sdw_msg must only be written for a READ,
+in that case the RDATA part of the response is the data value of the
+register.
 
-Because each attached backing device has its own writeback thread
-running and increasing c->idle_counter, the counter increates much
-faster than expected. The correct calculation should be,
-	(counter / dev_nr) < dev_nr * 6
-which equals to,
-	counter < dev_nr * dev_nr * 6
+For a write command there is no RDATA, and buf should be assumed to
+be const and unmodifable. The original caller should not expect its data
+buffer to be corrupted by an sdw_nwrite().
 
-This patch fixes the above mistake with correct calculation, and helper
-routine idle_counter_exceeded() is added to make code be more clear.
-
-Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Signed-off-by: Coly Li <colyli@suse.de>
-Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220916103505.1562210-1-rf@opensource.cirrus.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
- 1 file changed, 52 insertions(+), 21 deletions(-)
+ drivers/soundwire/cadence_master.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index a878b959fbcd..3aa73da2c67b 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -119,6 +119,53 @@ static void __update_writeback_rate(struct cached_dev *dc)
- 	dc->writeback_rate_target = target;
- }
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index c6d421a4b91b..a3247692ddc0 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -501,9 +501,12 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
+ 		return SDW_CMD_IGNORED;
+ 	}
  
-+static bool idle_counter_exceeded(struct cache_set *c)
-+{
-+	int counter, dev_nr;
-+
-+	/*
-+	 * If c->idle_counter is overflow (idel for really long time),
-+	 * reset as 0 and not set maximum rate this time for code
-+	 * simplicity.
-+	 */
-+	counter = atomic_inc_return(&c->idle_counter);
-+	if (counter <= 0) {
-+		atomic_set(&c->idle_counter, 0);
-+		return false;
+-	/* fill response */
+-	for (i = 0; i < count; i++)
+-		msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA, cdns->response_buf[i]);
++	if (msg->flags == SDW_MSG_FLAG_READ) {
++		/* fill response */
++		for (i = 0; i < count; i++)
++			msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA,
++							 cdns->response_buf[i]);
 +	}
-+
-+	dev_nr = atomic_read(&c->attached_dev_nr);
-+	if (dev_nr == 0)
-+		return false;
-+
-+	/*
-+	 * c->idle_counter is increased by writeback thread of all
-+	 * attached backing devices, in order to represent a rough
-+	 * time period, counter should be divided by dev_nr.
-+	 * Otherwise the idle time cannot be larger with more backing
-+	 * device attached.
-+	 * The following calculation equals to checking
-+	 *	(counter / dev_nr) < (dev_nr * 6)
-+	 */
-+	if (counter < (dev_nr * dev_nr * 6))
-+		return false;
-+
-+	return true;
-+}
-+
-+/*
-+ * Idle_counter is increased every time when update_writeback_rate() is
-+ * called. If all backing devices attached to the same cache set have
-+ * identical dc->writeback_rate_update_seconds values, it is about 6
-+ * rounds of update_writeback_rate() on each backing device before
-+ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
-+ * to each dc->writeback_rate.rate.
-+ * In order to avoid extra locking cost for counting exact dirty cached
-+ * devices number, c->attached_dev_nr is used to calculate the idle
-+ * throushold. It might be bigger if not all cached device are in write-
-+ * back mode, but it still works well with limited extra rounds of
-+ * update_writeback_rate().
-+ */
- static bool set_at_max_writeback_rate(struct cache_set *c,
- 				       struct cached_dev *dc)
- {
-@@ -129,21 +176,8 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
- 	/* Don't set max writeback rate if gc is running */
- 	if (!c->gc_mark_valid)
- 		return false;
--	/*
--	 * Idle_counter is increased everytime when update_writeback_rate() is
--	 * called. If all backing devices attached to the same cache set have
--	 * identical dc->writeback_rate_update_seconds values, it is about 6
--	 * rounds of update_writeback_rate() on each backing device before
--	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
--	 * to each dc->writeback_rate.rate.
--	 * In order to avoid extra locking cost for counting exact dirty cached
--	 * devices number, c->attached_dev_nr is used to calculate the idle
--	 * throushold. It might be bigger if not all cached device are in write-
--	 * back mode, but it still works well with limited extra rounds of
--	 * update_writeback_rate().
--	 */
--	if (atomic_inc_return(&c->idle_counter) <
--	    atomic_read(&c->attached_dev_nr) * 6)
-+
-+	if (!idle_counter_exceeded(c))
- 		return false;
  
- 	if (atomic_read(&c->at_max_writeback_rate) != 1)
-@@ -157,13 +191,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
- 	dc->writeback_rate_change = 0;
- 
- 	/*
--	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
--	 * new I/O arrives during before set_at_max_writeback_rate() returns.
--	 * Then the writeback rate is set to 1, and its new value should be
--	 * decided via __update_writeback_rate().
-+	 * In case new I/O arrives during before
-+	 * set_at_max_writeback_rate() returns.
- 	 */
--	if ((atomic_read(&c->idle_counter) <
--	     atomic_read(&c->attached_dev_nr) * 6) ||
-+	if (!idle_counter_exceeded(c) ||
- 	    !atomic_read(&c->at_max_writeback_rate))
- 		return false;
- 
+ 	return SDW_CMD_OK;
+ }
 -- 
 2.35.1
 
