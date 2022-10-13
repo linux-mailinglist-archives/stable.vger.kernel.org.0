@@ -2,155 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA645FDF4F
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DC35FDF5A
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbiJMRw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:52:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53354 "EHLO
+        id S229837AbiJMRxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:53:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbiJMRw2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:52:28 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CB73FA1E
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 10:52:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
-        Resent-Message-ID:In-Reply-To:References;
-        bh=pBODb7EumeeMQuHexPAPeUIyMXYHpd3je1L4SJpy8rM=; t=1665683546; x=1666893146; 
-        b=YQyNWUQ4jTkgLiQJEnExqa9OVOIxFzR7lKJRjEjkyGAPEMWlxeWO72ggdgBa6fC7O/veZTo+OTk
-        NuLGS12/04Oaa2C0TrUDkpyyfnR3GWpFn0atzIIsIeGBhiQkgbRWo3mcrqUxdCQ6uGCCDa8V7spTj
-        GqpiMe1KSjfHbMfsus4WksBgylXHcmE2J8Q18BMJeh4EV4HrG5qdOkZCrcj6tbLSgyTEMfatibLD6
-        p0oRkVSAFOoryVkMAuuBzN0MPFr1QND2ikJPv89el30ScQ3qxvpuZ7yNv/ypsXrHlQVZ3H7W1VsLM
-        vRtL+jDNp0xv4LLfywYp7M4krM+bzRBcV43A==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.96)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1oj2Nb-005m6Z-0c;
-        Thu, 13 Oct 2022 19:52:23 +0200
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Ilan Peer <ilan.peer@intel.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH v5.19] wifi: mac80211: fix MBSSID parsing use-after-free
+        with ESMTP id S229710AbiJMRxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFFA14FD3C;
+        Thu, 13 Oct 2022 10:52:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEE7FB82023;
+        Thu, 13 Oct 2022 17:52:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 447A7C4347C;
+        Thu, 13 Oct 2022 17:52:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1665683573;
+        bh=iAr2bdd55JyX61KwNHcOrbz7/shgwLEETzjHoF0LZbA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vkD/kPu/zaVJYbbqnuKfNB1u+HTy0EOiOhF1J7C4spIryl/CUhndR5r/7HtQSBVWr
+         mseEuMl3cto5SAa0pR3lsLM/tCMv89uELAJEwmUARtaTSl6ysce727lqvB4KxIHmA2
+         rSLnjVo4tIcne+GqC11E98PmxqdXUBt8/BqNHRgM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 14/38] USB: serial: ftdi_sio: fix 300 bps rate for SIO
 Date:   Thu, 13 Oct 2022 19:52:15 +0200
-Message-Id: <20221013175215.161367-1-johannes@sipsolutions.net>
-X-Mailer: git-send-email 2.37.3
+Message-Id: <20221013175144.747770047@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.0
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-Commit ff05d4b45dd89b922578dac497dcabf57cf771c6 upstream.
+commit 7bd7ad3c310cd6766f170927381eea0aa6f46c69 upstream.
 
-When we parse a multi-BSSID element, we might point some
-element pointers into the allocated nontransmitted_profile.
-However, we free this before returning, causing UAF when the
-relevant pointers in the parsed elements are accessed.
+The 300 bps rate of SIO devices has been mapped to 9600 bps since
+2003... Let's fix the regression.
 
-Fix this by not allocating the scratch buffer separately but
-as part of the returned structure instead, that way, there
-are no lifetime issues with it.
-
-The scratch buffer introduction as part of the returned data
-here is taken from MLO feature work done by Ilan.
-
-This fixes CVE-2022-42719.
-
-Fixes: 5023b14cf4df ("mac80211: support profile split between elements")
-Co-developed-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/ieee80211_i.h |  8 ++++++++
- net/mac80211/util.c        | 30 +++++++++++++++---------------
- 2 files changed, 23 insertions(+), 15 deletions(-)
+ drivers/usb/serial/ftdi_sio.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 48fbccbf2a54..44c8701af95c 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1640,6 +1640,14 @@ struct ieee802_11_elems {
- 
- 	/* whether a parse error occurred while retrieving these elements */
- 	bool parse_error;
-+
-+	/*
-+	 * scratch buffer that can be used for various element parsing related
-+	 * tasks, e.g., element de-fragmentation etc.
-+	 */
-+	size_t scratch_len;
-+	u8 *scratch_pos;
-+	u8 scratch[];
- };
- 
- static inline struct ieee80211_local *hw_to_local(
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index 504422cc683e..8f36ab8fcfb2 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1503,25 +1503,27 @@ struct ieee802_11_elems *ieee802_11_parse_elems_crc(const u8 *start, size_t len,
- 	const struct element *non_inherit = NULL;
- 	u8 *nontransmitted_profile;
- 	int nontransmitted_profile_len = 0;
-+	size_t scratch_len = len;
- 
--	elems = kzalloc(sizeof(*elems), GFP_ATOMIC);
-+	elems = kzalloc(sizeof(*elems) + scratch_len, GFP_ATOMIC);
- 	if (!elems)
- 		return NULL;
- 	elems->ie_start = start;
- 	elems->total_len = len;
-+	elems->scratch_len = scratch_len;
-+	elems->scratch_pos = elems->scratch;
- 
--	nontransmitted_profile = kmalloc(len, GFP_ATOMIC);
--	if (nontransmitted_profile) {
--		nontransmitted_profile_len =
--			ieee802_11_find_bssid_profile(start, len, elems,
--						      transmitter_bssid,
--						      bss_bssid,
--						      nontransmitted_profile);
--		non_inherit =
--			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
--					       nontransmitted_profile,
--					       nontransmitted_profile_len);
--	}
-+	nontransmitted_profile = elems->scratch_pos;
-+	nontransmitted_profile_len =
-+		ieee802_11_find_bssid_profile(start, len, elems,
-+					      transmitter_bssid,
-+					      bss_bssid,
-+					      nontransmitted_profile);
-+	elems->scratch_pos += nontransmitted_profile_len;
-+	elems->scratch_len -= nontransmitted_profile_len;
-+	non_inherit = cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
-+					     nontransmitted_profile,
-+					     nontransmitted_profile_len);
- 
- 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
- 					  crc, non_inherit);
-@@ -1550,8 +1552,6 @@ struct ieee802_11_elems *ieee802_11_parse_elems_crc(const u8 *start, size_t len,
- 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
- 		elems->dtim_count = elems->bssid_index->dtim_count;
- 
--	kfree(nontransmitted_profile);
--
- 	elems->crc = crc;
- 
- 	return elems;
--- 
-2.37.3
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1320,8 +1320,7 @@ static u32 get_ftdi_divisor(struct tty_s
+ 		case 38400: div_value = ftdi_sio_b38400; break;
+ 		case 57600: div_value = ftdi_sio_b57600;  break;
+ 		case 115200: div_value = ftdi_sio_b115200; break;
+-		} /* baud */
+-		if (div_value == 0) {
++		default:
+ 			dev_dbg(dev, "%s - Baudrate (%d) requested is not supported\n",
+ 				__func__,  baud);
+ 			div_value = ftdi_sio_b9600;
+
 
