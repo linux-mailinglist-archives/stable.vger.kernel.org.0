@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BB05FDFF2
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700FA5FDFFA
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbiJMSBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:01:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58784 "EHLO
+        id S230427AbiJMSCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:02:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230354AbiJMSBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:35 -0400
+        with ESMTP id S230384AbiJMSBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED9144CFC;
-        Thu, 13 Oct 2022 11:01:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62595160EDF;
+        Thu, 13 Oct 2022 11:01:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E36C61929;
-        Thu, 13 Oct 2022 17:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EC87C43146;
-        Thu, 13 Oct 2022 17:57:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 281516192D;
+        Thu, 13 Oct 2022 17:57:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30B6EC433C1;
+        Thu, 13 Oct 2022 17:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683852;
-        bh=C8RVSQSnVvD2a6CALdlWYB/J8V4HItUTJlCctPy9068=;
+        s=korg; t=1665683855;
+        bh=uIlkY5Zeiam6CYpFKVqUgIhLspxK9NxVICIPnnLsybs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlL+2xlrfCGu3BrYNWiRzzl7rsN+zFAxJnguHxNmLxxewZ1xbwXMtumSdUtkHudQc
-         xBmFDtms5IL/6+Ns8hhKrdEbmK5fI7Wz7gGBDrdPVwCdl0ZTxRCL4UJJrI1fFqVveQ
-         LkpCVA6sdyMPokTleaaonZus+ykn5t9RQc6ndK78=
+        b=X8kWtT6WKEzCMZbkPgJ82m8le34k7usL7pfm8iF1FVl1LOY5Hq2Yuf4yzZXGtCHy7
+         /rlH+71TLCAzLctgaME4w7oP06OyBAto8i5jKeB+xLF7nzYZw78KdupufLHPGMfqRj
+         mbSjeSJOhOx8vb4PovHiw8TI5mMHGhDtX85hzVYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Subject: [PATCH 5.15 13/27] Revert "crypto: qat - reduce size of mapped region"
-Date:   Thu, 13 Oct 2022 19:52:42 +0200
-Message-Id: <20221013175144.014828758@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 14/27] random: avoid reading two cache lines on irq randomness
+Date:   Thu, 13 Oct 2022 19:52:43 +0200
+Message-Id: <20221013175144.060241859@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
 References: <20221013175143.518476113@linuxfoundation.org>
@@ -52,98 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 9c5f21b198d259bfe1191b1fedf08e2eab15b33b upstream.
+commit 9ee0507e896b45af6d65408c77815800bce30008 upstream.
 
-This reverts commit e48767c17718067ba21fb2ef461779ec2506f845.
+In order to avoid reading and dirtying two cache lines on every IRQ,
+move the work_struct to the bottom of the fast_pool struct. add_
+interrupt_randomness() always touches .pool and .count, which are
+currently split, because .mix pushes everything down. Instead, move .mix
+to the bottom, so that .pool and .count are always in the first cache
+line, since .mix is only accessed when the pool is full.
 
-In an attempt to resolve a set of warnings reported by the static
-analyzer Smatch, the reverted commit improperly reduced the sizes of the
-DMA mappings used for the input and output parameters for both RSA and
-DH creating a mismatch (map size=8 bytes, unmap size=64 bytes).
-
-This issue is reported when CONFIG_DMA_API_DEBUG is selected, when the
-crypto self test is run. The function dma_unmap_single() reports a
-warning similar to the one below, saying that the `device driver frees
-DMA memory with different size`.
-
-    DMA-API: 4xxx 0000:06:00.0: device driver frees DMA memory with different size [device address=0x0000000123206c80] [map size=8 bytes] [unmap size=64 bytes]
-    WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:973 check_unmap+0x3d0/0x8c0\
-    ...
-    Call Trace:
-    <IRQ>
-    debug_dma_unmap_page+0x5c/0x60
-    qat_dh_cb+0xd7/0x110 [intel_qat]
-    qat_alg_asym_callback+0x1a/0x30 [intel_qat]
-    adf_response_handler+0xbd/0x1a0 [intel_qat]
-    tasklet_action_common.constprop.0+0xcd/0xe0
-    __do_softirq+0xf8/0x30c
-    __irq_exit_rcu+0xbf/0x140
-    common_interrupt+0xb9/0xd0
-    </IRQ>
-    <TASK>
-
-The original commit was correct.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/qat_asym_algs.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-@@ -332,13 +332,13 @@ static int qat_dh_compute_value(struct k
- 	qat_req->out.dh.out_tab[1] = 0;
- 	/* Mapping in.in.b or in.in_g2.xa is the same */
- 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.dh.in.b,
--					 sizeof(qat_req->in.dh.in.b),
-+					 sizeof(struct qat_dh_input_params),
- 					 DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
- 		goto unmap_dst;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -894,10 +894,10 @@ void __init add_bootloader_randomness(co
+ }
  
- 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.dh.r,
--					  sizeof(qat_req->out.dh.r),
-+					  sizeof(struct qat_dh_output_params),
- 					  DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
- 		goto unmap_in_params;
-@@ -728,13 +728,13 @@ static int qat_rsa_enc(struct akcipher_r
- 	qat_req->in.rsa.in_tab[3] = 0;
- 	qat_req->out.rsa.out_tab[1] = 0;
- 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.enc.m,
--					 sizeof(qat_req->in.rsa.enc.m),
-+					 sizeof(struct qat_rsa_input_params),
- 					 DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
- 		goto unmap_dst;
+ struct fast_pool {
+-	struct work_struct mix;
+ 	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
++	struct work_struct mix;
+ };
  
- 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.enc.c,
--					  sizeof(qat_req->out.rsa.enc.c),
-+					  sizeof(struct qat_rsa_output_params),
- 					  DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
- 		goto unmap_in_params;
-@@ -873,13 +873,13 @@ static int qat_rsa_dec(struct akcipher_r
- 		qat_req->in.rsa.in_tab[3] = 0;
- 	qat_req->out.rsa.out_tab[1] = 0;
- 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.dec.c,
--					 sizeof(qat_req->in.rsa.dec.c),
-+					 sizeof(struct qat_rsa_input_params),
- 					 DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
- 		goto unmap_dst;
- 
- 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.dec.m,
--					  sizeof(qat_req->out.rsa.dec.m),
-+					  sizeof(struct qat_rsa_output_params),
- 					  DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
- 		goto unmap_in_params;
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
 
 
