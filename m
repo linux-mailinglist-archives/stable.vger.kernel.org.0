@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 578A65FDFE2
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:00:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28CC35FDF81
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbiJMSAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:00:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54220 "EHLO
+        id S229871AbiJMRzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230006AbiJMSAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:00:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 586274D809;
-        Thu, 13 Oct 2022 11:00:08 -0700 (PDT)
+        with ESMTP id S230026AbiJMRyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5482E152004;
+        Thu, 13 Oct 2022 10:53:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24928618F4;
-        Thu, 13 Oct 2022 17:55:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 320A9C433D7;
-        Thu, 13 Oct 2022 17:55:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC5EB618FE;
+        Thu, 13 Oct 2022 17:53:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C34C433C1;
+        Thu, 13 Oct 2022 17:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683712;
-        bh=FMtJbvUlcZMfZJsHs+zcMqbDLnAq+to6DJYsgnmO13c=;
+        s=korg; t=1665683633;
+        bh=Nrjzs/H2egeDQFrckuWu56rSL09kwzfFao0QMA0ZHHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BU67SVaVu4ntkQh5EoV00uRiKPtE9M5SiR8asNhOkbzacjbFdDE7AChYTAXGPVo7T
-         EwTE+OzpPUCGI+TO0Y+W0tfap9+YPB3Cu+x29CAylZhLhsjtYBnA/YFtAfuTLbLSLX
-         dtHcZ71O2gS9b3q52eaeE9s6+czh7C3oEJnCGeP8=
+        b=P7J3VScl+FWfKb95ama6N+qW6QeSyJOBIGtLQ5OehRDMdXXYxv8YI+GF7es1NXBfY
+         qZrKGblkD3nD0/+uTZEfKqYVrUEkF1X5jXgKIGpkakHPH/wDaw0UKOo1RdHJ0jtG5D
+         7+hm0d2G9zijKDLyEblmEDUZzgcci7uDbqh7wDko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.10 24/54] um: Cleanup compiler warning in arch/x86/um/tls_32.c
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andrew Chernyakov <acherniakov@astralinux.ru>
+Subject: [PATCH 5.4 17/38] rpmsg: qcom: glink: replace strncpy() with strscpy_pad()
 Date:   Thu, 13 Oct 2022 19:52:18 +0200
-Message-Id: <20221013175147.945279378@linuxfoundation.org>
+Message-Id: <20221013175144.845054740@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Straub <lukasstraub2@web.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
+commit 766279a8f85df32345dbda03b102ca1ee3d5ddea upstream.
 
-arch.tls_array is statically allocated so checking for NULL doesn't
-make sense. This causes the compiler warning below.
+The use of strncpy() is considered deprecated for NUL-terminated
+strings[1]. Replace strncpy() with strscpy_pad(), to keep existing
+pad-behavior of strncpy, similarly to commit 08de420a8014 ("rpmsg:
+glink: Replace strncpy() with strscpy_pad()").  This fixes W=1 warning:
 
-Remove the checks to silence these warnings.
+  In function ‘qcom_glink_rx_close’,
+    inlined from ‘qcom_glink_work’ at ../drivers/rpmsg/qcom_glink_native.c:1638:4:
+  drivers/rpmsg/qcom_glink_native.c:1549:17: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
+   1549 |                 strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
 
-../arch/x86/um/tls_32.c: In function 'get_free_idx':
-../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-   68 |         if (!t->arch.tls_array)
-      |             ^
-In file included from ../arch/x86/um/asm/processor.h:10,
-                 from ../include/linux/rcupdate.h:30,
-                 from ../include/linux/rculist.h:11,
-                 from ../include/linux/pid.h:5,
-                 from ../include/linux/sched.h:14,
-                 from ../arch/x86/um/tls_32.c:7:
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-../arch/x86/um/tls_32.c: In function 'get_tls_entry':
-../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-  243 |         if (!t->arch.tls_array)
-      |             ^
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
+[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
 
-Signed-off-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220519073330.7187-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Andrew Chernyakov <acherniakov@astralinux.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/um/tls_32.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/rpmsg/qcom_glink_native.c |    2 +-
+ drivers/rpmsg/qcom_smd.c          |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
-index ac8eee093f9c..66162eafd8e8 100644
---- a/arch/x86/um/tls_32.c
-+++ b/arch/x86/um/tls_32.c
-@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
- 	struct thread_struct *t = &task->thread;
- 	int idx;
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -1472,7 +1472,7 @@ static void qcom_glink_rx_close(struct q
+ 	cancel_work_sync(&channel->intent_work);
  
--	if (!t->arch.tls_array)
--		return GDT_ENTRY_TLS_MIN;
--
- 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
- 		if (!t->arch.tls_array[idx].present)
- 			return idx + GDT_ENTRY_TLS_MIN;
-@@ -240,9 +237,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
- {
- 	struct thread_struct *t = &task->thread;
+ 	if (channel->rpdev) {
+-		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
++		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
+ 		chinfo.src = RPMSG_ADDR_ANY;
+ 		chinfo.dst = RPMSG_ADDR_ANY;
  
--	if (!t->arch.tls_array)
--		goto clear;
--
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1073,7 +1073,7 @@ static int qcom_smd_create_device(struct
  
--- 
-2.35.1
-
+ 	/* Assign public information to the rpmsg_device */
+ 	rpdev = &qsdev->rpdev;
+-	strncpy(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
++	strscpy_pad(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
+ 	rpdev->src = RPMSG_ADDR_ANY;
+ 	rpdev->dst = RPMSG_ADDR_ANY;
+ 
+@@ -1304,7 +1304,7 @@ static void qcom_channel_state_worker(st
+ 
+ 		spin_unlock_irqrestore(&edge->channels_lock, flags);
+ 
+-		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
++		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
+ 		chinfo.src = RPMSG_ADDR_ANY;
+ 		chinfo.dst = RPMSG_ADDR_ANY;
+ 		rpmsg_unregister_device(&edge->dev, &chinfo);
 
 
