@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 527275FD299
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A815FD144
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229849AbiJMBcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 21:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50780 "EHLO
+        id S231776AbiJMAfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:35:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiJMBcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:32:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC9234704;
-        Wed, 12 Oct 2022 18:32:23 -0700 (PDT)
+        with ESMTP id S232168AbiJMAeV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:34:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A45109A;
+        Wed, 12 Oct 2022 17:29:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FA0615BE;
-        Thu, 13 Oct 2022 00:28:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF972C43142;
-        Thu, 13 Oct 2022 00:28:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFA28B81C48;
+        Thu, 13 Oct 2022 00:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A10ADC433D7;
+        Thu, 13 Oct 2022 00:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620897;
-        bh=X/cIJmrKiiqRqx/BcVynhDgyBSUjjuc0ViUWGM72QBM=;
+        s=k20201202; t=1665620903;
+        bh=onPe5fJ7fr9bzrF4dH6UIin84lWulEOkVhLMTXM4P0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftspPhV9WjFaBvQTQgl+aYBa7S+OWtNIcQ33C5axRwvPRpSS/OxJFb4Pep3uUhnXR
-         uiSGv+wf8eliDhHUSFMEYpCT79ol1YoWOa3n94QJCfdozIhLuzyTh6UsqnZD9TtPoH
-         YXJGdNxvUlQReJv6eUV7cOaE9R1drsiFUGUSqwVLluiBsX5yIzqtOWcmvKJmWfo2hM
-         ZvaTA2rrg1gCQA6A/kkA5BsXQXdyGjQwThd8/vfCQ3AQqH25KHdjMTz8lEXlLqp8Ku
-         D9nLNaGt4Pu4Kihu/LZ6zKXmH5xmBLh5PCQpBmMVJgYC8M6zZ1aou3uCwaPU1/FUZ2
-         vQSaJwwocYHRA==
+        b=aMXmxtsXjO5nNHKqE/ABQWBl83SZh3CYwQxDnT8rWvmMOOWX5jx2UGHynAHij8eeS
+         2u2J7LRAaPAbGjkgc4S9BBlNEmOMKDotpWnhXgAGgIoa0jNO6WUD/VQQNuvWVT07eg
+         bMxywYLq2hL21Z1yxd0X18kmBG8O/LdJDbLRgxXG6tR1i+M19nnGLgKn7inGDtG8hx
+         cySYxpDNnmr5ynnAoj+T/oQokPYx1bNTKHPA/PbynL89qA4McSbjY4CmNLgnSykA84
+         9dBizUxUk/B/qkKQ1TIEYZJFgaNoCzJ2VjtjV7f14epeDPWBnPXsnGFKevmMMyFWoM
+         tOTVpJcAGR7Sg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     sunghwan jung <onenowy@gmail.com>,
+Cc:     Nathan Huckleberry <nhuck@google.com>, llvm@lists.linux.dev,
+        Dan Carpenter <error27@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stern@rowland.harvard.edu,
-        linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 4.9 08/10] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Wed, 12 Oct 2022 20:27:55 -0400
-Message-Id: <20221013002802.1896096-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
+        linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.9 09/10] staging: octeon: Fix return type of cvm_oct_xmit and cvm_oct_xmit_pow
+Date:   Wed, 12 Oct 2022 20:27:56 -0400
+Message-Id: <20221013002802.1896096-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002802.1896096-1-sashal@kernel.org>
 References: <20221013002802.1896096-1-sashal@kernel.org>
@@ -56,57 +59,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit b77599043f00fce9253d0f22522c5d5b521555ce ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+The ndo_start_xmit field in net_device_ops is expected to be of type
+netdev_tx_t (*ndo_start_xmit)(struct sk_buff *skb, struct net_device *dev).
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
+The return type of cvm_oct_xmit and cvm_oct_xmit_pow should be changed
+from int to netdev_tx_t.
 
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Reported-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Link: https://lore.kernel.org/r/20220914211057.423617-1-nhuck@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/staging/octeon/ethernet-tx.c | 4 ++--
+ drivers/staging/octeon/ethernet-tx.h | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 5a6ca1460711..8c51bb66f16f 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1294,12 +1294,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+diff --git a/drivers/staging/octeon/ethernet-tx.c b/drivers/staging/octeon/ethernet-tx.c
+index 6b4c20872323..e773353ee579 100644
+--- a/drivers/staging/octeon/ethernet-tx.c
++++ b/drivers/staging/octeon/ethernet-tx.c
+@@ -137,7 +137,7 @@ static void cvm_oct_free_tx_skbs(struct net_device *dev)
+  *
+  * Returns Always returns NETDEV_TX_OK
+  */
+-int cvm_oct_xmit(struct sk_buff *skb, struct net_device *dev)
++netdev_tx_t cvm_oct_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	cvmx_pko_command_word0_t pko_command;
+ 	union cvmx_buf_ptr hw_buffer;
+@@ -523,7 +523,7 @@ int cvm_oct_xmit(struct sk_buff *skb, struct net_device *dev)
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
--
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+  * Returns Always returns zero
+  */
+-int cvm_oct_xmit_pow(struct sk_buff *skb, struct net_device *dev)
++netdev_tx_t cvm_oct_xmit_pow(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct octeon_ethernet *priv = netdev_priv(dev);
+ 	void *packet_buffer;
+diff --git a/drivers/staging/octeon/ethernet-tx.h b/drivers/staging/octeon/ethernet-tx.h
+index 84848e4c1664..65faefc87081 100644
+--- a/drivers/staging/octeon/ethernet-tx.h
++++ b/drivers/staging/octeon/ethernet-tx.h
+@@ -8,8 +8,8 @@
+  * published by the Free Software Foundation.
+  */
+ 
+-int cvm_oct_xmit(struct sk_buff *skb, struct net_device *dev);
+-int cvm_oct_xmit_pow(struct sk_buff *skb, struct net_device *dev);
++netdev_tx_t cvm_oct_xmit(struct sk_buff *skb, struct net_device *dev);
++netdev_tx_t cvm_oct_xmit_pow(struct sk_buff *skb, struct net_device *dev);
+ int cvm_oct_transmit_qos(struct net_device *dev, void *work_queue_entry,
+ 			 int do_free, int qos);
+ void cvm_oct_tx_initialize(void);
 -- 
 2.35.1
 
