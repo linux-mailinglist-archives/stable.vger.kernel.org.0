@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21F8A5FD182
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D35885FD2B3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232173AbiJMAiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:38:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42580 "EHLO
+        id S229871AbiJMBhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 21:37:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232085AbiJMAgf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:36:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF1EEB75E;
-        Wed, 12 Oct 2022 17:31:36 -0700 (PDT)
+        with ESMTP id S229646AbiJMBh2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:37:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E38A312B37A;
+        Wed, 12 Oct 2022 18:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67089B81CE9;
-        Thu, 13 Oct 2022 00:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582D9C433D6;
-        Thu, 13 Oct 2022 00:22:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32B5B616BD;
+        Thu, 13 Oct 2022 00:22:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F21C43141;
+        Thu, 13 Oct 2022 00:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620548;
-        bh=bxhd877nNScPzSvqcjEFR5dI8yWPxbIbxiRwTlLajwI=;
+        s=k20201202; t=1665620551;
+        bh=CnoPWG8zf2q9zdiKSXsmVeJ9jCHX55ksx2BtQoba0JE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYOf2ywugkxECKExqiq8ZRNXoo1yrynVnLIfYbzz7mbHvYSVXg2/ZcOk39rM/R/fR
-         c2LMoHmegVq8vA4JaSZWp2Zg0kncLthPLRwWt3FHBdm29f/+bMxDLJqkJS3hVgas5o
-         nLWByay6dj6NRnNJCD0w2cW7+UMH3zzSV8Ba3MQi7rIFku2kq7d6Zjb59onQqvRAYL
-         EzYswrYPBUhQODJN4juz9w8tj9lX45X6QCRbFnWiDsP5+3vnbaixrNCXI9aGrhzmiH
-         uiumUqlhHw7qWf9Fef7Tih0jNHIE+xZpf54QxgG2Gdp52q3eXRMXodp4/zLtRbPJb5
-         gzx1rLIZP/C8w==
+        b=ndM8nn7KCM6W7cNX0yxd3kmjnsLfr8CdEsy7lf82gllEldai4b5ycf7u9mGHUqmjF
+         z0UzQuATRWX9cZqFGv2G9laiOgczguWWeoSTB/k0qWR6qYP/F5d0Ky9zUKl2KkuCYN
+         b1egKf0v5Jx5uP2dz8pYP5ic0MQg6i3Mf7VhH4Oh0LEUTX5Ya+GwqXdJpDT9oDmqdn
+         Ba313nAGi6ha1cfH3TwEuXRpNi/w5xyVQhJs+/FsOIBFrQTIs9MyhAkLgu9I0EH4LD
+         X9ikP51n7yubd8OVUpGrmo7bzBB3ARv6I8otCBhWX1P0q10zMD8NyXqD3W0nJMzaxk
+         XSQLugdBqi6GQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harry Stern <harry@harrystern.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 23/47] hid: topre: Add driver fixing report descriptor
-Date:   Wed, 12 Oct 2022 20:20:58 -0400
-Message-Id: <20221013002124.1894077-23-sashal@kernel.org>
+Cc:     farah kassabri <fkassabri@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
+        obitton@habana.ai, osharabi@habana.ai, ttayar@habana.ai,
+        dliberman@habana.ai
+Subject: [PATCH AUTOSEL 5.15 24/47] habanalabs: remove some f/w descriptor validations
+Date:   Wed, 12 Oct 2022 20:20:59 -0400
+Message-Id: <20221013002124.1894077-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -56,137 +57,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Stern <harry@harrystern.net>
+From: farah kassabri <fkassabri@habana.ai>
 
-[ Upstream commit a109d5c45b3d6728b9430716b915afbe16eef27c ]
+[ Upstream commit 6b9b9e244fdd0d6c5ee21b7b9d74282d9e43733a ]
 
-The Topre REALFORCE R2 firmware incorrectly reports that interface
-descriptor number 1, input report descriptor 2's events are array events
-rather than variable events. That particular report descriptor is used
-to report keypresses when there are more than 6 keys held at a time.
-This bug prevents events from this interface from being registered
-properly, so only 6 keypresses (from a different interface) can be
-registered at once, rather than full n-key rollover.
+To be forward-backward compatible with the firmware in the initial
+communication during preboot, we need to remove the validation of the
+header size. This will allow us to add more fields to the
+lkd_fw_comms_desc structure.
 
-This commit fixes the bug by setting the correct value in a report_fixup
-function.
+Instead of the validation of the header size, we just print warning
+when some mismatch in descriptor has been revealed, and we calculate
+the CRC base on descriptor size reported by the firmware instead of
+calculating it ourselves.
 
-The original bug report can be found here:
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/804
-
-Thanks to Benjamin Tissoires for diagnosing the issue with the report
-descriptor.
-
-Signed-off-by: Harry Stern <harry@harrystern.net>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20220911003614.297613-1-harry@harrystern.net
+Signed-off-by: farah kassabri <fkassabri@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/Kconfig     |  6 +++++
- drivers/hid/Makefile    |  1 +
- drivers/hid/hid-ids.h   |  3 +++
- drivers/hid/hid-topre.c | 49 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 59 insertions(+)
- create mode 100644 drivers/hid/hid-topre.c
+ drivers/misc/habanalabs/common/firmware_if.c | 43 +++++++-------------
+ 1 file changed, 14 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9235ab7161e3..58fcc21bf146 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1057,6 +1057,12 @@ config HID_TOPSEED
- 	Say Y if you have a TopSeed Cyberlink or BTC Emprex or Conceptronic
- 	CLLRCMCE remote control.
+diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
+index a8e683964ab0..5d08c1f660fd 100644
+--- a/drivers/misc/habanalabs/common/firmware_if.c
++++ b/drivers/misc/habanalabs/common/firmware_if.c
+@@ -1638,50 +1638,36 @@ static int hl_fw_dynamic_validate_descriptor(struct hl_device *hdev,
+ 	u64 addr;
+ 	int rc;
  
-+config HID_TOPRE
-+	tristate "Topre REALFORCE keyboards"
-+	depends on HID
-+	help
-+	  Say Y for N-key rollover support on Topre REALFORCE R2 108 key keyboards.
-+
- config HID_THINGM
- 	tristate "ThingM blink(1) USB RGB LED"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index e29efcb1c040..1026ac9e8206 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -117,6 +117,7 @@ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
- obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o hid-thrustmaster.o
- obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
- obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
-+obj-$(CONFIG_HID_TOPRE)	+= hid-topre.o
- obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
- obj-$(CONFIG_HID_U2FZERO)	+= hid-u2fzero.o
- hid-uclogic-objs		:= hid-uclogic-core.o \
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index cb2b48d6915e..335b13251c0f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1198,6 +1198,9 @@
- #define USB_DEVICE_ID_TIVO_SLIDE	0x1201
- #define USB_DEVICE_ID_TIVO_SLIDE_PRO	0x1203
+-	if (le32_to_cpu(fw_desc->header.magic) != HL_COMMS_DESC_MAGIC) {
+-		dev_err(hdev->dev, "Invalid magic for dynamic FW descriptor (%x)\n",
++	if (le32_to_cpu(fw_desc->header.magic) != HL_COMMS_DESC_MAGIC)
++		dev_warn(hdev->dev, "Invalid magic for dynamic FW descriptor (%x)\n",
+ 				fw_desc->header.magic);
+-		return -EIO;
+-	}
  
-+#define USB_VENDOR_ID_TOPRE			0x0853
-+#define USB_DEVICE_ID_TOPRE_REALFORCE_R2_108			0x0148
-+
- #define USB_VENDOR_ID_TOPSEED		0x0766
- #define USB_DEVICE_ID_TOPSEED_CYBERLINK	0x0204
+-	if (fw_desc->header.version != HL_COMMS_DESC_VER) {
+-		dev_err(hdev->dev, "Invalid version for dynamic FW descriptor (%x)\n",
++	if (fw_desc->header.version != HL_COMMS_DESC_VER)
++		dev_warn(hdev->dev, "Invalid version for dynamic FW descriptor (%x)\n",
+ 				fw_desc->header.version);
+-		return -EIO;
+-	}
  
-diff --git a/drivers/hid/hid-topre.c b/drivers/hid/hid-topre.c
-new file mode 100644
-index 000000000000..88a91cdad5f8
---- /dev/null
-+++ b/drivers/hid/hid-topre.c
-@@ -0,0 +1,49 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ *  HID driver for Topre REALFORCE Keyboards
-+ *
-+ *  Copyright (c) 2022 Harry Stern <harry@harrystern.net>
-+ *
-+ *  Based on the hid-macally driver
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+MODULE_AUTHOR("Harry Stern <harry@harrystern.net>");
-+MODULE_DESCRIPTION("REALFORCE R2 Keyboard driver");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * Fix the REALFORCE R2's non-boot interface's report descriptor to match the
-+ * events it's actually sending. It claims to send array events but is instead
-+ * sending variable events.
-+ */
-+static __u8 *topre_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+				 unsigned int *rsize)
-+{
-+	if (*rsize >= 119 && rdesc[69] == 0x29 && rdesc[70] == 0xe7 &&
-+						 rdesc[71] == 0x81 && rdesc[72] == 0x00) {
-+		hid_info(hdev,
-+			"fixing up Topre REALFORCE keyboard report descriptor\n");
-+		rdesc[72] = 0x02;
-+	}
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id topre_id_table[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPRE,
-+			 USB_DEVICE_ID_TOPRE_REALFORCE_R2_108) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, topre_id_table);
-+
-+static struct hid_driver topre_driver = {
-+	.name			= "topre",
-+	.id_table		= topre_id_table,
-+	.report_fixup		= topre_report_fixup,
-+};
-+
-+module_hid_driver(topre_driver);
+ 	/*
+-	 * calc CRC32 of data without header.
++	 * Calc CRC32 of data without header. use the size of the descriptor
++	 * reported by firmware, without calculating it ourself, to allow adding
++	 * more fields to the lkd_fw_comms_desc structure.
+ 	 * note that no alignment/stride address issues here as all structures
+-	 * are 64 bit padded
++	 * are 64 bit padded.
+ 	 */
+-	data_size = sizeof(struct lkd_fw_comms_desc) -
+-					sizeof(struct comms_desc_header);
+ 	data_ptr = (u8 *)fw_desc + sizeof(struct comms_desc_header);
+-
+-	if (le16_to_cpu(fw_desc->header.size) != data_size) {
+-		dev_err(hdev->dev,
+-			"Invalid descriptor size 0x%x, expected size 0x%zx\n",
+-				le16_to_cpu(fw_desc->header.size), data_size);
+-		return -EIO;
+-	}
++	data_size = le16_to_cpu(fw_desc->header.size);
+ 
+ 	data_crc32 = hl_fw_compat_crc32(data_ptr, data_size);
+-
+ 	if (data_crc32 != le32_to_cpu(fw_desc->header.crc32)) {
+-		dev_err(hdev->dev,
+-			"CRC32 mismatch for dynamic FW descriptor (%x:%x)\n",
+-					data_crc32, fw_desc->header.crc32);
++		dev_err(hdev->dev, "CRC32 mismatch for dynamic FW descriptor (%x:%x)\n",
++			data_crc32, fw_desc->header.crc32);
+ 		return -EIO;
+ 	}
+ 
+ 	/* find memory region to which to copy the image */
+ 	addr = le64_to_cpu(fw_desc->img_addr);
+ 	region_id = hl_get_pci_memory_region(hdev, addr);
+-	if ((region_id != PCI_REGION_SRAM) &&
+-			((region_id != PCI_REGION_DRAM))) {
+-		dev_err(hdev->dev,
+-			"Invalid region to copy FW image address=%llx\n", addr);
++	if ((region_id != PCI_REGION_SRAM) && ((region_id != PCI_REGION_DRAM))) {
++		dev_err(hdev->dev, "Invalid region to copy FW image address=%llx\n", addr);
+ 		return -EIO;
+ 	}
+ 
+@@ -1698,8 +1684,7 @@ static int hl_fw_dynamic_validate_descriptor(struct hl_device *hdev,
+ 					fw_loader->dynamic_loader.fw_image_size,
+ 					region);
+ 	if (rc) {
+-		dev_err(hdev->dev,
+-			"invalid mem transfer request for FW image\n");
++		dev_err(hdev->dev, "invalid mem transfer request for FW image\n");
+ 		return rc;
+ 	}
+ 
 -- 
 2.35.1
 
