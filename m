@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F390E5FDFE6
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9309F5FDFAA
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbiJMSBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:01:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57604 "EHLO
+        id S230218AbiJMR5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230006AbiJMSBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A42B255B1;
-        Thu, 13 Oct 2022 11:00:54 -0700 (PDT)
+        with ESMTP id S230008AbiJMR4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00DC3A4AB;
+        Thu, 13 Oct 2022 10:54:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B8F66190B;
-        Thu, 13 Oct 2022 17:55:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3DF5C433C1;
-        Thu, 13 Oct 2022 17:55:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC964B82026;
+        Thu, 13 Oct 2022 17:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 375CDC43146;
+        Thu, 13 Oct 2022 17:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683732;
-        bh=xxDHkhWXn9LWoUKnTOuFYR63Zphxmul0hUMh47XisPY=;
+        s=korg; t=1665683664;
+        bh=OEVHSmyP6ry9HP1rzqnCniac1P21E4uC7zWTb3gHzHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnysIAxeMTukX14hAjCRhUcVThUG2k5u2mnZtA/UTCehYME6OCSIYpcLdxk50I81R
-         /HRrC0hqcUW7Ga2LVbu7Pxu0Q+TfQjH9S3p98FKjcE+TSVRHqqKaLP6sqzD0oSRC2P
-         pCKy7tdCUtFuwXDpE2GFawSOc7Ms3gWd4BhFHk6U=
+        b=fbXUTaGXXlvaTdVPsC/IIwX3f1g+QcbOttriTCuRE6krHQyUIwy7e74NoMX8H9oFA
+         P/crnrM1QwY0WWsISa68tEJy1WJhm6Py78aVOTXvxyHQ/x6xTpXUOSQRYu/Nt6mNdT
+         Hyo27Tz45xHe/89FK7i1JYmy5S/0DZj5tFw0OMmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry Vyukov" <dvyukov@google.com>,
-        stable <stable@kernel.org>,
-        syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        PaX Team <pageexec@freemail.hu>
-Subject: [PATCH 5.10 31/54] usb: mon: make mmapped memory read only
+        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
+        Samuel Jiang <chyishian.jiang@gmail.com>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.4 24/38] efi: Correct Macmini DMI match in uefi cert quirk
 Date:   Thu, 13 Oct 2022 19:52:25 +0200
-Message-Id: <20221013175148.108672139@linuxfoundation.org>
+Message-Id: <20221013175145.067376295@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Orlando Chamberlain <redecorating@protonmail.com>
 
-commit a659daf63d16aa883be42f3f34ff84235c302198 upstream.
+commit bab715bdaa9ebf28d99a6d1efb2704a30125e96d upstream.
 
-Syzbot found an issue in usbmon module, where the user space client can
-corrupt the monitor's internal memory, causing the usbmon module to
-crash the kernel with segfault, UAF, etc.
+It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
+is inconsistent with other model line names.
 
-The reproducer mmaps the /dev/usbmon memory to user space, and
-overwrites it with arbitrary data, which causes all kinds of issues.
+Correct the capitalisation of Macmini in the quirk for skipping loading
+platform certs on T2 Macs.
 
-Return an -EPERM error from mon_bin_mmap() if the flag VM_WRTIE is set.
-Also clear VM_MAYWRITE to make it impossible to change it to writable
-later.
+Currently users get:
 
-Cc: "Dmitry Vyukov" <dvyukov@google.com>
-Cc: stable <stable@kernel.org>
-Fixes: 6f23ee1fefdc ("USB: add binary API to usbmon")
-Suggested-by: PaX Team <pageexec@freemail.hu>	# for the VM_MAYRITE portion
-Link: https://syzkaller.appspot.com/bug?id=2eb1f35d6525fa4a74d75b4244971e5b1411c95a
-Reported-by: syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220919215957.205681-1-tadeusz.struk@linaro.org
+------------[ cut here ]------------
+[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
+WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x55/0xe0
+Modules linked in:
+CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3fc40fd08edab32a509fbf4c9bc52d111e
+Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
+Workqueue: efi_rts_wq efi_call_rts
+...
+---[ end trace 0000000000000000 ]---
+efi: Froze efi_rts_wq and disabled EFI Runtime Services
+integrity: Couldn't get size: 0x8000000000000015
+integrity: MODSIGN: Couldn't get UEFI db list
+efi: EFI Runtime Services are disabled!
+integrity: Couldn't get size: 0x8000000000000015
+integrity: Couldn't get UEFI dbx list
+
+Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
+Cc: stable@vger.kernel.org
+Cc: Aditya Garg <gargaditya08@live.com>
+Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
+Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/mon/mon_bin.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ security/integrity/platform_certs/load_uefi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/mon/mon_bin.c
-+++ b/drivers/usb/mon/mon_bin.c
-@@ -1268,6 +1268,11 @@ static int mon_bin_mmap(struct file *fil
- {
- 	/* don't do anything here: "fault" will set up page table entries */
- 	vma->vm_ops = &mon_bin_vm_ops;
-+
-+	if (vma->vm_flags & VM_WRITE)
-+		return -EPERM;
-+
-+	vma->vm_flags &= ~VM_MAYWRITE;
- 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_private_data = filp->private_data;
- 	mon_bin_vma_open(vma);
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -30,7 +30,7 @@ static const struct dmi_system_id uefi_s
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
+-	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
 
 
