@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6165FDFCE
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BB05FDFF2
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbiJMR60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54236 "EHLO
+        id S230300AbiJMSBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:01:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230166AbiJMR5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AB0F58E;
-        Thu, 13 Oct 2022 10:57:27 -0700 (PDT)
+        with ESMTP id S230354AbiJMSBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED9144CFC;
+        Thu, 13 Oct 2022 11:01:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4842B82040;
-        Thu, 13 Oct 2022 17:57:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC816C43140;
-        Thu, 13 Oct 2022 17:56:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E36C61929;
+        Thu, 13 Oct 2022 17:57:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EC87C43146;
+        Thu, 13 Oct 2022 17:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683820;
-        bh=CK8zW69mYsVe631d9uSwXr4sBV2nDL15Y8aevweb+n8=;
+        s=korg; t=1665683852;
+        bh=C8RVSQSnVvD2a6CALdlWYB/J8V4HItUTJlCctPy9068=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mngPvIZLNidfc/yUF1Qo87PG8nOSaXyIHfXQDP+2DOmwn6rSTtgt0FyUKwlalzCsd
-         cBFBtYHUGlK2u9NNXjw6rsox1KE0IgA1slnB42g8xlNBPibdQAlRjl0D1BXz52Ngfz
-         4y+4RvDCSA7WsDNEB77FpvvA85mW6zq3cWXoXuHA=
+        b=TlL+2xlrfCGu3BrYNWiRzzl7rsN+zFAxJnguHxNmLxxewZ1xbwXMtumSdUtkHudQc
+         xBmFDtms5IL/6+Ns8hhKrdEbmK5fI7Wz7gGBDrdPVwCdl0ZTxRCL4UJJrI1fFqVveQ
+         LkpCVA6sdyMPokTleaaonZus+ykn5t9RQc6ndK78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 47/54] wifi: cfg80211: avoid nontransmitted BSS list corruption
-Date:   Thu, 13 Oct 2022 19:52:41 +0200
-Message-Id: <20221013175148.476986632@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Subject: [PATCH 5.15 13/27] Revert "crypto: qat - reduce size of mapped region"
+Date:   Thu, 13 Oct 2022 19:52:42 +0200
+Message-Id: <20221013175144.014828758@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +52,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit bcca852027e5878aec911a347407ecc88d6fff7f upstream.
+commit 9c5f21b198d259bfe1191b1fedf08e2eab15b33b upstream.
 
-If a non-transmitted BSS shares enough information (both
-SSID and BSSID!) with another non-transmitted BSS of a
-different AP, then we can find and update it, and then
-try to add it to the non-transmitted BSS list. We do a
-search for it on the transmitted BSS, but if it's not
-there (but belongs to another transmitted BSS), the list
-gets corrupted.
+This reverts commit e48767c17718067ba21fb2ef461779ec2506f845.
 
-Since this is an erroneous situation, simply fail the
-list insertion in this case and free the non-transmitted
-BSS.
+In an attempt to resolve a set of warnings reported by the static
+analyzer Smatch, the reverted commit improperly reduced the sizes of the
+DMA mappings used for the input and output parameters for both RSA and
+DH creating a mismatch (map size=8 bytes, unmap size=64 bytes).
 
-This fixes CVE-2022-42721.
+This issue is reported when CONFIG_DMA_API_DEBUG is selected, when the
+crypto self test is run. The function dma_unmap_single() reports a
+warning similar to the one below, saying that the `device driver frees
+DMA memory with different size`.
 
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+    DMA-API: 4xxx 0000:06:00.0: device driver frees DMA memory with different size [device address=0x0000000123206c80] [map size=8 bytes] [unmap size=64 bytes]
+    WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:973 check_unmap+0x3d0/0x8c0\
+    ...
+    Call Trace:
+    <IRQ>
+    debug_dma_unmap_page+0x5c/0x60
+    qat_dh_cb+0xd7/0x110 [intel_qat]
+    qat_alg_asym_callback+0x1a/0x30 [intel_qat]
+    adf_response_handler+0xbd/0x1a0 [intel_qat]
+    tasklet_action_common.constprop.0+0xcd/0xe0
+    __do_softirq+0xf8/0x30c
+    __irq_exit_rcu+0xbf/0x140
+    common_interrupt+0xb9/0xd0
+    </IRQ>
+    <TASK>
+
+The original commit was correct.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/crypto/qat/qat_common/qat_asym_algs.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -425,6 +425,15 @@ cfg80211_add_nontrans_list(struct cfg802
+--- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+@@ -332,13 +332,13 @@ static int qat_dh_compute_value(struct k
+ 	qat_req->out.dh.out_tab[1] = 0;
+ 	/* Mapping in.in.b or in.in_g2.xa is the same */
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.dh.in.b,
+-					 sizeof(qat_req->in.dh.in.b),
++					 sizeof(struct qat_dh_input_params),
+ 					 DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
+ 		goto unmap_dst;
  
- 	rcu_read_unlock();
+ 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.dh.r,
+-					  sizeof(qat_req->out.dh.r),
++					  sizeof(struct qat_dh_output_params),
+ 					  DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
+ 		goto unmap_in_params;
+@@ -728,13 +728,13 @@ static int qat_rsa_enc(struct akcipher_r
+ 	qat_req->in.rsa.in_tab[3] = 0;
+ 	qat_req->out.rsa.out_tab[1] = 0;
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.enc.m,
+-					 sizeof(qat_req->in.rsa.enc.m),
++					 sizeof(struct qat_rsa_input_params),
+ 					 DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
+ 		goto unmap_dst;
  
-+	/*
-+	 * This is a bit weird - it's not on the list, but already on another
-+	 * one! The only way that could happen is if there's some BSSID/SSID
-+	 * shared by multiple APs in their multi-BSSID profiles, potentially
-+	 * with hidden SSID mixed in ... ignore it.
-+	 */
-+	if (!list_empty(&nontrans_bss->nontrans_list))
-+		return -EINVAL;
-+
- 	/* add to the list */
- 	list_add_tail(&nontrans_bss->nontrans_list, &trans_bss->nontrans_list);
- 	return 0;
+ 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.enc.c,
+-					  sizeof(qat_req->out.rsa.enc.c),
++					  sizeof(struct qat_rsa_output_params),
+ 					  DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
+ 		goto unmap_in_params;
+@@ -873,13 +873,13 @@ static int qat_rsa_dec(struct akcipher_r
+ 		qat_req->in.rsa.in_tab[3] = 0;
+ 	qat_req->out.rsa.out_tab[1] = 0;
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.dec.c,
+-					 sizeof(qat_req->in.rsa.dec.c),
++					 sizeof(struct qat_rsa_input_params),
+ 					 DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
+ 		goto unmap_dst;
+ 
+ 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.dec.m,
+-					  sizeof(qat_req->out.rsa.dec.m),
++					  sizeof(struct qat_rsa_output_params),
+ 					  DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
+ 		goto unmap_in_params;
 
 
