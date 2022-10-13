@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64D25FE02F
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:05:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59DC25FE08A
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbiJMSE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36820 "EHLO
+        id S231682AbiJMSLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231425AbiJMSEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:04:21 -0400
+        with ESMTP id S231630AbiJMSKw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:10:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6957615B313;
-        Thu, 13 Oct 2022 11:04:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE03175789;
+        Thu, 13 Oct 2022 11:07:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F214E61921;
-        Thu, 13 Oct 2022 17:58:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A014C433C1;
-        Thu, 13 Oct 2022 17:58:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 928F861901;
+        Thu, 13 Oct 2022 17:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F2F5C433C1;
+        Thu, 13 Oct 2022 17:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683910;
-        bh=T5hUlJubGs9iN1Cr22GehC2ffTzgTKc0wkupXsH0j3A=;
+        s=korg; t=1665683758;
+        bh=/BBFd1SQJIVzrYnyx5GLc9XsD44ZqNGWi4W59Cfi7QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1foWNh7k21DgB0UnQgNC36KTILZOU3Dhtc/3U1mv8Aby3ou+XaOnWHin8vVmtYyk
-         lBKHadawNIpLf9p5/e7rUfWfNR/XSHwrvr1KH6QLAi81yHitR5H5ky2SjEjydqI5Iv
-         /7nj4ELJQ5caFuWFV0xkQGqk3OVyiT/kFCqbCAKY=
+        b=Z+ukOMsTC9DTnGlCQMl9vGEE/Vf0CzuSY+Vhywl+f8HrXERAJ5Vo0DhlcpSi+fk2V
+         R9ex9MXc/MtbuQKEJBe9iHR4xWlYeO+3MDkTPb0hZ8djtBzEKYrmFqs1eiMmml3IQC
+         l6u+ABwsZkEv3J2/Mt8xRqG82XKu5K5+4a+ynAkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 04/27] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
+        stable@vger.kernel.org, stable@kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        hdthky <hdthky0@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 39/54] scsi: stex: Properly zero out the passthrough command structure
 Date:   Thu, 13 Oct 2022 19:52:33 +0200
-Message-Id: <20221013175143.690903420@linuxfoundation.org>
+Message-Id: <20221013175148.290240304@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
-References: <20221013175143.518476113@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
+commit 6022f210461fef67e6e676fd8544ca02d1bcfa7a upstream.
 
-If creation or finalization of a checkpoint fails due to anomalies in the
-checkpoint metadata on disk, a kernel warning is generated.
+The passthrough structure is declared off of the stack, so it needs to be
+set to zero before copied back to userspace to prevent any unintentional
+data leakage.  Switch things to be statically allocated which will fill the
+unused fields with 0 automatically.
 
-This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
-with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
-handle the abnormal filesystem condition.
-
-This also replaces the detected error codes with an I/O error so that
-neither of the internal error codes is returned to callers.
-
-Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/YxrjN3OOw2HHl9tx@kroah.com
+Cc: stable@kernel.org
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Reported-by: hdthky <hdthky0@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/scsi/stex.c      |   17 +++++++++--------
+ include/scsi/scsi_cmnd.h |    2 +-
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -875,9 +875,11 @@ static int nilfs_segctor_create_checkpoi
- 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
- 		nilfs_cpfile_put_checkpoint(
- 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
--	} else
--		WARN_ON(err == -EINVAL || err == -ENOENT);
--
-+	} else if (err == -EINVAL || err == -ENOENT) {
-+		nilfs_error(sci->sc_super,
-+			    "checkpoint creation failed due to metadata corruption.");
-+		err = -EIO;
-+	}
- 	return err;
- }
+--- a/drivers/scsi/stex.c
++++ b/drivers/scsi/stex.c
+@@ -668,16 +668,17 @@ stex_queuecommand_lck(struct scsi_cmnd *
+ 		return 0;
+ 	case PASSTHRU_CMD:
+ 		if (cmd->cmnd[1] == PASSTHRU_GET_DRVVER) {
+-			struct st_drvver ver;
++			const struct st_drvver ver = {
++				.major = ST_VER_MAJOR,
++				.minor = ST_VER_MINOR,
++				.oem = ST_OEM,
++				.build = ST_BUILD_VER,
++				.signature[0] = PASSTHRU_SIGNATURE,
++				.console_id = host->max_id - 1,
++				.host_no = hba->host->host_no,
++			};
+ 			size_t cp_len = sizeof(ver);
  
-@@ -891,7 +893,11 @@ static int nilfs_segctor_fill_in_checkpo
- 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
- 					  &raw_cp, &bh_cp);
- 	if (unlikely(err)) {
--		WARN_ON(err == -EINVAL || err == -ENOENT);
-+		if (err == -EINVAL || err == -ENOENT) {
-+			nilfs_error(sci->sc_super,
-+				    "checkpoint finalization failed due to metadata corruption.");
-+			err = -EIO;
-+		}
- 		goto failed_ibh;
- 	}
- 	raw_cp->cp_snapshot_list.ssl_next = 0;
+-			ver.major = ST_VER_MAJOR;
+-			ver.minor = ST_VER_MINOR;
+-			ver.oem = ST_OEM;
+-			ver.build = ST_BUILD_VER;
+-			ver.signature[0] = PASSTHRU_SIGNATURE;
+-			ver.console_id = host->max_id - 1;
+-			ver.host_no = hba->host->host_no;
+ 			cp_len = scsi_sg_copy_from_buffer(cmd, &ver, cp_len);
+ 			cmd->result = sizeof(ver) == cp_len ?
+ 				DID_OK << 16 | COMMAND_COMPLETE << 8 :
+--- a/include/scsi/scsi_cmnd.h
++++ b/include/scsi/scsi_cmnd.h
+@@ -205,7 +205,7 @@ static inline unsigned int scsi_get_resi
+ 	for_each_sg(scsi_sglist(cmd), sg, nseg, __i)
+ 
+ static inline int scsi_sg_copy_from_buffer(struct scsi_cmnd *cmd,
+-					   void *buf, int buflen)
++					   const void *buf, int buflen)
+ {
+ 	return sg_copy_from_buffer(scsi_sglist(cmd), scsi_sg_count(cmd),
+ 				   buf, buflen);
 
 
