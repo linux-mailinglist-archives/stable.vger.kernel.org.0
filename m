@@ -2,54 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D3335FDFB3
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 331BF5FDF62
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230152AbiJMR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
+        id S229729AbiJMRxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230040AbiJMR5L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A02B15B125;
-        Thu, 13 Oct 2022 10:55:44 -0700 (PDT)
+        with ESMTP id S229598AbiJMRxQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0B414FD2D;
+        Thu, 13 Oct 2022 10:53:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44A2361902;
-        Thu, 13 Oct 2022 17:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24BD2C433C1;
-        Thu, 13 Oct 2022 17:54:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 633DFB82022;
+        Thu, 13 Oct 2022 17:53:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C99C433D6;
+        Thu, 13 Oct 2022 17:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683678;
-        bh=QK+ufwlRBWl6ehYKJV4TG8Q8jxr+5/srJj3QzUt1L9s=;
+        s=korg; t=1665683585;
+        bh=C51fN9Flo2zCAj2jCaWdZGHnkUxwUijWwOrzoNiedtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwepaxdlZpQvaKlXVxCUWTYXZYVCuY9t+aJ6mLR5Gjz8Bh5syQRTWhzrmytmdDHhJ
-         GTllm7L0dkwiCMGVO5Iw75WKBbELyWDIT7CYr/RfkM9pOVFzQMtoDJO7SJz9SHdXPl
-         MWisDow5IvSqrQPWCI7tjlJWsKGfHxh2NwaP9TV4=
+        b=LKXRfTevz1UKvjta1+q/nqUNjojqBvEJbUJs9P6vWB6wBkawajnd03X3ksk7DTpM0
+         5OLdiU+fr9S4RsXTMjApYIejjramzMn1v6yr43phbQPjrF4r4g4Am0L5cv94GQS4wn
+         WtzxI9iMh/kQ9l5ZSbAT9QRIDiC3gPQxxPNjhon0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Hugh Dickins <hughd@google.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 12/54] powerpc/64s/radix: dont need to broadcast IPI for radix pmd collapse flush
+        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/38] dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
 Date:   Thu, 13 Oct 2022 19:52:06 +0200
-Message-Id: <20221013175147.666153921@linuxfoundation.org>
+Message-Id: <20221013175144.449468561@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,55 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-commit bedf03416913d88c796288f9dca109a53608c745 upstream.
+[ Upstream commit 462bce790e6a7e68620a4ce260cc38f7ed0255d5 ]
 
-The IPI broadcast is used to serialize against fast-GUP, but fast-GUP will
-move to use RCU instead of disabling local interrupts in fast-GUP.  Using
-an IPI is the old-styled way of serializing against fast-GUP although it
-still works as expected now.
+Free the allocated resources for missing xlnx,num-fstores property.
 
-And fast-GUP now fixed the potential race with THP collapse by checking
-whether PMD is changed or not.  So IPI broadcast in radix pmd collapse
-flush is not necessary anymore.  But it is still needed for hash TLB.
-
-Link: https://lkml.kernel.org/r/20220907180144.555485-2-shy828301@gmail.com
-Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-3-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/radix_pgtable.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -997,15 +997,6 @@ pmd_t radix__pmdp_collapse_flush(struct
- 	pmd = *pmdp;
- 	pmd_clear(pmdp);
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 7729b8d22553..792776c86ee8 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2683,7 +2683,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		if (err < 0) {
+ 			dev_err(xdev->dev,
+ 				"missing xlnx,num-fstores property\n");
+-			return err;
++			goto disable_clks;
+ 		}
  
--	/*
--	 * pmdp collapse_flush need to ensure that there are no parallel gup
--	 * walk after this call. This is needed so that we can have stable
--	 * page ref count when collapsing a page. We don't allow a collapse page
--	 * if we have gup taken on the page. We can ensure that by sending IPI
--	 * because gup walk happens with IRQ disabled.
--	 */
--	serialize_against_pte_lookup(vma->vm_mm);
--
- 	radix__flush_tlb_collapsed_pmd(vma->vm_mm, address);
- 
- 	return pmd;
+ 		err = of_property_read_u32(node, "xlnx,flush-fsync",
+-- 
+2.35.1
+
 
 
