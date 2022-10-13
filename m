@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA39F5FDFFB
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DCB5FDFFD
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230389AbiJMSCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:02:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59366 "EHLO
+        id S230376AbiJMSCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:02:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230387AbiJMSBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:49 -0400
+        with ESMTP id S230406AbiJMSB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A894B160EC4;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1A4160EC5;
         Thu, 13 Oct 2022 11:01:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD12061910;
-        Thu, 13 Oct 2022 17:58:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F191DC433D6;
-        Thu, 13 Oct 2022 17:58:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE5A6191C;
+        Thu, 13 Oct 2022 17:58:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 755E8C433C1;
+        Thu, 13 Oct 2022 17:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683893;
-        bh=GA/zqaLurWyQIiyR2z2ZlBS2lsSicER8WDIT2Epwul8=;
+        s=korg; t=1665683904;
+        bh=d76VYFuP2IkY/Fd+zNHwxmqro3iVPoBaVndsGkcmcJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Of1Xo8nD/8wzWLzJe6CM7sCJ7q81OoepH71qHILM7UYexwIk7wMg9lo4DoHCKHF1l
-         AHSZypu8EBZUxMlLPfuGhWgHRZO7YmYw6LIu/ZmBUIQwAWtczQs+KsEWEE/g4pdQb8
-         cBAPSOMtECIFVe/KEdHOSAvnrbvP5HKJ+3twfRTM=
+        b=INVcvf42sHoMsvXZN0w3cEG90Vn9uK3TRsQcMYKQPDVlo9vKNczRPBKh7kY0+Aa6z
+         O7mU0hk2El/lygsFG+fj0/FdszeCUR9gSyul7itRbdCchqVUjDZZh8JiP/9LgeXjCP
+         vJGT5klaCAXKyobvMWFkgm6MsMEF6Ox14ak6sns8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 22/27] wifi: mac80211: fix crash in beacon protection for P2P-device
-Date:   Thu, 13 Oct 2022 19:52:51 +0200
-Message-Id: <20221013175144.356052246@linuxfoundation.org>
+        stable@vger.kernel.org, Shunsuke Mie <mie@igel.co.jp>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.15 26/27] misc: pci_endpoint_test: Aggregate params checking for xfer
+Date:   Thu, 13 Oct 2022 19:52:55 +0200
+Message-Id: <20221013175144.511915824@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
 References: <20221013175143.518476113@linuxfoundation.org>
@@ -53,54 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Shunsuke Mie <mie@igel.co.jp>
 
-commit b2d03cabe2b2e150ff5a381731ea0355459be09f upstream.
+commit 3e42deaac06567c7e86d287c305ccda24db4ae3d upstream.
 
-If beacon protection is active but the beacon cannot be
-decrypted or is otherwise malformed, we call the cfg80211
-API to report this to userspace, but that uses a netdev
-pointer, which isn't present for P2P-Device. Fix this to
-call it only conditionally to ensure cfg80211 won't crash
-in the case of P2P-Device.
+Each transfer test functions have same parameter checking code. This patch
+unites those to an introduced function.
 
-This fixes CVE-2022-42722.
-
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 9eaf183af741 ("mac80211: Report beacon protection failures to user space")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220907020100.122588-1-mie@igel.co.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/misc/pci_endpoint_test.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1982,10 +1982,11 @@ ieee80211_rx_h_decrypt(struct ieee80211_
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -332,6 +332,17 @@ static bool pci_endpoint_test_msi_irq(st
+ 	return false;
+ }
  
- 		if (mmie_keyidx < NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS ||
- 		    mmie_keyidx >= NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS +
--		    NUM_DEFAULT_BEACON_KEYS) {
--			cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
--						     skb->data,
--						     skb->len);
-+				   NUM_DEFAULT_BEACON_KEYS) {
-+			if (rx->sdata->dev)
-+				cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
-+							     skb->data,
-+							     skb->len);
- 			return RX_DROP_MONITOR; /* unexpected BIP keyidx */
- 		}
++static int pci_endpoint_test_validate_xfer_params(struct device *dev,
++		struct pci_endpoint_test_xfer_param *param, size_t alignment)
++{
++	if (param->size > SIZE_MAX - alignment) {
++		dev_dbg(dev, "Maximum transfer data size exceeded\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ static bool pci_endpoint_test_copy(struct pci_endpoint_test *test,
+ 				   unsigned long arg)
+ {
+@@ -363,9 +374,11 @@ static bool pci_endpoint_test_copy(struc
+ 		return false;
+ 	}
  
-@@ -2133,7 +2134,8 @@ ieee80211_rx_h_decrypt(struct ieee80211_
- 	/* either the frame has been decrypted or will be dropped */
- 	status->flag |= RX_FLAG_DECRYPTED;
++	err = pci_endpoint_test_validate_xfer_params(dev, &param, alignment);
++	if (err)
++		return false;
++
+ 	size = param.size;
+-	if (size > SIZE_MAX - alignment)
+-		goto err;
  
--	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE))
-+	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE &&
-+		     rx->sdata->dev))
- 		cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
- 					     skb->data, skb->len);
+ 	use_dma = !!(param.flags & PCITEST_FLAGS_USE_DMA);
+ 	if (use_dma)
+@@ -497,9 +510,11 @@ static bool pci_endpoint_test_write(stru
+ 		return false;
+ 	}
  
++	err = pci_endpoint_test_validate_xfer_params(dev, &param, alignment);
++	if (err)
++		return false;
++
+ 	size = param.size;
+-	if (size > SIZE_MAX - alignment)
+-		goto err;
+ 
+ 	use_dma = !!(param.flags & PCITEST_FLAGS_USE_DMA);
+ 	if (use_dma)
+@@ -595,9 +610,11 @@ static bool pci_endpoint_test_read(struc
+ 		return false;
+ 	}
+ 
++	err = pci_endpoint_test_validate_xfer_params(dev, &param, alignment);
++	if (err)
++		return false;
++
+ 	size = param.size;
+-	if (size > SIZE_MAX - alignment)
+-		goto err;
+ 
+ 	use_dma = !!(param.flags & PCITEST_FLAGS_USE_DMA);
+ 	if (use_dma)
 
 
