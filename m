@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9985FDA44
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B41EA5FDA46
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbiJMNSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 09:18:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33434 "EHLO
+        id S229462AbiJMNSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 09:18:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbiJMNSg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:36 -0400
+        with ESMTP id S229437AbiJMNSk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26E012FF89
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A3E4E18F
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66671617A7
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E2C9C433D6;
-        Thu, 13 Oct 2022 13:18:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90C36617A9
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F424C433D6;
+        Thu, 13 Oct 2022 13:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665667101;
+        s=korg; t=1665667105;
         bh=u0r/emeG1onKEVgDAm2kfO1iKl2rk2ZSCQTFuKotjpk=;
         h=Subject:To:Cc:From:Date:From;
-        b=nNSc7nJPF5+bP1vSgZ2ud20wGdXTWur9sb+KIpd5VDaNGJLaZ9W/9ruxDfbSStUn7
-         bEfKffEWSjsr6OxG5bpL5av5FpL7tDdKmTkr3muEbFy8mHQ4zMdHYGEDkbH74pbg8F
-         fNappASf5gczb30wnioJ0ZvEh6b7Nog1QezXmTsc=
+        b=LaU2kSIUMU81E05TzG+hRBcTDBs8VXRjJyXxHZhJ8Ewq9Q0fH484OZ5v7hXc5KsBT
+         Hy+QO27RNPgfGJF/dxaig0uXXtBjIutkIeehFFo7EKCKGVYDYaMNrA3IZZqGv0+SrH
+         +ONDU9czrYw+Rq3jPdBYTeAuFSC2pHidxLfouaQA=
 Subject: WTF: patch "[PATCH] scsi: qla2xxx: Define static symbols" was seriously submitted to be applied to the 6.0-stable tree?
 To:     njavali@marvell.com, himanshu.madhani@oracle.com, lkp@intel.com,
         martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Oct 2022 15:12:41 +0200
-Message-ID: <166566676115205@kroah.com>
+Date:   Thu, 13 Oct 2022 15:12:45 +0200
+Message-ID: <166566676569234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
