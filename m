@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A742F5FCFC5
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E13725FD193
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230207AbiJMAWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38464 "EHLO
+        id S231433AbiJMAkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:40:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230251AbiJMAVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:21:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AA512345D;
-        Wed, 12 Oct 2022 17:18:23 -0700 (PDT)
+        with ESMTP id S231403AbiJMAhe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:37:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B91139E75;
+        Wed, 12 Oct 2022 17:31:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0022EB81CC2;
-        Thu, 13 Oct 2022 00:18:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1927C433D7;
-        Thu, 13 Oct 2022 00:18:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 949E3B81CCB;
+        Thu, 13 Oct 2022 00:18:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55F71C433C1;
+        Thu, 13 Oct 2022 00:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620301;
-        bh=Wn3oSxO3heTPfc3NTmNAvwL+9w/ee0D9B9DE8PlDHrk=;
+        s=k20201202; t=1665620303;
+        bh=UcMC/ohTlfSufjYNgla/y8KiliyHVdq5JfegDQggsIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/uDTVDsEe2W/TcRhBROUUuUVP/3aeQPjQWo1NP9F7MhmP4Zxv7n1EfJmcgKHBiiD
-         1Oy15gLd0N1t4x9lKWvd06kRR2DXunnOes6LrWTXt84kLkr6OXm/sgYrVQr9nHrysI
-         KZw4Z4qWiRiXeaC1h0cB06GGQQF7vkLGtlV9eqY7kymi/bO8P/GqNDQkW68+vvoXwF
-         xlUNrdvEq8aMbnmwEVARTH6HFgrcIcGp8Sg75Gy/N7uznswFybypBdXOJVDl3z3vWb
-         Kj1ece4z9V1LPUZ0aICbeacyGZOUE+SKMTPQ+8pReyj2o1pMl2mec4nbqSculnCTm8
-         AiffUMvaJxNiw==
+        b=VcELeYaaGXogzZg8x+/K6GJ71tQOP+GqDw04Fyh+xwHaOW9sGbdfj49LPIbGu5cOn
+         cmJkeJKx9miBIcVqgFc+YGZ4/OMI+z8sM+nc1GYtQbo+58IUZbM6Yq37l2CdiTf8qj
+         7ygRyWxxgQ0vjd0RIszCGDZOSf8VYX/vT9UY12lsJ4923lG8BUNr0MF1p8pfJLyt6p
+         +RAfeG3gQrUqwC+uEv3pdWlKP2ITGGnSjydv6+KvtYnnx+2jDV2G5faUlZoBYU53rz
+         Wkh7AMxJlNH4cn5+tBXQEPGuyMc6f1eo9TNR4c22HKSQEZqI9rvUSGEKFWSmusH92M
+         dRARX5VfWCKjw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lv Ruyi <lv.ruyi@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>,
-        jk@ozlabs.org, linux-fsi@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.0 62/67] fsi: master-ast-cf: Fix missing of_node_put in fsi_master_acf_probe
-Date:   Wed, 12 Oct 2022 20:15:43 -0400
-Message-Id: <20221013001554.1892206-62-sashal@kernel.org>
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Frank Li <Frank.Li@nxp.com>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, gustavo.pimentel@synopsys.com,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 63/67] dmaengine: dw-edma: Remove runtime PM support
+Date:   Wed, 12 Oct 2022 20:15:44 -0400
+Message-Id: <20221013001554.1892206-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001554.1892206-1-sashal@kernel.org>
 References: <20221013001554.1892206-1-sashal@kernel.org>
@@ -55,41 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 182d98e00e4745fe253cb0c24c63bbac253464a2 ]
+[ Upstream commit a0188eb6e71c93ab7dd9bfa4305fac43c70db309 ]
 
-of_parse_phandle returns node pointer with refcount incremented, use
-of_node_put() on it when done.
+Currently, the dw-edma driver enables the runtime_pm for parent device
+(chip->dev) and increments/decrements the refcount during alloc/free
+chan resources callbacks.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Link: https://lore.kernel.org/r/20220407085911.2491719-1-lv.ruyi@zte.com.cn
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+This leads to a problem when the eDMA driver has been probed, but the
+channels were not used. This scenario can happen when the DW PCIe driver
+probes eDMA driver successfully, but the PCI EPF driver decides not to
+use eDMA channels and use iATU instead for PCI transfers.
+
+In this case, the underlying device would be runtime suspended due to
+pm_runtime_enable() in dw_edma_probe() and the PCI EPF driver would have
+no knowledge of it.
+
+Ideally, the eDMA driver should not be the one doing the runtime PM of
+the parent device. The responsibility should instead belong to the client
+drivers like PCI EPF.
+
+So let's remove the runtime PM support from eDMA driver.
+
+Cc: Serge Semin <fancer.lancer@gmail.com>
+Cc: Frank Li <Frank.Li@nxp.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20220910054700.12205-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-master-ast-cf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/dw-edma/dw-edma-core.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/fsi/fsi-master-ast-cf.c b/drivers/fsi/fsi-master-ast-cf.c
-index 24292acdbaf8..5f608ef8b53c 100644
---- a/drivers/fsi/fsi-master-ast-cf.c
-+++ b/drivers/fsi/fsi-master-ast-cf.c
-@@ -1324,12 +1324,14 @@ static int fsi_master_acf_probe(struct platform_device *pdev)
- 		}
- 		master->cvic = devm_of_iomap(&pdev->dev, np, 0, NULL);
- 		if (IS_ERR(master->cvic)) {
-+			of_node_put(np);
- 			rc = PTR_ERR(master->cvic);
- 			dev_err(&pdev->dev, "Error %d mapping CVIC\n", rc);
- 			goto err_free;
- 		}
- 		rc = of_property_read_u32(np, "copro-sw-interrupts",
- 					  &master->cvic_sw_irq);
-+		of_node_put(np);
- 		if (rc) {
- 			dev_err(&pdev->dev, "Can't find coprocessor SW interrupt\n");
- 			goto err_free;
+diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
+index 07f756479663..c54b24ff5206 100644
+--- a/drivers/dma/dw-edma/dw-edma-core.c
++++ b/drivers/dma/dw-edma/dw-edma-core.c
+@@ -9,7 +9,6 @@
+ #include <linux/module.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
+-#include <linux/pm_runtime.h>
+ #include <linux/dmaengine.h>
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
+@@ -682,15 +681,12 @@ static int dw_edma_alloc_chan_resources(struct dma_chan *dchan)
+ 	if (chan->status != EDMA_ST_IDLE)
+ 		return -EBUSY;
+ 
+-	pm_runtime_get(chan->dw->chip->dev);
+-
+ 	return 0;
+ }
+ 
+ static void dw_edma_free_chan_resources(struct dma_chan *dchan)
+ {
+ 	unsigned long timeout = jiffies + msecs_to_jiffies(5000);
+-	struct dw_edma_chan *chan = dchan2dw_edma_chan(dchan);
+ 	int ret;
+ 
+ 	while (time_before(jiffies, timeout)) {
+@@ -703,8 +699,6 @@ static void dw_edma_free_chan_resources(struct dma_chan *dchan)
+ 
+ 		cpu_relax();
+ 	}
+-
+-	pm_runtime_put(chan->dw->chip->dev);
+ }
+ 
+ static int dw_edma_channel_setup(struct dw_edma *dw, bool write,
+@@ -977,9 +971,6 @@ int dw_edma_probe(struct dw_edma_chip *chip)
+ 	if (err)
+ 		goto err_irq_free;
+ 
+-	/* Power management */
+-	pm_runtime_enable(dev);
+-
+ 	/* Turn debugfs on */
+ 	dw_edma_v0_core_debugfs_on(dw);
+ 
+@@ -1009,9 +1000,6 @@ int dw_edma_remove(struct dw_edma_chip *chip)
+ 	for (i = (dw->nr_irqs - 1); i >= 0; i--)
+ 		free_irq(chip->ops->irq_vector(dev, i), &dw->irq[i]);
+ 
+-	/* Power management */
+-	pm_runtime_disable(dev);
+-
+ 	/* Deregister eDMA device */
+ 	dma_async_device_unregister(&dw->wr_edma);
+ 	list_for_each_entry_safe(chan, _chan, &dw->wr_edma.channels,
 -- 
 2.35.1
 
