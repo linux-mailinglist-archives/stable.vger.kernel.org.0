@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C602B5FD0DE
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F855FD208
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231463AbiJMAaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:30:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49528 "EHLO
+        id S229616AbiJMA6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:58:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231879AbiJMA3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:23 -0400
+        with ESMTP id S232414AbiJMA6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:58:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFC511E47C;
-        Wed, 12 Oct 2022 17:26:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EB644D143;
+        Wed, 12 Oct 2022 17:55:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AC1361646;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5132616F9;
+        Thu, 13 Oct 2022 00:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6098CC433C1;
         Thu, 13 Oct 2022 00:24:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D5DAC43142;
-        Thu, 13 Oct 2022 00:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620651;
-        bh=p6GiSY8fKFEwVLEYaOs1ega9J3UWlailRKtYivPY8dg=;
+        s=k20201202; t=1665620653;
+        bh=eYYfN7zhVXu7HoSsesfCM1CBNUKWw1PFo052PAgMnNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ralkKVeHDCFg1GzFTTPBFCW/lnC/sQw4/tbmuAuLziiHeCg18QFyjuqgAi6rKzRsI
-         9wGuznO3f88WlF1zMeQ/BGatOANV0iHmlwOZz0nlo97iy6GXeguz595aSAmyaSP5Yo
-         Nt7XB/jW2MpCQeXZTTLM5TWk/jNmw+SG2FSDsZYemdZz4pOaPc0oqnTV+QhEQ1ffUy
-         N6GsNd1r35kBVapSXUjYnpcpKoh4klskB9TuS+qD1zQl4QMdg6rRSHTd9IqN7UDgNr
-         29F6uvnQvClPULo2C57XYJuY+yUR/t7x4cmNyO0qWI10svancil/kaHzKAouMSW7oe
-         wKXHqJT4LxaTQ==
+        b=MRngRB4r3lx7aNqGdWuoEa1iAyUA459gjUg8uhG/SlhTxrGxmE6aTTPtoOseynDhU
+         y66Yy7r5zJdCe9Nq0uwpV1dIuxouPwpYS8mU1lRuLbZaaCCjhLkU1WyfOPr0s7TbbQ
+         dYqajiHJDVTTyKw71xeUfctTo2bv26YmmDmo8JADho2HNPIM8alMa4ypyx28UXNPn0
+         oFGmMtXg6CkiChd6bQccZzs0m+gt+DH3jaEWE9mbEJyzi4qN6fr/tmMil+LTqtCjzb
+         zn4HCuw0D9NnQy4OEmwaDdpbbxjnqCi7+GU16ot9p+bu5UVAvNe2OWFJGhceTzrOqy
+         /oelsPI1d24eg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        cgroups@vger.kernel.org, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 13/33] blk-throttle: prevent overflow while calculating wait time
-Date:   Wed, 12 Oct 2022 20:23:12 -0400
-Message-Id: <20221013002334.1894749-13-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>, hdegoede@redhat.com,
+        axboe@kernel.dk, linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/33] ata: libahci_platform: Sanity check the DT child nodes number
+Date:   Wed, 12 Oct 2022 20:23:13 -0400
+Message-Id: <20221013002334.1894749-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -55,49 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 8d6bbaada2e0a65f9012ac4c2506460160e7237a ]
+[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
 
-There is a problem found by code review in tg_with_in_bps_limit() that
-'bps_limit * jiffy_elapsed_rnd' might overflow. Fix the problem by
-calling mul_u64_u64_div_u64() instead.
+Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
+from the further AHCI-platform initialization point of view since
+exceeding the ports upper limit will cause allocating more resources than
+will be used afterwards. But detecting too many child DT-nodes doesn't
+seem right since it's very unlikely to have it on an ordinary platform. In
+accordance with the AHCI specification there can't be more than 32 ports
+implemented at least due to having the CAP.NP field of 5 bits wide and the
+PI register of dword size. Thus if such situation is found the DTB must
+have been corrupted and the data read from it shouldn't be reliable. Let's
+consider that as an erroneous situation and halt further resources
+allocation.
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220829022240.3348319-3-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Note it's logically more correct to have the nports set only after the
+initialization value is checked for being sane. So while at it let's make
+sure nports is assigned with a correct value.
+
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-throttle.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/ata/libahci_platform.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index c53a254171a2..c526fdd0a7b9 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -944,7 +944,7 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
- 				 u64 bps_limit, unsigned long *wait)
- {
- 	bool rw = bio_data_dir(bio);
--	u64 bytes_allowed, extra_bytes, tmp;
-+	u64 bytes_allowed, extra_bytes;
- 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
- 	unsigned int bio_size = throtl_bio_data_size(bio);
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index 0910441321f7..64d6da0a5303 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -451,14 +451,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
+ 		}
+ 	}
  
-@@ -961,10 +961,8 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
- 		jiffy_elapsed_rnd = tg->td->throtl_slice;
+-	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
++	/*
++	 * Too many sub-nodes most likely means having something wrong with
++	 * the firmware.
++	 */
++	child_nodes = of_get_child_count(dev->of_node);
++	if (child_nodes > AHCI_MAX_PORTS) {
++		rc = -EINVAL;
++		goto err_out;
++	}
  
- 	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
--
--	tmp = bps_limit * jiffy_elapsed_rnd;
--	do_div(tmp, HZ);
--	bytes_allowed = tmp;
-+	bytes_allowed = mul_u64_u64_div_u64(bps_limit, (u64)jiffy_elapsed_rnd,
-+					    (u64)HZ);
+ 	/*
+ 	 * If no sub-node was found, we still need to set nports to
+ 	 * one in order to be able to use the
+ 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
+ 	 */
+-	if (!child_nodes)
++	if (child_nodes)
++		hpriv->nports = child_nodes;
++	else
+ 		hpriv->nports = 1;
  
- 	if (tg->bytes_disp[rw] + bio_size <= bytes_allowed) {
- 		if (wait)
+ 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
 -- 
 2.35.1
 
