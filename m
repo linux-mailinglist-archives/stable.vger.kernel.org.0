@@ -2,54 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5CD5FE266
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B64D25FE02F
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbiJMTH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 15:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51482 "EHLO
+        id S230471AbiJMSE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:04:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbiJMTH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:07:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1770186F88;
-        Thu, 13 Oct 2022 12:07:25 -0700 (PDT)
+        with ESMTP id S231425AbiJMSEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:04:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6957615B313;
+        Thu, 13 Oct 2022 11:04:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 211386193C;
-        Thu, 13 Oct 2022 17:59:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C58F1C433D6;
-        Thu, 13 Oct 2022 17:59:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F214E61921;
+        Thu, 13 Oct 2022 17:58:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A014C433C1;
+        Thu, 13 Oct 2022 17:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683987;
-        bh=6r8cv61G4ByobJnrfyQ3iGnPn8BcCUgxyNq8rWCqaMU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NJ+9UY4x8Whb8U0RbkfdBk8S/zXypbV/oAzGzSdVKhNMrUadGJLF3bwtu6wVHKtjo
-         Xt4fdsS4Fns7y06Rx5x41fVbZvPZBejeJ0GohaK9Oy/6u/l7hNfYY63oHE1gkx42Pv
-         ifIZKvwcyENWnzHTrSHTrn/Y65hSXyjkIlx2twzs=
+        s=korg; t=1665683910;
+        bh=T5hUlJubGs9iN1Cr22GehC2ffTzgTKc0wkupXsH0j3A=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=x1foWNh7k21DgB0UnQgNC36KTILZOU3Dhtc/3U1mv8Aby3ou+XaOnWHin8vVmtYyk
+         lBKHadawNIpLf9p5/e7rUfWfNR/XSHwrvr1KH6QLAi81yHitR5H5ky2SjEjydqI5Iv
+         /7nj4ELJQ5caFuWFV0xkQGqk3OVyiT/kFCqbCAKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Subject: [PATCH 5.19 00/33] 5.19.16-rc1 review
-Date:   Thu, 13 Oct 2022 19:52:32 +0200
-Message-Id: <20221013175145.236739253@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 04/27] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
+Date:   Thu, 13 Oct 2022 19:52:33 +0200
+Message-Id: <20221013175143.690903420@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-MIME-Version: 1.0
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.16-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.19.16-rc1
-X-KernelTest-Deadline: 2022-10-15T17:51+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,164 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.19.16 release.
-There are 33 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
-Anything received after that time might be too late.
+commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.16-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-and the diffstat can be found below.
+If creation or finalization of a checkpoint fails due to anomalies in the
+checkpoint metadata on disk, a kernel warning is generated.
 
-thanks,
+This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
+with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
+handle the abnormal filesystem condition.
 
-greg k-h
+This also replaces the detected error codes with an I/O error so that
+neither of the internal error codes is returned to callers.
 
--------------
-Pseudo-Shortlog of commits:
+Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/nilfs2/segment.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.19.16-rc1
-
-Shunsuke Mie <mie@igel.co.jp>
-    misc: pci_endpoint_test: Fix pci_endpoint_test_{copy,write,read}() panic
-
-Shunsuke Mie <mie@igel.co.jp>
-    misc: pci_endpoint_test: Aggregate params checking for xfer
-
-Cameron Gutman <aicommander@gmail.com>
-    Input: xpad - fix wireless 360 controller breaking after suspend
-
-Pavel Rojtberg <rojtberg@gmail.com>
-    Input: xpad - add supported devices as contributed on github
-
-Jeremy Kerr <jk@codeconstruct.com.au>
-    mctp: prevent double key removal and unref
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: cfg80211: update hidden BSSes to avoid WARN_ON
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: mac80211: fix crash in beacon protection for P2P-device
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: mac80211_hwsim: avoid mac80211 warning on bad rate
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: cfg80211: avoid nontransmitted BSS list corruption
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: cfg80211: fix BSS refcounting bugs
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: cfg80211: ensure length byte is present before access
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: mac80211: fix MBSSID parsing use-after-free
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: cfg80211/mac80211: reject bad MBSSID elements
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: cfg80211: fix u8 overflow in cfg80211_update_notlisted_nontrans()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: use expired timer rather than wq for mixing fast pool
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: avoid reading two cache lines on irq randomness
-
-Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-    Revert "crypto: qat - reduce size of mapped region"
-
-Nathan Lynch <nathanl@linux.ibm.com>
-    Revert "powerpc/rtas: Implement reentrant rtas call"
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    Revert "usb: dwc3: Don't switch OTG -> peripheral if extcon is present"
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    Revert "USB: fixup for merge issue with "usb: dwc3: Don't switch OTG -> peripheral if extcon is present""
-
-Frank Wunderlich <frank-w@public-files.de>
-    USB: serial: qcserial: add new usb-id for Dell branded EM7455
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    scsi: stex: Properly zero out the passthrough command structure
-
-Orlando Chamberlain <redecorating@protonmail.com>
-    efi: Correct Macmini DMI match in uefi cert quirk
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/realtek: Add quirk for HP Zbook Firefly 14 G9 model
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda: Fix position reporting on Poulsbo
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: clamp credited irq bits to maximum mixed
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: restore O_NONBLOCK support
-
-Rishabh Bhatnagar <risbhat@amazon.com>
-    nvme-pci: set min_align_mask before calculating max_hw_sectors
-
-Hu Weiwen <sehuww@mail.scut.edu.cn>
-    ceph: don't truncate file in atomic_open
-
-Ryusuke Konishi <konishi.ryusuke@gmail.com>
-    nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
-
-Ryusuke Konishi <konishi.ryusuke@gmail.com>
-    nilfs2: fix leak of nilfs_root in case of writer thread creation failure
-
-Ryusuke Konishi <konishi.ryusuke@gmail.com>
-    nilfs2: fix use-after-free bug of struct nilfs_root
-
-Ryusuke Konishi <konishi.ryusuke@gmail.com>
-    nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
-
-
--------------
-
-Diffstat:
-
- Makefile                                      |  4 +-
- arch/powerpc/include/asm/paca.h               |  1 -
- arch/powerpc/include/asm/rtas.h               |  1 -
- arch/powerpc/kernel/paca.c                    | 32 -----------
- arch/powerpc/kernel/rtas.c                    | 54 -------------------
- arch/powerpc/sysdev/xics/ics-rtas.c           | 22 ++++----
- drivers/char/mem.c                            |  4 +-
- drivers/char/random.c                         | 25 ++++++---
- drivers/crypto/qat/qat_common/qat_asym_algs.c | 12 ++---
- drivers/input/joystick/xpad.c                 | 20 ++++++-
- drivers/misc/pci_endpoint_test.c              | 34 +++++++++---
- drivers/net/wireless/mac80211_hwsim.c         |  2 +
- drivers/nvme/host/pci.c                       |  3 +-
- drivers/scsi/stex.c                           | 17 +++---
- drivers/usb/dwc3/core.c                       | 50 +----------------
- drivers/usb/dwc3/drd.c                        | 50 +++++++++++++++++
- drivers/usb/serial/qcserial.c                 |  1 +
- fs/ceph/file.c                                | 10 ++--
- fs/nilfs2/inode.c                             | 19 ++++++-
- fs/nilfs2/segment.c                           | 21 +++++---
- include/scsi/scsi_cmnd.h                      |  2 +-
- net/mac80211/ieee80211_i.h                    |  8 +++
- net/mac80211/rx.c                             | 12 +++--
- net/mac80211/util.c                           | 35 ++++++------
- net/mctp/af_mctp.c                            | 23 +++++---
- net/mctp/route.c                              | 10 ++--
- net/wireless/scan.c                           | 77 +++++++++++++++++----------
- security/integrity/platform_certs/load_uefi.c |  2 +-
- sound/pci/hda/hda_intel.c                     |  3 +-
- sound/pci/hda/patch_realtek.c                 | 18 +++++++
- 30 files changed, 315 insertions(+), 257 deletions(-)
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -875,9 +875,11 @@ static int nilfs_segctor_create_checkpoi
+ 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
+ 		nilfs_cpfile_put_checkpoint(
+ 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
+-	} else
+-		WARN_ON(err == -EINVAL || err == -ENOENT);
+-
++	} else if (err == -EINVAL || err == -ENOENT) {
++		nilfs_error(sci->sc_super,
++			    "checkpoint creation failed due to metadata corruption.");
++		err = -EIO;
++	}
+ 	return err;
+ }
+ 
+@@ -891,7 +893,11 @@ static int nilfs_segctor_fill_in_checkpo
+ 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
+ 					  &raw_cp, &bh_cp);
+ 	if (unlikely(err)) {
+-		WARN_ON(err == -EINVAL || err == -ENOENT);
++		if (err == -EINVAL || err == -ENOENT) {
++			nilfs_error(sci->sc_super,
++				    "checkpoint finalization failed due to metadata corruption.");
++			err = -EIO;
++		}
+ 		goto failed_ibh;
+ 	}
+ 	raw_cp->cp_snapshot_list.ssl_next = 0;
 
 
