@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DBC05FDA3E
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E23F5FDA3D
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbiJMNS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 09:18:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33040 "EHLO
+        id S229970AbiJMNSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 09:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229967AbiJMNSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA344E18F
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:09 -0700 (PDT)
+        with ESMTP id S229890AbiJMNSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97D114E199
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D713B81E3D
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CEE4C433D6;
-        Thu, 13 Oct 2022 13:18:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67C59B81CAB
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5549C433C1;
+        Thu, 13 Oct 2022 13:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665667086;
-        bh=knwXgUOjFiQ8jg7pX8OEGYI7sBQ65jOOpkn5TC8zboc=;
+        s=korg; t=1665667089;
+        bh=c57hX7UpXP5i4Zcc1LeqfX4jrkgNnPdQG12euItXxHY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ao+VgKs6YK0wzXGVKDhVnPpWKnl2KY5woE/tGObZFc8F9uwYILRQI3C+u0W4PfDvw
-         g7vcalZIkzTm54gyZ8wTq/iNLd6VTbzsnj6sUMKlpH1hcqE3/Jo516xDKLBFgztmfV
-         hZkFlQxXStBom35/3p4AXTPnyc1pk9wemPCVijwQ=
-Subject: FAILED: patch "[PATCH] random: use expired timer rather than wq for mixing fast pool" failed to apply to 6.0-stable tree
+        b=aLOg47vuvKgkz2b77DfGydZ2h2m5qz5WBzBgNguFsYaGJZinWG/cWGB3ote0MnvM1
+         zSJzh4eIh7+HAszve5G+/9gTtgksEvdg8fdZOB+4OjtTeUhUSCqTWZ0vIcxZmY+yJ9
+         l06qIeFAkJDTzlR41kHVQLCBsPjgQrEkoZd6IDCs=
+Subject: FAILED: patch "[PATCH] random: use expired timer rather than wq for mixing fast pool" failed to apply to 5.19-stable tree
 To:     Jason@zx2c4.com, bigeasy@linutronix.de, colm.harrington@oracle.com,
         jack.vogel@oracle.com, linux@dominikbrodowski.net,
         nicky.veitch@oracle.com, paul.x.webb@oracle.com,
@@ -36,8 +36,8 @@ To:     Jason@zx2c4.com, bigeasy@linutronix.de, colm.harrington@oracle.com,
         sherry.yang@oracle.com, sultan@kerneltoast.com, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Oct 2022 15:08:47 +0200
-Message-ID: <166566652711733@kroah.com>
+Date:   Thu, 13 Oct 2022 15:08:50 +0200
+Message-ID: <166566653014148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
