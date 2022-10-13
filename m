@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 480555FE087
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C68E5FE0AA
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbiJMSLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:11:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59806 "EHLO
+        id S231756AbiJMSNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbiJMSKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:10:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69AEDD4A06;
-        Thu, 13 Oct 2022 11:08:06 -0700 (PDT)
+        with ESMTP id S231807AbiJMSMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82D1E170DE0;
+        Thu, 13 Oct 2022 11:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA03B61923;
-        Thu, 13 Oct 2022 17:56:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA73FC433C1;
-        Thu, 13 Oct 2022 17:56:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59999B82032;
+        Thu, 13 Oct 2022 17:55:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82D2C433D7;
+        Thu, 13 Oct 2022 17:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683787;
-        bh=wpfl8bySceEuUh9c9AHgHNK40GS5fUzjOFlyRY3tiPY=;
+        s=korg; t=1665683707;
+        bh=P5SdgOCmWVxcbr3MnenzVLQbEdcjGLQBgjmIDHTm5/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIGOGCxnbvK+C5sx4G3ptwYIuPbsvZaJu98o42iKqi1dww9johJEkbNJbcYS+kJoZ
-         fn1LrZuYYVduCKhysavk1pmiw+I460pjlwoscqjMgletf9X6EEbPaB4iSk26fWnnFf
-         aeyn7m2Ty4vw7G2y8qne1XqHUGEyFcK/LyUD0MNw=
+        b=xjNlIEviQL+bkYthgFiycmdjV8S3QWnuCIV8f9kgKiQMnzh5JnKjgEHN3TV1IqTuK
+         likIHeF83De9FytZaFR4vP+56BdoH2nKR3n8/Qu6AAvoHJZ14mHFdvoGXE++gEHzz2
+         NPF/rnpZ3Ra9pmiXRmTSTk0whJ2mIACad3r7Y7Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.10 13/54] fs: fix UAF/GPF bug in nilfs_mdt_destroy
-Date:   Thu, 13 Oct 2022 19:52:07 +0200
-Message-Id: <20221013175147.691384882@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Miguel Ojeda <ojeda@kernel.org>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 5.10 14/54] compiler_attributes.h: move __compiletime_{error|warning}
+Date:   Thu, 13 Oct 2022 19:52:08 +0200
+Message-Id: <20221013175147.714212253@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -55,59 +55,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
+commit b83a908498d68fafca931e1276e145b339cac5fb upstream.
 
-In alloc_inode, inode_init_always() could return -ENOMEM if
-security_inode_alloc() fails, which causes inode->i_private
-uninitialized. Then nilfs_is_metadata_file_inode() returns
-true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
-which frees the uninitialized inode->i_private
-and leads to crashes(e.g., UAF/GPF).
+Clang 14 will add support for __attribute__((__error__(""))) and
+__attribute__((__warning__(""))). To make use of these in
+__compiletime_error and __compiletime_warning (as used by BUILD_BUG and
+friends) for newer clang and detect/fallback for older versions of
+clang, move these to compiler_attributes.h and guard them with
+__has_attribute preprocessor guards.
 
-Fix this by moving security_inode_alloc just prior to
-this_cpu_inc(nr_inodes)
-
-Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://reviews.llvm.org/D106030
+Link: https://bugs.llvm.org/show_bug.cgi?id=16428
+Link: https://github.com/ClangBuiltLinux/linux/issues/1173
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+[Reworded, landed in Clang 14]
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/inode.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ include/linux/compiler-gcc.h        |    3 ---
+ include/linux/compiler_attributes.h |   24 ++++++++++++++++++++++++
+ include/linux/compiler_types.h      |    6 ------
+ 3 files changed, 24 insertions(+), 9 deletions(-)
 
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -168,8 +168,6 @@ int inode_init_always(struct super_block
- 	inode->i_wb_frn_history = 0;
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -54,9 +54,6 @@
+ 
+ #define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
+ 
+-#define __compiletime_warning(message) __attribute__((__warning__(message)))
+-#define __compiletime_error(message) __attribute__((__error__(message)))
+-
+ #if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ #define __latent_entropy __attribute__((latent_entropy))
+ #endif
+--- a/include/linux/compiler_attributes.h
++++ b/include/linux/compiler_attributes.h
+@@ -30,6 +30,7 @@
+ # define __GCC4_has_attribute___assume_aligned__      (__GNUC_MINOR__ >= 9)
+ # define __GCC4_has_attribute___copy__                0
+ # define __GCC4_has_attribute___designated_init__     0
++# define __GCC4_has_attribute___error__               1
+ # define __GCC4_has_attribute___externally_visible__  1
+ # define __GCC4_has_attribute___no_caller_saved_registers__ 0
+ # define __GCC4_has_attribute___noclone__             1
+@@ -37,6 +38,7 @@
+ # define __GCC4_has_attribute___no_sanitize_address__ (__GNUC_MINOR__ >= 8)
+ # define __GCC4_has_attribute___no_sanitize_undefined__ (__GNUC_MINOR__ >= 9)
+ # define __GCC4_has_attribute___fallthrough__         0
++# define __GCC4_has_attribute___warning__             1
  #endif
  
--	if (security_inode_alloc(inode))
--		goto out;
- 	spin_lock_init(&inode->i_lock);
- 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
- 
-@@ -202,11 +200,12 @@ int inode_init_always(struct super_block
- 	inode->i_fsnotify_mask = 0;
+ /*
+@@ -137,6 +139,17 @@
  #endif
- 	inode->i_flctx = NULL;
+ 
+ /*
++ * Optional: only supported since clang >= 14.0
++ *
++ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-error-function-attribute
++ */
++#if __has_attribute(__error__)
++# define __compiletime_error(msg)       __attribute__((__error__(msg)))
++#else
++# define __compiletime_error(msg)
++#endif
 +
-+	if (unlikely(security_inode_alloc(inode)))
-+		return -ENOMEM;
- 	this_cpu_inc(nr_inodes);
++/*
+  * Optional: not supported by clang
+  *
+  *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-externally_005fvisible-function-attribute
+@@ -273,6 +286,17 @@
+ #define __used                          __attribute__((__used__))
  
- 	return 0;
--out:
--	return -ENOMEM;
- }
- EXPORT_SYMBOL(inode_init_always);
+ /*
++ * Optional: only supported since clang >= 14.0
++ *
++ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-warning-function-attribute
++ */
++#if __has_attribute(__warning__)
++# define __compiletime_warning(msg)     __attribute__((__warning__(msg)))
++#else
++# define __compiletime_warning(msg)
++#endif
++
++/*
+  *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-weak-function-attribute
+  *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Variable-Attributes.html#index-weak-variable-attribute
+  */
+--- a/include/linux/compiler_types.h
++++ b/include/linux/compiler_types.h
+@@ -281,12 +281,6 @@ struct ftrace_likely_data {
+ #ifndef __compiletime_object_size
+ # define __compiletime_object_size(obj) -1
+ #endif
+-#ifndef __compiletime_warning
+-# define __compiletime_warning(message)
+-#endif
+-#ifndef __compiletime_error
+-# define __compiletime_error(message)
+-#endif
  
+ #ifdef __OPTIMIZE__
+ # define __compiletime_assert(condition, msg, prefix, suffix)		\
 
 
