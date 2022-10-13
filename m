@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3ECD5FD1D5
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:53:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E035FD0CE
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbiJMAxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:53:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45086 "EHLO
+        id S231359AbiJMAaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232024AbiJMAwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:52:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01098C786F;
-        Wed, 12 Oct 2022 17:49:31 -0700 (PDT)
+        with ESMTP id S231193AbiJMA1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:27:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F51C7B1D0;
+        Wed, 12 Oct 2022 17:25:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CC5A616FC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59474B81CFA;
+        Thu, 13 Oct 2022 00:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51630C43470;
         Thu, 13 Oct 2022 00:24:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A32C433C1;
-        Thu, 13 Oct 2022 00:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620655;
-        bh=Af8giS2+ZfpdZxS5MHM8Plt2o38OtS7fPeNrZbHoCb4=;
+        s=k20201202; t=1665620657;
+        bh=y1DBNfu6J+1iXQV3cyheZ8RvEKrcWUOykKgA/HCuzNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q/f68lHg47fS8OBF/c1oED9rcZir5yso1sW6zvyVN/QyE6r3brKA03aFWdx8N8BUk
-         87DK+z/2gc1Q9ZLZPWoQF3AvHTw/xasy/fdfA0wxJ86ExMboBX7M8G1KLTNmTMzI0b
-         FSuUvuDljJSp+vJ2rrsbanNWlK4TZ7gj2JxK8EhybA3qVLue93phK7Nax9tiXIwDR+
-         NDQdVqyemmmQDFA2T9y+WFPpGAmxVCxXPcE14OVPC6VMSX2ufF4r2jNbSVfBIt0GRZ
-         JSt0PQmNWOWeOZyBQQFaZEnR1baS5Dl5D8Pq3MnqHdhZS2Lz2DtLUxDBAiM8TCyO23
-         gYP3uhN51u/Kg==
+        b=g51v7Vzpss9kAbFj+WE9oD2u57sDyfeJmockRigBNWRCaETFbZQJEzXcL8pdKH3zq
+         t5EcI8RQSOAsHBb1Qxuh2O7aXA1NAzjf3YHoVlrockhsUPv7myZ0rtbW62rlMlYh2o
+         bdmjoXswhmRBZxU2Jb5jIIQ4iYhcFs/1eTkrolmUbgj+ayKUJWaHAGMwdCk88pMJTx
+         MAYSrW7roVRRs7vJHazo5kn5/NMCSLaUsEKVFdkAW/nCFup3GiA/TCSXzJ3/Ou7znL
+         0q5ces0DP1UJZCfLGZ/6txMxZpCbbvukjWjq5qKBwSDVLfKId9b6bj1oeVxxQi768T
+         tSURBKcTWUZUA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 16/33] soundwire: cadence: Don't overwrite msg->buf during write commands
-Date:   Wed, 12 Oct 2022 20:23:15 -0400
-Message-Id: <20221013002334.1894749-16-sashal@kernel.org>
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 17/33] soundwire: intel: fix error handling on dai registration issues
+Date:   Wed, 12 Oct 2022 20:23:16 -0400
+Message-Id: <20221013002334.1894749-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -56,47 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit ba05b39d265bdd16913f7684600d9d41e2796745 ]
+[ Upstream commit c6867cda906aadbce5e71efde9c78a26108b2bad ]
 
-The buf passed in struct sdw_msg must only be written for a READ,
-in that case the RDATA part of the response is the data value of the
-register.
+The call to intel_register_dai() may fail because of memory allocation
+issues or problems reported by the ASoC core. In all cases, when a
+error is thrown the component is not registered, it's invalid to
+unregister it.
 
-For a write command there is no RDATA, and buf should be assumed to
-be const and unmodifable. The original caller should not expect its data
-buffer to be corrupted by an sdw_nwrite().
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220916103505.1562210-1-rf@opensource.cirrus.com
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220919175721.354679-2-yung-chuan.liao@linux.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/soundwire/intel.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index c6d421a4b91b..a3247692ddc0 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -501,9 +501,12 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 		return SDW_CMD_IGNORED;
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index 824d9f900aca..942d2fe13218 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -1470,7 +1470,6 @@ int intel_master_startup(struct platform_device *pdev)
+ 	ret = intel_register_dai(sdw);
+ 	if (ret) {
+ 		dev_err(dev, "DAI registration failed: %d\n", ret);
+-		snd_soc_unregister_component(dev);
+ 		goto err_interrupt;
  	}
  
--	/* fill response */
--	for (i = 0; i < count; i++)
--		msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA, cdns->response_buf[i]);
-+	if (msg->flags == SDW_MSG_FLAG_READ) {
-+		/* fill response */
-+		for (i = 0; i < count; i++)
-+			msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA,
-+							 cdns->response_buf[i]);
-+	}
- 
- 	return SDW_CMD_OK;
- }
 -- 
 2.35.1
 
