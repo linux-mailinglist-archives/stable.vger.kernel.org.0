@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4971A5FD0BC
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2AA5FD0E3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbiJMA36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46038 "EHLO
+        id S231313AbiJMAa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231671AbiJMA3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:01 -0400
+        with ESMTP id S231766AbiJMA3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445AB18C975;
-        Wed, 12 Oct 2022 17:26:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E629B11E45B;
+        Wed, 12 Oct 2022 17:26:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09A53B81CEB;
-        Thu, 13 Oct 2022 00:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5A0BC433C1;
-        Thu, 13 Oct 2022 00:25:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41185B81CE8;
+        Thu, 13 Oct 2022 00:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38680C433C1;
+        Thu, 13 Oct 2022 00:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620736;
-        bh=/IDR0zTm2lJPM0MK7UW3XnXItapXnLnqvTqAjER0wR0=;
+        s=k20201202; t=1665620740;
+        bh=E39Li0uqkuNcL8pWsEL0CUY9ShjGGReIR53QVQ35SFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULFmkjfh6kgk+SFYuiT53dHS376WcnDvji7bfkN/WjwT0yPW2j7Ha/0PzcKrVd+9v
-         NsmunjjaWpJD4ko3xkI65/nYrcrNATZAXgkvDMZHMNoEEU6suNVZBSRzmlHvEq0WmJ
-         0oRzfMm9xHz4pZkyl7GUeVFBjZ0y9abCLXXSCgzCJmWq8MuL2Dt9OCY5im7rRlAUka
-         PUJqhdxVkMrLwgDyHbLmmv1cge0rkoXJco0nWMO9UT3YA+tgY/NlNkU8SbNctcZIGm
-         z1Bf3SsSTFf/PNNR2j0O0AElI0L3s9jcsi9w9J9PASXDab11ZdKJ6APRLrH8+KhikX
-         caqOfOb525jEg==
+        b=L95OuCD5dMG1PXO617xBzTh/Rc+niyFzWESZ4qxH9PssVTQlEzks5Uxx+O7ohWHHO
+         1Sz6V5PrYq4QgFfita75enm54Z673CYM/mJz/fwZ+LkhxsDsAL2Cc725fJn844msJ8
+         WmfyBQiSX/C5xlDEu5u/E2k1lP4flDQekzg0WnwcMSSJ6fkDFM7YtMLFwg4pirZHNI
+         lAdyDVP+EYV+Y6SM4bxFQaML2oGS22es/IURyEFHWu9WjDGAUHAjTK6GEiyfSBknuw
+         kmCYVDnbWAOToXaCQWUtutVH8dtELltWzBJSI20gVVAjRvRtpHadGPFMAXcoMGPR6W
+         tBKvogvDGMIIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, Mingzhe Zou <mingzhe.zou@easystack.cn>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        kent.overstreet@gmail.com, linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 11/27] bcache: fix set_at_max_writeback_rate() for multiple attached devices
-Date:   Wed, 12 Oct 2022 20:24:43 -0400
-Message-Id: <20221013002501.1895204-11-sashal@kernel.org>
+Cc:     Harry Stern <harry@harrystern.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 12/27] hid: topre: Add driver fixing report descriptor
+Date:   Wed, 12 Oct 2022 20:24:44 -0400
+Message-Id: <20221013002501.1895204-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002501.1895204-1-sashal@kernel.org>
 References: <20221013002501.1895204-1-sashal@kernel.org>
@@ -55,133 +56,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Harry Stern <harry@harrystern.net>
 
-[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
+[ Upstream commit a109d5c45b3d6728b9430716b915afbe16eef27c ]
 
-Inside set_at_max_writeback_rate() the calculation in following if()
-check is wrong,
-	if (atomic_inc_return(&c->idle_counter) <
-	    atomic_read(&c->attached_dev_nr) * 6)
+The Topre REALFORCE R2 firmware incorrectly reports that interface
+descriptor number 1, input report descriptor 2's events are array events
+rather than variable events. That particular report descriptor is used
+to report keypresses when there are more than 6 keys held at a time.
+This bug prevents events from this interface from being registered
+properly, so only 6 keypresses (from a different interface) can be
+registered at once, rather than full n-key rollover.
 
-Because each attached backing device has its own writeback thread
-running and increasing c->idle_counter, the counter increates much
-faster than expected. The correct calculation should be,
-	(counter / dev_nr) < dev_nr * 6
-which equals to,
-	counter < dev_nr * dev_nr * 6
+This commit fixes the bug by setting the correct value in a report_fixup
+function.
 
-This patch fixes the above mistake with correct calculation, and helper
-routine idle_counter_exceeded() is added to make code be more clear.
+The original bug report can be found here:
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/804
 
-Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Signed-off-by: Coly Li <colyli@suse.de>
-Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Thanks to Benjamin Tissoires for diagnosing the issue with the report
+descriptor.
+
+Signed-off-by: Harry Stern <harry@harrystern.net>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220911003614.297613-1-harry@harrystern.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
- 1 file changed, 52 insertions(+), 21 deletions(-)
+ drivers/hid/Kconfig     |  6 +++++
+ drivers/hid/Makefile    |  1 +
+ drivers/hid/hid-ids.h   |  3 +++
+ drivers/hid/hid-topre.c | 49 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 59 insertions(+)
+ create mode 100644 drivers/hid/hid-topre.c
 
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index 0b02210ab435..5767ff6c13e3 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -119,27 +119,61 @@ static void __update_writeback_rate(struct cached_dev *dc)
- 	dc->writeback_rate_target = target;
- }
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 5169a38ee47a..56315a0be78a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -992,6 +992,12 @@ config HID_TOPSEED
+ 	Say Y if you have a TopSeed Cyberlink or BTC Emprex or Conceptronic
+ 	CLLRCMCE remote control.
  
-+static bool idle_counter_exceeded(struct cache_set *c)
-+{
-+	int counter, dev_nr;
++config HID_TOPRE
++	tristate "Topre REALFORCE keyboards"
++	depends on HID
++	help
++	  Say Y for N-key rollover support on Topre REALFORCE R2 108 key keyboards.
 +
-+	/*
-+	 * If c->idle_counter is overflow (idel for really long time),
-+	 * reset as 0 and not set maximum rate this time for code
-+	 * simplicity.
-+	 */
-+	counter = atomic_inc_return(&c->idle_counter);
-+	if (counter <= 0) {
-+		atomic_set(&c->idle_counter, 0);
-+		return false;
-+	}
+ config HID_THINGM
+ 	tristate "ThingM blink(1) USB RGB LED"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 0c03308cfb08..bb618c74c442 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -110,6 +110,7 @@ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
+ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
+ obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
++obj-$(CONFIG_HID_TOPRE)	+= hid-topre.o
+ obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
+ obj-$(CONFIG_HID_U2FZERO)	+= hid-u2fzero.o
+ hid-uclogic-objs		:= hid-uclogic-core.o \
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c587a77d493c..fbceead99b3c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1156,6 +1156,9 @@
+ #define USB_DEVICE_ID_TIVO_SLIDE	0x1201
+ #define USB_DEVICE_ID_TIVO_SLIDE_PRO	0x1203
+ 
++#define USB_VENDOR_ID_TOPRE			0x0853
++#define USB_DEVICE_ID_TOPRE_REALFORCE_R2_108			0x0148
 +
-+	dev_nr = atomic_read(&c->attached_dev_nr);
-+	if (dev_nr == 0)
-+		return false;
+ #define USB_VENDOR_ID_TOPSEED		0x0766
+ #define USB_DEVICE_ID_TOPSEED_CYBERLINK	0x0204
+ 
+diff --git a/drivers/hid/hid-topre.c b/drivers/hid/hid-topre.c
+new file mode 100644
+index 000000000000..88a91cdad5f8
+--- /dev/null
++++ b/drivers/hid/hid-topre.c
+@@ -0,0 +1,49 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  HID driver for Topre REALFORCE Keyboards
++ *
++ *  Copyright (c) 2022 Harry Stern <harry@harrystern.net>
++ *
++ *  Based on the hid-macally driver
++ */
 +
-+	/*
-+	 * c->idle_counter is increased by writeback thread of all
-+	 * attached backing devices, in order to represent a rough
-+	 * time period, counter should be divided by dev_nr.
-+	 * Otherwise the idle time cannot be larger with more backing
-+	 * device attached.
-+	 * The following calculation equals to checking
-+	 *	(counter / dev_nr) < (dev_nr * 6)
-+	 */
-+	if (counter < (dev_nr * dev_nr * 6))
-+		return false;
++#include <linux/hid.h>
++#include <linux/module.h>
 +
-+	return true;
-+}
++#include "hid-ids.h"
++
++MODULE_AUTHOR("Harry Stern <harry@harrystern.net>");
++MODULE_DESCRIPTION("REALFORCE R2 Keyboard driver");
++MODULE_LICENSE("GPL");
 +
 +/*
-+ * Idle_counter is increased every time when update_writeback_rate() is
-+ * called. If all backing devices attached to the same cache set have
-+ * identical dc->writeback_rate_update_seconds values, it is about 6
-+ * rounds of update_writeback_rate() on each backing device before
-+ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
-+ * to each dc->writeback_rate.rate.
-+ * In order to avoid extra locking cost for counting exact dirty cached
-+ * devices number, c->attached_dev_nr is used to calculate the idle
-+ * throushold. It might be bigger if not all cached device are in write-
-+ * back mode, but it still works well with limited extra rounds of
-+ * update_writeback_rate().
++ * Fix the REALFORCE R2's non-boot interface's report descriptor to match the
++ * events it's actually sending. It claims to send array events but is instead
++ * sending variable events.
 + */
- static bool set_at_max_writeback_rate(struct cache_set *c,
- 				       struct cached_dev *dc)
- {
- 	/* Don't set max writeback rate if gc is running */
- 	if (!c->gc_mark_valid)
- 		return false;
--	/*
--	 * Idle_counter is increased everytime when update_writeback_rate() is
--	 * called. If all backing devices attached to the same cache set have
--	 * identical dc->writeback_rate_update_seconds values, it is about 6
--	 * rounds of update_writeback_rate() on each backing device before
--	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
--	 * to each dc->writeback_rate.rate.
--	 * In order to avoid extra locking cost for counting exact dirty cached
--	 * devices number, c->attached_dev_nr is used to calculate the idle
--	 * throushold. It might be bigger if not all cached device are in write-
--	 * back mode, but it still works well with limited extra rounds of
--	 * update_writeback_rate().
--	 */
--	if (atomic_inc_return(&c->idle_counter) <
--	    atomic_read(&c->attached_dev_nr) * 6)
++static __u8 *topre_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				 unsigned int *rsize)
++{
++	if (*rsize >= 119 && rdesc[69] == 0x29 && rdesc[70] == 0xe7 &&
++						 rdesc[71] == 0x81 && rdesc[72] == 0x00) {
++		hid_info(hdev,
++			"fixing up Topre REALFORCE keyboard report descriptor\n");
++		rdesc[72] = 0x02;
++	}
++	return rdesc;
++}
 +
-+	if (!idle_counter_exceeded(c))
- 		return false;
- 
- 	if (atomic_read(&c->at_max_writeback_rate) != 1)
-@@ -153,13 +187,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
- 	dc->writeback_rate_change = 0;
- 
- 	/*
--	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
--	 * new I/O arrives during before set_at_max_writeback_rate() returns.
--	 * Then the writeback rate is set to 1, and its new value should be
--	 * decided via __update_writeback_rate().
-+	 * In case new I/O arrives during before
-+	 * set_at_max_writeback_rate() returns.
- 	 */
--	if ((atomic_read(&c->idle_counter) <
--	     atomic_read(&c->attached_dev_nr) * 6) ||
-+	if (!idle_counter_exceeded(c) ||
- 	    !atomic_read(&c->at_max_writeback_rate))
- 		return false;
- 
++static const struct hid_device_id topre_id_table[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPRE,
++			 USB_DEVICE_ID_TOPRE_REALFORCE_R2_108) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, topre_id_table);
++
++static struct hid_driver topre_driver = {
++	.name			= "topre",
++	.id_table		= topre_id_table,
++	.report_fixup		= topre_report_fixup,
++};
++
++module_hid_driver(topre_driver);
 -- 
 2.35.1
 
