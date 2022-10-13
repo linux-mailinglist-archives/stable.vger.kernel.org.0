@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5F25FDF84
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D501F5FDF86
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbiJMRzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:55:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54496 "EHLO
+        id S230078AbiJMRzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229941AbiJMRyv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113C015B331;
-        Thu, 13 Oct 2022 10:54:01 -0700 (PDT)
+        with ESMTP id S229772AbiJMRyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D98157444;
+        Thu, 13 Oct 2022 10:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDF5EB8201E;
-        Thu, 13 Oct 2022 17:53:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF0FC4314A;
-        Thu, 13 Oct 2022 17:53:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 069BB618FE;
+        Thu, 13 Oct 2022 17:54:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2D6C433C1;
+        Thu, 13 Oct 2022 17:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683638;
-        bh=sSqsu/k7yCRo955wozzFH4QiJ3MfdL8o3wAU2EqhNQs=;
+        s=korg; t=1665683641;
+        bh=g+EAkij6uxeZdJQTmDZsQyVUFty47C9eO7ne9ycTahQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpDXaARaAKdpMcESmUg2Ys2A4dqGbT0nS9wsTNBH7/r7PNDw+k/LgTxNq4nPC/K6Y
-         fsWwYhI2cPlS1oTk8xSwP92Hlxd9B6+9jmTd6D84BstbnV9yo75WALu0UWScOXHIRE
-         9gjV6N0Veny6lEN3STF06wl5dyEw9sh/TfRv7iSw=
+        b=kiKThLEg7RPtCtMj4lcY8tbQ0GfGat8ek67Np8p++GGx950GN1lWyP+YI1fEYXi2t
+         3OlJtbZuCe2/2DHxHN3nLpVhWfYs/en8fHuPQvi9N+GCF5IACsr1TeDsdZH43UB+yB
+         rr0S6K2wTwLKrK7orF9zv862VUziGeNPYjuDpfm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 36/38] wifi: cfg80211: update hidden BSSes to avoid WARN_ON
-Date:   Thu, 13 Oct 2022 19:52:37 +0200
-Message-Id: <20221013175145.450004794@linuxfoundation.org>
+        stable@vger.kernel.org, Jasper Poppe <jgpoppe@gmail.com>,
+        Jeremy Palmer <jpalmer@linz.govt.nz>,
+        Ruineka <ruinairas1992@gmail.com>,
+        Cleber de Mattos Casali <clebercasali@gmail.com>,
+        Kyle Gospodnetich <me@kylegospodneti.ch>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 37/38] Input: xpad - add supported devices as contributed on github
+Date:   Thu, 13 Oct 2022 19:52:38 +0200
+Message-Id: <20221013175145.485482943@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
 References: <20221013175144.245431424@linuxfoundation.org>
@@ -53,88 +57,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-commit c90b93b5b782891ebfda49d4e5da36632fefd5d1 upstream.
+commit b382c5e37344883dc97525d05f1f6b788f549985 upstream.
 
-When updating beacon elements in a non-transmitted BSS,
-also update the hidden sub-entries to the same beacon
-elements, so that a future update through other paths
-won't trigger a WARN_ON().
+This is based on multiple commits at https://github.com/paroj/xpad
 
-The warning is triggered because the beacon elements in
-the hidden BSSes that are children of the BSS should
-always be the same as in the parent.
-
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jasper Poppe <jgpoppe@gmail.com>
+Signed-off-by: Jeremy Palmer <jpalmer@linz.govt.nz>
+Signed-off-by: Ruineka <ruinairas1992@gmail.com>
+Signed-off-by: Cleber de Mattos Casali <clebercasali@gmail.com>
+Signed-off-by: Kyle Gospodnetich <me@kylegospodneti.ch>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-2-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |   31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/input/joystick/xpad.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -1099,6 +1099,23 @@ struct cfg80211_non_tx_bss {
- 	u8 bssid_index;
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -112,6 +112,8 @@ static const struct xpad_device {
+ 	u8 xtype;
+ } xpad_device[] = {
+ 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
+ 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+@@ -242,6 +244,7 @@ static const struct xpad_device {
+ 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
++	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+@@ -258,6 +261,7 @@ static const struct xpad_device {
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
+@@ -322,6 +326,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
+@@ -331,6 +336,14 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
++	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
++	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
+ 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+ 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+@@ -416,6 +429,7 @@ static const signed short xpad_abs_trigg
+ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+ 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
++	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
+ 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+@@ -426,6 +440,7 @@ static const struct usb_device_id xpad_t
+ 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
+ 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
++	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+@@ -446,8 +461,12 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
++	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
++	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
++	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
+ 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
  };
- 
-+static void cfg80211_update_hidden_bsses(struct cfg80211_internal_bss *known,
-+					 const struct cfg80211_bss_ies *new_ies,
-+					 const struct cfg80211_bss_ies *old_ies)
-+{
-+	struct cfg80211_internal_bss *bss;
-+
-+	/* Assign beacon IEs to all sub entries */
-+	list_for_each_entry(bss, &known->hidden_list, hidden_list) {
-+		const struct cfg80211_bss_ies *ies;
-+
-+		ies = rcu_access_pointer(bss->pub.beacon_ies);
-+		WARN_ON(ies != old_ies);
-+
-+		rcu_assign_pointer(bss->pub.beacon_ies, new_ies);
-+	}
-+}
-+
- static bool
- cfg80211_update_known_bss(struct cfg80211_registered_device *rdev,
- 			  struct cfg80211_internal_bss *known,
-@@ -1122,7 +1139,6 @@ cfg80211_update_known_bss(struct cfg8021
- 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
- 	} else if (rcu_access_pointer(new->pub.beacon_ies)) {
- 		const struct cfg80211_bss_ies *old;
--		struct cfg80211_internal_bss *bss;
- 
- 		if (known->pub.hidden_beacon_bss &&
- 		    !list_empty(&known->hidden_list)) {
-@@ -1150,16 +1166,7 @@ cfg80211_update_known_bss(struct cfg8021
- 		if (old == rcu_access_pointer(known->pub.ies))
- 			rcu_assign_pointer(known->pub.ies, new->pub.beacon_ies);
- 
--		/* Assign beacon IEs to all sub entries */
--		list_for_each_entry(bss, &known->hidden_list, hidden_list) {
--			const struct cfg80211_bss_ies *ies;
--
--			ies = rcu_access_pointer(bss->pub.beacon_ies);
--			WARN_ON(ies != old);
--
--			rcu_assign_pointer(bss->pub.beacon_ies,
--					   new->pub.beacon_ies);
--		}
-+		cfg80211_update_hidden_bsses(known, new->pub.beacon_ies, old);
- 
- 		if (old)
- 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
-@@ -1798,6 +1805,8 @@ cfg80211_update_notlisted_nontrans(struc
- 	} else {
- 		old = rcu_access_pointer(nontrans_bss->beacon_ies);
- 		rcu_assign_pointer(nontrans_bss->beacon_ies, new_ies);
-+		cfg80211_update_hidden_bsses(bss_from_pub(nontrans_bss),
-+					     new_ies, old);
- 		rcu_assign_pointer(nontrans_bss->ies, new_ies);
- 		if (old)
- 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
 
 
