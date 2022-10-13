@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8117B5FD2AF
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 536E35FD21E
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:02:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbiJMBha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 21:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37162 "EHLO
+        id S229910AbiJMBCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 21:02:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229894AbiJMBh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:37:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07FD31463AF;
-        Wed, 12 Oct 2022 18:37:24 -0700 (PDT)
+        with ESMTP id S232220AbiJMBCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:02:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A9F24BDC;
+        Wed, 12 Oct 2022 17:59:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B8F61662;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91B65616BC;
+        Thu, 13 Oct 2022 00:23:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BA4C433B5;
         Thu, 13 Oct 2022 00:23:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B43C433D6;
-        Thu, 13 Oct 2022 00:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620594;
-        bh=dNCuxLTTNKFz5VDNGJB5PQxnQFbJ48RYQ3+HDlVGbtg=;
+        s=k20201202; t=1665620596;
+        bh=wrATyctV2ohV737W7q/40WRodm8LvGQCPuOWW++0vFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENUgN1tN2/1hwWtSqXmedH6Noz6tGgfpBTGCognToeVYdq1yIo193fnbUjmJlsgvk
-         +dH8uw8DKJPDH81pxfkfbOX2dC7jR7VXKkDYeDffMmHqi974xPeK/tIW9siApJBkrR
-         qZiH1rP6L4/eXgLjnBQbbm1SEfEcj/PRWF+rT6D82IFtVOVDwI/GyQn/isKiI97G6/
-         BuR6RK7WOfdgjPBAJ7OFjaUKWmJgBsoWVHwGtgeoHaR1nb8qh1WJiZseHizVvKEnBc
-         Tt+/BEpJ+aBfVxe0Zi8lUJAYfra7Pt9PgriLcDCCZiE0n39vy8dOo7CYlZg0wMtYLC
-         bkrcNa3jUtmoA==
+        b=XxXF7tK8dzgPfW2k5xFYJ4rxjzyWqUrUn4+A3wwF64aNWC3gVI0jnXdHpIwwUwpWJ
+         +qxUH1gjR6P/6U0a7njpVWiJENnhsEsQUa++l0KAmhSbpuuSNTSfBsVKBEl1e/R5gz
+         BLgebmIJyFa7knIQvtzBnl2Vs1ct/RBLdAlJGo0CW2Q68i/O4kV3lVQYHVV8RnEpaC
+         fUIgKVZu6jlucVSyxD/Mc0JXfT5cCjSEUQ51Wx7H33im/V9dKmPMmneAlzNq+tl1kM
+         ujj7kR9q8zp3ggqui8LFhgx1Ruzg2eo2xj8Fbr7SezLJrIh3u7pm318KN1dCLSI6F5
+         lJXqiEDQWV+DA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 40/47] ext2: Use kvmalloc() for group descriptor array
-Date:   Wed, 12 Oct 2022 20:21:15 -0400
-Message-Id: <20221013002124.1894077-40-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>, Jeff Lien <jeff.lien@wdc.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Chao Leng <lengchao@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 41/47] nvme: copy firmware_rev on each init
+Date:   Wed, 12 Oct 2022 20:21:16 -0400
+Message-Id: <20221013002124.1894077-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -56,53 +59,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit e7c7fbb9a8574ebd89cc05db49d806c7476863ad ]
+[ Upstream commit a8eb6c1ba48bddea82e8d74cbe6e119f006be97d ]
 
-Array of group descriptor block buffers can get rather large. In theory
-in can reach 1MB for perfectly valid filesystem and even more for
-maliciously crafted ones. Use kvmalloc() to allocate the array to avoid
-straining memory allocator with large order allocations unnecessarily.
+The firmware revision can change on after a reset so copy the most
+recent info each time instead of just the first time, otherwise the
+sysfs firmware_rev entry may contain stale data.
 
-Reported-by: syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: Jeff Lien <jeff.lien@wdc.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/super.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-index fd855574ef09..02d82f8fe85d 100644
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -163,7 +163,7 @@ static void ext2_put_super (struct super_block * sb)
- 	db_count = sbi->s_gdb_count;
- 	for (i = 0; i < db_count; i++)
- 		brelse(sbi->s_group_desc[i]);
--	kfree(sbi->s_group_desc);
-+	kvfree(sbi->s_group_desc);
- 	kfree(sbi->s_debts);
- 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
-@@ -1080,7 +1080,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 76d8a72f52e2..3527a0667568 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2732,7 +2732,6 @@ static int nvme_init_subsystem(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ 	nvme_init_subnqn(subsys, ctrl, id);
+ 	memcpy(subsys->serial, id->sn, sizeof(subsys->serial));
+ 	memcpy(subsys->model, id->mn, sizeof(subsys->model));
+-	memcpy(subsys->firmware_rev, id->fr, sizeof(subsys->firmware_rev));
+ 	subsys->vendor_id = le16_to_cpu(id->vid);
+ 	subsys->cmic = id->cmic;
+ 	subsys->awupf = le16_to_cpu(id->awupf);
+@@ -2939,6 +2938,8 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 				ctrl->quirks |= core_quirks[i].quirks;
+ 		}
  	}
- 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT2_DESC_PER_BLOCK(sb);
--	sbi->s_group_desc = kmalloc_array(db_count,
-+	sbi->s_group_desc = kvmalloc_array(db_count,
- 					   sizeof(struct buffer_head *),
- 					   GFP_KERNEL);
- 	if (sbi->s_group_desc == NULL) {
-@@ -1206,7 +1206,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- 	for (i = 0; i < db_count; i++)
- 		brelse(sbi->s_group_desc[i]);
- failed_mount_group_desc:
--	kfree(sbi->s_group_desc);
-+	kvfree(sbi->s_group_desc);
- 	kfree(sbi->s_debts);
- failed_mount:
- 	brelse(bh);
++	memcpy(ctrl->subsys->firmware_rev, id->fr,
++	       sizeof(ctrl->subsys->firmware_rev));
+ 
+ 	if (force_apst && (ctrl->quirks & NVME_QUIRK_NO_DEEPEST_PS)) {
+ 		dev_warn(ctrl->device, "forcibly allowing all power states due to nvme_core.force_apst -- use at your own risk\n");
 -- 
 2.35.1
 
