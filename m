@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B38635FDF7F
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBEFA5FDFB9
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229980AbiJMRzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
+        id S230226AbiJMR5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230004AbiJMRyY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1651115380F;
-        Thu, 13 Oct 2022 10:53:49 -0700 (PDT)
+        with ESMTP id S230165AbiJMR5R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C0B43E77;
+        Thu, 13 Oct 2022 10:56:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5AB4B82025;
-        Thu, 13 Oct 2022 17:53:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1CD3C433D6;
-        Thu, 13 Oct 2022 17:53:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C9D461913;
+        Thu, 13 Oct 2022 17:56:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64898C433C1;
+        Thu, 13 Oct 2022 17:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683627;
-        bh=1Ll6/7ocjbBrCFkgVE7FHQn8nDSrcLDqlbjznr3zqsM=;
+        s=korg; t=1665683760;
+        bh=xm4dJk+a4xXbTCFuEdRLmVRDxS983Q+yBTlQeFFvqXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3CEH3Ud/FqaCW7otzq54DeAQqg02A6VJUkwRg8/zaUp8YlUMjTbA3Ttsgu26Q0GR
-         t1K8nopVwPWDaAKid8dRiSpkbPcB6PJaKsfSs566eEHDzgKjjo/zef/x86FMqfLlzz
-         K4HmwBYiLPGpbpLshsozM/WvfAQDU8sBaTQoRzY0=
+        b=HlJHNtdjdicrwcNlOHt93h90hOZS9tMBXJMXH/s3OpXpYUEoI/cHBHIj2klViu3c1
+         lSQ6jiAEOxj/vxB4ZRjaQmHY//7fmP+eCB95CZ2Ti7rf0ZisMQ39HA2iUqTZGRnyZo
+         d4LCuJ4t2nTywZ2YMQqmNCMYXQYfEVregOjMaHGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 33/38] wifi: cfg80211: fix BSS refcounting bugs
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 40/54] USB: serial: qcserial: add new usb-id for Dell branded EM7455
 Date:   Thu, 13 Oct 2022 19:52:34 +0200
-Message-Id: <20221013175145.345782325@linuxfoundation.org>
+Message-Id: <20221013175148.313009411@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-commit 0b7808818cb9df6680f98996b8e9a439fa7bcc2f upstream.
+commit eee48781ea199e32c1d0c4732641c494833788ca upstream.
 
-There are multiple refcounting bugs related to multi-BSSID:
- - In bss_ref_get(), if the BSS has a hidden_beacon_bss, then
-   the bss pointer is overwritten before checking for the
-   transmitted BSS, which is clearly wrong. Fix this by using
-   the bss_from_pub() macro.
+Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
 
- - In cfg80211_bss_update() we copy the transmitted_bss pointer
-   from tmp into new, but then if we release new, we'll unref
-   it erroneously. We already set the pointer and ref it, but
-   need to NULL it since it was copied from the tmp data.
-
- - In cfg80211_inform_single_bss_data(), if adding to the non-
-   transmitted list fails, we unlink the BSS and yet still we
-   return it, but this results in returning an entry without
-   a reference. We shouldn't return it anyway if it was broken
-   enough to not get added there.
-
-This fixes CVE-2022-42720.
-
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: a3584f56de1c ("cfg80211: Properly track transmitting and non-transmitting BSS")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/usb/serial/qcserial.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -104,18 +104,12 @@ static inline void bss_ref_get(struct cf
- 	lockdep_assert_held(&rdev->bss_lock);
- 
- 	bss->refcount++;
--	if (bss->pub.hidden_beacon_bss) {
--		bss = container_of(bss->pub.hidden_beacon_bss,
--				   struct cfg80211_internal_bss,
--				   pub);
--		bss->refcount++;
--	}
--	if (bss->pub.transmitted_bss) {
--		bss = container_of(bss->pub.transmitted_bss,
--				   struct cfg80211_internal_bss,
--				   pub);
--		bss->refcount++;
--	}
-+
-+	if (bss->pub.hidden_beacon_bss)
-+		bss_from_pub(bss->pub.hidden_beacon_bss)->refcount++;
-+
-+	if (bss->pub.transmitted_bss)
-+		bss_from_pub(bss->pub.transmitted_bss)->refcount++;
- }
- 
- static inline void bss_ref_put(struct cfg80211_registered_device *rdev,
-@@ -1233,6 +1227,8 @@ cfg80211_bss_update(struct cfg80211_regi
- 		new->refcount = 1;
- 		INIT_LIST_HEAD(&new->hidden_list);
- 		INIT_LIST_HEAD(&new->pub.nontrans_list);
-+		/* we'll set this later if it was non-NULL */
-+		new->pub.transmitted_bss = NULL;
- 
- 		if (rcu_access_pointer(tmp->pub.proberesp_ies)) {
- 			hidden = rb_find_bss(rdev, tmp, BSS_CMP_HIDE_ZLEN);
-@@ -1462,10 +1458,15 @@ cfg80211_inform_single_bss_data(struct w
- 		spin_lock_bh(&rdev->bss_lock);
- 		if (cfg80211_add_nontrans_list(non_tx_data->tx_bss,
- 					       &res->pub)) {
--			if (__cfg80211_unlink_bss(rdev, res))
-+			if (__cfg80211_unlink_bss(rdev, res)) {
- 				rdev->bss_generation++;
-+				res = NULL;
-+			}
- 		}
- 		spin_unlock_bh(&rdev->bss_lock);
-+
-+		if (!res)
-+			return NULL;
- 	}
- 
- 	trace_cfg80211_return_bss(&res->pub);
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -177,6 +177,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
+ 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
++	{DEVICE_SWI(0x413c, 0x81c2)},	/* Dell Wireless 5811e */
+ 	{DEVICE_SWI(0x413c, 0x81cb)},	/* Dell Wireless 5816e QDL */
+ 	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
+ 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
 
 
