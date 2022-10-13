@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E04D5FDEB5
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE795FDEC3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229462AbiJMRMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:12:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46548 "EHLO
+        id S229700AbiJMRQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiJMRMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:12:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA13BCBA2
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 10:11:58 -0700 (PDT)
+        with ESMTP id S229696AbiJMRQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:16:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED2AD03BE
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 10:16:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F3D0B81FCC
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 17:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94BAC433D6;
-        Thu, 13 Oct 2022 17:11:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9E22618B4
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 17:16:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD861C433C1;
+        Thu, 13 Oct 2022 17:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665681116;
-        bh=vFnk8IJuMF+O7A7Ydm6smaWe/VTFPL0I6DOPvUmZLKI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=0V33NPVP2WCLW4AEvuEsXV5uwWs7R50Uygv9snTMFKXeK4fK9pZ/BjoIsE4Fhhqia
-         iLo97akNaP8LptQ3wlHtGfbZ/mwY83GYKEm8ibqpUSg3e6aL/zd6vOkOeUvT0sKZGj
-         I+wklq/HrflniFNBygGcltYgOKmWtuhCOfZ/qtBk=
-Subject: FAILED: patch "[PATCH] misc: pci_endpoint_test: Fix" failed to apply to 4.19-stable tree
-To:     mie@igel.co.jp, gregkh@linuxfoundation.org, stable@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Oct 2022 19:12:32 +0200
-Message-ID: <166568115262227@kroah.com>
+        s=korg; t=1665681402;
+        bh=1MXajSG1SduZXWEsORHjxxFPaV8Lh9ZF9Sp5J1vlIRo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tvWM8K39K7fziTpD5rqPXUT/GzsVpomPp1G/TN/EJSdk08Yh6dPjPEYC8k5zGDJOR
+         TuL7GGrHAbGE8LD5BqxZp9KxjV0Sjt8hXVfopYrusR2K2K4qRVELVKr33B5dnxoxiv
+         GdYHP3ydEGs7dmRi/z5r+x/TWrJp0YQeuUMeK8ak=
+Date:   Thu, 13 Oct 2022 19:17:18 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH stable 4.9.y 4.14.y] random: use expired timer rather
+ than wq for mixing fast pool
+Message-ID: <Y0hIHsPdL39HwBLu@kroah.com>
+References: <CAHmME9pg8D2cOtoiQYJFYzfkz1RmZY7V_HxRH1WAgd_qXYtPYg@mail.gmail.com>
+ <20221013170731.1456197-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221013170731.1456197-1-Jason@zx2c4.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,95 +51,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 13, 2022 at 11:07:31AM -0600, Jason A. Donenfeld wrote:
+> commit 748bc4dd9e663f23448d8ad7e58c011a67ea1eca upstream.
+> 
+> Previously, the fast pool was dumped into the main pool periodically in
+> the fast pool's hard IRQ handler. This worked fine and there weren't
+> problems with it, until RT came around. Since RT converts spinlocks into
+> sleeping locks, problems cropped up. Rather than switching to raw
+> spinlocks, the RT developers preferred we make the transformation from
+> originally doing:
+> 
+>     do_some_stuff()
+>     spin_lock()
+>     do_some_other_stuff()
+>     spin_unlock()
+> 
+> to doing:
+> 
+>     do_some_stuff()
+>     queue_work_on(some_other_stuff_worker)
+> 
+> This is an ordinary pattern done all over the kernel. However, Sherry
+> noticed a 10% performance regression in qperf TCP over a 40gbps
+> InfiniBand card. Quoting her message:
+> 
+> > MT27500 Family [ConnectX-3] cards:
+> > Infiniband device 'mlx4_0' port 1 status:
+> > default gid: fe80:0000:0000:0000:0010:e000:0178:9eb1
+> > base lid: 0x6
+> > sm lid: 0x1
+> > state: 4: ACTIVE
+> > phys state: 5: LinkUp
+> > rate: 40 Gb/sec (4X QDR)
+> > link_layer: InfiniBand
+> >
+> > Cards are configured with IP addresses on private subnet for IPoIB
+> > performance testing.
+> > Regression identified in this bug is in TCP latency in this stack as reported
+> > by qperf tcp_lat metric:
+> >
+> > We have one system listen as a qperf server:
+> > [root@yourQperfServer ~]# qperf
+> >
+> > Have the other system connect to qperf server as a client (in this
+> > case, it’s X7 server with Mellanox card):
+> > [root@yourQperfClient ~]# numactl -m0 -N0 qperf 20.20.20.101 -v -uu -ub --time 60 --wait_server 20 -oo msg_size:4K:1024K:*2 tcp_lat
+> 
+> Rather than incur the scheduling latency from queue_work_on, we can
+> instead switch to running on the next timer tick, on the same core. This
+> also batches things a bit more -- once per jiffy -- which is okay now
+> that mix_interrupt_randomness() can credit multiple bits at once.
+> 
+> Reported-by: Sherry Yang <sherry.yang@oracle.com>
+> Tested-by: Paul Webb <paul.x.webb@oracle.com>
+> Cc: Sherry Yang <sherry.yang@oracle.com>
+> Cc: Phillip Goerl <phillip.goerl@oracle.com>
+> Cc: Jack Vogel <jack.vogel@oracle.com>
+> Cc: Nicky Veitch <nicky.veitch@oracle.com>
+> Cc: Colm Harrington <colm.harrington@oracle.com>
+> Cc: Ramanan Govindarajan <ramanan.govindarajan@oracle.com>
+> Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+> Cc: Tejun Heo <tj@kernel.org>
+> Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  drivers/char/random.c | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-8e30538eca01 ("misc: pci_endpoint_test: Fix pci_endpoint_test_{copy,write,read}() panic")
-3e42deaac065 ("misc: pci_endpoint_test: Aggregate params checking for xfer")
-cf376b4b59da ("misc: pci_endpoint_test: Add support to get DMA option from userspace")
-5bb04b19230c ("misc: pci_endpoint_test: Add support to test PCI EP in AM654x")
-
-thanks,
+That worked, thanks, now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 8e30538eca016de8e252bef174beadecd64239f0 Mon Sep 17 00:00:00 2001
-From: Shunsuke Mie <mie@igel.co.jp>
-Date: Wed, 7 Sep 2022 11:01:00 +0900
-Subject: [PATCH] misc: pci_endpoint_test: Fix
- pci_endpoint_test_{copy,write,read}() panic
-
-The dma_map_single() doesn't permit zero length mapping. It causes a follow
-panic.
-
-A panic was reported on arm64:
-
-[   60.137988] ------------[ cut here ]------------
-[   60.142630] kernel BUG at kernel/dma/swiotlb.c:624!
-[   60.147508] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[   60.152992] Modules linked in: dw_hdmi_cec crct10dif_ce simple_bridge rcar_fdp1 vsp1 rcar_vin videobuf2_vmalloc rcar_csi2 v4l
-2_mem2mem videobuf2_dma_contig videobuf2_memops pci_endpoint_test videobuf2_v4l2 videobuf2_common rcar_fcp v4l2_fwnode v4l2_asyn
-c videodev mc gpio_bd9571mwv max9611 pwm_rcar ccree at24 authenc libdes phy_rcar_gen3_usb3 usb_dmac display_connector pwm_bl
-[   60.186252] CPU: 0 PID: 508 Comm: pcitest Not tainted 6.0.0-rc1rpci-dev+ #237
-[   60.193387] Hardware name: Renesas Salvator-X 2nd version board based on r8a77951 (DT)
-[   60.201302] pstate: 00000005 (nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[   60.208263] pc : swiotlb_tbl_map_single+0x2c0/0x590
-[   60.213149] lr : swiotlb_map+0x88/0x1f0
-[   60.216982] sp : ffff80000a883bc0
-[   60.220292] x29: ffff80000a883bc0 x28: 0000000000000000 x27: 0000000000000000
-[   60.227430] x26: 0000000000000000 x25: ffff0004c0da20d0 x24: ffff80000a1f77c0
-[   60.234567] x23: 0000000000000002 x22: 0001000040000010 x21: 000000007a000000
-[   60.241703] x20: 0000000000200000 x19: 0000000000000000 x18: 0000000000000000
-[   60.248840] x17: 0000000000000000 x16: 0000000000000000 x15: ffff0006ff7b9180
-[   60.255977] x14: ffff0006ff7b9180 x13: 0000000000000000 x12: 0000000000000000
-[   60.263113] x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
-[   60.270249] x8 : 0001000000000010 x7 : ffff0004c6754b20 x6 : 0000000000000000
-[   60.277385] x5 : ffff0004c0da2090 x4 : 0000000000000000 x3 : 0000000000000001
-[   60.284521] x2 : 0000000040000000 x1 : 0000000000000000 x0 : 0000000040000010
-[   60.291658] Call trace:
-[   60.294100]  swiotlb_tbl_map_single+0x2c0/0x590
-[   60.298629]  swiotlb_map+0x88/0x1f0
-[   60.302115]  dma_map_page_attrs+0x188/0x230
-[   60.306299]  pci_endpoint_test_ioctl+0x5e4/0xd90 [pci_endpoint_test]
-[   60.312660]  __arm64_sys_ioctl+0xa8/0xf0
-[   60.316583]  invoke_syscall+0x44/0x108
-[   60.320334]  el0_svc_common.constprop.0+0xcc/0xf0
-[   60.325038]  do_el0_svc+0x2c/0xb8
-[   60.328351]  el0_svc+0x2c/0x88
-[   60.331406]  el0t_64_sync_handler+0xb8/0xc0
-[   60.335587]  el0t_64_sync+0x18c/0x190
-[   60.339251] Code: 52800013 d2e00414 35fff45c d503201f (d4210000)
-[   60.345344] ---[ end trace 0000000000000000 ]---
-
-To fix it, this patch adds a checking the payload length if it is zero.
-
-Fixes: 343dc693f7b7 ("misc: pci_endpoint_test: Prevent some integer overflows")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
-Link: https://lore.kernel.org/r/20220907020100.122588-2-mie@igel.co.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/misc/pci_endpoint_test.c b/drivers/misc/pci_endpoint_test.c
-index 39d477bb0989..11530b4ec389 100644
---- a/drivers/misc/pci_endpoint_test.c
-+++ b/drivers/misc/pci_endpoint_test.c
-@@ -335,6 +335,11 @@ static bool pci_endpoint_test_msi_irq(struct pci_endpoint_test *test,
- static int pci_endpoint_test_validate_xfer_params(struct device *dev,
- 		struct pci_endpoint_test_xfer_param *param, size_t alignment)
- {
-+	if (!param->size) {
-+		dev_dbg(dev, "Data size is zero\n");
-+		return -EINVAL;
-+	}
-+
- 	if (param->size > SIZE_MAX - alignment) {
- 		dev_dbg(dev, "Maximum transfer data size exceeded\n");
- 		return -EINVAL;
-
