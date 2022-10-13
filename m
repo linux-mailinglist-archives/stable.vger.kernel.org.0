@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFEF5FD10D
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5665FD166
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231627AbiJMAc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:32:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47156 "EHLO
+        id S232038AbiJMAgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:36:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbiJMAbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:31:04 -0400
+        with ESMTP id S231621AbiJMAc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:32:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43EB1DFC2C;
-        Wed, 12 Oct 2022 17:28:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AF9DFC1E;
+        Wed, 12 Oct 2022 17:28:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43D5F616D9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B356166E;
+        Thu, 13 Oct 2022 00:19:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22618C433C1;
         Thu, 13 Oct 2022 00:19:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DC27C43145;
-        Thu, 13 Oct 2022 00:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620369;
-        bh=rSA5IDO+roESaDkQG4hoqT0sBncPJCP6+KrZ4dAwCxE=;
+        s=k20201202; t=1665620371;
+        bh=PyVuP224LTfOgKeY7PGhWDcswJIc+RIZ/ujbhn1tRm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B01RkYci6NMceC5hk0ymh9YJzdN3qTbSxtE2yzZkv+28tGPksLkRsHkIk0fKl3UR2
-         sNHSWVIpotggeS9JQpldmjh/A0ZrtTN0cGdQuYJdaNYNUO1yW+9sYRODdWbYPxZp7I
-         5BZ26KauIgjONXSoHdtBneQlJ4RJIDlqKj4J7cS2o/BKZTPwY+cTqN4eh65HywcP3K
-         2TUIe41ita9cfQvJLhPM1rMel0dte6Nj6fxOzGNBg2W5TK81U190PDwk30VzWsTerh
-         9ydDNjbg9xMJgJ3eGHMkp+Yxue8b2iJZO/JOtxPt9hEgjk+UqLrBwKpATQjvDe3f45
-         cxei9lHDmY23g==
+        b=Md4dUovKS/s4vb5AUmxoK4+aipyJ8QOJAmshF59Jf0mbMvy//ZjpyOyUfre0j+XEH
+         TOwfMFyWiqtXp9fIaHxjT2n/0iom/16W7ZbniZeXtTFvrnSdKiYjjeQ+nHjMpIuHru
+         luoHxRLAUareeK05mOMIArY81aL39lPgxp3uT1ubpiTgdqU2cbHvAaU+aO4YGla4xm
+         ljRfxPLX4YMUy0fjlgFzSpb2ztG2Ffk5IKbggbXFB/yoDg/dCuJU9itPznzAiWldlV
+         fuWj6u4lNmAWO89+L5aZ4/u0AvUw2jNuI7GXN3ZQHhZuBMVCU5IvgHhv9Ri+R926fZ
+         4ePK/jzFgAMcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     GUO Zihua <guozihua@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, philipp.g.hortmann@gmail.com,
-        yangyingliang@huawei.com, yogi.kernel@gmail.com, dave@stgolabs.net,
-        f3sch.git@outlook.com, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.19 16/63] staging: rtl8192e: Fix return type for implementation of ndo_start_xmit
-Date:   Wed, 12 Oct 2022 20:17:50 -0400
-Message-Id: <20221013001842.1893243-16-sashal@kernel.org>
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, Michael.Hennerich@analog.com,
+        sre@kernel.org, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 17/63] power: supply: adp5061: fix out-of-bounds read in adp5061_get_chg_type()
+Date:   Wed, 12 Oct 2022 20:17:51 -0400
+Message-Id: <20221013001842.1893243-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -57,64 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 513d9a61156d79dd0979c4ad400c8587f52cbb9d ]
+[ Upstream commit 9d47e01b9d807808224347935562f7043a358054 ]
 
-CFI (Control Flow Integrity) is a safety feature allowing the system to
-detect and react should a potential control flow hijacking occurs. In
-particular, the Forward-Edge CFI protects indirect function calls by
-ensuring the prototype of function that is actually called matches the
-definition of the function hook.
+ADP5061_CHG_STATUS_1_CHG_STATUS is masked with 0x07, which means a length
+of 8, but adp5061_chg_type array size is 4, may end up reading 4 elements
+beyond the end of the adp5061_chg_type[] array.
 
-Since Linux now supports CFI, it will be a good idea to fix mismatched
-return type for implementation of hooks. Otherwise this would get
-cought out by CFI and cause a panic.
-
-Use enums from netdev_tx_t as return value instead, then change return
-type to netdev_tx_t. Note that rtllib_xmit_inter() would return 1 only
-on allocation failure and the queue is stopped if that happens, meeting
-the documented requirement if NETDEV_TX_BUSY should be returned by
-ndo_start_xmit.
-
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Link: https://lore.kernel.org/r/20220905130053.10731-1-guozihua@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib.h    | 2 +-
- drivers/staging/rtl8192e/rtllib_tx.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/power/supply/adp5061.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8192e/rtllib.h b/drivers/staging/rtl8192e/rtllib.h
-index 0ecd81a81866..b4b606f552fb 100644
---- a/drivers/staging/rtl8192e/rtllib.h
-+++ b/drivers/staging/rtl8192e/rtllib.h
-@@ -1938,7 +1938,7 @@ int rtllib_encrypt_fragment(
- 	struct sk_buff *frag,
- 	int hdr_len);
+diff --git a/drivers/power/supply/adp5061.c b/drivers/power/supply/adp5061.c
+index 003557043ab3..daee1161c305 100644
+--- a/drivers/power/supply/adp5061.c
++++ b/drivers/power/supply/adp5061.c
+@@ -427,11 +427,11 @@ static int adp5061_get_chg_type(struct adp5061_state *st,
+ 	if (ret < 0)
+ 		return ret;
  
--int rtllib_xmit(struct sk_buff *skb,  struct net_device *dev);
-+netdev_tx_t rtllib_xmit(struct sk_buff *skb,  struct net_device *dev);
- void rtllib_txb_free(struct rtllib_txb *txb);
+-	chg_type = adp5061_chg_type[ADP5061_CHG_STATUS_1_CHG_STATUS(status1)];
+-	if (chg_type > ADP5061_CHG_FAST_CV)
++	chg_type = ADP5061_CHG_STATUS_1_CHG_STATUS(status1);
++	if (chg_type >= ARRAY_SIZE(adp5061_chg_type))
+ 		val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 	else
+-		val->intval = chg_type;
++		val->intval = adp5061_chg_type[chg_type];
  
- /* rtllib_rx.c */
-diff --git a/drivers/staging/rtl8192e/rtllib_tx.c b/drivers/staging/rtl8192e/rtllib_tx.c
-index 37715afb0210..71c9e29449c6 100644
---- a/drivers/staging/rtl8192e/rtllib_tx.c
-+++ b/drivers/staging/rtl8192e/rtllib_tx.c
-@@ -964,9 +964,9 @@ static int rtllib_xmit_inter(struct sk_buff *skb, struct net_device *dev)
- 
+ 	return ret;
  }
- 
--int rtllib_xmit(struct sk_buff *skb, struct net_device *dev)
-+netdev_tx_t rtllib_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	memset(skb->cb, 0, sizeof(skb->cb));
--	return rtllib_xmit_inter(skb, dev);
-+	return rtllib_xmit_inter(skb, dev) ? NETDEV_TX_BUSY : NETDEV_TX_OK;
- }
- EXPORT_SYMBOL(rtllib_xmit);
 -- 
 2.35.1
 
