@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B2E55FD0AC
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D095FD24F
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230342AbiJMA3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46134 "EHLO
+        id S230428AbiJMBMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 21:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231273AbiJMA2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:28:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8A6127BDC;
-        Wed, 12 Oct 2022 17:25:19 -0700 (PDT)
+        with ESMTP id S229872AbiJMBMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:12:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DFCF11A12;
+        Wed, 12 Oct 2022 18:11:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED539616E3;
-        Thu, 13 Oct 2022 00:21:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F5A4C433C1;
-        Thu, 13 Oct 2022 00:21:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D5E9B81CD8;
+        Thu, 13 Oct 2022 00:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC6FC433D6;
+        Thu, 13 Oct 2022 00:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620492;
-        bh=U5FwC+x5QHwRcU/B0716PmuSIwc109176+A/1yc5xbI=;
+        s=k20201202; t=1665620502;
+        bh=i1lndpiEkYrYAtQpDMBbdOudkzLK1aVb7W6EgX5Yd3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcU4p+pAUlu/BboLljAcdh6eYe8xHGFX2dBPcYMEDMzqLAAgOl9b2UDFKhI1fUYq8
-         z263Ed1o7RvxObDYsdFYeq9dj+ti9tZgZVlLb194q1M89geCUwXDQapqTn8hDCMAho
-         7APF5px6UjYVe3XMFlcYwtfq50hSO+Zrpsfcz+ufiveeMJav3fKlh3+tG46nd3Cfhc
-         NVqpMAF5dv5w5ySQnsk8Y8k+IxY6Uw1VrL3HYG4SZlFqqw3i1iOBKoaRhpAoEkaCfb
-         u0JpFO1lmbW6JpqyBCUx99ezVgyKjwei98HjLzvPpl8De/VKidxpnLHBjIfP7yBTF1
-         7eCTLlizEPzCA==
+        b=n2BLZLyggaDgsax3xO3TQy9M+dyFbP4ZpSPjKD6trFqlic0eMh9Pp+Qfs31bGEqWV
+         i9yl+hF79wtvVvoH4FWMQgZsqnXhkPtvwDanO+iW2H9Pi67xYKT/9TjMcFnALHPMbu
+         EBPCYZy+/0N/Q3Joi9Ga4gA0iPRTtaJs+6vk/bVKS43SGLIImnlN7YOv+J0XZfdcOQ
+         FlgmIXlGBMe03hkbZBhI6joIiPjcT1W+SC/ogg8Z09hkwhdNhltVrlWWmWvagNPiVu
+         S7d+4D73pewDj/eOPfq11kmynWlHSpWFGVun1FFEsapkgv0AnYBVtSYEaaJuMLwE81
+         IZnVKVuC5GO/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+Cc:     Hangyu Hua <hbh25y@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        laurent.pinchart@ideasonboard.com, sakari.ailus@linux.intel.com,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 02/47] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
-Date:   Wed, 12 Oct 2022 20:20:37 -0400
-Message-Id: <20221013002124.1894077-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, neil.armstrong@linaro.org,
+        khilman@baylibre.com, matthias.bgg@gmail.com,
+        dafna.hirschfeld@collabora.com, vulab@iscas.ac.cn,
+        rick.chang@mediatek.com, yong.wu@mediatek.com,
+        colin.i.king@gmail.com, christophe.jaillet@wanadoo.fr,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, andrzej.hajda@intel.com,
+        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 03/47] media: platform: fix some double free in meson-ge2d and mtk-jpeg and s5p-mfc
+Date:   Wed, 12 Oct 2022 20:20:38 -0400
+Message-Id: <20221013002124.1894077-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -58,139 +64,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
+[ Upstream commit c65c3f3a2cbf21ed429d9b9c725bdb5dc6abf4cf ]
 
-When the driver calls cx88_risc_buffer() to prepare the buffer, the
-function call may fail, resulting in a empty buffer and null-ptr-deref
-later in buffer_queue().
+video_unregister_device will release device internally. There is no need to
+call video_device_release after video_unregister_device.
 
-The following log can reveal it:
-
-[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
-[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
-[   41.836311] Call Trace:
-[   41.836945]  __enqueue_in_driver+0x141/0x360
-[   41.837262]  vb2_start_streaming+0x62/0x4a0
-[   41.838216]  vb2_core_streamon+0x1da/0x2c0
-[   41.838516]  __vb2_init_fileio+0x981/0xbc0
-[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
-[   41.840072]  vb2_fop_read+0x20e/0x400
-[   41.840346]  v4l2_read+0x215/0x290
-[   41.840603]  vfs_read+0x162/0x4c0
-
-Fix this by checking the return value of cx88_risc_buffer()
-
-[hverkuil: fix coding style issues]
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
- drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
- 2 files changed, 26 insertions(+), 26 deletions(-)
+ drivers/media/platform/meson/ge2d/ge2d.c        | 1 -
+ drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c | 1 -
+ drivers/media/platform/s5p-mfc/s5p_mfc.c        | 3 +--
+ 3 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
-index a075788c64d4..469aeaa725ad 100644
---- a/drivers/media/pci/cx88/cx88-vbi.c
-+++ b/drivers/media/pci/cx88/cx88-vbi.c
-@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 		return -EINVAL;
- 	vb2_set_plane_payload(vb, 0, size);
+diff --git a/drivers/media/platform/meson/ge2d/ge2d.c b/drivers/media/platform/meson/ge2d/ge2d.c
+index a373dea9866b..a885cbc99e38 100644
+--- a/drivers/media/platform/meson/ge2d/ge2d.c
++++ b/drivers/media/platform/meson/ge2d/ge2d.c
+@@ -1032,7 +1032,6 @@ static int ge2d_remove(struct platform_device *pdev)
  
--	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
--			 0, VBI_LINE_LENGTH * lines,
--			 VBI_LINE_LENGTH, 0,
--			 lines);
--	return 0;
-+	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
-+				0, VBI_LINE_LENGTH * lines,
-+				VBI_LINE_LENGTH, 0,
-+				lines);
- }
+ 	video_unregister_device(ge2d->vfd);
+ 	v4l2_m2m_release(ge2d->m2m_dev);
+-	video_device_release(ge2d->vfd);
+ 	v4l2_device_unregister(&ge2d->v4l2_dev);
+ 	clk_disable_unprepare(ge2d->clk);
  
- static void buffer_finish(struct vb2_buffer *vb)
-diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
-index c17ad9f7d822..99c55109c1e0 100644
---- a/drivers/media/pci/cx88/cx88-video.c
-+++ b/drivers/media/pci/cx88/cx88-video.c
-@@ -431,6 +431,7 @@ static int queue_setup(struct vb2_queue *q,
+diff --git a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
+index a89c7b206eef..470f8f167744 100644
+--- a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
++++ b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
+@@ -1457,7 +1457,6 @@ static int mtk_jpeg_remove(struct platform_device *pdev)
  
- static int buffer_prepare(struct vb2_buffer *vb)
- {
-+	int ret;
- 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
- 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
- 	struct cx88_core *core = dev->core;
-@@ -445,35 +446,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 	pm_runtime_disable(&pdev->dev);
+ 	video_unregister_device(jpeg->vdev);
+-	video_device_release(jpeg->vdev);
+ 	v4l2_m2m_release(jpeg->m2m_dev);
+ 	v4l2_device_unregister(&jpeg->v4l2_dev);
+ 	mtk_jpeg_clk_release(jpeg);
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
+index f336a9543273..4fc135d9f38b 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
+@@ -1406,6 +1406,7 @@ static int s5p_mfc_probe(struct platform_device *pdev)
+ /* Deinit MFC if probe had failed */
+ err_enc_reg:
+ 	video_unregister_device(dev->vfd_dec);
++	dev->vfd_dec = NULL;
+ err_dec_reg:
+ 	video_device_release(dev->vfd_enc);
+ err_enc_alloc:
+@@ -1451,8 +1452,6 @@ static int s5p_mfc_remove(struct platform_device *pdev)
  
- 	switch (core->field) {
- 	case V4L2_FIELD_TOP:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, 0, UNSET,
--				 buf->bpl, 0, core->height);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, 0, UNSET,
-+				       buf->bpl, 0, core->height);
- 		break;
- 	case V4L2_FIELD_BOTTOM:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, UNSET, 0,
--				 buf->bpl, 0, core->height);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, UNSET, 0,
-+				       buf->bpl, 0, core->height);
- 		break;
- 	case V4L2_FIELD_SEQ_TB:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl,
--				 0, buf->bpl * (core->height >> 1),
--				 buf->bpl, 0,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl,
-+				       0, buf->bpl * (core->height >> 1),
-+				       buf->bpl, 0,
-+				       core->height >> 1);
- 		break;
- 	case V4L2_FIELD_SEQ_BT:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl,
--				 buf->bpl * (core->height >> 1), 0,
--				 buf->bpl, 0,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl,
-+				       buf->bpl * (core->height >> 1), 0,
-+				       buf->bpl, 0,
-+				       core->height >> 1);
- 		break;
- 	case V4L2_FIELD_INTERLACED:
- 	default:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, 0, buf->bpl,
--				 buf->bpl, buf->bpl,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, 0, buf->bpl,
-+				       buf->bpl, buf->bpl,
-+				       core->height >> 1);
- 		break;
- 	}
- 	dprintk(2,
-@@ -481,7 +482,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 		buf, buf->vb.vb2_buf.index, __func__,
- 		core->width, core->height, dev->fmt->depth, dev->fmt->fourcc,
- 		(unsigned long)buf->risc.dma);
--	return 0;
-+	return ret;
- }
+ 	video_unregister_device(dev->vfd_enc);
+ 	video_unregister_device(dev->vfd_dec);
+-	video_device_release(dev->vfd_enc);
+-	video_device_release(dev->vfd_dec);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	s5p_mfc_unconfigure_dma_memory(dev);
  
- static void buffer_finish(struct vb2_buffer *vb)
 -- 
 2.35.1
 
