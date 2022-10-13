@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 945935FE013
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 610455FE0F1
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbiJMSEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
+        id S230177AbiJMST0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230386AbiJMSDJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E973152C43;
-        Thu, 13 Oct 2022 11:02:55 -0700 (PDT)
+        with ESMTP id S229769AbiJMSST (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:18:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6928116C221;
+        Thu, 13 Oct 2022 11:13:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5BB61944;
-        Thu, 13 Oct 2022 17:59:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE73C433D6;
-        Thu, 13 Oct 2022 17:59:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B98B4B8204E;
+        Thu, 13 Oct 2022 17:58:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 132D5C433D6;
+        Thu, 13 Oct 2022 17:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683956;
-        bh=4/0gbWRoGgXhcpCItadg29FCqoOIDIWdJPHkOeinRzA=;
+        s=korg; t=1665683916;
+        bh=LXvBMZgQGW5rg2p6e0YwUu2ffKqKQwDfqB6k048ZkgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKDsUS2ZW3MV2CqY8QXt7BnAgc80+wT+eAjSoeEYLlFRzBz0r+6389psQe/DCEoxk
-         z8OVK77hu9nnTx9ZdB94AksDbcZB0KlMcK4PFuIRCM4k9cEb2PkP/lpdMw9vLFyXIU
-         hAhwXiE30dXofio9WxmvmzeV1dIvIoYKkm81Anf8=
+        b=O4DlYXgoF4nGpiwBTbKJ0JGmy46s3yDEVNZ7r8cRvd81eAnvjmAN19q5k2/oMhw8B
+         qNxv9xH4zb1LMFayxgHkmYGfX9jKqy6w4ApVqrz3M3t4WtB4K0bU43weqLKwKjnQms
+         iRIZmjqpPd9v11yy9nQUU62ntXC+PVuBwcVLDqsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 03/33] nilfs2: fix leak of nilfs_root in case of writer thread creation failure
+        stable@vger.kernel.org, Guozihua <guozihua@huawei.com>,
+        Zhongguohua <zhongguohua1@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Theodore Tso <tytso@mit.edu>,
+        Andrew Lutomirski <luto@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 06/27] random: restore O_NONBLOCK support
 Date:   Thu, 13 Oct 2022 19:52:35 +0200
-Message-Id: <20221013175145.342219247@linuxfoundation.org>
+Message-Id: <20221013175143.753815853@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit d0d51a97063db4704a5ef6bc978dddab1636a306 upstream.
+commit cd4f24ae9404fd31fc461066e57889be3b68641b upstream.
 
-If nilfs_attach_log_writer() failed to create a log writer thread, it
-frees a data structure of the log writer without any cleanup.  After
-commit e912a5b66837 ("nilfs2: use root object to get ifile"), this causes
-a leak of struct nilfs_root, which started to leak an ifile metadata inode
-and a kobject on that struct.
+Prior to 5.6, when /dev/random was opened with O_NONBLOCK, it would
+return -EAGAIN if there was no entropy. When the pools were unified in
+5.6, this was lost. The post 5.6 behavior of blocking until the pool is
+initialized, and ignoring O_NONBLOCK in the process, went unnoticed,
+with no reports about the regression received for two and a half years.
+However, eventually this indeed did break somebody's userspace.
 
-In addition, if the kernel is booted with panic_on_warn, the above
-ifile metadata inode leak will cause the following panic when the
-nilfs2 kernel module is removed:
+So we restore the old behavior, by returning -EAGAIN if the pool is not
+initialized. Unlike the old /dev/random, this can only occur during
+early boot, after which it never blocks again.
 
-  kmem_cache_destroy nilfs2_inode_cache: Slab cache still has objects when
-  called from nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-  WARNING: CPU: 8 PID: 1464 at mm/slab_common.c:494 kmem_cache_destroy+0x138/0x140
-  ...
-  RIP: 0010:kmem_cache_destroy+0x138/0x140
-  Code: 00 20 00 00 e8 a9 55 d8 ff e9 76 ff ff ff 48 8b 53 60 48 c7 c6 20 70 65 86 48 c7 c7 d8 69 9c 86 48 8b 4c 24 28 e8 ef 71 c7 00 <0f> 0b e9 53 ff ff ff c3 48 81 ff ff 0f 00 00 77 03 31 c0 c3 53 48
-  ...
-  Call Trace:
-   <TASK>
-   ? nilfs_palloc_freev.cold.24+0x58/0x58 [nilfs2]
-   nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-   exit_nilfs_fs+0xa/0x1b [nilfs2]
-    __x64_sys_delete_module+0x1d9/0x3a0
-   ? __sanitizer_cov_trace_pc+0x1a/0x50
-   ? syscall_trace_enter.isra.19+0x119/0x190
-   do_syscall_64+0x34/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   ...
-   </TASK>
-  Kernel panic - not syncing: panic_on_warn set ...
+In order to make this O_NONBLOCK behavior consistent with other
+expectations, also respect users reading with preadv2(RWF_NOWAIT) and
+similar.
 
-This patch fixes these issues by calling nilfs_detach_log_writer() cleanup
-function if spawning the log writer thread fails.
-
-Link: https://lkml.kernel.org/r/20221007085226.57667-1-konishi.ryusuke@gmail.com
-Fixes: e912a5b66837 ("nilfs2: use root object to get ifile")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 30c08efec888 ("random: make /dev/random be almost like /dev/urandom")
+Reported-by: Guozihua <guozihua@huawei.com>
+Reported-by: Zhongguohua <zhongguohua1@huawei.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Andrew Lutomirski <luto@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/char/mem.c    |    4 ++--
+ drivers/char/random.c |    5 +++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2786,10 +2786,9 @@ int nilfs_attach_log_writer(struct super
- 	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
+--- a/drivers/char/mem.c
++++ b/drivers/char/mem.c
+@@ -702,8 +702,8 @@ static const struct memdev {
+ #endif
+ 	 [5] = { "zero", 0666, &zero_fops, 0 },
+ 	 [7] = { "full", 0666, &full_fops, 0 },
+-	 [8] = { "random", 0666, &random_fops, 0 },
+-	 [9] = { "urandom", 0666, &urandom_fops, 0 },
++	 [8] = { "random", 0666, &random_fops, FMODE_NOWAIT },
++	 [9] = { "urandom", 0666, &urandom_fops, FMODE_NOWAIT },
+ #ifdef CONFIG_PRINTK
+ 	[11] = { "kmsg", 0644, &kmsg_fops, 0 },
+ #endif
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1298,6 +1298,11 @@ static ssize_t random_read_iter(struct k
+ {
+ 	int ret;
  
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
--	if (err) {
--		kfree(nilfs->ns_writer);
--		nilfs->ns_writer = NULL;
--	}
-+	if (unlikely(err))
-+		nilfs_detach_log_writer(sb);
++	if (!crng_ready() &&
++	    ((kiocb->ki_flags & (IOCB_NOWAIT | IOCB_NOIO)) ||
++	     (kiocb->ki_filp->f_flags & O_NONBLOCK)))
++		return -EAGAIN;
 +
- 	return err;
- }
- 
+ 	ret = wait_for_random_bytes();
+ 	if (ret != 0)
+ 		return ret;
 
 
