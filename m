@@ -2,183 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D8D5FD01E
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAC965FD02C
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230460AbiJMAYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:24:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56092 "EHLO
+        id S230493AbiJMAYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbiJMAXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:23:48 -0400
+        with ESMTP id S231132AbiJMAXu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:23:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601F4AC495;
-        Wed, 12 Oct 2022 17:22:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1527B123445;
+        Wed, 12 Oct 2022 17:22:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8A0B61646;
-        Thu, 13 Oct 2022 00:21:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913ACC4347C;
-        Thu, 13 Oct 2022 00:21:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 786E96166F;
+        Thu, 13 Oct 2022 00:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6760C43470;
+        Thu, 13 Oct 2022 00:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620481;
-        bh=IAIz3auuKzMB24HYDVw7FfWvbqNMcbnafFAOA3nTfwo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2Jj/nnGM59aR8ImUqGqrMyBlkBivJ0VTPSE3toxgVQZPq68dvyWPntQkNUoY6YKL
-         tZ6Axy6igIWRtfyOFuoGJATGxl0skiJpzC3rG7Tf3Y9c0CriGK/sEI6tWt+GfwlDC9
-         qFEWMdf8Nc2k1H6hW5fM2+IWRdjCyDrTth4PuKMpdL0zCxwoH/Y1Vi8vv+y0vDek5+
-         w4ud4gu7g8Z9YmZuYH5Pl3pUT4MdJVriXHkXKse0J/h16/3L7o2aZdl2axdOpVlicT
-         hWmGteV54G/4oC9+6wGA6eC6k7uCk9h+Vdir6U24ykqgDlyVdttKKzm2NEWanNAU8M
-         mNiUe9ywQDQ3Q==
+        s=k20201202; t=1665620486;
+        bh=JANyCe8JQE5s7goiFOxXvXCylmib8YtSbUs1+M+zqNI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kY9IsGIEjYleGY2W5kKU9+PEeNnpB8FhRLh8jRwGACsaX3PDn6IE9Yq/W5H5RKCBW
+         r6KHwk7yQXfdhC5Cr/7+cECbVRVLISu9Ck1Xl7CGM/I80MpBn2xd8qTZUrJkzFajgf
+         /V+/GbUE8hA1p8ly0wp1UXowBIBlMhWOsyJFihQ29Ap18vBMC1AleIG7EDaiTuYNcD
+         TnrcG909s6xBuMin63yVQXGQIzV6KcyER3wX1r9yx//0eW1evagPfMc+hcZB9wZa+8
+         204gEHruQ4HR7kO6w1RUgoGjjB/JRPXbNBRjdV6V7U5uCj0L0fzMW6z8jzrAIe16QY
+         2FKRqBNmmGilA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ivan T. Ivanov" <iivanov@suse.de>,
-        Phil Elwell <phil@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
+Cc:     Ian Nam <young.kwan.nam@xilinx.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Michal Simek <michal.simek@amd.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>, mturquette@baylibre.com,
-        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        maxime@cerno.tech, nsaenz@kernel.org, linux-clk@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
+        michal.simek@xilinx.com, linux-clk@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 63/63] clk: bcm2835: Round UART input clock up
-Date:   Wed, 12 Oct 2022 20:18:37 -0400
-Message-Id: <20221013001842.1893243-63-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 01/47] clk: zynqmp: Fix stack-out-of-bounds in strncpy`
+Date:   Wed, 12 Oct 2022 20:20:36 -0400
+Message-Id: <20221013002124.1894077-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
-References: <20221013001842.1893243-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ivan T. Ivanov" <iivanov@suse.de>
+From: Ian Nam <young.kwan.nam@xilinx.com>
 
-[ Upstream commit f690a4d7a8f66430662975511c86819dc9965bcc ]
+[ Upstream commit dd80fb2dbf1cd8751efbe4e53e54056f56a9b115 ]
 
-It was reported that RPi3[1] and RPi Zero 2W boards have issues with
-the Bluetooth. It turns out that when switching from initial to
-operation speed host and device no longer can talk each other because
-host uses incorrect UART baud rate.
+"BUG: KASAN: stack-out-of-bounds in strncpy+0x30/0x68"
 
-The UART driver used in this case is amba-pl011. Original fix, see
-below Github link[2], was inside pl011 module, but somehow it didn't
-look as the right place to fix. Beside that this original rounding
-function is not exactly perfect for all possible clock values. So I
-deiced to move the hack to the platform which actually need it.
+Linux-ATF interface is using 16 bytes of SMC payload. In case clock name is
+longer than 15 bytes, string terminated NULL character will not be received
+by Linux. Add explicit NULL character at last byte to fix issues when clock
+name is longer.
 
-The UART clock is initialised to be as close to the requested
-frequency as possible without exceeding it. Now that there is a
-clock manager that returns the actual frequencies, an expected
-48MHz clock is reported as 47999625. If the requested baud rate
-== requested clock/16, there is no headroom and the slight
-reduction in actual clock rate results in failure.
+This fixes below bug reported by KASAN:
 
-If increasing a clock by less than 0.1% changes it from ..999..
-to ..000.., round it up.
+ ==================================================================
+ BUG: KASAN: stack-out-of-bounds in strncpy+0x30/0x68
+ Read of size 1 at addr ffff0008c89a7410 by task swapper/0/1
 
-[1] https://bugzilla.suse.com/show_bug.cgi?id=1188238
-[2] https://github.com/raspberrypi/linux/commit/ab3f1b39537f6d3825b8873006fbe2fc5ff057b7
+ CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.4.0-00396-g81ef9e7-dirty #3
+ Hardware name: Xilinx Versal vck190 Eval board revA (QSPI) (DT)
+ Call trace:
+  dump_backtrace+0x0/0x1e8
+  show_stack+0x14/0x20
+  dump_stack+0xd4/0x108
+  print_address_description.isra.0+0xbc/0x37c
+  __kasan_report+0x144/0x198
+  kasan_report+0xc/0x18
+  __asan_load1+0x5c/0x68
+  strncpy+0x30/0x68
+  zynqmp_clock_probe+0x238/0x7b8
+  platform_drv_probe+0x6c/0xc8
+  really_probe+0x14c/0x418
+  driver_probe_device+0x74/0x130
+  __device_attach_driver+0xc4/0xe8
+  bus_for_each_drv+0xec/0x150
+  __device_attach+0x160/0x1d8
+  device_initial_probe+0x10/0x18
+  bus_probe_device+0xe0/0xf0
+  device_add+0x528/0x950
+  of_device_add+0x5c/0x80
+  of_platform_device_create_pdata+0x120/0x168
+  of_platform_bus_create+0x244/0x4e0
+  of_platform_populate+0x50/0xe8
+  zynqmp_firmware_probe+0x370/0x3a8
+  platform_drv_probe+0x6c/0xc8
+  really_probe+0x14c/0x418
+  driver_probe_device+0x74/0x130
+  device_driver_attach+0x94/0xa0
+  __driver_attach+0x70/0x108
+  bus_for_each_dev+0xe4/0x158
+  driver_attach+0x30/0x40
+  bus_add_driver+0x21c/0x2b8
+  driver_register+0xbc/0x1d0
+  __platform_driver_register+0x7c/0x88
+  zynqmp_firmware_driver_init+0x1c/0x24
+  do_one_initcall+0xa4/0x234
+  kernel_init_freeable+0x1b0/0x24c
+  kernel_init+0x10/0x110
+  ret_from_fork+0x10/0x18
 
-Cc: Phil Elwell <phil@raspberrypi.com>
-Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220912081306.24662-1-iivanov@suse.de
+ The buggy address belongs to the page:
+ page:ffff0008f9be1c88 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0
+ raw: 0008d00000000000 ffff0008f9be1c90 ffff0008f9be1c90 0000000000000000
+ raw: 0000000000000000 0000000000000000 00000000ffffffff
+ page dumped because: kasan: bad access detected
+
+ addr ffff0008c89a7410 is located in stack of task swapper/0/1 at offset 112 in frame:
+  zynqmp_clock_probe+0x0/0x7b8
+
+ this frame has 3 objects:
+  [32, 44) 'response'
+  [64, 80) 'ret_payload'
+  [96, 112) 'name'
+
+ Memory state around the buggy address:
+  ffff0008c89a7300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff0008c89a7380: 00 00 00 00 f1 f1 f1 f1 00 04 f2 f2 00 00 f2 f2
+ >ffff0008c89a7400: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+                          ^
+  ffff0008c89a7480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff0008c89a7500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ==================================================================
+
+Signed-off-by: Ian Nam <young.kwan.nam@xilinx.com>
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Link: https://lore.kernel.org/r/20220510070154.29528-3-shubhrajyoti.datta@xilinx.com
+Acked-by: Michal Simek <michal.simek@amd.com>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 35 +++++++++++++++++++++++++++++++++--
- 1 file changed, 33 insertions(+), 2 deletions(-)
+ drivers/clk/zynqmp/clkc.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 19de0e83b65d..3f2ce20d27ec 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -30,6 +30,7 @@
- #include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/io.h>
-+#include <linux/math.h>
- #include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
-@@ -502,6 +503,8 @@ struct bcm2835_clock_data {
- 	bool low_jitter;
+diff --git a/drivers/clk/zynqmp/clkc.c b/drivers/clk/zynqmp/clkc.c
+index eb25303eefed..2c9da6623b84 100644
+--- a/drivers/clk/zynqmp/clkc.c
++++ b/drivers/clk/zynqmp/clkc.c
+@@ -710,6 +710,13 @@ static void zynqmp_get_clock_info(void)
+ 				  FIELD_PREP(CLK_ATTR_NODE_INDEX, i);
  
- 	u32 tcnt_mux;
+ 		zynqmp_pm_clock_get_name(clock[i].clk_id, &name);
 +
-+	bool round_up;
- };
- 
- struct bcm2835_gate_data {
-@@ -993,12 +996,34 @@ static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
- 	return temp;
- }
- 
-+static unsigned long bcm2835_round_rate(unsigned long rate)
-+{
-+	unsigned long scaler;
-+	unsigned long limit;
++		/*
++		 * Terminate with NULL character in case name provided by firmware
++		 * is longer and truncated due to size limit.
++		 */
++		name.name[sizeof(name.name) - 1] = '\0';
 +
-+	limit = rate / 100000;
-+
-+	scaler = 1;
-+	while (scaler < limit)
-+		scaler *= 10;
-+
-+	/*
-+	 * If increasing a clock by less than 0.1% changes it
-+	 * from ..999.. to ..000.., round up.
-+	 */
-+	if ((rate + scaler - 1) / scaler % 1000 == 0)
-+		rate = roundup(rate, scaler);
-+
-+	return rate;
-+}
-+
- static unsigned long bcm2835_clock_get_rate(struct clk_hw *hw,
- 					    unsigned long parent_rate)
- {
- 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
- 	struct bcm2835_cprman *cprman = clock->cprman;
- 	const struct bcm2835_clock_data *data = clock->data;
-+	unsigned long rate;
- 	u32 div;
- 
- 	if (data->int_bits == 0 && data->frac_bits == 0)
-@@ -1006,7 +1031,12 @@ static unsigned long bcm2835_clock_get_rate(struct clk_hw *hw,
- 
- 	div = cprman_read(cprman, data->div_reg);
- 
--	return bcm2835_clock_rate_from_divisor(clock, parent_rate, div);
-+	rate = bcm2835_clock_rate_from_divisor(clock, parent_rate, div);
-+
-+	if (data->round_up)
-+		rate = bcm2835_round_rate(rate);
-+
-+	return rate;
- }
- 
- static void bcm2835_clock_wait_busy(struct bcm2835_clock *clock)
-@@ -2143,7 +2173,8 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
- 		.div_reg = CM_UARTDIV,
- 		.int_bits = 10,
- 		.frac_bits = 12,
--		.tcnt_mux = 28),
-+		.tcnt_mux = 28,
-+		.round_up = true),
- 
- 	/* TV encoder clock.  Only operating frequency is 108Mhz.  */
- 	[BCM2835_CLOCK_VEC]	= REGISTER_PER_CLK(
+ 		if (!strcmp(name.name, RESERVED_CLK_NAME))
+ 			continue;
+ 		strncpy(clock[i].clk_name, name.name, MAX_NAME_LEN);
 -- 
 2.35.1
 
