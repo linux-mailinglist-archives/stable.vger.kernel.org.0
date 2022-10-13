@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 979B95FD149
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12415FD104
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231811AbiJMAfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:35:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
+        id S231192AbiJMAbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231691AbiJMAci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:32:38 -0400
+        with ESMTP id S230332AbiJMA3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FABADFC31;
-        Wed, 12 Oct 2022 17:28:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C0A3EA42;
+        Wed, 12 Oct 2022 17:27:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0D75616D1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43585616B3;
+        Thu, 13 Oct 2022 00:19:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937BAC43142;
         Thu, 13 Oct 2022 00:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E889C43141;
-        Thu, 13 Oct 2022 00:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620376;
-        bh=BrPmkkzV33LoAQaZVvf/My4DJRhBfffGea4/qAXPUQc=;
+        s=k20201202; t=1665620377;
+        bh=Cs778EV16yW6rgUzQmQbbcwO76N19BWUWRroMVbo2DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dky3QKgnwfLced6CDVSVB9r9w9+YVlZf20gO+HykkmI9FLLm6zgUwDoR0TBBgyQZg
-         eYIVWqtJ+crN1y/MNaYpaJ6QYuQ9dJKZF8tY23qyqsq9C/97ZYZAxsiWOSVzsUA/7B
-         8xkCK44eVcsxcnFnj+YxIe1Nw8v0FOVKi0ZyF6R/wLt5OlS6e/o8YHNnaqzOI9JHhz
-         EE6XZ8Teb8+qBjOgSSl+93pb/g5sw+1DnD7UH6da6Uh5cWo6o1PV87WVQBmIVfAJZA
-         lskVWIzrSd+CxIG59+OXcvBLRtxtgnkvRlaHsLbLrvKs079VwsELqK+N7ewQC8fgnc
-         jrYTqzg3I5ivg==
+        b=WtjpkXsL7XI41w3eTcdoK1iY4PIq7pqbtIrDJJbZ64WprngdFyZdxOFRzMDuVhbOK
+         EBiO0y5W2RE9IktF43sC8qm8wZ/L9f+NBRYPESq0f4nTnKHY2Z0gEMmf4DkTPpH/p9
+         Lti6RRGOcRixmX3X8YFCMEuGUul0Ra5d5F2ZU/bX092HlHPaHEGKwzwHI36WkYSxRH
+         0uVRYFqeQ4mJA75eRUZ6i5TIKrpnuQ+VmMiO/Etq0tVa5F2unvm9ZO40wxla9hkKEn
+         x5g565K065yOOUp7uKH9jrqoSBLUPCC7qDGzwGjj5unNt4IrVuZEG2othz6B0/n270
+         JuAMZuHliK0qw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        cgroups@vger.kernel.org, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 19/63] blk-throttle: prevent overflow while calculating wait time
-Date:   Wed, 12 Oct 2022 20:17:53 -0400
-Message-Id: <20221013001842.1893243-19-sashal@kernel.org>
+Cc:     Conor Dooley <conor.dooley@microchip.com>,
+        Daire McNamara <daire.mcnamara@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>, mturquette@baylibre.com,
+        sboyd@kernel.org, linux-riscv@lists.infradead.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 20/63] clk: microchip: mpfs: add MSS pll's set & round rate
+Date:   Wed, 12 Oct 2022 20:17:54 -0400
+Message-Id: <20221013001842.1893243-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -55,49 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 8d6bbaada2e0a65f9012ac4c2506460160e7237a ]
+[ Upstream commit 14016e4aafc5f157c10fb1a386fa3b3bd9c30e9a ]
 
-There is a problem found by code review in tg_with_in_bps_limit() that
-'bps_limit * jiffy_elapsed_rnd' might overflow. Fix the problem by
-calling mul_u64_u64_div_u64() instead.
+The MSS pll is not a fixed frequency clock, so add set() & round_rate()
+support.
+Control is limited to a 7 bit output divider as other devices on the
+FPGA occupy the other three outputs of the PLL & prevent changing
+the multiplier.
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220829022240.3348319-3-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220909123123.2699583-9-conor.dooley@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-throttle.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/clk/microchip/clk-mpfs.c | 54 ++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 139b2d7a99e2..d3c048fbb0e5 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -806,7 +806,7 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
- 				 u64 bps_limit, unsigned long *wait)
- {
- 	bool rw = bio_data_dir(bio);
--	u64 bytes_allowed, extra_bytes, tmp;
-+	u64 bytes_allowed, extra_bytes;
- 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
- 	unsigned int bio_size = throtl_bio_data_size(bio);
+diff --git a/drivers/clk/microchip/clk-mpfs.c b/drivers/clk/microchip/clk-mpfs.c
+index b6b89413e090..cb4ec4749279 100644
+--- a/drivers/clk/microchip/clk-mpfs.c
++++ b/drivers/clk/microchip/clk-mpfs.c
+@@ -126,8 +126,62 @@ static unsigned long mpfs_clk_msspll_recalc_rate(struct clk_hw *hw, unsigned lon
+ 	return prate * mult / (ref_div * MSSPLL_FIXED_DIV * postdiv);
+ }
  
-@@ -824,10 +824,8 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
- 		jiffy_elapsed_rnd = tg->td->throtl_slice;
++static long mpfs_clk_msspll_round_rate(struct clk_hw *hw, unsigned long rate, unsigned long *prate)
++{
++	struct mpfs_msspll_hw_clock *msspll_hw = to_mpfs_msspll_clk(hw);
++	void __iomem *mult_addr = msspll_hw->base + msspll_hw->reg_offset;
++	void __iomem *ref_div_addr = msspll_hw->base + REG_MSSPLL_REF_CR;
++	u32 mult, ref_div;
++	unsigned long rate_before_ctrl;
++
++	mult = readl_relaxed(mult_addr) >> MSSPLL_FBDIV_SHIFT;
++	mult &= clk_div_mask(MSSPLL_FBDIV_WIDTH);
++	ref_div = readl_relaxed(ref_div_addr) >> MSSPLL_REFDIV_SHIFT;
++	ref_div &= clk_div_mask(MSSPLL_REFDIV_WIDTH);
++
++	rate_before_ctrl = rate * (ref_div * MSSPLL_FIXED_DIV) / mult;
++
++	return divider_round_rate(hw, rate_before_ctrl, prate, NULL, MSSPLL_POSTDIV_WIDTH,
++				  msspll_hw->flags);
++}
++
++static int mpfs_clk_msspll_set_rate(struct clk_hw *hw, unsigned long rate, unsigned long prate)
++{
++	struct mpfs_msspll_hw_clock *msspll_hw = to_mpfs_msspll_clk(hw);
++	void __iomem *mult_addr = msspll_hw->base + msspll_hw->reg_offset;
++	void __iomem *ref_div_addr = msspll_hw->base + REG_MSSPLL_REF_CR;
++	void __iomem *postdiv_addr = msspll_hw->base + REG_MSSPLL_POSTDIV_CR;
++	u32 mult, ref_div, postdiv;
++	int divider_setting;
++	unsigned long rate_before_ctrl, flags;
++
++	mult = readl_relaxed(mult_addr) >> MSSPLL_FBDIV_SHIFT;
++	mult &= clk_div_mask(MSSPLL_FBDIV_WIDTH);
++	ref_div = readl_relaxed(ref_div_addr) >> MSSPLL_REFDIV_SHIFT;
++	ref_div &= clk_div_mask(MSSPLL_REFDIV_WIDTH);
++
++	rate_before_ctrl = rate * (ref_div * MSSPLL_FIXED_DIV) / mult;
++	divider_setting = divider_get_val(rate_before_ctrl, prate, NULL, MSSPLL_POSTDIV_WIDTH,
++					  msspll_hw->flags);
++
++	if (divider_setting < 0)
++		return divider_setting;
++
++	spin_lock_irqsave(&mpfs_clk_lock, flags);
++
++	postdiv = readl_relaxed(postdiv_addr);
++	postdiv &= ~(clk_div_mask(MSSPLL_POSTDIV_WIDTH) << MSSPLL_POSTDIV_SHIFT);
++	writel_relaxed(postdiv, postdiv_addr);
++
++	spin_unlock_irqrestore(&mpfs_clk_lock, flags);
++
++	return 0;
++}
++
+ static const struct clk_ops mpfs_clk_msspll_ops = {
+ 	.recalc_rate = mpfs_clk_msspll_recalc_rate,
++	.round_rate = mpfs_clk_msspll_round_rate,
++	.set_rate = mpfs_clk_msspll_set_rate,
+ };
  
- 	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
--
--	tmp = bps_limit * jiffy_elapsed_rnd;
--	do_div(tmp, HZ);
--	bytes_allowed = tmp;
-+	bytes_allowed = mul_u64_u64_div_u64(bps_limit, (u64)jiffy_elapsed_rnd,
-+					    (u64)HZ);
- 
- 	if (tg->bytes_disp[rw] + bio_size <= bytes_allowed) {
- 		if (wait)
+ #define CLK_PLL(_id, _name, _parent, _shift, _width, _flags, _offset) {			\
 -- 
 2.35.1
 
