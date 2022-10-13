@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A506C5FCFA3
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:20:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F3E5FCFA5
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbiJMAUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:20:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38246 "EHLO
+        id S229832AbiJMAUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:20:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229886AbiJMATZ (ORCPT
+        with ESMTP id S230109AbiJMATZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:19:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A3D171CD1;
-        Wed, 12 Oct 2022 17:17:39 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91FF4150481;
+        Wed, 12 Oct 2022 17:17:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E411616B3;
-        Thu, 13 Oct 2022 00:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D23C433C1;
-        Thu, 13 Oct 2022 00:17:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1080B81CC6;
+        Thu, 13 Oct 2022 00:17:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 851ECC433C1;
+        Thu, 13 Oct 2022 00:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620258;
-        bh=v54vnW+bX4cKUN2tJYHQtuvmIGDk0z24Qkca/Gc9l6g=;
+        s=k20201202; t=1665620262;
+        bh=lDR61PbfI7H5eQX4Ti6CnNOBp3xkPZ74M3x0TE5CuNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IF21V7tjfLsbYS1DqCutOE6nOeXYt6FGOYOC4YVUKf7TFptlHWn98h7suIbMpG9ep
-         cBenltYGCvBUsfc2ALurDprFBsI75cm+yUKRLIZxBqXLs7J5P4o0bcO+RYUzXH0Hy2
-         Ki6Q9w1ZhDZzYLRgt4ZiOuAwP4q+Zvs9T2FiBb2Rtv/OD+K0qEfV/ez+d2z78Up1sJ
-         GsPge7nZ+pEzThipCjppVFBgftVoqO510ErYbIOhZYqbgrZHexAUj5UK6ov+HqBpKx
-         OufPEqcuNmu3jkIdbc2mmcKaoT5XytQQ07DlUug3y0H27E1J0X70xFsVCFDLjXerrv
-         gJEdnVWFZEbuQ==
+        b=susC5Eh3h+EK0DOVLM6pSm6071jesmvmuFKsR7MPN3mBxsoK3uqP0XlC9C0lIF/rT
+         IO9NZ/UgfSnwdtPydEhjRocgx3jWCjSpIx0FBP8a9x59liIe4ubPt+JaEcHQgpooBC
+         uz31mEQ1GAKWefpHVLiX7v5OhQmVnJtIXZDh7G9iP4AbxGQfgmRMmyW1Bve3jnFYVK
+         lZmEhasAnuC1VhcdqGFu70UA3ln+Nq4VTLHKopKrSfvpFC+wvnl4M0HtjWFBp5Ui1Q
+         sjGgRZFXLupvYpbHg3fskemASZRoiJwCM+DBui6+O1P3wimynQZWbaLT4An127TIGK
+         Jn8lexKIs+yvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        hdegoede@redhat.com, cgel.zte@gmail.com, macromorgan@hotmail.com,
-        chi.minghao@zte.com.cn, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 45/67] staging: rtl8723bs: fix potential memory leak in rtw_init_drv_sw()
-Date:   Wed, 12 Oct 2022 20:15:26 -0400
-Message-Id: <20221013001554.1892206-45-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kushalkothari285@gmail.com,
+        namcaov@gmail.com, remckee0@gmail.com, jagathjog1996@gmail.com,
+        saurav.girepunje@gmail.com, ebiederm@xmission.com,
+        linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.0 46/67] staging: rtl8723bs: fix a potential memory leak in rtw_init_cmd_priv()
+Date:   Wed, 12 Oct 2022 20:15:27 -0400
+Message-Id: <20221013001554.1892206-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001554.1892206-1-sashal@kernel.org>
 References: <20221013001554.1892206-1-sashal@kernel.org>
@@ -59,124 +60,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 5a5aa9cce621e2c0e25a1e5d72d6be1749167cc0 ]
+[ Upstream commit 708056fba733a73d926772ea4ce9a42d240345da ]
 
-In rtw_init_drv_sw(), there are various init functions are called to
-populate the padapter structure and some checks for their return value.
-However, except for the first one error path, the other five error paths
-do not properly release the previous allocated resources, which leads to
-various memory leaks.
+In rtw_init_cmd_priv(), if `pcmdpriv->rsp_allocated_buf` is allocated
+in failure, then `pcmdpriv->cmd_allocated_buf` will be not properly
+released. Besides, considering there are only two error paths and the
+first one can directly return, so we do not need implicitly jump to the
+`exit` tag to execute the error handler.
 
-This patch fixes them and keeps the success and error separate.
-Note that these changes keep the form of `rtw_init_drv_sw()` in
-"drivers/staging/r8188eu/os_dep/os_intfs.c". As there is no proper device
-to test with, no runtime testing was performed.
+So this patch added `kfree(pcmdpriv->cmd_allocated_buf);` on the error
+path to release the resource and simplified the return logic of
+rtw_init_cmd_priv(). As there is no proper device to test with, no runtime
+testing was performed.
 
 Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_C3B899D2FC3F1BC827F3552E0B0734056006@qq.com
+Link: https://lore.kernel.org/r/tencent_2B7931B79BA38E22205C5A09EFDF11E48805@qq.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/os_dep/os_intfs.c | 60 +++++++++++----------
- 1 file changed, 31 insertions(+), 29 deletions(-)
+ drivers/staging/rtl8723bs/core/rtw_cmd.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/os_dep/os_intfs.c b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
-index 380d8c9e1239..68bba3c0e757 100644
---- a/drivers/staging/rtl8723bs/os_dep/os_intfs.c
-+++ b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
-@@ -664,51 +664,36 @@ void rtw_reset_drv_sw(struct adapter *padapter)
+diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c
+index b4170f64d118..03c2c66dbf66 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_cmd.c
++++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c
+@@ -161,8 +161,6 @@ static struct cmd_hdl wlancmds[] = {
  
- u8 rtw_init_drv_sw(struct adapter *padapter)
+ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
  {
--	u8 ret8 = _SUCCESS;
+-	int res = 0;
 -
- 	rtw_init_default_value(padapter);
+ 	init_completion(&pcmdpriv->cmd_queue_comp);
+ 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
  
- 	rtw_init_hal_com_default_value(padapter);
+@@ -175,18 +173,16 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
  
--	if (rtw_init_cmd_priv(&padapter->cmdpriv)) {
--		ret8 = _FAIL;
+ 	pcmdpriv->cmd_allocated_buf = rtw_zmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ);
+ 
+-	if (!pcmdpriv->cmd_allocated_buf) {
+-		res = -ENOMEM;
 -		goto exit;
 -	}
-+	if (rtw_init_cmd_priv(&padapter->cmdpriv))
-+		return _FAIL;
++	if (!pcmdpriv->cmd_allocated_buf)
++		return -ENOMEM;
  
- 	padapter->cmdpriv.padapter = padapter;
+ 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ - ((SIZE_PTR)(pcmdpriv->cmd_allocated_buf) & (CMDBUFF_ALIGN_SZ-1));
  
--	if (rtw_init_evt_priv(&padapter->evtpriv)) {
--		ret8 = _FAIL;
+ 	pcmdpriv->rsp_allocated_buf = rtw_zmalloc(MAX_RSPSZ + 4);
+ 
+ 	if (!pcmdpriv->rsp_allocated_buf) {
+-		res = -ENOMEM;
 -		goto exit;
--	}
-+	if (rtw_init_evt_priv(&padapter->evtpriv))
-+		goto free_cmd_priv;
++		kfree(pcmdpriv->cmd_allocated_buf);
++		return -ENOMEM;
+ 	}
  
--
--	if (rtw_init_mlme_priv(padapter) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (rtw_init_mlme_priv(padapter) == _FAIL)
-+		goto free_evt_priv;
+ 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 - ((SIZE_PTR)(pcmdpriv->rsp_allocated_buf) & 3);
+@@ -196,8 +192,8 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ 	pcmdpriv->rsp_cnt = 0;
  
- 	init_mlme_ext_priv(padapter);
- 
--	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL)
-+		goto free_mlme_ext;
- 
--	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL)
-+		goto free_xmit_priv;
- 	/*  add for CONFIG_IEEE80211W, none 11w also can use */
- 	spin_lock_init(&padapter->security_key_mutex);
- 
- 	/*  We don't need to memset padapter->XXX to zero, because adapter is allocated by vzalloc(). */
- 	/* memset((unsigned char *)&padapter->securitypriv, 0, sizeof (struct security_priv)); */
- 
--	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL)
-+		goto free_recv_priv;
- 
- 	padapter->stapriv.padapter = padapter;
- 	padapter->setband = GHZ24_50;
-@@ -719,9 +704,26 @@ u8 rtw_init_drv_sw(struct adapter *padapter)
- 
- 	rtw_hal_dm_init(padapter);
- 
+ 	mutex_init(&pcmdpriv->sctx_mutex);
 -exit:
-+	return _SUCCESS;
+-	return res;
 +
-+free_recv_priv:
-+	_rtw_free_recv_priv(&padapter->recvpriv);
-+
-+free_xmit_priv:
-+	_rtw_free_xmit_priv(&padapter->xmitpriv);
-+
-+free_mlme_ext:
-+	free_mlme_ext_priv(&padapter->mlmeextpriv);
- 
--	return ret8;
-+	rtw_free_mlme_priv(&padapter->mlmepriv);
-+
-+free_evt_priv:
-+	rtw_free_evt_priv(&padapter->evtpriv);
-+
-+free_cmd_priv:
-+	rtw_free_cmd_priv(&padapter->cmdpriv);
-+
-+	return _FAIL;
++	return 0;
  }
  
- void rtw_cancel_all_timer(struct adapter *padapter)
+ static void c2h_wk_callback(struct work_struct *work);
 -- 
 2.35.1
 
