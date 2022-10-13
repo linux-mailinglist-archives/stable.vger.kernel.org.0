@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4662A5FE0B7
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1735FE029
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231794AbiJMSNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
+        id S231163AbiJMSEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231670AbiJMSMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:43 -0400
+        with ESMTP id S231303AbiJMSEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:04:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 567F1DBE4C;
-        Thu, 13 Oct 2022 11:09:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F118152C6C;
+        Thu, 13 Oct 2022 11:03:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56568B8203C;
-        Thu, 13 Oct 2022 17:57:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A147C433D6;
-        Thu, 13 Oct 2022 17:57:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45D4EB82055;
+        Thu, 13 Oct 2022 17:59:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29128C433D6;
+        Thu, 13 Oct 2022 17:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683870;
-        bh=UKF8TMaennwEzj2kTNFiz0KGvFT3hjGwzvVddy+SOcg=;
+        s=korg; t=1665683991;
+        bh=5fGeL9rrSeEnEiyxIZ1qrK6yt0BsEelbTs8rHswWTrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3E07aXzG0ntnBrpvnFPDxASLylelmTEnaY94F7hy1+ZF5CdT1W4trDNVZnqjG+Rr
-         Ko2NUUY4kbuKcpdxnSKgrncU6M7tqw8P+uWoZ8oA/Pi2c2hFTib+qlrOLX+QtQRdLe
-         3E+SpGXqo5wsWHEfOm2731F2BWNA6tJ5lrULnAu4=
+        b=ky74HZOGwnZvI9xWX0wu61ijjIpGyarrK4j/w3PVL1ZtNcZW/Tle2lTMtcDpM93hx
+         oetnoY4wLIzttmGZvYag/NqLDQTYuHItl/21IJNGKLTmtRKLGySEzG/Nt+tgRMmZwM
+         DJGml+aKCFRdBokWLQF22AnP8igs5/rWubbnSPKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 19/27] wifi: cfg80211: fix BSS refcounting bugs
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Laurent Dufour <laurent.dufour@fr.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.19 16/33] Revert "powerpc/rtas: Implement reentrant rtas call"
 Date:   Thu, 13 Oct 2022 19:52:48 +0200
-Message-Id: <20221013175144.261946484@linuxfoundation.org>
+Message-Id: <20221013175145.819258725@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
-References: <20221013175143.518476113@linuxfoundation.org>
+In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
+References: <20221013175145.236739253@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +53,279 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-commit 0b7808818cb9df6680f98996b8e9a439fa7bcc2f upstream.
+commit f88aabad33ea22be2ce1c60d8901942e4e2a9edb upstream.
 
-There are multiple refcounting bugs related to multi-BSSID:
- - In bss_ref_get(), if the BSS has a hidden_beacon_bss, then
-   the bss pointer is overwritten before checking for the
-   transmitted BSS, which is clearly wrong. Fix this by using
-   the bss_from_pub() macro.
+At the time this was submitted by Leonardo, I confirmed -- or thought
+I had confirmed -- with PowerVM partition firmware development that
+the following RTAS functions:
 
- - In cfg80211_bss_update() we copy the transmitted_bss pointer
-   from tmp into new, but then if we release new, we'll unref
-   it erroneously. We already set the pointer and ref it, but
-   need to NULL it since it was copied from the tmp data.
+- ibm,get-xive
+- ibm,int-off
+- ibm,int-on
+- ibm,set-xive
 
- - In cfg80211_inform_single_bss_data(), if adding to the non-
-   transmitted list fails, we unlink the BSS and yet still we
-   return it, but this results in returning an entry without
-   a reference. We shouldn't return it anyway if it was broken
-   enough to not get added there.
+were safe to call on multiple CPUs simultaneously, not only with
+respect to themselves as indicated by PAPR, but with arbitrary other
+RTAS calls:
 
-This fixes CVE-2022-42720.
+https://lore.kernel.org/linuxppc-dev/875zcy2v8o.fsf@linux.ibm.com/
 
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: a3584f56de1c ("cfg80211: Properly track transmitting and non-transmitting BSS")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Recent discussion with firmware development makes it clear that this
+is not true, and that the code in commit b664db8e3f97 ("powerpc/rtas:
+Implement reentrant rtas call") is unsafe, likely explaining several
+strange bugs we've seen in internal testing involving DLPAR and
+LPM. These scenarios use ibm,configure-connector, whose internal state
+can be corrupted by the concurrent use of the "reentrant" functions,
+leading to symptoms like endless busy statuses from RTAS.
+
+Fixes: b664db8e3f97 ("powerpc/rtas: Implement reentrant rtas call")
+Cc: stable@vger.kernel.org # v5.8+
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Laurent Dufour <laurent.dufour@fr.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220907220111.223267-1-nathanl@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ arch/powerpc/include/asm/paca.h     |    1 
+ arch/powerpc/include/asm/rtas.h     |    1 
+ arch/powerpc/kernel/paca.c          |   32 ---------------------
+ arch/powerpc/kernel/rtas.c          |   54 ------------------------------------
+ arch/powerpc/sysdev/xics/ics-rtas.c |   22 +++++++-------
+ 5 files changed, 11 insertions(+), 99 deletions(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -143,18 +143,12 @@ static inline void bss_ref_get(struct cf
- 	lockdep_assert_held(&rdev->bss_lock);
+--- a/arch/powerpc/include/asm/paca.h
++++ b/arch/powerpc/include/asm/paca.h
+@@ -263,7 +263,6 @@ struct paca_struct {
+ 	u64 l1d_flush_size;
+ #endif
+ #ifdef CONFIG_PPC_PSERIES
+-	struct rtas_args *rtas_args_reentrant;
+ 	u8 *mce_data_buf;		/* buffer to hold per cpu rtas errlog */
+ #endif /* CONFIG_PPC_PSERIES */
  
- 	bss->refcount++;
--	if (bss->pub.hidden_beacon_bss) {
--		bss = container_of(bss->pub.hidden_beacon_bss,
--				   struct cfg80211_internal_bss,
--				   pub);
--		bss->refcount++;
--	}
--	if (bss->pub.transmitted_bss) {
--		bss = container_of(bss->pub.transmitted_bss,
--				   struct cfg80211_internal_bss,
--				   pub);
--		bss->refcount++;
--	}
-+
-+	if (bss->pub.hidden_beacon_bss)
-+		bss_from_pub(bss->pub.hidden_beacon_bss)->refcount++;
-+
-+	if (bss->pub.transmitted_bss)
-+		bss_from_pub(bss->pub.transmitted_bss)->refcount++;
+--- a/arch/powerpc/include/asm/rtas.h
++++ b/arch/powerpc/include/asm/rtas.h
+@@ -240,7 +240,6 @@ extern struct rtas_t rtas;
+ extern int rtas_token(const char *service);
+ extern int rtas_service_present(const char *service);
+ extern int rtas_call(int token, int, int, int *, ...);
+-int rtas_call_reentrant(int token, int nargs, int nret, int *outputs, ...);
+ void rtas_call_unlocked(struct rtas_args *args, int token, int nargs,
+ 			int nret, ...);
+ extern void __noreturn rtas_restart(char *cmd);
+--- a/arch/powerpc/kernel/paca.c
++++ b/arch/powerpc/kernel/paca.c
+@@ -16,7 +16,6 @@
+ #include <asm/kexec.h>
+ #include <asm/svm.h>
+ #include <asm/ultravisor.h>
+-#include <asm/rtas.h>
+ 
+ #include "setup.h"
+ 
+@@ -170,30 +169,6 @@ static struct slb_shadow * __init new_sl
+ }
+ #endif /* CONFIG_PPC_64S_HASH_MMU */
+ 
+-#ifdef CONFIG_PPC_PSERIES
+-/**
+- * new_rtas_args() - Allocates rtas args
+- * @cpu:	CPU number
+- * @limit:	Memory limit for this allocation
+- *
+- * Allocates a struct rtas_args and return it's pointer,
+- * if not in Hypervisor mode
+- *
+- * Return:	Pointer to allocated rtas_args
+- *		NULL if CPU in Hypervisor Mode
+- */
+-static struct rtas_args * __init new_rtas_args(int cpu, unsigned long limit)
+-{
+-	limit = min_t(unsigned long, limit, RTAS_INSTANTIATE_MAX);
+-
+-	if (early_cpu_has_feature(CPU_FTR_HVMODE))
+-		return NULL;
+-
+-	return alloc_paca_data(sizeof(struct rtas_args), L1_CACHE_BYTES,
+-			       limit, cpu);
+-}
+-#endif /* CONFIG_PPC_PSERIES */
+-
+ /* The Paca is an array with one entry per processor.  Each contains an
+  * lppaca, which contains the information shared between the
+  * hypervisor and Linux.
+@@ -232,10 +207,6 @@ void __init initialise_paca(struct paca_
+ 	/* For now -- if we have threads this will be adjusted later */
+ 	new_paca->tcd_ptr = &new_paca->tcd;
+ #endif
+-
+-#ifdef CONFIG_PPC_PSERIES
+-	new_paca->rtas_args_reentrant = NULL;
+-#endif
  }
  
- static inline void bss_ref_put(struct cfg80211_registered_device *rdev,
-@@ -1743,6 +1737,8 @@ cfg80211_bss_update(struct cfg80211_regi
- 		new->refcount = 1;
- 		INIT_LIST_HEAD(&new->hidden_list);
- 		INIT_LIST_HEAD(&new->pub.nontrans_list);
-+		/* we'll set this later if it was non-NULL */
-+		new->pub.transmitted_bss = NULL;
+ /* Put the paca pointer into r13 and SPRG_PACA */
+@@ -308,9 +279,6 @@ void __init allocate_paca(int cpu)
+ #ifdef CONFIG_PPC_64S_HASH_MMU
+ 	paca->slb_shadow_ptr = new_slb_shadow(cpu, limit);
+ #endif
+-#ifdef CONFIG_PPC_PSERIES
+-	paca->rtas_args_reentrant = new_rtas_args(cpu, limit);
+-#endif
+ 	paca_struct_size += sizeof(struct paca_struct);
+ }
  
- 		if (rcu_access_pointer(tmp->pub.proberesp_ies)) {
- 			hidden = rb_find_bss(rdev, tmp, BSS_CMP_HIDE_ZLEN);
-@@ -1983,10 +1979,15 @@ cfg80211_inform_single_bss_data(struct w
- 		spin_lock_bh(&rdev->bss_lock);
- 		if (cfg80211_add_nontrans_list(non_tx_data->tx_bss,
- 					       &res->pub)) {
--			if (__cfg80211_unlink_bss(rdev, res))
-+			if (__cfg80211_unlink_bss(rdev, res)) {
- 				rdev->bss_generation++;
-+				res = NULL;
-+			}
- 		}
- 		spin_unlock_bh(&rdev->bss_lock);
-+
-+		if (!res)
-+			return NULL;
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -43,7 +43,6 @@
+ #include <asm/time.h>
+ #include <asm/mmu.h>
+ #include <asm/topology.h>
+-#include <asm/paca.h>
+ 
+ /* This is here deliberately so it's only used in this file */
+ void enter_rtas(unsigned long);
+@@ -932,59 +931,6 @@ void rtas_activate_firmware(void)
+ 		pr_err("ibm,activate-firmware failed (%i)\n", fwrc);
+ }
+ 
+-#ifdef CONFIG_PPC_PSERIES
+-/**
+- * rtas_call_reentrant() - Used for reentrant rtas calls
+- * @token:	Token for desired reentrant RTAS call
+- * @nargs:	Number of Input Parameters
+- * @nret:	Number of Output Parameters
+- * @outputs:	Array of outputs
+- * @...:	Inputs for desired RTAS call
+- *
+- * According to LoPAR documentation, only "ibm,int-on", "ibm,int-off",
+- * "ibm,get-xive" and "ibm,set-xive" are currently reentrant.
+- * Reentrant calls need their own rtas_args buffer, so not using rtas.args, but
+- * PACA one instead.
+- *
+- * Return:	-1 on error,
+- *		First output value of RTAS call if (nret > 0),
+- *		0 otherwise,
+- */
+-int rtas_call_reentrant(int token, int nargs, int nret, int *outputs, ...)
+-{
+-	va_list list;
+-	struct rtas_args *args;
+-	unsigned long flags;
+-	int i, ret = 0;
+-
+-	if (!rtas.entry || token == RTAS_UNKNOWN_SERVICE)
+-		return -1;
+-
+-	local_irq_save(flags);
+-	preempt_disable();
+-
+-	/* We use the per-cpu (PACA) rtas args buffer */
+-	args = local_paca->rtas_args_reentrant;
+-
+-	va_start(list, outputs);
+-	va_rtas_call_unlocked(args, token, nargs, nret, list);
+-	va_end(list);
+-
+-	if (nret > 1 && outputs)
+-		for (i = 0; i < nret - 1; ++i)
+-			outputs[i] = be32_to_cpu(args->rets[i + 1]);
+-
+-	if (nret > 0)
+-		ret = be32_to_cpu(args->rets[0]);
+-
+-	local_irq_restore(flags);
+-	preempt_enable();
+-
+-	return ret;
+-}
+-
+-#endif /* CONFIG_PPC_PSERIES */
+-
+ /**
+  * get_pseries_errorlog() - Find a specific pseries error log in an RTAS
+  *                          extended event log.
+--- a/arch/powerpc/sysdev/xics/ics-rtas.c
++++ b/arch/powerpc/sysdev/xics/ics-rtas.c
+@@ -36,8 +36,8 @@ static void ics_rtas_unmask_irq(struct i
+ 
+ 	server = xics_get_irq_server(d->irq, irq_data_get_affinity_mask(d), 0);
+ 
+-	call_status = rtas_call_reentrant(ibm_set_xive, 3, 1, NULL, hw_irq,
+-					  server, DEFAULT_PRIORITY);
++	call_status = rtas_call(ibm_set_xive, 3, 1, NULL, hw_irq, server,
++				DEFAULT_PRIORITY);
+ 	if (call_status != 0) {
+ 		printk(KERN_ERR
+ 			"%s: ibm_set_xive irq %u server %x returned %d\n",
+@@ -46,7 +46,7 @@ static void ics_rtas_unmask_irq(struct i
  	}
  
- 	trace_cfg80211_return_bss(&res->pub);
+ 	/* Now unmask the interrupt (often a no-op) */
+-	call_status = rtas_call_reentrant(ibm_int_on, 1, 1, NULL, hw_irq);
++	call_status = rtas_call(ibm_int_on, 1, 1, NULL, hw_irq);
+ 	if (call_status != 0) {
+ 		printk(KERN_ERR "%s: ibm_int_on irq=%u returned %d\n",
+ 			__func__, hw_irq, call_status);
+@@ -68,7 +68,7 @@ static void ics_rtas_mask_real_irq(unsig
+ 	if (hw_irq == XICS_IPI)
+ 		return;
+ 
+-	call_status = rtas_call_reentrant(ibm_int_off, 1, 1, NULL, hw_irq);
++	call_status = rtas_call(ibm_int_off, 1, 1, NULL, hw_irq);
+ 	if (call_status != 0) {
+ 		printk(KERN_ERR "%s: ibm_int_off irq=%u returned %d\n",
+ 			__func__, hw_irq, call_status);
+@@ -76,8 +76,8 @@ static void ics_rtas_mask_real_irq(unsig
+ 	}
+ 
+ 	/* Have to set XIVE to 0xff to be able to remove a slot */
+-	call_status = rtas_call_reentrant(ibm_set_xive, 3, 1, NULL, hw_irq,
+-					  xics_default_server, 0xff);
++	call_status = rtas_call(ibm_set_xive, 3, 1, NULL, hw_irq,
++				xics_default_server, 0xff);
+ 	if (call_status != 0) {
+ 		printk(KERN_ERR "%s: ibm_set_xive(0xff) irq=%u returned %d\n",
+ 			__func__, hw_irq, call_status);
+@@ -108,7 +108,7 @@ static int ics_rtas_set_affinity(struct
+ 	if (hw_irq == XICS_IPI || hw_irq == XICS_IRQ_SPURIOUS)
+ 		return -1;
+ 
+-	status = rtas_call_reentrant(ibm_get_xive, 1, 3, xics_status, hw_irq);
++	status = rtas_call(ibm_get_xive, 1, 3, xics_status, hw_irq);
+ 
+ 	if (status) {
+ 		printk(KERN_ERR "%s: ibm,get-xive irq=%u returns %d\n",
+@@ -126,8 +126,8 @@ static int ics_rtas_set_affinity(struct
+ 	pr_debug("%s: irq %d [hw 0x%x] server: 0x%x\n", __func__, d->irq,
+ 		 hw_irq, irq_server);
+ 
+-	status = rtas_call_reentrant(ibm_set_xive, 3, 1, NULL,
+-				     hw_irq, irq_server, xics_status[1]);
++	status = rtas_call(ibm_set_xive, 3, 1, NULL,
++			   hw_irq, irq_server, xics_status[1]);
+ 
+ 	if (status) {
+ 		printk(KERN_ERR "%s: ibm,set-xive irq=%u returns %d\n",
+@@ -158,7 +158,7 @@ static int ics_rtas_check(struct ics *ic
+ 		return -EINVAL;
+ 
+ 	/* Check if RTAS knows about this interrupt */
+-	rc = rtas_call_reentrant(ibm_get_xive, 1, 3, status, hw_irq);
++	rc = rtas_call(ibm_get_xive, 1, 3, status, hw_irq);
+ 	if (rc)
+ 		return -ENXIO;
+ 
+@@ -174,7 +174,7 @@ static long ics_rtas_get_server(struct i
+ {
+ 	int rc, status[2];
+ 
+-	rc = rtas_call_reentrant(ibm_get_xive, 1, 3, status, vec);
++	rc = rtas_call(ibm_get_xive, 1, 3, status, vec);
+ 	if (rc)
+ 		return -1;
+ 	return status[0];
 
 
