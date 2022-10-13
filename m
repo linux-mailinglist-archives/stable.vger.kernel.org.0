@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C38325FE089
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:11:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 480555FE087
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231575AbiJMSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47756 "EHLO
+        id S231430AbiJMSLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:11:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231419AbiJMSKh (ORCPT
+        with ESMTP id S231570AbiJMSKh (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:10:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98E8169CE8;
-        Thu, 13 Oct 2022 11:07:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69AEDD4A06;
+        Thu, 13 Oct 2022 11:08:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE07061908;
-        Thu, 13 Oct 2022 17:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01D7C433D6;
-        Thu, 13 Oct 2022 17:55:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA03B61923;
+        Thu, 13 Oct 2022 17:56:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA73FC433C1;
+        Thu, 13 Oct 2022 17:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683701;
-        bh=xhDkyT6Vj3P2Ol+YKtKjFhVGuUFT4l9D3pdaJehwOms=;
+        s=korg; t=1665683787;
+        bh=wpfl8bySceEuUh9c9AHgHNK40GS5fUzjOFlyRY3tiPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJ5HyhjSNyCHeBT5TXW/5hqF4fe9eIKg0GRmgGo7zmzCD8a+cKLLGZjXrjkYrIX8E
-         P/31XDGlpHWR4pOIOkPzhjhOrk7IqH/hUIQingEvJsXYS02x/DNVw4YlUewHsliwNB
-         PD8zQwVit78w14SbBhTiCe+mCSGok2G4R4zsefDY=
+        b=wIGOGCxnbvK+C5sx4G3ptwYIuPbsvZaJu98o42iKqi1dww9johJEkbNJbcYS+kJoZ
+         fn1LrZuYYVduCKhysavk1pmiw+I460pjlwoscqjMgletf9X6EEbPaB4iSk26fWnnFf
+         aeyn7m2Ty4vw7G2y8qne1XqHUGEyFcK/LyUD0MNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jalal Mostafa <jalal.a.mostapha@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>
-Subject: [PATCH 5.10 09/54] xsk: Inherit need_wakeup flag for shared sockets
-Date:   Thu, 13 Oct 2022 19:52:03 +0200
-Message-Id: <20221013175147.586509472@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.10 13/54] fs: fix UAF/GPF bug in nilfs_mdt_destroy
+Date:   Thu, 13 Oct 2022 19:52:07 +0200
+Message-Id: <20221013175147.691384882@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -53,73 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jalal Mostafa <jalal.a.mostapha@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 60240bc26114543fcbfcd8a28466e67e77b20388 upstream.
+commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
 
-The flag for need_wakeup is not set for xsks with `XDP_SHARED_UMEM`
-flag and of different queue ids and/or devices. They should inherit
-the flag from the first socket buffer pool since no flags can be
-specified once `XDP_SHARED_UMEM` is specified.
+In alloc_inode, inode_init_always() could return -ENOMEM if
+security_inode_alloc() fails, which causes inode->i_private
+uninitialized. Then nilfs_is_metadata_file_inode() returns
+true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
+which frees the uninitialized inode->i_private
+and leads to crashes(e.g., UAF/GPF).
 
-Fixes: b5aea28dca134 ("xsk: Add shared umem support between queue ids")
-Signed-off-by: Jalal Mostafa <jalal.a.mostapha@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20220921135701.10199-1-jalal.a.mostapha@gmail.com
+Fix this by moving security_inode_alloc just prior to
+this_cpu_inc(nr_inodes)
+
+Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/xsk_buff_pool.h |    2 +-
- net/xdp/xsk.c               |    4 ++--
- net/xdp/xsk_buff_pool.c     |    5 +++--
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ fs/inode.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/include/net/xsk_buff_pool.h
-+++ b/include/net/xsk_buff_pool.h
-@@ -86,7 +86,7 @@ struct xsk_buff_pool *xp_create_and_assi
- 						struct xdp_umem *umem);
- int xp_assign_dev(struct xsk_buff_pool *pool, struct net_device *dev,
- 		  u16 queue_id, u16 flags);
--int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_umem *umem,
-+int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_sock *umem_xs,
- 			 struct net_device *dev, u16 queue_id);
- void xp_destroy(struct xsk_buff_pool *pool);
- void xp_release(struct xdp_buff_xsk *xskb);
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -742,8 +742,8 @@ static int xsk_bind(struct socket *sock,
- 				goto out_unlock;
- 			}
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -168,8 +168,6 @@ int inode_init_always(struct super_block
+ 	inode->i_wb_frn_history = 0;
+ #endif
  
--			err = xp_assign_dev_shared(xs->pool, umem_xs->umem,
--						   dev, qid);
-+			err = xp_assign_dev_shared(xs->pool, umem_xs, dev,
-+						   qid);
- 			if (err) {
- 				xp_destroy(xs->pool);
- 				xs->pool = NULL;
---- a/net/xdp/xsk_buff_pool.c
-+++ b/net/xdp/xsk_buff_pool.c
-@@ -198,17 +198,18 @@ int xp_assign_dev(struct xsk_buff_pool *
- 	return __xp_assign_dev(pool, dev, queue_id, flags);
+-	if (security_inode_alloc(inode))
+-		goto out;
+ 	spin_lock_init(&inode->i_lock);
+ 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
+ 
+@@ -202,11 +200,12 @@ int inode_init_always(struct super_block
+ 	inode->i_fsnotify_mask = 0;
+ #endif
+ 	inode->i_flctx = NULL;
++
++	if (unlikely(security_inode_alloc(inode)))
++		return -ENOMEM;
+ 	this_cpu_inc(nr_inodes);
+ 
+ 	return 0;
+-out:
+-	return -ENOMEM;
  }
+ EXPORT_SYMBOL(inode_init_always);
  
--int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_umem *umem,
-+int xp_assign_dev_shared(struct xsk_buff_pool *pool, struct xdp_sock *umem_xs,
- 			 struct net_device *dev, u16 queue_id)
- {
- 	u16 flags;
-+	struct xdp_umem *umem = umem_xs->umem;
- 
- 	/* One fill and completion ring required for each queue id. */
- 	if (!pool->fq || !pool->cq)
- 		return -EINVAL;
- 
- 	flags = umem->zc ? XDP_ZEROCOPY : XDP_COPY;
--	if (pool->uses_need_wakeup)
-+	if (umem_xs->pool->uses_need_wakeup)
- 		flags |= XDP_USE_NEED_WAKEUP;
- 
- 	return __xp_assign_dev(pool, dev, queue_id, flags);
 
 
