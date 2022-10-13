@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 783E05FE0D6
+	by mail.lfdr.de (Postfix) with ESMTP id C2ACF5FE0D7
 	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbiJMSPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:15:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59228 "EHLO
+        id S231553AbiJMSPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231927AbiJMSNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:13:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A9713CFF;
-        Thu, 13 Oct 2022 11:09:50 -0700 (PDT)
+        with ESMTP id S231732AbiJMSMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE134170DFD;
+        Thu, 13 Oct 2022 11:09:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9624B82045;
-        Thu, 13 Oct 2022 17:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0352CC433C1;
-        Thu, 13 Oct 2022 17:56:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58564B82041;
+        Thu, 13 Oct 2022 17:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2DFDC433D6;
+        Thu, 13 Oct 2022 17:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683769;
-        bh=bSK8ZLYy+3u6JLqW9iOz9EUzVwbUhBOsfS28rF2cRs0=;
+        s=korg; t=1665683775;
+        bh=snTKj5uUCniAAmOx2ttL6/s1ceXhHSHr5CwfTfYUtug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbAL+HbC1SoqZ26EHsjsj4epyHpaMDLUFK5ksfWf+Rsm/2zxbTp/Sa0sFO1zkOJ/2
-         x/E+ywvwAqa/DMfS/P1qcHA+vCzt90k5NwIgl0FXdwG1JMsAelrGfdT58H7Gtrzp1b
-         cD0phlQRmtHcix3saLPpfRautmk414YMCDd4ttoA=
+        b=j/czCUXmbxeA/Aur/NTo0szELgRz/FTsVa5XMME6orgLHxx490ybzFQg7Ky6O9O+p
+         qz8tMWMKI9NCJ3jZuz9cHufVrsnv9vsnP82isd1EdX4FL2p2BZcjjI4DVU9zSsrTPs
+         gBlb6k9Llqoee74fwHwV7jkXB/GrdQf2V7sAP0CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/54] dmaengine: xilinx_dma: cleanup for fetching xlnx,num-fstores property
-Date:   Thu, 13 Oct 2022 19:52:11 +0200
-Message-Id: <20221013175147.784082553@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Sergei Antonov <saproj@gmail.com>,
+        Jonas Jensen <jonas.jensen@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 19/54] ARM: dts: fix Moxa SDIO compatible, remove sdhci misnomer
+Date:   Thu, 13 Oct 2022 19:52:13 +0200
+Message-Id: <20221013175147.829828899@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -52,33 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swati Agarwal <swati.agarwal@xilinx.com>
+From: Sergei Antonov <saproj@gmail.com>
 
-[ Upstream commit 462bce790e6a7e68620a4ce260cc38f7ed0255d5 ]
+[ Upstream commit 02181e68275d28cab3c3f755852770367f1bc229 ]
 
-Free the allocated resources for missing xlnx,num-fstores property.
+Driver moxart-mmc.c has .compatible = "moxa,moxart-mmc".
 
-Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-3-swati.agarwal@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+But moxart .dts/.dtsi and the documentation file moxa,moxart-dma.txt
+contain compatible = "moxa,moxart-sdhci".
+
+Change moxart .dts/.dtsi files and moxa,moxart-dma.txt to match the driver.
+
+Replace 'sdhci' with 'mmc' in names too, since SDHCI is a different
+controller from FTSDC010.
+
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Cc: Jonas Jensen <jonas.jensen@gmail.com>
+Link: https://lore.kernel.org/r/20220907175341.1477383-1-saproj@gmail.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt | 4 ++--
+ arch/arm/boot/dts/moxart-uc7112lx.dts                     | 2 +-
+ arch/arm/boot/dts/moxart.dtsi                             | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 36801126312e..b91378fb891c 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -3051,7 +3051,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		if (err < 0) {
- 			dev_err(xdev->dev,
- 				"missing xlnx,num-fstores property\n");
--			return err;
-+			goto disable_clks;
- 		}
+diff --git a/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt b/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
+index 8a9f3559335b..7e14e26676ec 100644
+--- a/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
++++ b/Documentation/devicetree/bindings/dma/moxa,moxart-dma.txt
+@@ -34,8 +34,8 @@ Example:
+ Use specific request line passing from dma
+ For example, MMC request line is 5
  
- 		err = of_property_read_u32(node, "xlnx,flush-fsync",
+-	sdhci: sdhci@98e00000 {
+-		compatible = "moxa,moxart-sdhci";
++	mmc: mmc@98e00000 {
++		compatible = "moxa,moxart-mmc";
+ 		reg = <0x98e00000 0x5C>;
+ 		interrupts = <5 0>;
+ 		clocks = <&clk_apb>;
+diff --git a/arch/arm/boot/dts/moxart-uc7112lx.dts b/arch/arm/boot/dts/moxart-uc7112lx.dts
+index eb5291b0ee3a..e07b807b4cec 100644
+--- a/arch/arm/boot/dts/moxart-uc7112lx.dts
++++ b/arch/arm/boot/dts/moxart-uc7112lx.dts
+@@ -79,7 +79,7 @@ &clk_pll {
+ 	clocks = <&ref12>;
+ };
+ 
+-&sdhci {
++&mmc {
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/boot/dts/moxart.dtsi b/arch/arm/boot/dts/moxart.dtsi
+index f5f070a87482..764832ddfa78 100644
+--- a/arch/arm/boot/dts/moxart.dtsi
++++ b/arch/arm/boot/dts/moxart.dtsi
+@@ -93,8 +93,8 @@ watchdog: watchdog@98500000 {
+ 			clock-names = "PCLK";
+ 		};
+ 
+-		sdhci: sdhci@98e00000 {
+-			compatible = "moxa,moxart-sdhci";
++		mmc: mmc@98e00000 {
++			compatible = "moxa,moxart-mmc";
+ 			reg = <0x98e00000 0x5C>;
+ 			interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&clk_apb>;
 -- 
 2.35.1
 
