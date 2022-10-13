@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE1F5FCFAC
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A506C5FCFA3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:20:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230131AbiJMAUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:20:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37946 "EHLO
+        id S230077AbiJMAUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229891AbiJMATw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:19:52 -0400
+        with ESMTP id S229886AbiJMATZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:19:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997B718C964;
-        Wed, 12 Oct 2022 17:17:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A3D171CD1;
+        Wed, 12 Oct 2022 17:17:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B1E616CF;
-        Thu, 13 Oct 2022 00:17:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AFAC43470;
-        Thu, 13 Oct 2022 00:17:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E411616B3;
+        Thu, 13 Oct 2022 00:17:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D23C433C1;
+        Thu, 13 Oct 2022 00:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620255;
-        bh=CsHxDoZ+/dYYLqL/Nt4EJ0X73AKDJKUYh5A/bZrTH2g=;
+        s=k20201202; t=1665620258;
+        bh=v54vnW+bX4cKUN2tJYHQtuvmIGDk0z24Qkca/Gc9l6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cYRfO4EmIw3RplBvIN5myAxpro2sFzssJNrjadi1lu/J1nJTSDmqvBn57OZjDPYb+
-         LdpyUt2C5CjtK9FiG0bq8u16VMFOkFvy66+uI+ctJ/0Kgth4FXauhSbwPAO3Ez4W+X
-         688qy/P1NcMMYobA5Ajso35nbCUJuu1L8RhohPXhDj4FgPP3XZMN4Au2kwaeBy/aTg
-         9BGh7hwKRYPMWYUzL4fNf2sU/HbmA/5e8qI4Fy6oZrvawMKLkiLJNdJk1S/dIkJZz/
-         Yj/KVxzsyfCIZKvAtVi+pjXj2M0FPa5NufbbG8XOL4ZYNLOc24/zWnaz9Jnpse5YPV
-         4n6jy7jjyBlyQ==
+        b=IF21V7tjfLsbYS1DqCutOE6nOeXYt6FGOYOC4YVUKf7TFptlHWn98h7suIbMpG9ep
+         cBenltYGCvBUsfc2ALurDprFBsI75cm+yUKRLIZxBqXLs7J5P4o0bcO+RYUzXH0Hy2
+         Ki6Q9w1ZhDZzYLRgt4ZiOuAwP4q+Zvs9T2FiBb2Rtv/OD+K0qEfV/ez+d2z78Up1sJ
+         GsPge7nZ+pEzThipCjppVFBgftVoqO510ErYbIOhZYqbgrZHexAUj5UK6ov+HqBpKx
+         OufPEqcuNmu3jkIdbc2mmcKaoT5XytQQ07DlUug3y0H27E1J0X70xFsVCFDLjXerrv
+         gJEdnVWFZEbuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Dylan Yudaken <dylany@fb.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 44/67] io_uring: fix CQE reordering
-Date:   Wed, 12 Oct 2022 20:15:25 -0400
-Message-Id: <20221013001554.1892206-44-sashal@kernel.org>
+Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        hdegoede@redhat.com, cgel.zte@gmail.com, macromorgan@hotmail.com,
+        chi.minghao@zte.com.cn, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.0 45/67] staging: rtl8723bs: fix potential memory leak in rtw_init_drv_sw()
+Date:   Wed, 12 Oct 2022 20:15:26 -0400
+Message-Id: <20221013001554.1892206-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001554.1892206-1-sashal@kernel.org>
 References: <20221013001554.1892206-1-sashal@kernel.org>
@@ -55,106 +57,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit aa1df3a360a0c50e0f0086a785d75c2785c29967 ]
+[ Upstream commit 5a5aa9cce621e2c0e25a1e5d72d6be1749167cc0 ]
 
-Overflowing CQEs may result in reordering, which is buggy in case of
-links, F_MORE and so on. If we guarantee that we don't reorder for
-the unlikely event of a CQ ring overflow, then we can further extend
-this to not have to terminate multishot requests if it happens. For
-other operations, like zerocopy sends, we have no choice but to honor
-CQE ordering.
+In rtw_init_drv_sw(), there are various init functions are called to
+populate the padapter structure and some checks for their return value.
+However, except for the first one error path, the other five error paths
+do not properly release the previous allocated resources, which leads to
+various memory leaks.
 
-Reported-by: Dylan Yudaken <dylany@fb.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/ec3bc55687b0768bbe20fb62d7d06cfced7d7e70.1663892031.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch fixes them and keeps the success and error separate.
+Note that these changes keep the form of `rtw_init_drv_sw()` in
+"drivers/staging/r8188eu/os_dep/os_intfs.c". As there is no proper device
+to test with, no runtime testing was performed.
+
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_C3B899D2FC3F1BC827F3552E0B0734056006@qq.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 12 ++++++++++--
- io_uring/io_uring.h | 12 +++++++++---
- 2 files changed, 19 insertions(+), 5 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/os_intfs.c | 60 +++++++++++----------
+ 1 file changed, 31 insertions(+), 29 deletions(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 242d896c00f3..13af6b56ebd2 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -567,7 +567,7 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+diff --git a/drivers/staging/rtl8723bs/os_dep/os_intfs.c b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
+index 380d8c9e1239..68bba3c0e757 100644
+--- a/drivers/staging/rtl8723bs/os_dep/os_intfs.c
++++ b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
+@@ -664,51 +664,36 @@ void rtw_reset_drv_sw(struct adapter *padapter)
  
- 	io_cq_lock(ctx);
- 	while (!list_empty(&ctx->cq_overflow_list)) {
--		struct io_uring_cqe *cqe = io_get_cqe(ctx);
-+		struct io_uring_cqe *cqe = io_get_cqe_overflow(ctx, true);
- 		struct io_overflow_cqe *ocqe;
- 
- 		if (!cqe && !force)
-@@ -694,12 +694,19 @@ bool io_req_cqe_overflow(struct io_kiocb *req)
-  * control dependency is enough as we're using WRITE_ONCE to
-  * fill the cq entry
-  */
--struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx)
-+struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx, bool overflow)
+ u8 rtw_init_drv_sw(struct adapter *padapter)
  {
- 	struct io_rings *rings = ctx->rings;
- 	unsigned int off = ctx->cached_cq_tail & (ctx->cq_entries - 1);
- 	unsigned int free, queued, len;
+-	u8 ret8 = _SUCCESS;
+-
+ 	rtw_init_default_value(padapter);
  
-+	/*
-+	 * Posting into the CQ when there are pending overflowed CQEs may break
-+	 * ordering guarantees, which will affect links, F_MORE users and more.
-+	 * Force overflow the completion.
-+	 */
-+	if (!overflow && (ctx->check_cq & BIT(IO_CHECK_CQ_OVERFLOW_BIT)))
-+		return NULL;
+ 	rtw_init_hal_com_default_value(padapter);
  
- 	/* userspace may cheat modifying the tail, be safe and do min */
- 	queued = min(__io_cqring_events(ctx), ctx->cq_entries);
-@@ -2228,6 +2235,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+-	if (rtw_init_cmd_priv(&padapter->cmdpriv)) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (rtw_init_cmd_priv(&padapter->cmdpriv))
++		return _FAIL;
  
- 	do {
- 		io_cqring_overflow_flush(ctx);
+ 	padapter->cmdpriv.padapter = padapter;
+ 
+-	if (rtw_init_evt_priv(&padapter->evtpriv)) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (rtw_init_evt_priv(&padapter->evtpriv))
++		goto free_cmd_priv;
+ 
+-
+-	if (rtw_init_mlme_priv(padapter) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (rtw_init_mlme_priv(padapter) == _FAIL)
++		goto free_evt_priv;
+ 
+ 	init_mlme_ext_priv(padapter);
+ 
+-	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL)
++		goto free_mlme_ext;
+ 
+-	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL)
++		goto free_xmit_priv;
+ 	/*  add for CONFIG_IEEE80211W, none 11w also can use */
+ 	spin_lock_init(&padapter->security_key_mutex);
+ 
+ 	/*  We don't need to memset padapter->XXX to zero, because adapter is allocated by vzalloc(). */
+ 	/* memset((unsigned char *)&padapter->securitypriv, 0, sizeof (struct security_priv)); */
+ 
+-	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL)
++		goto free_recv_priv;
+ 
+ 	padapter->stapriv.padapter = padapter;
+ 	padapter->setband = GHZ24_50;
+@@ -719,9 +704,26 @@ u8 rtw_init_drv_sw(struct adapter *padapter)
+ 
+ 	rtw_hal_dm_init(padapter);
+ 
+-exit:
++	return _SUCCESS;
 +
- 		if (io_cqring_events(ctx) >= min_events)
- 			return 0;
- 		if (!io_run_task_work())
-diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
-index 2f73f83af960..45809ae6f64e 100644
---- a/io_uring/io_uring.h
-+++ b/io_uring/io_uring.h
-@@ -24,7 +24,7 @@ enum {
- 	IOU_STOP_MULTISHOT	= -ECANCELED,
- };
- 
--struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx);
-+struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx, bool overflow);
- bool io_req_cqe_overflow(struct io_kiocb *req);
- int io_run_task_work_sig(void);
- void io_req_complete_failed(struct io_kiocb *req, s32 res);
-@@ -91,7 +91,8 @@ static inline void io_cq_lock(struct io_ring_ctx *ctx)
- 
- void io_cq_unlock_post(struct io_ring_ctx *ctx);
- 
--static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
-+static inline struct io_uring_cqe *io_get_cqe_overflow(struct io_ring_ctx *ctx,
-+						       bool overflow)
- {
- 	if (likely(ctx->cqe_cached < ctx->cqe_sentinel)) {
- 		struct io_uring_cqe *cqe = ctx->cqe_cached;
-@@ -103,7 +104,12 @@ static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
- 		return cqe;
- 	}
- 
--	return __io_get_cqe(ctx);
-+	return __io_get_cqe(ctx, overflow);
-+}
++free_recv_priv:
++	_rtw_free_recv_priv(&padapter->recvpriv);
 +
-+static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
-+{
-+	return io_get_cqe_overflow(ctx, false);
++free_xmit_priv:
++	_rtw_free_xmit_priv(&padapter->xmitpriv);
++
++free_mlme_ext:
++	free_mlme_ext_priv(&padapter->mlmeextpriv);
+ 
+-	return ret8;
++	rtw_free_mlme_priv(&padapter->mlmepriv);
++
++free_evt_priv:
++	rtw_free_evt_priv(&padapter->evtpriv);
++
++free_cmd_priv:
++	rtw_free_cmd_priv(&padapter->cmdpriv);
++
++	return _FAIL;
  }
  
- static inline bool __io_fill_cqe_req(struct io_ring_ctx *ctx,
+ void rtw_cancel_all_timer(struct adapter *padapter)
 -- 
 2.35.1
 
