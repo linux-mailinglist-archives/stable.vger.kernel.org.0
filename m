@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 386BF5FD12F
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED765FD147
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbiJMAfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:35:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38876 "EHLO
+        id S231791AbiJMAfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:35:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232084AbiJMAeI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:34:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C7327CC5;
-        Wed, 12 Oct 2022 17:29:13 -0700 (PDT)
+        with ESMTP id S232046AbiJMAeD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:34:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8200B6565C;
+        Wed, 12 Oct 2022 17:29:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31225B81D00;
-        Thu, 13 Oct 2022 00:27:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B31C433D6;
-        Thu, 13 Oct 2022 00:27:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C3ED616DF;
+        Thu, 13 Oct 2022 00:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8513C433D6;
+        Thu, 13 Oct 2022 00:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620854;
-        bh=iEJsBoW3YU23uXGXgTyOnGGgbdob3FhR9ZJsI+4No/o=;
+        s=k20201202; t=1665620862;
+        bh=iAeGZmsKjydsBLHiMAO8DotHdDVpqUavlWoIH5JH2gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDxyGcBNkGr8cMOh7xUCYMmG6gvSvoL0Qfr7/VEi8ETCCm/E/JX+6JpBx9teWGhsG
-         xUSslhQgZIvx1IRxpjokUonUzn1kyw2JW3+yTtcF2q5LIGhsbL6WdMzgwNhK3CKzdd
-         vDfQacqvCMCkMIe3r53uquhUUAr4Mdzog9XsW2iqX40x/UnCCFOS9q7j9SWcv3PMip
-         cgkmF3A1sOB0mX7vFU/nnvK5wDtSYIm8rtlaXgS+yxdO3ctGM/YUOSO7AJ5azeUeSF
-         OfMVdxEuSzzYlzFRiBDTJ9YhqU9OmTfrFvENgoC0PAKxS6iFHoU2G/XN2skxLuqa6E
-         RxpuaswiTg0xg==
+        b=gebqqeg9uCjdg5QvxjVN0lppJL2s0idQ7GC/i3m5p0oS9AScivxlk+sVbPwaW2288
+         NMD0HBvd1vKbCuKfAaPydmMARoGTXB9ZV+6A1JNDlcm2bwCVcGoM5tTCA6Du0W6ly6
+         xJBiGKuGMjeVRiA64epdjIkgNys18IXhMPUSfyzaNruDQP+n/imO1EfuvQ5Gg7YqZL
+         ggHKO7JmJJk6wmz/ZWmBU7Qfs/1YEfv0ykor/OGCUTP1iYocj4jNg00OeHITq230A0
+         ZBFaasKf75VkbZL2HgxnXAY8geYGvoReOMmQ5eNJHpMXHxbC/ERF7gsbmpdLVGpowg
+         MtDlIJB3KaL1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     sunghwan jung <onenowy@gmail.com>,
+Cc:     Nathan Huckleberry <nhuck@google.com>, llvm@lists.linux.dev,
+        Dan Carpenter <error27@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stern@rowland.harvard.edu,
-        linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 4.14 10/13] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Wed, 12 Oct 2022 20:27:09 -0400
-Message-Id: <20221013002716.1895839-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
+        ztong0001@gmail.com, dave@stgolabs.net,
+        linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.14 11/13] staging: rtl8192u: Fix return type of ieee80211_xmit
+Date:   Wed, 12 Oct 2022 20:27:10 -0400
+Message-Id: <20221013002716.1895839-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002716.1895839-1-sashal@kernel.org>
 References: <20221013002716.1895839-1-sashal@kernel.org>
@@ -56,57 +59,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit 2851349ac351010a2649e0ff86a1e3d68fe5d683 ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+The ndo_start_xmit field in net_device_ops is expected to be of type
+netdev_tx_t (*ndo_start_xmit)(struct sk_buff *skb, struct net_device *dev).
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
+The return type of ieee80211_xmit should be changed from int to
+netdev_tx_t.
 
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Reported-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Link: https://lore.kernel.org/r/20220914210750.423048-1-nhuck@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/staging/rtl8192u/ieee80211/ieee80211.h    | 2 +-
+ drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 8c186ab5b5f7..8b38dd7d89b7 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1294,12 +1294,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211.h b/drivers/staging/rtl8192u/ieee80211/ieee80211.h
+index b062cad052b9..2e768e21e26b 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211.h
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211.h
+@@ -2186,7 +2186,7 @@ int ieee80211_set_encryption(struct ieee80211_device *ieee);
+ int ieee80211_encrypt_fragment(struct ieee80211_device *ieee,
+ 			       struct sk_buff *frag, int hdr_len);
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
--
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+-int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev);
++netdev_tx_t ieee80211_xmit(struct sk_buff *skb, struct net_device *dev);
+ void ieee80211_txb_free(struct ieee80211_txb *txb);
+ 
+ 
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c
+index f58971a4a2e3..70cc158d79bc 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c
+@@ -594,7 +594,7 @@ static void ieee80211_query_seqnum(struct ieee80211_device *ieee,
+ 	}
+ }
+ 
+-int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
++netdev_tx_t ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ieee80211_device *ieee = netdev_priv(dev);
+ 	struct ieee80211_txb *txb = NULL;
+@@ -902,13 +902,13 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
+ 			if ((*ieee->hard_start_xmit)(txb, dev) == 0) {
+ 				stats->tx_packets++;
+ 				stats->tx_bytes += __le16_to_cpu(txb->payload_size);
+-				return 0;
++				return NETDEV_TX_OK;
+ 			}
+ 			ieee80211_txb_free(txb);
+ 		}
+ 	}
+ 
+-	return 0;
++	return NETDEV_TX_OK;
+ 
+  failed:
+ 	spin_unlock_irqrestore(&ieee->lock, flags);
 -- 
 2.35.1
 
