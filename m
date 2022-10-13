@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57EE45FE031
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A88755FE06D
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231180AbiJMSFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37302 "EHLO
+        id S230486AbiJMSJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:09:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231467AbiJMSEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:04:32 -0400
+        with ESMTP id S231811AbiJMSIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:08:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D37A152C69;
-        Thu, 13 Oct 2022 11:04:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18787C58A9;
+        Thu, 13 Oct 2022 11:06:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B9ECB8204C;
-        Thu, 13 Oct 2022 18:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029F7C433C1;
-        Thu, 13 Oct 2022 17:59:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83A2FB82039;
+        Thu, 13 Oct 2022 18:00:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3FF4C433C1;
+        Thu, 13 Oct 2022 18:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683999;
-        bh=Jp73yVrOmRE+jNa8WTnBD8qKwn5yRM6gc/u9VefjL6E=;
+        s=korg; t=1665684002;
+        bh=YcQbhCSPoD2UnDkliHAi/oE6U9WmvVTA8st+VYyO1o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPIs34uMs/LIbiRtKsG/mcnLtu/q5aMQ99/AUXHa4Cy7kZ2lXm5LrVcTQRhZnLWa6
-         tJoJPLzR1yoEfFabURq9eo0Mylx680TMfkAwDU98CaCejTqPpGNbdqCNfsQBNanmFm
-         0h1nescFmJ6odj49bpGpEklkpiBcisZQ7QxvA3lU=
+        b=b9cpQHBBPvrPyqGe5Wydz4+sDrNPajAooT13TiUpjWREXGjhvtxCpB+Z8LddCfJcF
+         sw3w8aIZcHhJXdDaEWh8/PCX14xUWN/8LRxNC/jtathVdvitBoYxTG9MEjLT8JZIP0
+         z5HXmwiu8cUK6yFT8QzuOq4fBBIKtC+dqRgfkN5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.19 27/33] wifi: mac80211: fix crash in beacon protection for P2P-device
-Date:   Thu, 13 Oct 2022 19:52:59 +0200
-Message-Id: <20221013175146.167857089@linuxfoundation.org>
+Subject: [PATCH 5.19 28/33] wifi: cfg80211: update hidden BSSes to avoid WARN_ON
+Date:   Thu, 13 Oct 2022 19:53:00 +0200
+Message-Id: <20221013175146.199236952@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
 References: <20221013175145.236739253@linuxfoundation.org>
@@ -55,52 +55,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit b2d03cabe2b2e150ff5a381731ea0355459be09f upstream.
+commit c90b93b5b782891ebfda49d4e5da36632fefd5d1 upstream.
 
-If beacon protection is active but the beacon cannot be
-decrypted or is otherwise malformed, we call the cfg80211
-API to report this to userspace, but that uses a netdev
-pointer, which isn't present for P2P-Device. Fix this to
-call it only conditionally to ensure cfg80211 won't crash
-in the case of P2P-Device.
+When updating beacon elements in a non-transmitted BSS,
+also update the hidden sub-entries to the same beacon
+elements, so that a future update through other paths
+won't trigger a WARN_ON().
 
-This fixes CVE-2022-42722.
+The warning is triggered because the beacon elements in
+the hidden BSSes that are children of the BSS should
+always be the same as in the parent.
 
 Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 9eaf183af741 ("mac80211: Report beacon protection failures to user space")
+Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ net/wireless/scan.c |   31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1988,10 +1988,11 @@ ieee80211_rx_h_decrypt(struct ieee80211_
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -1607,6 +1607,23 @@ struct cfg80211_non_tx_bss {
+ 	u8 bssid_index;
+ };
  
- 		if (mmie_keyidx < NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS ||
- 		    mmie_keyidx >= NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS +
--		    NUM_DEFAULT_BEACON_KEYS) {
--			cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
--						     skb->data,
--						     skb->len);
-+				   NUM_DEFAULT_BEACON_KEYS) {
-+			if (rx->sdata->dev)
-+				cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
-+							     skb->data,
-+							     skb->len);
- 			return RX_DROP_MONITOR; /* unexpected BIP keyidx */
- 		}
++static void cfg80211_update_hidden_bsses(struct cfg80211_internal_bss *known,
++					 const struct cfg80211_bss_ies *new_ies,
++					 const struct cfg80211_bss_ies *old_ies)
++{
++	struct cfg80211_internal_bss *bss;
++
++	/* Assign beacon IEs to all sub entries */
++	list_for_each_entry(bss, &known->hidden_list, hidden_list) {
++		const struct cfg80211_bss_ies *ies;
++
++		ies = rcu_access_pointer(bss->pub.beacon_ies);
++		WARN_ON(ies != old_ies);
++
++		rcu_assign_pointer(bss->pub.beacon_ies, new_ies);
++	}
++}
++
+ static bool
+ cfg80211_update_known_bss(struct cfg80211_registered_device *rdev,
+ 			  struct cfg80211_internal_bss *known,
+@@ -1630,7 +1647,6 @@ cfg80211_update_known_bss(struct cfg8021
+ 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
+ 	} else if (rcu_access_pointer(new->pub.beacon_ies)) {
+ 		const struct cfg80211_bss_ies *old;
+-		struct cfg80211_internal_bss *bss;
  
-@@ -2139,7 +2140,8 @@ ieee80211_rx_h_decrypt(struct ieee80211_
- 	/* either the frame has been decrypted or will be dropped */
- 	status->flag |= RX_FLAG_DECRYPTED;
+ 		if (known->pub.hidden_beacon_bss &&
+ 		    !list_empty(&known->hidden_list)) {
+@@ -1658,16 +1674,7 @@ cfg80211_update_known_bss(struct cfg8021
+ 		if (old == rcu_access_pointer(known->pub.ies))
+ 			rcu_assign_pointer(known->pub.ies, new->pub.beacon_ies);
  
--	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE))
-+	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE &&
-+		     rx->sdata->dev))
- 		cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
- 					     skb->data, skb->len);
+-		/* Assign beacon IEs to all sub entries */
+-		list_for_each_entry(bss, &known->hidden_list, hidden_list) {
+-			const struct cfg80211_bss_ies *ies;
+-
+-			ies = rcu_access_pointer(bss->pub.beacon_ies);
+-			WARN_ON(ies != old);
+-
+-			rcu_assign_pointer(bss->pub.beacon_ies,
+-					   new->pub.beacon_ies);
+-		}
++		cfg80211_update_hidden_bsses(known, new->pub.beacon_ies, old);
  
+ 		if (old)
+ 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
+@@ -2360,6 +2367,8 @@ cfg80211_update_notlisted_nontrans(struc
+ 	} else {
+ 		old = rcu_access_pointer(nontrans_bss->beacon_ies);
+ 		rcu_assign_pointer(nontrans_bss->beacon_ies, new_ies);
++		cfg80211_update_hidden_bsses(bss_from_pub(nontrans_bss),
++					     new_ies, old);
+ 		rcu_assign_pointer(nontrans_bss->ies, new_ies);
+ 		if (old)
+ 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
 
 
