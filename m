@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CCE5FD100
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2995FD058
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbiJMAbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:31:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47496 "EHLO
+        id S230350AbiJMA0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:26:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232068AbiJMA3r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D8C4A129;
-        Wed, 12 Oct 2022 17:27:40 -0700 (PDT)
+        with ESMTP id S230349AbiJMAY2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:24:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CA7EB769;
+        Wed, 12 Oct 2022 17:24:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 374AAB81CD2;
-        Thu, 13 Oct 2022 00:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BABC43470;
-        Thu, 13 Oct 2022 00:19:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E77ABB81CD4;
+        Thu, 13 Oct 2022 00:19:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD8DC433D6;
+        Thu, 13 Oct 2022 00:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620382;
-        bh=YBukERdAxHkU57EcJR6ZhFZ2hlJha5Z6ys8hKW3Glgs=;
+        s=k20201202; t=1665620388;
+        bh=i/tyIrXc+85vJqgLz9At/S7sf9MFmgrR55j9ZPV02LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHWyzKjUWTHy7Z3cfl9K8KO+XzI58BUR5smLax4juNN4HgI62b/Naw7oynXbAGvCW
-         yTcG+/1OsNjEKx5eAJ9p4FTkiTWjZlaDuzadhr1WDDDQakamZ5ni9ATtLZrDumILoW
-         GeJ5ZNPS7rNUW/P0dichssqv20WL/uJyymJC6B3TlQ6uyup6nkyHcp7VDnbKEDUCRo
-         nQu4hnGh/quKyzRW+uhO9Uitn7J5QZrHErQPuAFsuxamq/EX3OKHltDdIBJegXBpEg
-         dwDxjeMJmxdrl7dmmb1nC+ejiM1XjY2FrBcre6HcwFlbtU2EG6mU6MV6aDUgqanTSA
-         98NcULwu/QN3A==
+        b=pcvUEC5aNAAd1CQJyCRseEEMPAFyuJ8XtlaMR+kEtBLv96qwtPlTmZVApr/EPI67P
+         VQNk+uTO6Qrp+0LsPYxjy7H1wBVZY64mCH1YQ2odRxoQF9jsb8/9LG1blqasriytTw
+         VYl1lKdhzlMWiSiIr+jl3f7R1ihH9LC2ucjLDsKPIl1pBk/66Irv91/S9+axdzAu+Q
+         5cq+VWR7/Q+Z4deylVPhobV5iAAuk3BIcoXQbfmjwariUa6yxUUICUsyOW1m2X/7o4
+         mXWiT4mK22Pk7Odf7X2Q+zZONh6DZx2xSmsK1W6WIOddZL4ej4WtYeb7lIsEHR/IGw
+         LxpUrhif8ly1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Hannes Reinecke <hare@suse.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>, hdegoede@redhat.com,
-        axboe@kernel.dk, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 24/63] ata: libahci_platform: Sanity check the DT child nodes number
-Date:   Wed, 12 Oct 2022 20:17:58 -0400
-Message-Id: <20221013001842.1893243-24-sashal@kernel.org>
+Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
+        osharabi@habana.ai, ttayar@habana.ai, fkassabri@habana.ai,
+        dliberman@habana.ai, rkatta@habana.ai
+Subject: [PATCH AUTOSEL 5.19 25/63] habanalabs: ignore EEPROM errors during boot
+Date:   Wed, 12 Oct 2022 20:17:59 -0400
+Message-Id: <20221013001842.1893243-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -57,65 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Ofir Bitton <obitton@habana.ai>
 
-[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
+[ Upstream commit d155df4f628a5312a485235aa8cc5ba78e11ea65 ]
 
-Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
-from the further AHCI-platform initialization point of view since
-exceeding the ports upper limit will cause allocating more resources than
-will be used afterwards. But detecting too many child DT-nodes doesn't
-seem right since it's very unlikely to have it on an ordinary platform. In
-accordance with the AHCI specification there can't be more than 32 ports
-implemented at least due to having the CAP.NP field of 5 bits wide and the
-PI register of dword size. Thus if such situation is found the DTB must
-have been corrupted and the data read from it shouldn't be reliable. Let's
-consider that as an erroneous situation and halt further resources
-allocation.
+EEPROM errors reported by firmware are basically warnings and
+should not fail the boot process.
 
-Note it's logically more correct to have the nports set only after the
-initialization value is checked for being sane. So while at it let's make
-sure nports is assigned with a correct value.
-
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Ofir Bitton <obitton@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/misc/habanalabs/common/firmware_if.c        | 9 +++++++++
+ drivers/misc/habanalabs/include/common/hl_boot_if.h | 5 +++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index 32495ae96567..986f1923a76d 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -451,14 +451,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
- 		}
- 	}
+diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
+index 828a36af5b14..bb1b2d6213a5 100644
+--- a/drivers/misc/habanalabs/common/firmware_if.c
++++ b/drivers/misc/habanalabs/common/firmware_if.c
+@@ -521,6 +521,15 @@ static bool fw_report_boot_dev0(struct hl_device *hdev, u32 err_val,
+ 		dev_dbg(hdev->dev, "Device status0 %#x\n", sts_val);
  
--	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
-+	/*
-+	 * Too many sub-nodes most likely means having something wrong with
-+	 * the firmware.
-+	 */
-+	child_nodes = of_get_child_count(dev->of_node);
-+	if (child_nodes > AHCI_MAX_PORTS) {
-+		rc = -EINVAL;
-+		goto err_out;
+ 	/* All warnings should go here in order not to reach the unknown error validation */
++	if (err_val & CPU_BOOT_ERR0_EEPROM_FAIL) {
++		dev_warn(hdev->dev,
++			"Device boot warning - EEPROM failure detected, default settings applied\n");
++		/* This is a warning so we don't want it to disable the
++		 * device
++		 */
++		err_val &= ~CPU_BOOT_ERR0_EEPROM_FAIL;
 +	}
++
+ 	if (err_val & CPU_BOOT_ERR0_DRAM_SKIPPED) {
+ 		dev_warn(hdev->dev,
+ 			"Device boot warning - Skipped DRAM initialization\n");
+diff --git a/drivers/misc/habanalabs/include/common/hl_boot_if.h b/drivers/misc/habanalabs/include/common/hl_boot_if.h
+index 15f91ae9de6e..d4858e636fa9 100644
+--- a/drivers/misc/habanalabs/include/common/hl_boot_if.h
++++ b/drivers/misc/habanalabs/include/common/hl_boot_if.h
+@@ -34,6 +34,7 @@ enum cpu_boot_err {
+ 	CPU_BOOT_ERR_BINNING_FAIL = 19,
+ 	CPU_BOOT_ERR_TPM_FAIL = 20,
+ 	CPU_BOOT_ERR_TMP_THRESH_INIT_FAIL = 21,
++	CPU_BOOT_ERR_EEPROM_FAIL = 22,
+ 	CPU_BOOT_ERR_ENABLED = 31,
+ 	CPU_BOOT_ERR_SCND_EN = 63,
+ 	CPU_BOOT_ERR_LAST = 64 /* we have 2 registers of 32 bits */
+@@ -115,6 +116,9 @@ enum cpu_boot_err {
+  * CPU_BOOT_ERR0_TMP_THRESH_INIT_FAIL	Failed to set threshold for tmperature
+  *					sensor.
+  *
++ * CPU_BOOT_ERR_EEPROM_FAIL		Failed reading EEPROM data. Defaults
++ *					are used.
++ *
+  * CPU_BOOT_ERR0_ENABLED		Error registers enabled.
+  *					This is a main indication that the
+  *					running FW populates the error
+@@ -139,6 +143,7 @@ enum cpu_boot_err {
+ #define CPU_BOOT_ERR0_BINNING_FAIL		(1 << CPU_BOOT_ERR_BINNING_FAIL)
+ #define CPU_BOOT_ERR0_TPM_FAIL			(1 << CPU_BOOT_ERR_TPM_FAIL)
+ #define CPU_BOOT_ERR0_TMP_THRESH_INIT_FAIL	(1 << CPU_BOOT_ERR_TMP_THRESH_INIT_FAIL)
++#define CPU_BOOT_ERR0_EEPROM_FAIL		(1 << CPU_BOOT_ERR_EEPROM_FAIL)
+ #define CPU_BOOT_ERR0_ENABLED			(1 << CPU_BOOT_ERR_ENABLED)
+ #define CPU_BOOT_ERR1_ENABLED			(1 << CPU_BOOT_ERR_ENABLED)
  
- 	/*
- 	 * If no sub-node was found, we still need to set nports to
- 	 * one in order to be able to use the
- 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
- 	 */
--	if (!child_nodes)
-+	if (child_nodes)
-+		hpriv->nports = child_nodes;
-+	else
- 		hpriv->nports = 1;
- 
- 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
 -- 
 2.35.1
 
