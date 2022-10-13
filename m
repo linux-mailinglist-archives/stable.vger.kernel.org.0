@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 057325FE148
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:32:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B53A05FE261
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231963AbiJMScY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:32:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52736 "EHLO
+        id S229695AbiJMTGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 15:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232029AbiJMScE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:32:04 -0400
+        with ESMTP id S229739AbiJMTGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:06:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F363194216;
-        Thu, 13 Oct 2022 11:28:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4303D63CE;
+        Thu, 13 Oct 2022 12:05:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D56AB8206C;
-        Thu, 13 Oct 2022 18:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8AABC433C1;
-        Thu, 13 Oct 2022 18:00:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59912B82034;
+        Thu, 13 Oct 2022 17:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1687C433C1;
+        Thu, 13 Oct 2022 17:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684035;
-        bh=iFDYfkZv+13hUjNnwoj0yShUJzr5cGRa6UiH4O+3Hu8=;
+        s=korg; t=1665683902;
+        bh=45B25suZiRTyMNLHbM6xw8qTu27E00Fp19ufaiOX5r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pV9DJ7/h7FGsGGF8d4EaYUWod/kjDVjxjAjTD/qG4kmM2x/Q9YzRdZ11gKkCJt5ZI
-         1r3SfpIpP+SM5AS0BeZRbVi42as1DiZ60hP7kIs1QG0FUht6LjaT60uNP7UshnzQi2
-         TxHs7GWvlkrWBt2vs2W5y9+dtq0F3OtOUkVqs7yA=
+        b=gMVSl6Bd+cHXpjEVfdlF8o+AabboTQLXF7SrryLfl41KF6iKzgCENlGkme75nb61u
+         fZqvnXsooImKbXKiRKgrIHw4zt3rn/5tCdg4IYnIia4HItti2MS3gDnB4aC+S8FtqX
+         9tQ0/WsnaPR2dYqm9qzy8oWt/BPeB3zTt9rYOkTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.19 22/33] wifi: mac80211: fix MBSSID parsing use-after-free
+        stable@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 25/27] Input: xpad - fix wireless 360 controller breaking after suspend
 Date:   Thu, 13 Oct 2022 19:52:54 +0200
-Message-Id: <20221013175146.021304834@linuxfoundation.org>
+Message-Id: <20221013175144.475451252@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,104 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Cameron Gutman <aicommander@gmail.com>
 
-commit ff05d4b45dd89b922578dac497dcabf57cf771c6 upstream.
+commit a17b9841152e7f4621619902b347e2cc39c32996 upstream.
 
-When we parse a multi-BSSID element, we might point some
-element pointers into the allocated nontransmitted_profile.
-However, we free this before returning, causing UAF when the
-relevant pointers in the parsed elements are accessed.
+Suspending and resuming the system can sometimes cause the out
+URB to get hung after a reset_resume. This causes LED setting
+and force feedback to break on resume. To avoid this, just drop
+the reset_resume callback so the USB core rebinds xpad to the
+wireless pads on resume if a reset happened.
 
-Fix this by not allocating the scratch buffer separately but
-as part of the returned structure instead, that way, there
-are no lifetime issues with it.
+A nice side effect of this change is the LED ring on wireless
+controllers is now set correctly on system resume.
 
-The scratch buffer introduction as part of the returned data
-here is taken from MLO feature work done by Ilan.
-
-This fixes CVE-2022-42719.
-
-Fixes: 5023b14cf4df ("mac80211: support profile split between elements")
-Co-developed-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 4220f7db1e42 ("Input: xpad - workaround dead irq_out after suspend/ resume")
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-3-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/ieee80211_i.h |    8 ++++++++
- net/mac80211/util.c        |   31 ++++++++++++++++---------------
- 2 files changed, 24 insertions(+), 15 deletions(-)
+ drivers/input/joystick/xpad.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1640,6 +1640,14 @@ struct ieee802_11_elems {
- 
- 	/* whether a parse error occurred while retrieving these elements */
- 	bool parse_error;
-+
-+	/*
-+	 * scratch buffer that can be used for various element parsing related
-+	 * tasks, e.g., element de-fragmentation etc.
-+	 */
-+	size_t scratch_len;
-+	u8 *scratch_pos;
-+	u8 scratch[];
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1991,7 +1991,6 @@ static struct usb_driver xpad_driver = {
+ 	.disconnect	= xpad_disconnect,
+ 	.suspend	= xpad_suspend,
+ 	.resume		= xpad_resume,
+-	.reset_resume	= xpad_resume,
+ 	.id_table	= xpad_table,
  };
  
- static inline struct ieee80211_local *hw_to_local(
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1503,25 +1503,28 @@ struct ieee802_11_elems *ieee802_11_pars
- 	const struct element *non_inherit = NULL;
- 	u8 *nontransmitted_profile;
- 	int nontransmitted_profile_len = 0;
-+	size_t scratch_len = len;
- 
--	elems = kzalloc(sizeof(*elems), GFP_ATOMIC);
-+	elems = kzalloc(sizeof(*elems) + scratch_len, GFP_ATOMIC);
- 	if (!elems)
- 		return NULL;
- 	elems->ie_start = start;
- 	elems->total_len = len;
-+	elems->scratch_len = scratch_len;
-+	elems->scratch_pos = elems->scratch;
- 
--	nontransmitted_profile = kmalloc(len, GFP_ATOMIC);
--	if (nontransmitted_profile) {
--		nontransmitted_profile_len =
--			ieee802_11_find_bssid_profile(start, len, elems,
--						      transmitter_bssid,
--						      bss_bssid,
--						      nontransmitted_profile);
--		non_inherit =
--			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
--					       nontransmitted_profile,
--					       nontransmitted_profile_len);
--	}
-+	nontransmitted_profile = elems->scratch_pos;
-+	nontransmitted_profile_len =
-+		ieee802_11_find_bssid_profile(start, len, elems,
-+					      transmitter_bssid,
-+					      bss_bssid,
-+					      nontransmitted_profile);
-+	elems->scratch_pos += nontransmitted_profile_len;
-+	elems->scratch_len -= nontransmitted_profile_len;
-+	non_inherit =
-+		cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
-+				       nontransmitted_profile,
-+				       nontransmitted_profile_len);
- 
- 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
- 					  crc, non_inherit);
-@@ -1550,8 +1553,6 @@ struct ieee802_11_elems *ieee802_11_pars
- 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
- 		elems->dtim_count = elems->bssid_index->dtim_count;
- 
--	kfree(nontransmitted_profile);
--
- 	elems->crc = crc;
- 
- 	return elems;
 
 
