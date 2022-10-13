@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64CF95FDF9E
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AB765FDFA9
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbiJMR4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:56:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54712 "EHLO
+        id S229884AbiJMR5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229966AbiJMR4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:17 -0400
+        with ESMTP id S229866AbiJMR4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ADCC2A402;
-        Thu, 13 Oct 2022 10:54:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D17286DD;
+        Thu, 13 Oct 2022 10:54:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB67B6190B;
-        Thu, 13 Oct 2022 17:54:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9AE5C433D6;
-        Thu, 13 Oct 2022 17:54:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A9F46190C;
+        Thu, 13 Oct 2022 17:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C177C433D6;
+        Thu, 13 Oct 2022 17:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683687;
-        bh=5/+T7+Hbc+gs+Q2MxLjLyv7qCijM55C8bgamH/I/2XQ=;
+        s=korg; t=1665683692;
+        bh=vFcnlGFRnozb87ENcKx2BFKeuuCs1yt48HPib7rveaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Md7M5vvau8g8ef02YRhnk2+UWUXp7p1akHDZWf87Em8ZcnqmGJG8wtgguf5vNbwf0
-         PfVSiQdmL7aQ+JFG/3N9GHJtCaL8AbK1lEGvtPqXYdK/u0gaK1NckgojfKoiXMrcVs
-         BuduFhebvoeOddanW50G6TS7d+IoPZsiAXd60Hxs=
+        b=tedXHHLViPrrxSbOAbcsNyeonkNC64/wqmDIKXAD9BPpZc1PzOONAWa8IJy/czniF
+         5+u1+wOkFYWwMdsiqBNiYRtl+OB8Lmh/D1KFbQdujsZM4FFxPtS30OsHLmlOzVjShl
+         vTJ0oSZtLjLoPYtm6g1yU8moPKk6XR9cuucBUOwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 04/54] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
-Date:   Thu, 13 Oct 2022 19:51:58 +0200
-Message-Id: <20221013175147.454389715@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 06/54] Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
+Date:   Thu, 13 Oct 2022 19:52:00 +0200
+Message-Id: <20221013175147.508412511@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -54,58 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
+commit 2120635108b35ecad9c59c8b44f6cbdf4f98214e upstream.
 
-If creation or finalization of a checkpoint fails due to anomalies in the
-checkpoint metadata on disk, a kernel warning is generated.
+We enable -Wcast-function-type globally in the kernel to warn about
+mismatching types in function pointer casts. Compilers currently
+warn only about ABI incompability with this flag, but Clang 16 will
+enable a stricter version of the check by default that checks for an
+exact type match. This will be very noisy in the kernel, so disable
+-Wcast-function-type-strict without W=1 until the new warnings have
+been addressed.
 
-This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
-with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
-handle the abnormal filesystem condition.
-
-This also replaces the detected error codes with an I/O error so that
-neither of the internal error codes is returned to callers.
-
-Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Link: https://reviews.llvm.org/D134831
+Link: https://github.com/ClangBuiltLinux/linux/issues/1724
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220930203310.4010564-1-samitolvanen@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ scripts/Makefile.extrawarn |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -880,9 +880,11 @@ static int nilfs_segctor_create_checkpoi
- 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
- 		nilfs_cpfile_put_checkpoint(
- 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
--	} else
--		WARN_ON(err == -EINVAL || err == -ENOENT);
--
-+	} else if (err == -EINVAL || err == -ENOENT) {
-+		nilfs_error(sci->sc_super,
-+			    "checkpoint creation failed due to metadata corruption.");
-+		err = -EIO;
-+	}
- 	return err;
- }
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -52,6 +52,7 @@ KBUILD_CFLAGS += -Wno-format-zero-length
+ KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
+ KBUILD_CFLAGS += -Wno-tautological-constant-out-of-range-compare
+ KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
++KBUILD_CFLAGS += $(call cc-disable-warning, cast-function-type-strict)
+ endif
  
-@@ -896,7 +898,11 @@ static int nilfs_segctor_fill_in_checkpo
- 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
- 					  &raw_cp, &bh_cp);
- 	if (unlikely(err)) {
--		WARN_ON(err == -EINVAL || err == -ENOENT);
-+		if (err == -EINVAL || err == -ENOENT) {
-+			nilfs_error(sci->sc_super,
-+				    "checkpoint finalization failed due to metadata corruption.");
-+			err = -EIO;
-+		}
- 		goto failed_ibh;
- 	}
- 	raw_cp->cp_snapshot_list.ssl_next = 0;
+ endif
 
 
