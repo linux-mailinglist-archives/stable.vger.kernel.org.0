@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5EC15FE014
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10BF95FE005
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230016AbiJMSEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S230423AbiJMSCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbiJMSDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AD57160EF2;
-        Thu, 13 Oct 2022 11:03:03 -0700 (PDT)
+        with ESMTP id S230453AbiJMSC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:02:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780C611465;
+        Thu, 13 Oct 2022 11:02:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 804D761932;
-        Thu, 13 Oct 2022 17:59:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A75C433C1;
-        Thu, 13 Oct 2022 17:59:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98879B82050;
+        Thu, 13 Oct 2022 17:58:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9A31C433D6;
+        Thu, 13 Oct 2022 17:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683968;
-        bh=T5hUlJubGs9iN1Cr22GehC2ffTzgTKc0wkupXsH0j3A=;
+        s=korg; t=1665683919;
+        bh=SzjUWlrxdx6dSBn+CgiQOoaJon3rIv0huAMKubMWhmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nD3dFIh6WubljEvy960Q3y1ZDFULDS+LDshobU8yA/nY7nU2fyzw0dtXk8ZOeqVDL
-         K1xG9D5YId19t6uSyqpoHSrcvSfC1Z4X63RYH/cMpWoB3EyS5C4qYRuSj4P4pBN1hL
-         Qjq3dMZSRJB3k180U+P0jmxU2wsE8aOOuwtZu6dY=
+        b=LS2mzlz/b5Kdya9N8IqyEurfMDytA4edDfDeSbIDYL3REvu4ea7HDWrPj8vFLd6Sn
+         TdOXRbLBTAF1LUTA/HjeeiuBSMt2+4of6iUHoPJRV6dIZVdMLa2FfYkkd7p2JzbDMS
+         bsC1whr5v7gOQELPhVJfCWdhmlmAMs0XB2H/xyfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 04/33] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 07/27] random: clamp credited irq bits to maximum mixed
 Date:   Thu, 13 Oct 2022 19:52:36 +0200
-Message-Id: <20221013175145.371745826@linuxfoundation.org>
+Message-Id: <20221013175143.791866092@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
+commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
 
-If creation or finalization of a checkpoint fails due to anomalies in the
-checkpoint metadata on disk, a kernel warning is generated.
+Since the most that's mixed into the pool is sizeof(long)*2, don't
+credit more than that many bytes of entropy.
 
-This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
-with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
-handle the abnormal filesystem condition.
-
-This also replaces the detected error codes with an I/O error so that
-neither of the internal error codes is returned to callers.
-
-Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -875,9 +875,11 @@ static int nilfs_segctor_create_checkpoi
- 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
- 		nilfs_cpfile_put_checkpoint(
- 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
--	} else
--		WARN_ON(err == -EINVAL || err == -ENOENT);
--
-+	} else if (err == -EINVAL || err == -ENOENT) {
-+		nilfs_error(sci->sc_super,
-+			    "checkpoint creation failed due to metadata corruption.");
-+		err = -EIO;
-+	}
- 	return err;
- }
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -980,7 +980,7 @@ static void mix_interrupt_randomness(str
+ 	local_irq_enable();
  
-@@ -891,7 +893,11 @@ static int nilfs_segctor_fill_in_checkpo
- 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
- 					  &raw_cp, &bh_cp);
- 	if (unlikely(err)) {
--		WARN_ON(err == -EINVAL || err == -ENOENT);
-+		if (err == -EINVAL || err == -ENOENT) {
-+			nilfs_error(sci->sc_super,
-+				    "checkpoint finalization failed due to metadata corruption.");
-+			err = -EIO;
-+		}
- 		goto failed_ibh;
- 	}
- 	raw_cp->cp_snapshot_list.ssl_next = 0;
+ 	mix_pool_bytes(pool, sizeof(pool));
+-	credit_init_bits(max(1u, (count & U16_MAX) / 64));
++	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
+ 
+ 	memzero_explicit(pool, sizeof(pool));
+ }
 
 
