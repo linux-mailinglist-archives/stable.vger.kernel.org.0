@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 248D75FDF57
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D3725FDFE8
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229688AbiJMRwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
+        id S230285AbiJMSBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229693AbiJMRwx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:52:53 -0400
+        with ESMTP id S230292AbiJMSBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED7B14FD2D;
-        Thu, 13 Oct 2022 10:52:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2EA415789F;
+        Thu, 13 Oct 2022 11:00:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7633C618F7;
-        Thu, 13 Oct 2022 17:52:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC6EC433D6;
-        Thu, 13 Oct 2022 17:52:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5B5A61902;
+        Thu, 13 Oct 2022 17:56:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4C5C433C1;
+        Thu, 13 Oct 2022 17:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683570;
-        bh=xxDHkhWXn9LWoUKnTOuFYR63Zphxmul0hUMh47XisPY=;
+        s=korg; t=1665683781;
+        bh=tLaJ1S4iVBbjeC/TXh4yClKBT2rP43o2D64d46BHTwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNZxgvDJSbVmp7S973wGc2l1ts/ixGzyL24z9QwwTW5kbnNqdX9SGCi2SpVKPUtsD
-         Nc+k+XY34RfX6wlUygens3k0XqDIXSHnd+ZaEKbYo4Jo3fK+uP0WDh94qk5MicNcqU
-         RpTXo+I189QZH1rI+UouwDOYvkIdV30Y7EIVHH/A=
+        b=X5KfnOZCQ9JRJpwusmguxV9+sbv/o3o9wFtCSnLdIM/I0uIHRuvc4p8eEyrIpLXKE
+         7U7HTAsl0k3nOjuSgs1X0lJLtNXNhsjYRz0GtNNxcnqdLBtjy9prmdO1czV0kpgSVu
+         ppwUDvT2g++IfraAjHfPjKEMs721LMpa0sN9phnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry Vyukov" <dvyukov@google.com>,
-        stable <stable@kernel.org>,
-        syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        PaX Team <pageexec@freemail.hu>
-Subject: [PATCH 5.4 13/38] usb: mon: make mmapped memory read only
-Date:   Thu, 13 Oct 2022 19:52:14 +0200
-Message-Id: <20221013175144.715255137@linuxfoundation.org>
+        stable@vger.kernel.org, Haimin Zhang <tcs_kernel@tencent.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 21/54] net/ieee802154: fix uninit value bug in dgram_sendmsg
+Date:   Thu, 13 Oct 2022 19:52:15 +0200
+Message-Id: <20221013175147.876330840@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Haimin Zhang <tcs.kernel@gmail.com>
 
-commit a659daf63d16aa883be42f3f34ff84235c302198 upstream.
+[ Upstream commit 94160108a70c8af17fa1484a37e05181c0e094af ]
 
-Syzbot found an issue in usbmon module, where the user space client can
-corrupt the monitor's internal memory, causing the usbmon module to
-crash the kernel with segfault, UAF, etc.
+There is uninit value bug in dgram_sendmsg function in
+net/ieee802154/socket.c when the length of valid data pointed by the
+msg->msg_name isn't verified.
 
-The reproducer mmaps the /dev/usbmon memory to user space, and
-overwrites it with arbitrary data, which causes all kinds of issues.
+We introducing a helper function ieee802154_sockaddr_check_size to
+check namelen. First we check there is addr_type in ieee802154_addr_sa.
+Then, we check namelen according to addr_type.
 
-Return an -EPERM error from mon_bin_mmap() if the flag VM_WRTIE is set.
-Also clear VM_MAYWRITE to make it impossible to change it to writable
-later.
+Also fixed in raw_bind, dgram_bind, dgram_connect.
 
-Cc: "Dmitry Vyukov" <dvyukov@google.com>
-Cc: stable <stable@kernel.org>
-Fixes: 6f23ee1fefdc ("USB: add binary API to usbmon")
-Suggested-by: PaX Team <pageexec@freemail.hu>	# for the VM_MAYRITE portion
-Link: https://syzkaller.appspot.com/bug?id=2eb1f35d6525fa4a74d75b4244971e5b1411c95a
-Reported-by: syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220919215957.205681-1-tadeusz.struk@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mon/mon_bin.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/net/ieee802154_netdev.h | 37 +++++++++++++++++++++++++++++
+ net/ieee802154/socket.c         | 42 ++++++++++++++++++---------------
+ 2 files changed, 60 insertions(+), 19 deletions(-)
 
---- a/drivers/usb/mon/mon_bin.c
-+++ b/drivers/usb/mon/mon_bin.c
-@@ -1268,6 +1268,11 @@ static int mon_bin_mmap(struct file *fil
+diff --git a/include/net/ieee802154_netdev.h b/include/net/ieee802154_netdev.h
+index d0d188c3294b..a8994f307fc3 100644
+--- a/include/net/ieee802154_netdev.h
++++ b/include/net/ieee802154_netdev.h
+@@ -15,6 +15,22 @@
+ #ifndef IEEE802154_NETDEVICE_H
+ #define IEEE802154_NETDEVICE_H
+ 
++#define IEEE802154_REQUIRED_SIZE(struct_type, member) \
++	(offsetof(typeof(struct_type), member) + \
++	sizeof(((typeof(struct_type) *)(NULL))->member))
++
++#define IEEE802154_ADDR_OFFSET \
++	offsetof(typeof(struct sockaddr_ieee802154), addr)
++
++#define IEEE802154_MIN_NAMELEN (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, addr_type))
++
++#define IEEE802154_NAMELEN_SHORT (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, short_addr))
++
++#define IEEE802154_NAMELEN_LONG (IEEE802154_ADDR_OFFSET + \
++	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, hwaddr))
++
+ #include <net/af_ieee802154.h>
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
+@@ -165,6 +181,27 @@ static inline void ieee802154_devaddr_to_raw(void *raw, __le64 addr)
+ 	memcpy(raw, &temp, IEEE802154_ADDR_LEN);
+ }
+ 
++static inline int
++ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
++{
++	struct ieee802154_addr_sa *sa;
++
++	sa = &daddr->addr;
++	if (len < IEEE802154_MIN_NAMELEN)
++		return -EINVAL;
++	switch (sa->addr_type) {
++	case IEEE802154_ADDR_SHORT:
++		if (len < IEEE802154_NAMELEN_SHORT)
++			return -EINVAL;
++		break;
++	case IEEE802154_ADDR_LONG:
++		if (len < IEEE802154_NAMELEN_LONG)
++			return -EINVAL;
++		break;
++	}
++	return 0;
++}
++
+ static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
+ 					   const struct ieee802154_addr_sa *sa)
  {
- 	/* don't do anything here: "fault" will set up page table entries */
- 	vma->vm_ops = &mon_bin_vm_ops;
-+
-+	if (vma->vm_flags & VM_WRITE)
-+		return -EPERM;
-+
-+	vma->vm_flags &= ~VM_MAYWRITE;
- 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_private_data = filp->private_data;
- 	mon_bin_vma_open(vma);
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index c25f7617770c..7edec210780a 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -201,8 +201,9 @@ static int raw_bind(struct sock *sk, struct sockaddr *_uaddr, int len)
+ 	int err = 0;
+ 	struct net_device *dev = NULL;
+ 
+-	if (len < sizeof(*uaddr))
+-		return -EINVAL;
++	err = ieee802154_sockaddr_check_size(uaddr, len);
++	if (err < 0)
++		return err;
+ 
+ 	uaddr = (struct sockaddr_ieee802154 *)_uaddr;
+ 	if (uaddr->family != AF_IEEE802154)
+@@ -494,7 +495,8 @@ static int dgram_bind(struct sock *sk, struct sockaddr *uaddr, int len)
+ 
+ 	ro->bound = 0;
+ 
+-	if (len < sizeof(*addr))
++	err = ieee802154_sockaddr_check_size(addr, len);
++	if (err < 0)
+ 		goto out;
+ 
+ 	if (addr->family != AF_IEEE802154)
+@@ -565,8 +567,9 @@ static int dgram_connect(struct sock *sk, struct sockaddr *uaddr,
+ 	struct dgram_sock *ro = dgram_sk(sk);
+ 	int err = 0;
+ 
+-	if (len < sizeof(*addr))
+-		return -EINVAL;
++	err = ieee802154_sockaddr_check_size(addr, len);
++	if (err < 0)
++		return err;
+ 
+ 	if (addr->family != AF_IEEE802154)
+ 		return -EINVAL;
+@@ -605,6 +608,7 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 	struct ieee802154_mac_cb *cb;
+ 	struct dgram_sock *ro = dgram_sk(sk);
+ 	struct ieee802154_addr dst_addr;
++	DECLARE_SOCKADDR(struct sockaddr_ieee802154*, daddr, msg->msg_name);
+ 	int hlen, tlen;
+ 	int err;
+ 
+@@ -613,10 +617,20 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if (!ro->connected && !msg->msg_name)
+-		return -EDESTADDRREQ;
+-	else if (ro->connected && msg->msg_name)
+-		return -EISCONN;
++	if (msg->msg_name) {
++		if (ro->connected)
++			return -EISCONN;
++		if (msg->msg_namelen < IEEE802154_MIN_NAMELEN)
++			return -EINVAL;
++		err = ieee802154_sockaddr_check_size(daddr, msg->msg_namelen);
++		if (err < 0)
++			return err;
++		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
++	} else {
++		if (!ro->connected)
++			return -EDESTADDRREQ;
++		dst_addr = ro->dst_addr;
++	}
+ 
+ 	if (!ro->bound)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
+@@ -652,16 +666,6 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 	cb = mac_cb_init(skb);
+ 	cb->type = IEEE802154_FC_TYPE_DATA;
+ 	cb->ackreq = ro->want_ack;
+-
+-	if (msg->msg_name) {
+-		DECLARE_SOCKADDR(struct sockaddr_ieee802154*,
+-				 daddr, msg->msg_name);
+-
+-		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
+-	} else {
+-		dst_addr = ro->dst_addr;
+-	}
+-
+ 	cb->secen = ro->secen;
+ 	cb->secen_override = ro->secen_override;
+ 	cb->seclevel = ro->seclevel;
+-- 
+2.35.1
+
 
 
