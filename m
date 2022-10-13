@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96ADA5FE0CD
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4662A5FE0B7
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbiJMSPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:15:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38914 "EHLO
+        id S231794AbiJMSNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231939AbiJMSNt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:13:49 -0400
+        with ESMTP id S231670AbiJMSMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC271E3F5;
-        Thu, 13 Oct 2022 11:09:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 567F1DBE4C;
+        Thu, 13 Oct 2022 11:09:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11EF8B82037;
-        Thu, 13 Oct 2022 17:57:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA49C433C1;
-        Thu, 13 Oct 2022 17:57:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56568B8203C;
+        Thu, 13 Oct 2022 17:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A147C433D6;
+        Thu, 13 Oct 2022 17:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683866;
-        bh=7ADSkhJgMzgbvEfxkGhKSmMII+dlmQ0WYUlz4phgh+4=;
+        s=korg; t=1665683870;
+        bh=UKF8TMaennwEzj2kTNFiz0KGvFT3hjGwzvVddy+SOcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0HkR4ksKlDOH4IuZYHQIwV+8Ot+KgCk49OMZs4AUmTGE469myq93agaylRPbnUDm
-         T8VKq8wx1QSomvZeCan0mrN/NQsUeiW9c9cB7qtpN8Q7V85kjylDFLV95M+ZkvhSqn
-         TJpJsmobZlEC7mpAGW3FzwHCpU/GeHL6faLtesPk=
+        b=A3E07aXzG0ntnBrpvnFPDxASLylelmTEnaY94F7hy1+ZF5CdT1W4trDNVZnqjG+Rr
+         Ko2NUUY4kbuKcpdxnSKgrncU6M7tqw8P+uWoZ8oA/Pi2c2hFTib+qlrOLX+QtQRdLe
+         3E+SpGXqo5wsWHEfOm2731F2BWNA6tJ5lrULnAu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Soenke Huster <shuster@seemoo.tu-darmstadt.de>,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 18/27] wifi: cfg80211: ensure length byte is present before access
-Date:   Thu, 13 Oct 2022 19:52:47 +0200
-Message-Id: <20221013175144.224834735@linuxfoundation.org>
+Subject: [PATCH 5.15 19/27] wifi: cfg80211: fix BSS refcounting bugs
+Date:   Thu, 13 Oct 2022 19:52:48 +0200
+Message-Id: <20221013175144.261946484@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
 References: <20221013175143.518476113@linuxfoundation.org>
@@ -55,44 +55,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit 567e14e39e8f8c6997a1378bc3be615afca86063 upstream.
+commit 0b7808818cb9df6680f98996b8e9a439fa7bcc2f upstream.
 
-When iterating the elements here, ensure the length byte is
-present before checking it to see if the entire element will
-fit into the buffer.
+There are multiple refcounting bugs related to multi-BSSID:
+ - In bss_ref_get(), if the BSS has a hidden_beacon_bss, then
+   the bss pointer is overwritten before checking for the
+   transmitted BSS, which is clearly wrong. Fix this by using
+   the bss_from_pub() macro.
 
-Longer term, we should rewrite this code using the type-safe
-element iteration macros that check all of this.
+ - In cfg80211_bss_update() we copy the transmitted_bss pointer
+   from tmp into new, but then if we release new, we'll unref
+   it erroneously. We already set the pointer and ref it, but
+   need to NULL it since it was copied from the tmp data.
 
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Reported-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
+ - In cfg80211_inform_single_bss_data(), if adding to the non-
+   transmitted list fails, we unlink the BSS and yet still we
+   return it, but this results in returning an entry without
+   a reference. We shouldn't return it anyway if it was broken
+   enough to not get added there.
+
+This fixes CVE-2022-42720.
+
+Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: a3584f56de1c ("cfg80211: Properly track transmitting and non-transmitting BSS")
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/wireless/scan.c |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
 --- a/net/wireless/scan.c
 +++ b/net/wireless/scan.c
-@@ -304,7 +304,8 @@ static size_t cfg80211_gen_new_ie(const
- 	tmp_old = cfg80211_find_ie(WLAN_EID_SSID, ie, ielen);
- 	tmp_old = (tmp_old) ? tmp_old + tmp_old[1] + 2 : ie;
+@@ -143,18 +143,12 @@ static inline void bss_ref_get(struct cf
+ 	lockdep_assert_held(&rdev->bss_lock);
  
--	while (tmp_old + tmp_old[1] + 2 - ie <= ielen) {
-+	while (tmp_old + 2 - ie <= ielen &&
-+	       tmp_old + tmp_old[1] + 2 - ie <= ielen) {
- 		if (tmp_old[0] == 0) {
- 			tmp_old++;
- 			continue;
-@@ -364,7 +365,8 @@ static size_t cfg80211_gen_new_ie(const
- 	 * copied to new ie, skip ssid, capability, bssid-index ie
- 	 */
- 	tmp_new = sub_copy;
--	while (tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
-+	while (tmp_new + 2 - sub_copy <= subie_len &&
-+	       tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
- 		if (!(tmp_new[0] == WLAN_EID_NON_TX_BSSID_CAP ||
- 		      tmp_new[0] == WLAN_EID_SSID)) {
- 			memcpy(pos, tmp_new, tmp_new[1] + 2);
+ 	bss->refcount++;
+-	if (bss->pub.hidden_beacon_bss) {
+-		bss = container_of(bss->pub.hidden_beacon_bss,
+-				   struct cfg80211_internal_bss,
+-				   pub);
+-		bss->refcount++;
+-	}
+-	if (bss->pub.transmitted_bss) {
+-		bss = container_of(bss->pub.transmitted_bss,
+-				   struct cfg80211_internal_bss,
+-				   pub);
+-		bss->refcount++;
+-	}
++
++	if (bss->pub.hidden_beacon_bss)
++		bss_from_pub(bss->pub.hidden_beacon_bss)->refcount++;
++
++	if (bss->pub.transmitted_bss)
++		bss_from_pub(bss->pub.transmitted_bss)->refcount++;
+ }
+ 
+ static inline void bss_ref_put(struct cfg80211_registered_device *rdev,
+@@ -1743,6 +1737,8 @@ cfg80211_bss_update(struct cfg80211_regi
+ 		new->refcount = 1;
+ 		INIT_LIST_HEAD(&new->hidden_list);
+ 		INIT_LIST_HEAD(&new->pub.nontrans_list);
++		/* we'll set this later if it was non-NULL */
++		new->pub.transmitted_bss = NULL;
+ 
+ 		if (rcu_access_pointer(tmp->pub.proberesp_ies)) {
+ 			hidden = rb_find_bss(rdev, tmp, BSS_CMP_HIDE_ZLEN);
+@@ -1983,10 +1979,15 @@ cfg80211_inform_single_bss_data(struct w
+ 		spin_lock_bh(&rdev->bss_lock);
+ 		if (cfg80211_add_nontrans_list(non_tx_data->tx_bss,
+ 					       &res->pub)) {
+-			if (__cfg80211_unlink_bss(rdev, res))
++			if (__cfg80211_unlink_bss(rdev, res)) {
+ 				rdev->bss_generation++;
++				res = NULL;
++			}
+ 		}
+ 		spin_unlock_bh(&rdev->bss_lock);
++
++		if (!res)
++			return NULL;
+ 	}
+ 
+ 	trace_cfg80211_return_bss(&res->pub);
 
 
