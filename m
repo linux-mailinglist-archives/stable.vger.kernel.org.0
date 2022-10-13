@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA295FE00D
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:03:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6E45FE1BD
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230512AbiJMSDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:03:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59368 "EHLO
+        id S229627AbiJMSoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:44:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbiJMSCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:02:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE3816F429;
-        Thu, 13 Oct 2022 11:02:31 -0700 (PDT)
+        with ESMTP id S232179AbiJMSnf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:43:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671A932BA0;
+        Thu, 13 Oct 2022 11:41:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14C5A6190C;
-        Thu, 13 Oct 2022 17:55:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 210FDC433C1;
-        Thu, 13 Oct 2022 17:55:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 828A9B82033;
+        Thu, 13 Oct 2022 17:55:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB858C433D6;
+        Thu, 13 Oct 2022 17:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683726;
-        bh=2swSttbWyE/EMdRGTQ4BtEFhtKWKbDYZ8JrOfdawUHw=;
+        s=korg; t=1665683729;
+        bh=bG6X3+WJsB9jgX3tUXAaHu7yd9226itCgN/0YmmAHgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhmjFGVEuyyf3l0G6Ov9r6GmVTbtSQJDXTBI2nDU6gB6o1LkzkxkyZX/OJDRt+NUY
-         JNbPcOl4tfME+8LBab7BL5Zxp5p6L+msi10vEpozRMSfHO9a1cV8KGctEtZKPC9TdA
-         +5RvSrMUsuYcs3GJ3W8acyo2IZ3m7lYY/llmR39M=
+        b=JFIiQv+ZReVZmSZOBVOLJoXtmsMExTrBVeIZQt973nZCfXO8jkvq5bYldBxlmhqtW
+         1XHPAq2/kXHF5CJkt4vKCwKzeiOzgG7BxU+/lyQkXFtcc3X4TZ5qaARIqIPIWBObTj
+         DZeJI2aVdfv49DXvgJCISRg5zeYwdwa9HX9LCK2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChanWoo Lee <cw9316.lee@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 29/54] mmc: core: Replace with already defined values for readability
-Date:   Thu, 13 Oct 2022 19:52:23 +0200
-Message-Id: <20221013175148.062841812@linuxfoundation.org>
+Subject: [PATCH 5.10 30/54] mmc: core: Terminate infinite loop in SD-UHS voltage switch
+Date:   Thu, 13 Oct 2022 19:52:24 +0200
+Message-Id: <20221013175148.084994323@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -54,33 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChanWoo Lee <cw9316.lee@samsung.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit e427266460826bea21b70f9b2bb29decfb2c2620 ]
+[ Upstream commit e9233917a7e53980664efbc565888163c0a33c3f ]
 
-SD_ROCR_S18A is already defined and is used to check the rocr value, so
-let's replace with already defined values for readability.
+This loop intends to retry a max of 10 times, with some implicit
+termination based on the SD_{R,}OCR_S18A bit. Unfortunately, the
+termination condition depends on the value reported by the SD card
+(*rocr), which may or may not correctly reflect what we asked it to do.
 
-Signed-off-by: ChanWoo Lee <cw9316.lee@samsung.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220706004840.24812-1-cw9316.lee@samsung.com
+Needless to say, it's not wise to rely on the card doing what we expect;
+we should at least terminate the loop regardless. So, check both the
+input and output values, so we ensure we will terminate regardless of
+the SD card behavior.
+
+Note that SDIO learned a similar retry loop in commit 0797e5f1453b
+("mmc: core: Fixup signal voltage switch"), but that used the 'ocr'
+result, and so the current pre-terminating condition looks like:
+
+    rocr & ocr & R4_18V_PRESENT
+
+(i.e., it doesn't have the same bug.)
+
+This addresses a number of crash reports seen on ChromeOS that look
+like the following:
+
+    ... // lots of repeated: ...
+    <4>[13142.846061] mmc1: Skipping voltage switch
+    <4>[13143.406087] mmc1: Skipping voltage switch
+    <4>[13143.964724] mmc1: Skipping voltage switch
+    <4>[13144.526089] mmc1: Skipping voltage switch
+    <4>[13145.086088] mmc1: Skipping voltage switch
+    <4>[13145.645941] mmc1: Skipping voltage switch
+    <3>[13146.153969] INFO: task halt:30352 blocked for more than 122 seconds.
+    ...
+
+Fixes: f2119df6b764 ("mmc: sd: add support for signal voltage switch procedure")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220914014010.2076169-1-briannorris@chromium.org
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Stable-dep-of: e9233917a7e5 ("mmc: core: Terminate infinite loop in SD-UHS voltage switch")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/core/sd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
-index 899768ed1688..e2c34aa390f1 100644
+index e2c34aa390f1..868b121ce4f3 100644
 --- a/drivers/mmc/core/sd.c
 +++ b/drivers/mmc/core/sd.c
-@@ -853,7 +853,7 @@ int mmc_sd_get_cid(struct mmc_host *host, u32 ocr, u32 *cid, u32 *rocr)
+@@ -853,7 +853,8 @@ int mmc_sd_get_cid(struct mmc_host *host, u32 ocr, u32 *cid, u32 *rocr)
  	 * the CCS bit is set as well. We deliberately deviate from the spec in
  	 * regards to this, which allows UHS-I to be supported for SDSC cards.
  	 */
--	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
-+	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
+-	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
++	if (!mmc_host_is_spi(host) && (ocr & SD_OCR_S18R) &&
++	    rocr && (*rocr & SD_ROCR_S18A)) {
  		err = mmc_set_uhs_voltage(host, pocr);
  		if (err == -EAGAIN) {
  			retries--;
