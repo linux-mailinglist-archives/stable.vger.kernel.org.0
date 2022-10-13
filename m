@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8543C5FE049
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A1A5FE0C7
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231509AbiJMSG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:06:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
+        id S230143AbiJMSPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbiJMSFx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:05:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3701B3C17C;
-        Thu, 13 Oct 2022 11:04:56 -0700 (PDT)
+        with ESMTP id S232009AbiJMSN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:13:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0E9814C1;
+        Thu, 13 Oct 2022 11:10:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D400361995;
-        Thu, 13 Oct 2022 18:00:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ACDDC433B5;
-        Thu, 13 Oct 2022 18:00:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7658361949;
+        Thu, 13 Oct 2022 18:00:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E0BFC433D7;
+        Thu, 13 Oct 2022 18:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684055;
-        bh=9vKia5o5B4xGTx3eWxIf6VhmDOv6agctG3itO2HEjxM=;
+        s=korg; t=1665684020;
+        bh=4rWjydFXyLLDqW4rzOLOSOJ8MSOKHrz5swor8EvZv0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Euxm4PuAH2v5SDgDBgVvMJmPGvUaVxG5z3WLW0v2+fNG/g8S55XvxT0cjrfWytXmu
-         fc46i4oGNkMQPjyUzDi/jAODovZ9LveSLXLPrQtpE2pYftnEateGkT69oaLTl7m3h3
-         1kQ6B4QikVDVRU5kzLQkN/LlyqfE9xh7p5OdRAIA=
+        b=pouIC8brJOISXS9+BiKw5sY0N7rL7qR0n14OlfxUAPYees0LHi2hmtYGWhKCiYToW
+         igmXLNECvLboxFwpgZA24DlAy8KYPoijlolP5TGD/Rp6CPc2NhL4Pf94umIXKrewO+
+         uX+hZGaEZ129kAfSwfKDTPgM6o/4L5t0k8EgjGrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.0 11/34] scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue handler reading stale packets"
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Subject: [PATCH 5.19 17/33] Revert "crypto: qat - reduce size of mapped region"
 Date:   Thu, 13 Oct 2022 19:52:49 +0200
-Message-Id: <20221013175146.815599374@linuxfoundation.org>
+Message-Id: <20221013175145.852098967@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-References: <20221013175146.507746257@linuxfoundation.org>
+In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
+References: <20221013175145.236739253@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +52,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit 6dc45a7322cb9db48a5b6696597a00ef7c778ef9 upstream.
+commit 9c5f21b198d259bfe1191b1fedf08e2eab15b33b upstream.
 
-Reverting this commit so that a fixed up patch, without adding new module
-parameters, can be submitted.
+This reverts commit e48767c17718067ba21fb2ef461779ec2506f845.
 
-    Link: https://lore.kernel.org/stable/166039743723771@kroah.com/
+In an attempt to resolve a set of warnings reported by the static
+analyzer Smatch, the reverted commit improperly reduced the sizes of the
+DMA mappings used for the input and output parameters for both RSA and
+DH creating a mismatch (map size=8 bytes, unmap size=64 bytes).
 
-This reverts commit b1f707146923335849fb70237eec27d4d1ae7d62.
+This issue is reported when CONFIG_DMA_API_DEBUG is selected, when the
+crypto self test is run. The function dma_unmap_single() reports a
+warning similar to the one below, saying that the `device driver frees
+DMA memory with different size`.
 
-Link: https://lore.kernel.org/r/20220826102559.17474-2-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+    DMA-API: 4xxx 0000:06:00.0: device driver frees DMA memory with different size [device address=0x0000000123206c80] [map size=8 bytes] [unmap size=64 bytes]
+    WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:973 check_unmap+0x3d0/0x8c0\
+    ...
+    Call Trace:
+    <IRQ>
+    debug_dma_unmap_page+0x5c/0x60
+    qat_dh_cb+0xd7/0x110 [intel_qat]
+    qat_alg_asym_callback+0x1a/0x30 [intel_qat]
+    adf_response_handler+0xbd/0x1a0 [intel_qat]
+    tasklet_action_common.constprop.0+0xcd/0xe0
+    __do_softirq+0xf8/0x30c
+    __irq_exit_rcu+0xbf/0x140
+    common_interrupt+0xb9/0xd0
+    </IRQ>
+    <TASK>
+
+The original commit was correct.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_gbl.h |    2 --
- drivers/scsi/qla2xxx/qla_isr.c |   25 ++-----------------------
- drivers/scsi/qla2xxx/qla_os.c  |   10 ----------
- 3 files changed, 2 insertions(+), 35 deletions(-)
+ drivers/crypto/qat/qat_common/qat_asym_algs.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -193,8 +193,6 @@ extern int ql2xsecenable;
- extern int ql2xenforce_iocb_limit;
- extern int ql2xabts_wait_nvme;
- extern u32 ql2xnvme_queues;
--extern int ql2xrspq_follow_inptr;
--extern int ql2xrspq_follow_inptr_legacy;
+--- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+@@ -333,13 +333,13 @@ static int qat_dh_compute_value(struct k
+ 	qat_req->out.dh.out_tab[1] = 0;
+ 	/* Mapping in.in.b or in.in_g2.xa is the same */
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.dh.in.b,
+-					 sizeof(qat_req->in.dh.in.b),
++					 sizeof(struct qat_dh_input_params),
+ 					 DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
+ 		goto unmap_dst;
  
- extern int qla2x00_loop_reset(scsi_qla_host_t *);
- extern void qla2x00_abort_all_cmds(scsi_qla_host_t *, int);
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3763,8 +3763,7 @@ void qla24xx_process_response_queue(stru
- 	struct qla_hw_data *ha = vha->hw;
- 	struct purex_entry_24xx *purex_entry;
- 	struct purex_item *pure_item;
--	u16 rsp_in = 0, cur_ring_index;
--	int follow_inptr, is_shadow_hba;
-+	u16 cur_ring_index;
+ 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.dh.r,
+-					  sizeof(qat_req->out.dh.r),
++					  sizeof(struct qat_dh_output_params),
+ 					  DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
+ 		goto unmap_in_params;
+@@ -730,13 +730,13 @@ static int qat_rsa_enc(struct akcipher_r
+ 	qat_req->in.rsa.in_tab[3] = 0;
+ 	qat_req->out.rsa.out_tab[1] = 0;
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.enc.m,
+-					 sizeof(qat_req->in.rsa.enc.m),
++					 sizeof(struct qat_rsa_input_params),
+ 					 DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
+ 		goto unmap_dst;
  
- 	if (!ha->flags.fw_started)
- 		return;
-@@ -3774,25 +3773,7 @@ void qla24xx_process_response_queue(stru
- 		qla_cpu_update(rsp->qpair, smp_processor_id());
- 	}
+ 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.enc.c,
+-					  sizeof(qat_req->out.rsa.enc.c),
++					  sizeof(struct qat_rsa_output_params),
+ 					  DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
+ 		goto unmap_in_params;
+@@ -876,13 +876,13 @@ static int qat_rsa_dec(struct akcipher_r
+ 		qat_req->in.rsa.in_tab[3] = 0;
+ 	qat_req->out.rsa.out_tab[1] = 0;
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.dec.c,
+-					 sizeof(qat_req->in.rsa.dec.c),
++					 sizeof(struct qat_rsa_input_params),
+ 					 DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
+ 		goto unmap_dst;
  
--#define __update_rsp_in(_update, _is_shadow_hba, _rsp, _rsp_in)		\
--	do {								\
--		if (_update) {						\
--			_rsp_in = _is_shadow_hba ? *(_rsp)->in_ptr :	\
--				rd_reg_dword_relaxed((_rsp)->rsp_q_in);	\
--		}							\
--	} while (0)
--
--	is_shadow_hba = IS_SHADOW_REG_CAPABLE(ha);
--	follow_inptr = is_shadow_hba ? ql2xrspq_follow_inptr :
--				ql2xrspq_follow_inptr_legacy;
--
--	__update_rsp_in(follow_inptr, is_shadow_hba, rsp, rsp_in);
--
--	while ((likely(follow_inptr &&
--		       rsp->ring_index != rsp_in &&
--		       rsp->ring_ptr->signature != RESPONSE_PROCESSED)) ||
--		       (!follow_inptr &&
--			rsp->ring_ptr->signature != RESPONSE_PROCESSED)) {
-+	while (rsp->ring_ptr->signature != RESPONSE_PROCESSED) {
- 		pkt = (struct sts_entry_24xx *)rsp->ring_ptr;
- 		cur_ring_index = rsp->ring_index;
- 
-@@ -3906,8 +3887,6 @@ process_err:
- 				}
- 				pure_item = qla27xx_copy_fpin_pkt(vha,
- 							  (void **)&pkt, &rsp);
--				__update_rsp_in(follow_inptr, is_shadow_hba,
--						rsp, rsp_in);
- 				if (!pure_item)
- 					break;
- 				qla24xx_queue_purex_item(vha, pure_item,
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -338,16 +338,6 @@ module_param(ql2xdelay_before_pci_error_
- MODULE_PARM_DESC(ql2xdelay_before_pci_error_handling,
- 	"Number of seconds delayed before qla begin PCI error self-handling (default: 5).\n");
- 
--int ql2xrspq_follow_inptr = 1;
--module_param(ql2xrspq_follow_inptr, int, 0644);
--MODULE_PARM_DESC(ql2xrspq_follow_inptr,
--		 "Follow RSP IN pointer for RSP updates for HBAs 27xx and newer (default: 1).");
--
--int ql2xrspq_follow_inptr_legacy = 1;
--module_param(ql2xrspq_follow_inptr_legacy, int, 0644);
--MODULE_PARM_DESC(ql2xrspq_follow_inptr_legacy,
--		 "Follow RSP IN pointer for RSP updates for HBAs older than 27XX. (default: 1).");
--
- static void qla2x00_clear_drv_active(struct qla_hw_data *);
- static void qla2x00_free_device(scsi_qla_host_t *);
- static int qla2xxx_map_queues(struct Scsi_Host *shost);
+ 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.dec.m,
+-					  sizeof(qat_req->out.rsa.dec.m),
++					  sizeof(struct qat_rsa_output_params),
+ 					  DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
+ 		goto unmap_in_params;
 
 
