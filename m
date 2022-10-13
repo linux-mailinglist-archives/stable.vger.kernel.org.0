@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD835FE019
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C15E5FE0D2
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230356AbiJMSEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:04:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
+        id S231675AbiJMSPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:15:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230457AbiJMSDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6299157F45;
-        Thu, 13 Oct 2022 11:03:18 -0700 (PDT)
+        with ESMTP id S231319AbiJMSL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:11:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB1215625A;
+        Thu, 13 Oct 2022 11:08:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CBED61948;
-        Thu, 13 Oct 2022 18:00:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB5A1C433D6;
-        Thu, 13 Oct 2022 18:00:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07606B8208B;
+        Thu, 13 Oct 2022 18:01:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68EA4C433C1;
+        Thu, 13 Oct 2022 18:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684008;
-        bh=/HRpr7EII9h229SUlP4Dmlr4MvLxTEfPUsGzRLuyqhM=;
+        s=korg; t=1665684098;
+        bh=7ADSkhJgMzgbvEfxkGhKSmMII+dlmQ0WYUlz4phgh+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZ52mhIYs22nS2pViIVxkt0A3AZ2TMC3wjsY4uVYyvaIqkvL8Ggr9vt2eU40kY4LC
-         fU/OIdzAOql5TCmN4ovz/X7OJX9Nl7HOR50i5h9ksQzzovYLuOdw2teI1vc8xXBvoc
-         obpHAz1vZ7JcwOYU4aSyr4nLPjLXSG9vhaQMG2/4=
+        b=Zg/0A5eQm5s2wmpJv7V7MapZZbEZxrWWwqZotrz1s+xUlwUcrLeVcXVr2Sqw+5l25
+         nGbtvcMTiiKAyjrq2gr4kHbPh2ywKtRDfQPNFwVLzKMChyWuITx93xtVAgYl7hsLZw
+         x8osLPwJ0SGtrd+GluwGMuiwDwnImGCqpVePPctU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jasper Poppe <jgpoppe@gmail.com>,
-        Jeremy Palmer <jpalmer@linz.govt.nz>,
-        Ruineka <ruinairas1992@gmail.com>,
-        Cleber de Mattos Casali <clebercasali@gmail.com>,
-        Kyle Gospodnetich <me@kylegospodneti.ch>,
-        Pavel Rojtberg <rojtberg@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.19 30/33] Input: xpad - add supported devices as contributed on github
+        stable@vger.kernel.org,
+        Soenke Huster <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 6.0 24/34] wifi: cfg80211: ensure length byte is present before access
 Date:   Thu, 13 Oct 2022 19:53:02 +0200
-Message-Id: <20221013175146.266767921@linuxfoundation.org>
+Message-Id: <20221013175147.143750056@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
+References: <20221013175146.507746257@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,104 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit b382c5e37344883dc97525d05f1f6b788f549985 upstream.
+commit 567e14e39e8f8c6997a1378bc3be615afca86063 upstream.
 
-This is based on multiple commits at https://github.com/paroj/xpad
+When iterating the elements here, ensure the length byte is
+present before checking it to see if the entire element will
+fit into the buffer.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jasper Poppe <jgpoppe@gmail.com>
-Signed-off-by: Jeremy Palmer <jpalmer@linz.govt.nz>
-Signed-off-by: Ruineka <ruinairas1992@gmail.com>
-Signed-off-by: Cleber de Mattos Casali <clebercasali@gmail.com>
-Signed-off-by: Kyle Gospodnetich <me@kylegospodneti.ch>
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
-Link: https://lore.kernel.org/r/20220818154411.510308-2-rojtberg@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Longer term, we should rewrite this code using the type-safe
+element iteration macros that check all of this.
+
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Reported-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ net/wireless/scan.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -113,6 +113,8 @@ static const struct xpad_device {
- 	u8 xtype;
- } xpad_device[] = {
- 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
-+	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
-+	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
- 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
-@@ -244,6 +246,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
-+	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
-@@ -260,6 +263,7 @@ static const struct xpad_device {
- 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
- 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
-+	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
-@@ -325,6 +329,7 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
-+	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
-@@ -334,6 +339,14 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
-+	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
-+	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
- 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
-@@ -419,6 +432,7 @@ static const signed short xpad_abs_trigg
- static const struct usb_device_id xpad_table[] = {
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
- 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
-+	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
- 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
-@@ -429,6 +443,7 @@ static const struct usb_device_id xpad_t
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
- 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
- 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
-+	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
- 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
-@@ -450,8 +465,12 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
-+	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
-+	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
- 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
- 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
-+	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
- 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
- 	{ }
- };
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -304,7 +304,8 @@ static size_t cfg80211_gen_new_ie(const
+ 	tmp_old = cfg80211_find_ie(WLAN_EID_SSID, ie, ielen);
+ 	tmp_old = (tmp_old) ? tmp_old + tmp_old[1] + 2 : ie;
+ 
+-	while (tmp_old + tmp_old[1] + 2 - ie <= ielen) {
++	while (tmp_old + 2 - ie <= ielen &&
++	       tmp_old + tmp_old[1] + 2 - ie <= ielen) {
+ 		if (tmp_old[0] == 0) {
+ 			tmp_old++;
+ 			continue;
+@@ -364,7 +365,8 @@ static size_t cfg80211_gen_new_ie(const
+ 	 * copied to new ie, skip ssid, capability, bssid-index ie
+ 	 */
+ 	tmp_new = sub_copy;
+-	while (tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
++	while (tmp_new + 2 - sub_copy <= subie_len &&
++	       tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
+ 		if (!(tmp_new[0] == WLAN_EID_NON_TX_BSSID_CAP ||
+ 		      tmp_new[0] == WLAN_EID_SSID)) {
+ 			memcpy(pos, tmp_new, tmp_new[1] + 2);
 
 
