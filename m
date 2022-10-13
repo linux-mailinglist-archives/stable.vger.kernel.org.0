@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D815FD084
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E195FD102
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230458AbiJMA1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:27:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
+        id S230150AbiJMAbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:31:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbiJMA0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:26:36 -0400
+        with ESMTP id S229941AbiJMA3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB1613EA42;
-        Wed, 12 Oct 2022 17:24:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666A7DBE56;
+        Wed, 12 Oct 2022 17:27:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D78F616C0;
-        Thu, 13 Oct 2022 00:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5AA5C433C1;
-        Thu, 13 Oct 2022 00:24:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64EA0616EA;
+        Thu, 13 Oct 2022 00:24:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DB5C433C1;
+        Thu, 13 Oct 2022 00:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620661;
-        bh=D8ozL383GaaeAGtKQvIA9IdpVRSMEvGm6dPoBfIkAio=;
+        s=k20201202; t=1665620664;
+        bh=MWWlvoIxYq3cLnXWGZXs/MB8JAZXLhih8N0NFWNeK90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0GfmTXycULzi3nS5JEm3DBW7xcKiIjQmDQ8f/xQe0JXitZXeNWizqvlBKDcIx8VA
-         EVicl18prgfS2Cdpbo6363lUsAUFVgnV0gQ6rTcPhPaeq9SBf/LUwP1vLqiuY6Aerh
-         vFpAXHucEbiQE6tJaSrYSiqfew4mzNUuZwiY2l38AFDJg+K9SmDc8SFQtht9JMMlM0
-         3+vZGsg+/oDANycJFgueh3AuPSe0g3AW79PJBQ9PNFBdRbKMztb/hho0QJ50jJHEI6
-         da0kci6l9G8QqKdAHWyXw5b/rX+73rnYdr839N55Yj5NdtsCYYFOSeZMxkSPHGeLIb
-         Fo4HEIf2rbM7A==
+        b=jpf217HqQiqJBeZbyGHRX5Wr3Ch9MeJLzzW9vPNYpDWOP6gw/y8yjiT23tjiGH1Va
+         XRJYVEemFdy1asdKj85Pyuhpva3Kz6BdH6BOVNdvvXp3fuI+Rllfb3A3gAuSCaKvQb
+         +opM4265nNsN1hJjiPJLlX6ppKtuQsZJ5LrnqyNDkGwJqK6O8M53God39MCMt0A62i
+         e/5ngaL3ioY8EjNm84r3U2uXc7UeXQfxoXaU71zol0HrVeqI1DR/GZ6xiqyKiABm9A
+         2nNXHLqX9Bahpgm7wqfZk/tGZYJRxk/oEkR6jvHsQeXfhjgX7OfNVw/OQGdgrRnmVr
+         LrvRfqTEo+P/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyunwoo Kim <imv4bel@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>,
-        erazor_de@users.sourceforge.net, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 19/33] HID: roccat: Fix use-after-free in roccat_read()
-Date:   Wed, 12 Oct 2022 20:23:18 -0400
-Message-Id: <20221013002334.1894749-19-sashal@kernel.org>
+Cc:     Jianglei Nie <niejianglei2021@163.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, sre@kernel.org,
+        kuba@kernel.org, wangqing@vivo.com
+Subject: [PATCH AUTOSEL 5.10 20/33] HSI: ssi_protocol: fix potential resource leak in ssip_pn_open()
+Date:   Wed, 12 Oct 2022 20:23:19 -0400
+Message-Id: <20221013002334.1894749-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -56,106 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit cacdb14b1c8d3804a3a7d31773bc7569837b71a4 ]
+[ Upstream commit b28dbcb379e6a7f80262c2732a57681b1ee548ca ]
 
-roccat_report_event() is responsible for registering
-roccat-related reports in struct roccat_device.
+ssip_pn_open() claims the HSI client's port with hsi_claim_port(). When
+hsi_register_port_event() gets some error and returns a negetive value,
+the HSI client's port should be released with hsi_release_port().
 
-int roccat_report_event(int minor, u8 const *data)
-{
-	struct roccat_device *device;
-	struct roccat_reader *reader;
-	struct roccat_report *report;
-	uint8_t *new_value;
+Fix it by calling hsi_release_port() when hsi_register_port_event() fails.
 
-	device = devices[minor];
-
-	new_value = kmemdup(data, device->report_size, GFP_ATOMIC);
-	if (!new_value)
-		return -ENOMEM;
-
-	report = &device->cbuf[device->cbuf_end];
-
-	/* passing NULL is safe */
-	kfree(report->value);
-	...
-
-The registered report is stored in the struct roccat_device member
-"struct roccat_report cbuf[ROCCAT_CBUF_SIZE];".
-If more reports are received than the "ROCCAT_CBUF_SIZE" value,
-kfree() the saved report from cbuf[0] and allocates a new reprot.
-Since there is no lock when this kfree() is performed,
-kfree() can be performed even while reading the saved report.
-
-static ssize_t roccat_read(struct file *file, char __user *buffer,
-		size_t count, loff_t *ppos)
-{
-	struct roccat_reader *reader = file->private_data;
-	struct roccat_device *device = reader->device;
-	struct roccat_report *report;
-	ssize_t retval = 0, len;
-	DECLARE_WAITQUEUE(wait, current);
-
-	mutex_lock(&device->cbuf_lock);
-
-	...
-
-	report = &device->cbuf[reader->cbuf_start];
-	/*
-	 * If report is larger than requested amount of data, rest of report
-	 * is lost!
-	 */
-	len = device->report_size > count ? count : device->report_size;
-
-	if (copy_to_user(buffer, report->value, len)) {
-		retval = -EFAULT;
-		goto exit_unlock;
-	}
-	...
-
-The roccat_read() function receives the device->cbuf report and
-delivers it to the user through copy_to_user().
-If the N+ROCCAT_CBUF_SIZE th report is received while copying of
-the Nth report->value is in progress, the pointer that copy_to_user()
-is working on is kfree()ed and UAF read may occur. (race condition)
-
-Since the device node of this driver does not set separate permissions,
-this is not a security vulnerability, but because it is used for
-requesting screen display of profile or dpi settings,
-a user using the roccat device can apply udev to this device node or
-There is a possibility to use it by giving.
-
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-roccat.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hsi/clients/ssi_protocol.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 26373b82fe81..6da80e442fdd 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -257,6 +257,8 @@ int roccat_report_event(int minor, u8 const *data)
- 	if (!new_value)
- 		return -ENOMEM;
- 
-+	mutex_lock(&device->cbuf_lock);
-+
- 	report = &device->cbuf[device->cbuf_end];
- 
- 	/* passing NULL is safe */
-@@ -276,6 +278,8 @@ int roccat_report_event(int minor, u8 const *data)
- 			reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
+diff --git a/drivers/hsi/clients/ssi_protocol.c b/drivers/hsi/clients/ssi_protocol.c
+index 96d0eccca3aa..f202751484aa 100644
+--- a/drivers/hsi/clients/ssi_protocol.c
++++ b/drivers/hsi/clients/ssi_protocol.c
+@@ -931,6 +931,7 @@ static int ssip_pn_open(struct net_device *dev)
+ 	if (err < 0) {
+ 		dev_err(&cl->device, "Register HSI port event failed (%d)\n",
+ 			err);
++		hsi_release_port(cl);
+ 		return err;
  	}
- 
-+	mutex_unlock(&device->cbuf_lock);
-+
- 	wake_up_interruptible(&device->wait);
- 	return 0;
- }
+ 	dev_dbg(&cl->device, "Configuring SSI port\n");
 -- 
 2.35.1
 
