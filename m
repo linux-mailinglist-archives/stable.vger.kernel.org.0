@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC7E5FDF9D
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 036485FDF60
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230056AbiJMR4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:56:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54498 "EHLO
+        id S229829AbiJMRx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229861AbiJMR4P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:15 -0400
+        with ESMTP id S229769AbiJMRxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 234F3B493;
-        Thu, 13 Oct 2022 10:54:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496AF14FD3B;
+        Thu, 13 Oct 2022 10:53:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A70A8618CF;
-        Thu, 13 Oct 2022 17:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD97C433C1;
-        Thu, 13 Oct 2022 17:54:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8421D618F6;
+        Thu, 13 Oct 2022 17:53:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F00C433C1;
+        Thu, 13 Oct 2022 17:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683673;
-        bh=Wt2UcEB8TYyXdSrmrOgauGXpFfbuoOTAcU40VArRkGw=;
+        s=korg; t=1665683582;
+        bh=clqMLo8si0W5e46evh3BggiIvOUCFs2EZmoLr7MDpF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l5SLGcb3w8AyGmSHFHcrjhp9JhkM3hfcV7FQ7gIZ0OWdC5IClilidEeEwBZehUdCp
-         0vizO/Cyo8GgICPS1o49lQRXVBCn7vpWNqVNuw+aqbOtvvXaEqqpDqokIaN+lzj0KE
-         bnLsCAhZrqoPGZmkGwhVZr/lusi3SA6BX1tZNUcI=
+        b=WdgiSEhRho5NR0DsG3DiEM8xrKU1YVXuOi4nEtislT13xWw/oIgHm2pL0uFececbw
+         b36p1q83QiKedFUi0w4dXE6fdB12i4UlzfAfMHSko2SdPV7+KYs1zecbrhz3o6l/ye
+         4dj8iXizDP/J2U6ltn+6kHLdVOC68xjxyFpjgBvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>, Zubin Mithra <zsm@google.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Subject: [PATCH 5.10 10/54] ALSA: pcm: oss: Fix race at SNDCTL_DSP_SYNC
-Date:   Thu, 13 Oct 2022 19:52:04 +0200
-Message-Id: <20221013175147.614037797@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/38] firmware: arm_scmi: Add SCMI PM driver remove routine
+Date:   Thu, 13 Oct 2022 19:52:05 +0200
+Message-Id: <20221013175144.417813093@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 8423f0b6d513b259fdab9c9bf4aaa6188d054c2d upstream.
+[ Upstream commit dea796fcab0a219830831c070b8dc367d7e0f708 ]
 
-There is a small race window at snd_pcm_oss_sync() that is called from
-OSS PCM SNDCTL_DSP_SYNC ioctl; namely the function calls
-snd_pcm_oss_make_ready() at first, then takes the params_lock mutex
-for the rest.  When the stream is set up again by another thread
-between them, it leads to inconsistency, and may result in unexpected
-results such as NULL dereference of OSS buffer as a fuzzer spotted
-recently.
+Currently, when removing the SCMI PM driver not all the resources
+registered with genpd subsystem are properly de-registered.
 
-The fix is simply to cover snd_pcm_oss_make_ready() call into the same
-params_lock mutex with snd_pcm_oss_make_ready_locked() variant.
+As a side effect of this after a driver unload/load cycle you get a
+splat with a few warnings like this:
 
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAFcO6XN7JDM4xSXGhtusQfS2mSBcx50VJKwQpCq=WeLt57aaZA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220905060714.22549-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Zubin Mithra <zsm@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ | debugfs: Directory 'BIG_CPU0' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'BIG_CPU1' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU0' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU1' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU2' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_CPU3' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'BIG_SSTOP' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'LITTLE_SSTOP' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'DBGSYS' with parent 'pm_genpd' already present!
+ | debugfs: Directory 'GPUTOP' with parent 'pm_genpd' already present!
+
+Add a proper scmi_pm_domain_remove callback to the driver in order to
+take care of all the needed cleanups not handled by devres framework.
+
+Link: https://lore.kernel.org/r/20220817172731.1185305-7-cristian.marussi@arm.com
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/pcm_oss.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/scmi_pm_domain.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -1662,13 +1662,14 @@ static int snd_pcm_oss_sync(struct snd_p
- 		runtime = substream->runtime;
- 		if (atomic_read(&substream->mmap_count))
- 			goto __direct;
--		if ((err = snd_pcm_oss_make_ready(substream)) < 0)
--			return err;
- 		atomic_inc(&runtime->oss.rw_ref);
- 		if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
- 			atomic_dec(&runtime->oss.rw_ref);
- 			return -ERESTARTSYS;
- 		}
-+		err = snd_pcm_oss_make_ready_locked(substream);
-+		if (err < 0)
-+			goto unlock;
- 		format = snd_pcm_oss_format_from(runtime->oss.format);
- 		width = snd_pcm_format_physical_width(format);
- 		if (runtime->oss.buffer_used > 0) {
+diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+index 177874adccf0..b0c8962b9885 100644
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -106,9 +106,28 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 	scmi_pd_data->domains = domains;
+ 	scmi_pd_data->num_domains = num_domains;
+ 
++	dev_set_drvdata(dev, scmi_pd_data);
++
+ 	return of_genpd_add_provider_onecell(np, scmi_pd_data);
+ }
+ 
++static void scmi_pm_domain_remove(struct scmi_device *sdev)
++{
++	int i;
++	struct genpd_onecell_data *scmi_pd_data;
++	struct device *dev = &sdev->dev;
++	struct device_node *np = dev->of_node;
++
++	of_genpd_del_provider(np);
++
++	scmi_pd_data = dev_get_drvdata(dev);
++	for (i = 0; i < scmi_pd_data->num_domains; i++) {
++		if (!scmi_pd_data->domains[i])
++			continue;
++		pm_genpd_remove(scmi_pd_data->domains[i]);
++	}
++}
++
+ static const struct scmi_device_id scmi_id_table[] = {
+ 	{ SCMI_PROTOCOL_POWER },
+ 	{ },
+@@ -118,6 +137,7 @@ MODULE_DEVICE_TABLE(scmi, scmi_id_table);
+ static struct scmi_driver scmi_power_domain_driver = {
+ 	.name = "scmi-power-domain",
+ 	.probe = scmi_pm_domain_probe,
++	.remove = scmi_pm_domain_remove,
+ 	.id_table = scmi_id_table,
+ };
+ module_scmi_driver(scmi_power_domain_driver);
+-- 
+2.35.1
+
 
 
