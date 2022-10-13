@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9175FDF91
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CFB15FDF90
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230099AbiJMR4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53696 "EHLO
+        id S229598AbiJMR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:56:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229976AbiJMRzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:55:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C849157882;
-        Thu, 13 Oct 2022 10:54:16 -0700 (PDT)
+        with ESMTP id S229891AbiJMRzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:55:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B534F15B30E;
+        Thu, 13 Oct 2022 10:54:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FEFDB82023;
-        Thu, 13 Oct 2022 17:54:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B74D2C433D6;
-        Thu, 13 Oct 2022 17:54:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88CE4618DE;
+        Thu, 13 Oct 2022 17:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 908D7C433D6;
+        Thu, 13 Oct 2022 17:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683650;
-        bh=4/0gbWRoGgXhcpCItadg29FCqoOIDIWdJPHkOeinRzA=;
+        s=korg; t=1665683652;
+        bh=5/+T7+Hbc+gs+Q2MxLjLyv7qCijM55C8bgamH/I/2XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A63xl/U15MfZ+RoEbXWcXdnZ24yR8N6RM+5J0n7O0pvIT89bPAv5LkIt+XgKaAZZA
-         6kOkgOc8GQWMQMS3A+W3Vae6qZlo21QTOKg2UD7xM8SWE+Cbv8W/GvBwGKnBkU8+Tx
-         cLpNSohdA3BhODyik6jxiNyyi+7VF1r1cIOTfDQk=
+        b=bkxIvt6syKoVpL/ILhwyLZLofbasUrbwc2JM1zdSaVeYrkmWpDJvoPJZol5RMTPTU
+         Xyd/BZ1nlsB3U8SORsaBjrfbUBASeLung3tRPVGCSqI16dx2JWc4YaBbMJi47dn8J8
+         jOfylAd8/wq1OXTTKs7znb/clREHbAfVJf3XWN9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com,
+        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 19/38] nilfs2: fix leak of nilfs_root in case of writer thread creation failure
-Date:   Thu, 13 Oct 2022 19:52:20 +0200
-Message-Id: <20221013175144.915194021@linuxfoundation.org>
+Subject: [PATCH 5.4 20/38] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
+Date:   Thu, 13 Oct 2022 19:52:21 +0200
+Message-Id: <20221013175144.950270355@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
 References: <20221013175144.245431424@linuxfoundation.org>
@@ -56,69 +56,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit d0d51a97063db4704a5ef6bc978dddab1636a306 upstream.
+commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
 
-If nilfs_attach_log_writer() failed to create a log writer thread, it
-frees a data structure of the log writer without any cleanup.  After
-commit e912a5b66837 ("nilfs2: use root object to get ifile"), this causes
-a leak of struct nilfs_root, which started to leak an ifile metadata inode
-and a kobject on that struct.
+If creation or finalization of a checkpoint fails due to anomalies in the
+checkpoint metadata on disk, a kernel warning is generated.
 
-In addition, if the kernel is booted with panic_on_warn, the above
-ifile metadata inode leak will cause the following panic when the
-nilfs2 kernel module is removed:
+This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
+with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
+handle the abnormal filesystem condition.
 
-  kmem_cache_destroy nilfs2_inode_cache: Slab cache still has objects when
-  called from nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-  WARNING: CPU: 8 PID: 1464 at mm/slab_common.c:494 kmem_cache_destroy+0x138/0x140
-  ...
-  RIP: 0010:kmem_cache_destroy+0x138/0x140
-  Code: 00 20 00 00 e8 a9 55 d8 ff e9 76 ff ff ff 48 8b 53 60 48 c7 c6 20 70 65 86 48 c7 c7 d8 69 9c 86 48 8b 4c 24 28 e8 ef 71 c7 00 <0f> 0b e9 53 ff ff ff c3 48 81 ff ff 0f 00 00 77 03 31 c0 c3 53 48
-  ...
-  Call Trace:
-   <TASK>
-   ? nilfs_palloc_freev.cold.24+0x58/0x58 [nilfs2]
-   nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-   exit_nilfs_fs+0xa/0x1b [nilfs2]
-    __x64_sys_delete_module+0x1d9/0x3a0
-   ? __sanitizer_cov_trace_pc+0x1a/0x50
-   ? syscall_trace_enter.isra.19+0x119/0x190
-   do_syscall_64+0x34/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   ...
-   </TASK>
-  Kernel panic - not syncing: panic_on_warn set ...
+This also replaces the detected error codes with an I/O error so that
+neither of the internal error codes is returned to callers.
 
-This patch fixes these issues by calling nilfs_detach_log_writer() cleanup
-function if spawning the log writer thread fails.
-
-Link: https://lkml.kernel.org/r/20221007085226.57667-1-konishi.ryusuke@gmail.com
-Fixes: e912a5b66837 ("nilfs2: use root object to get ifile")
+Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
 Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/nilfs2/segment.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 --- a/fs/nilfs2/segment.c
 +++ b/fs/nilfs2/segment.c
-@@ -2786,10 +2786,9 @@ int nilfs_attach_log_writer(struct super
- 	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
- 
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
--	if (err) {
--		kfree(nilfs->ns_writer);
--		nilfs->ns_writer = NULL;
--	}
-+	if (unlikely(err))
-+		nilfs_detach_log_writer(sb);
-+
+@@ -880,9 +880,11 @@ static int nilfs_segctor_create_checkpoi
+ 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
+ 		nilfs_cpfile_put_checkpoint(
+ 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
+-	} else
+-		WARN_ON(err == -EINVAL || err == -ENOENT);
+-
++	} else if (err == -EINVAL || err == -ENOENT) {
++		nilfs_error(sci->sc_super,
++			    "checkpoint creation failed due to metadata corruption.");
++		err = -EIO;
++	}
  	return err;
  }
  
+@@ -896,7 +898,11 @@ static int nilfs_segctor_fill_in_checkpo
+ 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
+ 					  &raw_cp, &bh_cp);
+ 	if (unlikely(err)) {
+-		WARN_ON(err == -EINVAL || err == -ENOENT);
++		if (err == -EINVAL || err == -ENOENT) {
++			nilfs_error(sci->sc_super,
++				    "checkpoint finalization failed due to metadata corruption.");
++			err = -EIO;
++		}
+ 		goto failed_ibh;
+ 	}
+ 	raw_cp->cp_snapshot_list.ssl_next = 0;
 
 
