@@ -2,91 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 321FB5FD631
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 10:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC02F5FD696
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 11:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229454AbiJMI3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 04:29:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39332 "EHLO
+        id S229590AbiJMJF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 05:05:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229495AbiJMI3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 04:29:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98E915DB0F
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 01:29:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665649757;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=GbAPudkJN2ZfKtwFkn+RvQb0MCZbu4crNWZxr6gzXJI=;
-        b=E/s2DzedYqAbB+c5zKqYym8/gSJi7lTWCqNlw7qKI8/OjYV0i+XEaFTdUueQ756PQrqNNC
-        pcZ3QIX5FE9oBnEGGK9JTkqv+Nl0GfBf5Ud5wo65s+ix0kzwNfU8KB5UWnVamuDsk8yMKk
-        jbmGAfViQQIumUjlZ1pjgm5tAR+E4gI=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-179-YLfXgt9VMPuCT4FXIDAHGA-1; Thu, 13 Oct 2022 04:29:16 -0400
-X-MC-Unique: YLfXgt9VMPuCT4FXIDAHGA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S229506AbiJMJF0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 05:05:26 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833C9BE516
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 02:05:22 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D7C861C004F5;
-        Thu, 13 Oct 2022 08:29:15 +0000 (UTC)
-Received: from hydra.redhat.com (unknown [10.39.192.61])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6E14D140EBF3;
-        Thu, 13 Oct 2022 08:29:14 +0000 (UTC)
-From:   Jocelyn Falempe <jfalempe@redhat.com>
-To:     dri-devel@lists.freedesktop.org, tzimmermann@suse.de,
-        airlied@redhat.com
-Cc:     lyude@redhat.com, michel@daenzer.net,
-        Jocelyn Falempe <jfalempe@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4
-Date:   Thu, 13 Oct 2022 10:29:01 +0200
-Message-Id: <20221013082901.471417-1-jfalempe@redhat.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id EECB61F385;
+        Thu, 13 Oct 2022 09:05:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1665651921; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=WOnGgq9IUw7xGTBr51NrUAkoYYRVaIREesWzrM/IKTA=;
+        b=1W1i+3A4COH3c7GiQYSZFPdVF/uFEs5VM2anfP6J3Fuemd87l5bSAKLf0y/M3KBb9f+xtS
+        3IBfoAORwrwgb08sH5Fm9GdCVc3NX7b8l/mHt1x+9toxRh8K6gtj9v4fBiMtoMNV/mIyLR
+        /pC/NyMFhRjQsq3VxJIi5EmJMA1iuis=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1665651921;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=WOnGgq9IUw7xGTBr51NrUAkoYYRVaIREesWzrM/IKTA=;
+        b=mZLPES2SVmm9mzSvBjf6T1uHef/ys9qNl3PUV4Hc8Vdc6YVJ1lZxNqNNP9xAK5SLImSenC
+        gprCNJb7tVN4CgBA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C020213AAA;
+        Thu, 13 Oct 2022 09:05:20 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id OofeLdDUR2PfAQAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Thu, 13 Oct 2022 09:05:20 +0000
+Message-ID: <db634341-da68-e8a6-1143-445f17262c63@suse.de>
+Date:   Thu, 13 Oct 2022 11:05:19 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4
+To:     Jocelyn Falempe <jfalempe@redhat.com>,
+        dri-devel@lists.freedesktop.org, airlied@redhat.com
+Cc:     lyude@redhat.com, michel@daenzer.net, stable@vger.kernel.org
+References: <20221013082901.471417-1-jfalempe@redhat.com>
+Content-Language: en-US
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20221013082901.471417-1-jfalempe@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------GpuivNAmFfuBmweK0LBdPmEP"
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For G200_SE_A, PLL M setting is wrong, which leads to blank screen,
-or "signal out of range" on VGA display.
-previous code had "m |= 0x80" which was changed to
-m |= ((pixpllcn & BIT(8)) >> 1);
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------GpuivNAmFfuBmweK0LBdPmEP
+Content-Type: multipart/mixed; boundary="------------WiH907b0Dg84Bth0iAwE05Yl";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Jocelyn Falempe <jfalempe@redhat.com>, dri-devel@lists.freedesktop.org,
+ airlied@redhat.com
+Cc: lyude@redhat.com, michel@daenzer.net, stable@vger.kernel.org
+Message-ID: <db634341-da68-e8a6-1143-445f17262c63@suse.de>
+Subject: Re: [PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4
+References: <20221013082901.471417-1-jfalempe@redhat.com>
+In-Reply-To: <20221013082901.471417-1-jfalempe@redhat.com>
 
-Tested on G200_SE_A rev 42
+--------------WiH907b0Dg84Bth0iAwE05Yl
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-This line of code was moved to another file with
-commit 85397f6bc4ff ("drm/mgag200: Initialize each model in separate
-function") but can be easily backported before this commit.
+SGkNCg0KQW0gMTMuMTAuMjIgdW0gMTA6Mjkgc2NocmllYiBKb2NlbHluIEZhbGVtcGU6DQo+
+IEZvciBHMjAwX1NFX0EsIFBMTCBNIHNldHRpbmcgaXMgd3JvbmcsIHdoaWNoIGxlYWRzIHRv
+IGJsYW5rIHNjcmVlbiwNCj4gb3IgInNpZ25hbCBvdXQgb2YgcmFuZ2UiIG9uIFZHQSBkaXNw
+bGF5Lg0KPiBwcmV2aW91cyBjb2RlIGhhZCAibSB8PSAweDgwIiB3aGljaCB3YXMgY2hhbmdl
+ZCB0bw0KPiBtIHw9ICgocGl4cGxsY24gJiBCSVQoOCkpID4+IDEpOw0KPiANCj4gVGVzdGVk
+IG9uIEcyMDBfU0VfQSByZXYgNDINCj4gDQo+IFRoaXMgbGluZSBvZiBjb2RlIHdhcyBtb3Zl
+ZCB0byBhbm90aGVyIGZpbGUgd2l0aA0KPiBjb21taXQgODUzOTdmNmJjNGZmICgiZHJtL21n
+YWcyMDA6IEluaXRpYWxpemUgZWFjaCBtb2RlbCBpbiBzZXBhcmF0ZQ0KPiBmdW5jdGlvbiIp
+IGJ1dCBjYW4gYmUgZWFzaWx5IGJhY2twb3J0ZWQgYmVmb3JlIHRoaXMgY29tbWl0Lg0KPiAN
+Cj4gRml4ZXM6IDJkZDA0MDk0NmVjZiAoImRybS9tZ2FnMjAwOiBTdG9yZSB2YWx1ZXMgKG5v
+dCBiaXRzKSBpbiBzdHJ1Y3QgbWdhZzIwMF9wbGxfdmFsdWVzIikNCj4gQ2M6IHN0YWJsZUB2
+Z2VyLmtlcm5lbC5vcmcNCj4gU2lnbmVkLW9mZi1ieTogSm9jZWx5biBGYWxlbXBlIDxqZmFs
+ZW1wZUByZWRoYXQuY29tPg0KPiAtLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vbWdhZzIwMC9t
+Z2FnMjAwX2cyMDBzZS5jIHwgMiArLQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlv
+bigrKSwgMSBkZWxldGlvbigtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
+bS9tZ2FnMjAwL21nYWcyMDBfZzIwMHNlLmMgYi9kcml2ZXJzL2dwdS9kcm0vbWdhZzIwMC9t
+Z2FnMjAwX2cyMDBzZS5jDQo+IGluZGV4IGJlMzg5ZWQ5MWNiZC4uNGVjMDM1MDI5YjhiIDEw
+MDY0NA0KPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vbWdhZzIwMC9tZ2FnMjAwX2cyMDBzZS5j
+DQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9tZ2FnMjAwL21nYWcyMDBfZzIwMHNlLmMNCj4g
+QEAgLTI4NCw3ICsyODQsNyBAQCBzdGF0aWMgdm9pZCBtZ2FnMjAwX2cyMDBzZV8wNF9waXhw
+bGxjX2F0b21pY191cGRhdGUoc3RydWN0IGRybV9jcnRjICpjcnRjLA0KPiAgIAlwaXhwbGxj
+cCA9IHBpeHBsbGMtPnAgLSAxOw0KPiAgIAlwaXhwbGxjcyA9IHBpeHBsbGMtPnM7DQo+ICAg
+DQo+IC0JeHBpeHBsbGNtID0gcGl4cGxsY20gfCAoKHBpeHBsbGNuICYgQklUKDgpKSA+PiAx
+KTsNCj4gKwl4cGl4cGxsY20gPSBwaXhwbGxjbSB8IEJJVCg3KTsNCg0KVGhhbmtzIGZvciBm
+aWd1cmluZyB0aGlzIG91dC4gRzIwMFNFIGFwcGFyZW50bHkgaXMgc3BlY2lhbCBjb21wYXJl
+ZCB0byANCnRoZSBvdGhlciBtb2RlbHMuIFRoZSBvbGQgTUdBIGRvY3Mgb25seSBsaXN0IHRo
+aXMgYml0IGFzIDxyZXNlcnZlZD4uIA0KUmVhbGx5IG1ha2VzIG1lIHdvbmRlciB3aHkgdGhp
+cyBpcyBkaWZmZXJlbnQuDQoNClBsZWFzZSB3cml0ZSBpdCBhcw0KDQogICBCSVQoNykgfCBw
+aXhwbGxjbQ0KDQpzbyB0aGF0IGJpdCBzZXR0aW5ncyBhcmUgb3JkZXJlZCBNU0ItdG8tTFNC
+IGFuZCBpbmNsdWRlIGEgb25lLWxpbmUgDQpjb21tZW50IHRoYXQgc2F5cyB0aGF0IEcyMDBT
+RSBuZWVkcyB0byBzZXQgdGhpcyBiaXQgdW5jb25kaXRpb25hbGx5Lg0KDQpCZXN0IHJlZ2Fy
+ZHMNClRob21hcw0KDQoNCg0KPiAgIAl4cGl4cGxsY24gPSBwaXhwbGxjbjsNCj4gICAJeHBp
+eHBsbGNwID0gKHBpeHBsbGNzIDw8IDMpIHwgcGl4cGxsY3A7DQo+ICAgDQoNCi0tIA0KVGhv
+bWFzIFppbW1lcm1hbm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9wZXINClNVU0UgU29mdHdh
+cmUgU29sdXRpb25zIEdlcm1hbnkgR21iSA0KTWF4ZmVsZHN0ci4gNSwgOTA0MDkgTsO8cm5i
+ZXJnLCBHZXJtYW55DQooSFJCIDM2ODA5LCBBRyBOw7xybmJlcmcpDQpHZXNjaMOkZnRzZsO8
+aHJlcjogSXZvIFRvdGV2DQo=
 
-Fixes: 2dd040946ecf ("drm/mgag200: Store values (not bits) in struct mgag200_pll_values")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
----
- drivers/gpu/drm/mgag200/mgag200_g200se.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--------------WiH907b0Dg84Bth0iAwE05Yl--
 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_g200se.c b/drivers/gpu/drm/mgag200/mgag200_g200se.c
-index be389ed91cbd..4ec035029b8b 100644
---- a/drivers/gpu/drm/mgag200/mgag200_g200se.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_g200se.c
-@@ -284,7 +284,7 @@ static void mgag200_g200se_04_pixpllc_atomic_update(struct drm_crtc *crtc,
- 	pixpllcp = pixpllc->p - 1;
- 	pixpllcs = pixpllc->s;
- 
--	xpixpllcm = pixpllcm | ((pixpllcn & BIT(8)) >> 1);
-+	xpixpllcm = pixpllcm | BIT(7);
- 	xpixpllcn = pixpllcn;
- 	xpixpllcp = (pixpllcs << 3) | pixpllcp;
- 
--- 
-2.37.3
+--------------GpuivNAmFfuBmweK0LBdPmEP
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmNH1NAFAwAAAAAACgkQlh/E3EQov+A9
+0A/+JHeQjKYaMaeDmvTSyopfg9Ty3Xa2AKUJp9WuTKv9IODlSYsML120j+B2Sn/JNYKrn7XXv1nQ
+5MYDXAvqqjY04kzG4yd1N/sieQm128+2nVa8ZSxmdzTY3WTeWNOrYrJXd4KKiwxA2rRxNkcmtVH/
+eAP2ExwlayPuEHP2MH6TOq73C3lky/DH3YlDuB5/xHVCMHcCPqs5vVaA29sZ/9s4ZckICjTcSabE
+IwgrP9qZ1i4xuwzuXvNRopkRhMhbk9fC3XOk9Hc9+2QNeOEsA81CbE/u9A392hiiI9Uy8Cw/g8O+
+sfZ/P+oEZEjcG0n6xfoqCipCbeSGrtuhI0qp7+1eQ6DrK87Ihxt7WWYHBtE791Zp4V734PU38SWv
+pD1i1FUi+HoAcVKWkJO+t1DVbUZ2wbfy29RJsLV+wM/B5bUCmVeFAAaJZgEre1M+baSbYavDlw36
+8at0K1t3vsK86o2+Oh+rVBcwlbBWNG4HB3JnTDO7WB4K1wpT1uW+d8P8/MVnvVoe8XLDJivvqkij
+z0A3JQZ+2xc6uP1F4vxH4WHgJupWp8+ksKQ22WrzviB+fE23XSKawXffLdis0jG9vyX+tJ8sGVFV
+j4uWO2IC2bcOZ4cn08ktu3KPMe6Ht0ovm77RvJACUgJNdQyPYWkPaT7aDzRAT6Obe0TJgsEBLmCu
+qyI=
+=/znq
+-----END PGP SIGNATURE-----
+
+--------------GpuivNAmFfuBmweK0LBdPmEP--
