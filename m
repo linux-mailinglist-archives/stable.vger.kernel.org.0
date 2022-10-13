@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C665FE026
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED35C5FE0DD
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbiJMSEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35824 "EHLO
+        id S231716AbiJMSP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:15:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbiJMSDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E294B15B334;
-        Thu, 13 Oct 2022 11:03:36 -0700 (PDT)
+        with ESMTP id S232358AbiJMSOq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:14:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E521B1669BD;
+        Thu, 13 Oct 2022 11:11:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0AE66194D;
-        Thu, 13 Oct 2022 18:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8211BC433B5;
-        Thu, 13 Oct 2022 18:00:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 702EDB8203B;
+        Thu, 13 Oct 2022 17:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D000FC43149;
+        Thu, 13 Oct 2022 17:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684032;
-        bh=IxQ0xOPd/CgxYSCw3RHLoSKvbRbv71Q5pnfxySmwIXg=;
+        s=korg; t=1665683899;
+        bh=/HRpr7EII9h229SUlP4Dmlr4MvLxTEfPUsGzRLuyqhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HDi832MrhVajrwc/qZQstyp4UhkTSjpSDJg3gIvzuRECDxhKeZEJEKf6QHR32lYxw
-         UzUp4XZJaC63j7ugcf0AS7StpnCfWiWoG9wa9vQAbNc1OqCOHA9/s1vnL5EiS99QkU
-         2UUkbNA1JJE9CNTvrYYmufHbwoJdtA0swRYFCYtg=
+        b=Z9j+72ECQrHX4+mbcqPZyWKd4RfWfdOFhfTwY6+++ewZL6dBSviRdGc1AMorDWAu4
+         gpa3TPjxHWGhT+VikbWk8+kirZJeEzHuTnEwuzdWq1MhVZp7T8Z9dhc/L0rrmRiA8Z
+         1SH6dk05Fh0I1XS5FaDIkmDOR4G48NBwpfb3/eJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.19 21/33] wifi: cfg80211/mac80211: reject bad MBSSID elements
+        stable@vger.kernel.org, Jasper Poppe <jgpoppe@gmail.com>,
+        Jeremy Palmer <jpalmer@linz.govt.nz>,
+        Ruineka <ruinairas1992@gmail.com>,
+        Cleber de Mattos Casali <clebercasali@gmail.com>,
+        Kyle Gospodnetich <me@kylegospodneti.ch>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 24/27] Input: xpad - add supported devices as contributed on github
 Date:   Thu, 13 Oct 2022 19:52:53 +0200
-Message-Id: <20221013175145.987965400@linuxfoundation.org>
+Message-Id: <20221013175144.426935817@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +57,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-commit 8f033d2becc24aa6bfd2a5c104407963560caabc upstream.
+commit b382c5e37344883dc97525d05f1f6b788f549985 upstream.
 
-Per spec, the maximum value for the MaxBSSID ('n') indicator is 8,
-and the minimum is 1 since a multiple BSSID set with just one BSSID
-doesn't make sense (the # of BSSIDs is limited by 2^n).
+This is based on multiple commits at https://github.com/paroj/xpad
 
-Limit this in the parsing in both cfg80211 and mac80211, rejecting
-any elements with an invalid value.
-
-This fixes potentially bad shifts in the processing of these inside
-the cfg80211_gen_new_bssid() function later.
-
-I found this during the investigation of CVE-2022-41674 fixed by the
-previous patch.
-
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Fixes: 78ac51f81532 ("mac80211: support multi-bssid")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jasper Poppe <jgpoppe@gmail.com>
+Signed-off-by: Jeremy Palmer <jpalmer@linz.govt.nz>
+Signed-off-by: Ruineka <ruinairas1992@gmail.com>
+Signed-off-by: Cleber de Mattos Casali <clebercasali@gmail.com>
+Signed-off-by: Kyle Gospodnetich <me@kylegospodneti.ch>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-2-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/util.c |    2 ++
- net/wireless/scan.c |    2 ++
- 2 files changed, 4 insertions(+)
+ drivers/input/joystick/xpad.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1439,6 +1439,8 @@ static size_t ieee802_11_find_bssid_prof
- 	for_each_element_id(elem, WLAN_EID_MULTIPLE_BSSID, start, len) {
- 		if (elem->datalen < 2)
- 			continue;
-+		if (elem->data[0] < 1 || elem->data[0] > 8)
-+			continue;
- 
- 		for_each_element(sub, elem->data + 1, elem->datalen - 1) {
- 			u8 new_bssid[ETH_ALEN];
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -2143,6 +2143,8 @@ static void cfg80211_parse_mbssid_data(s
- 	for_each_element_id(elem, WLAN_EID_MULTIPLE_BSSID, ie, ielen) {
- 		if (elem->datalen < 4)
- 			continue;
-+		if (elem->data[0] < 1 || (int)elem->data[0] > 8)
-+			continue;
- 		for_each_element(sub, elem->data + 1, elem->datalen - 1) {
- 			u8 profile_len;
- 
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -113,6 +113,8 @@ static const struct xpad_device {
+ 	u8 xtype;
+ } xpad_device[] = {
+ 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
+ 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+@@ -244,6 +246,7 @@ static const struct xpad_device {
+ 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
++	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+@@ -260,6 +263,7 @@ static const struct xpad_device {
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
+@@ -325,6 +329,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
+@@ -334,6 +339,14 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
++	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
++	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
+ 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+ 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+@@ -419,6 +432,7 @@ static const signed short xpad_abs_trigg
+ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+ 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
++	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
+ 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+@@ -429,6 +443,7 @@ static const struct usb_device_id xpad_t
+ 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
+ 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
++	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+@@ -450,8 +465,12 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
++	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
++	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
++	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
+ 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
+ };
 
 
