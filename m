@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E17B75FDF5B
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC245FDF5D
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbiJMRxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:53:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
+        id S229749AbiJMRxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:53:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229729AbiJMRxI (ORCPT
+        with ESMTP id S229676AbiJMRxI (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E0A15201B;
-        Thu, 13 Oct 2022 10:52:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6874315200F;
+        Thu, 13 Oct 2022 10:53:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E897D618F8;
-        Thu, 13 Oct 2022 17:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A0CC43140;
-        Thu, 13 Oct 2022 17:52:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B269D618F9;
+        Thu, 13 Oct 2022 17:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C48ACC43146;
+        Thu, 13 Oct 2022 17:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683576;
-        bh=CRJNGRjkpflGVzVE5K8nb5uIXUCKPhy0qiAB2mRSc9Y=;
+        s=korg; t=1665683579;
+        bh=LnlDADaOWtZSl9lwJTC4GMmlL/gmh302YmAW5WNpG48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+KRK9UnpqAMcKLZT59J7Yut8A510cScklAwUOwtCtPae/qs2g0OO2Veta974A4Wd
-         OkS6Do6vP9xipw+tj30ZdLNZNZxMpUeA2dIquqV/irmNcFytf2wvSCsyLoKytXe+AH
-         P3uALPycOIPHtW856Z+4T7mvWc9Cgpu987soXNsk=
+        b=2bMnOxvVONjvGhnleM49h+KHvQzkqE2lAfTlvxsdp0bAyPMFwIN8f9hViqnUcdRLl
+         2XcBye3pjc2Q7cHJnkSz5pwvE+q4lOhQfOKZkXKEatc8HqI0DC2pBgVkFmv4qX2XS9
+         eM3w7yYSCqxxQo9XMn5GGZN5Awz0flGPGjRDB5jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Alexey Dobriyan (SK hynix)" <adobriyan@gmail.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.4 02/38] perf tools: Fixup get_current_dir_name() compilation
-Date:   Thu, 13 Oct 2022 19:52:03 +0200
-Message-Id: <20221013175144.341273264@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.4 03/38] fs: fix UAF/GPF bug in nilfs_mdt_destroy
+Date:   Thu, 13 Oct 2022 19:52:04 +0200
+Message-Id: <20221013175144.381807116@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
 References: <20221013175144.245431424@linuxfoundation.org>
@@ -55,38 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 128dbd78bd673f9edbc4413072b23efb6657feb0 upstream.
+commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
 
-strdup() prototype doesn't live in stdlib.h .
+In alloc_inode, inode_init_always() could return -ENOMEM if
+security_inode_alloc() fails, which causes inode->i_private
+uninitialized. Then nilfs_is_metadata_file_inode() returns
+true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
+which frees the uninitialized inode->i_private
+and leads to crashes(e.g., UAF/GPF).
 
-Add limits.h for PATH_MAX definition as well.
+Fix this by moving security_inode_alloc just prior to
+this_cpu_inc(nr_inodes)
 
-This fixes the build on Android.
-
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/YRukaQbrgDWhiwGr@localhost.localdomain
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/get_current_dir_name.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/inode.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/tools/perf/util/get_current_dir_name.c
-+++ b/tools/perf/util/get_current_dir_name.c
-@@ -3,8 +3,9 @@
- //
- #ifndef HAVE_GET_CURRENT_DIR_NAME
- #include "get_current_dir_name.h"
-+#include <limits.h>
-+#include <string.h>
- #include <unistd.h>
--#include <stdlib.h>
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -167,8 +167,6 @@ int inode_init_always(struct super_block
+ 	inode->i_wb_frn_history = 0;
+ #endif
  
- /* Android's 'bionic' library, for one, doesn't have this */
+-	if (security_inode_alloc(inode))
+-		goto out;
+ 	spin_lock_init(&inode->i_lock);
+ 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
+ 
+@@ -199,11 +197,12 @@ int inode_init_always(struct super_block
+ 	inode->i_fsnotify_mask = 0;
+ #endif
+ 	inode->i_flctx = NULL;
++
++	if (unlikely(security_inode_alloc(inode)))
++		return -ENOMEM;
+ 	this_cpu_inc(nr_inodes);
+ 
+ 	return 0;
+-out:
+-	return -ENOMEM;
+ }
+ EXPORT_SYMBOL(inode_init_always);
  
 
 
