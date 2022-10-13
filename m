@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CA35FE2C1
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA285FE2C4
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229672AbiJMTgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 15:36:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32904 "EHLO
+        id S229658AbiJMTgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 15:36:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbiJMTgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:36:09 -0400
-X-Greylist: delayed 1800 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 13 Oct 2022 12:36:07 PDT
+        with ESMTP id S229749AbiJMTgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:36:11 -0400
 Received: from nbd.name (nbd.name [46.4.11.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39DB16F429
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 12:36:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6B7C179380
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 12:36:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
         s=20160729; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=mJS0d4bptxbGn9ITAyYbtCQFlxXnLiDrC0JZCWh0t1E=; b=PDB5ENLc/os2/u33CgWw3JBzQc
-        NWalXTaYmc7GyixvQ6c2Dy6rcADuUjDz8tJws5FknizZ6+9Aj0sWdwQhPlFdzo8UhSJEliInnQvj8
-        wthI3TGpikp29oe7/bzd2m57LRSDdyoz4MsJZhDi0z2dDujfUGYY8YmeDF5vosjHf6k4=;
+        bh=NCRXQf5/2puGWe7Ed7Q886GvsqbVvC7VwfzWni/LJCw=; b=OTYmmeUsnhpmu3YNydxabDW303
+        swF+q61AqEoMD87COMfbxyQ8bJLxn2aea3vXPPp3Uqc4IY1tdzvw7Q/M8XyoWwtho98hPVxQ4P8T/
+        AxEhK8W4USXsNzPXcoxiu5rpCF4Njsb6GaRdzXzhR9Sko7I6z7gj0y1l3EQs/qQ5eVfk=;
 Received: from p200300daa7301d0028e1e1004b08c350.dip0.t-ipconnect.de ([2003:da:a730:1d00:28e1:e100:4b08:c350] helo=Maecks.lan)
         by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
         (Exim 4.94.2)
         (envelope-from <nbd@nbd.name>)
-        id 1oj2kV-00CXRx-88; Thu, 13 Oct 2022 20:16:03 +0200
+        id 1oj2kV-00CXRx-EX; Thu, 13 Oct 2022 20:16:03 +0200
 From:   Felix Fietkau <nbd@nbd.name>
 To:     stable@vger.kernel.org
 Cc:     johannes@sipsolutions.net
-Subject: [PATCH 5.15 5/6] mac80211: fix memory leaks with element parsing
-Date:   Thu, 13 Oct 2022 20:16:00 +0200
-Message-Id: <20221013181601.5712-5-nbd@nbd.name>
+Subject: [PATCH 5.15 6/6] wifi: mac80211: fix MBSSID parsing use-after-free
+Date:   Thu, 13 Oct 2022 20:16:01 +0200
+Message-Id: <20221013181601.5712-6-nbd@nbd.name>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20221013181601.5712-1-nbd@nbd.name>
 References: <20221013181601.5712-1-nbd@nbd.name>
@@ -51,126 +50,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit 8223ac199a3849257e86ec27865dc63f034b1cf1 upstream.
+commit ff05d4b45dd89b922578dac497dcabf57cf771c6
 
-My previous commit 5d24828d05f3 ("mac80211: always allocate
-struct ieee802_11_elems") had a few bugs and leaked the new
-allocated struct in a few error cases, fix that.
+When we parse a multi-BSSID element, we might point some
+element pointers into the allocated nontransmitted_profile.
+However, we free this before returning, causing UAF when the
+relevant pointers in the parsed elements are accessed.
 
-Fixes: 5d24828d05f3 ("mac80211: always allocate struct ieee802_11_elems")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20211001211108.9839928e42e0.Ib81ca187d3d3af7ed1bfeac2e00d08a4637c8025@changeid
+Fix this by not allocating the scratch buffer separately but
+as part of the returned structure instead, that way, there
+are no lifetime issues with it.
+
+The scratch buffer introduction as part of the returned data
+here is taken from MLO feature work done by Ilan.
+
+This fixes CVE-2022-42719.
+
+Fixes: 5023b14cf4df ("mac80211: support profile split between elements")
+Co-developed-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 ---
- net/mac80211/agg-rx.c |  3 ++-
- net/mac80211/ibss.c   | 10 +++++-----
- net/mac80211/mlme.c   | 36 ++++++++++++++++++------------------
- 3 files changed, 25 insertions(+), 24 deletions(-)
+ net/mac80211/ieee80211_i.h |  8 ++++++++
+ net/mac80211/util.c        | 29 ++++++++++++++---------------
+ 2 files changed, 22 insertions(+), 15 deletions(-)
 
-diff --git a/net/mac80211/agg-rx.c b/net/mac80211/agg-rx.c
-index ffa4f31f6c2b..0d2bab9d351c 100644
---- a/net/mac80211/agg-rx.c
-+++ b/net/mac80211/agg-rx.c
-@@ -499,13 +499,14 @@ void ieee80211_process_addba_request(struct ieee80211_local *local,
- 		elems = ieee802_11_parse_elems(mgmt->u.action.u.addba_req.variable,
- 					       ies_len, true, mgmt->bssid, NULL);
- 		if (!elems || elems->parse_error)
--			return;
-+			goto free;
- 	}
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index 3633e49239c7..21549a440b38 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1613,6 +1613,14 @@ struct ieee802_11_elems {
  
- 	__ieee80211_start_rx_ba_session(sta, dialog_token, timeout,
- 					start_seq_num, ba_policy, tid,
- 					buf_size, true, false,
- 					elems ? elems->addba_ext_ie : NULL);
-+free:
- 	kfree(elems);
- }
+ 	/* whether a parse error occurred while retrieving these elements */
+ 	bool parse_error;
++
++	/*
++	 * scratch buffer that can be used for various element parsing related
++	 * tasks, e.g., element de-fragmentation etc.
++	 */
++	size_t scratch_len;
++	u8 *scratch_pos;
++	u8 scratch[];
+ };
  
-diff --git a/net/mac80211/ibss.c b/net/mac80211/ibss.c
-index 4b721b48f86a..48e0260f3424 100644
---- a/net/mac80211/ibss.c
-+++ b/net/mac80211/ibss.c
-@@ -1663,11 +1663,11 @@ void ieee80211_ibss_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,
- 				mgmt->u.action.u.chan_switch.variable,
- 				ies_len, true, mgmt->bssid, NULL);
+ static inline struct ieee80211_local *hw_to_local(
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 2ac61e68b6b4..354badd32793 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -1475,24 +1475,25 @@ struct ieee802_11_elems *ieee802_11_parse_elems_crc(const u8 *start, size_t len,
+ 	u8 *nontransmitted_profile;
+ 	int nontransmitted_profile_len = 0;
  
--			if (!elems || elems->parse_error)
--				break;
+-	elems = kzalloc(sizeof(*elems), GFP_ATOMIC);
++	elems = kzalloc(sizeof(*elems) + len, GFP_ATOMIC);
+ 	if (!elems)
+ 		return NULL;
+ 	elems->ie_start = start;
+ 	elems->total_len = len;
+ 
+-	nontransmitted_profile = kmalloc(len, GFP_ATOMIC);
+-	if (nontransmitted_profile) {
+-		nontransmitted_profile_len =
+-			ieee802_11_find_bssid_profile(start, len, elems,
+-						      transmitter_bssid,
+-						      bss_bssid,
+-						      nontransmitted_profile);
+-		non_inherit =
+-			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
+-					       nontransmitted_profile,
+-					       nontransmitted_profile_len);
+-	}
++	elems->scratch_len = len;
++	elems->scratch_pos = elems->scratch;
++
++	nontransmitted_profile = elems->scratch_pos;
++	nontransmitted_profile_len =
++		ieee802_11_find_bssid_profile(start, len, elems,
++					      transmitter_bssid,
++					      bss_bssid,
++					      nontransmitted_profile);
++	non_inherit =
++		cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
++				       nontransmitted_profile,
++				       nontransmitted_profile_len);
+ 
+ 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
+ 					  crc, non_inherit);
+@@ -1521,8 +1522,6 @@ struct ieee802_11_elems *ieee802_11_parse_elems_crc(const u8 *start, size_t len,
+ 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
+ 		elems->dtim_count = elems->bssid_index->dtim_count;
+ 
+-	kfree(nontransmitted_profile);
 -
--			ieee80211_rx_mgmt_spectrum_mgmt(sdata, mgmt, skb->len,
--							rx_status, elems);
-+			if (elems && !elems->parse_error)
-+				ieee80211_rx_mgmt_spectrum_mgmt(sdata, mgmt,
-+								skb->len,
-+								rx_status,
-+								elems);
- 			kfree(elems);
- 			break;
- 		}
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 45efa1d1c550..cc6d38a2e6d5 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -3374,8 +3374,10 @@ static bool ieee80211_assoc_success(struct ieee80211_sub_if_data *sdata,
- 			bss_ies = kmemdup(ies, sizeof(*ies) + ies->len,
- 					  GFP_ATOMIC);
- 		rcu_read_unlock();
--		if (!bss_ies)
--			return false;
-+		if (!bss_ies) {
-+			ret = false;
-+			goto out;
-+		}
+ 	elems->crc = crc;
  
- 		bss_elems = ieee802_11_parse_elems(bss_ies->data, bss_ies->len,
- 						   false, mgmt->bssid,
-@@ -4358,13 +4360,11 @@ void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,
- 					mgmt->u.action.u.chan_switch.variable,
- 					ies_len, true, mgmt->bssid, NULL);
- 
--			if (!elems || elems->parse_error)
--				break;
--
--			ieee80211_sta_process_chanswitch(sdata,
--						 rx_status->mactime,
--						 rx_status->device_timestamp,
--						 elems, false);
-+			if (elems && !elems->parse_error)
-+				ieee80211_sta_process_chanswitch(sdata,
-+								 rx_status->mactime,
-+								 rx_status->device_timestamp,
-+								 elems, false);
- 			kfree(elems);
- 		} else if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC) {
- 			struct ieee802_11_elems *elems;
-@@ -4384,17 +4384,17 @@ void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,
- 					mgmt->u.action.u.ext_chan_switch.variable,
- 					ies_len, true, mgmt->bssid, NULL);
- 
--			if (!elems || elems->parse_error)
--				break;
-+			if (elems && !elems->parse_error) {
-+				/* for the handling code pretend it was an IE */
-+				elems->ext_chansw_ie =
-+					&mgmt->u.action.u.ext_chan_switch.data;
- 
--			/* for the handling code pretend this was also an IE */
--			elems->ext_chansw_ie =
--				&mgmt->u.action.u.ext_chan_switch.data;
-+				ieee80211_sta_process_chanswitch(sdata,
-+								 rx_status->mactime,
-+								 rx_status->device_timestamp,
-+								 elems, false);
-+			}
- 
--			ieee80211_sta_process_chanswitch(sdata,
--						 rx_status->mactime,
--						 rx_status->device_timestamp,
--						 elems, false);
- 			kfree(elems);
- 		}
- 		break;
+ 	return elems;
 -- 
 2.36.1
 
