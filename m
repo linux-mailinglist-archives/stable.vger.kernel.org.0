@@ -2,75 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDEC5FE3B1
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 23:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 853E95FE3C1
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 23:07:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229544AbiJMVF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 17:05:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60958 "EHLO
+        id S229624AbiJMVH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 17:07:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbiJMVFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 17:05:25 -0400
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4E774BAD;
-        Thu, 13 Oct 2022 14:05:23 -0700 (PDT)
-Received: by mail-qt1-x831.google.com with SMTP id hh9so2533666qtb.13;
-        Thu, 13 Oct 2022 14:05:23 -0700 (PDT)
+        with ESMTP id S229736AbiJMVH5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 17:07:57 -0400
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39FA3188AB6
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 14:07:54 -0700 (PDT)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-134072c15c1so3791235fac.2
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 14:07:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IpziDW8NH/r2N+nsGIcszHmIfyG4LougN21b7cgGScw=;
-        b=eufQ1Zqz/YdpycjgMEOfM9hDgxsIWDulz+dPmrCMxVUBDlj6rA1yAFkx8YXHFoygsk
-         LrXm5ghRGd0xsCt59Lt2ofuWt8JVhOmSKWGzuKaGpBWCKl+no8Nf5cwP80KlHKlwQ7fa
-         dK1ooVav7sBrHinUxnEvTVVylqHMi0sGBxU93VPoqAQc3b00A/GUYV+VTFMT+y8ECwrb
-         xav5op+Vp8tAidvQy65bpcPgMBoWp6jNLKUZ2TR6v1WjLz46lPlCTzxYVtbrATs56qN0
-         g/SbsVm82ACW534emcQFPtRcFtggKH132165ac82wmdjsfyYf0h4CNGTAN7Jtgj6Bgd7
-         wXeQ==
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AVEUKlqWo2ttd10gQh3gawam9X0cvCfnEg2BZkSEor0=;
+        b=HJeySj+BDWcYJMKmqAj4xZ2JSfBiTiBaTnEUBFY83WIfVa+3LzILeNtjf8pXD9kyJW
+         RvoW3x3MlFnSKRB6GfX2xAKb4mEQKOZFvsVq2Dr6ZzPnSSMdDSIix9tVpECs37Wr/UEW
+         wyWklMlNOJCzxr4ZdW2EC+DkqBcPiic1kh/JQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IpziDW8NH/r2N+nsGIcszHmIfyG4LougN21b7cgGScw=;
-        b=Cm9Z6dwCY0SsbJSmTSyuwB49n5dykJ4e+zGmpc4UlEcwhZW9RsBSNJmUEC4X/EfTLL
-         LTBRkfF3SloKJTzvL2DhogkKCaeUHNBiHKFaMqQYH9tNmLPz6+KX1SfsO3CIrN6HPQjX
-         u4Jkfq1O4GkJqhAhtXmuwEnLDG1GWeAQABFeW7nTzYpVZGfkOB7pHA/CBISelCUy+DXc
-         MqZ6JxHmRoajHtS+ogqCT0wQFmj6Apsi0x8ZW/CdvBT2tKvoxXv5houag68mfeN5MDpa
-         iDY2pwjs+wIniRWv+dAKN+gITi1MyoE6PmJO2NdrK0wvvVuqwBhaZFAlmhpbG0T6UKGW
-         s5fQ==
-X-Gm-Message-State: ACrzQf1XdZpb1gvGqNtL/9cs2HRRo0zxRnxw1rNbsknWo7iYuJ91iDo0
-        Xaz/ZBmQw8dLXw786FuqjSk=
-X-Google-Smtp-Source: AMsMyM6R7GNwFX6JymZRq/EaAYi2HZv75XaSCkQMxOIIBO9cnIrV7fIvmi3xOcgsKh3uQmC8p98QpQ==
-X-Received: by 2002:a05:622a:1c7:b0:39c:d5a6:605e with SMTP id t7-20020a05622a01c700b0039cd5a6605emr1653795qtw.592.1665695122732;
-        Thu, 13 Oct 2022 14:05:22 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id fz25-20020a05622a5a9900b00399ad646794sm736054qtb.41.2022.10.13.14.05.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Oct 2022 14:05:22 -0700 (PDT)
-Message-ID: <b8512a2f-d562-092e-99f7-f199522dc656@gmail.com>
-Date:   Thu, 13 Oct 2022 14:05:19 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 5.19 00/33] 5.19.16-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=AVEUKlqWo2ttd10gQh3gawam9X0cvCfnEg2BZkSEor0=;
+        b=NJZL/82E/AePNSc2BdkKzBstOCq9bocdQFC6ECaigOHMiqkWrn76BRit2u4hLtm4c5
+         BTsoUJ6dvMnMKYinJueDV5xf6CshYPUQt0dQ4TbOMXUzxGfGujuuTQbLNHemmXrIlNvq
+         GwxiG/KWA5rJn6tgmasQ9YBB2Ev1o0bETls2vP82vLlMa5jCMpwP1NmihYCUbWI70DWr
+         QPpdjSCpJZyTpg5FyA8wTMR0O+5DvkxdJ7//nQJl20Ro1l5V1XaWzagnKHGLF5rgFjr6
+         OzAjALD/93lXAU9kwTOED/yr+vAzhUw+8B8iWI8CSzzyhkhcEzk3iBMiEtDkpnAanar1
+         1rhw==
+X-Gm-Message-State: ACrzQf1BTtCJayQTH2fg/jJurUnbtwtZcZxzuSuXGkdWg+GnRFKY5og3
+        NKBgukHEa7/E4pFSpHxwudraMg==
+X-Google-Smtp-Source: AMsMyM4xBIf6fZEPKvGGyT4fORjzrVpM0TNb/dbjVSNAoLpFpy/MJCYEdG2B8VpeArgPwDqIuBOzAw==
+X-Received: by 2002:a05:6870:d1cb:b0:12a:e232:688e with SMTP id b11-20020a056870d1cb00b0012ae232688emr6604562oac.24.1665695273421;
+        Thu, 13 Oct 2022 14:07:53 -0700 (PDT)
+Received: from fedora64.linuxtx.org ([99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id e24-20020a544f18000000b003436fa2c23bsm352449oiy.7.2022.10.13.14.07.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Oct 2022 14:07:52 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Thu, 13 Oct 2022 16:07:50 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         srw@sladewatkins.net
+Subject: Re: [PATCH 5.19 00/33] 5.19.16-rc1 review
+Message-ID: <Y0h+JnZVQ3Fk3UTw@fedora64.linuxtx.org>
 References: <20221013175145.236739253@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,7 +73,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/13/22 10:52, Greg Kroah-Hartman wrote:
+On Thu, Oct 13, 2022 at 07:52:32PM +0200, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.19.16 release.
 > There are 33 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -97,9 +92,7 @@ On 10/13/22 10:52, Greg Kroah-Hartman wrote:
 > 
 > greg k-h
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
