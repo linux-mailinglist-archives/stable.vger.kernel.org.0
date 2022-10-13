@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D981F5FDEB4
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E04D5FDEB5
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229591AbiJMRLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:11:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46484 "EHLO
+        id S229462AbiJMRMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:12:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbiJMRLu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:11:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F286A51A26
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 10:11:48 -0700 (PDT)
+        with ESMTP id S229491AbiJMRMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:12:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA13BCBA2
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 10:11:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F23FB81E19
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 17:11:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161B6C433D6;
-        Thu, 13 Oct 2022 17:11:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F3D0B81FCC
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 17:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94BAC433D6;
+        Thu, 13 Oct 2022 17:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665681106;
-        bh=K7YdFu9zsz7vkAVAXMS3QzaLyz+ZN5f/TagxSvy0CAk=;
+        s=korg; t=1665681116;
+        bh=vFnk8IJuMF+O7A7Ydm6smaWe/VTFPL0I6DOPvUmZLKI=;
         h=Subject:To:Cc:From:Date:From;
-        b=HQoXum/Lm/WxuV8UY344+za7ozzWZAzqYj0YShKYeKr6QAK5IGRqwhCkTRUlelRHy
-         APZVfDUK/jeF4BQOpTkAKXRfyofKY6Y7OFrZ+Fk809Yl4RYeAO7CPlSX5uYW6RxBeb
-         ukq8zxKaZbXOXCgzwThOnpVNyH9VKl5zAqr1soRE=
-Subject: FAILED: patch "[PATCH] misc: pci_endpoint_test: Fix" failed to apply to 5.4-stable tree
+        b=0V33NPVP2WCLW4AEvuEsXV5uwWs7R50Uygv9snTMFKXeK4fK9pZ/BjoIsE4Fhhqia
+         iLo97akNaP8LptQ3wlHtGfbZ/mwY83GYKEm8ibqpUSg3e6aL/zd6vOkOeUvT0sKZGj
+         I+wklq/HrflniFNBygGcltYgOKmWtuhCOfZ/qtBk=
+Subject: FAILED: patch "[PATCH] misc: pci_endpoint_test: Fix" failed to apply to 4.19-stable tree
 To:     mie@igel.co.jp, gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Oct 2022 19:12:31 +0200
-Message-ID: <166568115114731@kroah.com>
+Date:   Thu, 13 Oct 2022 19:12:32 +0200
+Message-ID: <166568115262227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,7 @@ Possible dependencies:
 8e30538eca01 ("misc: pci_endpoint_test: Fix pci_endpoint_test_{copy,write,read}() panic")
 3e42deaac065 ("misc: pci_endpoint_test: Aggregate params checking for xfer")
 cf376b4b59da ("misc: pci_endpoint_test: Add support to get DMA option from userspace")
+5bb04b19230c ("misc: pci_endpoint_test: Add support to test PCI EP in AM654x")
 
 thanks,
 
