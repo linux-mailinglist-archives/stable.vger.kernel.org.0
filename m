@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 436965FCFED
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:24:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99B295FD14C
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbiJMAYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:24:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56130 "EHLO
+        id S231865AbiJMAfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:35:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230430AbiJMAXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:23:38 -0400
+        with ESMTP id S231909AbiJMAde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:33:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503B9EB774;
-        Wed, 12 Oct 2022 17:20:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3975CD9952;
+        Wed, 12 Oct 2022 17:28:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25629616EA;
-        Thu, 13 Oct 2022 00:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20DAC43141;
-        Thu, 13 Oct 2022 00:20:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 865EF616DC;
+        Thu, 13 Oct 2022 00:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14BCBC433C1;
+        Thu, 13 Oct 2022 00:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620419;
-        bh=4bVzplRUEri578yf4hMSfP54NrhqRnxXXKHhE/E0fPQ=;
+        s=k20201202; t=1665620421;
+        bh=6vbKmmz0ryFxKZLGyy2yrARzgTOezGzvxGBhsplRrh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kqWcm8DQFABgzlJ3UZysFOohaJqS8w5EScqUznU9iZ+nwWmFxjKXRMGQPZ3Q8IcnP
-         GDcTIXKdlJsXI+0/33J0KYjdr9TJWJzynjuw9b/Nqu0Wjqm3uxYecou8tpv6fj25cp
-         2P/Fm4w05yXxxVXHH6uSz6/fpI0KXMWRV8v3Yx9lzDfwOVvv2Q/mj62+Ijz7sr/eqG
-         ijKCwVRRtQvOON2cLFlgQMej9vGc3TmyM2OhQ20M8tJWjB82jijlYPbA15baT9XUnp
-         X95syviqw7n+bGO0RVbzYPtk0RG57z+A6V5RoHzV8dIIailD1u2ZbJnMnwJzMLTYZ9
-         d2g+yDGLQeRzA==
+        b=HuyFqub24PHNgKocqDsq6KsGK1iBCQXg1nyRhzcyNAJhAbX3sXNbN5GjqUmI++yFg
+         yadRUCu6/GWhGhz35WvB8G5xWq5NNwhAIT0PzhhfQnzgCgs5r0U2VR/EPuKScYhFPf
+         s4tnmirc8QKdEuPykIYXBRV236AgoiShOCVdT2eEV+gJv8UUEpMf4/iXzidz9U8Ymr
+         LsQBCBnCfDSQv1BCYfvfNwGdNLN9yaY1vwytByXD/PPvtzYnboPARldfjykdtImlNe
+         h+ziAo5q9vpMj1rfl3zPDUUfxXKNHrA88YFGbzwXTLY2Y5dWiHwaLrYmvSuvbpTLEh
+         s2WMiLWzDpCqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Piyush Mehta <piyush.mehta@amd.com>,
+Cc:     sunghwan jung <onenowy@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Thinh.Nguyen@synopsys.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 40/63] usb: dwc3: core: Enable GUCTL1 bit 10 for fixing termination error after resume bug
-Date:   Wed, 12 Oct 2022 20:18:14 -0400
-Message-Id: <20221013001842.1893243-40-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, stern@rowland.harvard.edu,
+        linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: [PATCH AUTOSEL 5.19 41/63] Revert "usb: storage: Add quirk for Samsung Fit flash"
+Date:   Wed, 12 Oct 2022 20:18:15 -0400
+Message-Id: <20221013001842.1893243-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -56,95 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piyush Mehta <piyush.mehta@amd.com>
+From: sunghwan jung <onenowy@gmail.com>
 
-[ Upstream commit 63d7f9810a38102cdb8cad214fac98682081e1a7 ]
+[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
 
-When configured in HOST mode, after issuing U3/L2 exit controller fails
-to send proper CRC checksum in CRC5 field. Because of this behavior
-Transaction Error is generated, resulting in reset and re-enumeration of
-usb device attached. Enabling chicken bit 10 of GUCTL1 will correct this
-problem.
+This reverts commit 86d92f5465958752481269348d474414dccb1552,
+which fix the timeout issue for "Samsung Fit Flash".
 
-When this bit is set to '1', the UTMI/ULPI opmode will be changed to
-"normal" along with HS terminations, term, and xcvr signals after EOR.
-This option is to support certain legacy UTMI/ULPI PHYs.
+But the commit affects not only "Samsung Fit Flash" but also other usb
+storages that use the same controller and causes severe performance
+regression.
 
-Added "snps,resume-hs-terminations" quirk to resolved the above issue.
+ # hdparm -t /dev/sda (without the quirk)
+ Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
 
-Signed-off-by: Piyush Mehta <piyush.mehta@amd.com>
-Link: https://lore.kernel.org/r/20220920052235.194272-3-piyush.mehta@amd.com
+ # hdparm -t /dev/sda (with the quirk)
+ Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
+
+The commit author mentioned that "Issue was reproduced after device has
+bad block", so this quirk should be applied when we have the timeout
+issue with a device that has bad blocks.
+
+We revert the commit so that we apply this quirk by adding kernel
+paramters using a bootloader or other ways when we really need it,
+without the performance regression with devices that don't have the
+issue.
+
+Signed-off-by: sunghwan jung <onenowy@gmail.com>
+Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 17 +++++++++++++++++
- drivers/usb/dwc3/core.h |  4 ++++
- 2 files changed, 21 insertions(+)
+ drivers/usb/storage/unusual_devs.h | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 019c79322850..7f28742aa453 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1150,6 +1150,21 @@ static int dwc3_core_init(struct dwc3 *dwc)
- 		dwc3_writel(dwc->regs, DWC3_GUCTL2, reg);
- 	}
+diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
+index 4993227ab293..20dcbccb290b 100644
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -1275,12 +1275,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
+ 		USB_SC_RBC, USB_PR_BULK, NULL,
+ 		0 ),
  
-+	/*
-+	 * When configured in HOST mode, after issuing U3/L2 exit controller
-+	 * fails to send proper CRC checksum in CRC5 feild. Because of this
-+	 * behaviour Transaction Error is generated, resulting in reset and
-+	 * re-enumeration of usb device attached. All the termsel, xcvrsel,
-+	 * opmode becomes 0 during end of resume. Enabling bit 10 of GUCTL1
-+	 * will correct this problem. This option is to support certain
-+	 * legacy ULPI PHYs.
-+	 */
-+	if (dwc->resume_hs_terminations) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GUCTL1);
-+		reg |= DWC3_GUCTL1_RESUME_OPMODE_HS_HOST;
-+		dwc3_writel(dwc->regs, DWC3_GUCTL1, reg);
-+	}
-+
- 	if (!DWC3_VER_IS_PRIOR(DWC3, 250A)) {
- 		reg = dwc3_readl(dwc->regs, DWC3_GUCTL1);
- 
-@@ -1493,6 +1508,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
- 				"snps,dis-del-phy-power-chg-quirk");
- 	dwc->dis_tx_ipgap_linecheck_quirk = device_property_read_bool(dev,
- 				"snps,dis-tx-ipgap-linecheck-quirk");
-+	dwc->resume_hs_terminations = device_property_read_bool(dev,
-+				"snps,resume-hs-terminations");
- 	dwc->parkmode_disable_ss_quirk = device_property_read_bool(dev,
- 				"snps,parkmode-disable-ss-quirk");
- 	dwc->gfladj_refclk_lpm_sel = device_property_read_bool(dev,
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 725fb17e4a9e..b9fa0fa5ba7c 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -262,6 +262,7 @@
- #define DWC3_GUCTL1_DEV_FORCE_20_CLK_FOR_30_CLK	BIT(26)
- #define DWC3_GUCTL1_DEV_L1_EXIT_BY_HW		BIT(24)
- #define DWC3_GUCTL1_PARKMODE_DISABLE_SS		BIT(17)
-+#define DWC3_GUCTL1_RESUME_OPMODE_HS_HOST	BIT(10)
- 
- /* Global Status Register */
- #define DWC3_GSTS_OTG_IP	BIT(10)
-@@ -1094,6 +1095,8 @@ struct dwc3_scratchpad_array {
-  *			change quirk.
-  * @dis_tx_ipgap_linecheck_quirk: set if we disable u2mac linestate
-  *			check during HS transmit.
-+ * @resume-hs-terminations: Set if we enable quirk for fixing improper crc
-+ *			generation after resume from suspend.
-  * @parkmode_disable_ss_quirk: set if we need to disable all SuperSpeed
-  *			instances in park mode.
-  * @tx_de_emphasis_quirk: set if we enable Tx de-emphasis quirk
-@@ -1309,6 +1312,7 @@ struct dwc3 {
- 	unsigned		dis_u2_freeclk_exists_quirk:1;
- 	unsigned		dis_del_phy_power_chg_quirk:1;
- 	unsigned		dis_tx_ipgap_linecheck_quirk:1;
-+	unsigned		resume_hs_terminations:1;
- 	unsigned		parkmode_disable_ss_quirk:1;
- 	unsigned		gfladj_refclk_lpm_sel:1;
- 
+-UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
+-		"Samsung",
+-		"Flash Drive FIT",
+-		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_MAX_SECTORS_64),
+-
+ /* aeb */
+ UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
+ 		"Feiya",
 -- 
 2.35.1
 
