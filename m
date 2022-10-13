@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C15E5FE0D2
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A18625FE129
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbiJMSPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38916 "EHLO
+        id S230079AbiJMS1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:27:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231319AbiJMSL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:11:56 -0400
+        with ESMTP id S231425AbiJMS1O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:27:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB1215625A;
-        Thu, 13 Oct 2022 11:08:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4867C18A3E6;
+        Thu, 13 Oct 2022 11:22:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07606B8208B;
-        Thu, 13 Oct 2022 18:01:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68EA4C433C1;
-        Thu, 13 Oct 2022 18:01:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7376B8205C;
+        Thu, 13 Oct 2022 18:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46967C433D6;
+        Thu, 13 Oct 2022 18:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684098;
-        bh=7ADSkhJgMzgbvEfxkGhKSmMII+dlmQ0WYUlz4phgh+4=;
+        s=korg; t=1665684011;
+        bh=45B25suZiRTyMNLHbM6xw8qTu27E00Fp19ufaiOX5r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zg/0A5eQm5s2wmpJv7V7MapZZbEZxrWWwqZotrz1s+xUlwUcrLeVcXVr2Sqw+5l25
-         nGbtvcMTiiKAyjrq2gr4kHbPh2ywKtRDfQPNFwVLzKMChyWuITx93xtVAgYl7hsLZw
-         x8osLPwJ0SGtrd+GluwGMuiwDwnImGCqpVePPctU=
+        b=n0eKB41KzVPCF2HFHjdqyG/G5mzHQcgLvAgFKzuxnwH1o2aNr4LnF10RcgSmxZYUj
+         Z6JKaF75GNZLhiADHcZvYoLZsgGaYSMR6S9I3APJTICKB03leMHqb8KPT7/PlWuMhF
+         79OHev7cnV46XA3cmwhcufo6zO01VdKTVQvxcb7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Soenke Huster <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.0 24/34] wifi: cfg80211: ensure length byte is present before access
-Date:   Thu, 13 Oct 2022 19:53:02 +0200
-Message-Id: <20221013175147.143750056@linuxfoundation.org>
+        stable@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.19 31/33] Input: xpad - fix wireless 360 controller breaking after suspend
+Date:   Thu, 13 Oct 2022 19:53:03 +0200
+Message-Id: <20221013175146.298237504@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-References: <20221013175146.507746257@linuxfoundation.org>
+In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
+References: <20221013175145.236739253@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Cameron Gutman <aicommander@gmail.com>
 
-commit 567e14e39e8f8c6997a1378bc3be615afca86063 upstream.
+commit a17b9841152e7f4621619902b347e2cc39c32996 upstream.
 
-When iterating the elements here, ensure the length byte is
-present before checking it to see if the entire element will
-fit into the buffer.
+Suspending and resuming the system can sometimes cause the out
+URB to get hung after a reset_resume. This causes LED setting
+and force feedback to break on resume. To avoid this, just drop
+the reset_resume callback so the USB core rebinds xpad to the
+wireless pads on resume if a reset happened.
 
-Longer term, we should rewrite this code using the type-safe
-element iteration macros that check all of this.
+A nice side effect of this change is the LED ring on wireless
+controllers is now set correctly on system resume.
 
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Reported-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 4220f7db1e42 ("Input: xpad - workaround dead irq_out after suspend/ resume")
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-3-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/joystick/xpad.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -304,7 +304,8 @@ static size_t cfg80211_gen_new_ie(const
- 	tmp_old = cfg80211_find_ie(WLAN_EID_SSID, ie, ielen);
- 	tmp_old = (tmp_old) ? tmp_old + tmp_old[1] + 2 : ie;
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1991,7 +1991,6 @@ static struct usb_driver xpad_driver = {
+ 	.disconnect	= xpad_disconnect,
+ 	.suspend	= xpad_suspend,
+ 	.resume		= xpad_resume,
+-	.reset_resume	= xpad_resume,
+ 	.id_table	= xpad_table,
+ };
  
--	while (tmp_old + tmp_old[1] + 2 - ie <= ielen) {
-+	while (tmp_old + 2 - ie <= ielen &&
-+	       tmp_old + tmp_old[1] + 2 - ie <= ielen) {
- 		if (tmp_old[0] == 0) {
- 			tmp_old++;
- 			continue;
-@@ -364,7 +365,8 @@ static size_t cfg80211_gen_new_ie(const
- 	 * copied to new ie, skip ssid, capability, bssid-index ie
- 	 */
- 	tmp_new = sub_copy;
--	while (tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
-+	while (tmp_new + 2 - sub_copy <= subie_len &&
-+	       tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
- 		if (!(tmp_new[0] == WLAN_EID_NON_TX_BSSID_CAP ||
- 		      tmp_new[0] == WLAN_EID_SSID)) {
- 			memcpy(pos, tmp_new, tmp_new[1] + 2);
 
 
