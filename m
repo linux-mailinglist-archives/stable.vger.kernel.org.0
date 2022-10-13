@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D55F85FDF78
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7EC5FDFC5
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229949AbiJMRyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:54:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
+        id S229978AbiJMR6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:58:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229957AbiJMRyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B9511578A7;
-        Thu, 13 Oct 2022 10:53:43 -0700 (PDT)
+        with ESMTP id S230132AbiJMR5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352BDB03CC;
+        Thu, 13 Oct 2022 10:56:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB0F618F4;
-        Thu, 13 Oct 2022 17:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A779C433C1;
-        Thu, 13 Oct 2022 17:53:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83EB0B8203C;
+        Thu, 13 Oct 2022 17:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D40C433D6;
+        Thu, 13 Oct 2022 17:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683621;
-        bh=dJKQV479mGlFMVR1hzi8I2tjgh9+4htqItrDF5VQ4ek=;
+        s=korg; t=1665683755;
+        bh=OEVHSmyP6ry9HP1rzqnCniac1P21E4uC7zWTb3gHzHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2+3Zs1IkmC1nJT4fgWWe9u1oeoahODz34pUpCO0c6yqVHhdr2I0+LS2WwraeaQfD
-         OyN2fJWu398ydWVLFc5Me9cE264SGl/DX1znOyHXHn7n3hs1Vyiea2el5g1kOVGYhA
-         SLCacRSOBqgEn5doFm3ZnMQqmwN+pGFnNxOCop7Q=
+        b=s8LW1WnWuqRYxOlHgbLE9iqEyCx6EEclvRN0cBz2PznacPzNvbKN4BDqWXv/vrNWW
+         kGhmksUqhXzAVB6RxJp2pRDRrbotwiSo4UV1GEAS7tH6o2P7o5xkrSFzB1e70AI8bK
+         abLj5Atl9gx52qONQ+2v3jmr8zq/i5OjOfBr8EzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 31/38] wifi: cfg80211/mac80211: reject bad MBSSID elements
+        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
+        Samuel Jiang <chyishian.jiang@gmail.com>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.10 38/54] efi: Correct Macmini DMI match in uefi cert quirk
 Date:   Thu, 13 Oct 2022 19:52:32 +0200
-Message-Id: <20221013175145.279415764@linuxfoundation.org>
+Message-Id: <20221013175148.267880948@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Orlando Chamberlain <redecorating@protonmail.com>
 
-commit 8f033d2becc24aa6bfd2a5c104407963560caabc upstream.
+commit bab715bdaa9ebf28d99a6d1efb2704a30125e96d upstream.
 
-Per spec, the maximum value for the MaxBSSID ('n') indicator is 8,
-and the minimum is 1 since a multiple BSSID set with just one BSSID
-doesn't make sense (the # of BSSIDs is limited by 2^n).
+It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
+is inconsistent with other model line names.
 
-Limit this in the parsing in both cfg80211 and mac80211, rejecting
-any elements with an invalid value.
+Correct the capitalisation of Macmini in the quirk for skipping loading
+platform certs on T2 Macs.
 
-This fixes potentially bad shifts in the processing of these inside
-the cfg80211_gen_new_bssid() function later.
+Currently users get:
 
-I found this during the investigation of CVE-2022-41674 fixed by the
-previous patch.
+------------[ cut here ]------------
+[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
+WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x55/0xe0
+Modules linked in:
+CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3fc40fd08edab32a509fbf4c9bc52d111e
+Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
+Workqueue: efi_rts_wq efi_call_rts
+...
+---[ end trace 0000000000000000 ]---
+efi: Froze efi_rts_wq and disabled EFI Runtime Services
+integrity: Couldn't get size: 0x8000000000000015
+integrity: MODSIGN: Couldn't get UEFI db list
+efi: EFI Runtime Services are disabled!
+integrity: Couldn't get size: 0x8000000000000015
+integrity: Couldn't get UEFI dbx list
 
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Fixes: 78ac51f81532 ("mac80211: support multi-bssid")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
+Cc: stable@vger.kernel.org
+Cc: Aditya Garg <gargaditya08@live.com>
+Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
+Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/util.c |    2 ++
- net/wireless/scan.c |    2 ++
- 2 files changed, 4 insertions(+)
+ security/integrity/platform_certs/load_uefi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1289,6 +1289,8 @@ static size_t ieee802_11_find_bssid_prof
- 	for_each_element_id(elem, WLAN_EID_MULTIPLE_BSSID, start, len) {
- 		if (elem->datalen < 2)
- 			continue;
-+		if (elem->data[0] < 1 || elem->data[0] > 8)
-+			continue;
- 
- 		for_each_element(sub, elem->data + 1, elem->datalen - 1) {
- 			u8 new_bssid[ETH_ALEN];
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -1582,6 +1582,8 @@ static void cfg80211_parse_mbssid_data(s
- 	for_each_element_id(elem, WLAN_EID_MULTIPLE_BSSID, ie, ielen) {
- 		if (elem->datalen < 4)
- 			continue;
-+		if (elem->data[0] < 1 || (int)elem->data[0] > 8)
-+			continue;
- 		for_each_element(sub, elem->data + 1, elem->datalen - 1) {
- 			u8 profile_len;
- 
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -30,7 +30,7 @@ static const struct dmi_system_id uefi_s
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
+-	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
 
 
