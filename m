@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4724C5FD6CF
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 11:16:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99EC95FD6DB
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 11:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229641AbiJMJQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 05:16:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43810 "EHLO
+        id S229679AbiJMJRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 05:17:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229930AbiJMJPj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 05:15:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD163A5
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 02:15:30 -0700 (PDT)
+        with ESMTP id S229515AbiJMJRW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 05:17:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C01062D6
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 02:17:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD6DA6173B
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 09:15:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC629C433D6;
-        Thu, 13 Oct 2022 09:15:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 168BFB81D55
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 09:17:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68404C433D6;
+        Thu, 13 Oct 2022 09:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665652529;
-        bh=NSVoBHtx/v9xylrxu6NISpCezpgvGk1nSHXNLuqHq+g=;
+        s=korg; t=1665652638;
+        bh=JX2AG5TmyGuf+6ai0iX++OK0B8iN/q3K37dVSV1i4QM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rOqxnHs9JPeajilAs4GloCz+hZSJTX1yKl3lFbKHsxJxEv5vsFOq/fBmaFrk2Jq2H
-         TiLgN7BwcVzM4bvkzGzMtCC5xQod1edUTGlVe9ty3QOV7oM6Qh1X5wY/6PWmw4mip0
-         MR3fIMtZYSAxm/lcyUPC+dquYAQonci/hBFsaKaQ=
-Date:   Thu, 13 Oct 2022 11:16:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     lvgaofei <lvgaofei@oppo.com>
-Cc:     stable@vger.kernel.org, gregkh@google.com, jaegeuk@kernel.org,
-        chao@kernel.org, drosen@google.com,
-        linux-f2fs-devel@lists.sourceforge.net,
-        Hyeong-Jun Kim <hj514.kim@samsung.com>
-Subject: Re: [f2fs-dev][PATCH 5.10 5.15]f2fs: invalidate META_MAPPING before
- IPU/DIO write
-Message-ID: <Y0fXV46Pwi0ilzsN@kroah.com>
-References: <1665642400-410526-1-git-send-email-lvgaofei@oppo.com>
+        b=GFlBthu9f0tIh65NdGuwna8yN9HSPVXpuhawbYz+8r76UxqRjCtufSY/JAD3ruqp5
+         ToqKkOhCGaftu+Ehp39aotQTPOOfmwJ9NHzrN3JB4LXgW8bu52h4a1c2H5Ew0YPr4f
+         PYvUFOipKwWc4fUe6fdiDGndK5P4QaRCZck9g7+I=
+Date:   Thu, 13 Oct 2022 11:18:03 +0200
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     "Bhatnagar, Rishabh" <risbhat@amazon.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "hch@lst.de" <hch@lst.de>
+Subject: Re: nvme-pci patch backport to 5.15/5.10 stable
+Message-ID: <Y0fXy8iIi70I+Cak@kroah.com>
+References: <db989ce3-5f0e-dc4e-e536-ec806744c229@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1665642400-410526-1-git-send-email-lvgaofei@oppo.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_50,DKIMWL_WL_HIGH,
+In-Reply-To: <db989ce3-5f0e-dc4e-e536-ec806744c229@amazon.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,12 +49,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 02:26:40PM +0800, lvgaofei wrote:
-> ________________________________
-> OPPO
+On Tue, Oct 11, 2022 at 02:12:27PM -0700, Bhatnagar, Rishabh wrote:
+> Hi
 > 
-> 本电子邮件及其附件含有OPPO公司的保密信息，仅限于邮件指明的收件人使用（包含个人及群组）。禁止任何人在未经授权的情况下以任何形式使用。如果您错收了本邮件，请立即以电子邮件通知发件人并删除本邮件及其附件。
+> The following patch is needed in 5.10 and 5.15 stable trees.
 > 
-> This e-mail and its attachments contain confidential information from OPPO, which is intended only for the person or entity whose address is listed above. Any use of the information contained herein in any way (including, but not limited to, total or partial disclosure, reproduction, or dissemination) by persons other than the intended recipient(s) is prohibited. If you receive this e-mail in error, please notify the sender by phone or email immediately and delete it!
+> Commit: 61ce339f19fabbc3e51237148a7ef6f2270e44fa
+> Subject: nvme-pci: set min_align_mask before calculating max_hw_sectors
+> 
+> This patch fixes the swiotlb usecase for nvme driver
+> where if dma_min_align is not considered the requested buffer
+> size overflows the swiotlb buffer.
+> Patch applies cleanly for 5.15/5.10 stable trees.
 
-Now deleted.
+What about 5.19 and 6.0?  You don't want someone upgrading to a newer
+kernel and having a regression, right?
+
+thanks,
+
+greg k-h
