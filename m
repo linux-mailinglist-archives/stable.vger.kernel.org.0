@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3E195FD102
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 053265FD0E6
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:31:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbiJMAbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:31:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
+        id S231513AbiJMAaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:30:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229941AbiJMA3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:48 -0400
+        with ESMTP id S231148AbiJMA10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:27:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666A7DBE56;
-        Wed, 12 Oct 2022 17:27:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F8D4F19C;
+        Wed, 12 Oct 2022 17:25:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64EA0616EA;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88F68616D7;
+        Thu, 13 Oct 2022 00:24:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 470D9C433D6;
         Thu, 13 Oct 2022 00:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DB5C433C1;
-        Thu, 13 Oct 2022 00:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620664;
-        bh=MWWlvoIxYq3cLnXWGZXs/MB8JAZXLhih8N0NFWNeK90=;
+        s=k20201202; t=1665620666;
+        bh=lD4PumsU6VKCG95D79gcFfeH5NLGXVobofd+RUSUIuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpf217HqQiqJBeZbyGHRX5Wr3Ch9MeJLzzW9vPNYpDWOP6gw/y8yjiT23tjiGH1Va
-         XRJYVEemFdy1asdKj85Pyuhpva3Kz6BdH6BOVNdvvXp3fuI+Rllfb3A3gAuSCaKvQb
-         +opM4265nNsN1hJjiPJLlX6ppKtuQsZJ5LrnqyNDkGwJqK6O8M53God39MCMt0A62i
-         e/5ngaL3ioY8EjNm84r3U2uXc7UeXQfxoXaU71zol0HrVeqI1DR/GZ6xiqyKiABm9A
-         2nNXHLqX9Bahpgm7wqfZk/tGZYJRxk/oEkR6jvHsQeXfhjgX7OfNVw/OQGdgrRnmVr
-         LrvRfqTEo+P/g==
+        b=dAlF2i3Ju84nGiIdkF4EPuV9t5N59WjBl+3q8wYG5cp7O9gv86cHuSWUmdWIIMgRT
+         zWGFtcTb+FGawxUQNaAaC0RrE4/8fdFMxtdHlJgp1tIiO9D0s4xpC6gzbpOVh7akZW
+         a8gOjpX8WXg6S4Me3jgiAckfT4pfWneJxwi1jeLSr7ty7gnTEVl//QbLecmICJ8cIX
+         TOi1r5qBzR1fOrlafKfpLeFu1ZBz055dgbAbx6+lZOOPJP+mKL4hvBAk73/WE8CB06
+         2/QW2ZTVmJMp7sLT95KozYpSYEy+rS9PX/xh5E3YwmTiZADWaoht2Lo2v3aY6zd3p6
+         AqN3dNCGWkDLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianglei Nie <niejianglei2021@163.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, sre@kernel.org,
-        kuba@kernel.org, wangqing@vivo.com
-Subject: [PATCH AUTOSEL 5.10 20/33] HSI: ssi_protocol: fix potential resource leak in ssip_pn_open()
-Date:   Wed, 12 Oct 2022 20:23:19 -0400
-Message-Id: <20221013002334.1894749-20-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>, Song Liu <song@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 21/33] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
+Date:   Wed, 12 Oct 2022 20:23:20 -0400
+Message-Id: <20221013002334.1894749-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -56,35 +54,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit b28dbcb379e6a7f80262c2732a57681b1ee548ca ]
+[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
 
-ssip_pn_open() claims the HSI client's port with hsi_claim_port(). When
-hsi_register_port_event() gets some error and returns a negetive value,
-the HSI client's port should be released with hsi_release_port().
+A complicated deadlock exists when using the journal and an elevated
+group_thrtead_cnt. It was found with loop devices, but its not clear
+whether it can be seen with real disks. The deadlock can occur simply
+by writing data with an fio script.
 
-Fix it by calling hsi_release_port() when hsi_register_port_event() fails.
+When the deadlock occurs, multiple threads will hang in different ways:
 
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+ 1) The group threads will hang in the blk-wbt code with bios waiting to
+    be submitted to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        ops_run_io+0x46b/0x1a30
+        handle_stripe+0xcd3/0x36b0
+        handle_active_stripes.constprop.0+0x6f6/0xa60
+        raid5_do_work+0x177/0x330
+
+    Or:
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        flush_deferred_bios+0x136/0x170
+        raid5_do_work+0x262/0x330
+
+ 2) The r5l_reclaim thread will hang in the same way, submitting a
+    bio to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        submit_bio+0x3f/0xf0
+        md_super_write+0x12f/0x1b0
+        md_update_sb.part.0+0x7c6/0xff0
+        md_update_sb+0x30/0x60
+        r5l_do_reclaim+0x4f9/0x5e0
+        r5l_reclaim_thread+0x69/0x30b
+
+    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
+    set for sb_flags in r5l_write_super_and_discard_space(). This
+    flag will never be cleared because the submit_bio() call never
+    returns.
+
+ 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
+    will do no processing on any pending stripes and re-set
+    STRIPE_HANDLE. This will cause the raid5d thread to enter an
+    infinite loop, constantly trying to handle the same stripes
+    stuck in the queue.
+
+    The raid5d thread has a blk_plug that holds a number of bios
+    that are also stuck waiting seeing the thread is in a loop
+    that never schedules. These bios have been accounted for by
+    blk-wbt thus preventing the other threads above from
+    continuing when they try to submit bios. --Deadlock.
+
+To fix this, add the same wait_event() that is used in raid5_do_work()
+to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
+schedule and wait until the flag is cleared. The schedule action will
+flush the plug which will allow the r5l_reclaim thread to continue,
+thus preventing the deadlock.
+
+However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
+from the same thread and can thus deadlock if the thread is put to
+sleep. So avoid waiting if md_check_recovery() is being called in the
+loop.
+
+It's not clear when the deadlock was introduced, but the similar
+wait_event() call in raid5_do_work() was added in 2017 by this
+commit:
+
+    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
+                   is updated.")
+
+Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/clients/ssi_protocol.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/raid5.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/hsi/clients/ssi_protocol.c b/drivers/hsi/clients/ssi_protocol.c
-index 96d0eccca3aa..f202751484aa 100644
---- a/drivers/hsi/clients/ssi_protocol.c
-+++ b/drivers/hsi/clients/ssi_protocol.c
-@@ -931,6 +931,7 @@ static int ssip_pn_open(struct net_device *dev)
- 	if (err < 0) {
- 		dev_err(&cl->device, "Register HSI port event failed (%d)\n",
- 			err);
-+		hsi_release_port(cl);
- 		return err;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 01c7edf32936..d5cef00b10af 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -36,6 +36,7 @@
+  */
+ 
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/raid/pq.h>
+ #include <linux/async_tx.h>
+@@ -6519,7 +6520,18 @@ static void raid5d(struct md_thread *thread)
+ 			spin_unlock_irq(&conf->device_lock);
+ 			md_check_recovery(mddev);
+ 			spin_lock_irq(&conf->device_lock);
++
++			/*
++			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
++			 * seeing md_check_recovery() is needed to clear
++			 * the flag when using mdmon.
++			 */
++			continue;
+ 		}
++
++		wait_event_lock_irq(mddev->sb_wait,
++			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
++			conf->device_lock);
  	}
- 	dev_dbg(&cl->device, "Configuring SSI port\n");
+ 	pr_debug("%d stripes handled\n", handled);
+ 
 -- 
 2.35.1
 
