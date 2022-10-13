@@ -2,96 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BC75FE2C0
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 198A25FE0D8
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiJMTgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 15:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33188 "EHLO
+        id S231134AbiJMSPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbiJMTgH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:36:07 -0400
+        with ESMTP id S231754AbiJMSMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADC1216C208;
-        Thu, 13 Oct 2022 12:35:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019013881;
+        Thu, 13 Oct 2022 11:09:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95E07B82024;
-        Thu, 13 Oct 2022 17:58:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9D7EC433C1;
-        Thu, 13 Oct 2022 17:58:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7126B8203A;
+        Thu, 13 Oct 2022 17:55:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14274C433C1;
+        Thu, 13 Oct 2022 17:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683931;
-        bh=LqRQGRhWyZ0+e1yG6TSGRqdcEv6T4Hu9NwRgAch/cPM=;
+        s=korg; t=1665683752;
+        bh=o4MOSvlMxbq6WPryJs9uxcgIymN9ZfKj4UDmPrsV5JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGE4OGidX1rKphXFIs9hdL7NVxCsX1kq4EXpY4gk96WMWfniH/PPre/zW+EgZ8ef0
-         BYEHwEIDXq8DNioEvk7n+FFgHw2mp7cFtw5RSvWrhkc1EE7Cs0JiMks1DbLhZFh4vf
-         xPgqGDAQjZTZ1HsUq0ximlam5tr+fezlfDIew1z4=
+        b=1/cDVVlrX/fofo+LwPd38T9jVCPdvK35jnud6XcXxfOjXnYhck/sfkzxRaX8Yyy9p
+         BmFLruICBshIWzYu2y2SO3yHzV0eOMbyfKI6DUYn628Fl61rnVow25hHtKdIdRCNoK
+         62eco+/a/YhDe/BejzOE2cm1WLBzGDYscLq2/RhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 01/27] nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
-Date:   Thu, 13 Oct 2022 19:52:30 +0200
-Message-Id: <20221013175143.569904170@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.10 37/54] ALSA: hda: Fix position reporting on Poulsbo
+Date:   Thu, 13 Oct 2022 19:52:31 +0200
+Message-Id: <20221013175148.245631747@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
-References: <20221013175143.518476113@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 21a87d88c2253350e115029f14fe2a10a7e6c856 upstream.
+commit 56e696c0f0c71b77fff921fc94b58a02f0445b2c upstream.
 
-If the i_mode field in inode of metadata files is corrupted on disk, it
-can cause the initialization of bmap structure, which should have been
-called from nilfs_read_inode_common(), not to be called.  This causes a
-lockdep warning followed by a NULL pointer dereference at
-nilfs_bmap_lookup_at_level().
+Hans reported that his Sony VAIO VPX11S1E showed the broken sound
+behavior at the start of the stream for a couple of seconds, and it
+turned out that the position_fix=1 option fixes the issue.  It implies
+that the position reporting is inaccurate, and very likely hitting on
+all Poulsbo devices.
 
-This patch fixes these issues by adding a missing sanitiy check for the
-i_mode field of metadata file's inode.
+The patch applies the workaround for Poulsbo generically to switch to
+LPIB mode instead of the default position buffer.
 
-Link: https://lkml.kernel.org/r/20221002030804.29978-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/3e8697e1-87c6-7a7b-d2e8-b21f1d2f181b@redhat.com
+Link: https://lore.kernel.org/r/20221001142124.7241-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/inode.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/hda_intel.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/inode.c
-+++ b/fs/nilfs2/inode.c
-@@ -444,6 +444,8 @@ int nilfs_read_inode_common(struct inode
- 	inode->i_atime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
- 	inode->i_ctime.tv_nsec = le32_to_cpu(raw_inode->i_ctime_nsec);
- 	inode->i_mtime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
-+	if (nilfs_is_metadata_file_inode(inode) && !S_ISREG(inode->i_mode))
-+		return -EIO; /* this inode is for metadata and corrupted */
- 	if (inode->i_nlink == 0)
- 		return -ESTALE; /* this inode is deleted */
- 
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2588,7 +2588,8 @@ static const struct pci_device_id azx_id
+ 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
+ 	/* Poulsbo */
+ 	{ PCI_DEVICE(0x8086, 0x811b),
+-	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
++	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE |
++	  AZX_DCAPS_POSFIX_LPIB },
+ 	/* Oaktrail */
+ 	{ PCI_DEVICE(0x8086, 0x080a),
+ 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
 
 
