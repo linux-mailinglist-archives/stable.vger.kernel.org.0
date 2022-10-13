@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB775FE05C
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B255FE0B2
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbiJMSHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46390 "EHLO
+        id S231519AbiJMSNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231511AbiJMSGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:06:34 -0400
+        with ESMTP id S231524AbiJMSMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E5EF437DB;
-        Thu, 13 Oct 2022 11:05:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26FE170DF4;
+        Thu, 13 Oct 2022 11:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99095B82065;
-        Thu, 13 Oct 2022 18:00:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A3CC433C1;
-        Thu, 13 Oct 2022 18:00:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56CC0B82035;
+        Thu, 13 Oct 2022 17:58:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD0AC433C1;
+        Thu, 13 Oct 2022 17:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684026;
-        bh=BLsZ3M6JOHN9+LrdwWJRcShlBn9OykEOl6tyUen3xuY=;
+        s=korg; t=1665683896;
+        bh=cJQs9i7XIYPlZuA7D9TEzytPMEnPOPWZP3TKAyK7eCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wESsBqSLbO5SgIBmjsO/TLsTQPzKgi6C3PeS3xxli95JkcAmr+UVbkinc+ea871x0
-         EUCogEO7Xwf0bJKN4JskmFbzT7iaIHs+dklJQ1JeG1//uJxuvJHYxPnrG/pI5XFdXM
-         X9eXilk2zfKpjvpAm02XR7yB400sUiePB12D6px8=
+        b=M+Lpco07SMBWlS9An3BAEFpcdJGjcQj5Q33IBI+bxrlBOtGLZwBxe3luQjcRqGBlP
+         E38Sf95FDroou5I2bjjbHU88ceB7Cs+8qzD7BnJ/cpQunPda1qOn1wYHQ3M43LOgKQ
+         139hS7NJ2CJCglCizB2X2cz9d9pGRw3LSuzZNJUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sherry Yang <sherry.yang@oracle.com>,
-        Paul Webb <paul.x.webb@oracle.com>,
-        Phillip Goerl <phillip.goerl@oracle.com>,
-        Jack Vogel <jack.vogel@oracle.com>,
-        Nicky Veitch <nicky.veitch@oracle.com>,
-        Colm Harrington <colm.harrington@oracle.com>,
-        Ramanan Govindarajan <ramanan.govindarajan@oracle.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Tejun Heo <tj@kernel.org>,
-        Sultan Alsawaf <sultan@kerneltoast.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.19 19/33] random: use expired timer rather than wq for mixing fast pool
-Date:   Thu, 13 Oct 2022 19:52:51 +0200
-Message-Id: <20221013175145.919301297@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 23/27] wifi: cfg80211: update hidden BSSes to avoid WARN_ON
+Date:   Thu, 13 Oct 2022 19:52:52 +0200
+Message-Id: <20221013175144.394551591@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,127 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 748bc4dd9e663f23448d8ad7e58c011a67ea1eca upstream.
+commit c90b93b5b782891ebfda49d4e5da36632fefd5d1 upstream.
 
-Previously, the fast pool was dumped into the main pool periodically in
-the fast pool's hard IRQ handler. This worked fine and there weren't
-problems with it, until RT came around. Since RT converts spinlocks into
-sleeping locks, problems cropped up. Rather than switching to raw
-spinlocks, the RT developers preferred we make the transformation from
-originally doing:
+When updating beacon elements in a non-transmitted BSS,
+also update the hidden sub-entries to the same beacon
+elements, so that a future update through other paths
+won't trigger a WARN_ON().
 
-    do_some_stuff()
-    spin_lock()
-    do_some_other_stuff()
-    spin_unlock()
+The warning is triggered because the beacon elements in
+the hidden BSSes that are children of the BSS should
+always be the same as in the parent.
 
-to doing:
-
-    do_some_stuff()
-    queue_work_on(some_other_stuff_worker)
-
-This is an ordinary pattern done all over the kernel. However, Sherry
-noticed a 10% performance regression in qperf TCP over a 40gbps
-InfiniBand card. Quoting her message:
-
-> MT27500 Family [ConnectX-3] cards:
-> Infiniband device 'mlx4_0' port 1 status:
-> default gid: fe80:0000:0000:0000:0010:e000:0178:9eb1
-> base lid: 0x6
-> sm lid: 0x1
-> state: 4: ACTIVE
-> phys state: 5: LinkUp
-> rate: 40 Gb/sec (4X QDR)
-> link_layer: InfiniBand
->
-> Cards are configured with IP addresses on private subnet for IPoIB
-> performance testing.
-> Regression identified in this bug is in TCP latency in this stack as reported
-> by qperf tcp_lat metric:
->
-> We have one system listen as a qperf server:
-> [root@yourQperfServer ~]# qperf
->
-> Have the other system connect to qperf server as a client (in this
-> case, it’s X7 server with Mellanox card):
-> [root@yourQperfClient ~]# numactl -m0 -N0 qperf 20.20.20.101 -v -uu -ub --time 60 --wait_server 20 -oo msg_size:4K:1024K:*2 tcp_lat
-
-Rather than incur the scheduling latency from queue_work_on, we can
-instead switch to running on the next timer tick, on the same core. This
-also batches things a bit more -- once per jiffy -- which is okay now
-that mix_interrupt_randomness() can credit multiple bits at once.
-
-Reported-by: Sherry Yang <sherry.yang@oracle.com>
-Tested-by: Paul Webb <paul.x.webb@oracle.com>
-Cc: Sherry Yang <sherry.yang@oracle.com>
-Cc: Phillip Goerl <phillip.goerl@oracle.com>
-Cc: Jack Vogel <jack.vogel@oracle.com>
-Cc: Nicky Veitch <nicky.veitch@oracle.com>
-Cc: Colm Harrington <colm.harrington@oracle.com>
-Cc: Ramanan Govindarajan <ramanan.govindarajan@oracle.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Sultan Alsawaf <sultan@kerneltoast.com>
-Cc: stable@vger.kernel.org
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ net/wireless/scan.c |   31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -906,17 +906,20 @@ struct fast_pool {
- 	unsigned long pool[4];
- 	unsigned long last;
- 	unsigned int count;
--	struct work_struct mix;
-+	struct timer_list mix;
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -1609,6 +1609,23 @@ struct cfg80211_non_tx_bss {
+ 	u8 bssid_index;
  };
  
-+static void mix_interrupt_randomness(struct timer_list *work);
++static void cfg80211_update_hidden_bsses(struct cfg80211_internal_bss *known,
++					 const struct cfg80211_bss_ies *new_ies,
++					 const struct cfg80211_bss_ies *old_ies)
++{
++	struct cfg80211_internal_bss *bss;
 +
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
- #ifdef CONFIG_64BIT
- #define FASTMIX_PERM SIPHASH_PERMUTATION
--	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 }
-+	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 },
- #else
- #define FASTMIX_PERM HSIPHASH_PERMUTATION
--	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 }
-+	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 },
- #endif
-+	.mix = __TIMER_INITIALIZER(mix_interrupt_randomness, 0)
- };
- 
- /*
-@@ -958,7 +961,7 @@ int __cold random_online_cpu(unsigned in
- }
- #endif
- 
--static void mix_interrupt_randomness(struct work_struct *work)
-+static void mix_interrupt_randomness(struct timer_list *work)
- {
- 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
- 	/*
-@@ -1012,10 +1015,11 @@ void add_interrupt_randomness(int irq)
- 	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
- 		return;
- 
--	if (unlikely(!fast_pool->mix.func))
--		INIT_WORK(&fast_pool->mix, mix_interrupt_randomness);
- 	fast_pool->count |= MIX_INFLIGHT;
--	queue_work_on(raw_smp_processor_id(), system_highpri_wq, &fast_pool->mix);
-+	if (!timer_pending(&fast_pool->mix)) {
-+		fast_pool->mix.expires = jiffies;
-+		add_timer_on(&fast_pool->mix, raw_smp_processor_id());
++	/* Assign beacon IEs to all sub entries */
++	list_for_each_entry(bss, &known->hidden_list, hidden_list) {
++		const struct cfg80211_bss_ies *ies;
++
++		ies = rcu_access_pointer(bss->pub.beacon_ies);
++		WARN_ON(ies != old_ies);
++
++		rcu_assign_pointer(bss->pub.beacon_ies, new_ies);
 +	}
- }
- EXPORT_SYMBOL_GPL(add_interrupt_randomness);
++}
++
+ static bool
+ cfg80211_update_known_bss(struct cfg80211_registered_device *rdev,
+ 			  struct cfg80211_internal_bss *known,
+@@ -1632,7 +1649,6 @@ cfg80211_update_known_bss(struct cfg8021
+ 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
+ 	} else if (rcu_access_pointer(new->pub.beacon_ies)) {
+ 		const struct cfg80211_bss_ies *old;
+-		struct cfg80211_internal_bss *bss;
  
+ 		if (known->pub.hidden_beacon_bss &&
+ 		    !list_empty(&known->hidden_list)) {
+@@ -1660,16 +1676,7 @@ cfg80211_update_known_bss(struct cfg8021
+ 		if (old == rcu_access_pointer(known->pub.ies))
+ 			rcu_assign_pointer(known->pub.ies, new->pub.beacon_ies);
+ 
+-		/* Assign beacon IEs to all sub entries */
+-		list_for_each_entry(bss, &known->hidden_list, hidden_list) {
+-			const struct cfg80211_bss_ies *ies;
+-
+-			ies = rcu_access_pointer(bss->pub.beacon_ies);
+-			WARN_ON(ies != old);
+-
+-			rcu_assign_pointer(bss->pub.beacon_ies,
+-					   new->pub.beacon_ies);
+-		}
++		cfg80211_update_hidden_bsses(known, new->pub.beacon_ies, old);
+ 
+ 		if (old)
+ 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
+@@ -2319,6 +2326,8 @@ cfg80211_update_notlisted_nontrans(struc
+ 	} else {
+ 		old = rcu_access_pointer(nontrans_bss->beacon_ies);
+ 		rcu_assign_pointer(nontrans_bss->beacon_ies, new_ies);
++		cfg80211_update_hidden_bsses(bss_from_pub(nontrans_bss),
++					     new_ies, old);
+ 		rcu_assign_pointer(nontrans_bss->ies, new_ies);
+ 		if (old)
+ 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
 
 
