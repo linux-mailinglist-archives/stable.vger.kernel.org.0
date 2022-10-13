@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2E495FDFD5
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092605FDFBE
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbiJMR6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:58:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54762 "EHLO
+        id S230130AbiJMR5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230282AbiJMR6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:58:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F121209E;
-        Thu, 13 Oct 2022 10:57:44 -0700 (PDT)
+        with ESMTP id S230157AbiJMR5Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8A467C97;
+        Thu, 13 Oct 2022 10:56:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EEDDB82034;
-        Thu, 13 Oct 2022 17:54:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4C6C433C1;
-        Thu, 13 Oct 2022 17:54:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06B31618FB;
+        Thu, 13 Oct 2022 17:54:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D5FC433D6;
+        Thu, 13 Oct 2022 17:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683670;
-        bh=LqRQGRhWyZ0+e1yG6TSGRqdcEv6T4Hu9NwRgAch/cPM=;
+        s=korg; t=1665683681;
+        bh=jk4n9BSYyxD6hRGgHsVIYR6ysfCma4ji0iOCcXKE4z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yga8S0mhASCa8AJUQWG2eA9tWuHtVjlmJzZ7YaEPrgUuAY59KPLyx7TkLRWNr2dc3
-         9IfMkBrUcmfsnjsGPKTUq9WPEIv/I6CMhF/46nEUMSnC7Zo9lbUla10BDRG9hHGCnc
-         PYQY4Z+1Bihynw9gwBa8SV1adIRNXZRjkShpF+tI=
+        b=DNpjiB8ngGDhbGNeH94DKYe0Pe6QZTaUPGWNpdEBnvKDAO72qUdHXRmJG67gZ42pg
+         BxGH2SnksOuhiCR3+f83RanBInrME64ZjxJWaZjv28QJlKYSR9StCRwfinhmrzVZlv
+         c3LoPx/97sSCP7FwM3oUqHomSbGGJBtDwmdm87D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com,
+        Khalid Masum <khalid.masum.92@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 01/54] nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
-Date:   Thu, 13 Oct 2022 19:51:55 +0200
-Message-Id: <20221013175147.378482757@linuxfoundation.org>
+Subject: [PATCH 5.10 02/54] nilfs2: fix use-after-free bug of struct nilfs_root
+Date:   Thu, 13 Oct 2022 19:51:56 +0200
+Message-Id: <20221013175147.403694752@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,39 +57,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 21a87d88c2253350e115029f14fe2a10a7e6c856 upstream.
+commit d325dc6eb763c10f591c239550b8c7e5466a5d09 upstream.
 
-If the i_mode field in inode of metadata files is corrupted on disk, it
-can cause the initialization of bmap structure, which should have been
-called from nilfs_read_inode_common(), not to be called.  This causes a
-lockdep warning followed by a NULL pointer dereference at
-nilfs_bmap_lookup_at_level().
+If the beginning of the inode bitmap area is corrupted on disk, an inode
+with the same inode number as the root inode can be allocated and fail
+soon after.  In this case, the subsequent call to nilfs_clear_inode() on
+that bogus root inode will wrongly decrement the reference counter of
+struct nilfs_root, and this will erroneously free struct nilfs_root,
+causing kernel oopses.
 
-This patch fixes these issues by adding a missing sanitiy check for the
-i_mode field of metadata file's inode.
+This fixes the problem by changing nilfs_new_inode() to skip reserved
+inode numbers while repairing the inode bitmap.
 
-Link: https://lkml.kernel.org/r/20221002030804.29978-1-konishi.ryusuke@gmail.com
+Link: https://lkml.kernel.org/r/20221003150519.39789-1-konishi.ryusuke@gmail.com
 Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com
+Reported-by: Khalid Masum <khalid.masum.92@gmail.com>
 Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/inode.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nilfs2/inode.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
 --- a/fs/nilfs2/inode.c
 +++ b/fs/nilfs2/inode.c
-@@ -444,6 +444,8 @@ int nilfs_read_inode_common(struct inode
- 	inode->i_atime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
- 	inode->i_ctime.tv_nsec = le32_to_cpu(raw_inode->i_ctime_nsec);
- 	inode->i_mtime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
-+	if (nilfs_is_metadata_file_inode(inode) && !S_ISREG(inode->i_mode))
-+		return -EIO; /* this inode is for metadata and corrupted */
- 	if (inode->i_nlink == 0)
- 		return -ESTALE; /* this inode is deleted */
+@@ -332,6 +332,7 @@ struct inode *nilfs_new_inode(struct ino
+ 	struct inode *inode;
+ 	struct nilfs_inode_info *ii;
+ 	struct nilfs_root *root;
++	struct buffer_head *bh;
+ 	int err = -ENOMEM;
+ 	ino_t ino;
  
+@@ -347,11 +348,25 @@ struct inode *nilfs_new_inode(struct ino
+ 	ii->i_state = BIT(NILFS_I_NEW);
+ 	ii->i_root = root;
+ 
+-	err = nilfs_ifile_create_inode(root->ifile, &ino, &ii->i_bh);
++	err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
+ 	if (unlikely(err))
+ 		goto failed_ifile_create_inode;
+ 	/* reference count of i_bh inherits from nilfs_mdt_read_block() */
+ 
++	if (unlikely(ino < NILFS_USER_INO)) {
++		nilfs_warn(sb,
++			   "inode bitmap is inconsistent for reserved inodes");
++		do {
++			brelse(bh);
++			err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
++			if (unlikely(err))
++				goto failed_ifile_create_inode;
++		} while (ino < NILFS_USER_INO);
++
++		nilfs_info(sb, "repaired inode bitmap for reserved inodes");
++	}
++	ii->i_bh = bh;
++
+ 	atomic64_inc(&root->inodes_count);
+ 	inode_init_owner(inode, dir, mode);
+ 	inode->i_ino = ino;
 
 
