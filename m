@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D1AD5FD0BA
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491205FD0CC
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231187AbiJMA35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47034 "EHLO
+        id S231384AbiJMAaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231445AbiJMA2i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:28:38 -0400
+        with ESMTP id S231389AbiJMA2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:28:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69007108DFA;
-        Wed, 12 Oct 2022 17:25:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C57125733;
+        Wed, 12 Oct 2022 17:25:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BE8061703;
-        Thu, 13 Oct 2022 00:24:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F43BC433C1;
-        Thu, 13 Oct 2022 00:24:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CE9E61704;
+        Thu, 13 Oct 2022 00:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B35A7C433C1;
+        Thu, 13 Oct 2022 00:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620673;
-        bh=AkOcEHZmdaA81I6y7tbCcNTRyBxYzqfv88yAdxAyoJ8=;
+        s=k20201202; t=1665620679;
+        bh=AXV8WayF6SRNoHjpF1h6M2UZCdBH6WNv/Z0eu0mm7Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAr3VYvGjBMaX22yCd33+AtBDz83bx0oUvSUCr3d+KtLCutXN3pZmP7GS57ICHrZv
-         MScDaDgpodUCQeLOHJ9oRpkBjG8B3As783OyQwH1yaupzxGgKHxLLgVVypLfdP1iuZ
-         6VHXiABhd8uwZ6OGmsgSgKnARO5pfaBi9Q/3Aneb2UFY1l+f63IIWxc6A0wdF4DnNg
-         2eLaRMPMs8jGfVozznEP1uK5SRAXtN7YkVc5qkNQaoO8bJIWTyHMeYuREK9Da6l0VF
-         iNxIRJpx4dvhijUeARU1S/9WRKEPi8csicRdODEBIhCZ7Y+e785BWemWGKYOp1IZey
-         5NjANaddG0avg==
+        b=lzdtEkC0vaMpvWLCmPw/WfGyAs45JUgsTrMCv3mBdXrVsEb40hDS1NGhzfZON+ZsM
+         EOKe26PZhJIumxoaYEG6lSQluE2lwjcwGq6FloonMgHwwVT5QuVg+/uFzb8nbQCub6
+         s45cSPDM5qznKZhidhsjWbbbScWEoiWpDnap/ZLgEqngwUV5RG4MvPF0soNrlBTE7g
+         iSk9H4A7/R+oe9A4QSWKZPYYqN0PVvprjNyEYZxWdWwUSzqFLpqAdo5Kq7XVZL8Abp
+         hPGnRroQPMNDIIhfF7FsKWgP9YWLOjVA+FYJ6Fv9VT0blY2eK6ID42pXCjAC6Pqtbs
+         r7a6mctXM60Xw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
+Cc:     Nathan Huckleberry <nhuck@google.com>, llvm@lists.linux.dev,
+        Dan Carpenter <error27@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, kushalkothari285@gmail.com,
-        namcaov@gmail.com, remckee0@gmail.com, saurav.girepunje@gmail.com,
-        eng.alaamohamedsoliman.am@gmail.com, jagathjog1996@gmail.com,
+        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
+        ztong0001@gmail.com, dave@stgolabs.net,
         linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 25/33] staging: rtl8723bs: fix a potential memory leak in rtw_init_cmd_priv()
-Date:   Wed, 12 Oct 2022 20:23:24 -0400
-Message-Id: <20221013002334.1894749-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 26/33] staging: rtl8192u: Fix return type of ieee80211_xmit
+Date:   Wed, 12 Oct 2022 20:23:25 -0400
+Message-Id: <20221013002334.1894749-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -58,76 +59,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 708056fba733a73d926772ea4ce9a42d240345da ]
+[ Upstream commit 2851349ac351010a2649e0ff86a1e3d68fe5d683 ]
 
-In rtw_init_cmd_priv(), if `pcmdpriv->rsp_allocated_buf` is allocated
-in failure, then `pcmdpriv->cmd_allocated_buf` will be not properly
-released. Besides, considering there are only two error paths and the
-first one can directly return, so we do not need implicitly jump to the
-`exit` tag to execute the error handler.
+The ndo_start_xmit field in net_device_ops is expected to be of type
+netdev_tx_t (*ndo_start_xmit)(struct sk_buff *skb, struct net_device *dev).
 
-So this patch added `kfree(pcmdpriv->cmd_allocated_buf);` on the error
-path to release the resource and simplified the return logic of
-rtw_init_cmd_priv(). As there is no proper device to test with, no runtime
-testing was performed.
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_2B7931B79BA38E22205C5A09EFDF11E48805@qq.com
+The return type of ieee80211_xmit should be changed from int to
+netdev_tx_t.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Reported-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Link: https://lore.kernel.org/r/20220914210750.423048-1-nhuck@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_cmd.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/staging/rtl8192u/ieee80211/ieee80211.h    | 2 +-
+ drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c
-index 2abe205e3453..cee05385f872 100644
---- a/drivers/staging/rtl8723bs/core/rtw_cmd.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c
-@@ -165,8 +165,6 @@ No irqsave is necessary.
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211.h b/drivers/staging/rtl8192u/ieee80211/ieee80211.h
+index 39f4ddd86796..4658e79d50f7 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211.h
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211.h
+@@ -2178,7 +2178,7 @@ int ieee80211_set_encryption(struct ieee80211_device *ieee);
+ int ieee80211_encrypt_fragment(struct ieee80211_device *ieee,
+ 			       struct sk_buff *frag, int hdr_len);
  
- int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- {
--	int res = 0;
--
- 	init_completion(&pcmdpriv->cmd_queue_comp);
- 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
+-int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev);
++netdev_tx_t ieee80211_xmit(struct sk_buff *skb, struct net_device *dev);
+ void ieee80211_txb_free(struct ieee80211_txb *txb);
  
-@@ -178,18 +176,16 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
  
- 	pcmdpriv->cmd_allocated_buf = rtw_zmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ);
- 
--	if (!pcmdpriv->cmd_allocated_buf) {
--		res = -ENOMEM;
--		goto exit;
--	}
-+	if (!pcmdpriv->cmd_allocated_buf)
-+		return -ENOMEM;
- 
- 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ - ((SIZE_PTR)(pcmdpriv->cmd_allocated_buf) & (CMDBUFF_ALIGN_SZ-1));
- 
- 	pcmdpriv->rsp_allocated_buf = rtw_zmalloc(MAX_RSPSZ + 4);
- 
- 	if (!pcmdpriv->rsp_allocated_buf) {
--		res = -ENOMEM;
--		goto exit;
-+		kfree(pcmdpriv->cmd_allocated_buf);
-+		return -ENOMEM;
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c
+index 63a561ab4a76..50d536a4c382 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c
+@@ -526,7 +526,7 @@ static void ieee80211_query_seqnum(struct ieee80211_device *ieee,
  	}
- 
- 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 - ((SIZE_PTR)(pcmdpriv->rsp_allocated_buf) & 3);
-@@ -199,8 +195,8 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- 	pcmdpriv->rsp_cnt = 0;
- 
- 	mutex_init(&pcmdpriv->sctx_mutex);
--exit:
--	return res;
-+
-+	return 0;
  }
  
- static void c2h_wk_callback(_workitem * work);
+-int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
++netdev_tx_t ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ieee80211_device *ieee = netdev_priv(dev);
+ 	struct ieee80211_txb *txb = NULL;
+@@ -822,13 +822,13 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
+ 			if ((*ieee->hard_start_xmit)(txb, dev) == 0) {
+ 				stats->tx_packets++;
+ 				stats->tx_bytes += __le16_to_cpu(txb->payload_size);
+-				return 0;
++				return NETDEV_TX_OK;
+ 			}
+ 			ieee80211_txb_free(txb);
+ 		}
+ 	}
+ 
+-	return 0;
++	return NETDEV_TX_OK;
+ 
+  failed:
+ 	spin_unlock_irqrestore(&ieee->lock, flags);
 -- 
 2.35.1
 
