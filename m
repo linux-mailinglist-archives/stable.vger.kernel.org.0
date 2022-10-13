@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 785765FDF54
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 593B65FDFC2
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbiJMRwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:52:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53484 "EHLO
+        id S230228AbiJMR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:58:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbiJMRwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:52:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 701A714FD20;
-        Thu, 13 Oct 2022 10:52:45 -0700 (PDT)
+        with ESMTP id S230096AbiJMR51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1956C153822;
+        Thu, 13 Oct 2022 10:56:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA8B6618CF;
-        Thu, 13 Oct 2022 17:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0277DC433D6;
-        Thu, 13 Oct 2022 17:52:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B701B82020;
+        Thu, 13 Oct 2022 17:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E682FC433D7;
+        Thu, 13 Oct 2022 17:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683564;
-        bh=FMtJbvUlcZMfZJsHs+zcMqbDLnAq+to6DJYsgnmO13c=;
+        s=korg; t=1665683772;
+        bh=m70n2N51v/QEnM8AKO7qBTm28P5G0sjeuCrtu2kY804=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPPMu4GQ7M8hKWkMuimnzAN7vmzkLRDGYwd+h/dHQbCPHtn7Mqor5u/BXGFbPFzVk
-         psxkz0q0NfdmP3Hm3GoRPerHoVxYi3R1zFWvJ+8hChP8MQJy34ZfXQEn58QQa+mukZ
-         qQ/1GjVOfIX3RPp5OnBxgdfPWhJRCVXezbHzBYuM=
+        b=i0PUM2dhGE4O0ca/L4epfznUKsQe5X53qzVXclD65PLtVoaIsAya9Xv2V0uysnqUf
+         +Z0FHwrHWMfGi5tHMVjlVUkA/665juR8/tE6D6/Lv+QJNQCKjzOgmv6xuhsXdcwDaU
+         aqElA9LRZgqutavdl34veyLCQ8uGciduLtODY+SY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.4 11/38] um: Cleanup compiler warning in arch/x86/um/tls_32.c
+        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 18/54] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
 Date:   Thu, 13 Oct 2022 19:52:12 +0200
-Message-Id: <20221013175144.640705949@linuxfoundation.org>
+Message-Id: <20221013175147.807202567@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Straub <lukasstraub2@web.de>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
+[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
 
-arch.tls_array is statically allocated so checking for NULL doesn't
-make sense. This causes the compiler warning below.
+The driver does not handle the failure case while calling
+dma_set_mask_and_coherent API.
 
-Remove the checks to silence these warnings.
+In case of failure, capture the return value of API and then report an
+error.
 
-../arch/x86/um/tls_32.c: In function 'get_free_idx':
-../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-   68 |         if (!t->arch.tls_array)
-      |             ^
-In file included from ../arch/x86/um/asm/processor.h:10,
-                 from ../include/linux/rcupdate.h:30,
-                 from ../include/linux/rculist.h:11,
-                 from ../include/linux/pid.h:5,
-                 from ../include/linux/sched.h:14,
-                 from ../arch/x86/um/tls_32.c:7:
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-../arch/x86/um/tls_32.c: In function 'get_tls_entry':
-../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-  243 |         if (!t->arch.tls_array)
-      |             ^
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
+Addresses-coverity: Unchecked return value (CHECKED_RETURN)
 
-Signed-off-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/tls_32.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
-index ac8eee093f9c..66162eafd8e8 100644
---- a/arch/x86/um/tls_32.c
-+++ b/arch/x86/um/tls_32.c
-@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
- 	struct thread_struct *t = &task->thread;
- 	int idx;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index b91378fb891c..e76adc31ab66 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -3071,7 +3071,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		xdev->ext_addr = false;
  
--	if (!t->arch.tls_array)
--		return GDT_ENTRY_TLS_MIN;
--
- 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
- 		if (!t->arch.tls_array[idx].present)
- 			return idx + GDT_ENTRY_TLS_MIN;
-@@ -240,9 +237,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
- {
- 	struct thread_struct *t = &task->thread;
+ 	/* Set the dma mask bits */
+-	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	if (err < 0) {
++		dev_err(xdev->dev, "DMA mask error %d\n", err);
++		goto disable_clks;
++	}
  
--	if (!t->arch.tls_array)
--		goto clear;
--
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
- 
+ 	/* Initialize the DMA engine */
+ 	xdev->common.dev = &pdev->dev;
 -- 
 2.35.1
 
