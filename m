@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 534BE5FD062
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F8A5FD182
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbiJMA0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:26:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56038 "EHLO
+        id S232173AbiJMAiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiJMAYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:24:48 -0400
+        with ESMTP id S232085AbiJMAgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:36:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95778DCAC5;
-        Wed, 12 Oct 2022 17:24:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF1EEB75E;
+        Wed, 12 Oct 2022 17:31:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CD27B81CE6;
-        Thu, 13 Oct 2022 00:22:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AB8C433C1;
-        Thu, 13 Oct 2022 00:22:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67089B81CE9;
+        Thu, 13 Oct 2022 00:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582D9C433D6;
+        Thu, 13 Oct 2022 00:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620545;
-        bh=hLGgv80zqb0eH/0rrXCcqjAM83ghk/Zxp3QBbxDGP7c=;
+        s=k20201202; t=1665620548;
+        bh=bxhd877nNScPzSvqcjEFR5dI8yWPxbIbxiRwTlLajwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=urRz0cQ12btGspoANQ7XpHxO7nYP1tltT92pWkNiuiAuTAAi7T5ua7n/8akt+Xp2w
-         dcmA2qsBbHRY4Qwqh28J++RJhsDGStKqvwCM72NgXZVAOt4K4DcoGBZLaEWkRpVXSl
-         e53aZrGvy4SOFfaMTFTt7FduZp89qsTopmvD2zEkF3b+5mHmGVdb1Nthe7lFQdajlJ
-         6Vkk+uXb7wiRBooDvyIf+9dOhg2qMMPMWu3QIIneHlX79O5MFm8VuK70AqBmS5GX5W
-         wJ5Su2r9kMRQwJDoH79HjCS/bb7TWvxB3k/NXWbm2mxO8BJFB05/9nYidSwFichvVI
-         e25aXiyGC0EwA==
+        b=XYOf2ywugkxECKExqiq8ZRNXoo1yrynVnLIfYbzz7mbHvYSVXg2/ZcOk39rM/R/fR
+         c2LMoHmegVq8vA4JaSZWp2Zg0kncLthPLRwWt3FHBdm29f/+bMxDLJqkJS3hVgas5o
+         nLWByay6dj6NRnNJCD0w2cW7+UMH3zzSV8Ba3MQi7rIFku2kq7d6Zjb59onQqvRAYL
+         EzYswrYPBUhQODJN4juz9w8tj9lX45X6QCRbFnWiDsP5+3vnbaixrNCXI9aGrhzmiH
+         uiumUqlhHw7qWf9Fef7Tih0jNHIE+xZpf54QxgG2Gdp52q3eXRMXodp4/zLtRbPJb5
+         gzx1rLIZP/C8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 22/47] soundwire: intel: fix error handling on dai registration issues
-Date:   Wed, 12 Oct 2022 20:20:57 -0400
-Message-Id: <20221013002124.1894077-22-sashal@kernel.org>
+Cc:     Harry Stern <harry@harrystern.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 23/47] hid: topre: Add driver fixing report descriptor
+Date:   Wed, 12 Oct 2022 20:20:58 -0400
+Message-Id: <20221013002124.1894077-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -57,37 +56,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Harry Stern <harry@harrystern.net>
 
-[ Upstream commit c6867cda906aadbce5e71efde9c78a26108b2bad ]
+[ Upstream commit a109d5c45b3d6728b9430716b915afbe16eef27c ]
 
-The call to intel_register_dai() may fail because of memory allocation
-issues or problems reported by the ASoC core. In all cases, when a
-error is thrown the component is not registered, it's invalid to
-unregister it.
+The Topre REALFORCE R2 firmware incorrectly reports that interface
+descriptor number 1, input report descriptor 2's events are array events
+rather than variable events. That particular report descriptor is used
+to report keypresses when there are more than 6 keys held at a time.
+This bug prevents events from this interface from being registered
+properly, so only 6 keypresses (from a different interface) can be
+registered at once, rather than full n-key rollover.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220919175721.354679-2-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This commit fixes the bug by setting the correct value in a report_fixup
+function.
+
+The original bug report can be found here:
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/804
+
+Thanks to Benjamin Tissoires for diagnosing the issue with the report
+descriptor.
+
+Signed-off-by: Harry Stern <harry@harrystern.net>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220911003614.297613-1-harry@harrystern.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/hid/Kconfig     |  6 +++++
+ drivers/hid/Makefile    |  1 +
+ drivers/hid/hid-ids.h   |  3 +++
+ drivers/hid/hid-topre.c | 49 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 59 insertions(+)
+ create mode 100644 drivers/hid/hid-topre.c
 
-diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-index 38e7f1a2bb97..89ee033f0c35 100644
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -1407,7 +1407,6 @@ int intel_link_startup(struct auxiliary_device *auxdev)
- 	ret = intel_register_dai(sdw);
- 	if (ret) {
- 		dev_err(dev, "DAI registration failed: %d\n", ret);
--		snd_soc_unregister_component(dev);
- 		goto err_interrupt;
- 	}
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 9235ab7161e3..58fcc21bf146 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1057,6 +1057,12 @@ config HID_TOPSEED
+ 	Say Y if you have a TopSeed Cyberlink or BTC Emprex or Conceptronic
+ 	CLLRCMCE remote control.
  
++config HID_TOPRE
++	tristate "Topre REALFORCE keyboards"
++	depends on HID
++	help
++	  Say Y for N-key rollover support on Topre REALFORCE R2 108 key keyboards.
++
+ config HID_THINGM
+ 	tristate "ThingM blink(1) USB RGB LED"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index e29efcb1c040..1026ac9e8206 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -117,6 +117,7 @@ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o hid-thrustmaster.o
+ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
+ obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
++obj-$(CONFIG_HID_TOPRE)	+= hid-topre.o
+ obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
+ obj-$(CONFIG_HID_U2FZERO)	+= hid-u2fzero.o
+ hid-uclogic-objs		:= hid-uclogic-core.o \
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index cb2b48d6915e..335b13251c0f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1198,6 +1198,9 @@
+ #define USB_DEVICE_ID_TIVO_SLIDE	0x1201
+ #define USB_DEVICE_ID_TIVO_SLIDE_PRO	0x1203
+ 
++#define USB_VENDOR_ID_TOPRE			0x0853
++#define USB_DEVICE_ID_TOPRE_REALFORCE_R2_108			0x0148
++
+ #define USB_VENDOR_ID_TOPSEED		0x0766
+ #define USB_DEVICE_ID_TOPSEED_CYBERLINK	0x0204
+ 
+diff --git a/drivers/hid/hid-topre.c b/drivers/hid/hid-topre.c
+new file mode 100644
+index 000000000000..88a91cdad5f8
+--- /dev/null
++++ b/drivers/hid/hid-topre.c
+@@ -0,0 +1,49 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  HID driver for Topre REALFORCE Keyboards
++ *
++ *  Copyright (c) 2022 Harry Stern <harry@harrystern.net>
++ *
++ *  Based on the hid-macally driver
++ */
++
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++MODULE_AUTHOR("Harry Stern <harry@harrystern.net>");
++MODULE_DESCRIPTION("REALFORCE R2 Keyboard driver");
++MODULE_LICENSE("GPL");
++
++/*
++ * Fix the REALFORCE R2's non-boot interface's report descriptor to match the
++ * events it's actually sending. It claims to send array events but is instead
++ * sending variable events.
++ */
++static __u8 *topre_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				 unsigned int *rsize)
++{
++	if (*rsize >= 119 && rdesc[69] == 0x29 && rdesc[70] == 0xe7 &&
++						 rdesc[71] == 0x81 && rdesc[72] == 0x00) {
++		hid_info(hdev,
++			"fixing up Topre REALFORCE keyboard report descriptor\n");
++		rdesc[72] = 0x02;
++	}
++	return rdesc;
++}
++
++static const struct hid_device_id topre_id_table[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPRE,
++			 USB_DEVICE_ID_TOPRE_REALFORCE_R2_108) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, topre_id_table);
++
++static struct hid_driver topre_driver = {
++	.name			= "topre",
++	.id_table		= topre_id_table,
++	.report_fixup		= topre_report_fixup,
++};
++
++module_hid_driver(topre_driver);
 -- 
 2.35.1
 
