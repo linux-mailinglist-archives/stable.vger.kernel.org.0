@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC42C5FD160
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 890EE5FD134
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231969AbiJMAgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46818 "EHLO
+        id S231532AbiJMAfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:35:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231708AbiJMAcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:32:21 -0400
+        with ESMTP id S231862AbiJMAdO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:33:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D02257F136;
-        Wed, 12 Oct 2022 17:28:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C42C7851;
+        Wed, 12 Oct 2022 17:28:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59F6EB81CC6;
-        Thu, 13 Oct 2022 00:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B3F4C433C1;
-        Thu, 13 Oct 2022 00:26:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA9D3B81CF4;
+        Thu, 13 Oct 2022 00:26:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FCE5C433B5;
+        Thu, 13 Oct 2022 00:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620794;
-        bh=OMc2Noxt8vfl1gcPTrZ8XL2sdgJFYQXsLCvRYvKJc0I=;
+        s=k20201202; t=1665620795;
+        bh=8VBt0TV070VIaruyQ4lTpvVLgKOxHaLZWr95D3YRDZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0OOrS7nXruDbzMNuqj0aAV6HzaSjCHlqlX9ziXlKDgFWU0R5YLN+dgGU6elblytb
-         1ux7GQ0nqWGEuN5WE7uBaiLnxNI0tVN9SXvB6jx5b8J6HVZr6BlCY59w4YnD7sBOEa
-         57Ztfeuv3pRWLeTXnF3u/6aMqkHpsqDfS2G4UNoStoEGYnAkWjsQm7zsEuqwe32fUU
-         rhKBQxzRiFNQAv+dNV3+Ex/KFrMTa+XWELhVpcc3MtiuPnpJI2j+Lpyy7juqdGhAl6
-         HHWiSacFwYPwJm4o2gc5yiZLmRqhf+oBUW3ndEO1qYsarBhKetK8j17bJjUpROuFq6
-         GHoTHB4ctXc9w==
+        b=jAyxA1V919rde29/i8Np0MhZkSfaRBH9/wxTIkuAoKvBcJGsQBgVHEnUr2/VjkMDq
+         losQIEtNV3/a7f602OgtbtAyucUkJz28/bme5k3lTBCU6HjrcQONAAZPiGZRX072+E
+         554VkHpu/7ICHlstnbuasj9DmCzCgLUE2FO4vwTAQx9I/Wm5XG2RC6g2p+QkyzLzXu
+         QjE8NWqPn+s3/pNSmocJ/inqwa+StGOwD1cE+h+c9VwQ879SUUtMY4qbsMAwvVXYPG
+         6fih+vgNGoeUSVTlb1jgu7IhD44Ex4dmgAYe7XKC269kpFmjq2QKiQHYSZMO+WS2bG
+         1C+GbDpbJ6nVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nam Cao <namcaov@gmail.com>,
-        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, forest@alittletooquiet.net,
-        tomm.merciai@gmail.com, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 4.19 05/19] staging: vt6655: fix potential memory leak
-Date:   Wed, 12 Oct 2022 20:26:04 -0400
-Message-Id: <20221013002623.1895576-5-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>, hdegoede@redhat.com,
+        axboe@kernel.dk, linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/19] ata: libahci_platform: Sanity check the DT child nodes number
+Date:   Wed, 12 Oct 2022 20:26:05 -0400
+Message-Id: <20221013002623.1895576-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002623.1895576-1-sashal@kernel.org>
 References: <20221013002623.1895576-1-sashal@kernel.org>
@@ -57,40 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nam Cao <namcaov@gmail.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit c8ff91535880d41b49699b3829fb6151942de29e ]
+[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
 
-In function device_init_td0_ring, memory is allocated for member
-td_info of priv->apTD0Rings[i], with i increasing from 0. In case of
-allocation failure, the memory is freed in reversed order, with i
-decreasing to 0. However, the case i=0 is left out and thus memory is
-leaked.
+Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
+from the further AHCI-platform initialization point of view since
+exceeding the ports upper limit will cause allocating more resources than
+will be used afterwards. But detecting too many child DT-nodes doesn't
+seem right since it's very unlikely to have it on an ordinary platform. In
+accordance with the AHCI specification there can't be more than 32 ports
+implemented at least due to having the CAP.NP field of 5 bits wide and the
+PI register of dword size. Thus if such situation is found the DTB must
+have been corrupted and the data read from it shouldn't be reliable. Let's
+consider that as an erroneous situation and halt further resources
+allocation.
 
-Modify the memory freeing loop to include the case i=0.
+Note it's logically more correct to have the nports set only after the
+initialization value is checked for being sane. So while at it let's make
+sure nports is assigned with a correct value.
 
-Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
-Signed-off-by: Nam Cao <namcaov@gmail.com>
-Link: https://lore.kernel.org/r/20220909141338.19343-1-namcaov@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vt6655/device_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libahci_platform.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
-index 76f434c1c088..0cedb27c052d 100644
---- a/drivers/staging/vt6655/device_main.c
-+++ b/drivers/staging/vt6655/device_main.c
-@@ -677,7 +677,7 @@ static int device_init_td0_ring(struct vnt_private *priv)
- 	return 0;
- 
- err_free_desc:
--	while (--i) {
-+	while (i--) {
- 		desc = &priv->apTD0Rings[i];
- 		kfree(desc->td_info);
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index 6a55aac0c60f..63086f90bbf8 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -421,14 +421,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
+ 		}
  	}
+ 
+-	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
++	/*
++	 * Too many sub-nodes most likely means having something wrong with
++	 * the firmware.
++	 */
++	child_nodes = of_get_child_count(dev->of_node);
++	if (child_nodes > AHCI_MAX_PORTS) {
++		rc = -EINVAL;
++		goto err_out;
++	}
+ 
+ 	/*
+ 	 * If no sub-node was found, we still need to set nports to
+ 	 * one in order to be able to use the
+ 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
+ 	 */
+-	if (!child_nodes)
++	if (child_nodes)
++		hpriv->nports = child_nodes;
++	else
+ 		hpriv->nports = 1;
+ 
+ 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
 -- 
 2.35.1
 
