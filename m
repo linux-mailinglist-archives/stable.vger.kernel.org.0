@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAEE65FCF3D
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B7495FCF3E
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:16:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229777AbiJMAQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37344 "EHLO
+        id S229616AbiJMAQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:16:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229732AbiJMAQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:16:14 -0400
+        with ESMTP id S229780AbiJMAQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:16:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3480DFBCD0;
-        Wed, 12 Oct 2022 17:16:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C7BD2CE7;
+        Wed, 12 Oct 2022 17:16:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D3DA616B3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2CED616B6;
+        Thu, 13 Oct 2022 00:16:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF06C433C1;
         Thu, 13 Oct 2022 00:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F92C433D7;
-        Thu, 13 Oct 2022 00:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620171;
-        bh=GvZod3RFAjidyXSUoKZ273KLjuujQzygOSc6mBdthnY=;
+        s=k20201202; t=1665620173;
+        bh=2vttJVL/wGU2aeD9rhWr5CzNN4oH2sKTlJIu2eSZwmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cj/2JSt6FLoSzHqztKPtdWX1zNT3zBuMK6K/lbnNOZbmxHMR3z9dq4afzkxmHBxsv
-         VEynonPLoePKOb+cRiQugMZgucVXzY6ceLC2llLG3SUlXODoh+AXCBDJMf8AQFsBzg
-         7aQKbnwZbFYEPvQRshsFptUZuZoGknUG5dtf4ddjBkW6EQF1xfikiP8lyLAZ3wQYe/
-         AzjDOeBgc2tK3f8WOiM689cz40OY4/EAK07F2I+HTSUmLYTHbyaxuKPsAnpm695RHX
-         snrVOwQVswbUEjFg5Gvvp4Hkrny/jFpOeF9ytHbGjUydq6ReE/Y/yrD7i6lOC+5PGb
-         j42cC/0w2DxeA==
+        b=nAZSV6AMD0UHS1LoIOrLIxWghhoiEUhwwYws8cTbcbIjNISXyQ+08vMdI/9ZScE7J
+         XNnGBIDMDVxslYcM34wgUqa6YXDDDMI5YjcX8I0vlU3pM6m5LgO4tA6q8i6MwQ2yJI
+         7hZCEDvC1RRah9oohJ6047kn+Cl0SIbxg14SkhAyaaHRM0eVZ8T2m1QTQnryStBDXu
+         KzdelqOvXnU2Hy14842LvOFy91TGoAVkUJN4tz9OwRRpF3fRkqO6WCYBPuuiHKzUy1
+         LjXYAOc4rAGsk4VzG0MQaoTxtG01lNibjv2prwpAKe67BCmqPJK9Mq1Rnw9k3z7qf4
+         jg3g6qU++lMgA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quanyang Wang <quanyang.wang@windriver.com>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, mturquette@baylibre.com,
-        michal.simek@xilinx.com, m.tretter@pengutronix.de,
-        linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 05/67] clk: zynqmp: pll: rectify rate rounding in zynqmp_pll_round_rate
-Date:   Wed, 12 Oct 2022 20:14:46 -0400
-Message-Id: <20221013001554.1892206-5-sashal@kernel.org>
+Cc:     Daisuke Matsuda <matsuda-daisuke@fujitsu.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, zyjzyj2000@gmail.com,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 06/67] RDMA/rxe: Delete error messages triggered by incoming Read requests
+Date:   Wed, 12 Oct 2022 20:14:47 -0400
+Message-Id: <20221013001554.1892206-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001554.1892206-1-sashal@kernel.org>
 References: <20221013001554.1892206-1-sashal@kernel.org>
@@ -58,90 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
 
-[ Upstream commit 30eaf02149ecc3c5815e45d27187bf09e925071d ]
+[ Upstream commit 2c02249fcbfc066bd33e2a7375c7006d4cb367f6 ]
 
-The function zynqmp_pll_round_rate is used to find a most appropriate
-PLL frequency which the hardware can generate according to the desired
-frequency. For example, if the desired frequency is 297MHz, considering
-the limited range from PS_PLL_VCO_MIN (1.5GHz) to PS_PLL_VCO_MAX (3.0GHz)
-of PLL, zynqmp_pll_round_rate should return 1.872GHz (297MHz * 5).
+An incoming Read request causes multiple Read responses. If a user MR to
+copy data from is unavailable or responder cannot send a reply, then the
+error messages can be printed for each response attempt, resulting in
+message overflow.
 
-There are two problems with the current code of zynqmp_pll_round_rate:
-
-1) When the rate is below PS_PLL_VCO_MIN, it can't find a correct rate
-when the parameter "rate" is an integer multiple of *prate, in other words,
-if "f" is zero, zynqmp_pll_round_rate won't return a valid frequency which
-is from PS_PLL_VCO_MIN to PS_PLL_VCO_MAX. For example, *prate is 33MHz
-and the rate is 660MHz, zynqmp_pll_round_rate will not boost up rate and
-just return 660MHz, and this will cause clk_calc_new_rates failure since
-zynqmp_pll_round_rate returns an invalid rate out of its boundaries.
-
-2) Even if the rate is higher than PS_PLL_VCO_MIN, there is still a risk
-that zynqmp_pll_round_rate returns an invalid rate because the function
-DIV_ROUND_CLOSEST makes some loss in the fractional part. If the parent
-clock *prate is 33333333Hz and we want to set the PLL rate to 1.5GHz,
-this function will return 1499999985Hz by using the formula below:
-    value = *prate * DIV_ROUND_CLOSEST(rate, *prate)).
-This value is also invalid since it's slightly smaller than PS_PLL_VCO_MIN.
-because DIV_ROUND_CLOSEST makes some loss in the fractional part.
-
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Link: https://lore.kernel.org/r/20220826142030.213805-1-quanyang.wang@windriver.com
-Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20220829071218.1639065-1-matsuda-daisuke@fujitsu.com
+Signed-off-by: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/zynqmp/pll.c | 31 +++++++++++++++----------------
- 1 file changed, 15 insertions(+), 16 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_resp.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clk/zynqmp/pll.c b/drivers/clk/zynqmp/pll.c
-index 91a6b4cc910e..0d3e1377b092 100644
---- a/drivers/clk/zynqmp/pll.c
-+++ b/drivers/clk/zynqmp/pll.c
-@@ -102,26 +102,25 @@ static long zynqmp_pll_round_rate(struct clk_hw *hw, unsigned long rate,
- 				  unsigned long *prate)
- {
- 	u32 fbdiv;
--	long rate_div, f;
-+	u32 mult, div;
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index b36ec5c4d5e0..7c336db5cb54 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -809,10 +809,8 @@ static enum resp_states read_reply(struct rxe_qp *qp,
+ 	if (!skb)
+ 		return RESPST_ERR_RNR;
  
--	/* Enable the fractional mode if needed */
--	rate_div = (rate * FRAC_DIV) / *prate;
--	f = rate_div % FRAC_DIV;
--	if (f) {
--		if (rate > PS_PLL_VCO_MAX) {
--			fbdiv = rate / PS_PLL_VCO_MAX;
--			rate = rate / (fbdiv + 1);
--		}
--		if (rate < PS_PLL_VCO_MIN) {
--			fbdiv = DIV_ROUND_UP(PS_PLL_VCO_MIN, rate);
--			rate = rate * fbdiv;
--		}
--		return rate;
-+	/* Let rate fall inside the range PS_PLL_VCO_MIN ~ PS_PLL_VCO_MAX */
-+	if (rate > PS_PLL_VCO_MAX) {
-+		div = DIV_ROUND_UP(rate, PS_PLL_VCO_MAX);
-+		rate = rate / div;
-+	}
-+	if (rate < PS_PLL_VCO_MIN) {
-+		mult = DIV_ROUND_UP(PS_PLL_VCO_MIN, rate);
-+		rate = rate * mult;
+-	err = rxe_mr_copy(mr, res->read.va, payload_addr(&ack_pkt),
+-			  payload, RXE_FROM_MR_OBJ);
+-	if (err)
+-		pr_err("Failed copying memory\n");
++	rxe_mr_copy(mr, res->read.va, payload_addr(&ack_pkt),
++		    payload, RXE_FROM_MR_OBJ);
+ 	if (mr)
+ 		rxe_put(mr);
+ 
+@@ -823,10 +821,8 @@ static enum resp_states read_reply(struct rxe_qp *qp,
  	}
  
- 	fbdiv = DIV_ROUND_CLOSEST(rate, *prate);
--	fbdiv = clamp_t(u32, fbdiv, PLL_FBDIV_MIN, PLL_FBDIV_MAX);
--	return *prate * fbdiv;
-+	if (fbdiv < PLL_FBDIV_MIN || fbdiv > PLL_FBDIV_MAX) {
-+		fbdiv = clamp_t(u32, fbdiv, PLL_FBDIV_MIN, PLL_FBDIV_MAX);
-+		rate = *prate * fbdiv;
-+	}
-+
-+	return rate;
- }
+ 	err = rxe_xmit_packet(qp, &ack_pkt, skb);
+-	if (err) {
+-		pr_err("Failed sending RDMA reply.\n");
++	if (err)
+ 		return RESPST_ERR_RNR;
+-	}
  
- /**
+ 	res->read.va += payload;
+ 	res->read.resid -= payload;
 -- 
 2.35.1
 
