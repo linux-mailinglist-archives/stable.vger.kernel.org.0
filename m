@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 507405FE0BC
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF865FE0A5
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbiJMSPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:15:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57612 "EHLO
+        id S231839AbiJMSMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232271AbiJMSOe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:14:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCBF170DF0;
-        Thu, 13 Oct 2022 11:10:58 -0700 (PDT)
+        with ESMTP id S231769AbiJMSMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CBA3170DCC;
+        Thu, 13 Oct 2022 11:09:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5383EB820AD;
-        Thu, 13 Oct 2022 18:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B547EC433D6;
-        Thu, 13 Oct 2022 18:01:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 003F2B820CB;
+        Thu, 13 Oct 2022 18:02:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F70DC433C1;
+        Thu, 13 Oct 2022 18:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684113;
-        bh=YcQbhCSPoD2UnDkliHAi/oE6U9WmvVTA8st+VYyO1o0=;
+        s=korg; t=1665684151;
+        bh=cLMk1ar/nQON1mZgjjsdpVy1arXfNUVtd1FNGe7wHxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJh/MGzykUe+e46qb8pFPWngN3MsgCCNeynk0EX2OqNcKO23Tgu1p2CVFfPosG+h8
-         DIYDyyGyab3Dv3EE5M9FlsIeRmOV7kU5r3DJgV4iWO3BiflVcKlbiBiMR47DNmLBh7
-         x4VKOPEosJ742+eOzkpyjHgja38GrXpml6zmYRCA=
+        b=Mg6F2PMgkRvjBgb7z6ZNUS4aU5aXRC+Rglz7+CORq8TFS29/6dw+IKg7sUwfP2c/Z
+         /Ci0tHCvtu3u/s93mL3YBUkRd/Ww7LeuVCE0NiPH4sD00knBGUQei87+FwVRjCXN52
+         zxdMspKzaKmt/VlwLVDFYKm7g3B5R3xT0WvFONE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.0 29/34] wifi: cfg80211: update hidden BSSes to avoid WARN_ON
-Date:   Thu, 13 Oct 2022 19:53:07 +0200
-Message-Id: <20221013175147.267608492@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.0 30/34] mctp: prevent double key removal and unref
+Date:   Thu, 13 Oct 2022 19:53:08 +0200
+Message-Id: <20221013175147.291795983@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
 References: <20221013175146.507746257@linuxfoundation.org>
@@ -53,88 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jeremy Kerr <jk@codeconstruct.com.au>
 
-commit c90b93b5b782891ebfda49d4e5da36632fefd5d1 upstream.
+commit 3a732b46736cd8a29092e4b0b1a9ba83e672bf89 upstream.
 
-When updating beacon elements in a non-transmitted BSS,
-also update the hidden sub-entries to the same beacon
-elements, so that a future update through other paths
-won't trigger a WARN_ON().
+Currently, we have a bug where a simultaneous DROPTAG ioctl and socket
+close may race, as we attempt to remove a key from lists twice, and
+perform an unref for each removal operation. This may result in a uaf
+when we attempt the second unref.
 
-The warning is triggered because the beacon elements in
-the hidden BSSes that are children of the BSS should
-always be the same as in the parent.
+This change fixes the race by making __mctp_key_remove tolerant to being
+called on a key that has already been removed from the socket/net lists,
+and only performs the unref when we do the actual remove. We also need
+to hold the list lock on the ioctl cleanup path.
 
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This fix is based on a bug report and comprehensive analysis from
+butt3rflyh4ck <butterflyhuangxx@gmail.com>, found via syzkaller.
+
+Cc: stable@vger.kernel.org
+Fixes: 63ed1aab3d40 ("mctp: Add SIOCMCTP{ALLOC,DROP}TAG ioctls for tag control")
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |   31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ net/mctp/af_mctp.c |   23 ++++++++++++++++-------
+ net/mctp/route.c   |   10 +++++-----
+ 2 files changed, 21 insertions(+), 12 deletions(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -1607,6 +1607,23 @@ struct cfg80211_non_tx_bss {
- 	u8 bssid_index;
- };
+--- a/net/mctp/af_mctp.c
++++ b/net/mctp/af_mctp.c
+@@ -295,11 +295,12 @@ __must_hold(&net->mctp.keys_lock)
+ 	mctp_dev_release_key(key->dev, key);
+ 	spin_unlock_irqrestore(&key->lock, flags);
  
-+static void cfg80211_update_hidden_bsses(struct cfg80211_internal_bss *known,
-+					 const struct cfg80211_bss_ies *new_ies,
-+					 const struct cfg80211_bss_ies *old_ies)
-+{
-+	struct cfg80211_internal_bss *bss;
-+
-+	/* Assign beacon IEs to all sub entries */
-+	list_for_each_entry(bss, &known->hidden_list, hidden_list) {
-+		const struct cfg80211_bss_ies *ies;
-+
-+		ies = rcu_access_pointer(bss->pub.beacon_ies);
-+		WARN_ON(ies != old_ies);
-+
-+		rcu_assign_pointer(bss->pub.beacon_ies, new_ies);
+-	hlist_del(&key->hlist);
+-	hlist_del(&key->sklist);
+-
+-	/* unref for the lists */
+-	mctp_key_unref(key);
++	if (!hlist_unhashed(&key->hlist)) {
++		hlist_del_init(&key->hlist);
++		hlist_del_init(&key->sklist);
++		/* unref for the lists */
++		mctp_key_unref(key);
 +	}
-+}
-+
- static bool
- cfg80211_update_known_bss(struct cfg80211_registered_device *rdev,
- 			  struct cfg80211_internal_bss *known,
-@@ -1630,7 +1647,6 @@ cfg80211_update_known_bss(struct cfg8021
- 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
- 	} else if (rcu_access_pointer(new->pub.beacon_ies)) {
- 		const struct cfg80211_bss_ies *old;
--		struct cfg80211_internal_bss *bss;
  
- 		if (known->pub.hidden_beacon_bss &&
- 		    !list_empty(&known->hidden_list)) {
-@@ -1658,16 +1674,7 @@ cfg80211_update_known_bss(struct cfg8021
- 		if (old == rcu_access_pointer(known->pub.ies))
- 			rcu_assign_pointer(known->pub.ies, new->pub.beacon_ies);
+ 	kfree_skb(skb);
+ }
+@@ -373,9 +374,17 @@ static int mctp_ioctl_alloctag(struct mc
  
--		/* Assign beacon IEs to all sub entries */
--		list_for_each_entry(bss, &known->hidden_list, hidden_list) {
--			const struct cfg80211_bss_ies *ies;
+ 	ctl.tag = tag | MCTP_TAG_OWNER | MCTP_TAG_PREALLOC;
+ 	if (copy_to_user((void __user *)arg, &ctl, sizeof(ctl))) {
+-		spin_lock_irqsave(&key->lock, flags);
+-		__mctp_key_remove(key, net, flags, MCTP_TRACE_KEY_DROPPED);
++		unsigned long fl2;
++		/* Unwind our key allocation: the keys list lock needs to be
++		 * taken before the individual key locks, and we need a valid
++		 * flags value (fl2) to pass to __mctp_key_remove, hence the
++		 * second spin_lock_irqsave() rather than a plain spin_lock().
++		 */
++		spin_lock_irqsave(&net->mctp.keys_lock, flags);
++		spin_lock_irqsave(&key->lock, fl2);
++		__mctp_key_remove(key, net, fl2, MCTP_TRACE_KEY_DROPPED);
+ 		mctp_key_unref(key);
++		spin_unlock_irqrestore(&net->mctp.keys_lock, flags);
+ 		return -EFAULT;
+ 	}
+ 
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -228,12 +228,12 @@ __releases(&key->lock)
+ 
+ 	if (!key->manual_alloc) {
+ 		spin_lock_irqsave(&net->mctp.keys_lock, flags);
+-		hlist_del(&key->hlist);
+-		hlist_del(&key->sklist);
++		if (!hlist_unhashed(&key->hlist)) {
++			hlist_del_init(&key->hlist);
++			hlist_del_init(&key->sklist);
++			mctp_key_unref(key);
++		}
+ 		spin_unlock_irqrestore(&net->mctp.keys_lock, flags);
 -
--			ies = rcu_access_pointer(bss->pub.beacon_ies);
--			WARN_ON(ies != old);
--
--			rcu_assign_pointer(bss->pub.beacon_ies,
--					   new->pub.beacon_ies);
--		}
-+		cfg80211_update_hidden_bsses(known, new->pub.beacon_ies, old);
+-		/* unref for the lists */
+-		mctp_key_unref(key);
+ 	}
  
- 		if (old)
- 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
-@@ -2360,6 +2367,8 @@ cfg80211_update_notlisted_nontrans(struc
- 	} else {
- 		old = rcu_access_pointer(nontrans_bss->beacon_ies);
- 		rcu_assign_pointer(nontrans_bss->beacon_ies, new_ies);
-+		cfg80211_update_hidden_bsses(bss_from_pub(nontrans_bss),
-+					     new_ies, old);
- 		rcu_assign_pointer(nontrans_bss->ies, new_ies);
- 		if (old)
- 			kfree_rcu((struct cfg80211_bss_ies *)old, rcu_head);
+ 	/* and one for the local reference */
 
 
