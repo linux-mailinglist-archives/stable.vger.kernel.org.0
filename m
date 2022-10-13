@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E485FCF40
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907275FCF45
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229796AbiJMAQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
+        id S229804AbiJMAQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbiJMAQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:16:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C7A12C89A;
-        Wed, 12 Oct 2022 17:16:16 -0700 (PDT)
+        with ESMTP id S229803AbiJMAQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:16:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB50AD9949;
+        Wed, 12 Oct 2022 17:16:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12D62616B5;
-        Thu, 13 Oct 2022 00:16:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B05AC433D7;
-        Thu, 13 Oct 2022 00:16:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A676616B3;
+        Thu, 13 Oct 2022 00:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FA8C433C1;
+        Thu, 13 Oct 2022 00:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620174;
-        bh=COvMImI5EhtK7DDUN4rrlXlj6Olbp9bHPrM5fbNPEo8=;
+        s=k20201202; t=1665620175;
+        bh=1TJHyyfg+QsA6U78R8mxqIahZXicXXqn1XHvFq8xnAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfmiOEMkghfeEy6cWng1NU2RuXqXmPptISd47vl9lvMa7h3QpD8Cn+WSHthrV3uWZ
-         YYztE0mF9PvGmwfeFI61CCIfD4tzpaXXzLlmyyB82HPiYvuw5LTQ9wahpd4Ub/2mnj
-         qTi7KcPcXi7gBXUwe0PzDeX6a6CiSL56hhr93TnGEFOhaczB2NlaI7gt3ncUjE8xtl
-         7yD+2hctXRDEBJpONAJNJfwxFTp2fHuqtKOpdxJbX2s1VyDhUqtqUS7xf1agP26T9C
-         OfnejygcpzrbRC9rvATdOeTU124Z7cmn0DJj0qNm8wlVRExukopICVkgjLdZtWbuGO
-         lwc+jS8ILhQnw==
+        b=gbG6Hxi854znHrVZJGk6FwU0Q9cKSuApKlRZHYiFu+tOr/ircj6KIvpOPJBP0v5lW
+         6Ko2zJIUQ1qvR5I4f6lY+q9tYSTLDsdkQaYqm6epTKZmL+QA3qhn+Dfi6A1RJ5aXrc
+         mSiEE87fImXvXoqiVBJMc6afRurvvUvWO6L5LY6Flvlj4bGvejhcxqJI9WkbkSVSaz
+         t/ToZ/u7ztnuCq+O9oqBo5vTkDcq2mmwFmj8GePBK9yb5+UeyqwPVC1MOX2UhhNFyJ
+         cxXKL/aJ0Vn2+UvapWQxRdV6mbZVGEVJpOt+/PgrGq4u+SD37/kNXdxSeQDwokitHs
+         h/hapkIRm1ZPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Justin Chen <justinpopo6@gmail.com>,
@@ -38,9 +38,9 @@ Cc:     Justin Chen <justinpopo6@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, mathias.nyman@intel.com,
         linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 07/67] usb: host: xhci-plat: suspend and resume clocks
-Date:   Wed, 12 Oct 2022 20:14:48 -0400
-Message-Id: <20221013001554.1892206-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 08/67] usb: host: xhci-plat: suspend/resume clks for brcm
+Date:   Wed, 12 Oct 2022 20:14:49 -0400
+Message-Id: <20221013001554.1892206-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001554.1892206-1-sashal@kernel.org>
 References: <20221013001554.1892206-1-sashal@kernel.org>
@@ -59,68 +59,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Justin Chen <justinpopo6@gmail.com>
 
-[ Upstream commit 8bd954c56197caf5e3a804d989094bc3fe6329aa ]
+[ Upstream commit c69400b09e471a3f1167adead55a808f0da6534a ]
 
-Introduce XHCI_SUSPEND_RESUME_CLKS quirk as a means to suspend and resume
-clocks if the hardware is capable of doing so. We assume that clocks will
-be needed if the device may wake.
+The xhci_plat_brcm xhci block can enter suspend with clock disabled to save
+power and re-enable them on resume. Make use of the XHCI_SUSPEND_RESUME_CLKS
+quirk to do so.
 
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Link: https://lore.kernel.org/r/1660170455-15781-2-git-send-email-justinpopo6@gmail.com
+Link: https://lore.kernel.org/r/1660170455-15781-3-git-send-email-justinpopo6@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-plat.c | 16 +++++++++++++++-
- drivers/usb/host/xhci.h      |  1 +
- 2 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-plat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index a8641b6536ee..ef10982ad482 100644
+index ef10982ad482..5fb55bf19493 100644
 --- a/drivers/usb/host/xhci-plat.c
 +++ b/drivers/usb/host/xhci-plat.c
-@@ -437,7 +437,16 @@ static int __maybe_unused xhci_plat_suspend(struct device *dev)
- 	 * xhci_suspend() needs `do_wakeup` to know whether host is allowed
- 	 * to do wakeup during suspend.
- 	 */
--	return xhci_suspend(xhci, device_may_wakeup(dev));
-+	ret = xhci_suspend(xhci, device_may_wakeup(dev));
-+	if (ret)
-+		return ret;
-+
-+	if (!device_may_wakeup(dev) && (xhci->quirks & XHCI_SUSPEND_RESUME_CLKS)) {
-+		clk_disable_unprepare(xhci->clk);
-+		clk_disable_unprepare(xhci->reg_clk);
-+	}
-+
-+	return 0;
- }
+@@ -123,7 +123,7 @@ static const struct xhci_plat_priv xhci_plat_renesas_rcar_gen3 = {
+ };
  
- static int __maybe_unused xhci_plat_resume(struct device *dev)
-@@ -446,6 +455,11 @@ static int __maybe_unused xhci_plat_resume(struct device *dev)
- 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
- 	int ret;
+ static const struct xhci_plat_priv xhci_plat_brcm = {
+-	.quirks = XHCI_RESET_ON_RESUME,
++	.quirks = XHCI_RESET_ON_RESUME | XHCI_SUSPEND_RESUME_CLKS,
+ };
  
-+	if (!device_may_wakeup(dev) && (xhci->quirks & XHCI_SUSPEND_RESUME_CLKS)) {
-+		clk_prepare_enable(xhci->clk);
-+		clk_prepare_enable(xhci->reg_clk);
-+	}
-+
- 	ret = xhci_priv_resume_quirk(hcd);
- 	if (ret)
- 		return ret;
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 7caa0db5e826..6dfbf73ee840 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1899,6 +1899,7 @@ struct xhci_hcd {
- #define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
- #define XHCI_BROKEN_D3COLD	BIT_ULL(41)
- #define XHCI_EP_CTX_BROKEN_DCS	BIT_ULL(42)
-+#define XHCI_SUSPEND_RESUME_CLKS	BIT_ULL(43)
- 
- 	unsigned int		num_active_eps;
- 	unsigned int		limit_active_eps;
+ static const struct of_device_id usb_xhci_of_match[] = {
 -- 
 2.35.1
 
