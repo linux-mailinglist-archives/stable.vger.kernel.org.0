@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7BA05FD07A
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6101D5FD270
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231315AbiJMA12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:27:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55316 "EHLO
+        id S231310AbiJMBR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 21:17:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230342AbiJMA0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:26:08 -0400
+        with ESMTP id S231321AbiJMBRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:17:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5019B54;
-        Wed, 12 Oct 2022 17:24:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331821026;
+        Wed, 12 Oct 2022 18:16:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EDCEB81CEA;
-        Thu, 13 Oct 2022 00:22:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 473D1C433B5;
-        Thu, 13 Oct 2022 00:22:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2E2FB81CF0;
+        Thu, 13 Oct 2022 00:22:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972D9C433C1;
+        Thu, 13 Oct 2022 00:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620570;
-        bh=6vbKmmz0ryFxKZLGyy2yrARzgTOezGzvxGBhsplRrh8=;
+        s=k20201202; t=1665620571;
+        bh=gy6zA5sxW7iyp4BCn20RJJdv1OkAXJdGkUKQ+T5OsO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkQzj/4xVc498tH3B0PNBa3dmDMBN6GlXRLZS3zIAul5tbHuSJe4n8rys1lQj++91
-         +BJEHYrdEMPtJieMitjlF3youFSsUG+1bdEXeivi57Q/QAdVo0hJ5Bf3Vjv4zDEtc1
-         DSYVxIseVsADj9EAo6kiw+7rZXJxzMEjmYNP9hpyn0MFZjEaQDhxWoNpcUp67p3sRq
-         Z60x0ZkqR1L7jW5+kgemgISINuu38LthYZrPy/ghVHlKd2hKOkGuEP1nAyuakLSs7E
-         ZqKGJ0LFvIt2DvoRwfAp8Oqsyni5RI6XrxVGQZHGjOXJJanGashwOI2KD7sHgnDtwv
-         b1suka2kMqbGA==
+        b=YooNT9HGKGqz1YlnYOFIhYI4WDqfpCAqEtwccNPAFuhXwclYp09g7xsXyhi3Ccidc
+         7flgRrwjEDoBW5pkXVU0IB2pvmOEp2Nk9DRV/4OW6aa7CZcDOptoiI3HQQENl9dWaf
+         cFjiBcIi50viskzeSet07jtfEwQmHaWDC4QRQdKi0doTNcSxeZ8bW6KHRuAkeEJOag
+         PXObA72g2Uo/nyufWaaYv2+3gBDCHAPOO3GHhQ9oLeTFR+96FpGeXSfFcycf5irJTV
+         q7FGC01fnCcuI4QL8vREAdLS3WUPS/vQvm3EX5CMfaKxhW1+PJKOHPiiVAH1ryBxTn
+         Pvhu/Y6GzlTDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     sunghwan jung <onenowy@gmail.com>,
+Cc:     Daniel Starke <daniel.starke@siemens.com>,
+        kernel test robot <lkp@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stern@rowland.harvard.edu,
-        linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 5.15 33/47] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Wed, 12 Oct 2022 20:21:08 -0400
-Message-Id: <20221013002124.1894077-33-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org
+Subject: [PATCH AUTOSEL 5.15 34/47] tty: n_gsm: replace use of gsm_read_ea() with gsm_read_ea_val()
+Date:   Wed, 12 Oct 2022 20:21:09 -0400
+Message-Id: <20221013002124.1894077-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -56,57 +56,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit 669609cea1d294f43efdd8d57ab65927df90e6df ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+Replace the use of gsm_read_ea() with gsm_read_ea_val() where applicable to
+improve code readability and avoid errors like in the past. See first link
+below for reference.
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
-
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
-
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
+Link: https://lore.kernel.org/all/20220504081733.3494-1-daniel.starke@siemens.com/
+Link: https://lore.kernel.org/all/202208222147.WfFRmf1r-lkp@intel.com/
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220831073800.7459-3-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/tty/n_gsm.c | 95 ++++++++++++++++++++++-----------------------
+ 1 file changed, 47 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 4993227ab293..20dcbccb290b 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1275,12 +1275,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 154697be11b0..d27247a84aab 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1297,18 +1297,12 @@ static void gsm_control_modem(struct gsm_mux *gsm, const u8 *data, int clen)
+ 	unsigned int modem = 0;
+ 	struct gsm_dlci *dlci;
+ 	int len = clen;
+-	int slen;
++	int cl = clen;
+ 	const u8 *dp = data;
+ 	struct tty_struct *tty;
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
--
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+-	while (gsm_read_ea(&addr, *dp++) == 0) {
+-		len--;
+-		if (len == 0)
+-			return;
+-	}
+-	/* Must be at least one byte following the EA */
+-	len--;
+-	if (len <= 0)
++	len = gsm_read_ea_val(&addr, data, cl);
++	if (len < 1)
+ 		return;
+ 
+ 	addr >>= 1;
+@@ -1317,15 +1311,20 @@ static void gsm_control_modem(struct gsm_mux *gsm, const u8 *data, int clen)
+ 		return;
+ 	dlci = gsm->dlci[addr];
+ 
+-	slen = len;
+-	while (gsm_read_ea(&modem, *dp++) == 0) {
+-		len--;
+-		if (len == 0)
+-			return;
+-	}
+-	len--;
++	/* Must be at least one byte following the EA */
++	if ((cl - len) < 1)
++		return;
++
++	dp += len;
++	cl -= len;
++
++	/* get the modem status */
++	len = gsm_read_ea_val(&modem, dp, cl);
++	if (len < 1)
++		return;
++
+ 	tty = tty_port_tty_get(&dlci->port);
+-	gsm_process_modem(tty, dlci, modem, slen - len);
++	gsm_process_modem(tty, dlci, modem, cl);
+ 	if (tty) {
+ 		tty_wakeup(tty);
+ 		tty_kref_put(tty);
+@@ -1819,11 +1818,10 @@ static void gsm_dlci_data(struct gsm_dlci *dlci, const u8 *data, int clen)
+ 	struct tty_port *port = &dlci->port;
+ 	struct tty_struct *tty;
+ 	unsigned int modem = 0;
+-	int len = clen;
+-	int slen = 0;
++	int len;
+ 
+ 	if (debug & 16)
+-		pr_debug("%d bytes for tty\n", len);
++		pr_debug("%d bytes for tty\n", clen);
+ 	switch (dlci->adaption)  {
+ 	/* Unsupported types */
+ 	case 4:		/* Packetised interruptible data */
+@@ -1831,24 +1829,22 @@ static void gsm_dlci_data(struct gsm_dlci *dlci, const u8 *data, int clen)
+ 	case 3:		/* Packetised uininterruptible voice/data */
+ 		break;
+ 	case 2:		/* Asynchronous serial with line state in each frame */
+-		while (gsm_read_ea(&modem, *data++) == 0) {
+-			len--;
+-			slen++;
+-			if (len == 0)
+-				return;
+-		}
+-		len--;
+-		slen++;
++		len = gsm_read_ea_val(&modem, data, clen);
++		if (len < 1)
++			return;
+ 		tty = tty_port_tty_get(port);
+ 		if (tty) {
+-			gsm_process_modem(tty, dlci, modem, slen);
++			gsm_process_modem(tty, dlci, modem, len);
+ 			tty_wakeup(tty);
+ 			tty_kref_put(tty);
+ 		}
++		/* Skip processed modem data */
++		data += len;
++		clen -= len;
+ 		fallthrough;
+ 	case 1:		/* Line state will go via DLCI 0 controls only */
+ 	default:
+-		tty_insert_flip_string(port, data, len);
++		tty_insert_flip_string(port, data, clen);
+ 		tty_flip_buffer_push(port);
+ 	}
+ }
+@@ -1869,24 +1865,27 @@ static void gsm_dlci_command(struct gsm_dlci *dlci, const u8 *data, int len)
+ {
+ 	/* See what command is involved */
+ 	unsigned int command = 0;
+-	while (len-- > 0) {
+-		if (gsm_read_ea(&command, *data++) == 1) {
+-			int clen = *data++;
+-			len--;
+-			/* FIXME: this is properly an EA */
+-			clen >>= 1;
+-			/* Malformed command ? */
+-			if (clen > len)
+-				return;
+-			if (command & 1)
+-				gsm_control_message(dlci->gsm, command,
+-								data, clen);
+-			else
+-				gsm_control_response(dlci->gsm, command,
+-								data, clen);
+-			return;
+-		}
+-	}
++	unsigned int clen = 0;
++	unsigned int dlen;
++
++	/* read the command */
++	dlen = gsm_read_ea_val(&command, data, len);
++	len -= dlen;
++	data += dlen;
++
++	/* read any control data */
++	dlen = gsm_read_ea_val(&clen, data, len);
++	len -= dlen;
++	data += dlen;
++
++	/* Malformed command? */
++	if (clen > len)
++		return;
++
++	if (command & 1)
++		gsm_control_message(dlci->gsm, command, data, clen);
++	else
++		gsm_control_response(dlci->gsm, command, data, clen);
+ }
+ 
+ /**
 -- 
 2.35.1
 
