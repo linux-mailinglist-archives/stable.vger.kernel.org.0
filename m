@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A9F5FD01F
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 386D05FD228
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbiJMAYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56024 "EHLO
+        id S231418AbiJMBFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 21:05:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231234AbiJMAYG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:24:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E6DF5FFB;
-        Wed, 12 Oct 2022 17:22:51 -0700 (PDT)
+        with ESMTP id S229560AbiJMBFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:05:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A44D111458;
+        Wed, 12 Oct 2022 18:03:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B21461662;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C7DCB81CE2;
+        Thu, 13 Oct 2022 00:22:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5706BC43470;
         Thu, 13 Oct 2022 00:22:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD4AC433D6;
-        Thu, 13 Oct 2022 00:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620559;
-        bh=XTvP40iNi0+Eiwq3T0oEZhoWupUubEI8vDr3+gwG8iI=;
+        s=k20201202; t=1665620561;
+        bh=hFbDqPGAF/aU8OqJBnmamr8qrcOTfz/0LmJccZfAYdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCMYEj16aIEmWQd8itssfAGXhLJciRw/zsZrAiyiFwVaaihIb3gRfidxq0Q1Z1l/l
-         Ge7W9S4pppLrGdJIy+E603havNMOct8EkLtd3L7NwcqoexVwyAtDVbYSfuHRiU9n+v
-         rFDdzEzNk1rHr+D/gS3rcy9RWaF2OcbzHtANEg3f68I9pe9tOOUbS4Pn21iYm9Nddj
-         lFVGwTEwGupxn9XfEVIRbmFfCZvx7pzIOsn2hzlcqJhRBgDL318BDA8tvfal0e1tLG
-         5lpqmVowzz/kfd98jDIhwayV09yfzbpA3GmvAoFSWGvtcRxitfjj+fFsHd3QnbF4Gk
-         7+Vcq9ZgtEPEA==
+        b=C7P6J1CTdLAbD9n623tRVRdYKSWcCrwEM9XLeX/YEf0uKGhGfkKN65S3QtOZdbiQ2
+         N/wTm5FtkdakVvN0x7bim3XKQ6sUjSLXWXD8HJDIuf0GUOEyP6Pmq5o1O43Ngmvvex
+         rq3lnsToJ7JMt+Q+4+BEvjodqjwV0VtJT9eKsEC6D4B6OBBh5JgMoRfyHL+JNDX3S2
+         8E+M7vrT1RQJjFlikHQGUXzOBgle2tOdJvdZlP/6wurGOHfj3UifHs5lyEv89O+ZhW
+         W2g4kQ73X4JWD+sF37OZ7EoHzq0Wu+vDF2lNUMRXYH0kQh+wG/bRvpKQN5DX+4f6Jr
+         zN3NNisfVSvqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dylan Yudaken <dylany@fb.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
-        mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 27/47] eventfd: guard wake_up in eventfd fs calls as well
-Date:   Wed, 12 Oct 2022 20:21:02 -0400
-Message-Id: <20221013002124.1894077-27-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>, Song Liu <song@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 28/47] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
+Date:   Wed, 12 Oct 2022 20:21:03 -0400
+Message-Id: <20221013002124.1894077-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -56,118 +54,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@fb.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 9f0deaa12d832f488500a5afe9b912e9b3cfc432 ]
+[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
 
-Guard wakeups that the user can trigger, and that may end up triggering a
-call back into eventfd_signal. This is in addition to the current approach
-that only guards in eventfd_signal.
+A complicated deadlock exists when using the journal and an elevated
+group_thrtead_cnt. It was found with loop devices, but its not clear
+whether it can be seen with real disks. The deadlock can occur simply
+by writing data with an fio script.
 
-Rename in_eventfd_signal -> in_eventfd at the same time to reflect this.
+When the deadlock occurs, multiple threads will hang in different ways:
 
-Without this there would be a deadlock in the following code using libaio:
+ 1) The group threads will hang in the blk-wbt code with bios waiting to
+    be submitted to the block layer:
 
-int main()
-{
-	struct io_context *ctx = NULL;
-	struct iocb iocb;
-	struct iocb *iocbs[] = { &iocb };
-	int evfd;
-        uint64_t val = 1;
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        ops_run_io+0x46b/0x1a30
+        handle_stripe+0xcd3/0x36b0
+        handle_active_stripes.constprop.0+0x6f6/0xa60
+        raid5_do_work+0x177/0x330
 
-	evfd = eventfd(0, EFD_CLOEXEC);
-	assert(!io_setup(2, &ctx));
-	io_prep_poll(&iocb, evfd, POLLIN);
-	io_set_eventfd(&iocb, evfd);
-	assert(1 == io_submit(ctx, 1, iocbs));
-        write(evfd, &val, 8);
-}
+    Or:
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        flush_deferred_bios+0x136/0x170
+        raid5_do_work+0x262/0x330
 
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Link: https://lore.kernel.org/r/20220816135959.1490641-1-dylany@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ 2) The r5l_reclaim thread will hang in the same way, submitting a
+    bio to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        submit_bio+0x3f/0xf0
+        md_super_write+0x12f/0x1b0
+        md_update_sb.part.0+0x7c6/0xff0
+        md_update_sb+0x30/0x60
+        r5l_do_reclaim+0x4f9/0x5e0
+        r5l_reclaim_thread+0x69/0x30b
+
+    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
+    set for sb_flags in r5l_write_super_and_discard_space(). This
+    flag will never be cleared because the submit_bio() call never
+    returns.
+
+ 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
+    will do no processing on any pending stripes and re-set
+    STRIPE_HANDLE. This will cause the raid5d thread to enter an
+    infinite loop, constantly trying to handle the same stripes
+    stuck in the queue.
+
+    The raid5d thread has a blk_plug that holds a number of bios
+    that are also stuck waiting seeing the thread is in a loop
+    that never schedules. These bios have been accounted for by
+    blk-wbt thus preventing the other threads above from
+    continuing when they try to submit bios. --Deadlock.
+
+To fix this, add the same wait_event() that is used in raid5_do_work()
+to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
+schedule and wait until the flag is cleared. The schedule action will
+flush the plug which will allow the r5l_reclaim thread to continue,
+thus preventing the deadlock.
+
+However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
+from the same thread and can thus deadlock if the thread is put to
+sleep. So avoid waiting if md_check_recovery() is being called in the
+loop.
+
+It's not clear when the deadlock was introduced, but the similar
+wait_event() call in raid5_do_work() was added in 2017 by this
+commit:
+
+    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
+                   is updated.")
+
+Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventfd.c            | 10 +++++++---
- include/linux/eventfd.h |  2 +-
- include/linux/sched.h   |  2 +-
- 3 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/md/raid5.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/eventfd.c b/fs/eventfd.c
-index 3627dd7d25db..c0ffee99ad23 100644
---- a/fs/eventfd.c
-+++ b/fs/eventfd.c
-@@ -69,17 +69,17 @@ __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
- 	 * it returns false, the eventfd_signal() call should be deferred to a
- 	 * safe context.
- 	 */
--	if (WARN_ON_ONCE(current->in_eventfd_signal))
-+	if (WARN_ON_ONCE(current->in_eventfd))
- 		return 0;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 19e497a7e747..169d27dcad50 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -36,6 +36,7 @@
+  */
  
- 	spin_lock_irqsave(&ctx->wqh.lock, flags);
--	current->in_eventfd_signal = 1;
-+	current->in_eventfd = 1;
- 	if (ULLONG_MAX - ctx->count < n)
- 		n = ULLONG_MAX - ctx->count;
- 	ctx->count += n;
- 	if (waitqueue_active(&ctx->wqh))
- 		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
--	current->in_eventfd_signal = 0;
-+	current->in_eventfd = 0;
- 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
- 
- 	return n;
-@@ -253,8 +253,10 @@ static ssize_t eventfd_read(struct kiocb *iocb, struct iov_iter *to)
- 		__set_current_state(TASK_RUNNING);
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/raid/pq.h>
+ #include <linux/async_tx.h>
+@@ -6522,7 +6523,18 @@ static void raid5d(struct md_thread *thread)
+ 			spin_unlock_irq(&conf->device_lock);
+ 			md_check_recovery(mddev);
+ 			spin_lock_irq(&conf->device_lock);
++
++			/*
++			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
++			 * seeing md_check_recovery() is needed to clear
++			 * the flag when using mdmon.
++			 */
++			continue;
+ 		}
++
++		wait_event_lock_irq(mddev->sb_wait,
++			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
++			conf->device_lock);
  	}
- 	eventfd_ctx_do_read(ctx, &ucnt);
-+	current->in_eventfd = 1;
- 	if (waitqueue_active(&ctx->wqh))
- 		wake_up_locked_poll(&ctx->wqh, EPOLLOUT);
-+	current->in_eventfd = 0;
- 	spin_unlock_irq(&ctx->wqh.lock);
- 	if (unlikely(copy_to_iter(&ucnt, sizeof(ucnt), to) != sizeof(ucnt)))
- 		return -EFAULT;
-@@ -301,8 +303,10 @@ static ssize_t eventfd_write(struct file *file, const char __user *buf, size_t c
- 	}
- 	if (likely(res > 0)) {
- 		ctx->count += ucnt;
-+		current->in_eventfd = 1;
- 		if (waitqueue_active(&ctx->wqh))
- 			wake_up_locked_poll(&ctx->wqh, EPOLLIN);
-+		current->in_eventfd = 0;
- 	}
- 	spin_unlock_irq(&ctx->wqh.lock);
+ 	pr_debug("%d stripes handled\n", handled);
  
-diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
-index 305d5f19093b..30eb30d6909b 100644
---- a/include/linux/eventfd.h
-+++ b/include/linux/eventfd.h
-@@ -46,7 +46,7 @@ void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt);
- 
- static inline bool eventfd_signal_allowed(void)
- {
--	return !current->in_eventfd_signal;
-+	return !current->in_eventfd;
- }
- 
- #else /* CONFIG_EVENTFD */
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index dcba347cbffa..e418935f8db6 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -933,7 +933,7 @@ struct task_struct {
- #endif
- #ifdef CONFIG_EVENTFD
- 	/* Recursion prevention for eventfd_signal() */
--	unsigned			in_eventfd_signal:1;
-+	unsigned			in_eventfd:1;
- #endif
- 
- 	unsigned long			atomic_flags; /* Flags requiring atomic access. */
 -- 
 2.35.1
 
