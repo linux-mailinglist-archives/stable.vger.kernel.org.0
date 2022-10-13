@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 700FA5FDFFA
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2C685FDFEC
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230427AbiJMSCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58800 "EHLO
+        id S230332AbiJMSB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230384AbiJMSBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:48 -0400
+        with ESMTP id S230311AbiJMSBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62595160EDF;
-        Thu, 13 Oct 2022 11:01:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB79A11A96A;
+        Thu, 13 Oct 2022 11:01:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 281516192D;
-        Thu, 13 Oct 2022 17:57:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30B6EC433C1;
-        Thu, 13 Oct 2022 17:57:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF6A26190D;
+        Thu, 13 Oct 2022 17:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1C3CC433D6;
+        Thu, 13 Oct 2022 17:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683855;
-        bh=uIlkY5Zeiam6CYpFKVqUgIhLspxK9NxVICIPnnLsybs=;
+        s=korg; t=1665683829;
+        bh=MRRy+iry6nMIHRBsR08AYThjrld3/PB8Shx9bs0SHME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8kWtT6WKEzCMZbkPgJ82m8le34k7usL7pfm8iF1FVl1LOY5Hq2Yuf4yzZXGtCHy7
-         /rlH+71TLCAzLctgaME4w7oP06OyBAto8i5jKeB+xLF7nzYZw78KdupufLHPGMfqRj
-         mbSjeSJOhOx8vb4PovHiw8TI5mMHGhDtX85hzVYs=
+        b=kvSDcDTOPem1NsBuqbteN9YII/69pT+MyomX+Sdx+zP2yddHB7PL1FXs2mbGeLGtm
+         uHK1pTmh608bhfcsuuGew/M74NOdeppbqdOqnlePjZlHaBetjsiISVNiywPVacKIsD
+         yBRNbwa1rhW1ZzitSP7ip6yHxVkXBbRFR4hueHEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 14/27] random: avoid reading two cache lines on irq randomness
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 49/54] wifi: mac80211: fix crash in beacon protection for P2P-device
 Date:   Thu, 13 Oct 2022 19:52:43 +0200
-Message-Id: <20221013175144.060241859@linuxfoundation.org>
+Message-Id: <20221013175148.521932298@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
-References: <20221013175143.518476113@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 9ee0507e896b45af6d65408c77815800bce30008 upstream.
+commit b2d03cabe2b2e150ff5a381731ea0355459be09f upstream.
 
-In order to avoid reading and dirtying two cache lines on every IRQ,
-move the work_struct to the bottom of the fast_pool struct. add_
-interrupt_randomness() always touches .pool and .count, which are
-currently split, because .mix pushes everything down. Instead, move .mix
-to the bottom, so that .pool and .count are always in the first cache
-line, since .mix is only accessed when the pool is full.
+If beacon protection is active but the beacon cannot be
+decrypted or is otherwise malformed, we call the cfg80211
+API to report this to userspace, but that uses a netdev
+pointer, which isn't present for P2P-Device. Fix this to
+call it only conditionally to ensure cfg80211 won't crash
+in the case of P2P-Device.
 
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+This fixes CVE-2022-42722.
+
+Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 9eaf183af741 ("mac80211: Report beacon protection failures to user space")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/rx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -894,10 +894,10 @@ void __init add_bootloader_randomness(co
- }
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1975,10 +1975,11 @@ ieee80211_rx_h_decrypt(struct ieee80211_
  
- struct fast_pool {
--	struct work_struct mix;
- 	unsigned long pool[4];
- 	unsigned long last;
- 	unsigned int count;
-+	struct work_struct mix;
- };
+ 		if (mmie_keyidx < NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS ||
+ 		    mmie_keyidx >= NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS +
+-		    NUM_DEFAULT_BEACON_KEYS) {
+-			cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
+-						     skb->data,
+-						     skb->len);
++				   NUM_DEFAULT_BEACON_KEYS) {
++			if (rx->sdata->dev)
++				cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
++							     skb->data,
++							     skb->len);
+ 			return RX_DROP_MONITOR; /* unexpected BIP keyidx */
+ 		}
  
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
+@@ -2126,7 +2127,8 @@ ieee80211_rx_h_decrypt(struct ieee80211_
+ 	/* either the frame has been decrypted or will be dropped */
+ 	status->flag |= RX_FLAG_DECRYPTED;
+ 
+-	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE))
++	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE &&
++		     rx->sdata->dev))
+ 		cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
+ 					     skb->data, skb->len);
+ 
 
 
