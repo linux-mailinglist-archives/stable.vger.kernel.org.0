@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD205FDF7A
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3864A5FDF6D
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229973AbiJMRyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
+        id S229816AbiJMRyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:54:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbiJMRyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7266153817;
-        Thu, 13 Oct 2022 10:53:28 -0700 (PDT)
+        with ESMTP id S229873AbiJMRxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8679F152036;
+        Thu, 13 Oct 2022 10:53:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 633D6B82025;
-        Thu, 13 Oct 2022 17:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB7FAC433C1;
-        Thu, 13 Oct 2022 17:53:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FA28618F6;
+        Thu, 13 Oct 2022 17:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90889C433C1;
+        Thu, 13 Oct 2022 17:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683605;
-        bh=noRvJC0nVSYY32afoEmpgXwbaIEjxRMiF+BbGEX269k=;
+        s=korg; t=1665683607;
+        bh=xm4dJk+a4xXbTCFuEdRLmVRDxS983Q+yBTlQeFFvqXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wG67tqKxeI2/D3k3e/8VSsvN2nW8QEnk7CXXCgp1x1+dHVvJsD1fi0Xb9ssgClANC
-         5LqEUh8GTSQjcx8c9xBNDrVdy+aQY5fidF32Rmuj1S+yPEON4j7WDUsRlMfUI50Xkh
-         BTbMOPkJ6fX55QsJFnsacTIgYdw0l3rfVVZjxY5o=
+        b=Cx7IJILNThn8KiT5Gxl2hO1kj1mLvmrKiPKhPUSlcfG63EEzikEzXl6Jd/T7ydQPL
+         4zgzWkxY179bWveUbHfRsy6fd51QawMThE5NpO977JjrO3j279Kr9eq7EFbTFdqY5t
+         jOnnCRt/GehoRfFRYC8qAezOiDm+PuE9/mND8a1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        hdthky <hdthky0@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 25/38] scsi: stex: Properly zero out the passthrough command structure
-Date:   Thu, 13 Oct 2022 19:52:26 +0200
-Message-Id: <20221013175145.100366344@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 26/38] USB: serial: qcserial: add new usb-id for Dell branded EM7455
+Date:   Thu, 13 Oct 2022 19:52:27 +0200
+Message-Id: <20221013175145.130342857@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
 References: <20221013175144.245431424@linuxfoundation.org>
@@ -56,68 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-commit 6022f210461fef67e6e676fd8544ca02d1bcfa7a upstream.
+commit eee48781ea199e32c1d0c4732641c494833788ca upstream.
 
-The passthrough structure is declared off of the stack, so it needs to be
-set to zero before copied back to userspace to prevent any unintentional
-data leakage.  Switch things to be statically allocated which will fill the
-unused fields with 0 automatically.
+Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
 
-Link: https://lore.kernel.org/r/YxrjN3OOw2HHl9tx@kroah.com
-Cc: stable@kernel.org
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Reported-by: hdthky <hdthky0@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/stex.c      |   17 +++++++++--------
- include/scsi/scsi_cmnd.h |    2 +-
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ drivers/usb/serial/qcserial.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/stex.c
-+++ b/drivers/scsi/stex.c
-@@ -668,16 +668,17 @@ stex_queuecommand_lck(struct scsi_cmnd *
- 		return 0;
- 	case PASSTHRU_CMD:
- 		if (cmd->cmnd[1] == PASSTHRU_GET_DRVVER) {
--			struct st_drvver ver;
-+			const struct st_drvver ver = {
-+				.major = ST_VER_MAJOR,
-+				.minor = ST_VER_MINOR,
-+				.oem = ST_OEM,
-+				.build = ST_BUILD_VER,
-+				.signature[0] = PASSTHRU_SIGNATURE,
-+				.console_id = host->max_id - 1,
-+				.host_no = hba->host->host_no,
-+			};
- 			size_t cp_len = sizeof(ver);
- 
--			ver.major = ST_VER_MAJOR;
--			ver.minor = ST_VER_MINOR;
--			ver.oem = ST_OEM;
--			ver.build = ST_BUILD_VER;
--			ver.signature[0] = PASSTHRU_SIGNATURE;
--			ver.console_id = host->max_id - 1;
--			ver.host_no = hba->host->host_no;
- 			cp_len = scsi_sg_copy_from_buffer(cmd, &ver, cp_len);
- 			cmd->result = sizeof(ver) == cp_len ?
- 				DID_OK << 16 | COMMAND_COMPLETE << 8 :
---- a/include/scsi/scsi_cmnd.h
-+++ b/include/scsi/scsi_cmnd.h
-@@ -204,7 +204,7 @@ static inline int scsi_get_resid(struct
- 	for_each_sg(scsi_sglist(cmd), sg, nseg, __i)
- 
- static inline int scsi_sg_copy_from_buffer(struct scsi_cmnd *cmd,
--					   void *buf, int buflen)
-+					   const void *buf, int buflen)
- {
- 	return sg_copy_from_buffer(scsi_sglist(cmd), scsi_sg_count(cmd),
- 				   buf, buflen);
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -177,6 +177,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
+ 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
++	{DEVICE_SWI(0x413c, 0x81c2)},	/* Dell Wireless 5811e */
+ 	{DEVICE_SWI(0x413c, 0x81cb)},	/* Dell Wireless 5816e QDL */
+ 	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
+ 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
 
 
