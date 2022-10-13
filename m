@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58AFA5FE0AE
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7A1C5FE018
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231776AbiJMSM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:12:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39052 "EHLO
+        id S230315AbiJMSEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbiJMSMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53435163388;
-        Thu, 13 Oct 2022 11:09:16 -0700 (PDT)
+        with ESMTP id S230520AbiJMSDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA8216F419;
+        Thu, 13 Oct 2022 11:03:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55A10B820BF;
-        Thu, 13 Oct 2022 18:02:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF53C433D7;
-        Thu, 13 Oct 2022 18:02:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 100B56190E;
+        Thu, 13 Oct 2022 17:56:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B54BC433D6;
+        Thu, 13 Oct 2022 17:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684134;
-        bh=Tpy11LMGiLfANUN3J/Jhm3VW7QyD+W+Gr7dQ2ylbtK8=;
+        s=korg; t=1665683802;
+        bh=w7/9AVzZ9ndeBeSxC7PHlgXCtfuyzqO6drfGK0LwTx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vAJPOnsvjxQq8WCOTQSC+OueilSVA+dxfayz2TCwjIhhp9h7DW4PPQOKF0BVeHZIA
-         jgsQICjAjuHOdclTJPQwy7SgeAnGZhOlb5Bd1gPnRmeBZW1mZ+2wJIzTJyk6bBgjKQ
-         qtO7ypZzfPSc4idjBPXcRYD+oQeugvGM1FkYL76o=
+        b=fv9hnyuq9MgM7J0GaKDYByKCEivL0pS1Ugl2rF/o/iHUKIMxJI4kcHZt6YLqLZuaD
+         0sr4PS/ZF3oWxz7NZZbN7LRdCNIAvkVp1DtY7McUaDyzCLaSuRKoZHJ4F2zG6Smlk6
+         i17UhiTRZLoM48fxkuv1H/2s30OgIZ4oHRalKTnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.0 09/34] ALSA: hda/realtek: Add quirk for HP Zbook Firefly 14 G9 model
+        stable@vger.kernel.org, Shunsuke Mie <mie@igel.co.jp>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.10 53/54] misc: pci_endpoint_test: Aggregate params checking for xfer
 Date:   Thu, 13 Oct 2022 19:52:47 +0200
-Message-Id: <20221013175146.764976386@linuxfoundation.org>
+Message-Id: <20221013175148.617518003@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-References: <20221013175146.507746257@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,69 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Shunsuke Mie <mie@igel.co.jp>
 
-commit 225f6e1bc151978041595c7d2acaded3aac41f54 upstream.
+commit 3e42deaac06567c7e86d287c305ccda24db4ae3d upstream.
 
-HP Zbook Firefly 14 G9 model (103c:8abb) requires yet another binding
-with CS35L41 codec, but with a slightly different configuration.  It's
-over spi1 instead of spi0.  Create a new fixup entry for that.
+Each transfer test functions have same parameter checking code. This patch
+unites those to an introduced function.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220929061455.13355-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220907020100.122588-1-mie@igel.co.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/misc/pci_endpoint_test.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6741,6 +6741,11 @@ static void cs35l41_fixup_spi_two(struct
- 	cs35l41_generic_fixup(codec, action, "spi0", "CSC3551", 2);
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -331,6 +331,17 @@ static bool pci_endpoint_test_msi_irq(st
+ 	return false;
  }
  
-+static void cs35l41_fixup_spi1_two(struct hda_codec *codec, const struct hda_fixup *fix, int action)
++static int pci_endpoint_test_validate_xfer_params(struct device *dev,
++		struct pci_endpoint_test_xfer_param *param, size_t alignment)
 +{
-+	cs35l41_generic_fixup(codec, action, "spi1", "CSC3551", 2);
++	if (param->size > SIZE_MAX - alignment) {
++		dev_dbg(dev, "Maximum transfer data size exceeded\n");
++		return -EINVAL;
++	}
++
++	return 0;
 +}
 +
- static void cs35l41_fixup_spi_four(struct hda_codec *codec, const struct hda_fixup *fix, int action)
+ static bool pci_endpoint_test_copy(struct pci_endpoint_test *test,
+ 				   unsigned long arg)
  {
- 	cs35l41_generic_fixup(codec, action, "spi0", "CSC3551", 4);
-@@ -7132,6 +7137,8 @@ enum {
- 	ALC287_FIXUP_CS35L41_I2C_2_HP_GPIO_LED,
- 	ALC245_FIXUP_CS35L41_SPI_2,
- 	ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED,
-+	ALC245_FIXUP_CS35L41_SPI1_2,
-+	ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED,
- 	ALC245_FIXUP_CS35L41_SPI_4,
- 	ALC245_FIXUP_CS35L41_SPI_4_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
-@@ -8979,6 +8986,16 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC285_FIXUP_HP_GPIO_LED,
- 	},
-+	[ALC245_FIXUP_CS35L41_SPI1_2] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = cs35l41_fixup_spi1_two,
-+	},
-+	[ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = cs35l41_fixup_spi1_two,
-+		.chained = true,
-+		.chain_id = ALC285_FIXUP_HP_GPIO_LED,
-+	},
- 	[ALC245_FIXUP_CS35L41_SPI_4] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = cs35l41_fixup_spi_four,
-@@ -9341,6 +9358,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8aa3, "HP ProBook 450 G9 (MB 8AA1)", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8aa8, "HP EliteBook 640 G9 (MB 8AA6)", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8aab, "HP EliteBook 650 G9 (MB 8AA9)", ALC236_FIXUP_HP_GPIO_LED),
-+	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad1, "HP EliteBook 840 14 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad2, "HP EliteBook 860 16 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+@@ -362,9 +373,11 @@ static bool pci_endpoint_test_copy(struc
+ 		return false;
+ 	}
+ 
++	err = pci_endpoint_test_validate_xfer_params(dev, &param, alignment);
++	if (err)
++		return false;
++
+ 	size = param.size;
+-	if (size > SIZE_MAX - alignment)
+-		goto err;
+ 
+ 	use_dma = !!(param.flags & PCITEST_FLAGS_USE_DMA);
+ 	if (use_dma)
+@@ -496,9 +509,11 @@ static bool pci_endpoint_test_write(stru
+ 		return false;
+ 	}
+ 
++	err = pci_endpoint_test_validate_xfer_params(dev, &param, alignment);
++	if (err)
++		return false;
++
+ 	size = param.size;
+-	if (size > SIZE_MAX - alignment)
+-		goto err;
+ 
+ 	use_dma = !!(param.flags & PCITEST_FLAGS_USE_DMA);
+ 	if (use_dma)
+@@ -594,9 +609,11 @@ static bool pci_endpoint_test_read(struc
+ 		return false;
+ 	}
+ 
++	err = pci_endpoint_test_validate_xfer_params(dev, &param, alignment);
++	if (err)
++		return false;
++
+ 	size = param.size;
+-	if (size > SIZE_MAX - alignment)
+-		goto err;
+ 
+ 	use_dma = !!(param.flags & PCITEST_FLAGS_USE_DMA);
+ 	if (use_dma)
 
 
