@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9309F5FDFAA
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91B75FDFB4
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230218AbiJMR5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
+        id S230212AbiJMR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230008AbiJMR4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00DC3A4AB;
-        Thu, 13 Oct 2022 10:54:58 -0700 (PDT)
+        with ESMTP id S230055AbiJMR5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE41159D56;
+        Thu, 13 Oct 2022 10:55:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC964B82026;
-        Thu, 13 Oct 2022 17:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 375CDC43146;
-        Thu, 13 Oct 2022 17:54:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A595D618DE;
+        Thu, 13 Oct 2022 17:55:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ABB6C43142;
+        Thu, 13 Oct 2022 17:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683664;
-        bh=OEVHSmyP6ry9HP1rzqnCniac1P21E4uC7zWTb3gHzHk=;
+        s=korg; t=1665683735;
+        bh=iAr2bdd55JyX61KwNHcOrbz7/shgwLEETzjHoF0LZbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbXUTaGXXlvaTdVPsC/IIwX3f1g+QcbOttriTCuRE6krHQyUIwy7e74NoMX8H9oFA
-         P/crnrM1QwY0WWsISa68tEJy1WJhm6Py78aVOTXvxyHQ/x6xTpXUOSQRYu/Nt6mNdT
-         Hyo27Tz45xHe/89FK7i1JYmy5S/0DZj5tFw0OMmw=
+        b=G7dCUAWeUX74GQNvGRD7u4Ks7gOB/kxHOt50y4rMZAcwJU7hiU0abkM2kPiQ0fTII
+         T1PGd55eSUXkz1n3VQ3YNbipvjerLtnjxfOeo1FDHZM+QTG9iUnaNCyktwIkk4Vxyt
+         uhkftImp9OBWB/7o7BIk+lsGC/L2jsky5suKL19M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
-        Samuel Jiang <chyishian.jiang@gmail.com>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.4 24/38] efi: Correct Macmini DMI match in uefi cert quirk
-Date:   Thu, 13 Oct 2022 19:52:25 +0200
-Message-Id: <20221013175145.067376295@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 32/54] USB: serial: ftdi_sio: fix 300 bps rate for SIO
+Date:   Thu, 13 Oct 2022 19:52:26 +0200
+Message-Id: <20221013175148.131466005@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Orlando Chamberlain <redecorating@protonmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit bab715bdaa9ebf28d99a6d1efb2704a30125e96d upstream.
+commit 7bd7ad3c310cd6766f170927381eea0aa6f46c69 upstream.
 
-It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
-is inconsistent with other model line names.
+The 300 bps rate of SIO devices has been mapped to 9600 bps since
+2003... Let's fix the regression.
 
-Correct the capitalisation of Macmini in the quirk for skipping loading
-platform certs on T2 Macs.
-
-Currently users get:
-
-------------[ cut here ]------------
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
-WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x55/0xe0
-Modules linked in:
-CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3fc40fd08edab32a509fbf4c9bc52d111e
-Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
-Workqueue: efi_rts_wq efi_call_rts
-...
----[ end trace 0000000000000000 ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-
-Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
 Cc: stable@vger.kernel.org
-Cc: Aditya Garg <gargaditya08@live.com>
-Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
-Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/platform_certs/load_uefi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -30,7 +30,7 @@ static const struct dmi_system_id uefi_s
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
--	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1320,8 +1320,7 @@ static u32 get_ftdi_divisor(struct tty_s
+ 		case 38400: div_value = ftdi_sio_b38400; break;
+ 		case 57600: div_value = ftdi_sio_b57600;  break;
+ 		case 115200: div_value = ftdi_sio_b115200; break;
+-		} /* baud */
+-		if (div_value == 0) {
++		default:
+ 			dev_dbg(dev, "%s - Baudrate (%d) requested is not supported\n",
+ 				__func__,  baud);
+ 			div_value = ftdi_sio_b9600;
 
 
