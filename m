@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D35885FD2B3
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3CF5FD074
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbiJMBhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 21:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
+        id S231295AbiJMA1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:27:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229646AbiJMBh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:37:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E38A312B37A;
-        Wed, 12 Oct 2022 18:37:25 -0700 (PDT)
+        with ESMTP id S230150AbiJMAZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:25:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2935FF2;
+        Wed, 12 Oct 2022 17:24:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32B5B616BD;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40DE5B81CE7;
+        Thu, 13 Oct 2022 00:22:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 168BDC433D6;
         Thu, 13 Oct 2022 00:22:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F21C43141;
-        Thu, 13 Oct 2022 00:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620551;
-        bh=CnoPWG8zf2q9zdiKSXsmVeJ9jCHX55ksx2BtQoba0JE=;
+        s=k20201202; t=1665620553;
+        bh=D8ozL383GaaeAGtKQvIA9IdpVRSMEvGm6dPoBfIkAio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndM8nn7KCM6W7cNX0yxd3kmjnsLfr8CdEsy7lf82gllEldai4b5ycf7u9mGHUqmjF
-         z0UzQuATRWX9cZqFGv2G9laiOgczguWWeoSTB/k0qWR6qYP/F5d0Ky9zUKl2KkuCYN
-         b1egKf0v5Jx5uP2dz8pYP5ic0MQg6i3Mf7VhH4Oh0LEUTX5Ya+GwqXdJpDT9oDmqdn
-         Ba313nAGi6ha1cfH3TwEuXRpNi/w5xyVQhJs+/FsOIBFrQTIs9MyhAkLgu9I0EH4LD
-         X9ikP51n7yubd8OVUpGrmo7bzBB3ARv6I8otCBhWX1P0q10zMD8NyXqD3W0nJMzaxk
-         XSQLugdBqi6GQ==
+        b=o7Ih4Zllw0t35dI72Y0ouVrT8K48CaARYsfUQZpgVYvh2oYSnJlsyT4lYC2hj2wYp
+         p6obxU278covql/uSbBzUW5/aiBJMx9s7hXUzQO1juFMcibg/UAzEqn0U/H9ib2tan
+         OmRVJRsHnQvfAs1nNZ0YVpiIz3vZDSkO/iSXfs4EveYvyAr6S1tJPt8SD3KFnEVya3
+         vMfVikgGFLg5cgeAguXgVKQt8NaDfpp0f0RJkL/ePN8IARxic+gQkwBM6SB578tC3d
+         9jlRyGFhrnop2t7gV9RiQIVhLLpIuKJKSnh8HsbrP39spR3rt0J+dhsTH1Gti5WDN7
+         eoPVbdo/601AQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     farah kassabri <fkassabri@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        obitton@habana.ai, osharabi@habana.ai, ttayar@habana.ai,
-        dliberman@habana.ai
-Subject: [PATCH AUTOSEL 5.15 24/47] habanalabs: remove some f/w descriptor validations
-Date:   Wed, 12 Oct 2022 20:20:59 -0400
-Message-Id: <20221013002124.1894077-24-sashal@kernel.org>
+Cc:     Hyunwoo Kim <imv4bel@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>,
+        erazor_de@users.sourceforge.net, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 25/47] HID: roccat: Fix use-after-free in roccat_read()
+Date:   Wed, 12 Oct 2022 20:21:00 -0400
+Message-Id: <20221013002124.1894077-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -57,106 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: farah kassabri <fkassabri@habana.ai>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit 6b9b9e244fdd0d6c5ee21b7b9d74282d9e43733a ]
+[ Upstream commit cacdb14b1c8d3804a3a7d31773bc7569837b71a4 ]
 
-To be forward-backward compatible with the firmware in the initial
-communication during preboot, we need to remove the validation of the
-header size. This will allow us to add more fields to the
-lkd_fw_comms_desc structure.
+roccat_report_event() is responsible for registering
+roccat-related reports in struct roccat_device.
 
-Instead of the validation of the header size, we just print warning
-when some mismatch in descriptor has been revealed, and we calculate
-the CRC base on descriptor size reported by the firmware instead of
-calculating it ourselves.
+int roccat_report_event(int minor, u8 const *data)
+{
+	struct roccat_device *device;
+	struct roccat_reader *reader;
+	struct roccat_report *report;
+	uint8_t *new_value;
 
-Signed-off-by: farah kassabri <fkassabri@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+	device = devices[minor];
+
+	new_value = kmemdup(data, device->report_size, GFP_ATOMIC);
+	if (!new_value)
+		return -ENOMEM;
+
+	report = &device->cbuf[device->cbuf_end];
+
+	/* passing NULL is safe */
+	kfree(report->value);
+	...
+
+The registered report is stored in the struct roccat_device member
+"struct roccat_report cbuf[ROCCAT_CBUF_SIZE];".
+If more reports are received than the "ROCCAT_CBUF_SIZE" value,
+kfree() the saved report from cbuf[0] and allocates a new reprot.
+Since there is no lock when this kfree() is performed,
+kfree() can be performed even while reading the saved report.
+
+static ssize_t roccat_read(struct file *file, char __user *buffer,
+		size_t count, loff_t *ppos)
+{
+	struct roccat_reader *reader = file->private_data;
+	struct roccat_device *device = reader->device;
+	struct roccat_report *report;
+	ssize_t retval = 0, len;
+	DECLARE_WAITQUEUE(wait, current);
+
+	mutex_lock(&device->cbuf_lock);
+
+	...
+
+	report = &device->cbuf[reader->cbuf_start];
+	/*
+	 * If report is larger than requested amount of data, rest of report
+	 * is lost!
+	 */
+	len = device->report_size > count ? count : device->report_size;
+
+	if (copy_to_user(buffer, report->value, len)) {
+		retval = -EFAULT;
+		goto exit_unlock;
+	}
+	...
+
+The roccat_read() function receives the device->cbuf report and
+delivers it to the user through copy_to_user().
+If the N+ROCCAT_CBUF_SIZE th report is received while copying of
+the Nth report->value is in progress, the pointer that copy_to_user()
+is working on is kfree()ed and UAF read may occur. (race condition)
+
+Since the device node of this driver does not set separate permissions,
+this is not a security vulnerability, but because it is used for
+requesting screen display of profile or dpi settings,
+a user using the roccat device can apply udev to this device node or
+There is a possibility to use it by giving.
+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/firmware_if.c | 43 +++++++-------------
- 1 file changed, 14 insertions(+), 29 deletions(-)
+ drivers/hid/hid-roccat.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
-index a8e683964ab0..5d08c1f660fd 100644
---- a/drivers/misc/habanalabs/common/firmware_if.c
-+++ b/drivers/misc/habanalabs/common/firmware_if.c
-@@ -1638,50 +1638,36 @@ static int hl_fw_dynamic_validate_descriptor(struct hl_device *hdev,
- 	u64 addr;
- 	int rc;
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 26373b82fe81..6da80e442fdd 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -257,6 +257,8 @@ int roccat_report_event(int minor, u8 const *data)
+ 	if (!new_value)
+ 		return -ENOMEM;
  
--	if (le32_to_cpu(fw_desc->header.magic) != HL_COMMS_DESC_MAGIC) {
--		dev_err(hdev->dev, "Invalid magic for dynamic FW descriptor (%x)\n",
-+	if (le32_to_cpu(fw_desc->header.magic) != HL_COMMS_DESC_MAGIC)
-+		dev_warn(hdev->dev, "Invalid magic for dynamic FW descriptor (%x)\n",
- 				fw_desc->header.magic);
--		return -EIO;
--	}
++	mutex_lock(&device->cbuf_lock);
++
+ 	report = &device->cbuf[device->cbuf_end];
  
--	if (fw_desc->header.version != HL_COMMS_DESC_VER) {
--		dev_err(hdev->dev, "Invalid version for dynamic FW descriptor (%x)\n",
-+	if (fw_desc->header.version != HL_COMMS_DESC_VER)
-+		dev_warn(hdev->dev, "Invalid version for dynamic FW descriptor (%x)\n",
- 				fw_desc->header.version);
--		return -EIO;
--	}
- 
- 	/*
--	 * calc CRC32 of data without header.
-+	 * Calc CRC32 of data without header. use the size of the descriptor
-+	 * reported by firmware, without calculating it ourself, to allow adding
-+	 * more fields to the lkd_fw_comms_desc structure.
- 	 * note that no alignment/stride address issues here as all structures
--	 * are 64 bit padded
-+	 * are 64 bit padded.
- 	 */
--	data_size = sizeof(struct lkd_fw_comms_desc) -
--					sizeof(struct comms_desc_header);
- 	data_ptr = (u8 *)fw_desc + sizeof(struct comms_desc_header);
--
--	if (le16_to_cpu(fw_desc->header.size) != data_size) {
--		dev_err(hdev->dev,
--			"Invalid descriptor size 0x%x, expected size 0x%zx\n",
--				le16_to_cpu(fw_desc->header.size), data_size);
--		return -EIO;
--	}
-+	data_size = le16_to_cpu(fw_desc->header.size);
- 
- 	data_crc32 = hl_fw_compat_crc32(data_ptr, data_size);
--
- 	if (data_crc32 != le32_to_cpu(fw_desc->header.crc32)) {
--		dev_err(hdev->dev,
--			"CRC32 mismatch for dynamic FW descriptor (%x:%x)\n",
--					data_crc32, fw_desc->header.crc32);
-+		dev_err(hdev->dev, "CRC32 mismatch for dynamic FW descriptor (%x:%x)\n",
-+			data_crc32, fw_desc->header.crc32);
- 		return -EIO;
+ 	/* passing NULL is safe */
+@@ -276,6 +278,8 @@ int roccat_report_event(int minor, u8 const *data)
+ 			reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
  	}
  
- 	/* find memory region to which to copy the image */
- 	addr = le64_to_cpu(fw_desc->img_addr);
- 	region_id = hl_get_pci_memory_region(hdev, addr);
--	if ((region_id != PCI_REGION_SRAM) &&
--			((region_id != PCI_REGION_DRAM))) {
--		dev_err(hdev->dev,
--			"Invalid region to copy FW image address=%llx\n", addr);
-+	if ((region_id != PCI_REGION_SRAM) && ((region_id != PCI_REGION_DRAM))) {
-+		dev_err(hdev->dev, "Invalid region to copy FW image address=%llx\n", addr);
- 		return -EIO;
- 	}
- 
-@@ -1698,8 +1684,7 @@ static int hl_fw_dynamic_validate_descriptor(struct hl_device *hdev,
- 					fw_loader->dynamic_loader.fw_image_size,
- 					region);
- 	if (rc) {
--		dev_err(hdev->dev,
--			"invalid mem transfer request for FW image\n");
-+		dev_err(hdev->dev, "invalid mem transfer request for FW image\n");
- 		return rc;
- 	}
- 
++	mutex_unlock(&device->cbuf_lock);
++
+ 	wake_up_interruptible(&device->wait);
+ 	return 0;
+ }
 -- 
 2.35.1
 
