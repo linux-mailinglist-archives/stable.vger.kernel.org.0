@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 880405FDA33
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A73B35FDA35
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbiJMNRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 09:17:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60494 "EHLO
+        id S229735AbiJMNR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 09:17:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229735AbiJMNRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:17:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C27B15DB1E
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:17:45 -0700 (PDT)
+        with ESMTP id S229941AbiJMNRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:17:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67E2316EB71
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:17:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 980DB617A0
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E6AFC433D6;
-        Thu, 13 Oct 2022 13:17:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 059E1617A6
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:17:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BAEC433D6;
+        Thu, 13 Oct 2022 13:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665667065;
-        bh=vgOT3VSziMXDlxqwqLVhKj3hLkdbBA3CcGChDa2+0ss=;
+        s=korg; t=1665667073;
+        bh=R9gdyiMRkPIHsjnUC0+HQ37CAKwFDtWpadv4PHHZqAI=;
         h=Subject:To:Cc:From:Date:From;
-        b=B23h/V+IVd/y6HTIbzufW3EAlUrMkxAx1KZmXcMUTy3cUHhqAakeflFuce7E+7Qmo
-         5BKd8P7PFaw55DJZCI9hipXiZs4h203VAXsi7HAH4Xl+l+JKJCokmkiSVKYtm9Vzh0
-         X2cvnc1Mf3Lh/25p5MSeGnHDOvAOTbA62o87Sd+0=
-Subject: FAILED: patch "[PATCH] random: use expired timer rather than wq for mixing fast pool" failed to apply to 4.9-stable tree
-To:     Jason@zx2c4.com, bigeasy@linutronix.de, colm.harrington@oracle.com,
-        jack.vogel@oracle.com, linux@dominikbrodowski.net,
-        nicky.veitch@oracle.com, paul.x.webb@oracle.com,
-        phillip.goerl@oracle.com, ramanan.govindarajan@oracle.com,
-        sherry.yang@oracle.com, sultan@kerneltoast.com, tj@kernel.org
+        b=hi3zfb7I8aI0ng4OTt2XfkMnNzMJzNBhEHW9RtLixwKkWpR53oqo6NiM43LxWczaH
+         2IKWBQhrTOhl/sVq7aj9SWO+BDnrE9zfZZsyAHV9Gy7hJ6aqHXWx4+fzPWslRhXV1n
+         InzhfDCCpEXTYlaBkAGmx/CjeaQB8Ixwgtl28cPI=
+Subject: FAILED: patch "[PATCH] riscv: fix build with binutils 2.38" failed to apply to 6.0-stable tree
+To:     aurelien@aurel32.net, alexandre.ghiti@canonical.com,
+        palmer@rivosinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Oct 2022 15:09:04 +0200
-Message-ID: <166566654417198@kroah.com>
+Date:   Thu, 13 Oct 2022 15:10:47 +0200
+Message-ID: <166566664730112@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -51,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,128 +60,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 748bc4dd9e663f23448d8ad7e58c011a67ea1eca Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Thu, 22 Sep 2022 18:46:04 +0200
-Subject: [PATCH] random: use expired timer rather than wq for mixing fast pool
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 6df2a016c0c8a3d0933ef33dd192ea6606b115e3 Mon Sep 17 00:00:00 2001
+From: Aurelien Jarno <aurelien@aurel32.net>
+Date: Wed, 26 Jan 2022 18:14:42 +0100
+Subject: [PATCH] riscv: fix build with binutils 2.38
 
-Previously, the fast pool was dumped into the main pool periodically in
-the fast pool's hard IRQ handler. This worked fine and there weren't
-problems with it, until RT came around. Since RT converts spinlocks into
-sleeping locks, problems cropped up. Rather than switching to raw
-spinlocks, the RT developers preferred we make the transformation from
-originally doing:
+From version 2.38, binutils default to ISA spec version 20191213. This
+means that the csr read/write (csrr*/csrw*) instructions and fence.i
+instruction has separated from the `I` extension, become two standalone
+extensions: Zicsr and Zifencei. As the kernel uses those instruction,
+this causes the following build failure:
 
-    do_some_stuff()
-    spin_lock()
-    do_some_other_stuff()
-    spin_unlock()
+  CC      arch/riscv/kernel/vdso/vgettimeofday.o
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
 
-to doing:
+The fix is to specify those extensions explicitely in -march. However as
+older binutils version do not support this, we first need to detect
+that.
 
-    do_some_stuff()
-    queue_work_on(some_other_stuff_worker)
-
-This is an ordinary pattern done all over the kernel. However, Sherry
-noticed a 10% performance regression in qperf TCP over a 40gbps
-InfiniBand card. Quoting her message:
-
-> MT27500 Family [ConnectX-3] cards:
-> Infiniband device 'mlx4_0' port 1 status:
-> default gid: fe80:0000:0000:0000:0010:e000:0178:9eb1
-> base lid: 0x6
-> sm lid: 0x1
-> state: 4: ACTIVE
-> phys state: 5: LinkUp
-> rate: 40 Gb/sec (4X QDR)
-> link_layer: InfiniBand
->
-> Cards are configured with IP addresses on private subnet for IPoIB
-> performance testing.
-> Regression identified in this bug is in TCP latency in this stack as reported
-> by qperf tcp_lat metric:
->
-> We have one system listen as a qperf server:
-> [root@yourQperfServer ~]# qperf
->
-> Have the other system connect to qperf server as a client (in this
-> case, it’s X7 server with Mellanox card):
-> [root@yourQperfClient ~]# numactl -m0 -N0 qperf 20.20.20.101 -v -uu -ub --time 60 --wait_server 20 -oo msg_size:4K:1024K:*2 tcp_lat
-
-Rather than incur the scheduling latency from queue_work_on, we can
-instead switch to running on the next timer tick, on the same core. This
-also batches things a bit more -- once per jiffy -- which is okay now
-that mix_interrupt_randomness() can credit multiple bits at once.
-
-Reported-by: Sherry Yang <sherry.yang@oracle.com>
-Tested-by: Paul Webb <paul.x.webb@oracle.com>
-Cc: Sherry Yang <sherry.yang@oracle.com>
-Cc: Phillip Goerl <phillip.goerl@oracle.com>
-Cc: Jack Vogel <jack.vogel@oracle.com>
-Cc: Nicky Veitch <nicky.veitch@oracle.com>
-Cc: Colm Harrington <colm.harrington@oracle.com>
-Cc: Ramanan Govindarajan <ramanan.govindarajan@oracle.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
 Cc: stable@vger.kernel.org
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index a90d96f4b3bb..e591c6aadca4 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -921,17 +921,20 @@ struct fast_pool {
- 	unsigned long pool[4];
- 	unsigned long last;
- 	unsigned int count;
--	struct work_struct mix;
-+	struct timer_list mix;
- };
- 
-+static void mix_interrupt_randomness(struct timer_list *work);
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 8a107ed18b0d..7d81102cffd4 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+ riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
+ riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
 +
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
- #ifdef CONFIG_64BIT
- #define FASTMIX_PERM SIPHASH_PERMUTATION
--	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 }
-+	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 },
- #else
- #define FASTMIX_PERM HSIPHASH_PERMUTATION
--	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 }
-+	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 },
- #endif
-+	.mix = __TIMER_INITIALIZER(mix_interrupt_randomness, 0)
- };
- 
- /*
-@@ -973,7 +976,7 @@ int __cold random_online_cpu(unsigned int cpu)
- }
- #endif
- 
--static void mix_interrupt_randomness(struct work_struct *work)
-+static void mix_interrupt_randomness(struct timer_list *work)
- {
- 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
- 	/*
-@@ -1027,10 +1030,11 @@ void add_interrupt_randomness(int irq)
- 	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
- 		return;
- 
--	if (unlikely(!fast_pool->mix.func))
--		INIT_WORK(&fast_pool->mix, mix_interrupt_randomness);
- 	fast_pool->count |= MIX_INFLIGHT;
--	queue_work_on(raw_smp_processor_id(), system_highpri_wq, &fast_pool->mix);
-+	if (!timer_pending(&fast_pool->mix)) {
-+		fast_pool->mix.expires = jiffies;
-+		add_timer_on(&fast_pool->mix, raw_smp_processor_id());
-+	}
- }
- EXPORT_SYMBOL_GPL(add_interrupt_randomness);
++# Newer binutils versions default to ISA spec version 20191213 which moves some
++# instructions from the I extension to the Zicsr and Zifencei extensions.
++toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
++riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
++
+ KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
+ KBUILD_AFLAGS += -march=$(riscv-march-y)
  
 
