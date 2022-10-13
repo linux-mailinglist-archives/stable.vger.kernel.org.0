@@ -2,89 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0735FE2BD
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 21:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0845FE30F
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 22:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229608AbiJMTfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 15:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
+        id S229653AbiJMUFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 16:05:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229658AbiJMTfr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 15:35:47 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 421AE11A94B;
-        Thu, 13 Oct 2022 12:35:45 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id s30so4051117eds.1;
-        Thu, 13 Oct 2022 12:35:45 -0700 (PDT)
+        with ESMTP id S229548AbiJMUFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 16:05:03 -0400
+Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC311CB14;
+        Thu, 13 Oct 2022 13:04:56 -0700 (PDT)
+Received: by mail-qt1-x82e.google.com with SMTP id s3so2433293qtn.12;
+        Thu, 13 Oct 2022 13:04:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=aO2wfG6mESBWLGmiEHQ/ZdlLgCSrGemWpKlaxBdIPR0=;
-        b=o5lciPHuBpfNXx8hNY1aLi0CZ+Abid9rsHTB9XFMYj89oqMFRO8p6XzrvS4TfNF12o
-         6UKFmCDbZltjXmxRtE49G+2TF8xVk0q9sKQfuzoITV9JnvL+V9MJ53PSJxDnRpR9uweR
-         BU+ibr/x67bZ9uUSH+B01Uf1J43sRE3VaViE4/2NPeqKTxz9HwHqvxu7Gpw5GadsLi5i
-         s+ccQXCF1CC5oifE+sVvEKgydkiKTHkcwsGfn6zLJSgvZsHPg1Ahz/BhPs07qQKIKBgp
-         M7qE/32g5jVvTOe7U9AQtEf4hmL0p6LIdNz8X+LesRVm6dpYBYOCx7Hypv8xWRcqGD/a
-         B2UQ==
+        bh=+N09+g97ddbadojmbqmFpp9Vxo4lxqN+8OXKYgMC3o0=;
+        b=LltYoJbsO5bzLe42vsxGa5lOL73xDPsn4gBK4q836y6qUekAz1Cl5khhgATcc23Zn/
+         0gOSkOrVR0Zjqkp5d5pqsknkke2y/Gub3erfBj/ZrTu4wVk1pDrqRYsql7TGojeM4FWJ
+         1qlCeQac+Z9ohWeO8yinXK6uy60cxX/lH2bl/CvWk1P31fU5yxtu1GvR/FP3PtVgUbMi
+         wwSF7H+yP2OH7Oz1nmaC/JC9o4IBCuD/M6XOEuV3qyMPvpfsFpURD0jMBafMZW//bfPt
+         7C7Ashy3PJS0rSsw1r4LfGZ2oQLU89qmExQijnYkhNYSvj3pV0ZIMHUKnccVKuJVS8iq
+         uZLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aO2wfG6mESBWLGmiEHQ/ZdlLgCSrGemWpKlaxBdIPR0=;
-        b=RsmEjNhTWMWUcHAuvL0rZ2KClkR/VT+7/fpcOyAR/oYDIjpSZczCJ07tQt9G/bpEO8
-         xf6OifhfNvH5fnCluAUkR6f2hWsks18ctFvkkbq8+2UImZ417WUl0zz2BspZnNuTso02
-         jwOPWyEN7oay3OQuOUZBiYJtg1lJKh2wJJYm2Syn0Oowy0wblzsVrbesDz/TNHZhgWUK
-         nXpUwPLNMu1JwHPg7U7multVrMYQu+4n/rzPad2YArU+SYZTL0n9f22p7fembA/QFvzR
-         kS2gAY0yM11tFzoCpnEd5i3tlfVxL4x8QoGTTeFMd5jMPjn2idWhFEG9ZNhj/Ry4uaBD
-         PjwA==
-X-Gm-Message-State: ACrzQf31dZ2Luvbe6SSMa/TzMglG9ArRbv5AU4GqCmOtWGNvZ9KmYV7F
-        7rfuvCIcbZNJRfC1Zjm4WVs=
-X-Google-Smtp-Source: AMsMyM65qyeNcU4PvNmavUCDHZm9SKmVc8HvmmyP2Gv5Ldhs3DrGZeVkMG/dIS1GKx7DX99zL079Pw==
-X-Received: by 2002:a05:6402:50cf:b0:45c:dfce:66ae with SMTP id h15-20020a05640250cf00b0045cdfce66aemr1118400edb.370.1665689743723;
-        Thu, 13 Oct 2022 12:35:43 -0700 (PDT)
-Received: from ?IPV6:2a02:a466:68ed:1:2509:9d4b:f4db:684d? (2a02-a466-68ed-1-2509-9d4b-f4db-684d.fixed6.kpn.net. [2a02:a466:68ed:1:2509:9d4b:f4db:684d])
-        by smtp.gmail.com with ESMTPSA id md9-20020a170906ae8900b0078defb88b0dsm316281ejb.73.2022.10.13.12.35.42
+        bh=+N09+g97ddbadojmbqmFpp9Vxo4lxqN+8OXKYgMC3o0=;
+        b=mWr+eH5KF79SXLkC3RuVqqFpcvTIdg2Vl40URhUvbUN3Qn7qc+5T401j4K59FnsXdb
+         qzvb6SDV5zA/kyOMFWOc2amdJVGJW9ngda7SwbOioXdpchqW2Tt6hLxqojXKSJObZl7R
+         2QJlbXnOhBV6MA9qXRJpd8oxVQt8U9X742+3DDIwEFw78Ankt1t4tJCusBDILD6UR/m5
+         gQt7MZp6RuvULQeroOCDzAgzAMOVuIkprYRdI6weuEldtk5T8NTfL2HjU4PVR6bM5bwS
+         +oInRWzaVr3+5bJu73O4NasjHiApMsVaINfC1ixsTXLtdtnrinmyL994ZRUU+sIa/4uJ
+         MGWQ==
+X-Gm-Message-State: ACrzQf0+Vs8k84PoVxuenP3K+z/HUizeZ+/APvq/eub6BuvgAN00lmd6
+        VVfLudKFXpTK3ntMwt+toTg=
+X-Google-Smtp-Source: AMsMyM6WtfN8J5MSZFXrDoWxi6r0fwjvoF988Ki5mFwFI9xh61AQY507D3cgiGU4OjyKEyPbJs6xTg==
+X-Received: by 2002:ac8:5f0f:0:b0:394:4be9:54b2 with SMTP id x15-20020ac85f0f000000b003944be954b2mr1473978qta.238.1665691495975;
+        Thu, 13 Oct 2022 13:04:55 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id r9-20020a05620a298900b006b953a7929csm639244qkp.73.2022.10.13.13.04.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Oct 2022 12:35:43 -0700 (PDT)
-Message-ID: <bec17559-286c-b006-476f-3c26ae38e70d@gmail.com>
-Date:   Thu, 13 Oct 2022 21:35:42 +0200
+        Thu, 13 Oct 2022 13:04:55 -0700 (PDT)
+Message-ID: <c8d1afca-899c-3af4-d4d3-a474949be54c@gmail.com>
+Date:   Thu, 13 Oct 2022 13:04:52 -0700
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.3
-Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
- if extcon is present"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 5.4 00/38] 5.4.218-rc1 review
 Content-Language: en-US
-To:     Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
- <20221003215734.7l3cnb2zy57nrxkk@synopsys.com>
- <YzvusOI89ju9e5+0@smile.fi.intel.com>
- <a7724993-6c04-92c5-3a26-3aef6d29c9e3@gmail.com>
- <20221005021212.qwnbmq6p7t26c3a4@synopsys.com>
- <2886b82d-a1f6-d288-e8d1-edae54046b4f@gmail.com>
- <20221006021204.hz7iteao65dgsev6@synopsys.com>
- <d52cc102-6a4f-78e9-6176-b33e2813fd1d@gmail.com>
- <20221007021122.nnwmqc6sq43e5xbn@synopsys.com>
- <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com>
- <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
- <4e73bbb9-eae1-6a90-d716-c721a1eeced3@gmail.com>
- <7e9519c6-f65f-5f83-1d17-a3510103469f@gmail.com>
- <CAHQ1cqE5=j9i8uYvBwdNUK8TrX3Wxy7iUML6K+gBQx-KRtkS7w@mail.gmail.com>
- <644adb7b-0438-e37c-222c-71bf261369b0@gmail.com>
- <CAHQ1cqGSXoUTopwvrQtLww5M0Tf=6F505ziLn+wGHhW_8-JhFQ@mail.gmail.com>
- <113fe314-0f5c-f53f-db78-c93bd4515260@gmail.com>
- <CAHQ1cqF_FvG0G2CAQooOVR3E442ApNFf8EKK8PpxcOrUoL5jDA@mail.gmail.com>
-From:   Ferry Toth <fntoth@gmail.com>
-In-Reply-To: <CAHQ1cqF_FvG0G2CAQooOVR3E442ApNFf8EKK8PpxcOrUoL5jDA@mail.gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+References: <20221013175144.245431424@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -97,58 +78,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-<SNIP>
-> My end goal here is to find a way to test vanilla v6.0 with the two
-> patches reverted on your end. I thought that during my testing I saw
-> tusb1210 print those timeout messages during its probe and that
-> disabling the driver worked to break the loop, but I went back to
-> double check and it doesn't work so scratch that idea. Configuring
-> extcon as a built-in breaks host functionality with or without patches
-> on my end, so I'm not sure it could be a path.
->
-> I won't have time to try things with
-> 0043b-TODO-driver-core-Break-infinite-loop-when-deferred-p.patch until
-> the weekend, meanwhile can you give this diff a try with vanilla (no
-> reverts) v6.0:
->
-> modified   drivers/phy/ti/phy-tusb1210.c
-> @@ -127,6 +127,7 @@ static int tusb1210_set_mode(struct phy *phy, enum
-> phy_mode mode, int submode)
->    u8 reg;
->
->    ret = tusb1210_ulpi_read(tusb, ULPI_OTG_CTRL, &reg);
-> + WARN_ON(ret < 0);
->    if (ret < 0)
->    return ret;
->
-> @@ -152,7 +153,10 @@ static int tusb1210_set_mode(struct phy *phy,
-> enum phy_mode mode, int submode)
->    }
->
->    tusb->otg_ctrl = reg;
-> - return tusb1210_ulpi_write(tusb, ULPI_OTG_CTRL, reg);
-> + ret = tusb1210_ulpi_write(tusb, ULPI_OTG_CTRL, reg);
-> + WARN_ON(ret < 0);
-> + return ret;
-> +
->   }
->
->   #ifdef CONFIG_POWER_SUPPLY
->
-> ? I'm curious to see if there's masked errors on your end since dwc3
-> driver doesn't check for those.
-root@yuna:~# dmesg | grep -i -E 'warn|assert|error|tusb|dwc3'
-8250_mid: probe of 0000:00:04.0 failed with error -16
-platform regulatory.0: Direct firmware load for regulatory.db failed 
-with error -2
-brcmfmac mmc2:0001:1: Direct firmware load for 
-brcm/brcmfmac43340-sdio.Intel Corporation-Merrifield.bin failed with 
-error -2
-sof-audio-pci-intel-tng 0000:00:0d.0: error: I/O region is too small.
-sof-audio-pci-intel-tng 0000:00:0d.0: error: failed to probe DSP -19
+On 10/13/22 10:52, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.218 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.218-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
->> This is done through configfs only when the switch is set to device mode.
-> Sure, but can it be disabled? We are looking for unknown variables, so
-> excluding this would be a reasonable thing to do.
-It's not enabled until I flip the switch to device mode.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
