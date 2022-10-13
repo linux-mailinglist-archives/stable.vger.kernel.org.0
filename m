@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 811115FDF80
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAE8F5FDFFF
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229883AbiJMRzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54808 "EHLO
+        id S230371AbiJMSCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229889AbiJMRyY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF9114FD27;
-        Thu, 13 Oct 2022 10:53:47 -0700 (PDT)
+        with ESMTP id S230350AbiJMSCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:02:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B65B613331D;
+        Thu, 13 Oct 2022 11:01:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A476AB82022;
-        Thu, 13 Oct 2022 17:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B77C433C1;
-        Thu, 13 Oct 2022 17:53:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C96961926;
+        Thu, 13 Oct 2022 17:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1933DC433C1;
+        Thu, 13 Oct 2022 17:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683624;
-        bh=4i4bGpQbrfxPFjyQlwZKPo4OoBFe09RvpTK42I5SAjU=;
+        s=korg; t=1665683934;
+        bh=cUcTAyfiGD90tgpRNKHa/Zr0CnwqHXDM72pjPAcUCIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XbWywXVsN+Gf1BTrUCoUCFtlATFigIIt3bAMi1/I2MszT+5PS0js8qLk3MwhbzX/
-         Xb4kaw5H8l7L4zA9ckR+o10iR8K/WGS/WwPgCHdxhQwqNQQ6aRVqohaD+KbWxCLt1C
-         ItCgd6VIGlMFwoG7RLIiXDb8XSNAasUZYbeZvr5A=
+        b=bW0RW2fev3ZHuTu/SVY/RXWmPwQb8eZu1fWRU21fxMY+4+1ROe0ksVXor/jlrQNEs
+         ur4JWYmOPOPspfRyFmeceviAsCh4PNT8UpBfcOl0Bwt3lzgfXo0tsJ0y1fEzYLQmva
+         Bq5T9KYXn1dti60pKyg9R0svDbL6uldeoYNmi3Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Soenke Huster <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 32/38] wifi: cfg80211: ensure length byte is present before access
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 01/33] nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
 Date:   Thu, 13 Oct 2022 19:52:33 +0200
-Message-Id: <20221013175145.309108696@linuxfoundation.org>
+Message-Id: <20221013175145.284122320@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
+References: <20221013175145.236739253@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,46 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 567e14e39e8f8c6997a1378bc3be615afca86063 upstream.
+commit 21a87d88c2253350e115029f14fe2a10a7e6c856 upstream.
 
-When iterating the elements here, ensure the length byte is
-present before checking it to see if the entire element will
-fit into the buffer.
+If the i_mode field in inode of metadata files is corrupted on disk, it
+can cause the initialization of bmap structure, which should have been
+called from nilfs_read_inode_common(), not to be called.  This causes a
+lockdep warning followed by a NULL pointer dereference at
+nilfs_bmap_lookup_at_level().
 
-Longer term, we should rewrite this code using the type-safe
-element iteration macros that check all of this.
+This patch fixes these issues by adding a missing sanitiy check for the
+i_mode field of metadata file's inode.
 
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Reported-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lkml.kernel.org/r/20221002030804.29978-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nilfs2/inode.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -265,7 +265,8 @@ static size_t cfg80211_gen_new_ie(const
- 	tmp_old = cfg80211_find_ie(WLAN_EID_SSID, ie, ielen);
- 	tmp_old = (tmp_old) ? tmp_old + tmp_old[1] + 2 : ie;
+--- a/fs/nilfs2/inode.c
++++ b/fs/nilfs2/inode.c
+@@ -440,6 +440,8 @@ int nilfs_read_inode_common(struct inode
+ 	inode->i_atime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
+ 	inode->i_ctime.tv_nsec = le32_to_cpu(raw_inode->i_ctime_nsec);
+ 	inode->i_mtime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
++	if (nilfs_is_metadata_file_inode(inode) && !S_ISREG(inode->i_mode))
++		return -EIO; /* this inode is for metadata and corrupted */
+ 	if (inode->i_nlink == 0)
+ 		return -ESTALE; /* this inode is deleted */
  
--	while (tmp_old + tmp_old[1] + 2 - ie <= ielen) {
-+	while (tmp_old + 2 - ie <= ielen &&
-+	       tmp_old + tmp_old[1] + 2 - ie <= ielen) {
- 		if (tmp_old[0] == 0) {
- 			tmp_old++;
- 			continue;
-@@ -325,7 +326,8 @@ static size_t cfg80211_gen_new_ie(const
- 	 * copied to new ie, skip ssid, capability, bssid-index ie
- 	 */
- 	tmp_new = sub_copy;
--	while (tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
-+	while (tmp_new + 2 - sub_copy <= subie_len &&
-+	       tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
- 		if (!(tmp_new[0] == WLAN_EID_NON_TX_BSSID_CAP ||
- 		      tmp_new[0] == WLAN_EID_SSID)) {
- 			memcpy(pos, tmp_new, tmp_new[1] + 2);
 
 
