@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEFA5FDFB9
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C2F5FDF7D
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230226AbiJMR5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:57:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
+        id S229916AbiJMRzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:55:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230165AbiJMR5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C0B43E77;
-        Thu, 13 Oct 2022 10:56:02 -0700 (PDT)
+        with ESMTP id S229927AbiJMRy1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4606715201B;
+        Thu, 13 Oct 2022 10:53:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C9D461913;
-        Thu, 13 Oct 2022 17:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64898C433C1;
-        Thu, 13 Oct 2022 17:56:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B97C9B82026;
+        Thu, 13 Oct 2022 17:53:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F790C433D6;
+        Thu, 13 Oct 2022 17:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683760;
-        bh=xm4dJk+a4xXbTCFuEdRLmVRDxS983Q+yBTlQeFFvqXU=;
+        s=korg; t=1665683630;
+        bh=+hWHjzuNL4/uWC9zqXql+Q2XpFqifgfw5cukpFp5D5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HlJHNtdjdicrwcNlOHt93h90hOZS9tMBXJMXH/s3OpXpYUEoI/cHBHIj2klViu3c1
-         lSQ6jiAEOxj/vxB4ZRjaQmHY//7fmP+eCB95CZ2Ti7rf0ZisMQ39HA2iUqTZGRnyZo
-         d4LCuJ4t2nTywZ2YMQqmNCMYXQYfEVregOjMaHGw=
+        b=dL2+05V5FlEPwL1rk5AmL8rtqNvPxMZ/P+XwlknWhJ/Ui9QclB6OIU8FSg9RobnIl
+         gTpxGdAolIbXR5r5/Bdj0ewZtBw7bXmiuydIRj5atBfNGSgZhbQG7yhQD7SdA9TMxN
+         Z8nU3FYCsBEfuMdzLPErZ3Mmrag09LaxEbMvf9kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 40/54] USB: serial: qcserial: add new usb-id for Dell branded EM7455
-Date:   Thu, 13 Oct 2022 19:52:34 +0200
-Message-Id: <20221013175148.313009411@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 34/38] wifi: cfg80211: avoid nontransmitted BSS list corruption
+Date:   Thu, 13 Oct 2022 19:52:35 +0200
+Message-Id: <20221013175145.382242160@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit eee48781ea199e32c1d0c4732641c494833788ca upstream.
+commit bcca852027e5878aec911a347407ecc88d6fff7f upstream.
 
-Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
+If a non-transmitted BSS shares enough information (both
+SSID and BSSID!) with another non-transmitted BSS of a
+different AP, then we can find and update it, and then
+try to add it to the non-transmitted BSS list. We do a
+search for it on the transmitted BSS, but if it's not
+there (but belongs to another transmitted BSS), the list
+gets corrupted.
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Since this is an erroneous situation, simply fail the
+list insertion in this case and free the non-transmitted
+BSS.
+
+This fixes CVE-2022-42721.
+
+Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/scan.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -177,6 +177,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
- 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
-+	{DEVICE_SWI(0x413c, 0x81c2)},	/* Dell Wireless 5811e */
- 	{DEVICE_SWI(0x413c, 0x81cb)},	/* Dell Wireless 5816e QDL */
- 	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
- 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -386,6 +386,15 @@ cfg80211_add_nontrans_list(struct cfg802
+ 
+ 	rcu_read_unlock();
+ 
++	/*
++	 * This is a bit weird - it's not on the list, but already on another
++	 * one! The only way that could happen is if there's some BSSID/SSID
++	 * shared by multiple APs in their multi-BSSID profiles, potentially
++	 * with hidden SSID mixed in ... ignore it.
++	 */
++	if (!list_empty(&nontrans_bss->nontrans_list))
++		return -EINVAL;
++
+ 	/* add to the list */
+ 	list_add_tail(&nontrans_bss->nontrans_list, &trans_bss->nontrans_list);
+ 	return 0;
 
 
