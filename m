@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64BFF5FDF6A
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380655FDFED
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbiJMRyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:54:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53714 "EHLO
+        id S230294AbiJMSBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:01:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229772AbiJMRxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:53:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A4CC14D1D8;
-        Thu, 13 Oct 2022 10:53:19 -0700 (PDT)
+        with ESMTP id S230300AbiJMSB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D788550B89;
+        Thu, 13 Oct 2022 11:01:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9ABA4B82027;
-        Thu, 13 Oct 2022 17:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1366CC433D6;
-        Thu, 13 Oct 2022 17:53:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 388B061900;
+        Thu, 13 Oct 2022 17:56:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D9BC433D6;
+        Thu, 13 Oct 2022 17:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683596;
-        bh=cQxfJ3qsYjvYJ9DIUiqLsyT626Q05v8l6z9zEIm+TSw=;
+        s=korg; t=1665683766;
+        bh=2s3E6s8by+Vv9fTcW1YuFronNVxsWvYo20qEG3TetXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zok1fCAYelHvYb7MqkvsvrrppjcXKmmPa1RJzaEODgpZpz9K5c+wZ5BpK+/tjWDn7
-         knlfeJg18fMlJxnJrf2+q7PJYbaMUmVizfpUOyxWvCz6exQoA8+RcgQGVB3u3i+deI
-         oKTQcmRPbg5wvUa+fAw7sDC/HRSAxi68P1idMQoI=
+        b=yiyUoB16k87oYnRL3JhoJtpQJ4DDpAHkVXnQhEOgELi0FtUzhsre4RG6Naf8lGXtF
+         +pI0MYSM36IQWEHj3KolLv9doboa9QY54CXmYHcl/yzjVI5GyFtaZe9PWvjgDPw7wE
+         A7NsDmxvSb+OupfW9UxYB1PMS1288zYwJp4sKW+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haimin Zhang <tcs_kernel@tencent.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/38] net/ieee802154: fix uninit value bug in dgram_sendmsg
+        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 16/54] dmaengine: xilinx_dma: Fix devm_platform_ioremap_resource error handling
 Date:   Thu, 13 Oct 2022 19:52:10 +0200
-Message-Id: <20221013175144.583618341@linuxfoundation.org>
+Message-Id: <20221013175147.760049909@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-References: <20221013175144.245431424@linuxfoundation.org>
+In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
+References: <20221013175147.337501757@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,171 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs.kernel@gmail.com>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit 94160108a70c8af17fa1484a37e05181c0e094af ]
+[ Upstream commit 91df7751eb890e970afc08f50b8f0fa5ea39e03d ]
 
-There is uninit value bug in dgram_sendmsg function in
-net/ieee802154/socket.c when the length of valid data pointed by the
-msg->msg_name isn't verified.
+Add missing cleanup in devm_platform_ioremap_resource().
+When probe fails remove dma channel resources and disable clocks in
+accordance with the order of resources allocated .
 
-We introducing a helper function ieee802154_sockaddr_check_size to
-check namelen. First we check there is addr_type in ieee802154_addr_sa.
-Then, we check namelen according to addr_type.
-
-Also fixed in raw_bind, dgram_bind, dgram_connect.
-
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-2-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ieee802154_netdev.h | 37 +++++++++++++++++++++++++++++
- net/ieee802154/socket.c         | 42 ++++++++++++++++++---------------
- 2 files changed, 60 insertions(+), 19 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/ieee802154_netdev.h b/include/net/ieee802154_netdev.h
-index d0d188c3294b..a8994f307fc3 100644
---- a/include/net/ieee802154_netdev.h
-+++ b/include/net/ieee802154_netdev.h
-@@ -15,6 +15,22 @@
- #ifndef IEEE802154_NETDEVICE_H
- #define IEEE802154_NETDEVICE_H
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index cab4719e4cf9..36801126312e 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -3020,9 +3020,10 @@ static int xilinx_dma_probe(struct platform_device *pdev)
  
-+#define IEEE802154_REQUIRED_SIZE(struct_type, member) \
-+	(offsetof(typeof(struct_type), member) + \
-+	sizeof(((typeof(struct_type) *)(NULL))->member))
-+
-+#define IEEE802154_ADDR_OFFSET \
-+	offsetof(typeof(struct sockaddr_ieee802154), addr)
-+
-+#define IEEE802154_MIN_NAMELEN (IEEE802154_ADDR_OFFSET + \
-+	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, addr_type))
-+
-+#define IEEE802154_NAMELEN_SHORT (IEEE802154_ADDR_OFFSET + \
-+	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, short_addr))
-+
-+#define IEEE802154_NAMELEN_LONG (IEEE802154_ADDR_OFFSET + \
-+	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, hwaddr))
-+
- #include <net/af_ieee802154.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
-@@ -165,6 +181,27 @@ static inline void ieee802154_devaddr_to_raw(void *raw, __le64 addr)
- 	memcpy(raw, &temp, IEEE802154_ADDR_LEN);
- }
- 
-+static inline int
-+ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
-+{
-+	struct ieee802154_addr_sa *sa;
-+
-+	sa = &daddr->addr;
-+	if (len < IEEE802154_MIN_NAMELEN)
-+		return -EINVAL;
-+	switch (sa->addr_type) {
-+	case IEEE802154_ADDR_SHORT:
-+		if (len < IEEE802154_NAMELEN_SHORT)
-+			return -EINVAL;
-+		break;
-+	case IEEE802154_ADDR_LONG:
-+		if (len < IEEE802154_NAMELEN_LONG)
-+			return -EINVAL;
-+		break;
+ 	/* Request and map I/O memory */
+ 	xdev->regs = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(xdev->regs))
+-		return PTR_ERR(xdev->regs);
+-
++	if (IS_ERR(xdev->regs)) {
++		err = PTR_ERR(xdev->regs);
++		goto disable_clks;
 +	}
-+	return 0;
-+}
-+
- static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
- 					   const struct ieee802154_addr_sa *sa)
- {
-diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
-index 9a675ba0bf0a..a92b11999e5f 100644
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -201,8 +201,9 @@ static int raw_bind(struct sock *sk, struct sockaddr *_uaddr, int len)
- 	int err = 0;
- 	struct net_device *dev = NULL;
- 
--	if (len < sizeof(*uaddr))
--		return -EINVAL;
-+	err = ieee802154_sockaddr_check_size(uaddr, len);
-+	if (err < 0)
-+		return err;
- 
- 	uaddr = (struct sockaddr_ieee802154 *)_uaddr;
- 	if (uaddr->family != AF_IEEE802154)
-@@ -498,7 +499,8 @@ static int dgram_bind(struct sock *sk, struct sockaddr *uaddr, int len)
- 
- 	ro->bound = 0;
- 
--	if (len < sizeof(*addr))
-+	err = ieee802154_sockaddr_check_size(addr, len);
-+	if (err < 0)
- 		goto out;
- 
- 	if (addr->family != AF_IEEE802154)
-@@ -569,8 +571,9 @@ static int dgram_connect(struct sock *sk, struct sockaddr *uaddr,
- 	struct dgram_sock *ro = dgram_sk(sk);
- 	int err = 0;
- 
--	if (len < sizeof(*addr))
--		return -EINVAL;
-+	err = ieee802154_sockaddr_check_size(addr, len);
-+	if (err < 0)
-+		return err;
- 
- 	if (addr->family != AF_IEEE802154)
- 		return -EINVAL;
-@@ -609,6 +612,7 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
- 	struct ieee802154_mac_cb *cb;
- 	struct dgram_sock *ro = dgram_sk(sk);
- 	struct ieee802154_addr dst_addr;
-+	DECLARE_SOCKADDR(struct sockaddr_ieee802154*, daddr, msg->msg_name);
- 	int hlen, tlen;
- 	int err;
- 
-@@ -617,10 +621,20 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
- 		return -EOPNOTSUPP;
+ 	/* Retrieve the DMA engine properties from the device tree */
+ 	xdev->max_buffer_len = GENMASK(XILINX_DMA_MAX_TRANS_LEN_MAX - 1, 0);
+ 	xdev->s2mm_chan_id = xdev->dma_config->max_channels / 2;
+@@ -3115,7 +3116,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 	for_each_child_of_node(node, child) {
+ 		err = xilinx_dma_child_probe(xdev, child);
+ 		if (err < 0)
+-			goto disable_clks;
++			goto error;
  	}
  
--	if (!ro->connected && !msg->msg_name)
--		return -EDESTADDRREQ;
--	else if (ro->connected && msg->msg_name)
--		return -EISCONN;
-+	if (msg->msg_name) {
-+		if (ro->connected)
-+			return -EISCONN;
-+		if (msg->msg_namelen < IEEE802154_MIN_NAMELEN)
-+			return -EINVAL;
-+		err = ieee802154_sockaddr_check_size(daddr, msg->msg_namelen);
-+		if (err < 0)
-+			return err;
-+		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
-+	} else {
-+		if (!ro->connected)
-+			return -EDESTADDRREQ;
-+		dst_addr = ro->dst_addr;
-+	}
+ 	if (xdev->dma_config->dmatype == XDMA_TYPE_VDMA) {
+@@ -3150,12 +3151,12 @@ static int xilinx_dma_probe(struct platform_device *pdev)
  
- 	if (!ro->bound)
- 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
-@@ -656,16 +670,6 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
- 	cb = mac_cb_init(skb);
- 	cb->type = IEEE802154_FC_TYPE_DATA;
- 	cb->ackreq = ro->want_ack;
--
--	if (msg->msg_name) {
--		DECLARE_SOCKADDR(struct sockaddr_ieee802154*,
--				 daddr, msg->msg_name);
--
--		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
--	} else {
--		dst_addr = ro->dst_addr;
--	}
--
- 	cb->secen = ro->secen;
- 	cb->secen_override = ro->secen_override;
- 	cb->seclevel = ro->seclevel;
+ 	return 0;
+ 
+-disable_clks:
+-	xdma_disable_allclks(xdev);
+ error:
+ 	for (i = 0; i < xdev->dma_config->max_channels; i++)
+ 		if (xdev->chan[i])
+ 			xilinx_dma_chan_remove(xdev->chan[i]);
++disable_clks:
++	xdma_disable_allclks(xdev);
+ 
+ 	return err;
+ }
 -- 
 2.35.1
 
