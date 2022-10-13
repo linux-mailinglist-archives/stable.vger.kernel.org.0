@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E91B75FDFB4
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD205FDF7A
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230212AbiJMR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
+        id S229973AbiJMRyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230055AbiJMR5M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE41159D56;
-        Thu, 13 Oct 2022 10:55:35 -0700 (PDT)
+        with ESMTP id S229968AbiJMRyV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7266153817;
+        Thu, 13 Oct 2022 10:53:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A595D618DE;
-        Thu, 13 Oct 2022 17:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ABB6C43142;
-        Thu, 13 Oct 2022 17:55:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 633D6B82025;
+        Thu, 13 Oct 2022 17:53:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB7FAC433C1;
+        Thu, 13 Oct 2022 17:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683735;
-        bh=iAr2bdd55JyX61KwNHcOrbz7/shgwLEETzjHoF0LZbA=;
+        s=korg; t=1665683605;
+        bh=noRvJC0nVSYY32afoEmpgXwbaIEjxRMiF+BbGEX269k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7dCUAWeUX74GQNvGRD7u4Ks7gOB/kxHOt50y4rMZAcwJU7hiU0abkM2kPiQ0fTII
-         T1PGd55eSUXkz1n3VQ3YNbipvjerLtnjxfOeo1FDHZM+QTG9iUnaNCyktwIkk4Vxyt
-         uhkftImp9OBWB/7o7BIk+lsGC/L2jsky5suKL19M=
+        b=wG67tqKxeI2/D3k3e/8VSsvN2nW8QEnk7CXXCgp1x1+dHVvJsD1fi0Xb9ssgClANC
+         5LqEUh8GTSQjcx8c9xBNDrVdy+aQY5fidF32Rmuj1S+yPEON4j7WDUsRlMfUI50Xkh
+         BTbMOPkJ6fX55QsJFnsacTIgYdw0l3rfVVZjxY5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 32/54] USB: serial: ftdi_sio: fix 300 bps rate for SIO
+        stable@vger.kernel.org, stable@kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        hdthky <hdthky0@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 25/38] scsi: stex: Properly zero out the passthrough command structure
 Date:   Thu, 13 Oct 2022 19:52:26 +0200
-Message-Id: <20221013175148.131466005@linuxfoundation.org>
+Message-Id: <20221013175145.100366344@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,31 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 7bd7ad3c310cd6766f170927381eea0aa6f46c69 upstream.
+commit 6022f210461fef67e6e676fd8544ca02d1bcfa7a upstream.
 
-The 300 bps rate of SIO devices has been mapped to 9600 bps since
-2003... Let's fix the regression.
+The passthrough structure is declared off of the stack, so it needs to be
+set to zero before copied back to userspace to prevent any unintentional
+data leakage.  Switch things to be statically allocated which will fill the
+unused fields with 0 automatically.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/YxrjN3OOw2HHl9tx@kroah.com
+Cc: stable@kernel.org
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Reported-by: hdthky <hdthky0@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/scsi/stex.c      |   17 +++++++++--------
+ include/scsi/scsi_cmnd.h |    2 +-
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1320,8 +1320,7 @@ static u32 get_ftdi_divisor(struct tty_s
- 		case 38400: div_value = ftdi_sio_b38400; break;
- 		case 57600: div_value = ftdi_sio_b57600;  break;
- 		case 115200: div_value = ftdi_sio_b115200; break;
--		} /* baud */
--		if (div_value == 0) {
-+		default:
- 			dev_dbg(dev, "%s - Baudrate (%d) requested is not supported\n",
- 				__func__,  baud);
- 			div_value = ftdi_sio_b9600;
+--- a/drivers/scsi/stex.c
++++ b/drivers/scsi/stex.c
+@@ -668,16 +668,17 @@ stex_queuecommand_lck(struct scsi_cmnd *
+ 		return 0;
+ 	case PASSTHRU_CMD:
+ 		if (cmd->cmnd[1] == PASSTHRU_GET_DRVVER) {
+-			struct st_drvver ver;
++			const struct st_drvver ver = {
++				.major = ST_VER_MAJOR,
++				.minor = ST_VER_MINOR,
++				.oem = ST_OEM,
++				.build = ST_BUILD_VER,
++				.signature[0] = PASSTHRU_SIGNATURE,
++				.console_id = host->max_id - 1,
++				.host_no = hba->host->host_no,
++			};
+ 			size_t cp_len = sizeof(ver);
+ 
+-			ver.major = ST_VER_MAJOR;
+-			ver.minor = ST_VER_MINOR;
+-			ver.oem = ST_OEM;
+-			ver.build = ST_BUILD_VER;
+-			ver.signature[0] = PASSTHRU_SIGNATURE;
+-			ver.console_id = host->max_id - 1;
+-			ver.host_no = hba->host->host_no;
+ 			cp_len = scsi_sg_copy_from_buffer(cmd, &ver, cp_len);
+ 			cmd->result = sizeof(ver) == cp_len ?
+ 				DID_OK << 16 | COMMAND_COMPLETE << 8 :
+--- a/include/scsi/scsi_cmnd.h
++++ b/include/scsi/scsi_cmnd.h
+@@ -204,7 +204,7 @@ static inline int scsi_get_resid(struct
+ 	for_each_sg(scsi_sglist(cmd), sg, nseg, __i)
+ 
+ static inline int scsi_sg_copy_from_buffer(struct scsi_cmnd *cmd,
+-					   void *buf, int buflen)
++					   const void *buf, int buflen)
+ {
+ 	return sg_copy_from_buffer(scsi_sglist(cmd), scsi_sg_count(cmd),
+ 				   buf, buflen);
 
 
