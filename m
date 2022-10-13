@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF605FD136
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EB55FD1ED
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231586AbiJMAfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47178 "EHLO
+        id S232348AbiJMA46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231814AbiJMAcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:32:23 -0400
+        with ESMTP id S232292AbiJMA41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:56:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5E6DFC2E;
-        Wed, 12 Oct 2022 17:28:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A39AE27;
+        Wed, 12 Oct 2022 17:53:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A21FD61684;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE412616A9;
+        Thu, 13 Oct 2022 00:19:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D0AFC43143;
         Thu, 13 Oct 2022 00:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4658BC43141;
-        Thu, 13 Oct 2022 00:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620349;
-        bh=M+GQYKj7W9Q9eqQVTrqZvdk+oerpuJZZbVXvQ6MtdVg=;
+        s=k20201202; t=1665620350;
+        bh=Es5nmzJdT+oW3VwkRSQOa1PJ6ac1UPOFRjBXyXVSk/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXavkX+/E2EzW+eDHKKTjHwsut1yem5A291CG/eg4jcGrglQlmnDwuy8dlxnTt6xi
-         hZrSj+tTxUo1GW9nmmPsmRgWloMrPaVsnPiNH/mgdcpwXPE0cr6Q8mZe4RdZKbh4og
-         HkSmTEJP+PRSvh09hPaD4+1JAy0LioUZAuKlZzcHOoMyUL+0qkMZXUDkZ/IfoS0aHT
-         /NL3AqX8YjEVQebI3SjtccLitxSkrLJlqqfECDMVO2fB7+lAQqLY2I1DRkvcsJz6hu
-         qjbokTS4rW54ruUGRM+dLI7AZOjv5cbt7kc9q7wUzdxIt80umUkJxQkEFu+caakRz/
-         Xjzj+IQdgHgCA==
+        b=BTtC0YvV0OubXKCO2NdKQ14sXl57kJglIOTO9ttFwf7RqRElymzaM9wbwKlpp1zHO
+         G6p+eVmJK3dqxsINtMh6WV0EJrTwaym5sGOY7ZEK8BI0YQ0FmAvReDmmPWN+a1lCIB
+         Y1GzcziX7qdvuxvpqiUjobrw2QRRqwg6Yfkf/Zm4ixrq2OZEfraVa27X3OzoG/6Yy+
+         B2lcbuTCMKi0eOWggKLdT1kCSGe/2zbljGZNEOflWNyb7/ob5vYkrSZfHA5RGuJzVN
+         0027ksnLKFw19vDeQz7N4yR3meV6pCs9zQEwBOVxIb+eNTl7JPuiCB3j8tAjTh8OqY
+         sV1moYOfdIs4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vaishnav Achath <vaishnav.a@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 10/63] dmaengine: ti: k3-udma: Reset UDMA_CHAN_RT byte counters to prevent overflow
-Date:   Wed, 12 Oct 2022 20:17:44 -0400
-Message-Id: <20221013001842.1893243-10-sashal@kernel.org>
+Cc:     Letu Ren <fantasquex@gmail.com>, Zheyu Ma <zheyuma97@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 11/63] scsi: 3w-9xxx: Avoid disabling device if failing to enable it
+Date:   Wed, 12 Oct 2022 20:17:45 -0400
+Message-Id: <20221013001842.1893243-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -56,112 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaishnav Achath <vaishnav.a@ti.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit 7c94dcfa8fcff2dba53915f1dabfee49a3df8b88 ]
+[ Upstream commit 7eff437b5ee1309b34667844361c6bbb5c97df05 ]
 
-UDMA_CHAN_RT_*BCNT_REG stores the real-time channel bytecount statistics.
-These registers are 32-bit hardware counters and the driver uses these
-counters to monitor the operational progress status for a channel, when
-transferring more than 4GB of data it was observed that these counters
-overflow and completion calculation of a operation gets affected and the
-transfer hangs indefinitely.
+The original code will "goto out_disable_device" and call
+pci_disable_device() if pci_enable_device() fails. The kernel will generate
+a warning message like "3w-9xxx 0000:00:05.0: disabling already-disabled
+device".
 
-This commit adds changes to decrease the byte count for every complete
-transaction so that these registers never overflow and the proper byte
-count statistics is maintained for ongoing transaction by the RT counters.
+We shouldn't disable a device that failed to be enabled. A simple return is
+fine.
 
-Earlier uc->bcnt used to maintain a count of the completed bytes at driver
-side, since the RT counters maintain the statistics of current transaction
-now, the maintenance of uc->bcnt is not necessary.
-
-Signed-off-by: Vaishnav Achath <vaishnav.a@ti.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220802054835.19482-1-vaishnav.a@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20220829110115.38789-1-fantasquex@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/scsi/3w-9xxx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index 2f0d2c68c93c..fcfcde947b30 100644
---- a/drivers/dma/ti/k3-udma.c
-+++ b/drivers/dma/ti/k3-udma.c
-@@ -300,8 +300,6 @@ struct udma_chan {
- 
- 	struct udma_tx_drain tx_drain;
- 
--	u32 bcnt; /* number of bytes completed since the start of the channel */
--
- 	/* Channel configuration parameters */
- 	struct udma_chan_config config;
- 
-@@ -757,6 +755,20 @@ static void udma_reset_rings(struct udma_chan *uc)
+diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
+index cd823ff5deab..6cb9cca9565b 100644
+--- a/drivers/scsi/3w-9xxx.c
++++ b/drivers/scsi/3w-9xxx.c
+@@ -2006,7 +2006,7 @@ static int twa_probe(struct pci_dev *pdev, const struct pci_device_id *dev_id)
+ 	retval = pci_enable_device(pdev);
+ 	if (retval) {
+ 		TW_PRINTK(host, TW_DRIVER, 0x34, "Failed to enable pci device");
+-		goto out_disable_device;
++		return -ENODEV;
  	}
- }
  
-+static void udma_decrement_byte_counters(struct udma_chan *uc, u32 val)
-+{
-+	if (uc->desc->dir == DMA_DEV_TO_MEM) {
-+		udma_rchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
-+		udma_rchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
-+		udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
-+	} else {
-+		udma_tchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
-+		udma_tchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
-+		if (!uc->bchan)
-+			udma_tchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
-+	}
-+}
-+
- static void udma_reset_counters(struct udma_chan *uc)
- {
- 	u32 val;
-@@ -790,8 +802,6 @@ static void udma_reset_counters(struct udma_chan *uc)
- 		val = udma_rchanrt_read(uc, UDMA_CHAN_RT_PEER_BCNT_REG);
- 		udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
- 	}
--
--	uc->bcnt = 0;
- }
- 
- static int udma_reset_chan(struct udma_chan *uc, bool hard)
-@@ -1115,7 +1125,7 @@ static void udma_check_tx_completion(struct work_struct *work)
- 		if (uc->desc) {
- 			struct udma_desc *d = uc->desc;
- 
--			uc->bcnt += d->residue;
-+			udma_decrement_byte_counters(uc, d->residue);
- 			udma_start(uc);
- 			vchan_cookie_complete(&d->vd);
- 			break;
-@@ -1168,7 +1178,7 @@ static irqreturn_t udma_ring_irq_handler(int irq, void *data)
- 				vchan_cyclic_callback(&d->vd);
- 			} else {
- 				if (udma_is_desc_really_done(uc, d)) {
--					uc->bcnt += d->residue;
-+					udma_decrement_byte_counters(uc, d->residue);
- 					udma_start(uc);
- 					vchan_cookie_complete(&d->vd);
- 				} else {
-@@ -1204,7 +1214,7 @@ static irqreturn_t udma_udma_irq_handler(int irq, void *data)
- 			vchan_cyclic_callback(&d->vd);
- 		} else {
- 			/* TODO: figure out the real amount of data */
--			uc->bcnt += d->residue;
-+			udma_decrement_byte_counters(uc, d->residue);
- 			udma_start(uc);
- 			vchan_cookie_complete(&d->vd);
- 		}
-@@ -3809,7 +3819,6 @@ static enum dma_status udma_tx_status(struct dma_chan *chan,
- 			bcnt = udma_tchanrt_read(uc, UDMA_CHAN_RT_BCNT_REG);
- 		}
- 
--		bcnt -= uc->bcnt;
- 		if (bcnt && !(bcnt % uc->desc->residue))
- 			residue = 0;
- 		else
+ 	pci_set_master(pdev);
 -- 
 2.35.1
 
