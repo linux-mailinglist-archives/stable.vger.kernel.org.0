@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8E45FDFAE
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3335FDFB3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230169AbiJMR5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
+        id S230152AbiJMR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:57:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230132AbiJMR4r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:56:47 -0400
+        with ESMTP id S230040AbiJMR5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC723A8CC8;
-        Thu, 13 Oct 2022 10:55:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A02B15B125;
+        Thu, 13 Oct 2022 10:55:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCF0618DE;
-        Thu, 13 Oct 2022 17:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B381C4347C;
-        Thu, 13 Oct 2022 17:54:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44A2361902;
+        Thu, 13 Oct 2022 17:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24BD2C433C1;
+        Thu, 13 Oct 2022 17:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683675;
-        bh=1NO7INAh9t/nqLkNlb48OrRHodPX0iieToKEAO8MS5s=;
+        s=korg; t=1665683678;
+        bh=QK+ufwlRBWl6ehYKJV4TG8Q8jxr+5/srJj3QzUt1L9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YdJvLLLQzIe7Zs495sVDoK/q6b++D2d7Ukpc6cs+/J1CmzUBq6VGjUmytBuXfG0FK
-         Wk75whIqbzj25LwxQp2UjPjsq/SympkSHxQP8KMYSiBnrlF3N2tDxph8pNsvuka9Fm
-         TCaPE5ogOzGpK7WQqCoSyjFytsJ8vsRAihpytW6U=
+        b=KwepaxdlZpQvaKlXVxCUWTYXZYVCuY9t+aJ6mLR5Gjz8Bh5syQRTWhzrmytmdDHhJ
+         GTllm7L0dkwiCMGVO5Iw75WKBbELyWDIT7CYr/RfkM9pOVFzQMtoDJO7SJz9SHdXPl
+         MWisDow5IvSqrQPWCI7tjlJWsKGfHxh2NwaP9TV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>, Yang Shi <shy828301@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
+        stable@vger.kernel.org,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Hugh Dickins <hughd@google.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 11/54] mm: gup: fix the fast GUP race against THP collapse
-Date:   Thu, 13 Oct 2022 19:52:05 +0200
-Message-Id: <20221013175147.639795471@linuxfoundation.org>
+Subject: [PATCH 5.10 12/54] powerpc/64s/radix: dont need to broadcast IPI for radix pmd collapse flush
+Date:   Thu, 13 Oct 2022 19:52:06 +0200
+Message-Id: <20221013175147.666153921@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -63,143 +65,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Shi <shy828301@gmail.com>
 
-commit 70cbc3cc78a997d8247b50389d37c4e1736019da upstream.
+commit bedf03416913d88c796288f9dca109a53608c745 upstream.
 
-Since general RCU GUP fast was introduced in commit 2667f50e8b81 ("mm:
-introduce a general RCU get_user_pages_fast()"), a TLB flush is no longer
-sufficient to handle concurrent GUP-fast in all cases, it only handles
-traditional IPI-based GUP-fast correctly.  On architectures that send an
-IPI broadcast on TLB flush, it works as expected.  But on the
-architectures that do not use IPI to broadcast TLB flush, it may have the
-below race:
+The IPI broadcast is used to serialize against fast-GUP, but fast-GUP will
+move to use RCU instead of disabling local interrupts in fast-GUP.  Using
+an IPI is the old-styled way of serializing against fast-GUP although it
+still works as expected now.
 
-   CPU A                                          CPU B
-THP collapse                                     fast GUP
-                                              gup_pmd_range() <-- see valid pmd
-                                                  gup_pte_range() <-- work on pte
-pmdp_collapse_flush() <-- clear pmd and flush
-__collapse_huge_page_isolate()
-    check page pinned <-- before GUP bump refcount
-                                                      pin the page
-                                                      check PTE <-- no change
-__collapse_huge_page_copy()
-    copy data to huge page
-    ptep_clear()
-install huge pmd for the huge page
-                                                      return the stale page
-discard the stale page
+And fast-GUP now fixed the potential race with THP collapse by checking
+whether PMD is changed or not.  So IPI broadcast in radix pmd collapse
+flush is not necessary anymore.  But it is still needed for hash TLB.
 
-The race can be fixed by checking whether PMD is changed or not after
-taking the page pin in fast GUP, just like what it does for PTE.  If the
-PMD is changed it means there may be parallel THP collapse, so GUP should
-back off.
-
-Also update the stale comment about serializing against fast GUP in
-khugepaged.
-
-Link: https://lkml.kernel.org/r/20220907180144.555485-1-shy828301@gmail.com
-Fixes: 2667f50e8b81 ("mm: introduce a general RCU get_user_pages_fast()")
+Link: https://lkml.kernel.org/r/20220907180144.555485-2-shy828301@gmail.com
+Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
 Acked-by: David Hildenbrand <david@redhat.com>
 Acked-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
 Cc: Hugh Dickins <hughd@google.com>
 Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 Cc: Michael Ellerman <mpe@ellerman.id.au>
 Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/gup.c        |   34 ++++++++++++++++++++++++++++------
- mm/khugepaged.c |   10 ++++++----
- 2 files changed, 34 insertions(+), 10 deletions(-)
+ arch/powerpc/mm/book3s64/radix_pgtable.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2128,8 +2128,28 @@ static void __maybe_unused undo_dev_page
- }
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -997,15 +997,6 @@ pmd_t radix__pmdp_collapse_flush(struct
+ 	pmd = *pmdp;
+ 	pmd_clear(pmdp);
  
- #ifdef CONFIG_ARCH_HAS_PTE_SPECIAL
--static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
--			 unsigned int flags, struct page **pages, int *nr)
-+/*
-+ * Fast-gup relies on pte change detection to avoid concurrent pgtable
-+ * operations.
-+ *
-+ * To pin the page, fast-gup needs to do below in order:
-+ * (1) pin the page (by prefetching pte), then (2) check pte not changed.
-+ *
-+ * For the rest of pgtable operations where pgtable updates can be racy
-+ * with fast-gup, we need to do (1) clear pte, then (2) check whether page
-+ * is pinned.
-+ *
-+ * Above will work for all pte-level operations, including THP split.
-+ *
-+ * For THP collapse, it's a bit more complicated because fast-gup may be
-+ * walking a pgtable page that is being freed (pte is still valid but pmd
-+ * can be cleared already).  To avoid race in such condition, we need to
-+ * also check pmd here to make sure pmd doesn't change (corresponds to
-+ * pmdp_collapse_flush() in the THP collapse code path).
-+ */
-+static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
-+			 unsigned long end, unsigned int flags,
-+			 struct page **pages, int *nr)
- {
- 	struct dev_pagemap *pgmap = NULL;
- 	int nr_start = *nr, ret = 0;
-@@ -2169,7 +2189,8 @@ static int gup_pte_range(pmd_t pmd, unsi
- 		if (!head)
- 			goto pte_unmap;
+-	/*
+-	 * pmdp collapse_flush need to ensure that there are no parallel gup
+-	 * walk after this call. This is needed so that we can have stable
+-	 * page ref count when collapsing a page. We don't allow a collapse page
+-	 * if we have gup taken on the page. We can ensure that by sending IPI
+-	 * because gup walk happens with IRQ disabled.
+-	 */
+-	serialize_against_pte_lookup(vma->vm_mm);
+-
+ 	radix__flush_tlb_collapsed_pmd(vma->vm_mm, address);
  
--		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
-+		if (unlikely(pmd_val(pmd) != pmd_val(*pmdp)) ||
-+		    unlikely(pte_val(pte) != pte_val(*ptep))) {
- 			put_compound_head(head, 1, flags);
- 			goto pte_unmap;
- 		}
-@@ -2214,8 +2235,9 @@ pte_unmap:
-  * get_user_pages_fast_only implementation that can pin pages. Thus it's still
-  * useful to have gup_huge_pmd even if we can't operate on ptes.
-  */
--static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
--			 unsigned int flags, struct page **pages, int *nr)
-+static int gup_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
-+			 unsigned long end, unsigned int flags,
-+			 struct page **pages, int *nr)
- {
- 	return 0;
- }
-@@ -2522,7 +2544,7 @@ static int gup_pmd_range(pud_t *pudp, pu
- 			if (!gup_huge_pd(__hugepd(pmd_val(pmd)), addr,
- 					 PMD_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pte_range(pmd, addr, next, flags, pages, nr))
-+		} else if (!gup_pte_range(pmd, pmdp, addr, next, flags, pages, nr))
- 			return 0;
- 	} while (pmdp++, addr = next, addr != end);
- 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1144,10 +1144,12 @@ static void collapse_huge_page(struct mm
- 
- 	pmd_ptl = pmd_lock(mm, pmd); /* probably unnecessary */
- 	/*
--	 * After this gup_fast can't run anymore. This also removes
--	 * any huge TLB entry from the CPU so we won't allow
--	 * huge and small TLB entries for the same virtual address
--	 * to avoid the risk of CPU bugs in that area.
-+	 * This removes any huge TLB entry from the CPU so we won't allow
-+	 * huge and small TLB entries for the same virtual address to
-+	 * avoid the risk of CPU bugs in that area.
-+	 *
-+	 * Parallel fast GUP is fine since fast GUP will back off when
-+	 * it detects PMD is changed.
- 	 */
- 	_pmd = pmdp_collapse_flush(vma, address, pmd);
- 	spin_unlock(pmd_ptl);
+ 	return pmd;
 
 
