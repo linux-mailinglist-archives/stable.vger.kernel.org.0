@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6223E5FE0C2
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D63D95FE08E
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:11:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231653AbiJMSPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:15:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
+        id S231584AbiJMSLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231829AbiJMSMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010122BF5;
-        Thu, 13 Oct 2022 11:09:44 -0700 (PDT)
+        with ESMTP id S231489AbiJMSLE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:11:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082AB17C549;
+        Thu, 13 Oct 2022 11:08:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7238FB8203F;
-        Thu, 13 Oct 2022 17:56:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18C1C433C1;
-        Thu, 13 Oct 2022 17:56:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D036618FE;
+        Thu, 13 Oct 2022 17:55:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C7CC433C1;
+        Thu, 13 Oct 2022 17:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683778;
-        bh=aehZ4fotnOMudzkfAbcWEupz02Xaa8+DcsAlTvfhbo8=;
+        s=korg; t=1665683715;
+        bh=K+Hk7w9wTcA9CRYbyUi0ingfM/N1GEAxCU+yw0HRkwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4oqem6eISdR5i1hnzDgcBJtb4mHDYPGHPvHIw6kQ1ZtXew2EJpdiQop8nYtSmCvA
-         igxNTg0YhY/+WgPKVnK9kLkGZ0P8E7bDSiX6H54pgaHFBWj5BqsKgBSATQYoLSHeaZ
-         RbbH8h999sScb1Ep0NZtBkidfnccqUGhgG/6pSrk=
+        b=U8YyWjDXoQTpsZrFqSaKVSyiLHRpwxT5Up0z6/CsnKn7ghsnb2nu7M6AEcmOVhomj
+         AN4pcuyTrMRAtdQxaajBW0NOJ7VQMlrNaG5aXWXt8GKVMuFGrZvCsOMXxTkgsnSIeH
+         K49VKcjuKHzuQEjeQ1u0gLU6CtyOJWLxGPQqlDFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Wende Tan <twd2.me@gmail.com>, Letu Ren <fantasquex@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/54] scsi: qedf: Fix a UAF bug in __qedf_probe()
-Date:   Thu, 13 Oct 2022 19:52:14 +0200
-Message-Id: <20221013175147.852564266@linuxfoundation.org>
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Lukas Straub <lukasstraub2@web.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.10 25/54] arch: um: Mark the stack non-executable to fix a binutils warning
+Date:   Thu, 13 Oct 2022 19:52:19 +0200
+Message-Id: <20221013175147.968877606@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
 References: <20221013175147.337501757@linuxfoundation.org>
@@ -55,74 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit fbfe96869b782364caebae0445763969ddb6ea67 ]
+[ Upstream commit bd71558d585ac61cfd799db7f25e78dca404dd7a ]
 
-In __qedf_probe(), if qedf->cdev is NULL which means
-qed_ops->common->probe() failed, then the program will goto label err1, and
-scsi_host_put() will free lport->host pointer. Because the memory qedf
-points to is allocated by libfc_host_alloc(), it will be freed by
-scsi_host_put(). However, the if statement below label err0 only checks
-whether qedf is NULL but doesn't check whether the memory has been freed.
-So a UAF bug can occur.
+Since binutils 2.39, ld will print a warning if any stack section is
+executable, which is the default for stack sections on files without a
+.note.GNU-stack section.
 
-There are two ways to reach the statements below err0. The first one is
-described as before, "qedf" should be set to NULL. The second one is goto
-"err0" directly. In the latter scenario qedf hasn't been changed and it has
-the initial value NULL. As a result the if statement is not reachable in
-any situation.
+This was fixed for x86 in commit ffcf9c5700e4 ("x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments"),
+but remained broken for UML, resulting in several warnings:
 
-The KASAN logs are as follows:
+/usr/bin/ld: warning: arch/x86/um/vdso/vdso.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1 has a LOAD segment with RWX permissions
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms1.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2 has a LOAD segment with RWX permissions
+/usr/bin/ld: warning: .tmp_vmlinux.kallsyms2.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: vmlinux has a LOAD segment with RWX permissions
 
-[    2.312969] BUG: KASAN: use-after-free in __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]
-[    2.312969] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[    2.312969] Call Trace:
-[    2.312969]  dump_stack_lvl+0x59/0x7b
-[    2.312969]  print_address_description+0x7c/0x3b0
-[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]  __kasan_report+0x160/0x1c0
-[    2.312969]  ? __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]  kasan_report+0x4b/0x70
-[    2.312969]  ? kobject_put+0x25d/0x290
-[    2.312969]  kasan_check_range+0x2ca/0x310
-[    2.312969]  __qedf_probe+0x5dcf/0x6bc0
-[    2.312969]  ? selinux_kernfs_init_security+0xdc/0x5f0
-[    2.312969]  ? trace_rpm_return_int_rcuidle+0x18/0x120
-[    2.312969]  ? rpm_resume+0xa5c/0x16e0
-[    2.312969]  ? qedf_get_generic_tlv_data+0x160/0x160
-[    2.312969]  local_pci_probe+0x13c/0x1f0
-[    2.312969]  pci_device_probe+0x37e/0x6c0
+Link both the VDSO and vmlinux with -z noexecstack, fixing the warnings
+about .note.GNU-stack sections. In addition, pass --no-warn-rwx-segments
+to dodge the remaining warnings about LOAD segments with RWX permissions
+in the kallsyms objects. (Note that this flag is apparently not
+available on lld, so hide it behind a test for BFD, which is what the
+x86 patch does.)
 
-Link: https://lore.kernel.org/r/20211112120641.16073-1-fantasquex@gmail.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Acked-by: Saurav Kashyap <skashyap@marvell.com>
-Co-developed-by: Wende Tan <twd2.me@gmail.com>
-Signed-off-by: Wende Tan <twd2.me@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ffcf9c5700e49c0aee42dcba9a12ba21338e8136
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Lukas Straub <lukasstraub2@web.de>
+Tested-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/um/Makefile          | 8 ++++++++
+ arch/x86/um/vdso/Makefile | 2 +-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index e64457f53da8..de5b6453827c 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -3671,11 +3671,6 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- err1:
- 	scsi_host_put(lport->host);
- err0:
--	if (qedf) {
--		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
--
--		clear_bit(QEDF_PROBING, &qedf->flags);
--	}
- 	return rc;
- }
+diff --git a/arch/um/Makefile b/arch/um/Makefile
+index 1cea46ff9bb7..775615141339 100644
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -131,10 +131,18 @@ export LDS_ELF_FORMAT := $(ELF_FORMAT)
+ # The wrappers will select whether using "malloc" or the kernel allocator.
+ LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
  
++# Avoid binutils 2.39+ warnings by marking the stack non-executable and
++# ignorning warnings for the kallsyms sections.
++LDFLAGS_EXECSTACK = -z noexecstack
++ifeq ($(CONFIG_LD_IS_BFD),y)
++LDFLAGS_EXECSTACK += $(call ld-option,--no-warn-rwx-segments)
++endif
++
+ LD_FLAGS_CMDLINE = $(foreach opt,$(KBUILD_LDFLAGS),-Wl,$(opt))
+ 
+ # Used by link-vmlinux.sh which has special support for um link
+ export CFLAGS_vmlinux := $(LINK-y) $(LINK_WRAPS) $(LD_FLAGS_CMDLINE)
++export LDFLAGS_vmlinux := $(LDFLAGS_EXECSTACK)
+ 
+ # When cleaning we don't include .config, so we don't include
+ # TT or skas makefiles and don't clean skas_ptregs.h.
+diff --git a/arch/x86/um/vdso/Makefile b/arch/x86/um/vdso/Makefile
+index 5943387e3f35..5ca366e15c76 100644
+--- a/arch/x86/um/vdso/Makefile
++++ b/arch/x86/um/vdso/Makefile
+@@ -62,7 +62,7 @@ quiet_cmd_vdso = VDSO    $@
+ 		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+-VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv
++VDSO_LDFLAGS = -fPIC -shared -Wl,--hash-style=sysv -z noexecstack
+ GCOV_PROFILE := n
+ 
+ #
 -- 
 2.35.1
 
