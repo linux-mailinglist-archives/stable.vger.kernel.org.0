@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 717B15FDFF7
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA39F5FDFFB
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230372AbiJMSB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:01:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
+        id S230389AbiJMSCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:02:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230371AbiJMSBn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595BD11A96A;
-        Thu, 13 Oct 2022 11:01:28 -0700 (PDT)
+        with ESMTP id S230387AbiJMSBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:01:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A894B160EC4;
+        Thu, 13 Oct 2022 11:01:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD40FB8203D;
-        Thu, 13 Oct 2022 17:57:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A044DC433C1;
-        Thu, 13 Oct 2022 17:57:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD12061910;
+        Thu, 13 Oct 2022 17:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F191DC433D6;
+        Thu, 13 Oct 2022 17:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683874;
-        bh=CK8zW69mYsVe631d9uSwXr4sBV2nDL15Y8aevweb+n8=;
+        s=korg; t=1665683893;
+        bh=GA/zqaLurWyQIiyR2z2ZlBS2lsSicER8WDIT2Epwul8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCt9YA7+mf3S6njE2rQl7Bm65YRMAyKRMa9Me5sOecoUmN7OrO16PutpNAz1byaw1
-         ma0RZX1AVsW7WNjZAFRY0CmYH4/ZiSWLM8f8YnRBUuHoHpXL/yppil0uTz8FS1N5hu
-         0ycLRGyOvQcwJradcGk+qCkMNfBO2l03+pbB6QgE=
+        b=Of1Xo8nD/8wzWLzJe6CM7sCJ7q81OoepH71qHILM7UYexwIk7wMg9lo4DoHCKHF1l
+         AHSZypu8EBZUxMlLPfuGhWgHRZO7YmYw6LIu/ZmBUIQwAWtczQs+KsEWEE/g4pdQb8
+         cBAPSOMtECIFVe/KEdHOSAvnrbvP5HKJ+3twfRTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 20/27] wifi: cfg80211: avoid nontransmitted BSS list corruption
-Date:   Thu, 13 Oct 2022 19:52:49 +0200
-Message-Id: <20221013175144.290858350@linuxfoundation.org>
+Subject: [PATCH 5.15 22/27] wifi: mac80211: fix crash in beacon protection for P2P-device
+Date:   Thu, 13 Oct 2022 19:52:51 +0200
+Message-Id: <20221013175144.356052246@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
 References: <20221013175143.518476113@linuxfoundation.org>
@@ -55,48 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit bcca852027e5878aec911a347407ecc88d6fff7f upstream.
+commit b2d03cabe2b2e150ff5a381731ea0355459be09f upstream.
 
-If a non-transmitted BSS shares enough information (both
-SSID and BSSID!) with another non-transmitted BSS of a
-different AP, then we can find and update it, and then
-try to add it to the non-transmitted BSS list. We do a
-search for it on the transmitted BSS, but if it's not
-there (but belongs to another transmitted BSS), the list
-gets corrupted.
+If beacon protection is active but the beacon cannot be
+decrypted or is otherwise malformed, we call the cfg80211
+API to report this to userspace, but that uses a netdev
+pointer, which isn't present for P2P-Device. Fix this to
+call it only conditionally to ensure cfg80211 won't crash
+in the case of P2P-Device.
 
-Since this is an erroneous situation, simply fail the
-list insertion in this case and free the non-transmitted
-BSS.
-
-This fixes CVE-2022-42721.
+This fixes CVE-2022-42722.
 
 Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Fixes: 9eaf183af741 ("mac80211: Report beacon protection failures to user space")
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/mac80211/rx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -425,6 +425,15 @@ cfg80211_add_nontrans_list(struct cfg802
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1982,10 +1982,11 @@ ieee80211_rx_h_decrypt(struct ieee80211_
  
- 	rcu_read_unlock();
+ 		if (mmie_keyidx < NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS ||
+ 		    mmie_keyidx >= NUM_DEFAULT_KEYS + NUM_DEFAULT_MGMT_KEYS +
+-		    NUM_DEFAULT_BEACON_KEYS) {
+-			cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
+-						     skb->data,
+-						     skb->len);
++				   NUM_DEFAULT_BEACON_KEYS) {
++			if (rx->sdata->dev)
++				cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
++							     skb->data,
++							     skb->len);
+ 			return RX_DROP_MONITOR; /* unexpected BIP keyidx */
+ 		}
  
-+	/*
-+	 * This is a bit weird - it's not on the list, but already on another
-+	 * one! The only way that could happen is if there's some BSSID/SSID
-+	 * shared by multiple APs in their multi-BSSID profiles, potentially
-+	 * with hidden SSID mixed in ... ignore it.
-+	 */
-+	if (!list_empty(&nontrans_bss->nontrans_list))
-+		return -EINVAL;
-+
- 	/* add to the list */
- 	list_add_tail(&nontrans_bss->nontrans_list, &trans_bss->nontrans_list);
- 	return 0;
+@@ -2133,7 +2134,8 @@ ieee80211_rx_h_decrypt(struct ieee80211_
+ 	/* either the frame has been decrypted or will be dropped */
+ 	status->flag |= RX_FLAG_DECRYPTED;
+ 
+-	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE))
++	if (unlikely(ieee80211_is_beacon(fc) && result == RX_DROP_UNUSABLE &&
++		     rx->sdata->dev))
+ 		cfg80211_rx_unprot_mlme_mgmt(rx->sdata->dev,
+ 					     skb->data, skb->len);
+ 
 
 
