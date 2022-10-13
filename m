@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD30A5FDA45
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E955FDA4E
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbiJMNSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 09:18:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33548 "EHLO
+        id S229516AbiJMNSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 09:18:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230011AbiJMNSg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:36 -0400
+        with ESMTP id S229972AbiJMNSt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6D54E1A4
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F944E1AC
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BCE2B81E37
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF9B8C433C1;
-        Thu, 13 Oct 2022 13:18:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30FD5B81E3B
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F945C433C1;
+        Thu, 13 Oct 2022 13:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665667108;
-        bh=UGWGiVrvVofNgO1I4Gp1PP4lyNnFhgjyeFBy9l8S/aM=;
+        s=korg; t=1665667114;
+        bh=Gp1NH5yD0w2GopD6tTOqsmqmpbYQkEzeAxpSeAVWl9o=;
         h=Subject:To:Cc:From:Date:From;
-        b=f/yurFrSC5+3/2ZnYqb4AjvSUqOpmou/Cu0vA1OAnkSxMlPkoSXiaxUbz6Tim4Kzb
-         nuXataugUmaAxvXx31UQFSROx+m5TgWvl+i3RZAmTBaYBeNoLknMy1q4hSRoCYelFD
-         V0nDar07M42R1nlcL8SHze4DjsdpdL3vIPaS6avE=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue" failed to apply to 5.15-stable tree
+        b=sso92HMqbQcJq7B3I8vSj7wfpTt2QS3o8dplSA5hP6m3x+pNTUK+K0O1b6+4XR6L1
+         2dhOUoaF8ESaMlYLa9n3ciRjE2k00i1ZdvurTxA3jKnOMIWe7ts4ZZBzvNrpTlwCRE
+         CXrQeSX7+pkj7I4sVDxXDc0W3zFMoxlae7vOwq10=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix response queue handler reading stale" failed to apply to 5.19-stable tree
 To:     aeasi@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Oct 2022 15:13:41 +0200
-Message-ID: <166566682120889@kroah.com>
+Date:   Thu, 13 Oct 2022 15:14:02 +0200
+Message-ID: <166566684289123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,108 +60,64 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6dc45a7322cb9db48a5b6696597a00ef7c778ef9 Mon Sep 17 00:00:00 2001
+From e4f8a29deb3ba30e414dfb6b09e3ae3bf6dbe74a Mon Sep 17 00:00:00 2001
 From: Arun Easi <aeasi@marvell.com>
-Date: Fri, 26 Aug 2022 03:25:53 -0700
-Subject: [PATCH] scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue
- handler reading stale packets"
+Date: Fri, 26 Aug 2022 03:25:54 -0700
+Subject: [PATCH] scsi: qla2xxx: Fix response queue handler reading stale
+ packets
 
-Reverting this commit so that a fixed up patch, without adding new module
-parameters, can be submitted.
+On some platforms, the current logic of relying on finding new packet
+solely based on signature pattern can lead to driver reading stale
+packets. Though this is a bug in those platforms, reduce such exposures by
+limiting reading packets until the IN pointer.
 
-    Link: https://lore.kernel.org/stable/166039743723771@kroah.com/
-
-This reverts commit b1f707146923335849fb70237eec27d4d1ae7d62.
-
-Link: https://lore.kernel.org/r/20220826102559.17474-2-njavali@marvell.com
+Link: https://lore.kernel.org/r/20220826102559.17474-3-njavali@marvell.com
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
-index 5dd2932382ee..bb69fa8b956a 100644
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -193,8 +193,6 @@ extern int ql2xsecenable;
- extern int ql2xenforce_iocb_limit;
- extern int ql2xabts_wait_nvme;
- extern u32 ql2xnvme_queues;
--extern int ql2xrspq_follow_inptr;
--extern int ql2xrspq_follow_inptr_legacy;
- 
- extern int qla2x00_loop_reset(scsi_qla_host_t *);
- extern void qla2x00_abort_all_cmds(scsi_qla_host_t *, int);
 diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index 76e79f350a22..ede76357ccb6 100644
+index ede76357ccb6..e19fde304e5c 100644
 --- a/drivers/scsi/qla2xxx/qla_isr.c
 +++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3763,8 +3763,7 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
+@@ -3763,7 +3763,8 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
  	struct qla_hw_data *ha = vha->hw;
  	struct purex_entry_24xx *purex_entry;
  	struct purex_item *pure_item;
--	u16 rsp_in = 0, cur_ring_index;
--	int follow_inptr, is_shadow_hba;
-+	u16 cur_ring_index;
+-	u16 cur_ring_index;
++	u16 rsp_in = 0, cur_ring_index;
++	int is_shadow_hba;
  
  	if (!ha->flags.fw_started)
  		return;
-@@ -3774,25 +3773,7 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
+@@ -3773,7 +3774,18 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
  		qla_cpu_update(rsp->qpair, smp_processor_id());
  	}
  
--#define __update_rsp_in(_update, _is_shadow_hba, _rsp, _rsp_in)		\
--	do {								\
--		if (_update) {						\
--			_rsp_in = _is_shadow_hba ? *(_rsp)->in_ptr :	\
--				rd_reg_dword_relaxed((_rsp)->rsp_q_in);	\
--		}							\
--	} while (0)
--
--	is_shadow_hba = IS_SHADOW_REG_CAPABLE(ha);
--	follow_inptr = is_shadow_hba ? ql2xrspq_follow_inptr :
--				ql2xrspq_follow_inptr_legacy;
--
--	__update_rsp_in(follow_inptr, is_shadow_hba, rsp, rsp_in);
--
--	while ((likely(follow_inptr &&
--		       rsp->ring_index != rsp_in &&
--		       rsp->ring_ptr->signature != RESPONSE_PROCESSED)) ||
--		       (!follow_inptr &&
--			rsp->ring_ptr->signature != RESPONSE_PROCESSED)) {
-+	while (rsp->ring_ptr->signature != RESPONSE_PROCESSED) {
+-	while (rsp->ring_ptr->signature != RESPONSE_PROCESSED) {
++#define __update_rsp_in(_is_shadow_hba, _rsp, _rsp_in)			\
++	do {								\
++		_rsp_in = _is_shadow_hba ? *(_rsp)->in_ptr :		\
++				rd_reg_dword_relaxed((_rsp)->rsp_q_in);	\
++	} while (0)
++
++	is_shadow_hba = IS_SHADOW_REG_CAPABLE(ha);
++
++	__update_rsp_in(is_shadow_hba, rsp, rsp_in);
++
++	while (rsp->ring_index != rsp_in &&
++		       rsp->ring_ptr->signature != RESPONSE_PROCESSED) {
  		pkt = (struct sts_entry_24xx *)rsp->ring_ptr;
  		cur_ring_index = rsp->ring_index;
  
-@@ -3906,8 +3887,6 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
+@@ -3887,6 +3899,7 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
  				}
  				pure_item = qla27xx_copy_fpin_pkt(vha,
  							  (void **)&pkt, &rsp);
--				__update_rsp_in(follow_inptr, is_shadow_hba,
--						rsp, rsp_in);
++				__update_rsp_in(is_shadow_hba, rsp, rsp_in);
  				if (!pure_item)
  					break;
  				qla24xx_queue_purex_item(vha, pure_item,
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index f19cd2b59ad5..ce7cf7750f62 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -338,16 +338,6 @@ module_param(ql2xdelay_before_pci_error_handling, uint, 0644);
- MODULE_PARM_DESC(ql2xdelay_before_pci_error_handling,
- 	"Number of seconds delayed before qla begin PCI error self-handling (default: 5).\n");
- 
--int ql2xrspq_follow_inptr = 1;
--module_param(ql2xrspq_follow_inptr, int, 0644);
--MODULE_PARM_DESC(ql2xrspq_follow_inptr,
--		 "Follow RSP IN pointer for RSP updates for HBAs 27xx and newer (default: 1).");
--
--int ql2xrspq_follow_inptr_legacy = 1;
--module_param(ql2xrspq_follow_inptr_legacy, int, 0644);
--MODULE_PARM_DESC(ql2xrspq_follow_inptr_legacy,
--		 "Follow RSP IN pointer for RSP updates for HBAs older than 27XX. (default: 1).");
--
- static void qla2x00_clear_drv_active(struct qla_hw_data *);
- static void qla2x00_free_device(scsi_qla_host_t *);
- static int qla2xxx_map_queues(struct Scsi_Host *shost);
 
