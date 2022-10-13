@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3255FDA47
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD30A5FDA45
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229940AbiJMNSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 09:18:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
+        id S229890AbiJMNSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 09:18:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229957AbiJMNSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8949A12FF88
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:33 -0700 (PDT)
+        with ESMTP id S230011AbiJMNSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6D54E1A4
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51F88617B0
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44DB5C433C1;
-        Thu, 13 Oct 2022 13:18:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BCE2B81E37
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF9B8C433C1;
+        Thu, 13 Oct 2022 13:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665667111;
-        bh=L9+Qy3OudK+bBy7aOZwUa+ick8NqVL3l12UeIZLFC6M=;
+        s=korg; t=1665667108;
+        bh=UGWGiVrvVofNgO1I4Gp1PP4lyNnFhgjyeFBy9l8S/aM=;
         h=Subject:To:Cc:From:Date:From;
-        b=mh/AMdpBJNtWLKPNhXzfac8Jz1gCkXaRfsWhLK3wE6aBoZTpQE8vIfzUxRsA6Xpmu
-         GjlL013jgzUJBWAGYS8MA6dA7sRxblj5MKSXuOM2qKqFK4mp6Gnzd0C8yYRX76NoI2
-         qYD+OEurqArbBCzuMJOzWEcYRpYoLXCvQaGbHwOA=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue" failed to apply to 5.19-stable tree
+        b=f/yurFrSC5+3/2ZnYqb4AjvSUqOpmou/Cu0vA1OAnkSxMlPkoSXiaxUbz6Tim4Kzb
+         nuXataugUmaAxvXx31UQFSROx+m5TgWvl+i3RZAmTBaYBeNoLknMy1q4hSRoCYelFD
+         V0nDar07M42R1nlcL8SHze4DjsdpdL3vIPaS6avE=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue" failed to apply to 5.15-stable tree
 To:     aeasi@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 13 Oct 2022 15:13:41 +0200
-Message-ID: <1665666821178186@kroah.com>
+Message-ID: <166566682120889@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
