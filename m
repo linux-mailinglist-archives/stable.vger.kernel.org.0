@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FD75FDA37
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 368C85FDA3F
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 15:18:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiJMNSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 09:18:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60892 "EHLO
+        id S229800AbiJMNSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 09:18:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbiJMNSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39903197F86
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:00 -0700 (PDT)
+        with ESMTP id S229979AbiJMNS1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 09:18:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE074E19D
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 06:18:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D8F2B810B2
-        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:17:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE71C433C1;
-        Thu, 13 Oct 2022 13:17:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23509617A9
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 13:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1206CC433D6;
+        Thu, 13 Oct 2022 13:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665667076;
+        s=korg; t=1665667098;
         bh=N48cQWVMXfLnkvPy6rE9+IJDnqiFwjCHxnKkJ6Mw05E=;
         h=Subject:To:Cc:From:Date:From;
-        b=oj64EeKmtjISFmn5qg3wFKvZFg7kj3CxDYveZrYjWzFOz4OzJCL+urGDuG3l3O0w5
-         vGsdmTHWIDMT9VtC92UXaD3kUR1CgCmn4tDgi6qeI4qGoLKBVrUHQMjDAqm71su6yO
-         1PEc+KHWIhniSZI6Nv30sNWM2xg/wqpSHLm7u2CQ=
+        b=JbpO/u/crZtNoZk/ikalKn34eMW5RYv5GKZN5c18wfs+saceNRu6p3dJKVbIEoORN
+         UVFv0Hm7a7UMUsNMbH39Bakbbs7k82ewU/Ymaa8hUl2gDwdxtYpjXjPXy8psl+WYLI
+         XkPBr34QwJclbAxxIcmRECoHHgg9UtDbkdpOaEB4=
 Subject: FAILED: patch "[PATCH] riscv: fix build with binutils 2.38" failed to apply to 5.19-stable tree
 To:     aurelien@aurel32.net, alexandre.ghiti@canonical.com,
         palmer@rivosinc.com
@@ -40,7 +40,8 @@ Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
