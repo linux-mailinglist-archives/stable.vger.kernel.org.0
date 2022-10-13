@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A9C5FE015
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7750A5FE0AB
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbiJMSEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:04:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33672 "EHLO
+        id S231804AbiJMSM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230456AbiJMSDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:03:22 -0400
+        with ESMTP id S231314AbiJMSMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233DD152C5A;
-        Thu, 13 Oct 2022 11:02:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BF617C577;
+        Thu, 13 Oct 2022 11:09:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13A71B8204D;
-        Thu, 13 Oct 2022 17:59:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 364FBC43140;
-        Thu, 13 Oct 2022 17:59:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4315BB820C5;
+        Thu, 13 Oct 2022 18:02:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A6ACC433C1;
+        Thu, 13 Oct 2022 18:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683947;
-        bh=xm4dJk+a4xXbTCFuEdRLmVRDxS983Q+yBTlQeFFvqXU=;
+        s=korg; t=1665684128;
+        bh=251S8n2kh1CgLL9KLnRdiuwkTapMfX2u91F2Tly2WEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kHQZZ3ud0OVJa/DzL9/AlRrdzff+jwVcDc2PlVU5AewSCtIM5UeBebAssT/K1bOtx
-         c/tNFcUzRuM+68n25/+KIDY1saBkZPCYL1IrCt8bU9eWq1Of6tMFHUEQSt/B3w6TnT
-         JXLTn+aZ5CHoYY3u1EDbnHf4K55FSpRKDPMsQUYI=
+        b=SE0BHqNMaWNFoloIfuu6AmPQGaX23dSCOUkXs6fgqVPMx9Kd0hrwzCmZssnZ6HimI
+         advVzyO1awBzzUXGTMdaKaPAY/fK+8TfOJHGRJvuZsIlwP06vSCXYpnRTKdLgHDI+E
+         rd04AU/3RktzGRq/xptRfuzejWnCCr7wLO0x8HFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.19 13/33] USB: serial: qcserial: add new usb-id for Dell branded EM7455
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 6.0 07/34] random: clamp credited irq bits to maximum mixed
 Date:   Thu, 13 Oct 2022 19:52:45 +0200
-Message-Id: <20221013175145.707906746@linuxfoundation.org>
+Message-Id: <20221013175146.713159261@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
+References: <20221013175146.507746257@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit eee48781ea199e32c1d0c4732641c494833788ca upstream.
+commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
 
-Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
+Since the most that's mixed into the pool is sizeof(long)*2, don't
+credit more than that many bytes of entropy.
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -177,6 +177,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
- 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
-+	{DEVICE_SWI(0x413c, 0x81c2)},	/* Dell Wireless 5811e */
- 	{DEVICE_SWI(0x413c, 0x81cb)},	/* Dell Wireless 5816e QDL */
- 	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
- 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1006,7 +1006,7 @@ static void mix_interrupt_randomness(str
+ 	local_irq_enable();
+ 
+ 	mix_pool_bytes(pool, sizeof(pool));
+-	credit_init_bits(max(1u, (count & U16_MAX) / 64));
++	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
+ 
+ 	memzero_explicit(pool, sizeof(pool));
+ }
 
 
