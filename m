@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 324105FD2C8
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D1AD5FD0BA
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbiJMBm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 21:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51500 "EHLO
+        id S231187AbiJMA35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:29:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229550AbiJMBmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:42:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A84183B8;
-        Wed, 12 Oct 2022 18:42:24 -0700 (PDT)
+        with ESMTP id S231445AbiJMA2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:28:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69007108DFA;
+        Wed, 12 Oct 2022 17:25:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BC27616FE;
-        Thu, 13 Oct 2022 00:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05062C43143;
-        Thu, 13 Oct 2022 00:24:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BE8061703;
+        Thu, 13 Oct 2022 00:24:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F43BC433C1;
+        Thu, 13 Oct 2022 00:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620669;
-        bh=6vbKmmz0ryFxKZLGyy2yrARzgTOezGzvxGBhsplRrh8=;
+        s=k20201202; t=1665620673;
+        bh=AkOcEHZmdaA81I6y7tbCcNTRyBxYzqfv88yAdxAyoJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ae715EYy27XQYWrTsRoYGByZ06yW8Wgror7GL7IWu0b3WHrya1UIkwFprh5En6Jas
-         lNA+ql0EOhjZ1Iy6zAdFrPWuZJq5om/nbPKTjX5z/uE2oDLcpUvVBDEc0B4x9v9Jwy
-         MZqDacNMCxvgIwPQc/XyNK1btdB2xv547CaikbwGmg8JNlrhqbDDNlzGfQtksgGBa2
-         k3K89z7sU/gkVlLlT64vuoiNm2SuaLhPurc56VoB6bz+dF8xJF7MhB07EMOR4Gj5JK
-         54+yR33RW0XiVk55vWdv0BHSx7R6A6IuJLVzY4T+eA9AyG3V/5aYjIEThv96+8nCxq
-         ZdZ0aylAkktlw==
+        b=DAr3VYvGjBMaX22yCd33+AtBDz83bx0oUvSUCr3d+KtLCutXN3pZmP7GS57ICHrZv
+         MScDaDgpodUCQeLOHJ9oRpkBjG8B3As783OyQwH1yaupzxGgKHxLLgVVypLfdP1iuZ
+         6VHXiABhd8uwZ6OGmsgSgKnARO5pfaBi9Q/3Aneb2UFY1l+f63IIWxc6A0wdF4DnNg
+         2eLaRMPMs8jGfVozznEP1uK5SRAXtN7YkVc5qkNQaoO8bJIWTyHMeYuREK9Da6l0VF
+         iNxIRJpx4dvhijUeARU1S/9WRKEPi8csicRdODEBIhCZ7Y+e785BWemWGKYOp1IZey
+         5NjANaddG0avg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     sunghwan jung <onenowy@gmail.com>,
+Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stern@rowland.harvard.edu,
-        linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 5.10 24/33] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Wed, 12 Oct 2022 20:23:23 -0400
-Message-Id: <20221013002334.1894749-24-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kushalkothari285@gmail.com,
+        namcaov@gmail.com, remckee0@gmail.com, saurav.girepunje@gmail.com,
+        eng.alaamohamedsoliman.am@gmail.com, jagathjog1996@gmail.com,
+        linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 25/33] staging: rtl8723bs: fix a potential memory leak in rtw_init_cmd_priv()
+Date:   Wed, 12 Oct 2022 20:23:24 -0400
+Message-Id: <20221013002334.1894749-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002334.1894749-1-sashal@kernel.org>
 References: <20221013002334.1894749-1-sashal@kernel.org>
@@ -56,57 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit 708056fba733a73d926772ea4ce9a42d240345da ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+In rtw_init_cmd_priv(), if `pcmdpriv->rsp_allocated_buf` is allocated
+in failure, then `pcmdpriv->cmd_allocated_buf` will be not properly
+released. Besides, considering there are only two error paths and the
+first one can directly return, so we do not need implicitly jump to the
+`exit` tag to execute the error handler.
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
+So this patch added `kfree(pcmdpriv->cmd_allocated_buf);` on the error
+path to release the resource and simplified the return logic of
+rtw_init_cmd_priv(). As there is no proper device to test with, no runtime
+testing was performed.
 
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
-
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_2B7931B79BA38E22205C5A09EFDF11E48805@qq.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/staging/rtl8723bs/core/rtw_cmd.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 4993227ab293..20dcbccb290b 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1275,12 +1275,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c
+index 2abe205e3453..cee05385f872 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_cmd.c
++++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c
+@@ -165,8 +165,6 @@ No irqsave is necessary.
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
+ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ {
+-	int res = 0;
 -
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+ 	init_completion(&pcmdpriv->cmd_queue_comp);
+ 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
+ 
+@@ -178,18 +176,16 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ 
+ 	pcmdpriv->cmd_allocated_buf = rtw_zmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ);
+ 
+-	if (!pcmdpriv->cmd_allocated_buf) {
+-		res = -ENOMEM;
+-		goto exit;
+-	}
++	if (!pcmdpriv->cmd_allocated_buf)
++		return -ENOMEM;
+ 
+ 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ - ((SIZE_PTR)(pcmdpriv->cmd_allocated_buf) & (CMDBUFF_ALIGN_SZ-1));
+ 
+ 	pcmdpriv->rsp_allocated_buf = rtw_zmalloc(MAX_RSPSZ + 4);
+ 
+ 	if (!pcmdpriv->rsp_allocated_buf) {
+-		res = -ENOMEM;
+-		goto exit;
++		kfree(pcmdpriv->cmd_allocated_buf);
++		return -ENOMEM;
+ 	}
+ 
+ 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 - ((SIZE_PTR)(pcmdpriv->rsp_allocated_buf) & 3);
+@@ -199,8 +195,8 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ 	pcmdpriv->rsp_cnt = 0;
+ 
+ 	mutex_init(&pcmdpriv->sctx_mutex);
+-exit:
+-	return res;
++
++	return 0;
+ }
+ 
+ static void c2h_wk_callback(_workitem * work);
 -- 
 2.35.1
 
