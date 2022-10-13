@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 920715FD14F
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 448385FD0E1
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231774AbiJMAf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:35:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38892 "EHLO
+        id S231492AbiJMAaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231904AbiJMAde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:33:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61EAEDFC3B;
-        Wed, 12 Oct 2022 17:28:44 -0700 (PDT)
+        with ESMTP id S231849AbiJMA3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:29:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7495D129752;
+        Wed, 12 Oct 2022 17:26:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE3EC615D9;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E60F7B81CC3;
+        Thu, 13 Oct 2022 00:19:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DAAFC433C1;
         Thu, 13 Oct 2022 00:19:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC9BC43141;
-        Thu, 13 Oct 2022 00:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620346;
-        bh=1TJHyyfg+QsA6U78R8mxqIahZXicXXqn1XHvFq8xnAo=;
+        s=k20201202; t=1665620347;
+        bh=ZFoYiT9y2/iVY1FbCrXKpOhrfl3lZzZKHp9H5oPiBIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9qfStIHTMXF+6y4Dcp03HClXOhwYt+hLMEa16M1CdbucqB5yhbef9FzyygUnbG+H
-         i6NAOxD0BewSYtYNM9SEr2TsWybXHa7wz9sRI+Av72sb4YD0VtvSVypyre6FmzMByu
-         I032wO/+9CTfHUAzLMLkTbGWWOvdgNgTXSyAAanRpJWFAPkudSTLZ8RulvW2jzzPmW
-         knyRCNVPjrTxWThByqLApTN2LWda6Vt70UqXku87L2hd+wvoS/dZaY+lCf4UbqQjoP
-         jcmLxuk9J0xtV2nMq/UrPzNyhLTIDPZf28IPrRO6Tj7EZ4ckzUXIX5qePewFJxn4F4
-         l2UNm7QIjzZBA==
+        b=BnGTpvdt7Hzg3DfIs/O1BxcFTcE6VEsNzmUwyti0XgoJVpmpvp/jx7Ms+r1RxlEME
+         pvrDZ2G0yGiPaNoMq7rHBwhotogxKnBjAJDAB9SF5C9WYgnmLXQ8TAj1XpCF2BK5PA
+         oYANTpS5EXNJaJDlJrX/PgGT6TjdZm8WylCy1Eiq+UXMQfS4OEmJeSo0V4ATlpDGoW
+         gEBTAsZMMVPjU+aCLADyfPKkmQGBHzvMl92pYSo7pezIZE3X+0D3fbSE+LByCyX5B3
+         SpJqOQ7qqa+69P2Rh2Ru2wgdchnwostYshkplHLEyI/AjQdiI1O26YP+R1o3HqMrQM
+         Js2VQzpXbO3PQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, mathias.nyman@intel.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 08/63] usb: host: xhci-plat: suspend/resume clks for brcm
-Date:   Wed, 12 Oct 2022 20:17:42 -0400
-Message-Id: <20221013001842.1893243-8-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 09/63] scsi: lpfc: Fix null ndlp ptr dereference in abnormal exit path for GFT_ID
+Date:   Wed, 12 Oct 2022 20:17:43 -0400
+Message-Id: <20221013001842.1893243-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001842.1893243-1-sashal@kernel.org>
 References: <20221013001842.1893243-1-sashal@kernel.org>
@@ -57,36 +58,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit c69400b09e471a3f1167adead55a808f0da6534a ]
+[ Upstream commit 59b7e210a522b836a01516c71ee85d1d92c1f075 ]
 
-The xhci_plat_brcm xhci block can enter suspend with clock disabled to save
-power and re-enable them on resume. Make use of the XHCI_SUSPEND_RESUME_CLKS
-quirk to do so.
+An error case exit from lpfc_cmpl_ct_cmd_gft_id() results in a call to
+lpfc_nlp_put() with a null pointer to a nodelist structure.
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Link: https://lore.kernel.org/r/1660170455-15781-3-git-send-email-justinpopo6@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Changed lpfc_cmpl_ct_cmd_gft_id() to initialize nodelist pointer upon
+entry.
+
+Link: https://lore.kernel.org/r/20220819011736.14141-3-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-plat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_ct.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index ef10982ad482..5fb55bf19493 100644
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -123,7 +123,7 @@ static const struct xhci_plat_priv xhci_plat_renesas_rcar_gen3 = {
- };
+diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
+index 13dfe285493d..b555ccb5ae34 100644
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -1509,7 +1509,7 @@ lpfc_cmpl_ct_cmd_gft_id(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 	struct lpfc_sli_ct_request *CTrsp;
+ 	int did;
+ 	struct lpfc_nodelist *ndlp = NULL;
+-	struct lpfc_nodelist *ns_ndlp = NULL;
++	struct lpfc_nodelist *ns_ndlp = cmdiocb->ndlp;
+ 	uint32_t fc4_data_0, fc4_data_1;
+ 	u32 ulp_status = get_job_ulpstatus(phba, rspiocb);
+ 	u32 ulp_word4 = get_job_word4(phba, rspiocb);
+@@ -1522,15 +1522,12 @@ lpfc_cmpl_ct_cmd_gft_id(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			      ulp_status, ulp_word4, did);
  
- static const struct xhci_plat_priv xhci_plat_brcm = {
--	.quirks = XHCI_RESET_ON_RESUME,
-+	.quirks = XHCI_RESET_ON_RESUME | XHCI_SUSPEND_RESUME_CLKS,
- };
+ 	/* Ignore response if link flipped after this request was made */
+-	if ((uint32_t) cmdiocb->event_tag != phba->fc_eventTag) {
++	if ((uint32_t)cmdiocb->event_tag != phba->fc_eventTag) {
+ 		lpfc_printf_vlog(vport, KERN_INFO, LOG_DISCOVERY,
+ 				 "9046 Event tag mismatch. Ignoring NS rsp\n");
+ 		goto out;
+ 	}
  
- static const struct of_device_id usb_xhci_of_match[] = {
+-	/* Preserve the nameserver node to release the reference. */
+-	ns_ndlp = cmdiocb->ndlp;
+-
+ 	if (ulp_status == IOSTAT_SUCCESS) {
+ 		/* Good status, continue checking */
+ 		CTrsp = (struct lpfc_sli_ct_request *)outp->virt;
 -- 
 2.35.1
 
