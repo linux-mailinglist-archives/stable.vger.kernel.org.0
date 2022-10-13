@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7750A5FE0AB
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D0C5FE0C3
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:15:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231804AbiJMSM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
+        id S231294AbiJMSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231314AbiJMSMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:34 -0400
+        with ESMTP id S231838AbiJMSMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:12:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BF617C577;
-        Thu, 13 Oct 2022 11:09:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF619B1C8;
+        Thu, 13 Oct 2022 11:09:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4315BB820C5;
-        Thu, 13 Oct 2022 18:02:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A6ACC433C1;
-        Thu, 13 Oct 2022 18:02:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A1A9B82020;
+        Thu, 13 Oct 2022 17:57:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6F0C433C1;
+        Thu, 13 Oct 2022 17:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684128;
-        bh=251S8n2kh1CgLL9KLnRdiuwkTapMfX2u91F2Tly2WEY=;
+        s=korg; t=1665683861;
+        bh=r9PM8b6YrYqEAMH8Yyhr2eZC2Q2EKssexz0N1yrdbq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SE0BHqNMaWNFoloIfuu6AmPQGaX23dSCOUkXs6fgqVPMx9Kd0hrwzCmZssnZ6HimI
-         advVzyO1awBzzUXGTMdaKaPAY/fK+8TfOJHGRJvuZsIlwP06vSCXYpnRTKdLgHDI+E
-         rd04AU/3RktzGRq/xptRfuzejWnCCr7wLO0x8HFM=
+        b=aurWYMP6g4VvU3Io4HXTAzU1l49APAKD1xZjBunXOnPGWFarBkvlqiCVx6XQEH9cz
+         Wfw+wj2h4n2zzqFL0I/RHBEMd8GlPCe8+6yq8xgBNt4HKejm+gaBVKasNnswnCDqIh
+         5QgCPW1d1vU/ZKBurEEthSMpIsTC5PiV9zEkVdGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 6.0 07/34] random: clamp credited irq bits to maximum mixed
+        stable@vger.kernel.org,
+        Soenke Huster <shuster@seemoo.tu-darmstadt.de>,
+        Kees Cook <keescook@chromium.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 16/27] wifi: cfg80211: fix u8 overflow in cfg80211_update_notlisted_nontrans()
 Date:   Thu, 13 Oct 2022 19:52:45 +0200
-Message-Id: <20221013175146.713159261@linuxfoundation.org>
+Message-Id: <20221013175144.139483450@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-References: <20221013175146.507746257@linuxfoundation.org>
+In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
+References: <20221013175143.518476113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,31 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
+commit aebe9f4639b13a1f4e9a6b42cdd2e38c617b442d upstream.
 
-Since the most that's mixed into the pool is sizeof(long)*2, don't
-credit more than that many bytes of entropy.
+In the copy code of the elements, we do the following calculation
+to reach the end of the MBSSID element:
 
-Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+	/* copy the IEs after MBSSID */
+	cpy_len = mbssid[1] + 2;
+
+This looks fine, however, cpy_len is a u8, the same as mbssid[1],
+so the addition of two can overflow. In this case the subsequent
+memcpy() will overflow the allocated buffer, since it copies 256
+bytes too much due to the way the allocation and memcpy() sizes
+are calculated.
+
+Fix this by using size_t for the cpy_len variable.
+
+This fixes CVE-2022-41674.
+
+Reported-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
+Tested-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
+ net/wireless/scan.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1006,7 +1006,7 @@ static void mix_interrupt_randomness(str
- 	local_irq_enable();
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -2238,7 +2238,7 @@ cfg80211_update_notlisted_nontrans(struc
+ 	size_t new_ie_len;
+ 	struct cfg80211_bss_ies *new_ies;
+ 	const struct cfg80211_bss_ies *old;
+-	u8 cpy_len;
++	size_t cpy_len;
  
- 	mix_pool_bytes(pool, sizeof(pool));
--	credit_init_bits(max(1u, (count & U16_MAX) / 64));
-+	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
+ 	lockdep_assert_held(&wiphy_to_rdev(wiphy)->bss_lock);
  
- 	memzero_explicit(pool, sizeof(pool));
- }
 
 
