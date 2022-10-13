@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C95885FCFE1
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:23:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA595FCFC7
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbiJMAXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 20:23:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56146 "EHLO
+        id S230274AbiJMAWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:22:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbiJMAWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:22:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99278104D3F;
-        Wed, 12 Oct 2022 17:19:22 -0700 (PDT)
+        with ESMTP id S230140AbiJMAVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:21:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE6212344B;
+        Wed, 12 Oct 2022 17:18:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0636CB81CBD;
-        Thu, 13 Oct 2022 00:18:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03DF6C433C1;
-        Thu, 13 Oct 2022 00:18:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A8A6B81CCC;
+        Thu, 13 Oct 2022 00:18:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769D0C433D7;
+        Thu, 13 Oct 2022 00:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620289;
-        bh=2ZxUg/1wAsgJI7Aj9gDfm/S13ITpUsPEtiIhR3IIIoc=;
+        s=k20201202; t=1665620291;
+        bh=GhQcifaJLHmSWV1FJcckCCWe5jRuznAVJImLAHQm4YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+XSCEOgWzTfQmZ/usL4LHnz6sMHLQ45PLOY3i1rPKwLjWVtJlkQkGSQspyh5vSmd
-         dUc89/m6tfljnaLrHqI1HhieQulPvahXBefNN89xG6Ki9FxR9kgb7/kID+VDUQ2Pj/
-         ZnAQpKMegRsWkaBDsxUK6k5bS1tnIgbYUtTC7NCWgG0JVMns865KbMVPyw852ld9UC
-         RJkc3TbQgCx9jMqLozVOyqoZMEGYMzhqg2na26tOV2F4mvnT/YnCcJlr8c8Y2QhX3+
-         8WP0ytmdhQSiImXe5CswQF2DghVsGHIhQ2+BPQTf114RcMpLvl5fTEu7rQPaEOItPm
-         jv5ANp1GArDQQ==
+        b=StF+L++WCzSkRTBHIiFgpICXinMNQSLJ+HnjyLHK4D4JiSkAv8OOEnoOzrHmNfDKk
+         qZL72uKS3IvFWx3l21dee8KS7a4G1P7egBzP9pZTk4WxFzJTobGBTQR427d2XWLDjX
+         w0mU9fcqRYoulPQPQ+UETWozS1ntC7Pm23qAkt8xS3UPCndNnSwY/87aMzLhtPmQTM
+         05xVOjaW1+1bmoWqB1bZl0XB0gTHjbf3tihq4i0CbmBtwFPXpzJx5EVHChrhVRi83u
+         4arIuDSdeSCSlINeDz5xTuSQi3nGK35C6vN2w721s8Yj1vUpEhLGEsaoO483u7a0rZ
+         NRFEUVmGfDW+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 55/67] usb: idmouse: fix an uninit-value in idmouse_open
-Date:   Wed, 12 Oct 2022 20:15:36 -0400
-Message-Id: <20221013001554.1892206-55-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Pankaj Raghav <p.raghav@samsung.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        agk@redhat.com, snitzer@kernel.org, dm-devel@redhat.com,
+        song@kernel.org, linux-block@vger.kernel.org,
+        linux-raid@vger.kernel.org, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 56/67] block: replace blk_queue_nowait with bdev_nowait
+Date:   Wed, 12 Oct 2022 20:15:37 -0400
+Message-Id: <20221013001554.1892206-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013001554.1892206-1-sashal@kernel.org>
 References: <20221013001554.1892206-1-sashal@kernel.org>
@@ -56,57 +58,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit bce2b0539933e485d22d6f6f076c0fcd6f185c4c ]
+[ Upstream commit 568ec936bf1384fc15873908c96a9aeb62536edb ]
 
-In idmouse_create_image, if any ftip_command fails, it will
-go to the reset label. However, this leads to the data in
-bulk_in_buffer[HEADER..IMGSIZE] uninitialized. And the check
-for valid image incurs an uninitialized dereference.
+Replace blk_queue_nowait with a bdev_nowait helpers that takes the
+block_device given that the I/O submission path should not have to
+look into the request_queue.
 
-Fix this by moving the check before reset label since this
-check only be valid if the data after bulk_in_buffer[HEADER]
-has concrete data.
-
-Note that this is found by KMSAN, so only kernel compilation
-is tested.
-
-Reported-by: syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20220922134847.1101921-1-dzm91@hust.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Pankaj Raghav <p.raghav@samsung.com>
+Link: https://lore.kernel.org/r/20220927075815.269694-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/idmouse.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ block/blk-core.c       | 2 +-
+ drivers/md/dm-table.c  | 4 +---
+ drivers/md/md.c        | 4 ++--
+ include/linux/blkdev.h | 6 +++++-
+ io_uring/io_uring.c    | 2 +-
+ 5 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/misc/idmouse.c b/drivers/usb/misc/idmouse.c
-index e9437a176518..ea39243efee3 100644
---- a/drivers/usb/misc/idmouse.c
-+++ b/drivers/usb/misc/idmouse.c
-@@ -177,10 +177,6 @@ static int idmouse_create_image(struct usb_idmouse *dev)
- 		bytes_read += bulk_read;
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 651057c4146b..4ec669b0eadc 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -717,7 +717,7 @@ void submit_bio_noacct(struct bio *bio)
+ 	 * For a REQ_NOWAIT based request, return -EOPNOTSUPP
+ 	 * if queue does not support NOWAIT.
+ 	 */
+-	if ((bio->bi_opf & REQ_NOWAIT) && !blk_queue_nowait(q))
++	if ((bio->bi_opf & REQ_NOWAIT) && !bdev_nowait(bdev))
+ 		goto not_supported;
+ 
+ 	if (should_fail_bio(bio))
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 332f96b58252..d8034ff0cb24 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1856,9 +1856,7 @@ static bool dm_table_supports_write_zeroes(struct dm_table *t)
+ static int device_not_nowait_capable(struct dm_target *ti, struct dm_dev *dev,
+ 				     sector_t start, sector_t len, void *data)
+ {
+-	struct request_queue *q = bdev_get_queue(dev->bdev);
+-
+-	return !blk_queue_nowait(q);
++	return !bdev_nowait(dev->bdev);
+ }
+ 
+ static bool dm_table_supports_nowait(struct dm_table *t)
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 729be2c5296c..72ad352cb41a 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -5845,7 +5845,7 @@ int md_run(struct mddev *mddev)
+ 			}
+ 		}
+ 		sysfs_notify_dirent_safe(rdev->sysfs_state);
+-		nowait = nowait && blk_queue_nowait(bdev_get_queue(rdev->bdev));
++		nowait = nowait && bdev_nowait(rdev->bdev);
  	}
  
--	/* reset the device */
--reset:
--	ftip_command(dev, FTIP_RELEASE, 0, 0);
--
- 	/* check for valid image */
- 	/* right border should be black (0x00) */
- 	for (bytes_read = sizeof(HEADER)-1 + WIDTH-1; bytes_read < IMGSIZE; bytes_read += WIDTH)
-@@ -192,6 +188,10 @@ static int idmouse_create_image(struct usb_idmouse *dev)
- 		if (dev->bulk_in_buffer[bytes_read] != 0xFF)
- 			return -EAGAIN;
+ 	if (!bioset_initialized(&mddev->bio_set)) {
+@@ -6982,7 +6982,7 @@ static int hot_add_disk(struct mddev *mddev, dev_t dev)
+ 	 * If the new disk does not support REQ_NOWAIT,
+ 	 * disable on the whole MD.
+ 	 */
+-	if (!blk_queue_nowait(bdev_get_queue(rdev->bdev))) {
++	if (!bdev_nowait(rdev->bdev)) {
+ 		pr_info("%s: Disabling nowait because %pg does not support nowait\n",
+ 			mdname(mddev), rdev->bdev);
+ 		blk_queue_flag_clear(QUEUE_FLAG_NOWAIT, mddev->queue);
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 84b13fdd34a7..4750772ef228 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -618,7 +618,6 @@ bool blk_queue_flag_test_and_set(unsigned int flag, struct request_queue *q);
+ #define blk_queue_quiesced(q)	test_bit(QUEUE_FLAG_QUIESCED, &(q)->queue_flags)
+ #define blk_queue_pm_only(q)	atomic_read(&(q)->pm_only)
+ #define blk_queue_registered(q)	test_bit(QUEUE_FLAG_REGISTERED, &(q)->queue_flags)
+-#define blk_queue_nowait(q)	test_bit(QUEUE_FLAG_NOWAIT, &(q)->queue_flags)
+ #define blk_queue_sq_sched(q)	test_bit(QUEUE_FLAG_SQ_SCHED, &(q)->queue_flags)
  
-+	/* reset the device */
-+reset:
-+	ftip_command(dev, FTIP_RELEASE, 0, 0);
+ extern void blk_set_pm_only(struct request_queue *q);
+@@ -1280,6 +1279,11 @@ static inline bool bdev_fua(struct block_device *bdev)
+ 	return test_bit(QUEUE_FLAG_FUA, &bdev_get_queue(bdev)->queue_flags);
+ }
+ 
++static inline bool bdev_nowait(struct block_device *bdev)
++{
++	return test_bit(QUEUE_FLAG_NOWAIT, &bdev_get_queue(bdev)->queue_flags);
++}
 +
- 	/* should be IMGSIZE == 65040 */
- 	dev_dbg(&dev->interface->dev, "read %d bytes fingerprint data\n",
- 		bytes_read);
+ static inline enum blk_zoned_model bdev_zoned_model(struct block_device *bdev)
+ {
+ 	struct request_queue *q = bdev_get_queue(bdev);
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 13af6b56ebd2..c13122a87c40 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -1384,7 +1384,7 @@ static void io_iopoll_req_issued(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ static bool io_bdev_nowait(struct block_device *bdev)
+ {
+-	return !bdev || blk_queue_nowait(bdev_get_queue(bdev));
++	return !bdev || bdev_nowait(bdev);
+ }
+ 
+ /*
 -- 
 2.35.1
 
