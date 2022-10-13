@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 847925FD25B
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 03:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8465FD192
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 02:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbiJMBNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Oct 2022 21:13:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58588 "EHLO
+        id S230238AbiJMAkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Oct 2022 20:40:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229897AbiJMBMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 21:12:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15E781CFE0;
-        Wed, 12 Oct 2022 18:11:40 -0700 (PDT)
+        with ESMTP id S232176AbiJMAiE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Oct 2022 20:38:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F7EEE0AC;
+        Wed, 12 Oct 2022 17:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85DC5B81CD1;
-        Thu, 13 Oct 2022 00:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333C5C433C1;
-        Thu, 13 Oct 2022 00:22:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A4B3B81CC0;
+        Thu, 13 Oct 2022 00:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEBCBC433D6;
+        Thu, 13 Oct 2022 00:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620523;
-        bh=EVWTMBdrIl0rdooeaOXXeRpDIuBj92DVN5Ph5M/rTMg=;
+        s=k20201202; t=1665620530;
+        bh=tmSEkFufYVR+3W1hXp/LsNelCsoDMRgiS0GAeQ7Nu+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bD3oej40Y9Dv03cD+0BAwZ41pMjU1KsOLUMc9cnuMFjxbHPUYFJlXR6xLJQQ+F7wZ
-         9XENhCYhSwr/OR6Y5wf8R+iwBedu1bT15gF5KmQKKqCwvlp2wsEHW2eWMAyI/aLpKq
-         7Mh+7Q6e/lR0rXeJbCDFynA0q8erT+YMEXD92b/TmC+2V8M+qnU+esfhTTzxMcAUrx
-         B2Qff8jRXd2MHAFhN/eH971A2CJeWGwcQL7O9bF367TFLQtm0IyAs4q3VuwImwP66D
-         8OGIHXRIBWR4uy4ycbqeCKw8PLtYgmfPOmHwd2n/gPKdOKnDwRWbsQa4pGH/vH4sh1
-         cYflAH34sQyDA==
+        b=BwNoObkJRP01C9yxGrkbZGMeGu0XLtwcTs76vZM7m6yp8OwtkSEgX1bDAvoajrWmv
+         uefckgCzGnAzDOmkXciQjNz6oz9udm09pRcg64RLJXuRURg53Fbiqap6zDdQ54ARIG
+         fJJQ8pKJ3BPkq7hufZGb00LmYWC1NCdPfe6CgEj+DEno3Ek3Z1tOi7XBcez7X0L7MC
+         hCsxw5UjL1z/ET3xpeRcpJgxuQXw30PAwuWxl/EpRzlFTNrVNsdsdqy1IUpwj+p6m2
+         Px5nETM5twvXaEHrv2eR+MCOv3tX7+Myq/Nlt1OPa76Tv9qnqj9XynXN0E/pwIaaxZ
+         OzzOabo1fb34w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     GUO Zihua <guozihua@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Larry.Finger@lwfinger.net,
-        florian.c.schilhabel@googlemail.com, skumark1902@gmail.com,
-        fmdefrancesco@gmail.com, asif.kgauri@gmail.com,
+        Sasha Levin <sashal@kernel.org>, philipp.g.hortmann@gmail.com,
+        yogi.kernel@gmail.com, yangyingliang@huawei.com,
+        paskripkin@gmail.com, dave@stgolabs.net, f3sch.git@outlook.com,
         linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 11/47] staging: rtl8712: Fix return type for implementation of ndo_start_xmit
-Date:   Wed, 12 Oct 2022 20:20:46 -0400
-Message-Id: <20221013002124.1894077-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 12/47] staging: rtl8192e: Fix return type for implementation of ndo_start_xmit
+Date:   Wed, 12 Oct 2022 20:20:47 -0400
+Message-Id: <20221013002124.1894077-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221013002124.1894077-1-sashal@kernel.org>
 References: <20221013002124.1894077-1-sashal@kernel.org>
@@ -60,7 +60,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit 307d343620e1fc7a6a2b7a1cdadb705532c9b6a5 ]
+[ Upstream commit 513d9a61156d79dd0979c4ad400c8587f52cbb9d ]
 
 CFI (Control Flow Integrity) is a safety feature allowing the system to
 detect and react should a potential control flow hijacking occurs. In
@@ -73,57 +73,49 @@ return type for implementation of hooks. Otherwise this would get
 cought out by CFI and cause a panic.
 
 Use enums from netdev_tx_t as return value instead, then change return
-type to netdev_tx_t.
+type to netdev_tx_t. Note that rtllib_xmit_inter() would return 1 only
+on allocation failure and the queue is stopped if that happens, meeting
+the documented requirement if NETDEV_TX_BUSY should be returned by
+ndo_start_xmit.
 
 Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Link: https://lore.kernel.org/r/20220905130230.11230-1-guozihua@huawei.com
+Link: https://lore.kernel.org/r/20220905130053.10731-1-guozihua@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/xmit_linux.c | 6 +++---
- drivers/staging/rtl8712/xmit_osdep.h | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/rtl8192e/rtllib.h    | 2 +-
+ drivers/staging/rtl8192e/rtllib_tx.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/xmit_linux.c b/drivers/staging/rtl8712/xmit_linux.c
-index 90d34cf9d2ff..2ef56bbe5981 100644
---- a/drivers/staging/rtl8712/xmit_linux.c
-+++ b/drivers/staging/rtl8712/xmit_linux.c
-@@ -146,7 +146,7 @@ void r8712_xmit_complete(struct _adapter *padapter, struct xmit_frame *pxframe)
- 	pxframe->pkt = NULL;
+diff --git a/drivers/staging/rtl8192e/rtllib.h b/drivers/staging/rtl8192e/rtllib.h
+index c985e4ebc545..a76f81302edd 100644
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -1938,7 +1938,7 @@ int rtllib_encrypt_fragment(
+ 	struct sk_buff *frag,
+ 	int hdr_len);
+ 
+-int rtllib_xmit(struct sk_buff *skb,  struct net_device *dev);
++netdev_tx_t rtllib_xmit(struct sk_buff *skb,  struct net_device *dev);
+ void rtllib_txb_free(struct rtllib_txb *txb);
+ 
+ /* rtllib_rx.c */
+diff --git a/drivers/staging/rtl8192e/rtllib_tx.c b/drivers/staging/rtl8192e/rtllib_tx.c
+index 37715afb0210..71c9e29449c6 100644
+--- a/drivers/staging/rtl8192e/rtllib_tx.c
++++ b/drivers/staging/rtl8192e/rtllib_tx.c
+@@ -964,9 +964,9 @@ static int rtllib_xmit_inter(struct sk_buff *skb, struct net_device *dev)
+ 
  }
  
--int r8712_xmit_entry(_pkt *pkt, struct  net_device *netdev)
-+netdev_tx_t r8712_xmit_entry(_pkt *pkt, struct  net_device *netdev)
+-int rtllib_xmit(struct sk_buff *skb, struct net_device *dev)
++netdev_tx_t rtllib_xmit(struct sk_buff *skb, struct net_device *dev)
  {
- 	struct xmit_frame *xmitframe = NULL;
- 	struct _adapter *adapter = netdev_priv(netdev);
-@@ -171,11 +171,11 @@ int r8712_xmit_entry(_pkt *pkt, struct  net_device *netdev)
- 	}
- 	xmitpriv->tx_pkts++;
- 	xmitpriv->tx_bytes += xmitframe->attrib.last_txcmdsz;
--	return 0;
-+	return NETDEV_TX_OK;
- _xmit_entry_drop:
- 	if (xmitframe)
- 		r8712_free_xmitframe(xmitpriv, xmitframe);
- 	xmitpriv->tx_drop++;
- 	dev_kfree_skb_any(pkt);
--	return 0;
-+	return NETDEV_TX_OK;
+ 	memset(skb->cb, 0, sizeof(skb->cb));
+-	return rtllib_xmit_inter(skb, dev);
++	return rtllib_xmit_inter(skb, dev) ? NETDEV_TX_BUSY : NETDEV_TX_OK;
  }
-diff --git a/drivers/staging/rtl8712/xmit_osdep.h b/drivers/staging/rtl8712/xmit_osdep.h
-index b76021b568f8..1ad42658c883 100644
---- a/drivers/staging/rtl8712/xmit_osdep.h
-+++ b/drivers/staging/rtl8712/xmit_osdep.h
-@@ -34,7 +34,7 @@ struct sta_xmit_priv;
- struct xmit_frame;
- struct xmit_buf;
- 
--int r8712_xmit_entry(_pkt *pkt, struct  net_device *pnetdev);
-+netdev_tx_t r8712_xmit_entry(_pkt *pkt, struct  net_device *pnetdev);
- void r8712_SetFilter(struct work_struct *work);
- int r8712_xmit_resource_alloc(struct _adapter *padapter,
- 			      struct xmit_buf *pxmitbuf);
+ EXPORT_SYMBOL(rtllib_xmit);
 -- 
 2.35.1
 
