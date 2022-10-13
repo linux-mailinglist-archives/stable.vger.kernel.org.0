@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E7EC5FDFC5
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 811115FDF80
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 19:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbiJMR6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 13:58:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
+        id S229883AbiJMRzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 13:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230132AbiJMR5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:57:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352BDB03CC;
-        Thu, 13 Oct 2022 10:56:21 -0700 (PDT)
+        with ESMTP id S229889AbiJMRyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 13:54:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF9114FD27;
+        Thu, 13 Oct 2022 10:53:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83EB0B8203C;
-        Thu, 13 Oct 2022 17:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D40C433D6;
-        Thu, 13 Oct 2022 17:55:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A476AB82022;
+        Thu, 13 Oct 2022 17:53:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B77C433C1;
+        Thu, 13 Oct 2022 17:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665683755;
-        bh=OEVHSmyP6ry9HP1rzqnCniac1P21E4uC7zWTb3gHzHk=;
+        s=korg; t=1665683624;
+        bh=4i4bGpQbrfxPFjyQlwZKPo4OoBFe09RvpTK42I5SAjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8LW1WnWuqRYxOlHgbLE9iqEyCx6EEclvRN0cBz2PznacPzNvbKN4BDqWXv/vrNWW
-         kGhmksUqhXzAVB6RxJp2pRDRrbotwiSo4UV1GEAS7tH6o2P7o5xkrSFzB1e70AI8bK
-         abLj5Atl9gx52qONQ+2v3jmr8zq/i5OjOfBr8EzQ=
+        b=0XbWywXVsN+Gf1BTrUCoUCFtlATFigIIt3bAMi1/I2MszT+5PS0js8qLk3MwhbzX/
+         Xb4kaw5H8l7L4zA9ckR+o10iR8K/WGS/WwPgCHdxhQwqNQQ6aRVqohaD+KbWxCLt1C
+         ItCgd6VIGlMFwoG7RLIiXDb8XSNAasUZYbeZvr5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
-        Samuel Jiang <chyishian.jiang@gmail.com>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.10 38/54] efi: Correct Macmini DMI match in uefi cert quirk
-Date:   Thu, 13 Oct 2022 19:52:32 +0200
-Message-Id: <20221013175148.267880948@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Soenke Huster <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 32/38] wifi: cfg80211: ensure length byte is present before access
+Date:   Thu, 13 Oct 2022 19:52:33 +0200
+Message-Id: <20221013175145.309108696@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221013175147.337501757@linuxfoundation.org>
-References: <20221013175147.337501757@linuxfoundation.org>
+In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
+References: <20221013175144.245431424@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Orlando Chamberlain <redecorating@protonmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit bab715bdaa9ebf28d99a6d1efb2704a30125e96d upstream.
+commit 567e14e39e8f8c6997a1378bc3be615afca86063 upstream.
 
-It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
-is inconsistent with other model line names.
+When iterating the elements here, ensure the length byte is
+present before checking it to see if the entire element will
+fit into the buffer.
 
-Correct the capitalisation of Macmini in the quirk for skipping loading
-platform certs on T2 Macs.
+Longer term, we should rewrite this code using the type-safe
+element iteration macros that check all of this.
 
-Currently users get:
-
-------------[ cut here ]------------
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
-WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x55/0xe0
-Modules linked in:
-CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3fc40fd08edab32a509fbf4c9bc52d111e
-Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
-Workqueue: efi_rts_wq efi_call_rts
-...
----[ end trace 0000000000000000 ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-
-Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
-Cc: stable@vger.kernel.org
-Cc: Aditya Garg <gargaditya08@live.com>
-Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
-Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Reported-by: Soenke Huster <shuster@seemoo.tu-darmstadt.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/platform_certs/load_uefi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/scan.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -30,7 +30,7 @@ static const struct dmi_system_id uefi_s
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
--	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -265,7 +265,8 @@ static size_t cfg80211_gen_new_ie(const
+ 	tmp_old = cfg80211_find_ie(WLAN_EID_SSID, ie, ielen);
+ 	tmp_old = (tmp_old) ? tmp_old + tmp_old[1] + 2 : ie;
+ 
+-	while (tmp_old + tmp_old[1] + 2 - ie <= ielen) {
++	while (tmp_old + 2 - ie <= ielen &&
++	       tmp_old + tmp_old[1] + 2 - ie <= ielen) {
+ 		if (tmp_old[0] == 0) {
+ 			tmp_old++;
+ 			continue;
+@@ -325,7 +326,8 @@ static size_t cfg80211_gen_new_ie(const
+ 	 * copied to new ie, skip ssid, capability, bssid-index ie
+ 	 */
+ 	tmp_new = sub_copy;
+-	while (tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
++	while (tmp_new + 2 - sub_copy <= subie_len &&
++	       tmp_new + tmp_new[1] + 2 - sub_copy <= subie_len) {
+ 		if (!(tmp_new[0] == WLAN_EID_NON_TX_BSSID_CAP ||
+ 		      tmp_new[0] == WLAN_EID_SSID)) {
+ 			memcpy(pos, tmp_new, tmp_new[1] + 2);
 
 
