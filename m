@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D293A5FE044
-	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8543C5FE049
+	for <lists+stable@lfdr.de>; Thu, 13 Oct 2022 20:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231239AbiJMSGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 14:06:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
+        id S231509AbiJMSG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 14:06:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbiJMSFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:05:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790C2A1A8;
-        Thu, 13 Oct 2022 11:04:41 -0700 (PDT)
+        with ESMTP id S231345AbiJMSFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 14:05:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3701B3C17C;
+        Thu, 13 Oct 2022 11:04:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FFFB61986;
-        Thu, 13 Oct 2022 18:00:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FAA7C43142;
-        Thu, 13 Oct 2022 18:00:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D400361995;
+        Thu, 13 Oct 2022 18:00:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ACDDC433B5;
+        Thu, 13 Oct 2022 18:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665684052;
-        bh=R56tc7ab5Ae7BCl75vsYTgnxuRRQc6ZCGNdTc3leahg=;
+        s=korg; t=1665684055;
+        bh=9vKia5o5B4xGTx3eWxIf6VhmDOv6agctG3itO2HEjxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSFy6EThkuQcemc6QUcfiEdRBFm9Io31tLS7zZ1hmulAOqGkiFhffUHuvhtofIDLN
-         BOHjLmnlVMEV0k5HJsJ3jZAgHJ6DA3d4YHSR5rPr2yGVUSfuj1ZLu5EJhcaC8qPFm5
-         XESj73HZg/4haWA717Wv9twlRDwfUO3RGVT2sL2c=
+        b=Euxm4PuAH2v5SDgDBgVvMJmPGvUaVxG5z3WLW0v2+fNG/g8S55XvxT0cjrfWytXmu
+         fc46i4oGNkMQPjyUzDi/jAODovZ9LveSLXLPrQtpE2pYftnEateGkT69oaLTl7m3h3
+         1kQ6B4QikVDVRU5kzLQkN/LlyqfE9xh7p5OdRAIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
-        Samuel Jiang <chyishian.jiang@gmail.com>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 6.0 10/34] efi: Correct Macmini DMI match in uefi cert quirk
-Date:   Thu, 13 Oct 2022 19:52:48 +0200
-Message-Id: <20221013175146.789102926@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.0 11/34] scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue handler reading stale packets"
+Date:   Thu, 13 Oct 2022 19:52:49 +0200
+Message-Id: <20221013175146.815599374@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
 References: <20221013175146.507746257@linuxfoundation.org>
@@ -54,55 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Orlando Chamberlain <redecorating@protonmail.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit bab715bdaa9ebf28d99a6d1efb2704a30125e96d upstream.
+commit 6dc45a7322cb9db48a5b6696597a00ef7c778ef9 upstream.
 
-It turns out Apple doesn't capitalise the "mini" in "Macmini" in DMI, which
-is inconsistent with other model line names.
+Reverting this commit so that a fixed up patch, without adding new module
+parameters, can be submitted.
 
-Correct the capitalisation of Macmini in the quirk for skipping loading
-platform certs on T2 Macs.
+    Link: https://lore.kernel.org/stable/166039743723771@kroah.com/
 
-Currently users get:
+This reverts commit b1f707146923335849fb70237eec27d4d1ae7d62.
 
-------------[ cut here ]------------
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
-WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x55/0xe0
-Modules linked in:
-CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3fc40fd08edab32a509fbf4c9bc52d111e
-Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
-Workqueue: efi_rts_wq efi_call_rts
-...
----[ end trace 0000000000000000 ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-
-Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
+Link: https://lore.kernel.org/r/20220826102559.17474-2-njavali@marvell.com
 Cc: stable@vger.kernel.org
-Cc: Aditya Garg <gargaditya08@live.com>
-Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
-Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/platform_certs/load_uefi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gbl.h |    2 --
+ drivers/scsi/qla2xxx/qla_isr.c |   25 ++-----------------------
+ drivers/scsi/qla2xxx/qla_os.c  |   10 ----------
+ 3 files changed, 2 insertions(+), 35 deletions(-)
 
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -31,7 +31,7 @@ static const struct dmi_system_id uefi_s
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
--	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -193,8 +193,6 @@ extern int ql2xsecenable;
+ extern int ql2xenforce_iocb_limit;
+ extern int ql2xabts_wait_nvme;
+ extern u32 ql2xnvme_queues;
+-extern int ql2xrspq_follow_inptr;
+-extern int ql2xrspq_follow_inptr_legacy;
+ 
+ extern int qla2x00_loop_reset(scsi_qla_host_t *);
+ extern void qla2x00_abort_all_cmds(scsi_qla_host_t *, int);
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3763,8 +3763,7 @@ void qla24xx_process_response_queue(stru
+ 	struct qla_hw_data *ha = vha->hw;
+ 	struct purex_entry_24xx *purex_entry;
+ 	struct purex_item *pure_item;
+-	u16 rsp_in = 0, cur_ring_index;
+-	int follow_inptr, is_shadow_hba;
++	u16 cur_ring_index;
+ 
+ 	if (!ha->flags.fw_started)
+ 		return;
+@@ -3774,25 +3773,7 @@ void qla24xx_process_response_queue(stru
+ 		qla_cpu_update(rsp->qpair, smp_processor_id());
+ 	}
+ 
+-#define __update_rsp_in(_update, _is_shadow_hba, _rsp, _rsp_in)		\
+-	do {								\
+-		if (_update) {						\
+-			_rsp_in = _is_shadow_hba ? *(_rsp)->in_ptr :	\
+-				rd_reg_dword_relaxed((_rsp)->rsp_q_in);	\
+-		}							\
+-	} while (0)
+-
+-	is_shadow_hba = IS_SHADOW_REG_CAPABLE(ha);
+-	follow_inptr = is_shadow_hba ? ql2xrspq_follow_inptr :
+-				ql2xrspq_follow_inptr_legacy;
+-
+-	__update_rsp_in(follow_inptr, is_shadow_hba, rsp, rsp_in);
+-
+-	while ((likely(follow_inptr &&
+-		       rsp->ring_index != rsp_in &&
+-		       rsp->ring_ptr->signature != RESPONSE_PROCESSED)) ||
+-		       (!follow_inptr &&
+-			rsp->ring_ptr->signature != RESPONSE_PROCESSED)) {
++	while (rsp->ring_ptr->signature != RESPONSE_PROCESSED) {
+ 		pkt = (struct sts_entry_24xx *)rsp->ring_ptr;
+ 		cur_ring_index = rsp->ring_index;
+ 
+@@ -3906,8 +3887,6 @@ process_err:
+ 				}
+ 				pure_item = qla27xx_copy_fpin_pkt(vha,
+ 							  (void **)&pkt, &rsp);
+-				__update_rsp_in(follow_inptr, is_shadow_hba,
+-						rsp, rsp_in);
+ 				if (!pure_item)
+ 					break;
+ 				qla24xx_queue_purex_item(vha, pure_item,
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -338,16 +338,6 @@ module_param(ql2xdelay_before_pci_error_
+ MODULE_PARM_DESC(ql2xdelay_before_pci_error_handling,
+ 	"Number of seconds delayed before qla begin PCI error self-handling (default: 5).\n");
+ 
+-int ql2xrspq_follow_inptr = 1;
+-module_param(ql2xrspq_follow_inptr, int, 0644);
+-MODULE_PARM_DESC(ql2xrspq_follow_inptr,
+-		 "Follow RSP IN pointer for RSP updates for HBAs 27xx and newer (default: 1).");
+-
+-int ql2xrspq_follow_inptr_legacy = 1;
+-module_param(ql2xrspq_follow_inptr_legacy, int, 0644);
+-MODULE_PARM_DESC(ql2xrspq_follow_inptr_legacy,
+-		 "Follow RSP IN pointer for RSP updates for HBAs older than 27XX. (default: 1).");
+-
+ static void qla2x00_clear_drv_active(struct qla_hw_data *);
+ static void qla2x00_free_device(scsi_qla_host_t *);
+ static int qla2xxx_map_queues(struct Scsi_Host *shost);
 
 
