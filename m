@@ -2,70 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 817405FEDF1
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 14:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B385FEE7E
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229659AbiJNMXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 08:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43804 "EHLO
+        id S229671AbiJNNX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:23:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229581AbiJNMXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 08:23:07 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B131CC75D;
-        Fri, 14 Oct 2022 05:23:06 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id o17-20020a17090aac1100b0020d98b0c0f4so6390589pjq.4;
-        Fri, 14 Oct 2022 05:23:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:references:in-reply-to
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=V6AkhIKtWrcZ5eSbP2tIo5/S0hKQmPOZyaUq/gsVss4=;
-        b=Zeskzt3usWzckFQ8nQKHkjEufJK80Bb2tBdNjmRZFd0SJX05APqMjSoBRM271jS4YG
-         H9zDwVZ8lRghoCuyTZbke4vAkWZemiYa8UyI7zgSSV0oU9KmQKrpm9n4cmHH6oMgd85M
-         m0Z1daVD4ZYVBWYZc6KnAwNJGrrctdk5rCPyvVf1v9FxzvCA/HwJZbZwtGHsaNGINJqi
-         E1HqbYTBBGRsZ1+zyKffn10sdHnaKJIC5DZliph4lntSuhkcy6jQQkLS7GoRHQnd4qA9
-         nrx1IZXANeRra4PIXu7lsaXZqiNJbZjblJP0VZBGjptuJlNfvLGXcIzpiY9tLQIFOkf2
-         XmPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:references:in-reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=V6AkhIKtWrcZ5eSbP2tIo5/S0hKQmPOZyaUq/gsVss4=;
-        b=h6vDohqFDpouDck2wlDBf8bwA/pozQqZJDbqfmKkRws5RKuCGG6QnvvKAO+LTRJ1Cf
-         I4C8BgrcImrqX2W052InPGfUOnVIwy81CnTeGwyGn+heKme6J4F5DMLV/5ms0Q8XdneH
-         tgSiWmS7TYdIMcXwviJLbbGTF3f0psSRC7auRxggZYQZKS8LoGpv1Z+pPYZ374udCTS/
-         zTbrShU1skD7F1Lnyk1d9yXLkbRatKvhW2xneaNb5k+eEvEvtsJ/1lbl/DCO1t97PjzF
-         pbykeIuk/3OaTwGBujK3WBeE0sg2UUTda2HTlyse/rgIWFgsr1EqvmG5YeIXIkB3MbjZ
-         mWuw==
-X-Gm-Message-State: ACrzQf0DH+Psd1lDRXhunx4wjEF4o253hbqdxoEZ9cTj24ACs7hwYQhp
-        Rx4jfEZTSgLwO8w7iN1NJ+7E4CFTiWxoMAYnpjA=
-X-Google-Smtp-Source: AMsMyM5QAysmvbv74GkbZQ40SjKXJSxAIW3nzS25w7jRYkcZVEdPN8nNNZK+pbmXtPRbinbc8qxj4sudbmVlRYvKKWI=
-X-Received: by 2002:a17:902:d50f:b0:178:6505:fae3 with SMTP id
- b15-20020a170902d50f00b001786505fae3mr5041222plg.54.1665750186130; Fri, 14
- Oct 2022 05:23:06 -0700 (PDT)
+        with ESMTP id S229511AbiJNNX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:23:26 -0400
+Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE78C19E02E;
+        Fri, 14 Oct 2022 06:23:23 -0700 (PDT)
+Received: from [141.14.220.45] (g45.guest.molgen.mpg.de [141.14.220.45])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id D887C61EA1930;
+        Fri, 14 Oct 2022 15:23:20 +0200 (CEST)
+Message-ID: <8bd2e447-54b0-8a6a-9020-7453a7353dd3@molgen.mpg.de>
+Date:   Fri, 14 Oct 2022 15:23:20 +0200
 MIME-Version: 1.0
-Received: by 2002:a05:7022:249f:b0:45:6892:6b88 with HTTP; Fri, 14 Oct 2022
- 05:23:05 -0700 (PDT)
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-References: <20221013175146.507746257@linuxfoundation.org>
-From:   Luna Jernberg <droidbittin@gmail.com>
-Date:   Fri, 14 Oct 2022 14:23:05 +0200
-Message-ID: <CADo9pHhS3gDjkBA=hEJv_pD1zpJ05Mm2e8oNsxBAFzArQ4KnKg@mail.gmail.com>
-Subject: Re: [PATCH 6.0 00/34] 6.0.2-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        droidbittin@gmail.com
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH] md/bitmap: Fix bitmap chunk size overflow issues.
+To:     Jack Wang <jinpu.wang@ionos.com>
+Cc:     Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
+        song@kernel.org, linux-raid@vger.kernel.org, stable@vger.kernel.org
+References: <20221014122032.47784-1-jinpu.wang@ionos.com>
+Content-Language: en-US
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+In-Reply-To: <20221014122032.47784-1-jinpu.wang@ionos.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,182 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Works fine on my Arch Linux Server with Intel(R) Core(TM) i5-6400 CPU @ 2.70GHz
+Dear Jack, dear Florian-Ewald,
 
-Tested-by: Luna Jernberg <droidbittin@gmail.com>
 
-On 10/13/22, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 6.0.2 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.2-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> linux-6.0.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
-> Pseudo-Shortlog of commits:
->
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->     Linux 6.0.2-rc1
->
-> Shunsuke Mie <mie@igel.co.jp>
->     misc: pci_endpoint_test: Fix pci_endpoint_test_{copy,write,read}()
-> panic
->
-> Shunsuke Mie <mie@igel.co.jp>
->     misc: pci_endpoint_test: Aggregate params checking for xfer
->
-> Cameron Gutman <aicommander@gmail.com>
->     Input: xpad - fix wireless 360 controller breaking after suspend
->
-> Pavel Rojtberg <rojtberg@gmail.com>
->     Input: xpad - add supported devices as contributed on github
->
-> Jeremy Kerr <jk@codeconstruct.com.au>
->     mctp: prevent double key removal and unref
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: cfg80211: update hidden BSSes to avoid WARN_ON
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: mac80211: fix crash in beacon protection for P2P-device
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: mac80211_hwsim: avoid mac80211 warning on bad rate
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: cfg80211: avoid nontransmitted BSS list corruption
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: cfg80211: fix BSS refcounting bugs
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: cfg80211: ensure length byte is present before access
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: mac80211: fix MBSSID parsing use-after-free
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: cfg80211/mac80211: reject bad MBSSID elements
->
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: cfg80211: fix u8 overflow in cfg80211_update_notlisted_nontrans()
->
-> Jason A. Donenfeld <Jason@zx2c4.com>
->     random: use expired timer rather than wq for mixing fast pool
->
-> Jason A. Donenfeld <Jason@zx2c4.com>
->     random: avoid reading two cache lines on irq randomness
->
-> Giovanni Cabiddu <giovanni.cabiddu@intel.com>
->     Revert "crypto: qat - reduce size of mapped region"
->
-> Nathan Lynch <nathanl@linux.ibm.com>
->     Revert "powerpc/rtas: Implement reentrant rtas call"
->
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->     Revert "usb: dwc3: Don't switch OTG -> peripheral if extcon is present"
->
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->     Revert "USB: fixup for merge issue with "usb: dwc3: Don't switch OTG ->
-> peripheral if extcon is present""
->
-> Frank Wunderlich <frank-w@public-files.de>
->     USB: serial: qcserial: add new usb-id for Dell branded EM7455
->
-> Linus Torvalds <torvalds@linux-foundation.org>
->     scsi: stex: Properly zero out the passthrough command structure
->
-> Arun Easi <aeasi@marvell.com>
->     scsi: qla2xxx: Fix response queue handler reading stale packets
->
-> Arun Easi <aeasi@marvell.com>
->     scsi: qla2xxx: Revert "scsi: qla2xxx: Fix response queue handler reading
-> stale packets"
->
-> Orlando Chamberlain <redecorating@protonmail.com>
->     efi: Correct Macmini DMI match in uefi cert quirk
->
-> Takashi Iwai <tiwai@suse.de>
->     ALSA: hda/realtek: Add quirk for HP Zbook Firefly 14 G9 model
->
-> Takashi Iwai <tiwai@suse.de>
->     ALSA: hda: Fix position reporting on Poulsbo
->
-> Jason A. Donenfeld <Jason@zx2c4.com>
->     random: clamp credited irq bits to maximum mixed
->
-> Jason A. Donenfeld <Jason@zx2c4.com>
->     random: restore O_NONBLOCK support
->
-> Rishabh Bhatnagar <risbhat@amazon.com>
->     nvme-pci: set min_align_mask before calculating max_hw_sectors
->
-> Ryusuke Konishi <konishi.ryusuke@gmail.com>
->     nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition
-> failure
->
-> Ryusuke Konishi <konishi.ryusuke@gmail.com>
->     nilfs2: fix leak of nilfs_root in case of writer thread creation
-> failure
->
-> Ryusuke Konishi <konishi.ryusuke@gmail.com>
->     nilfs2: fix use-after-free bug of struct nilfs_root
->
-> Ryusuke Konishi <konishi.ryusuke@gmail.com>
->     nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
->
->
-> -------------
->
-> Diffstat:
->
->  Makefile                                      |  4 +-
->  arch/powerpc/include/asm/paca.h               |  1 -
->  arch/powerpc/include/asm/rtas.h               |  1 -
->  arch/powerpc/kernel/paca.c                    | 32 -----------
->  arch/powerpc/kernel/rtas.c                    | 54 -------------------
->  arch/powerpc/sysdev/xics/ics-rtas.c           | 22 ++++----
->  drivers/char/mem.c                            |  4 +-
->  drivers/char/random.c                         | 25 ++++++---
->  drivers/crypto/qat/qat_common/qat_asym_algs.c | 12 ++---
->  drivers/input/joystick/xpad.c                 | 20 ++++++-
->  drivers/misc/pci_endpoint_test.c              | 34 +++++++++---
->  drivers/net/wireless/mac80211_hwsim.c         |  2 +
->  drivers/nvme/host/pci.c                       |  3 +-
->  drivers/scsi/qla2xxx/qla_gbl.h                |  2 -
->  drivers/scsi/qla2xxx/qla_isr.c                | 22 +++-----
->  drivers/scsi/qla2xxx/qla_os.c                 | 10 ----
->  drivers/scsi/stex.c                           | 17 +++---
->  drivers/usb/dwc3/core.c                       | 50 +----------------
->  drivers/usb/dwc3/drd.c                        | 50 +++++++++++++++++
->  drivers/usb/serial/qcserial.c                 |  1 +
->  fs/nilfs2/inode.c                             | 19 ++++++-
->  fs/nilfs2/segment.c                           | 21 +++++---
->  include/scsi/scsi_cmnd.h                      |  2 +-
->  net/mac80211/ieee80211_i.h                    |  8 +++
->  net/mac80211/rx.c                             | 12 +++--
->  net/mac80211/util.c                           | 32 +++++------
->  net/mctp/af_mctp.c                            | 23 +++++---
->  net/mctp/route.c                              | 10 ++--
->  net/wireless/scan.c                           | 77
-> +++++++++++++++++----------
->  security/integrity/platform_certs/load_uefi.c |  2 +-
->  sound/pci/hda/hda_intel.c                     |  3 +-
->  sound/pci/hda/patch_realtek.c                 | 18 +++++++
->  32 files changed, 313 insertions(+), 280 deletions(-)
->
->
->
+Thank you for the patch.
+
+Am 14.10.22 um 14:20 schrieb Jack Wang:
+> From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+> 
+> - limit bitmap chunk size internal u64 variable to values not overflowing
+>    the u32 bitmap superblock structure variable stored on persistent media.
+> - assign bitmap chunk size internal u64 variable from unsigned values to
+>    avoid possible sign extension artifacts when assigning from a s32 value.
+> 
+> The bug has been there since at least kernel 4.0.
+
+Did you find this during code review or hit actual problems? If so, a 
+reproducer would be nice to have. (A small nit, should you resend, if 
+you removed the dot/period from the end of the commit message 
+summary/title, that’d be great.)
+
+
+Kind regards,
+
+Paul
+
+
+> Cc: stable@vger.kernel.org
+> 
+> Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+> Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+> ---
+>   drivers/md/md-bitmap.c | 20 ++++++++++++--------
+>   1 file changed, 12 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+> index bf6dffadbe6f..b266711485a8 100644
+> --- a/drivers/md/md-bitmap.c
+> +++ b/drivers/md/md-bitmap.c
+> @@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
+>   	sb = kmap_atomic(bitmap->storage.sb_page);
+>   	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
+>   	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
+> -	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
+> +	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
+>   	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
+>   		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
+>   		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
+> @@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
+>   	pr_debug("events cleared: %llu\n",
+>   		 (unsigned long long) le64_to_cpu(sb->events_cleared));
+>   	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
+> -	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
+> -	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
+> +	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
+> +	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
+>   	pr_debug("     sync size: %llu KB\n",
+>   		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
+> -	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
+> +	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
+>   	kunmap_atomic(sb);
+>   }
+>   
+> @@ -2105,7 +2105,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+>   			bytes = DIV_ROUND_UP(chunks, 8);
+>   			if (!bitmap->mddev->bitmap_info.external)
+>   				bytes += sizeof(bitmap_super_t);
+> -		} while (bytes > (space << 9));
+> +		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
+> +			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
+>   	} else
+>   		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
+>   
+> @@ -2150,7 +2151,7 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+>   	bitmap->counts.missing_pages = pages;
+>   	bitmap->counts.chunkshift = chunkshift;
+>   	bitmap->counts.chunks = chunks;
+> -	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
+> +	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
+>   						     BITMAP_BLOCK_SHIFT);
+>   
+>   	blocks = min(old_counts.chunks << old_counts.chunkshift,
+> @@ -2176,8 +2177,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+>   				bitmap->counts.missing_pages = old_counts.pages;
+>   				bitmap->counts.chunkshift = old_counts.chunkshift;
+>   				bitmap->counts.chunks = old_counts.chunks;
+> -				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
+> -									     BITMAP_BLOCK_SHIFT);
+> +				bitmap->mddev->bitmap_info.chunksize =
+> +					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
+>   				blocks = old_counts.chunks << old_counts.chunkshift;
+>   				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
+>   				break;
+> @@ -2534,6 +2535,9 @@ chunksize_store(struct mddev *mddev, const char *buf, size_t len)
+>   	if (csize < 512 ||
+>   	    !is_power_of_2(csize))
+>   		return -EINVAL;
+> +	if (csize >= (1UL << (BITS_PER_BYTE *
+> +		sizeof(((bitmap_super_t *)0)->chunksize))))
+> +		return -EOVERFLOW;
+>   	mddev->bitmap_info.chunksize = csize;
+>   	return len;
+>   }
