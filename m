@@ -2,93 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7AB5FEFAA
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 16:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B3F5FF030
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 16:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbiJNOER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 10:04:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36922 "EHLO
+        id S229900AbiJNOVb convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 14 Oct 2022 10:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230411AbiJNODj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 10:03:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7328D6334A;
-        Fri, 14 Oct 2022 07:03:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E78D061B44;
-        Fri, 14 Oct 2022 13:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CAC5C4347C;
-        Fri, 14 Oct 2022 13:55:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755711;
-        bh=ueeWCw8JepfakVzE9OMUQ0cAaI9rX4AoDI/tKAPXQSk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zcgx6PXtkBRs5lLY2A9FCRoAmQ4c0IrCUzdPhYszW0Rjk6tAfFS2g0nHaCRQYQSSQ
-         yv8i80ggamBH4keosbf9GbDvCojS5qoMCkq5XhiE4pZ9HB+5Ztg4cTlR5LaN+UTUHI
-         Dge3KQI1Oia4LUq8kO7pF0u7WSBTSupjXwoFHAUgiOjynNwnHrDy5b2pvLA2jjgt42
-         tOOvyIJsHUA5JaZpbKqJKqUNmBsxK03pdBOa8kjIcUO4/upsQElQD0dPMDlbYufIVf
-         8lWzuK1zyFOM6T0FNFBYW/CN6iIU4kouAQ9QnBn5hS4+Dv36DBB9xE2mmbwliRYCco
-         poBr+VYYs0SIw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rohan McLure <rmclure@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
-        maqianga@uniontech.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 3/3] powerpc: Remove direct call to personality syscall handler
-Date:   Fri, 14 Oct 2022 09:55:00 -0400
-Message-Id: <20221014135502.2110218-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S229633AbiJNOVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 10:21:30 -0400
+Received: from relay.hostedemail.com (smtprelay0010.hostedemail.com [216.40.44.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA11A1CC747;
+        Fri, 14 Oct 2022 07:21:29 -0700 (PDT)
+Received: from omf15.hostedemail.com (a10.router.float.18 [10.200.18.1])
+        by unirelay05.hostedemail.com (Postfix) with ESMTP id B3E9D4099E;
+        Fri, 14 Oct 2022 14:15:12 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf15.hostedemail.com (Postfix) with ESMTPA id 06F541C;
+        Fri, 14 Oct 2022 14:14:56 +0000 (UTC)
+Message-ID: <043b9474f83b2da34bce5ff94b9aa3b735b70d4f.camel@perches.com>
+Subject: Re: [PATCH AUTOSEL 4.9 1/3] powerpc/selftests: Use timersub() for
+ gettimeofday()
+From:   Joe Perches <joe@perches.com>
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     ye xingchen <ye.xingchen@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Michael Ellerman <mpe@ellerman.id.au>, shuah@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Date:   Fri, 14 Oct 2022 07:15:08 -0700
 In-Reply-To: <20221014135502.2110218-1-sashal@kernel.org>
 References: <20221014135502.2110218-1-sashal@kernel.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Stat-Signature: 3zgjaw88zojn6q9khoy8omazrsq4orrh
+X-Rspamd-Server: rspamout05
+X-Rspamd-Queue-Id: 06F541C
+X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,
+        SPF_NONE,UNPARSEABLE_RELAY autolearn=no autolearn_force=no
+        version=3.4.6
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX190Yuwm6bfJNyNHFDdGFIA6O0pYyJESv1I=
+X-HE-Tag: 1665756896-52267
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohan McLure <rmclure@linux.ibm.com>
+On Fri, 2022-10-14 at 09:54 -0400, Sasha Levin wrote:
+> From: ye xingchen <ye.xingchen@zte.com.cn>
+> 
+> [ Upstream commit c814bf958926ff45a9c1e899bd001006ab6cfbae ]
+> 
+> Use timersub() function to simplify the code.
 
-[ Upstream commit 4df0221f9ded8c39aecfb1a80cef346026671cb7 ]
+Why should a code simplification be backported?
 
-Syscall handlers should not be invoked internally by their symbol names,
-as these symbols defined by the architecture-defined SYSCALL_DEFINE
-macro. Fortunately, in the case of ppc64_personality, its call to
-sys_personality can be replaced with an invocation to the
-equivalent ksys_personality inline helper in <linux/syscalls.h>.
-
-Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921065605.1051927-13-rmclure@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/powerpc/kernel/syscalls.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
-index 644cce3d8dce..d847b4d5ecf6 100644
---- a/arch/powerpc/kernel/syscalls.c
-+++ b/arch/powerpc/kernel/syscalls.c
-@@ -109,7 +109,7 @@ long ppc64_personality(unsigned long personality)
- 	if (personality(current->personality) == PER_LINUX32
- 	    && personality(personality) == PER_LINUX)
- 		personality = (personality & ~PER_MASK) | PER_LINUX32;
--	ret = sys_personality(personality);
-+	ret = ksys_personality(personality);
- 	if (personality(ret) == PER_LINUX32)
- 		ret = (ret & ~PER_MASK) | PER_LINUX;
- 	return ret;
--- 
-2.35.1
+> 
+> Reported-by: Zeal Robot <zealci@zte.com.cn>
+> Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20220816105106.82666-1-ye.xingchen@zte.com.cn
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  tools/testing/selftests/powerpc/benchmarks/gettimeofday.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c b/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
+> index 3af3c21e8036..7f4bb84f1c9c 100644
+> --- a/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
+> +++ b/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
+> @@ -12,7 +12,7 @@ static int test_gettimeofday(void)
+>  {
+>  	int i;
+>  
+> -	struct timeval tv_start, tv_end;
+> +	struct timeval tv_start, tv_end, tv_diff;
+>  
+>  	gettimeofday(&tv_start, NULL);
+>  
+> @@ -20,7 +20,9 @@ static int test_gettimeofday(void)
+>  		gettimeofday(&tv_end, NULL);
+>  	}
+>  
+> -	printf("time = %.6f\n", tv_end.tv_sec - tv_start.tv_sec + (tv_end.tv_usec - tv_start.tv_usec) * 1e-6);
+> +	timersub(&tv_start, &tv_end, &tv_diff);
+> +
+> +	printf("time = %.6f\n", tv_diff.tv_sec + (tv_diff.tv_usec) * 1e-6);
+>  
+>  	return 0;
+>  }
 
