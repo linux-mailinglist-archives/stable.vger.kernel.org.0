@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E100A5FEB88
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 11:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3345FEB99
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 11:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229985AbiJNJ1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 05:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51162 "EHLO
+        id S230111AbiJNJ2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 05:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229732AbiJNJ1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 05:27:45 -0400
-Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023DD32EDF
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 02:27:45 -0700 (PDT)
-Received: by mail-vs1-xe2a.google.com with SMTP id k6so4295777vsc.8
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 02:27:44 -0700 (PDT)
+        with ESMTP id S230144AbiJNJ2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 05:28:36 -0400
+Received: from mail-vk1-xa31.google.com (mail-vk1-xa31.google.com [IPv6:2607:f8b0:4864:20::a31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188691C7D52
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 02:28:27 -0700 (PDT)
+Received: by mail-vk1-xa31.google.com with SMTP id m128so1967565vka.12
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 02:28:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=cjnW4tf9c8x2Kot+4dsA36tSE1A+nkdrr9pQjeRPHo4=;
-        b=e/8Eg6T4sL2d/8ZnDiMjNkRy01w2HUG9WQlOFFimobkyf+lC2UbteN4wD+9hgX5kqL
-         YTFyWdsvdUE2puoNRHdJ7gsClx0sb46fqYhuZRG+zQHTIrkRGK6I72RPinw6QqXSiVTg
-         2vZbnYUxvOyZxMlvQOTfgU9AfHuTdjGCiZ3+SkuXiNFPEe3WYNqFozCjMt7+70jIcQz/
-         ogcbPTHZeq6TGS4OUwFpfW2VcXDYfdv1AcMDryMyK9EI+9haZfQZdr82q5hJD6ZRg+rb
-         9rhsPWE0aTRRp7RF/jfDVKcYOqmHrbq066AnWQPTjer+YGaqWEUwmzKqrp6b5edWz4+v
-         b/OQ==
+        bh=oMKephT0DO36b58uiumO9iVQmJHAbKITY1Dq80O5li0=;
+        b=hJ3wlaBR1rmsjyX6U3m2vET/5mRwyv6ddsDpTpVYugRoBeDvlX/p+VXFVnDEq+goeA
+         H220fsvoQR02ho5MrVXrF5VUB2nJUDf+7vEXVl+NO6Ih718lxLNDS8hsbq4J2vLk42Fj
+         A0XmR+JkhkQLxWuTlDSyAxMDy3njZoJ2bpjt8YpYjjUqDwFaftZu7y8qbuq3QicLw7jU
+         G1sUdlF0czC9iOy504QpnMUYFfAoqri9ny8xQfpNNVWtI5ljIwZqRsXSGVsYNemDpBst
+         +8bjLix7If5sLgDodiruYPHTstQeVRXouC5nRwpaInX6U9MGlC8ZJEZkSQNujnsTFxA8
+         dOeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=cjnW4tf9c8x2Kot+4dsA36tSE1A+nkdrr9pQjeRPHo4=;
-        b=ZyJm+aAqitWQH4IoTtjIUuc/TFEYW7XiyKF960Z4bHHTE2nmZPAIDU3IdheYxl06gC
-         M3fdrdK2P4KpCctlLQsZFTs4QVWm4XGv1RHuPU359s42tmCzVcpWxucFyoJd9Onl4UkB
-         g8dpaGpzMHKFn8whO6Mj3oxN1ka9891PS/+hWEu6h8aojFwuLRdY87lad6p5WFL5smvw
-         o62ic76G90iLVHPR2pypQtD89Ju5MFhEmL3dn4i0AOtD1g1HB/NTxq37WJdij8m+EYDW
-         KBxZCx8J518DRi58dDCJ4YKuD5xvgNG2A5IsfbOAWvjG6V2NXf/n3g1Me9hHBX0FmGBr
-         11Dw==
-X-Gm-Message-State: ACrzQf0OwtPkrY/PoaCYGa2kBdmEUMxfcbXDhRA8frHMJ08mgX0RYI8q
-        3EPeGhxdb6rwZxDJbfN2EbgxzpAcAwKR9flAMZa+Ig==
-X-Google-Smtp-Source: AMsMyM6cJ+8YudU/hDCymz25EyARZ8r+Qou4Z3HxJ+UPdqodRApASZer9YjNLOs6CCe1LBlOtcI3yHLb/56Zzr4CEZw=
-X-Received: by 2002:a67:cb07:0:b0:3a6:f64f:4627 with SMTP id
- b7-20020a67cb07000000b003a6f64f4627mr2269436vsl.47.1665739664146; Fri, 14 Oct
- 2022 02:27:44 -0700 (PDT)
+        bh=oMKephT0DO36b58uiumO9iVQmJHAbKITY1Dq80O5li0=;
+        b=UJHH0Sl1SBrWJ3yIJyXu7sYQ24QZbyBRfTDuchigpyD/wd7TK1MarTxknywx41EUpY
+         vVlraNVtd6I+8PIUAaG8tA4wV3XSmiXrORFBeZ/nd77hRayMOhr1EoN7MoFU/n44NEzj
+         pK7ClxW86aGXvSpVYWYvt1NgLP0i0ZjsbGhTp71hhVfU3ZbipISzSzJVSoRCi1NYo0u1
+         xMVWAUZirRAADQMFGrWPb4TsiRsNUFSeqcF7/E6IZMq7ktlVa7tGvdyH3mgmrujk+3v8
+         0HNAFCqIa+N3H/owX58u8WxCRz9uI+ctaLsyJjTGMOR/NSVZZkprS/Sg10YYo2hPFMNQ
+         iHUw==
+X-Gm-Message-State: ACrzQf2HndCNpsuTNtntkUyhZCy7Mrk43khNZ/Pq0OAfP/8IhTZDAiSs
+        eYguDIcBxUw4muh1419jAw49d6IqugviJaTMGv/iTQ==
+X-Google-Smtp-Source: AMsMyM51FP2p+iGF6rMOAh0E6lwlo48EM4GPcGJK+taDJA7BV+nQsXvedDxZnWyvtZJJhInF2liOhopGMZyt+xnp0tU=
+X-Received: by 2002:a05:6122:4f8:b0:3ae:21f7:28da with SMTP id
+ s24-20020a05612204f800b003ae21f728damr2011503vkf.33.1665739705609; Fri, 14
+ Oct 2022 02:28:25 -0700 (PDT)
 MIME-Version: 1.0
-References: <20221013001842.1893243-1-sashal@kernel.org> <20221013001842.1893243-21-sashal@kernel.org>
-In-Reply-To: <20221013001842.1893243-21-sashal@kernel.org>
+References: <20221013001842.1893243-1-sashal@kernel.org> <20221013001842.1893243-22-sashal@kernel.org>
+In-Reply-To: <20221013001842.1893243-22-sashal@kernel.org>
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Fri, 14 Oct 2022 11:27:33 +0200
-Message-ID: <CAMRc=MebwvKv28084YHihnNGYGTz9FEBcDA8EPmsgqoEif6fzg@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.19 21/63] gpiolib: of: do not ignore requested
- index when applying quirks
+Date:   Fri, 14 Oct 2022 11:28:14 +0200
+Message-ID: <CAMRc=Md25wNapmU4ZxNfTPAOgCpSkW6Z7Oen6NFKj-kURaupAQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.19 22/63] gpiolib: of: make Freescale SPI quirk
+ similar to all others
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -60,8 +60,8 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         linux-gpio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -72,11 +72,14 @@ On Thu, Oct 13, 2022 at 2:19 AM Sasha Levin <sashal@kernel.org> wrote:
 >
 > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 >
-> [ Upstream commit 98c3c940ea5c3957056717e8b77a91c7d94536ad ]
+> [ Upstream commit 984914ec4f4bfa9ee8f067b06293bc12bef20137 ]
 >
-> We should not ignore index passed into of_find_gpio() when handling
-> quirks. While in practice this change will not have any effect, it
-> will allow consolidate quirk handling.
+> There is no need for of_find_spi_cs_gpio() to be different from other
+> quirks: the only variant of property actually used in DTS is "gpios"
+> (plural) so we can use of_get_named_gpiod_flags() instead of recursing
+> into of_find_gpio() again.
+>
+> This will allow us consolidate quirk handling down the road.
 >
 
 Sasha,
@@ -84,3 +87,5 @@ Sasha,
 This is not a fix, it's code refactoring. Definitely not stable material.
 
 Bartosz
+
+PS Same for the rest of the backports of the three patches I commented on.
