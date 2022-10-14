@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5521E5FEF03
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D2F5FEF05
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229913AbiJNNwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 09:52:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37612 "EHLO
+        id S229548AbiJNNwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:52:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229926AbiJNNwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:52:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC5E1D0679;
-        Fri, 14 Oct 2022 06:52:02 -0700 (PDT)
+        with ESMTP id S229933AbiJNNw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:52:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3492B1C6BE5;
+        Fri, 14 Oct 2022 06:52:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59AF8B82215;
-        Fri, 14 Oct 2022 13:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96D6C433B5;
-        Fri, 14 Oct 2022 13:51:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54C9AB82353;
+        Fri, 14 Oct 2022 13:52:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41298C433B5;
+        Fri, 14 Oct 2022 13:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755519;
-        bh=aw7b8s6lfuANwvZSIKkLapzc1cdGYtXBKsSB/Xbc17A=;
+        s=k20201202; t=1665755522;
+        bh=+krbDFwQ/pnuQQX7ebNQRJkJQbc51seZuzRYSbMW96I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftZxPgAF9NjF2cgIdGfhSDBIz3VqAGnfDLn+fJX+8pDnZjvEBkvBHqo0cWZAzdkLe
-         7HTJQYtdLXZS8KKQ/EWqWSY4wm55Ovd/9ZEyWCiQBHhucyEUa8GcPA46gApiUwIR5t
-         GWA8LdkjJm5rW/1H1XojMPzOnacMFkxj1D2D416DAl6/sHse4L38RV2WAmz+Rgk62u
-         h2DrZrWJ+GUxDvz2XzkERaOc59UrNiQgNE9gjULm08sx8VcmNozOEDK+9vk4RFyUqQ
-         0GZTKQ9eqhFZiyoxjj9q1UxJ6sw6dljFcbiQvJcNF3sUN+R9o2kbYrAGGgzgzI7Iz7
-         gItsYu6lf0m8w==
+        b=grzzJ7cuM/DcuiN5QSrmR7sM7Ym0ACJ8HC4Mc/zKG2o380dX1wSCUtxFZs7ZqEPWK
+         3BzYtgfkzHhE2k3+j+7v8cJ6tXLyI8V4E5WF6iN1QWe+VK225qAME/q4/L4ySUSNaL
+         D6OrIttNN2CQlpP4jdpDVMpVroc/EYvDhgdw0UPmHIShSy1oX/CTCo42zppVRZzWUQ
+         fJVIjCNyPESlqVWO2VRkIyHuJaKkPVwz/r2NHRZw5aghwimCrl5n4cSs45kjuK1r1f
+         RJWWoIONsuqL4gQxMXaTkw9oIDX7paeu/RBbKWZdHNkTggEyETJG9xusEZfFM0h1pz
+         HBYZaebE/ckeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich@syntacore.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>, atishp@atishpatra.org,
-        will@kernel.org, mark.rutland@arm.com, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu,
-        linux-riscv@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 06/11] perf: RISC-V: throttle perf events
-Date:   Fri, 14 Oct 2022 09:51:32 -0400
-Message-Id: <20221014135139.2109024-6-sashal@kernel.org>
+Cc:     Rohan McLure <rmclure@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        maqianga@uniontech.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 6.0 07/11] powerpc: Remove direct call to personality syscall handler
+Date:   Fri, 14 Oct 2022 09:51:33 -0400
+Message-Id: <20221014135139.2109024-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221014135139.2109024-1-sashal@kernel.org>
 References: <20221014135139.2109024-1-sashal@kernel.org>
@@ -60,53 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
+From: Rohan McLure <rmclure@linux.ibm.com>
 
-[ Upstream commit 096b52fd2bb4996fd68d22b3b7ad21a1296db9d3 ]
+[ Upstream commit 4df0221f9ded8c39aecfb1a80cef346026671cb7 ]
 
-Call perf_sample_event_took() to report time spent in overflow
-interrupts. Perf core uses these measurements to throttle
-perf events properly.
+Syscall handlers should not be invoked internally by their symbol names,
+as these symbols defined by the architecture-defined SYSCALL_DEFINE
+macro. Fortunately, in the case of ppc64_personality, its call to
+sys_personality can be replaced with an invocation to the
+equivalent ksys_personality inline helper in <linux/syscalls.h>.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Link: https://lore.kernel.org/r/20220830155306.301714-4-geomatsi@gmail.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220921065605.1051927-13-rmclure@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/riscv_pmu_sbi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/kernel/syscalls.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
-index 8de4ca2fef21..88e326c5f63b 100644
---- a/drivers/perf/riscv_pmu_sbi.c
-+++ b/drivers/perf/riscv_pmu_sbi.c
-@@ -18,6 +18,7 @@
- #include <linux/of_irq.h>
- #include <linux/of.h>
- #include <linux/cpu_pm.h>
-+#include <linux/sched/clock.h>
- 
- #include <asm/sbi.h>
- #include <asm/hwcap.h>
-@@ -567,6 +568,7 @@ static irqreturn_t pmu_sbi_ovf_handler(int irq, void *dev)
- 	unsigned long overflow;
- 	unsigned long overflowed_ctrs = 0;
- 	struct cpu_hw_events *cpu_hw_evt = dev;
-+	u64 start_clock = sched_clock();
- 
- 	if (WARN_ON_ONCE(!cpu_hw_evt))
- 		return IRQ_NONE;
-@@ -635,7 +637,9 @@ static irqreturn_t pmu_sbi_ovf_handler(int irq, void *dev)
- 			perf_event_overflow(event, &data, regs);
- 		}
- 	}
-+
- 	pmu_sbi_start_overflow_mask(pmu, overflowed_ctrs);
-+	perf_sample_event_took(sched_clock() - start_clock);
- 
- 	return IRQ_HANDLED;
- }
+diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+index fc999140bc27..690afd77e7fe 100644
+--- a/arch/powerpc/kernel/syscalls.c
++++ b/arch/powerpc/kernel/syscalls.c
+@@ -88,7 +88,7 @@ long ppc64_personality(unsigned long personality)
+ 	if (personality(current->personality) == PER_LINUX32
+ 	    && personality(personality) == PER_LINUX)
+ 		personality = (personality & ~PER_MASK) | PER_LINUX32;
+-	ret = sys_personality(personality);
++	ret = ksys_personality(personality);
+ 	if (personality(ret) == PER_LINUX32)
+ 		ret = (ret & ~PER_MASK) | PER_LINUX;
+ 	return ret;
 -- 
 2.35.1
 
