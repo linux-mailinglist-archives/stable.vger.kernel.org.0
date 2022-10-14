@@ -2,111 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 320795FE9EA
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 09:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE20D5FEA68
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 10:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229471AbiJNH5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 03:57:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57138 "EHLO
+        id S229513AbiJNIWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 04:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbiJNH5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 03:57:51 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADDB1B94F4;
-        Fri, 14 Oct 2022 00:57:50 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id d7-20020a17090a2a4700b0020d268b1f02so7202519pjg.1;
-        Fri, 14 Oct 2022 00:57:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wLneJUpM1nhm+EaO9DlelTa6ysSFyvLK+KcF8aO6i4w=;
-        b=ID9m6IJRnyqYwMKtDX/wIEOaf81cQEz1qL0vbQVUtkXE3mL1qagMAb2Tllm8mFm9/9
-         WF1bNW1wPSS9x1YtKjSvy+xEY9jCIbEgJzG136bukHyDwR/lG9gw8I3JZpt95T23wvn+
-         NBXqI0r2gbN95umPrp46cNMDKCNDfgT4PLqudEzSm07LzxH+ve2W9RQJ0qmzxkRgi+qa
-         0KFGvCd+usLSQ9nRT+FSTawfEK+lwiqEEuKmlBN+6kujZ98dtTuAAgrrAiEUOEgIHBXB
-         wznp08+nIp0q9e7W9iwrWOhWJrltMZqqtD92Mw0hXC1AEVhGxmUQ2DQaexEqSQWNqrBk
-         oCtQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wLneJUpM1nhm+EaO9DlelTa6ysSFyvLK+KcF8aO6i4w=;
-        b=On3mbKcpM+h0IZ3uzp97XAad48Y9m4RUAWs08QHGQ04e+kZkfYMhML5qGI6ToXqBT2
-         fqk+lafkycQCWQ+QI769p4hhsEO6skpAWpUdijUe3md124rOcdcXenuo8xaYYIxLK+uE
-         v1p8KVpyFSWLDLmxh9LVGeTBIFsLPm3NH3EM09Z62wONt3ViZ6vRtvJLJZoqRwVlq30j
-         D4gTpSvTYPf4dIsoqR7+k+GEMTcL1hmDu7Grq9XegnY/z9Z9zh127PiowhT6RcK8S6lB
-         6w6qM87Hv0ShvQz0jZiziRiUta91PnC+nxMCMjDW8y5ehPuOcmbDsEf4LCkDTWVe59aO
-         RqYA==
-X-Gm-Message-State: ACrzQf13zlaajbXW8wxUlw8W3xGBiYlKFGsgcQsfkRWEgIUTrJ3pis2e
-        Lj5R04iWQfh+2GM2YXmbmGc=
-X-Google-Smtp-Source: AMsMyM5fze6JL2VxBBTRZPCPFqQZbyF01vHuypQtvDG+SmfolYWRFCkhswPbVWyR4tOE8Nh5LpIDMg==
-X-Received: by 2002:a17:90b:4b4b:b0:20a:926f:3c2e with SMTP id mi11-20020a17090b4b4b00b0020a926f3c2emr4247039pjb.87.1665734269786;
-        Fri, 14 Oct 2022 00:57:49 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-79.three.co.id. [180.214.232.79])
-        by smtp.gmail.com with ESMTPSA id z11-20020a170903018b00b00172ea8ff334sm1111042plg.7.2022.10.14.00.57.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Oct 2022 00:57:49 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id D1708104023; Fri, 14 Oct 2022 14:57:46 +0700 (WIB)
-Date:   Fri, 14 Oct 2022 14:57:46 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 6.0 00/34] 6.0.2-rc1 review
-Message-ID: <Y0kWett3COfWUycz@debian.me>
-References: <20221013175146.507746257@linuxfoundation.org>
+        with ESMTP id S229541AbiJNIWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 04:22:12 -0400
+X-Greylist: delayed 367 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 14 Oct 2022 01:22:08 PDT
+Received: from mail.finestuse.pl (mail.finestuse.pl [151.236.14.158])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB574DF0E
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 01:22:08 -0700 (PDT)
+Received: by mail.finestuse.pl (Postfix, from userid 1001)
+        id 4EEA0422D3; Fri, 14 Oct 2022 10:15:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=finestuse.pl; s=mail;
+        t=1665735359; bh=UD54pjeSvmjUvpN5zztXHgmrjQnJSNUmuwCLwOP/qfE=;
+        h=Date:From:To:Subject:From;
+        b=P9vCV+cHt4hOJmFEM6Jieb1gxblw4dIgcMta0dtPslVa9VG4aTAMxnpMqNHnP1UNZ
+         Nov/A7/gvQ/0+63356Htlo1PHhEXJBzC9vdwyaLJdkl+h+4dYIG2h0D/EKVFdyDa2U
+         SY2GpovwQ3N9qTRu1z9wWjWM27URf/vJPVzCGxI6BQhRY1fkXrY08dYs2s1SYEgc53
+         FB/QkhZSFypqlKT0sb//xarmGcmVOLOwLnMN/UvwB7DRoTK1tPCwEveDWrZlcp3et3
+         ZYJDGAtqgqkoiaQABgoL6Z6f/acBtLv7HO9pm00m/aauJBpK7PAiXERwp9cN/hU3jj
+         jkyHDILcX5lsw==
+Received: by mail.finestuse.pl for <stable@vger.kernel.org>; Fri, 14 Oct 2022 08:15:45 GMT
+Message-ID: <20221014084500-0.1.4r.f28t.0.26sk7za9b1@finestuse.pl>
+Date:   Fri, 14 Oct 2022 08:15:45 GMT
+From:   "Dominik Chrostek" <dominik.chrostek@finestuse.pl>
+To:     <stable@vger.kernel.org>
+Subject: =?UTF-8?Q?Odroczenie_zap=C5=82aty?=
+X-Mailer: mail.finestuse.pl
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ZezhoY3zInJdkVi0"
-Content-Disposition: inline
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=0.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dzie=C5=84 dobry,
 
---ZezhoY3zInJdkVi0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+czy chcieliby odroczy=C4=87 p=C5=82atno=C5=9B=C4=87 za towary u dostawc=C3=
+=B3w?
 
-On Thu, Oct 13, 2022 at 07:52:38PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.2 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Mo=C5=BCemy zap=C5=82aci=C4=87 za Pa=C5=84stwa zam=C3=B3wienia, a po zap=C5=
+=82acie wystawimy Pa=C5=84stwu faktur=C4=99 z odroczonym terminem p=C5=82=
+atno=C5=9Bci nawet do 90 dni.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
+Byliby Pa=C5=84stwo zainteresowani tak=C4=85 mo=C5=BCliwo=C5=9Bci=C4=85?
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
---=20
-An old man doll... just what I always wanted! - Clara
-
---ZezhoY3zInJdkVi0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY0kWegAKCRD2uYlJVVFO
-o0l6AQCScfsqW1jha7Cgd2J7S5gAbqXoz8Yapu0zLNBTXSzn+gD/WAr8zy9DbeTN
-PUfY2UrRuHWTcAIGgP72JHSbW4z4KAE=
-=o0lf
------END PGP SIGNATURE-----
-
---ZezhoY3zInJdkVi0--
+Pozdrawiam
+Dominik Chrostek
