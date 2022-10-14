@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5AA5FEF34
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 431145FEF27
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbiJNNye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 09:54:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38526 "EHLO
+        id S230033AbiJNNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229997AbiJNNyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:54:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E151D103D;
-        Fri, 14 Oct 2022 06:53:22 -0700 (PDT)
+        with ESMTP id S229784AbiJNNxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:53:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452021D0D55;
+        Fri, 14 Oct 2022 06:53:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65EAF61B56;
-        Fri, 14 Oct 2022 13:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB47AC433C1;
-        Fri, 14 Oct 2022 13:53:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25732B82349;
+        Fri, 14 Oct 2022 13:53:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1567EC433D6;
+        Fri, 14 Oct 2022 13:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755585;
-        bh=U0lIaU2Bg+EO45Zkz0Q6xlgGl0EgCOwekmuLkCRZk5A=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Of5JcgeLuETDoSqHAkgNHBV0i2hxxfX4wTBc07DzDK17JL25AZWqNrd0OFuHlH8X4
-         XFoQUgMUcvUAccnvE2+FZmF2EIFAb8flfUcRmBF7Ow28zfIKi3LxWLMRLLkFAJWI7i
-         z6MQuMbzUlnjVDlIEai2hmj/a9t2xiiNiM7+i+zRGx9CpIStTkl0/1EAF9wEfxouAK
-         kNtzdHjGS6qbGxPOAQgF1vfjpsi+fNaGVA2OOKbP1vHSHcr1tFy3KKAtrT9Y2aYg11
-         RvxNTEQ7UlEIX1CWOpSGdoBhqozyKDvMvAjH/+x0z0RPl6uS2UpvYrqX60is2I+iBy
-         j8WZEhs/OKyEw==
+        s=k20201202; t=1665755588;
+        bh=BOeUAW08y22Ui11TSsJcGyob9iBOvUvzBgY7Wtfqjlo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dRH3vaNHhOiKFbPfYl735iy8u2dC6Oy4xQLUuOmvz5tWzoKNq8FC7tXNwIoz3+nvG
+         MJzR+gXW0XAFGd8y2ru9yqGhyLL2IZikMz0nVdJFhiI3ssDyLsoeih3kkSVxVgP/SL
+         MDalpq0deWf/9zWPZIXOq4kcNCRx3SZ12lVKxckkkLkah1/6h+JBYwcmMXPf0JhTUJ
+         ZQtGckk9M2MmfP5sJCEscJwQ/Xnk7BZLaAM8oMrAdm2WIfLvtgSfV8KYqHk1M8jQbC
+         FPL5mXMj84j7a9FTJT9EvDScT/WQFzRY7EUV8q/S0uEE7dif/MObgsODysfDaZAIWC
+         dFr+JBjXVIjoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>, akpm@linux-foundation.org,
-        pmladek@suse.com, david@redhat.com, laoar.shao@gmail.com,
-        arnd@arndb.de, cai.huoqing@linux.dev
-Subject: [PATCH AUTOSEL 5.15 1/8] signal: break out of wait loops on kthread_stop()
-Date:   Fri, 14 Oct 2022 09:52:54 -0400
-Message-Id: <20221014135302.2109489-1-sashal@kernel.org>
+Cc:     ye xingchen <ye.xingchen@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 2/8] powerpc/selftests: Use timersub() for gettimeofday()
+Date:   Fri, 14 Oct 2022 09:52:55 -0400
+Message-Id: <20221014135302.2109489-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221014135302.2109489-1-sashal@kernel.org>
+References: <20221014135302.2109489-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,62 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: ye xingchen <ye.xingchen@zte.com.cn>
 
-[ Upstream commit a7c01fa93aeb03ab76cd3cb2107990dd160498e6 ]
+[ Upstream commit c814bf958926ff45a9c1e899bd001006ab6cfbae ]
 
-I was recently surprised to learn that msleep_interruptible(),
-wait_for_completion_interruptible_timeout(), and related functions
-simply hung when I called kthread_stop() on kthreads using them. The
-solution to fixing the case with msleep_interruptible() was more simply
-to move to schedule_timeout_interruptible(). Why?
+Use timersub() function to simplify the code.
 
-The reason is that msleep_interruptible(), and many functions just like
-it, has a loop like this:
-
-        while (timeout && !signal_pending(current))
-                timeout = schedule_timeout_interruptible(timeout);
-
-The call to kthread_stop() woke up the thread, so schedule_timeout_
-interruptible() returned early, but because signal_pending() returned
-true, it went back into another timeout, which was never woken up.
-
-This wait loop pattern is common to various pieces of code, and I
-suspect that the subtle misuse in a kthread that caused a deadlock in
-the code I looked at last week is also found elsewhere.
-
-So this commit causes signal_pending() to return true when
-kthread_stop() is called, by setting TIF_NOTIFY_SIGNAL.
-
-The same also probably applies to the similar kthread_park()
-functionality, but that can be addressed later, as its semantics are
-slightly different.
-
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-v1: https://lkml.kernel.org/r/20220627120020.608117-1-Jason@zx2c4.com
-v2: https://lkml.kernel.org/r/20220627145716.641185-1-Jason@zx2c4.com
-v3: https://lkml.kernel.org/r/20220628161441.892925-1-Jason@zx2c4.com
-v4: https://lkml.kernel.org/r/20220711202136.64458-1-Jason@zx2c4.com
-v5: https://lkml.kernel.org/r/20220711232123.136330-1-Jason@zx2c4.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220816105106.82666-1-ye.xingchen@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kthread.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/powerpc/benchmarks/gettimeofday.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 5b37a8567168..c8ca1007e2dd 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -644,6 +644,7 @@ int kthread_stop(struct task_struct *k)
- 	kthread = to_kthread(k);
- 	set_bit(KTHREAD_SHOULD_STOP, &kthread->flags);
- 	kthread_unpark(k);
-+	set_tsk_thread_flag(k, TIF_NOTIFY_SIGNAL);
- 	wake_up_process(k);
- 	wait_for_completion(&kthread->exited);
- 	ret = k->exit_code;
+diff --git a/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c b/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
+index 6b415683357b..580fcac0a09f 100644
+--- a/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
++++ b/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
+@@ -12,7 +12,7 @@ static int test_gettimeofday(void)
+ {
+ 	int i;
+ 
+-	struct timeval tv_start, tv_end;
++	struct timeval tv_start, tv_end, tv_diff;
+ 
+ 	gettimeofday(&tv_start, NULL);
+ 
+@@ -20,7 +20,9 @@ static int test_gettimeofday(void)
+ 		gettimeofday(&tv_end, NULL);
+ 	}
+ 
+-	printf("time = %.6f\n", tv_end.tv_sec - tv_start.tv_sec + (tv_end.tv_usec - tv_start.tv_usec) * 1e-6);
++	timersub(&tv_start, &tv_end, &tv_diff);
++
++	printf("time = %.6f\n", tv_diff.tv_sec + (tv_diff.tv_usec) * 1e-6);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
