@@ -2,116 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E441F5FF52A
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 23:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B81E25FF599
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 23:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbiJNVUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 17:20:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45454 "EHLO
+        id S229672AbiJNVxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 17:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbiJNVUk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 17:20:40 -0400
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D77243E5D
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 14:20:37 -0700 (PDT)
-Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 3C077100441BD
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 21:20:27 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id jS6UoBrZbCeXyjS6UoM0Uk; Fri, 14 Oct 2022 21:20:27 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=Qv+bYX+d c=1 sm=1 tr=0 ts=6349d29b
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=Qawa6l4ZSaYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=OLmlkwXjvnPPfp-jv6YA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=4bM1bXKX0jCdbHBW2kitGVRFfYY+EFZTUGuJ/S+jeSc=; b=kP89wGyxtThHwZzCD55UiOkiVm
-        yNvzCZKIU7TbjF5RiKKoOD1bhK4iUPnQAOOGSh2V+BzMgnwzykdzNzfAx8tEoBH9NIIgdZUrsLvBP
-        S6rCS42XbMe7HG4rk6D0P7SpjdA5sSrIeW/ixWcnh5LL24TcYqXyQIyEzJY6+/JoVhaAjDskGEBxX
-        3so9BJfAu/9XcaYihnJOuBhMxmUsUjftHpYYrNpAQrxarpAI7Zyu22bs+NjrYwTOWVq+SRQiUAeeM
-        y3frKdXMCBMHFGubUarXNZbQSVkoT/mkT4yU1VAo+gJx7NnmLyYRmalYmMRhNLmDUjDM18fWfcH/5
-        KNBRdKfg==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53876 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1ojS6S-000uN7-IM;
-        Fri, 14 Oct 2022 15:20:24 -0600
-Subject: Re: [PATCH 5.19 00/33] 5.19.16-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-References: <20221013175145.236739253@linuxfoundation.org>
-In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <23bf715b-f0aa-c71b-ded7-4354e557c089@w6rz.net>
-Date:   Fri, 14 Oct 2022 14:20:16 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229598AbiJNVxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 17:53:06 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64391186CD
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 14:53:05 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id l1so5893965pld.13
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 14:53:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=o1t17x5zzSpdCuf+jFEyQQCtGA/0x7inpYCOmKSTCbI=;
+        b=Uo/GHpK8vU+smItb6OkYUg4Tbd+055hEHZN7hanO/jiPIWezUApYxsQMXMB6pYaNHW
+         YN66dB0oETBKwriK4Nmb5J9TkN89fw0Z1ls/fLsECw/qHWGQjTN79WOUuwSOTqI8vUme
+         ycK4KPHzIMv/LQwAtM1LH0zOkn9dBCsMmfJoY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=o1t17x5zzSpdCuf+jFEyQQCtGA/0x7inpYCOmKSTCbI=;
+        b=jXTALb3c+IDkp+jj8hRP3FYRhZ6Ceqw9wGtBcgWd41fTEHzfMY53F+w6i9vEGRQ/+f
+         aq1fzBiL5UWV+k/Qqyt+VFx6lk58g4Mcu2hc0dfC7B/ta1AkgdVH8E43b5NllJbkAf4/
+         MrUXovnPtkoFeFn++mMCoxI5ujCdAv63OTyOFYO1Fd8Bt67gZBkni+PqgelBJL6Vdiyn
+         QwVLFwrKY+s5SVK6QTcAM9xID95TQd/O0mzw5BpjY93k9Vkj6FCCVW5R1PZgP7EMrTYW
+         0A/KxDoNnR5fWiQF/aSAlcBjLmhLDj6yTJ3j0qs56jCzbaTwATPnA3AbfJ1rD7wTqEa5
+         40Sg==
+X-Gm-Message-State: ACrzQf2N2wpUBi3qsIKtu5bFPbzEJgK6b29Dhn91J1nkuN6ogeC/o8IS
+        MpkHVMYTBPO9ddrrIkbTxOQgpTBspxQjgg==
+X-Google-Smtp-Source: AMsMyM68dam+bk2zRi9fPwq4foTUHTm41a5WwL7uUAIKb98CVmZlEOlpn3mQ8qWzIX9UqFFtGO8dCQ==
+X-Received: by 2002:a17:90b:380b:b0:20d:7364:796f with SMTP id mq11-20020a17090b380b00b0020d7364796fmr30737pjb.13.1665784384453;
+        Fri, 14 Oct 2022 14:53:04 -0700 (PDT)
+Received: from smtp.gmail.com ([2620:15c:9d:2:9f6e:fc87:d13f:1fa6])
+        by smtp.gmail.com with ESMTPSA id p184-20020a625bc1000000b005618189b0ffsm2197437pfb.104.2022.10.14.14.53.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Oct 2022 14:53:03 -0700 (PDT)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     Sibi Sankar <sibis@codeaurora.org>, linux-kernel@vger.kernel.org,
+        patches@lists.linux.dev, Alex Elder <elder@linaro.org>,
+        Evan Green <evgreen@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.10] arm64: dts: qcom: sc7180-trogdor: Fixup modem memory region
+Date:   Fri, 14 Oct 2022 14:53:02 -0700
+Message-Id: <20221014215302.3905135-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.38.0.413.g74048e4d9e-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1ojS6S-000uN7-IM
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53876
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/13/22 10:52 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.16 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.16-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Sibi Sankar <sibis@codeaurora.org>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+commit ef9a5d188d663753e73a3c8e8910ceab8e9305c4 upstream.
 
-Tested-by: Ron Economos <re@w6rz.net>
+The modem firmware memory requirements vary between 32M/140M on
+no-lte/lte skus respectively, so fixup the modem memory region
+to reflect the requirements.
+
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/1602786476-27833-1-git-send-email-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
+
+This fixes boot of the modem on trogdor boards with the DTS from 5.10.y
+stable tree. Without this patch I run into memory assignment errors and
+then the modem fails to boot.
+
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi | 4 ++++
+ arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi         | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
+index 44956e3165a1..469aad4e5948 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
+@@ -9,6 +9,10 @@ &ap_sar_sensor {
+ 	label = "proximity-wifi-lte";
+ };
+ 
++&mpss_mem {
++	reg = <0x0 0x86000000 0x0 0x8c00000>;
++};
++
+ &remoteproc_mpss {
+ 	firmware-name = "qcom/sc7180-trogdor/modem/mba.mbn",
+ 			"qcom/sc7180-trogdor/modem/qdsp6sw.mbn";
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+index 5b2a616c6257..cb2c47f13a8a 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+@@ -39,7 +39,7 @@ atf_mem: memory@80b00000 {
+ 		};
+ 
+ 		mpss_mem: memory@86000000 {
+-			reg = <0x0 0x86000000 0x0 0x8c00000>;
++			reg = <0x0 0x86000000 0x0 0x2000000>;
+ 			no-map;
+ 		};
+ 
+
+base-commit: 014862eecf03f58066a957027dde73cbecdf4395
+-- 
+https://chromeos.dev
 
