@@ -2,97 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD325FF4E3
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 22:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E441F5FF52A
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 23:20:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbiJNUzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 16:55:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
+        id S229598AbiJNVUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 17:20:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229540AbiJNUzY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 16:55:24 -0400
-Received: from new2-smtp.messagingengine.com (new2-smtp.messagingengine.com [66.111.4.224])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FF5AF193
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 13:55:22 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id C093A580227;
-        Fri, 14 Oct 2022 16:55:19 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 14 Oct 2022 16:55:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
-        cc:cc:content-type:date:date:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to; s=fm2; t=
-        1665780919; x=1665784519; bh=llldzjFKjIOAcGM0pMzUMZuGuCHJZnxlsMk
-        4535qhRQ=; b=FvV1Zz0ZXXDzjioC2bKB4aYwS12xLUJ0ZYg/d9LiAqNL2BQd91r
-        RdKxto1QV/FFxoFKwX5IWFUFGa0OPFZZ552OY22qYjM3Du34BmNoRr70ItDCU/PT
-        x3buTEiWJHRj9CkxJEkDTqux6PgrA6vDtpJgKWxlGDGvLPE1b17fLlT7u6EhlyeX
-        099JBLkKwUqH2MUEXD2qmz9s2rU9pxTp3phWolg12wajQYWPBJ1R+y/azn9Lb1ad
-        MkEk5514SAJU2AD+kSKKCWmCeCz4qVtKLoTz09Q7Lv+AQzRpV9rsp+4RQh3gN0Bz
-        MSbnGnAqi5X40KR3VpdfNGj5ucCB8299uGQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:message-id:mime-version
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1665780919; x=
-        1665784519; bh=llldzjFKjIOAcGM0pMzUMZuGuCHJZnxlsMk4535qhRQ=; b=b
-        5gaJNWIEyWQ7pPCsBGWSSoCCGk6oLftmBBBtD5A5AJ2oZIRCNeFGrjnW4N8uljIv
-        N1k5UwyF18CrF35l+N9WVPtstXhOVEFG7PYY1CslM/GdEYYs5AG7RjP+HbGzT7ky
-        asvk0Dwa8HpN1u85Mvo1a/YNkkewoQPHgislNk3Z5x2jWe7YGZuXiXs9M3I1ZlGr
-        1SzW4uSenCXeKVH1eKvLbZrallgKmiuxnwhJNZiMpOb/JbwHOVdVNVRPBBzg2JQS
-        PeJ83V1b5AwyCB4LLIDGZQBBbeDR9/+J8l62cWo5hRGICCkU1xEZH61vws14aQ9D
-        d9U3O+JC96lA65k2WrkNw==
-X-ME-Sender: <xms:t8xJY_Z22J1fpwU1c6uc8b9oRclig2NRnm4LLf8B3sUb7dUuLHBcZg>
-    <xme:t8xJY-bGyfYP7xbCFv__hI8FyQltcF5U6ck5wW6eU2QducSPbpC7EwDdkOVY9jhVC
-    wRIawmkchi4dAYT2NM>
-X-ME-Received: <xmr:t8xJYx-sBCSHAZdaUMkvPHRnW2V_GbGsQhrXQuIU9Zxw5aqKkNsd42ucSLQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeekvddgudehiecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvvefukfggtggusehttdertddttddvnecuhfhrohhmpefvhihlvghr
-    ucfjihgtkhhsuceotghouggvsehthihhihgtkhhsrdgtohhmqeenucggtffrrghtthgvrh
-    hnpeffvdekffffffekteehgfdthfevteetudfftdeigffghfeitedtgeegjeehgefhueen
-    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomheptghouggvsehthihhihgtkhhsrdgtohhm
-X-ME-Proxy: <xmx:t8xJY1qPGFwmquNy2xlVnoRMre2ZnmJ-KCRYr7OUpFeZaAg7osLKJg>
-    <xmx:t8xJY6qpe7bTLr9W3kb4RYyBO8RtInGo3tROtT71idPsGBpB41FnMQ>
-    <xmx:t8xJY7SVtCJxmHTZYDmKmv1ZfN1WV5KbFFeGHtp6MMhCZfHj7L9uDA>
-    <xmx:t8xJY_BrjNn9NABRIDvo7lxDvzr0GXOW3JQRK1Og5sz7nfxH1FeUtQ>
-Feedback-ID: i78e14604:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 14 Oct 2022 16:55:19 -0400 (EDT)
-Date:   Fri, 14 Oct 2022 15:55:03 -0500
-From:   Tyler Hicks <code@tyhicks.com>
-To:     gregkh@linuxfoundation.org, Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org
-Subject: Process question about dropped patches
-Message-ID: <20221014205503.3w2ge6srfpk6gtlt@sequoia>
+        with ESMTP id S229798AbiJNVUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 17:20:40 -0400
+Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D77243E5D
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 14:20:37 -0700 (PDT)
+Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
+        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 3C077100441BD
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 21:20:27 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id jS6UoBrZbCeXyjS6UoM0Uk; Fri, 14 Oct 2022 21:20:27 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=Qv+bYX+d c=1 sm=1 tr=0 ts=6349d29b
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=Qawa6l4ZSaYA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=OLmlkwXjvnPPfp-jv6YA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=4bM1bXKX0jCdbHBW2kitGVRFfYY+EFZTUGuJ/S+jeSc=; b=kP89wGyxtThHwZzCD55UiOkiVm
+        yNvzCZKIU7TbjF5RiKKoOD1bhK4iUPnQAOOGSh2V+BzMgnwzykdzNzfAx8tEoBH9NIIgdZUrsLvBP
+        S6rCS42XbMe7HG4rk6D0P7SpjdA5sSrIeW/ixWcnh5LL24TcYqXyQIyEzJY6+/JoVhaAjDskGEBxX
+        3so9BJfAu/9XcaYihnJOuBhMxmUsUjftHpYYrNpAQrxarpAI7Zyu22bs+NjrYwTOWVq+SRQiUAeeM
+        y3frKdXMCBMHFGubUarXNZbQSVkoT/mkT4yU1VAo+gJx7NnmLyYRmalYmMRhNLmDUjDM18fWfcH/5
+        KNBRdKfg==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53876 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1ojS6S-000uN7-IM;
+        Fri, 14 Oct 2022 15:20:24 -0600
+Subject: Re: [PATCH 5.19 00/33] 5.19.16-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+References: <20221013175145.236739253@linuxfoundation.org>
+In-Reply-To: <20221013175145.236739253@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <23bf715b-f0aa-c71b-ded7-4354e557c089@w6rz.net>
+Date:   Fri, 14 Oct 2022 14:20:16 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1ojS6S-000uN7-IM
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53876
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Greg and Sasha - I'm starting to think through how I can monitor for
-dropped stable patches that touch certain file paths in order to help
-out with backporting. I've come across a few examples where Greg's
-automated emails point out that the patch couldn't be applied to a
-certain series but then the patch shows up in a future -rc release
-without anyone submitting a fixed backport to the list. An example:
+On 10/13/22 10:52 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.16 release.
+> There are 33 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-FAILED email: https://lore.kernel.org/stable/1664091338227131@kroah.com/
--rc review email: https://lore.kernel.org/stable/20221003070722.143782710@linuxfoundation.org/
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Is this just a case of one of you manually doing the backports (or
-dependency resolution) yourselves or are folks directly sending you
-backports?
+Tested-by: Ron Economos <re@w6rz.net>
 
-This isn't a problem for me, BTW. I just want to make sure that I
-understand the process. Thanks!
-
-Tyler
