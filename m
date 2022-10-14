@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 181425FEF44
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993105FEF4C
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbiJNNza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 09:55:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
+        id S230030AbiJNNz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:55:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230104AbiJNNyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:54:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1296B1D29A4;
-        Fri, 14 Oct 2022 06:53:48 -0700 (PDT)
+        with ESMTP id S230182AbiJNNzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:55:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9941D29AE;
+        Fri, 14 Oct 2022 06:53:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C22CE61B36;
-        Fri, 14 Oct 2022 13:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE7CAC433D6;
-        Fri, 14 Oct 2022 13:53:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A5F861B27;
+        Fri, 14 Oct 2022 13:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC00CC433C1;
+        Fri, 14 Oct 2022 13:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755627;
-        bh=4hQpTDpd1K9WqK9XyDTFRW2d2jeqa1ZI2a7SGGKYSUY=;
+        s=k20201202; t=1665755629;
+        bh=qjZ3OtDznfZmZgf8EJ812+bvFVKUUame7ygLNUFKUys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8SfUfnBdLcenTSS3HRkjjavRbcnNpKPu1qu04Uv2bcyqE/fPE2s7CsnTZXEFGBSh
-         T5bvcpNpgc6XoHSvo/6L0Z2D/Rp2Ms0RtWsogvK9kUjmQxSpFwO+zksxpAOa7tidFD
-         YmlVg936RDxNLcUsXfS9M7VTsE65ozxJxCWmf5NUwuGeVG375FY7m22kz6jIrA9ZyV
-         IbzDxCpRYDv41yIe0o8nZabBgSJSDcjdxH/KIjJeqVhP/ljd+pEeHX8KqUuxmO7Hel
-         KkAGMQF2DMSO6APZEC6LJQMnEhliorrYHvCTVjbr4YnWddQL26rK+6zJykgTLVWR/2
-         RP7wdH0Vh7wkg==
+        b=L3D6TH0OiuJsOYMb8MG/XV0Ukbl3cveOwDlApy288c7qPdKMuzkSAzGHUzdr5Av1y
+         xeybkXXHjagDdxiJ8WEFB4iXWPUQcyPfkP3H8wdy6+hvjoAvuBq2o8AQ2f1kteCSoy
+         p6k9tue1g+k0+RwDIxOQpM6dCc+v3sgfJeHOgJCQeuW5rq2mA7Sx/2ugEzD3yiUyq1
+         gaHhbnvVtw5IXjXZ54zyqHjySZudQaiZOXdJjqimb5MvHbx6hWD8oEBbFjC3Jexkpt
+         fpYj59B8/JWk9lUWLNXtYt6NNBYhEoLDGCLronB9FknxqqC4ffA9GcL8D08Ofo2jJe
+         atJdhINB4DySQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
+Cc:     Rohan McLure <rmclure@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, oss@buserror.net,
-        nathan@kernel.org, ndesaulniers@google.com, nick.child@ibm.com,
-        christophe.leroy@csgroup.eu, Julia.Lawall@inria.fr,
-        linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 3/7] powerpc/85xx: Fix fall-through warning for Clang
-Date:   Fri, 14 Oct 2022 09:53:29 -0400
-Message-Id: <20221014135334.2109814-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        maqianga@uniontech.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 4/7] powerpc: Remove direct call to personality syscall handler
+Date:   Fri, 14 Oct 2022 09:53:30 -0400
+Message-Id: <20221014135334.2109814-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221014135334.2109814-1-sashal@kernel.org>
 References: <20221014135334.2109814-1-sashal@kernel.org>
@@ -60,38 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+From: Rohan McLure <rmclure@linux.ibm.com>
 
-[ Upstream commit d4d944ff68cb1f896d3f3b1af0bc656949dc626a ]
+[ Upstream commit 4df0221f9ded8c39aecfb1a80cef346026671cb7 ]
 
-Fix the following fallthrough warning:
+Syscall handlers should not be invoked internally by their symbol names,
+as these symbols defined by the architecture-defined SYSCALL_DEFINE
+macro. Fortunately, in the case of ppc64_personality, its call to
+sys_personality can be replaced with an invocation to the
+equivalent ksys_personality inline helper in <linux/syscalls.h>.
 
-arch/powerpc/platforms/85xx/mpc85xx_cds.c:161:3: warning: unannotated fall-through between switch labels [-Wimplicit-fallthrough]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/KSPP/linux/issues/198
-Link: https://lore.kernel.org/lkml/202209061224.KxORRGVg-lkp@intel.com/
-Link: https://lore.kernel.org/r/Yxe8XTY5C9qJLd0Z@work
+Link: https://lore.kernel.org/r/20220921065605.1051927-13-rmclure@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/85xx/mpc85xx_cds.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/syscalls.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/85xx/mpc85xx_cds.c b/arch/powerpc/platforms/85xx/mpc85xx_cds.c
-index 172d2b7cfeb7..aedb2eb44b47 100644
---- a/arch/powerpc/platforms/85xx/mpc85xx_cds.c
-+++ b/arch/powerpc/platforms/85xx/mpc85xx_cds.c
-@@ -158,6 +158,7 @@ static void __init mpc85xx_cds_pci_irq_fixup(struct pci_dev *dev)
- 			else
- 				dev->irq = 10;
- 			pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
-+			break;
- 		default:
- 			break;
- 		}
+diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+index 078608ec2e92..ce1553469b51 100644
+--- a/arch/powerpc/kernel/syscalls.c
++++ b/arch/powerpc/kernel/syscalls.c
+@@ -104,7 +104,7 @@ long ppc64_personality(unsigned long personality)
+ 	if (personality(current->personality) == PER_LINUX32
+ 	    && personality(personality) == PER_LINUX)
+ 		personality = (personality & ~PER_MASK) | PER_LINUX32;
+-	ret = sys_personality(personality);
++	ret = ksys_personality(personality);
+ 	if (personality(ret) == PER_LINUX32)
+ 		ret = (ret & ~PER_MASK) | PER_LINUX;
+ 	return ret;
 -- 
 2.35.1
 
