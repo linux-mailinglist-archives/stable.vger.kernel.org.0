@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD485FEF42
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:55:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0C05FEF3E
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229784AbiJNNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 09:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39822 "EHLO
+        id S229863AbiJNNzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:55:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230102AbiJNNyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:54:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686A51D1E37;
+        with ESMTP id S230017AbiJNNyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:54:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98241D1E39;
         Fri, 14 Oct 2022 06:53:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 242D061B48;
-        Fri, 14 Oct 2022 13:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57EBFC433D6;
-        Fri, 14 Oct 2022 13:53:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AF20B82349;
+        Fri, 14 Oct 2022 13:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A668C433C1;
+        Fri, 14 Oct 2022 13:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755605;
-        bh=jmWeH9/kj19LdXILReX0a8HnufVDtXizi3mStS9SDkQ=;
+        s=k20201202; t=1665755608;
+        bh=JInsUA2F2e9A8MoLLpSPRcMIqw9a3Njh2Y1CG5ELF3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbkqphNGg997AZ6cVmf20jgtDw6V2u/LhnKgeXlXS09F2RlBANJqpBrzwJTfxJ4o1
-         Prp9gMHWuHYgO1SxFaA2nzOYwIeKQ95JD0uxNAKBCDqO9cmGtnxAZd/aEc5cGTDuf/
-         y1qyB9ZaUP8PfthXMTiMnDyEzn0NOjekChn3suZICg/NjPxcNNsiaOD5LXDA2nXDqR
-         YFYWw5SRGHXZbQZcsdg9BXQENsFD+2SvgR/HHBmyV3zrLy4ArppwIcsDeATLbHPam2
-         BBeR5JBZggqKo8m74LX5UPMAVyQh1siHMp+0QdZOoI/fU63XcXHb033XA5K74q1O7w
-         ucTfK2Ljpn4cw==
+        b=n/b2lJTP4WUVxLrsHERwQV1mK0KUmCEpv1thHWxqQBA/2J56Q4QSvYYJ3W3X/VoiW
+         Ky9VauGlvYhxzWEdu+6C1Ym0HiXHFeggfzOlZGxx/uTKbPbvJ2C3/zK7aG5PKXr4/F
+         Mgb6B0VwFwJeDZCqKMIglMDCqJQFCATDEQ18ryFlJm0FpPWybHkES3ZYSsRd9bysAE
+         l+HC8YyQQ2TEgOhxmm6D3AnA2lreB6a8qD/QCWIrFjH5IVzRJ9CJc7z3vbwIETC0lr
+         /pIv6Ykk0KBaOLtieqcoMjHmSMHG+1Xy2QZp00JRLnXRO5IG5irKldDWI25BlRKjTS
+         rqayPqXP+FLzg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Disha Goel <disgoel@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
+Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
-        Julia.Lawall@inria.fr, nick.child@ibm.com,
+        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        npiggin@gmail.com, mike.kravetz@oracle.com, yaozhenguo1@gmail.com,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.15 6/8] powerpc/perf: Fix branch_filter support for multiple filters
-Date:   Fri, 14 Oct 2022 09:52:59 -0400
-Message-Id: <20221014135302.2109489-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 7/8] powerpc/mm: Fix UBSAN warning reported on hugetlb
+Date:   Fri, 14 Oct 2022 09:53:00 -0400
+Message-Id: <20221014135302.2109489-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221014135302.2109489-1-sashal@kernel.org>
 References: <20221014135302.2109489-1-sashal@kernel.org>
@@ -60,81 +57,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit b9c001276d4a756f98cc7dc4672eff5343949203 ]
+[ Upstream commit 7dd3a7b90bca2c12e2146a47d63cf69a2f5d7e89 ]
 
-For PERF_SAMPLE_BRANCH_STACK sample type, different branch_sample_type
-ie branch filters are supported. The branch filters are requested via
-event attribute "branch_sample_type". Multiple branch filters can be
-passed in event attribute. eg:
+Powerpc architecture supports 16GB hugetlb pages with hash translation.
+For 4K page size, this is implemented as a hugepage directory entry at
+PGD level and for 64K it is implemented as a huge page pte at PUD level
 
-  $ perf record -b -o- -B --branch-filter any,ind_call true
+With 16GB hugetlb size, offset within a page is greater than 32 bits.
+Hence switch to use unsigned long type when using hugepd_shift.
 
-None of the Power PMUs support having multiple branch filters at
-the same time. Branch filters for branch stack sampling is set via MMCRA
-IFM bits [32:33]. But currently when requesting for multiple filter
-types, the "perf record" command does not report any error.
+In order to keep things simpler, we make sure we always use unsigned
+long type when using hugepd_shift() even though all the hugetlb page
+size won't require that.
 
-eg:
-  $ perf record -b -o- -B --branch-filter any,save_type true
-  $ perf record -b -o- -B --branch-filter any,ind_call true
+The hugetlb_free_p*d_range changes are all related to nohash usage where
+we can have multiple pgd entries pointing to the same hugepd entries.
+Hence on book3s64 where we can have > 4GB hugetlb page size we will
+always find more < next even if we compute the value of more correctly.
 
-The "bhrb_filter_map" function in PMU driver code does the validity
-check for supported branch filters. But this check is done for single
-filter. Hence "perf record" will proceed here without reporting any
-error.
+Hence there is no functional change in this patch except that it fixes
+the below warning.
 
-Fix power_pmu_event_init() to return EOPNOTSUPP when multiple branch
-filters are requested in the event attr.
+  UBSAN: shift-out-of-bounds in arch/powerpc/mm/hugetlbpage.c:499:21
+  shift exponent 34 is too large for 32-bit type 'int'
+  CPU: 39 PID: 1673 Comm: a.out Not tainted 6.0.0-rc2-00327-gee88a56e8517-dirty #1
+  Call Trace:
+    dump_stack_lvl+0x98/0xe0 (unreliable)
+    ubsan_epilogue+0x18/0x70
+    __ubsan_handle_shift_out_of_bounds+0x1bc/0x390
+    hugetlb_free_pgd_range+0x5d8/0x600
+    free_pgtables+0x114/0x290
+    exit_mmap+0x150/0x550
+    mmput+0xcc/0x210
+    do_exit+0x420/0xdd0
+    do_group_exit+0x4c/0xd0
+    sys_exit_group+0x24/0x30
+    system_call_exception+0x250/0x600
+    system_call_common+0xec/0x250
 
-After the fix:
-  $ perf record --branch-filter any,ind_call -- ls
-  Error:
-  cycles: PMU Hardware doesn't support sampling/overflow-interrupts.
-  Try 'perf stat'
-
-Reported-by: Disha Goel <disgoel@linux.vnet.ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Disha Goel<disgoel@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
-[mpe: Tweak comment and change log wording]
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[mpe: Drop generic change to be sent separately, change 1ULL to 1UL]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921145255.20972-1-atrajeev@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20220908072440.258301-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/powerpc/mm/hugetlbpage.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 1078784b74c9..62cbbc36fe96 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2102,6 +2102,23 @@ static int power_pmu_event_init(struct perf_event *event)
- 	if (has_branch_stack(event)) {
- 		u64 bhrb_filter = -1;
+diff --git a/arch/powerpc/mm/hugetlbpage.c b/arch/powerpc/mm/hugetlbpage.c
+index 9a75ba078e1b..d37dcd449e45 100644
+--- a/arch/powerpc/mm/hugetlbpage.c
++++ b/arch/powerpc/mm/hugetlbpage.c
+@@ -386,7 +386,7 @@ static void hugetlb_free_pmd_range(struct mmu_gather *tlb, pud_t *pud,
+ 		 * single hugepage, but all of them point to
+ 		 * the same kmem cache that holds the hugepte.
+ 		 */
+-		more = addr + (1 << hugepd_shift(*(hugepd_t *)pmd));
++		more = addr + (1UL << hugepd_shift(*(hugepd_t *)pmd));
+ 		if (more > next)
+ 			next = more;
  
-+		/*
-+		 * Currently no PMU supports having multiple branch filters
-+		 * at the same time. Branch filters are set via MMCRA IFM[32:33]
-+		 * bits for Power8 and above. Return EOPNOTSUPP when multiple
-+		 * branch filters are requested in the event attr.
-+		 *
-+		 * When opening event via perf_event_open(), branch_sample_type
-+		 * gets adjusted in perf_copy_attr(). Kernel will automatically
-+		 * adjust the branch_sample_type based on the event modifier
-+		 * settings to include PERF_SAMPLE_BRANCH_PLM_ALL. Hence drop
-+		 * the check for PERF_SAMPLE_BRANCH_PLM_ALL.
-+		 */
-+		if (hweight64(event->attr.branch_sample_type & ~PERF_SAMPLE_BRANCH_PLM_ALL) > 1) {
-+			local_irq_restore(irq_flags);
-+			return -EOPNOTSUPP;
-+		}
-+
- 		if (ppmu->bhrb_filter_map)
- 			bhrb_filter = ppmu->bhrb_filter_map(
- 					event->attr.branch_sample_type);
+@@ -428,7 +428,7 @@ static void hugetlb_free_pud_range(struct mmu_gather *tlb, p4d_t *p4d,
+ 			 * single hugepage, but all of them point to
+ 			 * the same kmem cache that holds the hugepte.
+ 			 */
+-			more = addr + (1 << hugepd_shift(*(hugepd_t *)pud));
++			more = addr + (1UL << hugepd_shift(*(hugepd_t *)pud));
+ 			if (more > next)
+ 				next = more;
+ 
+@@ -490,7 +490,7 @@ void hugetlb_free_pgd_range(struct mmu_gather *tlb,
+ 			 * for a single hugepage, but all of them point to the
+ 			 * same kmem cache that holds the hugepte.
+ 			 */
+-			more = addr + (1 << hugepd_shift(*(hugepd_t *)pgd));
++			more = addr + (1UL << hugepd_shift(*(hugepd_t *)pgd));
+ 			if (more > next)
+ 				next = more;
+ 
 -- 
 2.35.1
 
