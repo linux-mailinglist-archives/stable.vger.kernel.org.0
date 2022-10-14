@@ -2,112 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CAC45FEDE3
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 14:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A58E5FEDEA
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 14:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbiJNMPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 08:15:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
+        id S229622AbiJNMUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 08:20:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229609AbiJNMPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 08:15:08 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181FF4AD6E;
-        Fri, 14 Oct 2022 05:15:07 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id f11so7254526wrm.6;
-        Fri, 14 Oct 2022 05:15:07 -0700 (PDT)
+        with ESMTP id S229573AbiJNMUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 08:20:36 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194E3C1D8A
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 05:20:35 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id a67so6549613edf.12
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 05:20:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SMvaGsw3aJfVXTn2+0JJBsQsLQ3oGxiGRqYprDO+ECU=;
-        b=LofS5n5C1coAeYTHoG4vAOM9mLxnIvZkWn+eUmgb1QzV9uuKWVcpFMDESH8a/y5rBJ
-         BZzI8IDS2o06QoMsVVDPp3q8kZHmkjZS8XIh8BjhA7xUUYPFpQF2h4KNWm/mbAjQmk/a
-         LnGrDdGgeiS5cLIOkpztxlpV/MwpB+QCBFsszuQqjUKIDW5v4TSmfjaISu8objlc92iY
-         nOwqH673R0mqPq8p9FT1XIeN4eONDMFKmyjngtCjr6HKrFOHl7OU8XPMUAjdvSuuR0Mk
-         kJEPKQjkPVMAeZJzqeHTv+Hk69nbufem78QGkeJVXBzHESp/zBe0EeWWQOTY473Al2OV
-         8adg==
+        d=ionos.com; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0uYEnGywvne9fopfNBzfu2ahTVWilZnjJ1QFZzgosUc=;
+        b=DNN/qK/uZh4ntKOmhei+A2BdCQsRN9P4mp9bgRidsYLBIjh7NoDLaTeCuhjDYxWclM
+         y5MTUxzWdEbUqn5UmtoxlsBGA2N9JadUQmpqEbGUqMg2iWSWO9+NrxoZKHV1ffVHs+fZ
+         6GupVD9sb20vhbdFA+2hfSqi3Xw2qAVCw/gXVuk8nGiepR8yVVccxWrw+bl5nOwJq8Bb
+         tohJ33uQfn8osOJjdSWsk8vA1M5epdW2Jbc1In3LuCIBUT2z3wWbAxvKXy3yUhiLQy97
+         DtAfJERbSurx0F9FO5dBl1Llzw95vwn1HO9NA/nQSa8D7OKFQmAQDpDGW1i1trTVEmSG
+         UTEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SMvaGsw3aJfVXTn2+0JJBsQsLQ3oGxiGRqYprDO+ECU=;
-        b=QVQetX6jaJOG1/lENEDq5RU4kyDm4J9I5o8Pz1kKv/wWd6NW6Q9NCo5YJL9wXbJCQx
-         /xywmxau/8qQCkXkXyEJG/lM3XUElkEANerwFMf9ZxXK7lwAqctMNytdRTPQzAploGFC
-         9ddSVFBXvkI4OisL/y5+vReEue5H28z619mIWK1DtOD0yYd4nfLIXuFZRcGW6Mp3Gwcc
-         fLPP44tP678Lfo2wMQlsxxS+S79mztD47lm7wmDOtSaD4selysKSuf65A89+nwpmdXN0
-         GARrPwci4d8uYexPyXeR1VzHxXcQ9DR7t5jYWhwO0jxVunLyCTORj2gf1kqSowdcvxcd
-         J7SQ==
-X-Gm-Message-State: ACrzQf37bMot8i9wl5BnCoZ8jEwTYbCguy0O6r2Jb2dkZxZSjBUR3TPB
-        3g0SqtsOH5vr1jqChSmY4dI=
-X-Google-Smtp-Source: AMsMyM4/6LN2iF5+9XTo9sukWG5rfutBYm/rj0G0Gpa1ZZX6cywOpoxMcgeZJz5+h9pqBwrWhY+yXw==
-X-Received: by 2002:a05:6000:108a:b0:22e:5610:7987 with SMTP id y10-20020a056000108a00b0022e56107987mr3000355wrw.527.1665749705354;
-        Fri, 14 Oct 2022 05:15:05 -0700 (PDT)
-Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
-        by smtp.gmail.com with ESMTPSA id h5-20020adfe985000000b002322bff5b3bsm2235891wrm.54.2022.10.14.05.15.04
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0uYEnGywvne9fopfNBzfu2ahTVWilZnjJ1QFZzgosUc=;
+        b=NQf++I0iyg00AQXnnNLfDKIfqRzwGpXm17+EXazAzRDcNe2nn5U68WqVLK4g2EoC56
+         Zm/qxQpGp0jarDsMPsRvhbhqBDuGrfNDWFJSST3lFzltX+OP8DmUg5qpe16mi+FRMwLv
+         LWvLbqrzgPZCpjHvmLPxwd4I0B7X9347eFUVunun6JsyqN7mo0wrfz87u22PrlncrFwY
+         W+/TvOMdhDpeErMo8yifNHsGYj5ui1taUoRVU9rCEwOqK3Y9/QexY/4L8K6T7PSJ6SmD
+         7KtI7KgYUlVzpTySx/rZ3xZSQ6ZuSLwNULAwBK5mDFTJ0OmaKD+ZzcfMAqzvN+ea9Cyb
+         2ekw==
+X-Gm-Message-State: ACrzQf0F/lfLzRTCw6qxvfL5oG8KI/ljJ3VQN6oEUMqoINKeiJrFJESw
+        hc3Sdkydp+PR6MPdzd6jR5j82A==
+X-Google-Smtp-Source: AMsMyM4G/1ecYDdnbut2cQJjiuhiu4XMZzExls7CHQeoI0xP7/iQwPCSDVxeD3/OmM+eoeqRqi3deg==
+X-Received: by 2002:a05:6402:50cf:b0:45c:dfce:66ae with SMTP id h15-20020a05640250cf00b0045cdfce66aemr3846913edb.370.1665750033552;
+        Fri, 14 Oct 2022 05:20:33 -0700 (PDT)
+Received: from lb02065.fritz.box ([2001:9e8:141a:3e00:b256:9dae:b5ab:8180])
+        by smtp.gmail.com with ESMTPSA id j18-20020a508a92000000b00458b8d4f4d5sm1737141edj.57.2022.10.14.05.20.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Oct 2022 05:15:05 -0700 (PDT)
-Date:   Fri, 14 Oct 2022 13:15:03 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, srw@sladewatkins.net
-Subject: Re: [PATCH 6.0 00/34] 6.0.2-rc1 review
-Message-ID: <Y0lSx2WqkIvblBcE@debian>
-References: <20221013175146.507746257@linuxfoundation.org>
+        Fri, 14 Oct 2022 05:20:33 -0700 (PDT)
+From:   Jack Wang <jinpu.wang@ionos.com>
+To:     linux-raid@vger.kernel.org
+Cc:     song@kernel.org,
+        Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] md/bitmap: Fix bitmap chunk size overflow issues.
+Date:   Fri, 14 Oct 2022 14:20:32 +0200
+Message-Id: <20221014122032.47784-1-jinpu.wang@ionos.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
 
-On Thu, Oct 13, 2022 at 07:52:38PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.2 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
-> Anything received after that time might be too late.
+- limit bitmap chunk size internal u64 variable to values not overflowing
+  the u32 bitmap superblock structure variable stored on persistent media.
+- assign bitmap chunk size internal u64 variable from unsigned values to
+  avoid possible sign extension artifacts when assigning from a s32 value.
 
-Build test (gcc version 12.2.1 20220925):
-mips: 52 configs -> no failure
-arm: 100 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+The bug has been there since at least kernel 4.0.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
-mips: Booted on ci20 board. No regression. [3]
+Cc: stable@vger.kernel.org
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2001
-[2]. https://openqa.qa.codethink.co.uk/tests/1997
-[3]. https://openqa.qa.codethink.co.uk/tests/2000
+Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+---
+ drivers/md/md-bitmap.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
+diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+index bf6dffadbe6f..b266711485a8 100644
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
+ 	sb = kmap_atomic(bitmap->storage.sb_page);
+ 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
+ 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
+-	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
++	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
+ 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
+@@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
+ 	pr_debug("events cleared: %llu\n",
+ 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
+ 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
+-	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
+-	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
++	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
++	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
+ 	pr_debug("     sync size: %llu KB\n",
+ 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
+-	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
++	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
+ 	kunmap_atomic(sb);
+ }
+ 
+@@ -2105,7 +2105,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 			bytes = DIV_ROUND_UP(chunks, 8);
+ 			if (!bitmap->mddev->bitmap_info.external)
+ 				bytes += sizeof(bitmap_super_t);
+-		} while (bytes > (space << 9));
++		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
++			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
+ 	} else
+ 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
+ 
+@@ -2150,7 +2151,7 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 	bitmap->counts.missing_pages = pages;
+ 	bitmap->counts.chunkshift = chunkshift;
+ 	bitmap->counts.chunks = chunks;
+-	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
++	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
+ 						     BITMAP_BLOCK_SHIFT);
+ 
+ 	blocks = min(old_counts.chunks << old_counts.chunkshift,
+@@ -2176,8 +2177,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 				bitmap->counts.missing_pages = old_counts.pages;
+ 				bitmap->counts.chunkshift = old_counts.chunkshift;
+ 				bitmap->counts.chunks = old_counts.chunks;
+-				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
+-									     BITMAP_BLOCK_SHIFT);
++				bitmap->mddev->bitmap_info.chunksize =
++					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
+ 				blocks = old_counts.chunks << old_counts.chunkshift;
+ 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
+ 				break;
+@@ -2534,6 +2535,9 @@ chunksize_store(struct mddev *mddev, const char *buf, size_t len)
+ 	if (csize < 512 ||
+ 	    !is_power_of_2(csize))
+ 		return -EINVAL;
++	if (csize >= (1UL << (BITS_PER_BYTE *
++		sizeof(((bitmap_super_t *)0)->chunksize))))
++		return -EOVERFLOW;
+ 	mddev->bitmap_info.chunksize = csize;
+ 	return len;
+ }
 -- 
-Regards
-Sudip
+2.34.1
+
