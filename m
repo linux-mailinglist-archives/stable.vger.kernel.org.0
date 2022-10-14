@@ -2,134 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86CC55FF3E7
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 21:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD325FF4E3
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 22:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229865AbiJNTAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 15:00:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
+        id S229557AbiJNUzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 16:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229919AbiJNTAs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 15:00:48 -0400
-Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FA325C78;
-        Fri, 14 Oct 2022 12:00:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1665774046; x=1697310046;
-  h=message-id:date:mime-version:subject:from:to:cc:
-   references:in-reply-to:content-transfer-encoding;
-  bh=GXoD9gRB2Hvbmyc4m6TRPnO3SU6oxhVMCZ99nFZXCTs=;
-  b=kmlbJDgDARB2uYSv8s75cK/H/EycW2ZXIKh8BNOgP97RMZUKKYQ3EJlA
-   Ae7gF4kERrThUVSyTdGSIRqKYIxf7GDkTYaYwjW120gqrXnH93iQqa82V
-   w/NymC6n+ptkN5kEcpXWb6tpja+9JK+yowF8L0+cM5HVI3NtDTcpNU7vu
-   Y=;
-X-IronPort-AV: E=Sophos;i="5.95,185,1661817600"; 
-   d="scan'208";a="140426874"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1d-b48bc93b.us-east-1.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2022 19:00:45 +0000
-Received: from EX13MTAUWC002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1d-b48bc93b.us-east-1.amazon.com (Postfix) with ESMTPS id 6B880C090F;
-        Fri, 14 Oct 2022 19:00:43 +0000 (UTC)
-Received: from EX19D002UWC004.ant.amazon.com (10.13.138.186) by
- EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Fri, 14 Oct 2022 19:00:42 +0000
-Received: from [192.168.28.131] (10.43.162.230) by
- EX19D002UWC004.ant.amazon.com (10.13.138.186) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.15;
- Fri, 14 Oct 2022 19:00:42 +0000
-Message-ID: <0d923959-1b93-6133-6609-ac2c0c5711ee@amazon.com>
-Date:   Fri, 14 Oct 2022 12:00:31 -0700
+        with ESMTP id S229540AbiJNUzY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 16:55:24 -0400
+Received: from new2-smtp.messagingengine.com (new2-smtp.messagingengine.com [66.111.4.224])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FF5AF193
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 13:55:22 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailnew.nyi.internal (Postfix) with ESMTP id C093A580227;
+        Fri, 14 Oct 2022 16:55:19 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 14 Oct 2022 16:55:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
+        cc:cc:content-type:date:date:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to; s=fm2; t=
+        1665780919; x=1665784519; bh=llldzjFKjIOAcGM0pMzUMZuGuCHJZnxlsMk
+        4535qhRQ=; b=FvV1Zz0ZXXDzjioC2bKB4aYwS12xLUJ0ZYg/d9LiAqNL2BQd91r
+        RdKxto1QV/FFxoFKwX5IWFUFGa0OPFZZ552OY22qYjM3Du34BmNoRr70ItDCU/PT
+        x3buTEiWJHRj9CkxJEkDTqux6PgrA6vDtpJgKWxlGDGvLPE1b17fLlT7u6EhlyeX
+        099JBLkKwUqH2MUEXD2qmz9s2rU9pxTp3phWolg12wajQYWPBJ1R+y/azn9Lb1ad
+        MkEk5514SAJU2AD+kSKKCWmCeCz4qVtKLoTz09Q7Lv+AQzRpV9rsp+4RQh3gN0Bz
+        MSbnGnAqi5X40KR3VpdfNGj5ucCB8299uGQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:message-id:mime-version
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1665780919; x=
+        1665784519; bh=llldzjFKjIOAcGM0pMzUMZuGuCHJZnxlsMk4535qhRQ=; b=b
+        5gaJNWIEyWQ7pPCsBGWSSoCCGk6oLftmBBBtD5A5AJ2oZIRCNeFGrjnW4N8uljIv
+        N1k5UwyF18CrF35l+N9WVPtstXhOVEFG7PYY1CslM/GdEYYs5AG7RjP+HbGzT7ky
+        asvk0Dwa8HpN1u85Mvo1a/YNkkewoQPHgislNk3Z5x2jWe7YGZuXiXs9M3I1ZlGr
+        1SzW4uSenCXeKVH1eKvLbZrallgKmiuxnwhJNZiMpOb/JbwHOVdVNVRPBBzg2JQS
+        PeJ83V1b5AwyCB4LLIDGZQBBbeDR9/+J8l62cWo5hRGICCkU1xEZH61vws14aQ9D
+        d9U3O+JC96lA65k2WrkNw==
+X-ME-Sender: <xms:t8xJY_Z22J1fpwU1c6uc8b9oRclig2NRnm4LLf8B3sUb7dUuLHBcZg>
+    <xme:t8xJY-bGyfYP7xbCFv__hI8FyQltcF5U6ck5wW6eU2QducSPbpC7EwDdkOVY9jhVC
+    wRIawmkchi4dAYT2NM>
+X-ME-Received: <xmr:t8xJYx-sBCSHAZdaUMkvPHRnW2V_GbGsQhrXQuIU9Zxw5aqKkNsd42ucSLQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeekvddgudehiecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfggtggusehttdertddttddvnecuhfhrohhmpefvhihlvghr
+    ucfjihgtkhhsuceotghouggvsehthihhihgtkhhsrdgtohhmqeenucggtffrrghtthgvrh
+    hnpeffvdekffffffekteehgfdthfevteetudfftdeigffghfeitedtgeegjeehgefhueen
+    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomheptghouggvsehthihhihgtkhhsrdgtohhm
+X-ME-Proxy: <xmx:t8xJY1qPGFwmquNy2xlVnoRMre2ZnmJ-KCRYr7OUpFeZaAg7osLKJg>
+    <xmx:t8xJY6qpe7bTLr9W3kb4RYyBO8RtInGo3tROtT71idPsGBpB41FnMQ>
+    <xmx:t8xJY7SVtCJxmHTZYDmKmv1ZfN1WV5KbFFeGHtp6MMhCZfHj7L9uDA>
+    <xmx:t8xJY_BrjNn9NABRIDvo7lxDvzr0GXOW3JQRK1Og5sz7nfxH1FeUtQ>
+Feedback-ID: i78e14604:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 14 Oct 2022 16:55:19 -0400 (EDT)
+Date:   Fri, 14 Oct 2022 15:55:03 -0500
+From:   Tyler Hicks <code@tyhicks.com>
+To:     gregkh@linuxfoundation.org, Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Process question about dropped patches
+Message-ID: <20221014205503.3w2ge6srfpk6gtlt@sequoia>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.3.2
-Subject: Re: [PATCH 0/6] IRQ handling patches backport to 4.14 stable
-Content-Language: en-US
-From:   "Bhatnagar, Rishabh" <risbhat@amazon.com>
-To:     "Herrenschmidt, Benjamin" <benh@amazon.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "sashal@kernel.org" <sashal@kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Bacco, Mike" <mbacco@amazon.com>
-References: <20220929210651.12308-1-risbhat@amazon.com>
- <YzmujBxtwUxHexem@kroah.com>
- <58294d242fc256a48abb31926232565830197f02.camel@amazon.com>
- <e35b7856-138c-a255-a32e-41f57ad6f76d@amazon.com>
-In-Reply-To: <e35b7856-138c-a255-a32e-41f57ad6f76d@amazon.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.43.162.230]
-X-ClientProxiedBy: EX13D08UWC001.ant.amazon.com (10.43.162.110) To
- EX19D002UWC004.ant.amazon.com (10.13.138.186)
-X-Spam-Status: No, score=-14.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hey Greg and Sasha - I'm starting to think through how I can monitor for
+dropped stable patches that touch certain file paths in order to help
+out with backporting. I've come across a few examples where Greg's
+automated emails point out that the patch couldn't be applied to a
+certain series but then the patch shows up in a future -rc release
+without anyone submitting a fixed backport to the list. An example:
 
-On 10/9/22 10:50 AM, Bhatnagar, Rishabh wrote:
->
-> On 10/6/22 8:07 PM, Herrenschmidt, Benjamin wrote:
->> (putting my @amazon.com hat on)
->>
->> On Sun, 2022-10-02 at 17:30 +0200, Greg KH wrote:
->>
->>
->>> On Thu, Sep 29, 2022 at 09:06:45PM +0000, Rishabh Bhatnagar wrote:
->>>> This patch series backports a bunch of patches related IRQ handling
->>>> with respect to freeing the irq line while IRQ is in flight at CPU
->>>> or at the hardware level.
->>>> Recently we saw this issue in serial 8250 driver where the IRQ was
->>>> being
->>>> freed while the irq was in flight or not yet delivered to the CPU.
->>>> As a
->>>> result the irqchip was going into a wedged state and IRQ was not
->>>> getting
->>>> delivered to the cpu. These patches helped fixed the issue in 4.14
->>>> kernel.
->>> Why is the serial driver freeing an irq while the system is running?
->>> Ah, this could happen on a tty hangup, right?
->> Right. Rishabh answered that separately.
->>
->>>> Let us know if more patches need backporting.
->>> What hardware platform were these patches tested on to verify they
->>> work properly?  And why can't they move to 4.19 or newer if they
->>> really need this fix?  What's preventing that?
->>>
->>> As Amazon doesn't seem to be testing 4.14.y -rc releases, I find it
->>> odd that you all did this backport.  Is this a kernel that you all
->>> care about?
->> These were tested on a collection of EC2 instances, virtual and metal I
->> believe (Rishabh, please confirm).
-> Yes these patches were tested on multiple virt/metal EC2 instances.
->>
->> Amazon Linux 2 runs 4.14 or 5.10. Unfortunately we still have to
->> support customers running the former.
->>
->> We'll be including these patches in our releases, we thought it would
->> be nice to have them in -stable as well for the sake of whoever else
->> might be still using this kernel. No huge deal if they don't.
->>
->> As for testing -rc's, yes, we need to get better at that (and publish
->> what we test). Point taken :-)
->>
->> Cheers,
->> Ben.
->>
-Hi Greg
+FAILED email: https://lore.kernel.org/stable/1664091338227131@kroah.com/
+-rc review email: https://lore.kernel.org/stable/20221003070722.143782710@linuxfoundation.org/
 
-Let us know if you think it would be beneficial to take these backports 
-for 4.14 stable.
-We can drop this patch set otherwise.
+Is this just a case of one of you manually doing the backports (or
+dependency resolution) yourselves or are folks directly sending you
+backports?
 
-Thanks alot,
-Rishabh
+This isn't a problem for me, BTW. I just want to make sure that I
+understand the process. Thanks!
 
+Tyler
