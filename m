@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E0E5FEF97
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 16:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A9A5FEF93
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 16:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230359AbiJNOCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 10:02:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39342 "EHLO
+        id S230346AbiJNOCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 10:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230362AbiJNOCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 10:02:37 -0400
+        with ESMTP id S230357AbiJNOCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 10:02:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AFB91D3C54;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0ECF1D3C53;
         Fri, 14 Oct 2022 07:01:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C75DDB82349;
-        Fri, 14 Oct 2022 13:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83730C433D7;
-        Fri, 14 Oct 2022 13:54:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 031F1B82361;
+        Fri, 14 Oct 2022 13:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEECBC43470;
+        Fri, 14 Oct 2022 13:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755691;
-        bh=L8JkAShHK1tslhN7a3wdPGT9UdCrJ2TNiWURcqWGhpQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=X867tEYg5U4E/oOnF9n3Ygty6ZzVO+yZdsF8dobyy+yq9qazF8wEvXJfj+l1GFvQG
-         xIkyujxwRgODoNMcyCD7hNueOSpbzXaNrar5+YxuwVc1XTeCoBTHu6kRZNbCRbG4t9
-         jmClUzT5vNSgH7ACksj9jZbtYEb6yeO8C1S2o5Nv+qt3CdjH7CBrl5BZLRvA3cmrF8
-         4BO7BxhKYfSs5x+ZKcFhvN0J/+5Ax1ehMIsfITqH4fFs4aEq0r7dZSQCaRBMHbrunw
-         Hu4I1H/lxyl5m03Xwhlzy8Eci2xJtRH6R7u2YStrXcegGnvBaGath7LkYAQgZIkABV
-         K8joA6wmLt1mg==
+        s=k20201202; t=1665755697;
+        bh=TE6BP9ewEM3scfg8y5+JaE11M16nyUyRAjWMQ7F+xzU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=asuWPS4nGIlGNyR63eh1z1khEkqPVs/r9UvirjIz9PjdX7KjeJNG5M0hSn/l/TMKm
+         L4W6RM87aygVS5o9kW05473pbcBdW21e2Fk+uHechD8cnpllMhq1/Qy6rr1OnBgNDM
+         /HxOUrmEr4zngvAJNb9PPhisfJpkUcVHvoB5mgqfgYgjChcMLbUIjHFcysPsc/WB6q
+         9b0ZIIlRlgsFoSMibGUYj8gWRbmxTgqxeUn8e7fiMRi229th3wYLnVOM+AKMXP/xBv
+         fdE0lVOn5UoGAbCmpnqsLVJ5uwm3N6KOxcqlVWhBr9qcqXgb9377TtkNFQEzNGhYvo
+         poWU4NAgHZGYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ye xingchen <ye.xingchen@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>,
+Cc:     Rohan McLure <rmclure@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/4] powerpc/selftests: Use timersub() for gettimeofday()
-Date:   Fri, 14 Oct 2022 09:54:44 -0400
-Message-Id: <20221014135448.2110152-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        maqianga@uniontech.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 3/4] powerpc: Remove direct call to personality syscall handler
+Date:   Fri, 14 Oct 2022 09:54:46 -0400
+Message-Id: <20221014135448.2110152-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221014135448.2110152-1-sashal@kernel.org>
+References: <20221014135448.2110152-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,45 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ye xingchen <ye.xingchen@zte.com.cn>
+From: Rohan McLure <rmclure@linux.ibm.com>
 
-[ Upstream commit c814bf958926ff45a9c1e899bd001006ab6cfbae ]
+[ Upstream commit 4df0221f9ded8c39aecfb1a80cef346026671cb7 ]
 
-Use timersub() function to simplify the code.
+Syscall handlers should not be invoked internally by their symbol names,
+as these symbols defined by the architecture-defined SYSCALL_DEFINE
+macro. Fortunately, in the case of ppc64_personality, its call to
+sys_personality can be replaced with an invocation to the
+equivalent ksys_personality inline helper in <linux/syscalls.h>.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220816105106.82666-1-ye.xingchen@zte.com.cn
+Link: https://lore.kernel.org/r/20220921065605.1051927-13-rmclure@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/benchmarks/gettimeofday.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/syscalls.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c b/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
-index 3af3c21e8036..7f4bb84f1c9c 100644
---- a/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
-+++ b/tools/testing/selftests/powerpc/benchmarks/gettimeofday.c
-@@ -12,7 +12,7 @@ static int test_gettimeofday(void)
- {
- 	int i;
- 
--	struct timeval tv_start, tv_end;
-+	struct timeval tv_start, tv_end, tv_diff;
- 
- 	gettimeofday(&tv_start, NULL);
- 
-@@ -20,7 +20,9 @@ static int test_gettimeofday(void)
- 		gettimeofday(&tv_end, NULL);
- 	}
- 
--	printf("time = %.6f\n", tv_end.tv_sec - tv_start.tv_sec + (tv_end.tv_usec - tv_start.tv_usec) * 1e-6);
-+	timersub(&tv_start, &tv_end, &tv_diff);
-+
-+	printf("time = %.6f\n", tv_diff.tv_sec + (tv_diff.tv_usec) * 1e-6);
- 
- 	return 0;
- }
+diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+index a877bf8269fe..31cf6c0befe8 100644
+--- a/arch/powerpc/kernel/syscalls.c
++++ b/arch/powerpc/kernel/syscalls.c
+@@ -109,7 +109,7 @@ long ppc64_personality(unsigned long personality)
+ 	if (personality(current->personality) == PER_LINUX32
+ 	    && personality(personality) == PER_LINUX)
+ 		personality = (personality & ~PER_MASK) | PER_LINUX32;
+-	ret = sys_personality(personality);
++	ret = ksys_personality(personality);
+ 	if (personality(ret) == PER_LINUX32)
+ 		ret = (ret & ~PER_MASK) | PER_LINUX;
+ 	return ret;
 -- 
 2.35.1
 
