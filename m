@@ -2,187 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 874D55FEDAD
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 13:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3665FEDD3
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 14:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbiJNL4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 07:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
+        id S229682AbiJNMKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 08:10:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiJNL4p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 07:56:45 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E070B15627D;
-        Fri, 14 Oct 2022 04:56:43 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 926CA13D5;
-        Fri, 14 Oct 2022 04:56:49 -0700 (PDT)
-Received: from bogus (unknown [10.57.35.221])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 259563F792;
-        Fri, 14 Oct 2022 04:56:41 -0700 (PDT)
-Date:   Fri, 14 Oct 2022 12:56:39 +0100
-From:   Sudeep Holla <sudeep.holla@arm.com>
-To:     Cristian Marussi <cristian.marussi@arm.com>
-Cc:     YaxiongTian <iambestgod@outlook.com>, iambestgod@qq.com,
-        james.quinlan@broadcom.com, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        tianyaxiong@kylinos.cn
-Subject: Re: [PATCH -next 1/1] firmware: arm_scmi: Fix possible deadlock in
- shmem_tx_prepare()
-Message-ID: <20221014115639.waexbqi4vxbu6rxv@bogus>
-References: <Y0V6Q7ZJ3GjBwWub@e120937-lin>
- <KL1PR01MB3510AD021B2258CB789466E3D5259@KL1PR01MB3510.apcprd01.prod.exchangelabs.com>
- <Y0g2d/pw6yCoA3Nc@e120937-lin>
+        with ESMTP id S229609AbiJNMKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 08:10:44 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DC2105350;
+        Fri, 14 Oct 2022 05:10:40 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id a3so7340712wrt.0;
+        Fri, 14 Oct 2022 05:10:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+S1S6iQTadV8AVL5mXLga0jDn7GPEoPiIMlt93AwKPo=;
+        b=QHStRav4UiEhQot01O4anYo2z4HVcTniq0O+/YfRAu9OavF68YHWWCcUjuTLHsN6j2
+         NGe+csUj34npiWyoaGmREO9G8C/ux40aKX5qljZFAe/PxKZwefTMeK5jDoO8W3Z/IE9x
+         DpQQPipHmGdxt+BnLzCztvgc90Cz45YH8/ywZZdgMpkVuAqmgTIxJcy86hYaLWYUMp+E
+         3LlM35jtKliddWNzWScRTPakOPNszHy/byMpmmjocFFLkQHrZ8NGuQB8YN8NAS611D1a
+         XNX83d0IPDJvXwK6bOwIealSTysOqQTj/WVefJSi7aSHum+DEov4W1jayH3DczteuUi5
+         gWqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+S1S6iQTadV8AVL5mXLga0jDn7GPEoPiIMlt93AwKPo=;
+        b=udXAqtTeTT5V7FbkCPiCXjIGQanfUJ6zPN8M5kCe3jbCTpGt+AEPz5cfD+3CA4ztmm
+         Nrnz1XpMBU5neiHO4e6qCE988NZAoWfSY6Q0jE8c6Dl8sdWfETFkW9kd60oekV5VX48r
+         1COGxTVSwnlIcZTYKJfIYwbEvzFgqz7YwPXQgpRxUYgDzMe27a4cIFhwtyxYdQ5A6l0B
+         Pd90o9HYivrwmKHk4yHVSjB9XvIq51gH9yrcbWfTAnXKPQGltupZVdJSrR2c1DbzCPzn
+         qN8UbOiXMDZE5frv2N068I75lyL5UbvcVQKu4utMlILwn1+AzG+EizMtoMhDc4KeqO4K
+         GPfA==
+X-Gm-Message-State: ACrzQf2KQNf0SyUQwXzFmR63hKFq7bfDFvFUn3FCgvqTJKd5YMFRdYN/
+        5qeIpX8LGGhvZaO1bnYDEzo=
+X-Google-Smtp-Source: AMsMyM6qbweti8MfwZV1RQjT/MY8evDlRwtMX35HkZt88gZadAZTfta+lXLtN/m+PGWwf37RlYO1uA==
+X-Received: by 2002:adf:ba8f:0:b0:22c:def3:1179 with SMTP id p15-20020adfba8f000000b0022cdef31179mr3192011wrg.571.1665749439507;
+        Fri, 14 Oct 2022 05:10:39 -0700 (PDT)
+Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
+        by smtp.gmail.com with ESMTPSA id i9-20020a5d6309000000b0022afcc11f65sm1782970wru.47.2022.10.14.05.10.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Oct 2022 05:10:39 -0700 (PDT)
+Date:   Fri, 14 Oct 2022 13:10:37 +0100
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, srw@sladewatkins.net
+Subject: Re: [PATCH 5.15 00/33] 5.15.74-rc2 review
+Message-ID: <Y0lRvTp/JhW6P/RM@debian>
+References: <20221014082515.704103805@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y0g2d/pw6yCoA3Nc@e120937-lin>
-X-Spam-Status: No, score=-0.1 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_NONE autolearn=no autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20221014082515.704103805@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 05:02:15PM +0100, Cristian Marussi wrote:
-> On Thu, Oct 13, 2022 at 03:05:43PM +0800, YaxiongTian wrote:
-> > Hi Cristian
-> > 
-> > �� There may be a problem with my qq email client, � I don't see my mail in
-> > the
-> > 
-> > communityI had to switch outlook email.Forgive me if you've received
-> > multiple emails.
-> > 
-> No worries.
-> 
-> > >Problem is anyway, as you said, you'll have to pick this timeout from the
-> > >related transport scmi_desc (even if as of now the max_rx_timeout for
-> > >all existent shared mem transport is the same..) and this means anyway
-> > >adding more complexity to the chain of calls to just to print a warn of
-> > >some kind in a rare error-situation from which you cannot recover anyway.
-> > 
-> > � Yes,it has add more complexity about Monitorring this time.For system
-> > stability,the safest thing to do is to abort the transmission.But this will
-> > lose performance due to more complexity in such unusual situation.
-> > 
-> > >Due to other unrelated discussions, I was starting to think about
-> > >exposing some debug-only (Kconfig dependent) SCMI stats like timeouts,
-> > errors,
-> > >unpexpected/OoO/late_replies in order to ease the debug and monitoring
-> > >of the health of a running SCMI stack: maybe this could be a place where
-> > >to flag this FW issues without changing the spinloop above (or
-> > >to add the kind of timeout you mentioned but only when some sort of
-> > >CONFIG_SCMI_DEBUG is enabled...)...still to fully think it through, though.
-> > 
-> > � I think it should active report warn or err rather than user queries the
-> > information manually.(i.e fs_debug way).Becasue in system startup\S1\S3\S4,
-> > user can not queries this flag in Fw,they need get stuck message
-> > immediately.
-> > 
-> 
-> Looking more closely at this, I experimented a bit with an SCMI stack based on
-> mailbox transport in which I had forcefully set the spin_until_cond() to
-> spin forever.
-> 
-> Even though on a normal SCMI system when the SCMI stack fails at boot
-> the system is supposed to boot anyway (maybe slower), this particular
-> failure in TX path led indeed to a system that does not boot at all and
-> spits out an infinite sequence of:
-> 
-> [ 2924.499486] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-> [ 2924.505596] rcu:     2-...0: (0 ticks this GP) idle=1be4/1/0x4000000000000000 softirq=50/50 fqs=364757
-> [ 2924.514672]  (detected by 4, t=730678 jiffies, g=-1119, q=134 ncpus=6)
-> [ 2924.521215] Task dump for CPU 2:
-> [ 2924.524445] task:kworker/u12:0   state:R  running task     stack:    0 pid:    9 ppid:     2 flags:0x0000000a
-> [ 2924.534391] Workqueue: events_unbound deferred_probe_work_func
-> [ 2924.540244] Call trace:
-> [ 2924.542691]  __switch_to+0xe4/0x1b8
-> [ 2924.546189]  deferred_probe_work_func+0xa4/0xf8
-> [ 2924.550731]  process_one_work+0x208/0x480
-> [ 2924.554754]  worker_thread+0x230/0x428
-> [ 2924.558514]  kthread+0x114/0x120
-> [ 2924.561752]  ret_from_fork+0x10/0x20
-> 
-> I imagine this is the annoying thing you want to avoid.
-> 
-> So experimenting a bit with a patch similar to yours (ignoring the timeout
-> config issues and using the static cnt to temporarily stuck and revive the SCMI
-> transport)
-> 
-> ------>8-----
-> diff --git a/drivers/firmware/arm_scmi/shmem.c b/drivers/firmware/arm_scmi/shmem.c
-> index 0e3eaea5d852..6dde669abd03 100644
-> --- a/drivers/firmware/arm_scmi/shmem.c
-> +++ b/drivers/firmware/arm_scmi/shmem.c
-> @@ -8,6 +8,7 @@
->  #include <linux/io.h>
->  #include <linux/processor.h>
->  #include <linux/types.h>
->  
->  #include "common.h"
->  
-> @@ -29,17 +30,28 @@ struct scmi_shared_mem {
->         u8 msg_payload[];
->  };
->  
-> +static int cnt = 50;
->  void shmem_tx_prepare(struct scmi_shared_mem __iomem *shmem,
->                       struct scmi_xfer *xfer)
->  {
-> +       ktime_t stop;
-> +
->         /*
->          * Ideally channel must be free by now unless OS timeout last
->          * request and platform continued to process the same, wait
->          * until it releases the shared memory, otherwise we may endup
->          * overwriting its response with new message payload or vice-versa
->          */
-> -       spin_until_cond(ioread32(&shmem->channel_status) &
-> -                       SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE);
-> +       stop = ktime_add_ms(ktime_get(), 35);
-> +       spin_until_cond(((--cnt > 0) && ioread32(&shmem->channel_status) &
-> +                       SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE) ||
-> +                       ktime_after(ktime_get(), stop));
-> +       if (ktime_after(ktime_get(), stop)) {
-> +               pr_warn_once("TX Timeout !\n");
-> +               cnt = 10;
-> +               return;
-> +       }
-> +
->         /* Mark channel busy + clear error */
->         iowrite32(0x0, &shmem->channel_status);
->         iowrite32(xfer->hdr.poll_completion ? 0 : SCMI_SHMEM_FLAG_INTR_ENABLED,
-> ----8<-------------
-> 
-> With the above I had in fact a system that could boot even with a
-> failing/stuck SCMI transport, but, as expected the SCMI stack
-> functionality was totally compromised after the first timeout with no
-> possibility to recover.
-> 
-> Moreover I was thinking at what could happen if later on after boot the
-> SCMI server should end in some funny/hogged condition so that it is,
-> only temporarily, a bit slower to answer and release the channel: with
-> the current implemenation the Kernel agent will spin just a little bit
-> more waiting for the channel to be freed and then everything carries
-> without much hassle, while with this possible new timing-out solution
-> we could end up dropping that transmission and compromising the whole
-> transport fucntionality for all the subsequent transmissions.
-> 
-> So, again, I'm not sure it is worth making such a change even for debug
-> purposes, given that in the worst scenario above you end up with a
-> system stuck at boot but for which the SCMI stack is anyway compromised
-> and where the only solution is fixing the server FW really.
-> 
-> I'll ask Sudeep is thoughts about the possible hang.
->
+Hi Greg,
 
-I am fine with the patch as it provides more info on what is going wrong
-in the system. Please post the patch separately with all the info/background.
+On Fri, Oct 14, 2022 at 10:26:31AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.74 release.
+> There are 33 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 16 Oct 2022 08:25:00 +0000.
+> Anything received after that time might be too late.
+
+Build test (gcc version 12.2.1 20220925):
+mips: 62 configs -> no failure
+arm: 99 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
+
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/2002
+[2]. https://openqa.qa.codethink.co.uk/tests/1994
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
 -- 
-Regards,
-Sudeep
+Regards
+Sudip
