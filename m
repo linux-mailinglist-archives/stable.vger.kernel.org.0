@@ -2,111 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8115FE7E4
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 06:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADBDD5FE801
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 06:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbiJNEOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 00:14:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50230 "EHLO
+        id S229525AbiJNEeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 00:34:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229748AbiJNEOq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 00:14:46 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE924B850;
-        Thu, 13 Oct 2022 21:14:43 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id d7-20020a17090a2a4700b0020d268b1f02so6787005pjg.1;
-        Thu, 13 Oct 2022 21:14:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cv/7XzR9omBEXNn+tqEddtqBvNt7j9qjSpWwWm5+1DQ=;
-        b=c/0aG5w1PIEFnk5Ke+ScmcsJySK/PBw6ZqjFS8OedzAVtpe/UQ4YLwbC//Mu1kFrze
-         P5i47pcY8MY1NU5k3cATd3EMIJkM7P1gFJqslma9GrNSnBOSoW19Z8VNe3BFG3vH4tQI
-         r6JiZKc4iRAq/RAPO/9pMZTNwsbJGE34fqOAKn8092/H0lBskCuOBZzJ4h1uezmRQLQ7
-         qyq+M7ogv1tFsbiX/Gs8kaJ3PiEqVcsg3PnaniGjb97E642JyIe/WiKtDk6MzVi081M8
-         WxQtQRRw3+AYrjIhs06qmSE9vdhZxxShWGazntU9ehRHQX55pLzfH/WDB0cv50mAv2UI
-         rkTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cv/7XzR9omBEXNn+tqEddtqBvNt7j9qjSpWwWm5+1DQ=;
-        b=GpjXu98cSCdWeuDno9ULjkVUqwhu5Qadn/1TGCFhhMieeoMUrzKqnkequhA484qw6i
-         8c+KQQGbhjfyCCpvaPOW7duWCoKaB54i4tmKMZTT7fUxmWnpHtDM5xGybb70k2e4N8OM
-         NItKjK9tkiclTE/7xunKBzT0QZ2jXrFsqWu27EW/k6t6g2rJuqwfMvz0+g9kDuwc2u6D
-         gJ9iW6nSPP0AqFWPXPqragT13Yi493Wo0yTthyf/3PvP/fi7czFIiQRxVcs3KWpXpONA
-         +xhFK75J31o/QvG5JAxntSMDDMhXai7noQVoo7JcQOvQWwPHPC3pqhhOubcLwkYVGwo8
-         0eDw==
-X-Gm-Message-State: ACrzQf3WvF56NwvWmh1Pdd3GFfnR6o9LJSeo5zy1lra2cD+n/AE8Fldf
-        W81fQ9eus6ik05AN0wwGzj8=
-X-Google-Smtp-Source: AMsMyM6hX3cH6HzMk40SPHVvXChzqtlxm6oJt67cheTqR3e0plFNnRDCktLeFDpKg0/mbnNHpohtHA==
-X-Received: by 2002:a17:90b:4c86:b0:20d:402d:6155 with SMTP id my6-20020a17090b4c8600b0020d402d6155mr14585106pjb.229.1665720883443;
-        Thu, 13 Oct 2022 21:14:43 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-74.three.co.id. [180.214.233.74])
-        by smtp.gmail.com with ESMTPSA id l11-20020a170903120b00b0017f74cab9eesm614938plh.128.2022.10.13.21.14.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Oct 2022 21:14:42 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 219F3103744; Fri, 14 Oct 2022 11:14:38 +0700 (WIB)
-Date:   Fri, 14 Oct 2022 11:14:38 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.15 00/27] 5.15.74-rc1 review
-Message-ID: <Y0jiLqf+cOx6FmVR@debian.me>
-References: <20221013175143.518476113@linuxfoundation.org>
+        with ESMTP id S229583AbiJNEeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 00:34:09 -0400
+Received: from qproxy6-pub.mail.unifiedlayer.com (qproxy6-pub.mail.unifiedlayer.com [69.89.23.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF912AF182
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 21:34:07 -0700 (PDT)
+Received: from alt-proxy28.mail.unifiedlayer.com (unknown [74.220.216.123])
+        by qproxy6.mail.unifiedlayer.com (Postfix) with ESMTP id 58F6B802CD2A
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 04:34:05 +0000 (UTC)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id 58ED310040222
+        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 04:33:42 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id jCODoKCjp76pjjCOEo6dQU; Fri, 14 Oct 2022 04:33:42 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=TL6A93pa c=1 sm=1 tr=0 ts=6348e6a6
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=Qawa6l4ZSaYA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=OLmlkwXjvnPPfp-jv6YA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=S20gLhLfqA3t6QFp79HC+ZRf0CIiK8ILqvNiNUtkAFQ=; b=gKV3AXHg7mLDgOQ0jCZeKa5ozX
+        USx6ZMLulXGgberDdR8v37JN68NygvKASVU4s73ehX3NH3iiryxf5ZaSVnKz5E84ivT7Bfb+95Obj
+        tkGpCPzC829AcC+PzEXcGusnTNklop/r3KKAKCDrl17qDlf4mVAqpB7IqO8cQCMW0Nw2NEonrpIrl
+        SPZxb73PRmTfAyDOzrNE6xJCQqIzGVjBatcM+AERbcjcnliSQo8sLm8AqJhDFrF7zNYCH7zI0qJs+
+        d3ZpF11H7pGurnkIxor67+xig/eKZvq/HFJSXgnCgp8t/BBxiJ9TH5x0zCnbuO5bqSMPz5seb8T/m
+        Eei4JrnA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53774 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1ojCOB-004HVq-Jy;
+        Thu, 13 Oct 2022 22:33:39 -0600
+Subject: Re: [PATCH 6.0 00/34] 6.0.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+References: <20221013175146.507746257@linuxfoundation.org>
+In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <988efb2a-1be0-b809-781c-099804ef96b9@w6rz.net>
+Date:   Thu, 13 Oct 2022 21:33:32 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="Geluv9GX/vn4iM9o"
-Content-Disposition: inline
-In-Reply-To: <20221013175143.518476113@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1ojCOB-004HVq-Jy
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53774
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---Geluv9GX/vn4iM9o
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Oct 13, 2022 at 07:52:29PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.74 release.
-> There are 27 patches in this series, all will be posted as a response
+On 10/13/22 10:52 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.2 release.
+> There are 34 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->=20
+>
+> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.2-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Tested-by: Ron Economos <re@w6rz.net>
 
---=20
-An old man doll... just what I always wanted! - Clara
-
---Geluv9GX/vn4iM9o
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY0jiJwAKCRD2uYlJVVFO
-o8u5AQDWTq3a29qgr0JTYTDU1iCMqYNtbR6RstB3x/R5+sP/4AEAhuctUd6tqo+n
-r70kYvhT7wTudiQ1GR3IY3IuN3eGBg0=
-=AcRp
------END PGP SIGNATURE-----
-
---Geluv9GX/vn4iM9o--
