@@ -2,96 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 276BB5FE4F3
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 00:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E47EA5FE610
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 02:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiJMWGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Oct 2022 18:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53964 "EHLO
+        id S229563AbiJNAJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Oct 2022 20:09:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbiJMWGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 18:06:48 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FEE3182C7C;
-        Thu, 13 Oct 2022 15:06:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=eJABByniC+waYLoXVO+y5XUU6JZxKXZIhKhc7uBYeVM=; b=gjb8rNvdSDfjl3I2cr0Ibx3l4I
-        l4uzJ1CEmaZ/wOQ3W4k/vV9ygnMPVWpEk6VedTzLBYlnQfqkVF0dwJJaXH7CaZR4Jl9PB8gz8V8VX
-        rvWPmFyYdzwk1TFeT0at2YZ5MYwsIVJbTbG8M2fTDYAnvckknofL4LnaoZKj2eDcypa0jhDGvg2b8
-        V2pUu45SDsL9mYyzp4+LSP/fH6XDw8cc7jat2iJDjQWzpSPJCrxRAr4MQCnr5zRwKIt86TtooeBdB
-        V/FWEGAkZIbgYT6kqfMXBL6C8M6EuYWmS+dPbL4QMIbTb6nwNnXqUlIV9UxFtobLtufGkftaOYeD4
-        10lblJnA==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:34712)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1oj6Lg-0000I2-Qs; Thu, 13 Oct 2022 23:06:40 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1oj6Le-000560-HS; Thu, 13 Oct 2022 23:06:38 +0100
-Date:   Thu, 13 Oct 2022 23:06:38 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jakub Kicinski <kuba@kernel.org>, andrew@lunn.ch,
-        hkallweit1@gmail.com, davem@davemloft.net, edumazet@google.com,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.0 52/77] net: sfp: re-implement soft state
- polling setup
-Message-ID: <Y0iL7jwWJMQ870Of@shell.armlinux.org.uk>
-References: <20221009220754.1214186-1-sashal@kernel.org>
- <20221009220754.1214186-52-sashal@kernel.org>
- <Y0PH5fFyViE2qrrG@shell.armlinux.org.uk>
- <Y0hSivQqzGb3hAl3@sashalap>
+        with ESMTP id S229552AbiJNAJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Oct 2022 20:09:16 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B3417FD72
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 17:09:14 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id o9-20020a17090a0a0900b0020ad4e758b3so3295207pjo.4
+        for <stable@vger.kernel.org>; Thu, 13 Oct 2022 17:09:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sladewatkins.net; s=googled;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Aj9UHYdTEClCDGs7ZVXNSHPGH6NTmofQXt+kpp/4++0=;
+        b=pr+yTvMHVaxfuWfNcD2nkJYRGcySw1wKj1/73MzVdthBRivG4B3iQua5wlOsGMJY8W
+         dAUVmF+8zGizDN13Man5A3Y9MIYtTAkyMKVUe1HAUm/mDmP+CXPfZO48m1P5UX+U3eLh
+         aMI5tvb2EyXb2bD8cLuSR+HNMVyvjKYRipmF/zzspIoMzGYveEY2TXPCr/OuEc82/LqW
+         HQ4vfbqn9ZQmYqfV9dVV7a6ErpNgLUrLZBkewVe8j+Zl1KhFP9TxtghBc5y+pzLghpAq
+         TQk9tmM6QPA/9u32lRk/AClmFowB8SemTg7EunkwiNgwy7XZ827m4jHz/L+2uK3fE3Mg
+         mpsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Aj9UHYdTEClCDGs7ZVXNSHPGH6NTmofQXt+kpp/4++0=;
+        b=nFb1Ya6Cs8APbd2K21B8Vqcd3bOBCl3JPKoSplGP+94pT/Ohme8q/t8RdlLPSikA01
+         fac14+0Zr12SvEb2DvgYJ/hOGpc9nlDqBs8cKC6rP5LpWH6Tmtw1NNz+xsZrG8p8uSRf
+         qQXrX+9NvemmtsfcORan3zSNOvoH8PkaHAMzCD5vYUnWkQTju+ifNyW47vaSDTXDhm1F
+         h49Yo5tuXJE7LS/rSDcunE8hEBE0Q0URcFFCLOsdwFZ/cYxcH/L8c/c3BzctCIb1NwY5
+         jsEL5fgpPlcUNIK0879GtqXQCM2xUNShlkQcsx8nw/gj0isqNpfmf97tbKvfw9HmBXNb
+         XsEg==
+X-Gm-Message-State: ACrzQf2g4BUuBI5O9n6pqS2PGqPScwr4COAxYcBpnLstONcWUEDjVUca
+        lpKPbeOAA0o1K1e3V4uxTtjzI5oUf949e959RcfJWg==
+X-Google-Smtp-Source: AMsMyM6IoUprrVkCPe8aCtWSxaVKuoLvC+I1ZT4cC66bVxNJWUHZLdKflGiEwSJHl7KK5W4ObxsuHwz7skEDwlCZ/yA=
+X-Received: by 2002:a17:90a:bd87:b0:20b:1cb4:2c92 with SMTP id
+ z7-20020a17090abd8700b0020b1cb42c92mr2641738pjr.210.1665706154127; Thu, 13
+ Oct 2022 17:09:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y0hSivQqzGb3hAl3@sashalap>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20221013175146.507746257@linuxfoundation.org>
+In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
+From:   Slade Watkins <srw@sladewatkins.net>
+Date:   Thu, 13 Oct 2022 20:09:01 -0400
+Message-ID: <CA+pv=HOgkkRzFbXrxF6tiatFW+c=9_zPDZ2nFwyHaJRhd_HPyA@mail.gmail.com>
+Subject: Re: [PATCH 6.0 00/34] 6.0.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 02:01:46PM -0400, Sasha Levin wrote:
-> On Mon, Oct 10, 2022 at 08:21:09AM +0100, Russell King (Oracle) wrote:
-> > On Sun, Oct 09, 2022 at 06:07:29PM -0400, Sasha Levin wrote:
-> > > From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-> > > 
-> > > [ Upstream commit 8475c4b70b040f9d8cbc308100f2c4d865f810b3 ]
-> > > 
-> > > Re-implement the decision making for soft state polling. Instead of
-> > > generating the soft state mask in sfp_soft_start_poll() by looking at
-> > > which GPIOs are available, record their availability in
-> > > sfp_sm_mod_probe() in sfp->state_hw_mask.
-> > > 
-> > > This will then allow us to clear bits in sfp->state_hw_mask in module
-> > > specific quirks when the hardware signals should not be used, thereby
-> > > allowing us to switch to using the software state polling.
-> > 
-> > NAK.
-> > 
-> > There is absolutely no point in stable picking up this commit. On its
-> > own, it doesn't do anything beneficial. It isn't a fix for anything.
-> > It isn't stable material.
-> > 
-> > If you picked up the next two patches in the series, there would be a
-> > point to it - introducing support for the HALNy GPON SFP module, but
-> > as you didn't these three patches on their own are entirely pointless.
-> 
-> So why not tag those patches for stable to make it explicit?
+On Thu, Oct 13, 2022 at 2:02 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.0.2 release.
+> There are 34 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
+> Anything received after that time might be too late.
 
-Oh, is stable accepting development changes then?
+Greg,
+6.0.2-rc1 compiled and booted on my x86_64 test system. No errors or
+regressions.
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+Tested-by: Slade Watkins <srw@sladewatkins.net>
+
+Thanks,
+-srw
