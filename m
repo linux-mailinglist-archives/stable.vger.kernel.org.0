@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB4C5FEF06
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7CE5FEF0D
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbiJNNwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 09:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
+        id S229962AbiJNNw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:52:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229950AbiJNNwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:52:35 -0400
+        with ESMTP id S229961AbiJNNw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:52:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738381C5E29;
-        Fri, 14 Oct 2022 06:52:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E301BF86F;
+        Fri, 14 Oct 2022 06:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADD17B82349;
-        Fri, 14 Oct 2022 13:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8A8C433C1;
-        Fri, 14 Oct 2022 13:52:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07D12B8235A;
+        Fri, 14 Oct 2022 13:52:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCBCC433D7;
+        Fri, 14 Oct 2022 13:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755525;
-        bh=cLt3pymF4BiahlW8njTC8pTkDVDzPCEtlPz56wf+7iI=;
+        s=k20201202; t=1665755532;
+        bh=pBh+PKuK//OgSe36JRn1Cfl4rfyNKhi8umyVj3qBs/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpnlEAjxZ0KtTruRco+wglfC2AKpaRNHsfbtzer4M+WCujgA5kGe/Wda4xa25I6xI
-         /hvL7eWd6Ra+cKpEmGAdWRzJeDix6jXHdBvz4pJL5cuOJO998TAG3lUZNUZAHSmnUl
-         QKYhkJXizmGSGL3SPtLjfxAtLt9M6tnUHN+RMTi9zVzIMajAGKxKo5LXYBHXL1a7PH
-         e7iQAmF8WIEG15Pr68hpWCiHSrxFSm5F1DsvGlMMt6mEK+LUaRzcHsQbWK0Z+uO+jC
-         WpuMSxCeP4ARgWBFYUzUTAx3irdlJXCDH6IjH1g5KNZf8onpCa05AcFBw90x3a4hsI
-         l0qRsGivw+qhg==
+        b=rZa23zvH+fEdyLPU9uGUklfd8bdc0+vG7B/JA+vr/3K3aufTILoFIjkGGnGm76AyW
+         dahSs2CAWQKkXSUJN+pTYnuetRxTIv896Urq8kxgAflWl9KUkSOk7RIEuxkB2kqOb/
+         KOwqCUax0HyHwt4MptZD6grI8ciIhovPJNa/SJq8hhOhjc5yYfpCzoL6Rx7BLclv6G
+         EKt69sbjwBLRFqSMG5vfS04Ha8skRPU49nBng/wpUv7VjTSaPumObUd2MxIKoRMVBR
+         Y393rODzOXMlYuESplLs4p13a54uWq88sb437VueeYk8yol4co/8/VpVAPODGqlVBT
+         JoUUdOUzv3EMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Disha Goel <disgoel@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
+        Paul Moore <paul@paul-moore.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
-        Julia.Lawall@inria.fr, nick.child@ibm.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.0 08/11] powerpc/perf: Fix branch_filter support for multiple filters
-Date:   Fri, 14 Oct 2022 09:51:34 -0400
-Message-Id: <20221014135139.2109024-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
+        serge@hallyn.com, ldufour@linux.ibm.com, npiggin@gmail.com,
+        paulus@ozlabs.org, sourabhjain@linux.ibm.com, ajd@linux.ibm.com,
+        christophe.leroy@csgroup.eu, casey@schaufler-ca.com,
+        lucien.xin@gmail.com, davem@davemloft.net, omosnace@redhat.com,
+        tkjos@google.com, mcgrof@kernel.org, mortonm@chromium.org,
+        brauner@kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 09/11] powerpc/rtas: block error injection when locked down
+Date:   Fri, 14 Oct 2022 09:51:35 -0400
+Message-Id: <20221014135139.2109024-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221014135139.2109024-1-sashal@kernel.org>
 References: <20221014135139.2109024-1-sashal@kernel.org>
@@ -60,81 +63,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit b9c001276d4a756f98cc7dc4672eff5343949203 ]
+[ Upstream commit b8f3e48834fe8c86b4f21739c6effd160e2c2c19 ]
 
-For PERF_SAMPLE_BRANCH_STACK sample type, different branch_sample_type
-ie branch filters are supported. The branch filters are requested via
-event attribute "branch_sample_type". Multiple branch filters can be
-passed in event attribute. eg:
+The error injection facility on pseries VMs allows corruption of
+arbitrary guest memory, potentially enabling a sufficiently privileged
+user to disable lockdown or perform other modifications of the running
+kernel via the rtas syscall.
 
-  $ perf record -b -o- -B --branch-filter any,ind_call true
+Block the PAPR error injection facility from being opened or called
+when locked down.
 
-None of the Power PMUs support having multiple branch filters at
-the same time. Branch filters for branch stack sampling is set via MMCRA
-IFM bits [32:33]. But currently when requesting for multiple filter
-types, the "perf record" command does not report any error.
-
-eg:
-  $ perf record -b -o- -B --branch-filter any,save_type true
-  $ perf record -b -o- -B --branch-filter any,ind_call true
-
-The "bhrb_filter_map" function in PMU driver code does the validity
-check for supported branch filters. But this check is done for single
-filter. Hence "perf record" will proceed here without reporting any
-error.
-
-Fix power_pmu_event_init() to return EOPNOTSUPP when multiple branch
-filters are requested in the event attr.
-
-After the fix:
-  $ perf record --branch-filter any,ind_call -- ls
-  Error:
-  cycles: PMU Hardware doesn't support sampling/overflow-interrupts.
-  Try 'perf stat'
-
-Reported-by: Disha Goel <disgoel@linux.vnet.ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Disha Goel<disgoel@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
-[mpe: Tweak comment and change log wording]
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Acked-by: Paul Moore <paul@paul-moore.com> (LSM)
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921145255.20972-1-atrajeev@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20220926131643.146502-3-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/powerpc/kernel/rtas.c | 25 ++++++++++++++++++++++++-
+ include/linux/security.h   |  1 +
+ security/security.c        |  1 +
+ 3 files changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 13919eb96931..03e31ae97741 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2131,6 +2131,23 @@ static int power_pmu_event_init(struct perf_event *event)
- 	if (has_branch_stack(event)) {
- 		u64 bhrb_filter = -1;
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 693133972294..c2540d393f1c 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -23,6 +23,7 @@
+ #include <linux/memblock.h>
+ #include <linux/slab.h>
+ #include <linux/reboot.h>
++#include <linux/security.h>
+ #include <linux/syscalls.h>
+ #include <linux/of.h>
+ #include <linux/of_fdt.h>
+@@ -464,6 +465,9 @@ void rtas_call_unlocked(struct rtas_args *args, int token, int nargs, int nret,
+ 	va_end(list);
+ }
  
-+		/*
-+		 * Currently no PMU supports having multiple branch filters
-+		 * at the same time. Branch filters are set via MMCRA IFM[32:33]
-+		 * bits for Power8 and above. Return EOPNOTSUPP when multiple
-+		 * branch filters are requested in the event attr.
-+		 *
-+		 * When opening event via perf_event_open(), branch_sample_type
-+		 * gets adjusted in perf_copy_attr(). Kernel will automatically
-+		 * adjust the branch_sample_type based on the event modifier
-+		 * settings to include PERF_SAMPLE_BRANCH_PLM_ALL. Hence drop
-+		 * the check for PERF_SAMPLE_BRANCH_PLM_ALL.
-+		 */
-+		if (hweight64(event->attr.branch_sample_type & ~PERF_SAMPLE_BRANCH_PLM_ALL) > 1) {
-+			local_irq_restore(irq_flags);
-+			return -EOPNOTSUPP;
-+		}
++static int ibm_open_errinjct_token;
++static int ibm_errinjct_token;
 +
- 		if (ppmu->bhrb_filter_map)
- 			bhrb_filter = ppmu->bhrb_filter_map(
- 					event->attr.branch_sample_type);
+ int rtas_call(int token, int nargs, int nret, int *outputs, ...)
+ {
+ 	va_list list;
+@@ -476,6 +480,16 @@ int rtas_call(int token, int nargs, int nret, int *outputs, ...)
+ 	if (!rtas.entry || token == RTAS_UNKNOWN_SERVICE)
+ 		return -1;
+ 
++	if (token == ibm_open_errinjct_token || token == ibm_errinjct_token) {
++		/*
++		 * It would be nicer to not discard the error value
++		 * from security_locked_down(), but callers expect an
++		 * RTAS status, not an errno.
++		 */
++		if (security_locked_down(LOCKDOWN_RTAS_ERROR_INJECTION))
++			return -1;
++	}
++
+ 	if ((mfmsr() & (MSR_IR|MSR_DR)) != (MSR_IR|MSR_DR)) {
+ 		WARN_ON_ONCE(1);
+ 		return -1;
+@@ -1227,6 +1241,14 @@ SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
+ 	if (block_rtas_call(token, nargs, &args))
+ 		return -EINVAL;
+ 
++	if (token == ibm_open_errinjct_token || token == ibm_errinjct_token) {
++		int err;
++
++		err = security_locked_down(LOCKDOWN_RTAS_ERROR_INJECTION);
++		if (err)
++			return err;
++	}
++
+ 	/* Need to handle ibm,suspend_me call specially */
+ 	if (token == rtas_token("ibm,suspend-me")) {
+ 
+@@ -1325,7 +1347,8 @@ void __init rtas_initialize(void)
+ #ifdef CONFIG_RTAS_ERROR_LOGGING
+ 	rtas_last_error_token = rtas_token("rtas-last-error");
+ #endif
+-
++	ibm_open_errinjct_token = rtas_token("ibm,open-errinjct");
++	ibm_errinjct_token = rtas_token("ibm,errinjct");
+ 	rtas_syscall_filter_init();
+ }
+ 
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 7bd0c490703d..0ca55306f1eb 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -122,6 +122,7 @@ enum lockdown_reason {
+ 	LOCKDOWN_XMON_WR,
+ 	LOCKDOWN_BPF_WRITE_USER,
+ 	LOCKDOWN_DBG_WRITE_KERNEL,
++	LOCKDOWN_RTAS_ERROR_INJECTION,
+ 	LOCKDOWN_INTEGRITY_MAX,
+ 	LOCKDOWN_KCORE,
+ 	LOCKDOWN_KPROBES,
+diff --git a/security/security.c b/security/security.c
+index 4b95de24bc8d..11e2c8757275 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -60,6 +60,7 @@ const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1] = {
+ 	[LOCKDOWN_XMON_WR] = "xmon write access",
+ 	[LOCKDOWN_BPF_WRITE_USER] = "use of bpf to write user RAM",
+ 	[LOCKDOWN_DBG_WRITE_KERNEL] = "use of kgdb/kdb to write kernel RAM",
++	[LOCKDOWN_RTAS_ERROR_INJECTION] = "RTAS error injection",
+ 	[LOCKDOWN_INTEGRITY_MAX] = "integrity",
+ 	[LOCKDOWN_KCORE] = "/proc/kcore access",
+ 	[LOCKDOWN_KPROBES] = "use of kprobes",
 -- 
 2.35.1
 
