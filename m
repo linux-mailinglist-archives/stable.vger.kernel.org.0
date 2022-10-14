@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF9C35FEEFF
-	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B4E5FEF01
+	for <lists+stable@lfdr.de>; Fri, 14 Oct 2022 15:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229819AbiJNNwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 09:52:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37086 "EHLO
+        id S229916AbiJNNwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 09:52:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiJNNwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:52:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3A41C69C1;
-        Fri, 14 Oct 2022 06:51:55 -0700 (PDT)
+        with ESMTP id S229629AbiJNNwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 09:52:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D071D0655;
+        Fri, 14 Oct 2022 06:52:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7232261B45;
-        Fri, 14 Oct 2022 13:51:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D76C433D7;
-        Fri, 14 Oct 2022 13:51:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8979FB82344;
+        Fri, 14 Oct 2022 13:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46E4C433D7;
+        Fri, 14 Oct 2022 13:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665755513;
-        bh=yrs33z8QjOhWGOccn1Y5yb8CYQ+EwRV1Dy14c6INoTI=;
+        s=k20201202; t=1665755517;
+        bh=/XWebppsCRLIWrDwU0CfCo7fYTn2UiwKuoTYFPqeths=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYZMmKD3+ndYYgZbZYASw1h/jMgisWxZqBAkJ3x71AcxErgmzPvDvnjk56IZS2WAh
-         Q+df5iMWn8zAIZw75XvnNy4dzPB20YEypT03OwSM7XFZ+9uN7HAZn2opH1QZ5EHgHW
-         MAAvsXjL5yOE6KN9dKWEMx2895MbUOKbI5Sn6vdAtPMoUn2fUkMkj/pX+Lw1HXK8HC
-         ASDQrV31DGGiYNYXwef441ApYeSFTtfZbanQwLtqQIfNiolzqsADLvFe+fN4w2ISZj
-         D7Wp6QysLK0zrBPQlmX+0M0vXBci15/iO335tOxO8Ut7qVxUNhwd/GYvYY/yDuKt/P
-         u6Zz0/U7HP+rg==
+        b=Vtc1JXgyH6g+uVIxAfmTvSePeSgeE0DpKHZvfM06MkJVU/tnkrYDOH9HieB2rL2G/
+         NfjA1KPWnbJQrsSFFcJ5YEzUlNoh30wtdnUt0ZWrYLBi6h/W86a6wp2l+vg2vSGjxl
+         yXWGfOdnk5Jc8n23Oh1c4PSihvH82gKVf9lvfkJlvJoJ0KBsFQ1ABhIUdx3oMwlbYe
+         Axur+NeVGgJAdED7JprzBxebN2vATc4lTlolTge3JOOD4SWRDBCiUSYJN24F7g5EVz
+         HnJXR01ZwaIDJt0cHJYfFfwBzWj1T2Zh3JSaAT75rkppsHmgabS5hzGAtAVKAxdtfB
+         FS5YreS6h9JlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Nathan Chancellor <nathan@kernel.org>,
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.0 04/11] powerpc/math-emu: Remove -w build flag and fix warnings
-Date:   Fri, 14 Oct 2022 09:51:30 -0400
-Message-Id: <20221014135139.2109024-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, oss@buserror.net,
+        nathan@kernel.org, ndesaulniers@google.com, joel@jms.id.au,
+        Julia.Lawall@inria.fr, christophe.leroy@csgroup.eu,
+        nick.child@ibm.com, linuxppc-dev@lists.ozlabs.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.0 05/11] powerpc/85xx: Fix fall-through warning for Clang
+Date:   Fri, 14 Oct 2022 09:51:31 -0400
+Message-Id: <20221014135139.2109024-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221014135139.2109024-1-sashal@kernel.org>
 References: <20221014135139.2109024-1-sashal@kernel.org>
@@ -56,355 +61,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-[ Upstream commit 7245fc5bb7a966852d5bd7779d1f5855530b461a ]
+[ Upstream commit d4d944ff68cb1f896d3f3b1af0bc656949dc626a ]
 
-As reported by Nathan, the module_init() macro was not taken into
-account because the header was missing. That means spe_mathemu_init()
-was never called.
+Fix the following fallthrough warning:
 
-This should have been detected by gcc at build time, but due to
-'-w' flag it went undetected.
+arch/powerpc/platforms/85xx/mpc85xx_cds.c:161:3: warning: unannotated fall-through between switch labels [-Wimplicit-fallthrough]
 
-Removing that flag leads to many warnings hence errors.
-
-Fix those warnings then remove the -w flag.
-
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/2663961738a46073713786d4efeb53100ca156e7.1662134272.git.christophe.leroy@csgroup.eu
+Link: https://github.com/KSPP/linux/issues/198
+Link: https://lore.kernel.org/lkml/202209061224.KxORRGVg-lkp@intel.com/
+Link: https://lore.kernel.org/r/Yxe8XTY5C9qJLd0Z@work
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/math-emu/Makefile   |  2 --
- arch/powerpc/math-emu/math.c     | 18 +++++-----
- arch/powerpc/math-emu/math_efp.c | 57 +++++++++++++++++---------------
- include/math-emu/op-common.h     |  3 ++
- 4 files changed, 42 insertions(+), 38 deletions(-)
+ arch/powerpc/platforms/85xx/mpc85xx_cds.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/math-emu/Makefile b/arch/powerpc/math-emu/Makefile
-index a8794032f15f..26fef2e5672e 100644
---- a/arch/powerpc/math-emu/Makefile
-+++ b/arch/powerpc/math-emu/Makefile
-@@ -16,5 +16,3 @@ obj-$(CONFIG_SPE)		+= math_efp.o
- 
- CFLAGS_fabs.o = -fno-builtin-fabs
- CFLAGS_math.o = -fno-builtin-fabs
--
--ccflags-y = -w
-diff --git a/arch/powerpc/math-emu/math.c b/arch/powerpc/math-emu/math.c
-index 36761bd00f38..936a9a149037 100644
---- a/arch/powerpc/math-emu/math.c
-+++ b/arch/powerpc/math-emu/math.c
-@@ -24,9 +24,9 @@ FLOATFUNC(mtfsf);
- FLOATFUNC(mtfsfi);
- 
- #ifdef CONFIG_MATH_EMULATION_HW_UNIMPLEMENTED
--#undef FLOATFUNC(x)
-+#undef FLOATFUNC
- #define FLOATFUNC(x)	static inline int x(void *op1, void *op2, void *op3, \
--						 void *op4) { }
-+						 void *op4) { return 0; }
- #endif
- 
- FLOATFUNC(fadd);
-@@ -396,28 +396,28 @@ do_mathemu(struct pt_regs *regs)
- 
- 	case XCR:
- 		op0 = (void *)&regs->ccr;
--		op1 = (void *)((insn >> 23) & 0x7);
-+		op1 = (void *)(long)((insn >> 23) & 0x7);
- 		op2 = (void *)&current->thread.TS_FPR((insn >> 16) & 0x1f);
- 		op3 = (void *)&current->thread.TS_FPR((insn >> 11) & 0x1f);
- 		break;
- 
- 	case XCRL:
- 		op0 = (void *)&regs->ccr;
--		op1 = (void *)((insn >> 23) & 0x7);
--		op2 = (void *)((insn >> 18) & 0x7);
-+		op1 = (void *)(long)((insn >> 23) & 0x7);
-+		op2 = (void *)(long)((insn >> 18) & 0x7);
- 		break;
- 
- 	case XCRB:
--		op0 = (void *)((insn >> 21) & 0x1f);
-+		op0 = (void *)(long)((insn >> 21) & 0x1f);
- 		break;
- 
- 	case XCRI:
--		op0 = (void *)((insn >> 23) & 0x7);
--		op1 = (void *)((insn >> 12) & 0xf);
-+		op0 = (void *)(long)((insn >> 23) & 0x7);
-+		op1 = (void *)(long)((insn >> 12) & 0xf);
- 		break;
- 
- 	case XFLB:
--		op0 = (void *)((insn >> 17) & 0xff);
-+		op0 = (void *)(long)((insn >> 17) & 0xff);
- 		op1 = (void *)&current->thread.TS_FPR((insn >> 11) & 0x1f);
- 		break;
- 
-diff --git a/arch/powerpc/math-emu/math_efp.c b/arch/powerpc/math-emu/math_efp.c
-index 39b84e7452e1..47ecd5d66391 100644
---- a/arch/powerpc/math-emu/math_efp.c
-+++ b/arch/powerpc/math-emu/math_efp.c
-@@ -218,6 +218,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 		case AB:
- 		case XCR:
- 			FP_UNPACK_SP(SA, va.wp + 1);
-+			fallthrough;
- 		case XB:
- 			FP_UNPACK_SP(SB, vb.wp + 1);
- 			break;
-@@ -226,8 +227,8 @@ int do_spe_mathemu(struct pt_regs *regs)
+diff --git a/arch/powerpc/platforms/85xx/mpc85xx_cds.c b/arch/powerpc/platforms/85xx/mpc85xx_cds.c
+index 48f3acfece0b..0b8f2101c5fb 100644
+--- a/arch/powerpc/platforms/85xx/mpc85xx_cds.c
++++ b/arch/powerpc/platforms/85xx/mpc85xx_cds.c
+@@ -159,6 +159,7 @@ static void __init mpc85xx_cds_pci_irq_fixup(struct pci_dev *dev)
+ 			else
+ 				dev->irq = 10;
+ 			pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
++			break;
+ 		default:
  			break;
  		}
- 
--		pr_debug("SA: %ld %08lx %ld (%ld)\n", SA_s, SA_f, SA_e, SA_c);
--		pr_debug("SB: %ld %08lx %ld (%ld)\n", SB_s, SB_f, SB_e, SB_c);
-+		pr_debug("SA: %d %08x %d (%d)\n", SA_s, SA_f, SA_e, SA_c);
-+		pr_debug("SB: %d %08x %d (%d)\n", SB_s, SB_f, SB_e, SB_c);
- 
- 		switch (func) {
- 		case EFSABS:
-@@ -278,7 +279,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			} else {
- 				SB_e += (func == EFSCTSF ? 31 : 32);
- 				FP_TO_INT_ROUND_S(vc.wp[1], SB, 32,
--						(func == EFSCTSF));
-+						(func == EFSCTSF) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -287,7 +288,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			FP_CLEAR_EXCEPTIONS;
- 			FP_UNPACK_DP(DB, vb.dp);
- 
--			pr_debug("DB: %ld %08lx %08lx %ld (%ld)\n",
-+			pr_debug("DB: %d %08x %08x %d (%d)\n",
- 					DB_s, DB_f1, DB_f0, DB_e, DB_c);
- 
- 			FP_CONV(S, D, 1, 2, SR, DB);
-@@ -301,7 +302,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_ROUND_S(vc.wp[1], SB, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -312,7 +313,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_S(vc.wp[1], SB, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -322,7 +323,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 		break;
- 
- pack_s:
--		pr_debug("SR: %ld %08lx %ld (%ld)\n", SR_s, SR_f, SR_e, SR_c);
-+		pr_debug("SR: %d %08x %d (%d)\n", SR_s, SR_f, SR_e, SR_c);
- 
- 		FP_PACK_SP(vc.wp + 1, SR);
- 		goto update_regs;
-@@ -346,6 +347,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 		case AB:
- 		case XCR:
- 			FP_UNPACK_DP(DA, va.dp);
-+			fallthrough;
- 		case XB:
- 			FP_UNPACK_DP(DB, vb.dp);
- 			break;
-@@ -354,9 +356,9 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			break;
- 		}
- 
--		pr_debug("DA: %ld %08lx %08lx %ld (%ld)\n",
-+		pr_debug("DA: %d %08x %08x %d (%d)\n",
- 				DA_s, DA_f1, DA_f0, DA_e, DA_c);
--		pr_debug("DB: %ld %08lx %08lx %ld (%ld)\n",
-+		pr_debug("DB: %d %08x %08x %d (%d)\n",
- 				DB_s, DB_f1, DB_f0, DB_e, DB_c);
- 
- 		switch (func) {
-@@ -408,7 +410,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			} else {
- 				DB_e += (func == EFDCTSF ? 31 : 32);
- 				FP_TO_INT_ROUND_D(vc.wp[1], DB, 32,
--						(func == EFDCTSF));
-+						(func == EFDCTSF) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -417,7 +419,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			FP_CLEAR_EXCEPTIONS;
- 			FP_UNPACK_SP(SB, vb.wp + 1);
- 
--			pr_debug("SB: %ld %08lx %ld (%ld)\n",
-+			pr_debug("SB: %d %08x %d (%d)\n",
- 					SB_s, SB_f, SB_e, SB_c);
- 
- 			FP_CONV(D, S, 2, 1, DR, SB);
-@@ -431,7 +433,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_D(vc.dp[0], DB, 64,
--						((func & 0x1) == 0));
-+						((func & 0x1) == 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -442,7 +444,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_ROUND_D(vc.wp[1], DB, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -453,7 +455,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_D(vc.wp[1], DB, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -463,7 +465,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 		break;
- 
- pack_d:
--		pr_debug("DR: %ld %08lx %08lx %ld (%ld)\n",
-+		pr_debug("DR: %d %08x %08x %d (%d)\n",
- 				DR_s, DR_f1, DR_f0, DR_e, DR_c);
- 
- 		FP_PACK_DP(vc.dp, DR);
-@@ -492,6 +494,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 		case XCR:
- 			FP_UNPACK_SP(SA0, va.wp);
- 			FP_UNPACK_SP(SA1, va.wp + 1);
-+			fallthrough;
- 		case XB:
- 			FP_UNPACK_SP(SB0, vb.wp);
- 			FP_UNPACK_SP(SB1, vb.wp + 1);
-@@ -502,13 +505,13 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			break;
- 		}
- 
--		pr_debug("SA0: %ld %08lx %ld (%ld)\n",
-+		pr_debug("SA0: %d %08x %d (%d)\n",
- 				SA0_s, SA0_f, SA0_e, SA0_c);
--		pr_debug("SA1: %ld %08lx %ld (%ld)\n",
-+		pr_debug("SA1: %d %08x %d (%d)\n",
- 				SA1_s, SA1_f, SA1_e, SA1_c);
--		pr_debug("SB0: %ld %08lx %ld (%ld)\n",
-+		pr_debug("SB0: %d %08x %d (%d)\n",
- 				SB0_s, SB0_f, SB0_e, SB0_c);
--		pr_debug("SB1: %ld %08lx %ld (%ld)\n",
-+		pr_debug("SB1: %d %08x %d (%d)\n",
- 				SB1_s, SB1_f, SB1_e, SB1_c);
- 
- 		switch (func) {
-@@ -567,7 +570,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			} else {
- 				SB0_e += (func == EVFSCTSF ? 31 : 32);
- 				FP_TO_INT_ROUND_S(vc.wp[0], SB0, 32,
--						(func == EVFSCTSF));
-+						(func == EVFSCTSF) ? 1 : 0);
- 			}
- 			if (SB1_c == FP_CLS_NAN) {
- 				vc.wp[1] = 0;
-@@ -575,7 +578,7 @@ int do_spe_mathemu(struct pt_regs *regs)
- 			} else {
- 				SB1_e += (func == EVFSCTSF ? 31 : 32);
- 				FP_TO_INT_ROUND_S(vc.wp[1], SB1, 32,
--						(func == EVFSCTSF));
-+						(func == EVFSCTSF) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -586,14 +589,14 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_ROUND_S(vc.wp[0], SB0, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			if (SB1_c == FP_CLS_NAN) {
- 				vc.wp[1] = 0;
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_ROUND_S(vc.wp[1], SB1, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -604,14 +607,14 @@ int do_spe_mathemu(struct pt_regs *regs)
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_S(vc.wp[0], SB0, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			if (SB1_c == FP_CLS_NAN) {
- 				vc.wp[1] = 0;
- 				FP_SET_EXCEPTION(FP_EX_INVALID);
- 			} else {
- 				FP_TO_INT_S(vc.wp[1], SB1, 32,
--						((func & 0x3) != 0));
-+						((func & 0x3) != 0) ? 1 : 0);
- 			}
- 			goto update_regs;
- 
-@@ -621,9 +624,9 @@ int do_spe_mathemu(struct pt_regs *regs)
- 		break;
- 
- pack_vs:
--		pr_debug("SR0: %ld %08lx %ld (%ld)\n",
-+		pr_debug("SR0: %d %08x %d (%d)\n",
- 				SR0_s, SR0_f, SR0_e, SR0_c);
--		pr_debug("SR1: %ld %08lx %ld (%ld)\n",
-+		pr_debug("SR1: %d %08x %d (%d)\n",
- 				SR1_s, SR1_f, SR1_e, SR1_c);
- 
- 		FP_PACK_SP(vc.wp, SR0);
-diff --git a/include/math-emu/op-common.h b/include/math-emu/op-common.h
-index 4b57bbba588a..8ce066c035cf 100644
---- a/include/math-emu/op-common.h
-+++ b/include/math-emu/op-common.h
-@@ -662,12 +662,14 @@ do {									\
- 	if (X##_e < 0)								\
- 	  {									\
- 	    FP_SET_EXCEPTION(FP_EX_INEXACT);					\
-+	    fallthrough;							\
- 	  case FP_CLS_ZERO:							\
- 	    r = 0;								\
- 	  }									\
- 	else if (X##_e >= rsize - (rsigned > 0 || X##_s)			\
- 		 || (!rsigned && X##_s))					\
- 	  {	/* overflow */							\
-+	    fallthrough;							\
- 	  case FP_CLS_NAN:                                                      \
- 	  case FP_CLS_INF:							\
- 	    if (rsigned == 2)							\
-@@ -767,6 +769,7 @@ do {									\
- 	if (X##_e >= rsize - (rsigned > 0 || X##_s)				\
- 	    || (!rsigned && X##_s))						\
- 	  {	/* overflow */							\
-+	    fallthrough;							\
- 	  case FP_CLS_NAN:                                                      \
- 	  case FP_CLS_INF:							\
- 	    if (!rsigned)							\
 -- 
 2.35.1
 
