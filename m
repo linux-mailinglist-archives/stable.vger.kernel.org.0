@@ -2,103 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 885605FF7DE
-	for <lists+stable@lfdr.de>; Sat, 15 Oct 2022 03:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6225FF7FB
+	for <lists+stable@lfdr.de>; Sat, 15 Oct 2022 04:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbiJOBeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 21:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37366 "EHLO
+        id S229581AbiJOCG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 22:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbiJOBeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 21:34:18 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39E637655F
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 18:34:09 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id pq16so6427802pjb.2
-        for <stable@vger.kernel.org>; Fri, 14 Oct 2022 18:34:08 -0700 (PDT)
+        with ESMTP id S229470AbiJOCG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 22:06:58 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFAE9AC22;
+        Fri, 14 Oct 2022 19:06:56 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id o9-20020a17090a0a0900b0020ad4e758b3so6288919pjo.4;
+        Fri, 14 Oct 2022 19:06:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WWoZiJApWyCBKdB70ZB9Vo9hMSoVXmauhEs7d1wasQE=;
-        b=DU5MvItccSyjFFbxc7gy0hUbfcvU8j3qj+2YZhgcfolUKe8NEGXzxCIFIgEJTg2cFo
-         Rs9sUDSmeC8ZWkFAfI2zXS0/O6ui0yseW8X1JNpHQHvWXy32GcTJADggkXdMmNfVuUXA
-         51UHi4ZzzL2NkKtx9m8wXJ4AAucHssSl9Pxr8=
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rNklb0STZIX8NI4XxunDZJac08jSQZVvK8oerGbpjSU=;
+        b=ZAPsEPW9ifAId8LrHMKs4xzG/ppkV8LBYkga94x6Y+zh+r/0cytqxKN07LqjB2ea0R
+         KKhBouQsnvPbOUTxHmwycEOoXwK9X/IWc8pnHhXu0bKUrryRQGzCQVXWkaSckWj/YZnf
+         KFd2DBGyW+h7+VNrbE53vqAgFoYociJhDSyBiKORopMjjIR10E8fInPNMfgKcTYHKhP6
+         6U15C2wvX2ZPugtLBQpGhIlRjlRtv4vLWVwDVJHSLAddeaM7yPB7vp0qunciWXivmaOM
+         b0tTMifJ8LkOxKjofsW5KPDWZOEpmrurEZHSrE0ozANeP40ujOVIkcfNaQasHQm1KmSE
+         UIKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WWoZiJApWyCBKdB70ZB9Vo9hMSoVXmauhEs7d1wasQE=;
-        b=DbaV8tp4u/Glb0olkCr5HcBE3OU01mfhP8hq41h91qmsuolCmygpvzu8diOU5ta4mf
-         0Xu4/nBZZesMDsljpR1Nym2gSY7vZvh1QJYAXEJQfggWs9dEXqQxe0HmkvxJQsgIVkFk
-         ZDPnNzBBNRCuuSkuG9NO/2VTtMVX/s3Wxm2of/cqD5DQ8na4L/20/6K8DvGSLvFe3sTS
-         +3MSSwnm0WneKoSBdOwfS7KL50kHe0h7y2ziphe4TVuavWOG/NgR5150Qfbnb2X9QiDh
-         +Xk/KDvwQoqRYCBxB2rRPaYPX5JLG1FJMSJ0ydscPWPaPh1JSge056UkLAQSZh5yEVqT
-         rN5w==
-X-Gm-Message-State: ACrzQf0nM2ZiQ5PeaOQPmz5rDoYVLc22fzqUU+JiKh+VH8tjBjptCiuP
-        uex+m+BVNQ1ZF4hBbOrKsl9Llw==
-X-Google-Smtp-Source: AMsMyM60v+OB85OF8dkEL5Ks5ZQlhXou3ViEFXWWTw9dnSluXa5cG2aN519MXXpxU4VxmIHVNy8nPA==
-X-Received: by 2002:a17:90b:388e:b0:20d:4a1f:d5a2 with SMTP id mu14-20020a17090b388e00b0020d4a1fd5a2mr791136pjb.135.1665797647949;
-        Fri, 14 Oct 2022 18:34:07 -0700 (PDT)
-Received: from 90cf639d7f59 ([220.253.112.46])
-        by smtp.gmail.com with ESMTPSA id x1-20020a170902ec8100b0017da2798025sm2306202plg.295.2022.10.14.18.34.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Oct 2022 18:34:06 -0700 (PDT)
-Date:   Sat, 15 Oct 2022 01:33:59 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 6.0 00/34] 6.0.2-rc1 review
-Message-ID: <20221015013359.GA78889@90cf639d7f59>
-References: <20221013175146.507746257@linuxfoundation.org>
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rNklb0STZIX8NI4XxunDZJac08jSQZVvK8oerGbpjSU=;
+        b=4Tz1FpKDR/yaWm+36K4r59dEFkl1nYcw9VOQnvn9rix4jVisqJw30+r0GMkH9PWqaC
+         GteHqGUEJer8tjQbPYfsDnnbVh52qDGuNfKoblwQDMkOuZlDXhVlLHRigolD0tSqr662
+         jz0WnYNv2YtKNoFRGBqvfcrYa70IweO98+K6Vnk4az8+i1Oser2zwqLkNBGFR+OIzeGU
+         GZkM9Ew8v/hhB0ZErNMkUd8MihldaGms+1j3z9mwcyYtJiZXtxHeH3R9lvWkvkPcRUyX
+         ZmTx1ouFwW5ytGVxsF+lY4O/m1Xt9Dwj+GRLytY/tYCC7MMJ+I8uarZ7BrirGq9/MZYF
+         y0sg==
+X-Gm-Message-State: ACrzQf3XSWsUSsgPcaJ2xKWjeLn9z/sGLIVItsfvtKQuMmYD/wFOzpvR
+        PSQy4VDBI2HVuBpcU7LgvBVymOhlTm0=
+X-Google-Smtp-Source: AMsMyM7YWXFBkuZo1yLWoTLKV6tzQIosaGpz9hgtijnzZ7y65DuDh+Iyr4sTWVL5W77EvHNnNv/Ryg==
+X-Received: by 2002:a17:902:e750:b0:17f:71fa:d695 with SMTP id p16-20020a170902e75000b0017f71fad695mr807513plf.105.1665799616402;
+        Fri, 14 Oct 2022 19:06:56 -0700 (PDT)
+Received: from [192.168.43.80] (subs32-116-206-28-41.three.co.id. [116.206.28.41])
+        by smtp.gmail.com with ESMTPSA id m20-20020a62a214000000b005609d3d3008sm2444848pff.171.2022.10.14.19.06.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 14 Oct 2022 19:06:55 -0700 (PDT)
+Message-ID: <70a859bc-a33b-79f5-6f44-5cccfb394749@gmail.com>
+Date:   Sat, 15 Oct 2022 09:06:51 +0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221013175146.507746257@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH v2] Documentation: process: replace outdated LTS table w/
+ link
+To:     Nick Desaulniers <ndesaulniers@google.com>,
+        Jonathan Corbet <corbet@lwn.net>
+Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
+        Sasha Levin <sashal@kernel.org>, Tyler Hicks <code@tyhicks.com>
+References: <Y0mSVQCQer7fEKgu@kroah.com>
+ <20221014171040.849726-1-ndesaulniers@google.com>
+Content-Language: en-US
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20221014171040.849726-1-ndesaulniers@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 07:52:38PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.2 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 10/15/22 00:10, Nick Desaulniers wrote:
+> The existing table was a bit outdated.
 > 
-> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
-> Anything received after that time might be too late.
+> 3.16 was EOL in 2020.
+> 4.4 was EOL in 2022.
+> 
+> 5.10 is new in 2020.
+> 5.15 is new in 2021.
+> 
+> We'll see if 6.1 becomes LTS in 2022.
+> 
+> Rather than keep this table updated, it does duplicate information from
+> multiple kernel.org pages. Make one less duplication site that needs to
+> be updated and simply refer to the kernel.org page on releases.
+> 
+> Suggested-by: Tyler Hicks <code@tyhicks.com>
+> Suggested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Hi Greg,
+Should this patch be backported to all stable releases? I see Cc: stable
+on message header, but not in the patch trailer.
 
-6.0.2-rc1 tested.
+>  Some kernels are designated "long term" kernels; they will receive support
+> -for a longer period.  As of this writing, the current long term kernels
+> -and their maintainers are:
+> -
+> -	======  ================================	=======================
+> -	3.16	Ben Hutchings				(very long-term kernel)
+> -	4.4	Greg Kroah-Hartman & Sasha Levin	(very long-term kernel)
+> -	4.9	Greg Kroah-Hartman & Sasha Levin
+> -	4.14	Greg Kroah-Hartman & Sasha Levin
+> -	4.19	Greg Kroah-Hartman & Sasha Levin
+> -	5.4	Greg Kroah-Hartman & Sasha Levin
+> -	======  ================================	=======================
+> +for a longer period.  Please refer to the following link for the list of active
+> +long term kernel versions and their maintainers:
+> +
+> +	https://www.kernel.org/category/releases.html
+>  
 
-Run tested on:
-- Intel Alder Lake x86_64 (nuc12 i7-1260P)
+LGTM, thanks.
 
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- Allwinner H6
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos5422
+Reviewed-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+-- 
+An old man doll... just what I always wanted! - Clara
+
