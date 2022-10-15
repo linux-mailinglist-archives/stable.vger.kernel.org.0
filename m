@@ -2,68 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3E15FF6B0
-	for <lists+stable@lfdr.de>; Sat, 15 Oct 2022 01:13:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 407055FF787
+	for <lists+stable@lfdr.de>; Sat, 15 Oct 2022 02:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbiJNXNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Oct 2022 19:13:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
+        id S229525AbiJOAMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Oct 2022 20:12:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbiJNXNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 19:13:41 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E2264DBBFA;
-        Fri, 14 Oct 2022 16:13:33 -0700 (PDT)
-Received: by linux.microsoft.com (Postfix, from userid 1131)
-        id 9B8C420FB603; Fri, 14 Oct 2022 16:13:33 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9B8C420FB603
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1665789213;
-        bh=BVhwSUyt5iHvOqnlsHND32OgZB70wDd5dfE0wVbLfR8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o7SfZlWVyh9Y88d+edqNOwLFI/R3eUWYZJoBoZbrrfzypyeyfHlKf8yOTXxft2b5H
-         AddOnmbqvmj9pvhpwjafhywoz6LagA6jFlc6NWBIW47hDJLPVyXykeAGVSHv0DFUi7
-         qcBXRpVJc5IZCBvHhpDrxQRhxnQt79NWn4ahMkdY=
-Date:   Fri, 14 Oct 2022 16:13:33 -0700
-From:   Kelsey Steele <kelseysteele@linux.microsoft.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.15 00/33] 5.15.74-rc2 review
-Message-ID: <20221014231333.GA13269@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20221014082515.704103805@linuxfoundation.org>
+        with ESMTP id S229507AbiJOAMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Oct 2022 20:12:42 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DEDE083;
+        Fri, 14 Oct 2022 17:12:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=KNt+pCSIUZ9+O3L8HoQe1tmbspN8QLuURkdKt3vda7s=; b=ekN/1fFjDh8HdTdr8OyIHH1VZ3
+        1B+vgd01iZnf/itUErKgBI6cOUZdEIryUBIi7QTCLZGMstfAxWfeAYPvlo3CFivnE+wQHPSrzYW0O
+        acGL9OA49uWn03sKPDxKg9XgnpIgYs7zv2QE1LejVxnphyYME/cn0Z9O0uxztpw28nhncRyD5EPMw
+        YL6p078s0zH3RMzpqf6tf/Tzbk1fhu2M1tVDsUJ1FQ3ZNU7XYm8ayN/CBGM7fmOHr4k+sCDcKWDiK
+        yuvHZaN6xhThWecIgpyts8ItC2+Qhr8BU1QHxeKVvY8o+yFEHtquMgk/zRwPnCcND2K6HpV6LMg2h
+        +ZTgzp5A==;
+Received: from [2601:1c2:d80:3110::a2e7] (helo=casper.infradead.org)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ojUn8-0081ai-Hl; Sat, 15 Oct 2022 00:12:39 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Banajit Goswami <bgoswami@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Ajit Pandey <ajitp@codeaurora.org>,
+        Cheng-Yi Chiang <cychiang@chromium.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, stable@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH] ASoC: qcom: SND_SOC_SC7180 optionally depends on SOUNDWIRE
+Date:   Fri, 14 Oct 2022 17:12:28 -0700
+Message-Id: <20221015001228.18990-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.38.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221014082515.704103805@linuxfoundation.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 14, 2022 at 10:26:31AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.74 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 16 Oct 2022 08:25:00 +0000.
-> Anything received after that time might be too late.
+If SOUNDWIRE is enabled, then SND_SOC_SC7180 should depend on
+SOUNDWIRE to prevent SOUNDWIRE=m and SND_SOC_SC7180=y, which causes
+build errors:
 
-No regressions found on WSL x86_64 and WSL arm64
+s390-linux-ld: sound/soc/qcom/common.o: in function `qcom_snd_sdw_prepare':
+common.c:(.text+0x140): undefined reference to `sdw_disable_stream'
+s390-linux-ld: common.c:(.text+0x14a): undefined reference to `sdw_deprepare_stream'
+s390-linux-ld: common.c:(.text+0x158): undefined reference to `sdw_prepare_stream'
+s390-linux-ld: common.c:(.text+0x16a): undefined reference to `sdw_enable_stream'
+s390-linux-ld: common.c:(.text+0x17c): undefined reference to `sdw_deprepare_stream'
+s390-linux-ld: sound/soc/qcom/common.o: in function `qcom_snd_sdw_hw_free':
+common.c:(.text+0x344): undefined reference to `sdw_disable_stream'
+s390-linux-ld: common.c:(.text+0x34e): undefined reference to `sdw_deprepare_stream'
 
-Built, booted, and compared dmesg against 5.15.73.
+Fixes: 3bd975f3ae0a ("ASoC: qcom: sm8250: move some code to common")
+Fixes: 9e3ecb5b1681 ("ASoC: qcom: sc7180: Add machine driver for sound card registration")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Banajit Goswami <bgoswami@quicinc.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Ajit Pandey <ajitp@codeaurora.org>
+Cc: Cheng-Yi Chiang <cychiang@chromium.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: stable@vger.kernel.org
+Cc: alsa-devel@alsa-project.org
+---
+Sorry, I can't tell which Fixes: hash is appropriate here.
 
-Thank you.
+ sound/soc/qcom/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-Tested-by: Kelsey Steele <kelseysteele@linux.microsoft.com> 
+diff -- a/sound/soc/qcom/Kconfig b/sound/soc/qcom/Kconfig
+--- a/sound/soc/qcom/Kconfig
++++ b/sound/soc/qcom/Kconfig
+@@ -187,6 +187,7 @@ config SND_SOC_SC8280XP
+ config SND_SOC_SC7180
+ 	tristate "SoC Machine driver for SC7180 boards"
+ 	depends on I2C && GPIOLIB
++	depends on SOUNDWIRE || SOUNDWIRE=n
+ 	select SND_SOC_QCOM_COMMON
+ 	select SND_SOC_LPASS_SC7180
+ 	select SND_SOC_MAX98357A
