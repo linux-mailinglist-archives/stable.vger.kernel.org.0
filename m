@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B31D5FFECF
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CE35FFED1
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229531AbiJPLJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:09:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38466 "EHLO
+        id S229622AbiJPLJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJPLJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:09:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADF5B7D3
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:09:33 -0700 (PDT)
+        with ESMTP id S229583AbiJPLJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:09:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BA71A200
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD02B609AE
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3B8C433C1;
-        Sun, 16 Oct 2022 11:09:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 22D35CE0B85
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2FEC433C1;
+        Sun, 16 Oct 2022 11:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918572;
-        bh=LZUlGGnu6U+X8umSiI0ABavRXOb2yFNIApbIKvzDSzU=;
+        s=korg; t=1665918578;
+        bh=eBveBNQF2g24jI63qOkun9FD1hc8QpjEzxWKZd/dUrU=;
         h=Subject:To:Cc:From:Date:From;
-        b=AOxmtMI22Q6XIaxuI11FzYFKA5XG0mTu2OGmwZ5i3JhpMDvygVfc7HxhLG+05ZBHr
-         Qbxo726zwnZ7aG7GMOC0Jz7CI5zMY3RV5y2eHQ3XK13JTdeuJOQh/dcIZyEPAHnZYt
-         cJiOY+OiaJDAtGI6IDj1xEDBhdNiuiYWMfAVGj58=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 5.10-stable tree
+        b=YgFkhtQlKVuFpq2sxRDY+RCt0wN6VELkOQc7hsuW4z65HpsxHi9HE6gOAQGa3xbHy
+         uED29Ozr8eEvBY5fZS81XfX82TRQtIBf7boszRCZjgJRLs21ALFO6Zj8biO6Fl06xT
+         aSdd/aNNCk/uoCOd8Ze7tzkbsYQujig6PZrTEdlY=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 5.4-stable tree
 To:     m.v.b@runbox.com, demi@invisiblethingslab.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:10:17 +0200
-Message-ID: <166591861715945@kroah.com>
+Date:   Sun, 16 Oct 2022 13:10:20 +0200
+Message-ID: <1665918620254205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -65,6 +65,10 @@ bce21a2b48ed ("Xen/gnttab: introduce common INVALID_GRANT_{HANDLE,REF}")
 36bf1dfb8b26 ("xen/arm: don't ignore return errors from set_phys_to_machine")
 ebee0eab0859 ("Xen/gntdev: correct error checking in gntdev_map_grant_pages()")
 dbe5283605b3 ("Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()")
+0102e4efda76 ("xen: Use evtchn_type_t as a type for event channels")
+b3f7931f5c61 ("xen/gntdev: switch from kcalloc() to kvcalloc()")
+3b06ac6707c1 ("xen/gntdev: replace global limit of mapped pages by limit per call")
+d3eeb1d77c5d ("xen/gntdev: use mmu_interval_notifier_insert")
 
 thanks,
 
