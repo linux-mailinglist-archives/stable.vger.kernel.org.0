@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B63005FFED2
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 851A45FFED3
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbiJPLJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:09:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39448 "EHLO
+        id S229607AbiJPLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:09:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229607AbiJPLJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:09:45 -0400
+        with ESMTP id S229662AbiJPLJr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:09:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C2D1A220
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:09:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 586DE1A200
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:09:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD03D60AF0
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB07FC433C1;
-        Sun, 16 Oct 2022 11:09:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA17E609AE
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E96C433D6;
+        Sun, 16 Oct 2022 11:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918581;
-        bh=n3rAwdR6e9s9lfayXMVnvzn5cUk8bCUM7odm6bf2ltU=;
+        s=korg; t=1665918585;
+        bh=OsGaxn0a3o/nE/hyDHOJa6oo1g+QY4mBQ1KsqMGS4ck=;
         h=Subject:To:Cc:From:Date:From;
-        b=tO7BpNJgBdixm2qOdxYTKOJpcr3ndnGDFD7IKJta9XKqRYoMlD1MSiwcjTgv+3NTF
-         qaYKHtGYI/l0LvDqvX7jRHDO9JMM18FsytYte3w//WlGespA38mG6/auTC/Tt5nUEh
-         gIBwgRdruTpxWhFDsFKfKGmLyx53fjcL51CnoUOk=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 4.19-stable tree
+        b=ZwDe5VRAikXVKmAQe1kmBCfS6JpSIH1C6j01ZM2/7D7cfb15M+FBUe3bfFWWDu1C2
+         LDtqoy/UknVnNf+bqYh0/Pk5I+uXP3fW/GLAPocDrk45L118L7vyuBWqAczjsh/CmF
+         m1l6vKA365xv4AsLbzy8hlKNyAuDoF1YhrAziUsw=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 4.14-stable tree
 To:     m.v.b@runbox.com, demi@invisiblethingslab.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:10:24 +0200
-Message-ID: <166591862466252@kroah.com>
+Date:   Sun, 16 Oct 2022 13:10:27 +0200
+Message-ID: <166591862724952@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
