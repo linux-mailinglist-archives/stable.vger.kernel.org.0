@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C14CF5FFDAA
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 08:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883BB5FFDAC
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 08:52:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbiJPGqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 02:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39528 "EHLO
+        id S229711AbiJPGwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 02:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229849AbiJPGqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 02:46:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47CAF3B71B;
-        Sat, 15 Oct 2022 23:46:00 -0700 (PDT)
+        with ESMTP id S229575AbiJPGwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 02:52:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0A43D581
+        for <stable@vger.kernel.org>; Sat, 15 Oct 2022 23:52:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E43AB80B65;
-        Sun, 16 Oct 2022 06:45:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6585CC4314A;
-        Sun, 16 Oct 2022 06:45:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFE060A4C
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86768C433D6;
+        Sun, 16 Oct 2022 06:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665902756;
-        bh=M6vEigbkIMDybP7BCXxNZ0YbyifLUWjivpBzJbcRlhQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1H07BliPDOux2/fxBQr+qy/cmkDBuFdRNE3UnJpCZbgnTIueY0b67vrKw3lLUo8f
-         u10oQk92fvdlJlcTLvpIfqgAWyU78cHkiGBntopDPfEBjEIwec8qbz4BbkizefNEGh
-         1aNpLfcVVlxmIdlyub4t0LrZBG6fzU6IUKBIih1E=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 4/4] wifi: mac80211: fix MBSSID parsing use-after-free
-Date:   Sun, 16 Oct 2022 08:46:26 +0200
-Message-Id: <20221016064454.478100196@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221016064454.327821011@linuxfoundation.org>
-References: <20221016064454.327821011@linuxfoundation.org>
-User-Agent: quilt/0.67
+        s=korg; t=1665903135;
+        bh=rJ2a8Bxr4zXVdoEJJY33DdPQWDfvYtKnCNW4DiInKcc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=D9bdyxTN+VKdkGhxs1M4JPmbK4l9oVwFKEtBb1Pww2/bTCMhIdOOgxu33Otxx8sF/
+         Q22twAsm+h3T+TeooEJkDMAOocOdig3YR+sqqKw76GzRQTHBWRD/+oJ4UDQ7oBc65C
+         Q7RHh9QrbPRwbo75hwcTx4m2r8nvheA+ZKvisDYk=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: atmel: Unmap streaming DMA mappings" failed to apply to 4.14-stable tree
+To:     tudor.ambarus@microchip.com, ada@thorsis.com,
+        boris.brezillon@collabora.com, miquel.raynal@bootlin.com,
+        peda@axentia.se
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 16 Oct 2022 08:53:02 +0200
+Message-ID: <1665903182202224@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,122 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
 
-Commit ff05d4b45dd89b922578dac497dcabf57cf771c6 upstream.
-This is a different version of the commit, changed to store
-the non-transmitted profile in the elems, and freeing it in
-the few places where it's relevant, since that is only the
-case when the last argument for parsing (the non-tx BSSID)
-is non-NULL.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-When we parse a multi-BSSID element, we might point some
-element pointers into the allocated nontransmitted_profile.
-However, we free this before returning, causing UAF when the
-relevant pointers in the parsed elements are accessed.
+Possible dependencies:
 
-Fix this by not allocating the scratch buffer separately but
-as part of the returned structure instead, that way, there
-are no lifetime issues with it.
+1161703c9bd6 ("mtd: rawnand: atmel: Unmap streaming DMA mappings")
 
-The scratch buffer introduction as part of the returned data
-here is taken from MLO feature work done by Ilan.
+thanks,
 
-This fixes CVE-2022-42719.
+greg k-h
 
-Fixes: 5023b14cf4df ("mac80211: support profile split between elements")
-Co-developed-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mac80211/ieee80211_i.h |    2 ++
- net/mac80211/mlme.c        |    6 +++++-
- net/mac80211/scan.c        |    2 ++
- net/mac80211/util.c        |    7 ++++++-
- 4 files changed, 15 insertions(+), 2 deletions(-)
+------------------ original commit in Linus's tree ------------------
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1519,6 +1519,8 @@ struct ieee802_11_elems {
- 	u8 country_elem_len;
- 	u8 bssid_index_len;
- 
-+	void *nontx_profile;
-+
- 	/* whether a parse error occurred while retrieving these elements */
- 	bool parse_error;
- };
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -3299,6 +3299,7 @@ static bool ieee80211_assoc_success(stru
- 			sdata_info(sdata,
- 				   "AP bug: VHT operation missing from AssocResp\n");
- 		}
-+		kfree(bss_elems.nontx_profile);
- 	}
- 
- 	/*
-@@ -3883,6 +3884,7 @@ static void ieee80211_rx_mgmt_beacon(str
- 		ifmgd->assoc_data->timeout = jiffies;
- 		ifmgd->assoc_data->timeout_started = true;
- 		run_again(sdata, ifmgd->assoc_data->timeout);
-+		kfree(elems.nontx_profile);
- 		return;
- 	}
- 
-@@ -4050,7 +4052,7 @@ static void ieee80211_rx_mgmt_beacon(str
- 		ieee80211_report_disconnect(sdata, deauth_buf,
- 					    sizeof(deauth_buf), true,
- 					    WLAN_REASON_DEAUTH_LEAVING);
--		return;
-+		goto free;
- 	}
- 
- 	if (sta && elems.opmode_notif)
-@@ -4065,6 +4067,8 @@ static void ieee80211_rx_mgmt_beacon(str
- 					       elems.cisco_dtpc_elem);
- 
- 	ieee80211_bss_info_change_notify(sdata, changed);
-+free:
-+	kfree(elems.nontx_profile);
- }
- 
- void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -216,6 +216,8 @@ ieee80211_bss_info_update(struct ieee802
- 						rx_status, beacon);
- 	}
- 
-+	kfree(elems.nontx_profile);
-+
- 	return bss;
- }
- 
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1363,6 +1363,11 @@ u32 ieee802_11_parse_elems_crc(const u8
- 			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
- 					       nontransmitted_profile,
- 					       nontransmitted_profile_len);
-+		if (!nontransmitted_profile_len) {
-+			nontransmitted_profile_len = 0;
-+			kfree(nontransmitted_profile);
-+			nontransmitted_profile = NULL;
-+		}
- 	}
- 
- 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
-@@ -1392,7 +1397,7 @@ u32 ieee802_11_parse_elems_crc(const u8
- 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
- 		elems->dtim_count = elems->bssid_index->dtim_count;
- 
--	kfree(nontransmitted_profile);
-+	elems->nontx_profile = nontransmitted_profile;
- 
- 	return crc;
- }
+From 1161703c9bd664da5e3b2eb1a3bb40c210e026ea Mon Sep 17 00:00:00 2001
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
+Date: Thu, 28 Jul 2022 10:40:14 +0300
+Subject: [PATCH] mtd: rawnand: atmel: Unmap streaming DMA mappings
 
+Every dma_map_single() call should have its dma_unmap_single() counterpart,
+because the DMA address space is a shared resource and one could render the
+machine unusable by consuming all DMA addresses.
+
+Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Cc: stable@vger.kernel.org
+Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Alexander Dahl <ada@thorsis.com>
+Reported-by: Peter Rosin <peda@axentia.se>
+Tested-by: Alexander Dahl <ada@thorsis.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Tested-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
+
+diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
+index c9ac3baf68c0..41c6bd6e2d72 100644
+--- a/drivers/mtd/nand/raw/atmel/nand-controller.c
++++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
+@@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struct atmel_nand_controller *nc,
+ 
+ 	dma_async_issue_pending(nc->dmac);
+ 	wait_for_completion(&finished);
++	dma_unmap_single(nc->dev, buf_dma, len, dir);
+ 
+ 	return 0;
+ 
 
