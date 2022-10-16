@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C6A5FFDCE
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:22:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F19FF5FFDD6
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229648AbiJPHWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:22:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44280 "EHLO
+        id S229722AbiJPH0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:26:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbiJPHWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:22:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74FD695AE
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:22:30 -0700 (PDT)
+        with ESMTP id S229648AbiJPH0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:26:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB36F3ED53
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:26:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1125560A78
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 256A6C433D7;
-        Sun, 16 Oct 2022 07:22:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 986C0B80B84
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE462C433D6;
+        Sun, 16 Oct 2022 07:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665904949;
-        bh=aT2rbvuTdv+Ciuehdiqof8KAFeiiJMBNSaisfCfEdI4=;
+        s=korg; t=1665905159;
+        bh=JFNlDIPJnzpg8e8FAdS+gv2ggsQ02dhvJx4XOdrfdQM=;
         h=Subject:To:Cc:From:Date:From;
-        b=NtfpZNGUlPHplkLaUZPYWWt9FTG0K8XqLBBbsS3Y4lSHvPYQtzohTDPwdyakyoxga
-         iLvIeEjXm34AXYsFEP1MNm6eNRx59qWeg15uRN93NzzzO22ogbAaQrbpg43suf7TVR
-         aDFGrbm9jM/oMyWQNOFP0E6ixHFqZvVT1YqJCNuc=
-Subject: FAILED: patch "[PATCH] io_uring/net: handle -EINPROGRESS correct for" failed to apply to 5.19-stable tree
-To:     axboe@kernel.dk, aidansun05@gmail.com
+        b=W0fdNlJOTV4oeprMDpVhJOnlQDNqfK6KpzJiATWKNJUp3UkByeJ1AzCxsBIC2BPxS
+         dJEHcHPflcpHSyiaQfzbalJzR2JM2jne39dq39C7mtQvMQqGpq0iceCU0CW4Zk4sxr
+         +vSv8Fmw05qUBFfkP0D4hA/335tkVNZHgmAEQVnA=
+Subject: FAILED: patch "[PATCH] io_uring/rw: fix unexpected link breakage" failed to apply to 5.15-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk, beldzhang@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:23:16 +0200
-Message-ID: <166590499623534@kroah.com>
+Date:   Sun, 16 Oct 2022 09:26:45 +0200
+Message-ID: <1665905205871@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-3fb1bd688172 ("io_uring/net: handle -EINPROGRESS correct for IORING_OP_CONNECT")
+bf68b5b34311 ("io_uring/rw: fix unexpected link breakage")
+f3b44f92e59a ("io_uring: move read/write related opcodes to its own file")
+c98817e6cd44 ("io_uring: move remaining file table manipulation to filetable.c")
+735729844819 ("io_uring: move rsrc related data, core, and commands")
+3b77495a9723 ("io_uring: split provided buffers handling into its own file")
+7aaff708a768 ("io_uring: move cancelation into its own file")
+329061d3e2f9 ("io_uring: move poll handling into its own file")
+cfd22e6b3319 ("io_uring: add opcode name to io_op_defs")
+92ac8beaea1f ("io_uring: include and forward-declaration sanitation")
+c9f06aa7de15 ("io_uring: move io_uring_task (tctx) helpers into its own file")
+a4ad4f748ea9 ("io_uring: move fdinfo helpers to its own file")
+e5550a1447bf ("io_uring: use io_is_uring_fops() consistently")
+17437f311490 ("io_uring: move SQPOLL related handling into its own file")
+59915143e89f ("io_uring: move timeout opcodes and handling into its own file")
+e418bbc97bff ("io_uring: move our reference counting into a header")
+36404b09aa60 ("io_uring: move msg_ring into its own file")
 f9ead18c1058 ("io_uring: split network related opcodes into its own file")
 e0da14def1ee ("io_uring: move statx handling to its own file")
 a9c210cebe13 ("io_uring: move epoll handler to its own file")
 4cf90495281b ("io_uring: add a dummy -EOPNOTSUPP prep handler")
-99f15d8d6136 ("io_uring: move uring_cmd handling to its own file")
-cd40cae29ef8 ("io_uring: split out open/close operations")
-453b329be5ea ("io_uring: separate out file table handling code")
-f4c163dd7d4b ("io_uring: split out fadvise/madvise operations")
-0d5847274037 ("io_uring: split out fs related sync/fallocate functions")
-531113bbd5bf ("io_uring: split out splice related operations")
-11aeb71406dd ("io_uring: split out filesystem related operations")
-e28683bdfc2f ("io_uring: move nop into its own file")
-5e2a18d93fec ("io_uring: move xattr related opcodes to its own file")
-97b388d70b53 ("io_uring: handle completions in the core")
-de23077eda61 ("io_uring: set completion results upfront")
-e27f928ee1cb ("io_uring: add io_uring_types.h")
-4d4c9cff4f70 ("io_uring: define a request type cleanup handler")
-890968dc0336 ("io_uring: unify struct io_symlink and io_hardlink")
-9a3a11f977f9 ("io_uring: convert iouring_cmd to io_cmd_type")
 
 thanks,
 
@@ -81,86 +81,36 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3fb1bd68817288729179444caf1fd5c5c4d2d65d Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 4 Oct 2022 20:29:48 -0600
-Subject: [PATCH] io_uring/net: handle -EINPROGRESS correct for
- IORING_OP_CONNECT
+From bf68b5b34311ee57ed40749a1257a30b46127556 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Tue, 27 Sep 2022 00:44:39 +0100
+Subject: [PATCH] io_uring/rw: fix unexpected link breakage
 
-We treat EINPROGRESS like EAGAIN, but if we're retrying post getting
-EINPROGRESS, then we just need to check the socket for errors and
-terminate the request.
+req->cqe.res is set in io_read() to the amount of bytes left to be done,
+which is used to figure out whether to fail a read or not. However,
+io_read() may do another without returning, and we stash the previous
+value into ->bytes_done but forget to update cqe.res. Then we ask a read
+to do strictly less than cqe.res but expect the return to be exactly
+cqe.res.
 
-This was exposed on a bluetooth connection request which ends up
-taking a while and hitting EINPROGRESS, and yields a CQE result of
--EBADFD because we're retrying a connect on a socket that is now
-connected.
+Fix the bug by updating cqe.res for retries.
 
 Cc: stable@vger.kernel.org
-Fixes: 87f80d623c6c ("io_uring: handle connect -EINPROGRESS like -EAGAIN")
-Link: https://github.com/axboe/liburing/issues/671
-Reported-by: Aidan Sun <aidansun05@gmail.com>
+Reported-and-Tested-by: Beld Zhang <beldzhang@gmail.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/3a1088440c7be98e5800267af922a67da0ef9f13.1664235732.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/io_uring/net.c b/io_uring/net.c
-index caa6a803cb72..8c7226b5bf41 100644
---- a/io_uring/net.c
-+++ b/io_uring/net.c
-@@ -46,6 +46,7 @@ struct io_connect {
- 	struct file			*file;
- 	struct sockaddr __user		*addr;
- 	int				addr_len;
-+	bool				in_progress;
- };
- 
- struct io_sr_msg {
-@@ -1386,6 +1387,7 @@ int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	conn->addr_len =  READ_ONCE(sqe->addr2);
-+	conn->in_progress = false;
- 	return 0;
- }
- 
-@@ -1397,6 +1399,16 @@ int io_connect(struct io_kiocb *req, unsigned int issue_flags)
- 	int ret;
- 	bool force_nonblock = issue_flags & IO_URING_F_NONBLOCK;
- 
-+	if (connect->in_progress) {
-+		struct socket *socket;
-+
-+		ret = -ENOTSOCK;
-+		socket = sock_from_file(req->file);
-+		if (socket)
-+			ret = sock_error(socket->sk);
-+		goto out;
-+	}
-+
- 	if (req_has_async_data(req)) {
- 		io = req->async_data;
- 	} else {
-@@ -1413,13 +1425,17 @@ int io_connect(struct io_kiocb *req, unsigned int issue_flags)
- 	ret = __sys_connect_file(req->file, &io->address,
- 					connect->addr_len, file_flags);
- 	if ((ret == -EAGAIN || ret == -EINPROGRESS) && force_nonblock) {
--		if (req_has_async_data(req))
--			return -EAGAIN;
--		if (io_alloc_async_data(req)) {
--			ret = -ENOMEM;
--			goto out;
-+		if (ret == -EINPROGRESS) {
-+			connect->in_progress = true;
-+		} else {
-+			if (req_has_async_data(req))
-+				return -EAGAIN;
-+			if (io_alloc_async_data(req)) {
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+			memcpy(req->async_data, &__io, sizeof(__io));
+diff --git a/io_uring/rw.c b/io_uring/rw.c
+index 59c92a4616b8..ed14322aadb9 100644
+--- a/io_uring/rw.c
++++ b/io_uring/rw.c
+@@ -793,6 +793,7 @@ int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ 			return -EAGAIN;
  		}
--		memcpy(req->async_data, &__io, sizeof(__io));
- 		return -EAGAIN;
- 	}
- 	if (ret == -ERESTARTSYS)
+ 
++		req->cqe.res = iov_iter_count(&s->iter);
+ 		/*
+ 		 * Now retry read with the IOCB_WAITQ parts set in the iocb. If
+ 		 * we get -EIOCBQUEUED, then we'll get a notification when the
 
