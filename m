@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 988406000D9
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BCDA6000DB
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229705AbiJPPq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:46:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
+        id S229738AbiJPPrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbiJPPq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:46:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92C233428
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:46:55 -0700 (PDT)
+        with ESMTP id S229730AbiJPPrE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7713343C
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75F29B80CCA
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:46:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18E1C433D6;
-        Sun, 16 Oct 2022 15:46:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB10F60C09
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7708C433C1;
+        Sun, 16 Oct 2022 15:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935213;
-        bh=Iy1T99ZAfHAh0kRUL5YuWuBN8vZ5MbzKPevR7tgPTBc=;
+        s=korg; t=1665935221;
+        bh=u49z518gKLu5e4MNI2IAr4lMs8CUSXETurymFx6OE54=;
         h=Subject:To:Cc:From:Date:From;
-        b=1+G5WtYaguUBCdb21Aq4NJpmBA7PxSl6IccjJxQaGmcH0E7JSvFgWLeHLrsk/qwBy
-         htvkEvXflNkNRCuRSlB061eH+4DPvh1A9vdBV7nDv93xu9I+rSUnK9XggKbGJJXAgI
-         aqDxcDFTSaHY88DEXa0PT9DXZGyCiHM4A+uUu54c=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings" failed to apply to 4.9-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com, vkuznets@redhat.com
+        b=adMICzrGD12eLsHSaSIOx1BGvvgqRPyQQIPkHakcEEBkKhrZop10KmlFP0cLhcata
+         LfKIRO69ClhtEefae647B+GdrWljHK3/UOIZ1dPhbTJLzkzKAxa//mpeLvbqfkQOsM
+         jv30X5CXxSZlTcYOtjsbKZyrIfpbstyO8/O73NaA=
+Subject: FAILED: patch "[PATCH] KVM: x86: Treat #DBs from the emulator as fault-like (code" failed to apply to 5.19-stable tree
+To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:47:31 +0200
-Message-ID: <16659352515278@kroah.com>
+Date:   Sun, 16 Oct 2022 17:47:47 +0200
+Message-ID: <166593526767126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,27 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-def9d705c05e ("KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings to vmcs02")
-389ab25216c9 ("KVM: nVMX: Pull KVM L0's desired controls directly from vmcs01")
-d041b5ea9335 ("KVM: nVMX: Enable nested TSC scaling")
-5e3d394fdd9e ("KVM: VMX: Fix the spelling of CPU_BASED_USE_TSC_OFFSETTING")
-4e2a0bc56ad1 ("KVM: VMX: Rename NMI_PENDING to NMI_WINDOW")
-9dadc2f918df ("KVM: VMX: Rename INTERRUPT_PENDING to INTERRUPT_WINDOW")
-4289d2728664 ("KVM: retpolines: x86: eliminate retpoline from vmx.c exit handlers")
-f399e60c45f6 ("KVM: x86: optimize more exit handlers in vmx.c")
-b7ad61084842 ("tools headers kvm: Sync kvm headers with the kernel sources")
-4a53d99dd0c2 ("KVM: VMX: Introduce exit reason for receiving INIT signal on guest-mode")
-5497b95567c1 ("KVM: nVMX: add tracepoint for failed nested VM-Enter")
-1edce0a9eb23 ("KVM: x86: Add kvm_emulate_{rd,wr}msr() to consolidate VXM/SVM code")
-f20935d85a23 ("KVM: x86: Refactor up kvm_{g,s}et_msr() to simplify callers")
-32d1d15c52c1 ("Merge tag 'kvmarm-5.4' of git://git.kernel.org/pub/scm/linux/kernel/git/kvmarm/kvmarm into HEAD")
+5623f751bd9c ("KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)")
+a61d7c5432ac ("KVM: x86: Trace re-injected exceptions")
 
 thanks,
 
@@ -75,47 +63,94 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From def9d705c05eab3fdedeb10ad67907513b12038e Mon Sep 17 00:00:00 2001
+From 5623f751bd9c438ed12840e086f33c4646440d19 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 30 Aug 2022 15:37:21 +0200
-Subject: [PATCH] KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings
- to vmcs02
+Date: Tue, 30 Aug 2022 23:15:55 +0000
+Subject: [PATCH] KVM: x86: Treat #DBs from the emulator as fault-like (code
+ and DR7.GD=1)
 
-Don't propagate vmcs12's VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL to vmcs02.
-KVM doesn't disallow L1 from using VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL
-even when KVM itself doesn't use the control, e.g. due to the various
-CPU errata that where the MSR can be corrupted on VM-Exit.
+Add a dedicated "exception type" for #DBs, as #DBs can be fault-like or
+trap-like depending the sub-type of #DB, and effectively defer the
+decision of what to do with the #DB to the caller.
 
-Preserve KVM's (vmcs01) setting to hopefully avoid having to toggle the
-bit in vmcs02 at a later point.  E.g. if KVM is loading PERF_GLOBAL_CTRL
-when running L1, then odds are good KVM will also load the MSR when
-running L2.
+For the emulator's two calls to exception_type(), treat the #DB as
+fault-like, as the emulator handles only code breakpoint and general
+detect #DBs, both of which are fault-like.
 
-Fixes: 8bf00a529967 ("KVM: VMX: add support for switching of PERF_GLOBAL_CTRL")
+For event injection, which uses exception_type() to determine whether to
+set EFLAGS.RF=1 on the stack, keep the current behavior of not setting
+RF=1 for #DBs.  Intel and AMD explicitly state RF isn't set on code #DBs,
+so exempting by failing the "== EXCPT_FAULT" check is correct.  The only
+other fault-like #DB is General Detect, and despite Intel and AMD both
+strongly implying (through omission) that General Detect #DBs should set
+RF=1, hardware (multiple generations of both Intel and AMD), in fact does
+not.  Through insider knowledge, extreme foresight, sheer dumb luck, or
+some combination thereof, KVM correctly handled RF for General Detect #DBs.
+
+Fixes: 38827dbd3fb8 ("KVM: x86: Do not update EFLAGS on faulting emulation")
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-18-vkuznets@redhat.com
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220830231614.3580124-9-seanjc@google.com
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 1743319015b7..400e015afa64 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2359,9 +2359,14 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs0
- 	 * are emulated by vmx_set_efer() in prepare_vmcs02(), but speculate
- 	 * on the related bits (if supported by the CPU) in the hope that
- 	 * we can avoid VMWrites during vmx_set_efer().
-+	 *
-+	 * Similarly, take vmcs01's PERF_GLOBAL_CTRL in the hope that if KVM is
-+	 * loading PERF_GLOBAL_CTRL via the VMCS for L1, then KVM will want to
-+	 * do the same for L2.
- 	 */
- 	exec_control = __vm_entry_controls_get(vmcs01);
--	exec_control |= vmcs12->vm_entry_controls;
-+	exec_control |= (vmcs12->vm_entry_controls &
-+			 ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL);
- 	exec_control &= ~(VM_ENTRY_IA32E_MODE | VM_ENTRY_LOAD_IA32_EFER);
- 	if (cpu_has_load_ia32_efer()) {
- 		if (guest_efer & EFER_LMA)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index ee22264ab471..ee3041da222b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -533,6 +533,7 @@ static int exception_class(int vector)
+ #define EXCPT_TRAP		1
+ #define EXCPT_ABORT		2
+ #define EXCPT_INTERRUPT		3
++#define EXCPT_DB		4
+ 
+ static int exception_type(int vector)
+ {
+@@ -543,8 +544,14 @@ static int exception_type(int vector)
+ 
+ 	mask = 1 << vector;
+ 
+-	/* #DB is trap, as instruction watchpoints are handled elsewhere */
+-	if (mask & ((1 << DB_VECTOR) | (1 << BP_VECTOR) | (1 << OF_VECTOR)))
++	/*
++	 * #DBs can be trap-like or fault-like, the caller must check other CPU
++	 * state, e.g. DR6, to determine whether a #DB is a trap or fault.
++	 */
++	if (mask & (1 << DB_VECTOR))
++		return EXCPT_DB;
++
++	if (mask & ((1 << BP_VECTOR) | (1 << OF_VECTOR)))
+ 		return EXCPT_TRAP;
+ 
+ 	if (mask & ((1 << DF_VECTOR) | (1 << MC_VECTOR)))
+@@ -8844,6 +8851,12 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 		unsigned long rflags = static_call(kvm_x86_get_rflags)(vcpu);
+ 		toggle_interruptibility(vcpu, ctxt->interruptibility);
+ 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
++
++		/*
++		 * Note, EXCPT_DB is assumed to be fault-like as the emulator
++		 * only supports code breakpoints and general detect #DB, both
++		 * of which are fault-like.
++		 */
+ 		if (!ctxt->have_exception ||
+ 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
+ 			kvm_pmu_trigger_event(vcpu, PERF_COUNT_HW_INSTRUCTIONS);
+@@ -9767,6 +9780,16 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit)
+ 
+ 	/* try to inject new event if pending */
+ 	if (vcpu->arch.exception.pending) {
++		/*
++		 * Fault-class exceptions, except #DBs, set RF=1 in the RFLAGS
++		 * value pushed on the stack.  Trap-like exception and all #DBs
++		 * leave RF as-is (KVM follows Intel's behavior in this regard;
++		 * AMD states that code breakpoint #DBs excplitly clear RF=0).
++		 *
++		 * Note, most versions of Intel's SDM and AMD's APM incorrectly
++		 * describe the behavior of General Detect #DBs, which are
++		 * fault-like.  They do _not_ set RF, a la code breakpoints.
++		 */
+ 		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
+ 			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
+ 					     X86_EFLAGS_RF);
 
