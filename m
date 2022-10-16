@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E50166000D0
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AECAB6000D1
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:45:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbiJPPn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60878 "EHLO
+        id S229691AbiJPPpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:45:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229691AbiJPPnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:43:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D18E31EC5
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:43:54 -0700 (PDT)
+        with ESMTP id S229697AbiJPPo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:44:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A422F193EA
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:44:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D476660C05
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:43:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E62C433D7;
-        Sun, 16 Oct 2022 15:43:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F24DB80CC1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:44:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D64C433C1;
+        Sun, 16 Oct 2022 15:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935033;
-        bh=n9D4r/cZG2iIDRRH5equLcTL+0QE4GzjhotQ1UtU4fQ=;
+        s=korg; t=1665935094;
+        bh=O9/qrNm8F6Jb6mhAjKBFjrLMOO0znkL7c0oE4AVYSSY=;
         h=Subject:To:Cc:From:Date:From;
-        b=eZ2UyJrC67P7euJIynJPduygvd72jmXfO1GgxOepOpOokjUIa5Fs8Y6keBSFmdw19
-         Hj84BbBUYkCCevY8+AHWdgvQtovPGbe3+/X9CyqempJBTKlyGguL12UrbnXp5+jNYa
-         S1lq2pkyEvMPw0mobn/Smm36SqLOUudO3ApzR9oQ=
-Subject: FAILED: patch "[PATCH] media: cedrus: Fix watchdog race condition" failed to apply to 5.19-stable tree
-To:     nicolas.dufresne@collabora.com, hverkuil-cisco@xs4all.nl,
-        mchehab@kernel.org, paul.kocialkowski@bootlin.com
+        b=psftQ5AcGSVYxVjBxiioFhOqqh9OOLcVW8ofZI/pxA80G2RagmgFH820x8jx8G+vu
+         +EOKX4iSOCPUG+7tNEwAtdOcYr1W2F/qlb/vKAx8zKMkPhFOLcLK/ifDg2vdDo+9+W
+         mxk0YE9/BeimvKK9qaYbEAXqHP1Y0S9U0SaBbGxs=
+Subject: FAILED: patch "[PATCH] blk-wbt: call rq_qos_add() after wb_normal is initialized" failed to apply to 5.10-stable tree
+To:     yukuai3@huawei.com, axboe@kernel.dk, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:44:39 +0200
-Message-ID: <1665935079229102@kroah.com>
+Date:   Sun, 16 Oct 2022 17:45:35 +0200
+Message-ID: <1665935135236175@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,17 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-fe8b81fde69a ("media: cedrus: Fix watchdog race condition")
-4af46bcc4915 ("media: cedrus: Add error handling for failed setup")
-f1a413902aa7 ("media: cedrus: h265: Fix logic for not low delay flag")
-104a70e1d0bc ("media: cedrus: h265: Fix flag name")
+8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is initialized")
+5a20d073ec54 ("block: wbt: Remove unnecessary invoking of wbt_update_limits in wbt_init")
 
 thanks,
 
@@ -66,45 +63,96 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fe8b81fde69acfcbb5af9e85328e5b9549999fdb Mon Sep 17 00:00:00 2001
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Date: Thu, 18 Aug 2022 22:33:06 +0200
-Subject: [PATCH] media: cedrus: Fix watchdog race condition
+From 8c5035dfbb9475b67c82b3fdb7351236525bf52b Mon Sep 17 00:00:00 2001
+From: Yu Kuai <yukuai3@huawei.com>
+Date: Tue, 13 Sep 2022 18:57:49 +0800
+Subject: [PATCH] blk-wbt: call rq_qos_add() after wb_normal is initialized
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-The watchdog needs to be scheduled before we trigger the decode
-operation, otherwise there is a risk that the decoder IRQ will be
-called before we have schedule the watchdog. As a side effect, the
-watchdog would never be cancelled and its function would be called
-at an inappropriate time.
+Our test found a problem that wbt inflight counter is negative, which
+will cause io hang(noted that this problem doesn't exist in mainline):
 
-This was observed while running Fluster with GStreamer as a backend.
-Some programming error would cause the decoder IRQ to be call very
-quickly after the trigger. Later calls into the driver would deadlock
-due to the unbalanced state.
+t1: device create	t2: issue io
+add_disk
+ blk_register_queue
+  wbt_enable_default
+   wbt_init
+    rq_qos_add
+    // wb_normal is still 0
+			/*
+			 * in mainline, disk can't be opened before
+			 * bdev_add(), however, in old kernels, disk
+			 * can be opened before blk_register_queue().
+			 */
+			blkdev_issue_flush
+                        // disk size is 0, however, it's not checked
+                         submit_bio_wait
+                          submit_bio
+                           blk_mq_submit_bio
+                            rq_qos_throttle
+                             wbt_wait
+			      bio_to_wbt_flags
+                               rwb_enabled
+			       // wb_normal is 0, inflight is not increased
 
-Cc: stable@vger.kernel.org
-Fixes: 7c38a551bda1 ("media: cedrus: Add watchdog for job completion")
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+    wbt_queue_depth_changed(&rwb->rqos);
+     wbt_update_limits
+     // wb_normal is initialized
+                            rq_qos_track
+                             wbt_track
+                              rq->wbt_flags |= bio_to_wbt_flags(rwb, bio);
+			      // wb_normal is not 0，wbt_flags will be set
+t3: io completion
+blk_mq_free_request
+ rq_qos_done
+  wbt_done
+   wbt_is_tracked
+   // return true
+   __wbt_done
+    wbt_rqw_done
+     atomic_dec_return(&rqw->inflight);
+     // inflight is decreased
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
-index 3b6aa78a2985..e7f7602a5ab4 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
-@@ -106,11 +106,11 @@ void cedrus_device_run(void *priv)
- 
- 	/* Trigger decoding if setup went well, bail out otherwise. */
- 	if (!error) {
--		dev->dec_ops[ctx->current_codec]->trigger(ctx);
--
- 		/* Start the watchdog timer. */
- 		schedule_delayed_work(&dev->watchdog_work,
- 				      msecs_to_jiffies(2000));
+commit 8235b5c1e8c1 ("block: call bdev_add later in device_add_disk") can
+avoid this problem, however it's better to fix this problem in wbt:
+
+1) Lower kernel can't backport this patch due to lots of refactor.
+2) Root cause is that wbt call rq_qos_add() before wb_normal is
+initialized.
+
+Fixes: e34cbd307477 ("blk-wbt: add general throttling mechanism")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20220913105749.3086243-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index a9982000b667..246467926253 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -843,6 +843,10 @@ int wbt_init(struct request_queue *q)
+ 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
+ 	rwb->wc = 1;
+ 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
++	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
 +
-+		dev->dec_ops[ctx->current_codec]->trigger(ctx);
- 	} else {
- 		v4l2_m2m_buf_done_and_job_finish(ctx->dev->m2m_dev,
- 						 ctx->fh.m2m_ctx,
++	wbt_queue_depth_changed(&rwb->rqos);
++	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+ 
+ 	/*
+ 	 * Assign rwb and add the stats callback.
+@@ -853,11 +857,6 @@ int wbt_init(struct request_queue *q)
+ 
+ 	blk_stat_add_callback(q, rwb->cb);
+ 
+-	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
+-
+-	wbt_queue_depth_changed(&rwb->rqos);
+-	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+-
+ 	return 0;
+ 
+ err_free:
 
