@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF4060009D
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3F360009E
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:23:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229964AbiJPPXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:23:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50960 "EHLO
+        id S229662AbiJPPXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:23:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229979AbiJPPXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:23:23 -0400
+        with ESMTP id S229951AbiJPPXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:23:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522702EF65
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:23:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E3E27DE1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:23:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B2C60BC8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:23:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5063C433D6;
-        Sun, 16 Oct 2022 15:23:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 124D960BCA
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:23:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE121C433D6;
+        Sun, 16 Oct 2022 15:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665933801;
-        bh=nkJXUU+AliE6znK1Ff7kRzd0kFKp5nrT92taddvEAWY=;
+        s=korg; t=1665933823;
+        bh=BWy9yAu9JeJ2SqedReEjh+UA51xYelMSAp7qbWMJ0x8=;
         h=Subject:To:Cc:From:Date:From;
-        b=ydiqajn6w8LqZ3El1rGYh1HwIT0fP0YBVLR03MCA0KBYLfMBWuCZFWglC0Tn/r5Az
-         K/HAhkPpB2L0uFTynMpVx1Js3mrrHPb24T6r616uFP/B8MexfpL+Ln+JnP3lWbqJKF
-         YbSu76dpplaBkbwvmBj2441Jj+e5Gk9hR3YwFCKs=
-Subject: FAILED: patch "[PATCH] tracing: Move duplicate code of trace_kprobe/eprobe.c into" failed to apply to 5.10-stable tree
+        b=HL9EHLb0cZubwHu2J0Dn900E59ZrjC677tcZCiTdsnt+KhYnORDdx2f2VzlOypg1R
+         aM81oI7uCMzqCYS/QQ1GudZYzTUkyb2yBIHjZBq6KaFeVVcalSHMJTxmZQ+MdWZogt
+         go13WjAPWHO8NZr9/1rUybgNcTeZqApv7wozDkUI=
+Subject: FAILED: patch "[PATCH] tracing: Add "(fault)" name injection to kernel probes" failed to apply to 5.10-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org,
         mhiramat@kernel.org, zanussi@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:24:07 +0200
-Message-ID: <16659338479799@kroah.com>
+Date:   Sun, 16 Oct 2022 17:24:29 +0200
+Message-ID: <166593386918829@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,6 +55,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+2e9906f84fc7 ("tracing: Add "(fault)" name injection to kernel probes")
 f1d3cbfaafc1 ("tracing: Move duplicate code of trace_kprobe/eprobe.c into header")
 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
 007517a01995 ("tracing/probe: Change traceprobe_set_print_fmt() to take a type")
@@ -67,26 +68,18 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f1d3cbfaafc10464550c6d3a125f4fc802bbaed5 Mon Sep 17 00:00:00 2001
+From 2e9906f84fc7c99388bb7123ade167250d50f1c0 Mon Sep 17 00:00:00 2001
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Wed, 12 Oct 2022 06:40:56 -0400
-Subject: [PATCH] tracing: Move duplicate code of trace_kprobe/eprobe.c into
- header
+Date: Wed, 12 Oct 2022 06:40:57 -0400
+Subject: [PATCH] tracing: Add "(fault)" name injection to kernel probes
 
-The functions:
+Have the specific functions for kernel probes that read strings to inject
+the "(fault)" name directly. trace_probes.c does this too (for uprobes)
+but as the code to read strings are going to be used by synthetic events
+(and perhaps other utilities), it simplifies the code by making sure those
+other uses do not need to implement the "(fault)" name injection as well.
 
-  fetch_store_strlen_user()
-  fetch_store_strlen()
-  fetch_store_string_user()
-  fetch_store_string()
-
-are identical in both trace_kprobe.c and trace_eprobe.c. Move them into
-a new header file trace_probe_kernel.h to share it. This code will later
-be used by the synthetic events as well.
-
-Marked for stable as a fix for a crash in synthetic events requires it.
-
-Link: https://lkml.kernel.org/r/20221012104534.467668078@goodmis.org
+Link: https://lkml.kernel.org/r/20221012104534.644803645@goodmis.org
 
 Cc: stable@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>
@@ -96,302 +89,75 @@ Reviewed-by: Tom Zanussi <zanussi@kernel.org>
 Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/kernel/trace/trace_eprobe.c b/kernel/trace/trace_eprobe.c
-index c08bde9871ec..5dd0617e5df6 100644
---- a/kernel/trace/trace_eprobe.c
-+++ b/kernel/trace/trace_eprobe.c
-@@ -16,6 +16,7 @@
- #include "trace_dynevent.h"
- #include "trace_probe.h"
- #include "trace_probe_tmpl.h"
-+#include "trace_probe_kernel.h"
- 
- #define EPROBE_EVENT_SYSTEM "eprobes"
- 
-@@ -456,29 +457,14 @@ NOKPROBE_SYMBOL(process_fetch_insn)
- static nokprobe_inline int
- fetch_store_strlen_user(unsigned long addr)
- {
--	const void __user *uaddr =  (__force const void __user *)addr;
--
--	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+	return kern_fetch_store_strlen_user(addr);
- }
- 
- /* Return the length of string -- including null terminal byte */
- static nokprobe_inline int
- fetch_store_strlen(unsigned long addr)
- {
--	int ret, len = 0;
--	u8 c;
--
--#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
--	if (addr < TASK_SIZE)
--		return fetch_store_strlen_user(addr);
--#endif
--
--	do {
--		ret = copy_from_kernel_nofault(&c, (u8 *)addr + len, 1);
--		len++;
--	} while (c && ret == 0 && len < MAX_STRING_SIZE);
--
--	return (ret < 0) ? ret : len;
-+	return kern_fetch_store_strlen(addr);
- }
- 
- /*
-@@ -488,21 +474,7 @@ fetch_store_strlen(unsigned long addr)
- static nokprobe_inline int
- fetch_store_string_user(unsigned long addr, void *dest, void *base)
- {
--	const void __user *uaddr =  (__force const void __user *)addr;
--	int maxlen = get_loc_len(*(u32 *)dest);
--	void *__dest;
--	long ret;
--
--	if (unlikely(!maxlen))
--		return -ENOMEM;
--
--	__dest = get_loc_data(dest, base);
--
--	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
--
--	return ret;
-+	return kern_fetch_store_string_user(addr, dest, base);
- }
- 
- /*
-@@ -512,29 +484,7 @@ fetch_store_string_user(unsigned long addr, void *dest, void *base)
- static nokprobe_inline int
- fetch_store_string(unsigned long addr, void *dest, void *base)
- {
--	int maxlen = get_loc_len(*(u32 *)dest);
--	void *__dest;
--	long ret;
--
--#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
--	if ((unsigned long)addr < TASK_SIZE)
--		return fetch_store_string_user(addr, dest, base);
--#endif
--
--	if (unlikely(!maxlen))
--		return -ENOMEM;
--
--	__dest = get_loc_data(dest, base);
--
--	/*
--	 * Try to get string again, since the string can be changed while
--	 * probing.
--	 */
--	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
--
--	return ret;
-+	return kern_fetch_store_string(addr, dest, base);
- }
- 
- static nokprobe_inline int
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 23f7f0ec4f4c..5a75b039e586 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -20,6 +20,7 @@
- #include "trace_kprobe_selftest.h"
- #include "trace_probe.h"
- #include "trace_probe_tmpl.h"
-+#include "trace_probe_kernel.h"
- 
- #define KPROBE_EVENT_SYSTEM "kprobes"
- #define KRETPROBE_MAXACTIVE_MAX 4096
-@@ -1223,29 +1224,14 @@ static const struct file_operations kprobe_profile_ops = {
- static nokprobe_inline int
- fetch_store_strlen_user(unsigned long addr)
- {
--	const void __user *uaddr =  (__force const void __user *)addr;
--
--	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+	return kern_fetch_store_strlen_user(addr);
- }
- 
- /* Return the length of string -- including null terminal byte */
- static nokprobe_inline int
- fetch_store_strlen(unsigned long addr)
- {
--	int ret, len = 0;
--	u8 c;
--
--#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
--	if (addr < TASK_SIZE)
--		return fetch_store_strlen_user(addr);
--#endif
--
--	do {
--		ret = copy_from_kernel_nofault(&c, (u8 *)addr + len, 1);
--		len++;
--	} while (c && ret == 0 && len < MAX_STRING_SIZE);
--
--	return (ret < 0) ? ret : len;
-+	return kern_fetch_store_strlen(addr);
- }
- 
- /*
-@@ -1255,21 +1241,7 @@ fetch_store_strlen(unsigned long addr)
- static nokprobe_inline int
- fetch_store_string_user(unsigned long addr, void *dest, void *base)
- {
--	const void __user *uaddr =  (__force const void __user *)addr;
--	int maxlen = get_loc_len(*(u32 *)dest);
--	void *__dest;
--	long ret;
--
--	if (unlikely(!maxlen))
--		return -ENOMEM;
--
--	__dest = get_loc_data(dest, base);
--
--	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
--
--	return ret;
-+	return kern_fetch_store_string_user(addr, dest, base);
- }
- 
- /*
-@@ -1279,29 +1251,7 @@ fetch_store_string_user(unsigned long addr, void *dest, void *base)
- static nokprobe_inline int
- fetch_store_string(unsigned long addr, void *dest, void *base)
- {
--	int maxlen = get_loc_len(*(u32 *)dest);
--	void *__dest;
--	long ret;
--
--#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
--	if ((unsigned long)addr < TASK_SIZE)
--		return fetch_store_string_user(addr, dest, base);
--#endif
--
--	if (unlikely(!maxlen))
--		return -ENOMEM;
--
--	__dest = get_loc_data(dest, base);
--
--	/*
--	 * Try to get string again, since the string can be changed while
--	 * probing.
--	 */
--	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
--
--	return ret;
-+	return kern_fetch_store_string(addr, dest, base);
- }
- 
- static nokprobe_inline int
 diff --git a/kernel/trace/trace_probe_kernel.h b/kernel/trace/trace_probe_kernel.h
-new file mode 100644
-index 000000000000..1d43df29a1f8
---- /dev/null
+index 1d43df29a1f8..77dbd9ff9782 100644
+--- a/kernel/trace/trace_probe_kernel.h
 +++ b/kernel/trace/trace_probe_kernel.h
-@@ -0,0 +1,96 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __TRACE_PROBE_KERNEL_H_
-+#define __TRACE_PROBE_KERNEL_H_
+@@ -2,6 +2,8 @@
+ #ifndef __TRACE_PROBE_KERNEL_H_
+ #define __TRACE_PROBE_KERNEL_H_
+ 
++#define FAULT_STRING "(fault)"
 +
-+/*
-+ * This depends on trace_probe.h, but can not include it due to
-+ * the way trace_probe_tmpl.h is used by trace_kprobe.c and trace_eprobe.c.
-+ * Which means that any other user must include trace_probe.h before including
-+ * this file.
-+ */
-+/* Return the length of string -- including null terminal byte */
-+static nokprobe_inline int
-+kern_fetch_store_strlen_user(unsigned long addr)
-+{
-+	const void __user *uaddr =  (__force const void __user *)addr;
-+
-+	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+}
-+
-+/* Return the length of string -- including null terminal byte */
-+static nokprobe_inline int
-+kern_fetch_store_strlen(unsigned long addr)
-+{
-+	int ret, len = 0;
-+	u8 c;
-+
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+	if (addr < TASK_SIZE)
-+		return kern_fetch_store_strlen_user(addr);
-+#endif
-+
-+	do {
-+		ret = copy_from_kernel_nofault(&c, (u8 *)addr + len, 1);
-+		len++;
-+	} while (c && ret == 0 && len < MAX_STRING_SIZE);
-+
-+	return (ret < 0) ? ret : len;
-+}
-+
-+/*
-+ * Fetch a null-terminated string from user. Caller MUST set *(u32 *)buf
-+ * with max length and relative data location.
-+ */
-+static nokprobe_inline int
-+kern_fetch_store_string_user(unsigned long addr, void *dest, void *base)
-+{
-+	const void __user *uaddr =  (__force const void __user *)addr;
-+	int maxlen = get_loc_len(*(u32 *)dest);
-+	void *__dest;
-+	long ret;
-+
-+	if (unlikely(!maxlen))
-+		return -ENOMEM;
-+
-+	__dest = get_loc_data(dest, base);
-+
-+	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
-+	if (ret >= 0)
-+		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Fetch a null-terminated string. Caller MUST set *(u32 *)buf with max
-+ * length and relative data location.
-+ */
-+static nokprobe_inline int
-+kern_fetch_store_string(unsigned long addr, void *dest, void *base)
-+{
-+	int maxlen = get_loc_len(*(u32 *)dest);
-+	void *__dest;
-+	long ret;
-+
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+	if ((unsigned long)addr < TASK_SIZE)
-+		return kern_fetch_store_string_user(addr, dest, base);
-+#endif
-+
-+	if (unlikely(!maxlen))
-+		return -ENOMEM;
-+
-+	__dest = get_loc_data(dest, base);
-+
+ /*
+  * This depends on trace_probe.h, but can not include it due to
+  * the way trace_probe_tmpl.h is used by trace_kprobe.c and trace_eprobe.c.
+@@ -13,8 +15,16 @@ static nokprobe_inline int
+ kern_fetch_store_strlen_user(unsigned long addr)
+ {
+ 	const void __user *uaddr =  (__force const void __user *)addr;
++	int ret;
+ 
+-	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
++	ret = strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
 +	/*
-+	 * Try to get string again, since the string can be changed while
-+	 * probing.
++	 * strnlen_user_nofault returns zero on fault, insert the
++	 * FAULT_STRING when that occurs.
 +	 */
-+	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
-+	if (ret >= 0)
-+		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+
++	if (ret <= 0)
++		return strlen(FAULT_STRING) + 1;
 +	return ret;
+ }
+ 
+ /* Return the length of string -- including null terminal byte */
+@@ -34,7 +44,18 @@ kern_fetch_store_strlen(unsigned long addr)
+ 		len++;
+ 	} while (c && ret == 0 && len < MAX_STRING_SIZE);
+ 
+-	return (ret < 0) ? ret : len;
++	/* For faults, return enough to hold the FAULT_STRING */
++	return (ret < 0) ? strlen(FAULT_STRING) + 1 : len;
 +}
 +
-+#endif /* __TRACE_PROBE_KERNEL_H_ */
++static nokprobe_inline void set_data_loc(int ret, void *dest, void *__dest, void *base, int len)
++{
++	if (ret >= 0) {
++		*(u32 *)dest = make_data_loc(ret, __dest - base);
++	} else {
++		strscpy(__dest, FAULT_STRING, len);
++		ret = strlen(__dest) + 1;
++	}
+ }
+ 
+ /*
+@@ -55,8 +76,7 @@ kern_fetch_store_string_user(unsigned long addr, void *dest, void *base)
+ 	__dest = get_loc_data(dest, base);
+ 
+ 	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
+-	if (ret >= 0)
+-		*(u32 *)dest = make_data_loc(ret, __dest - base);
++	set_data_loc(ret, dest, __dest, base, maxlen);
+ 
+ 	return ret;
+ }
+@@ -87,8 +107,7 @@ kern_fetch_store_string(unsigned long addr, void *dest, void *base)
+ 	 * probing.
+ 	 */
+ 	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
+-	if (ret >= 0)
+-		*(u32 *)dest = make_data_loc(ret, __dest - base);
++	set_data_loc(ret, dest, __dest, base, maxlen);
+ 
+ 	return ret;
+ }
 
