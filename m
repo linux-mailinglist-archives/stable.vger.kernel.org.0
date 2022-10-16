@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E0E600095
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24119600096
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbiJPPV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
+        id S229920AbiJPPWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbiJPPV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:21:57 -0400
+        with ESMTP id S229928AbiJPPWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:22:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9518936BCD
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:21:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9113719D
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:21:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59B90B80B35
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:21:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5741C433C1;
-        Sun, 16 Oct 2022 15:21:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21EF7B80CA6
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:21:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71160C433C1;
+        Sun, 16 Oct 2022 15:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665933714;
-        bh=sxsCeKmIExle4/YKW6mvdTtX2LQPDdozEbO993CT/KQ=;
+        s=korg; t=1665933716;
+        bh=Bp8TCAgXjJYNN7LFvUd7B3Y8FxLvs0DnrORTqzZpd/A=;
         h=Subject:To:Cc:From:Date:From;
-        b=VMhfUT2jRmXv6MOH8WhsfaxB/PLy8LC6qlKZnJXGU3th4Uc+XceIn/3f7w3MnokMo
-         yLQEt06DcPHQNgNqwHOuAOfm9nUy8I3AMAjgMoJTfvR4g5U6eV+xujkz10B/Y28DPU
-         1HF3Zy8ikirGzLkGsAg6/NeaO6XU8XRdQ1TdJkRc=
-Subject: FAILED: patch "[PATCH] tracing: Wake up waiters when tracing is disabled" failed to apply to 4.14-stable tree
+        b=lVwtipISUSAPa/2cX5N1LglOJyD/VuFVKgtwcyZ8sRlv1PF4PU69kcBpu0a7ynpnJ
+         ItwDsHqZtGDeEA902JKGtM7DOsjAUOJcg4nZGooCxP5h4MUKpp271W4w3rAtRTjp6S
+         p1LTDxXXwHu/sT8T6XKOkQEI99hzj3KvOkmxuVRA=
+Subject: FAILED: patch "[PATCH] tracing: Wake up waiters when tracing is disabled" failed to apply to 4.9-stable tree
 To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:22:27 +0200
-Message-ID: <1665933747140249@kroah.com>
+Date:   Sun, 16 Oct 2022 17:22:28 +0200
+Message-ID: <16659337482395@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -64,6 +64,8 @@ ff895103a84a ("tracing: Save off entry when peeking at next entry")
 2c1ea60b195d ("tracing: Add timestamp_mode trace file")
 00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
 ecf927000ce3 ("ring_buffer_poll_wait() return value used as return value of ->poll()")
+065e63f95143 ("tracing: Only have rmmod clear buffers that its events were active in")
+dc8d387210e3 ("tracing: Update Documentation/trace/ftrace.txt")
 
 thanks,
 
