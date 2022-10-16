@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F626000D5
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719656000D6
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbiJPPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
+        id S229729AbiJPPqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:46:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229660AbiJPPqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:46:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C0932C657
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:46:42 -0700 (PDT)
+        with ESMTP id S229660AbiJPPqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:46:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9C333841
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:46:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27A6760C05
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B35C433C1;
-        Sun, 16 Oct 2022 15:46:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF56E60C09
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF0EFC433C1;
+        Sun, 16 Oct 2022 15:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935201;
-        bh=7TaIbUci5xMAgUl15KmojZxHb6pWz0h3Gr/fF5oM3Zw=;
+        s=korg; t=1665935205;
+        bh=ghbuqFjYhqcF0llne+fbYWuudPWFqhz2inHxw4NFXHU=;
         h=Subject:To:Cc:From:Date:From;
-        b=mO2nRN6jFJcGDfPYZJfVBCkQIX/2DNZ8aOQhErhI8PgrllOoS6yrNauoQJerIN66w
-         P1nwCjQo3BSCHofIeHqXK3OtpNNF4RrC67HwKQVBKVwxRaAKb8JesLC+ShEyt1Stm2
-         q59lVGQ2vrgs1AHfRlX3MU8gUDzw+jemZimbYU/U=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings" failed to apply to 5.10-stable tree
+        b=WBjFPXcD2NPJKzXGeDPgz0taNbPnGhpuw/qJCijSICk1M2mB1e9oJLv+bcDexsXGx
+         3FoNh97zoRrUM4TeSTEJQM9+rZnVaaH03BHjC3zwrl5oEXNUi0LtCfX5A8G0RybCtx
+         RIvyP9HHyG8c2Ag3xHhFGEu1MQSHbe3HBsxATQcw=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings" failed to apply to 5.4-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com, vkuznets@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:47:27 +0200
-Message-ID: <1665935247137223@kroah.com>
+Date:   Sun, 16 Oct 2022 17:47:28 +0200
+Message-ID: <166593524811422@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,11 @@ Possible dependencies:
 def9d705c05e ("KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings to vmcs02")
 389ab25216c9 ("KVM: nVMX: Pull KVM L0's desired controls directly from vmcs01")
 d041b5ea9335 ("KVM: nVMX: Enable nested TSC scaling")
+5e3d394fdd9e ("KVM: VMX: Fix the spelling of CPU_BASED_USE_TSC_OFFSETTING")
+4e2a0bc56ad1 ("KVM: VMX: Rename NMI_PENDING to NMI_WINDOW")
+9dadc2f918df ("KVM: VMX: Rename INTERRUPT_PENDING to INTERRUPT_WINDOW")
+4289d2728664 ("KVM: retpolines: x86: eliminate retpoline from vmx.c exit handlers")
+f399e60c45f6 ("KVM: x86: optimize more exit handlers in vmx.c")
 
 thanks,
 
