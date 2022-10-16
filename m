@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC935FFEAD
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFFD5FFEAE
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229722AbiJPKpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 06:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55282 "EHLO
+        id S229712AbiJPKpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 06:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbiJPKpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:45:49 -0400
+        with ESMTP id S229461AbiJPKpw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:45:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1B83A17E
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:45:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF13213F51
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:45:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B2EB60AF0
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:45:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2925C433D6;
-        Sun, 16 Oct 2022 10:45:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C05C60B18
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:45:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85DA6C433D6;
+        Sun, 16 Oct 2022 10:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665917147;
-        bh=RgJ5uJj5TGPN67gTS0T6hLbCbOoI0UVJdWMAKwC8qLw=;
+        s=korg; t=1665917151;
+        bh=/YQqvRZztHNQiAf3GY88ZyqYi6hHaPIhTmAgaGRmKWM=;
         h=Subject:To:Cc:From:Date:From;
-        b=VL4FxkcoEqQtgeemWMGTq5gavquMFedODV738QvHKQ8CfuSU+X8D5xyoSy2N4ZF9i
-         76n/Np90Jk1QzNH1WXLIJvOtxEqkBxr4dmj1RB7UN94D8dCLdR+OaCmT5Mf3p0oHcx
-         TyFwp4gdfLmaZxnGZTXEe7BdFH1NXg/6GQ6L/Oz4=
-Subject: FAILED: patch "[PATCH] dmaengine: mxs: use platform_driver_register" failed to apply to 5.10-stable tree
+        b=0znsKwwjHSOou6q7tOXZV7YxkOJn+PFHosFE0Dhx5Leiq8PAy3Eqzn6K3GV7NN2r6
+         3/oPVbTrFumDMrgxUQRlkx7jSB526mbW63KlX/DFmxFXyZPhiBa8E2m4kLY/tPGgZt
+         Ci5l5PXoIzsmIS6NxBRBVuW6AlGBUX4QppYNzErc=
+Subject: FAILED: patch "[PATCH] dmaengine: mxs: use platform_driver_register" failed to apply to 5.4-stable tree
 To:     dario.binacchi@amarulasolutions.com, michael@amarulasolutions.com,
         s.hauer@pengutronix.de, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 12:46:33 +0200
-Message-ID: <1665917193113245@kroah.com>
+Date:   Sun, 16 Oct 2022 12:46:34 +0200
+Message-ID: <166591719412154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
