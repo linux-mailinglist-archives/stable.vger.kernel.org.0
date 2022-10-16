@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B65325FFEF5
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5069B5FFEFB
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbiJPLWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:22:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39148 "EHLO
+        id S229748AbiJPLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:37:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbiJPLWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:22:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCDFB3498F
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:22:17 -0700 (PDT)
+        with ESMTP id S229747AbiJPLhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:37:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E063539B99
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:37:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 002B0CE09E7
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:22:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC2EC433C1;
-        Sun, 16 Oct 2022 11:22:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8932D60AF5
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:37:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94FF6C433C1;
+        Sun, 16 Oct 2022 11:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665919334;
-        bh=93L4HWq5xRvuECWdtxzlSCfom9uFBQO2eqor/opNJ9U=;
+        s=korg; t=1665920273;
+        bh=aAFZebPZD1f22A+WQzCZcZqvKPny9f0g8sDRBvNbaT4=;
         h=Subject:To:Cc:From:Date:From;
-        b=q2H7/Qd/oWpmV+oBB23rfd9znVHDcANUvIeHqyh/X6eVRiUpt19wvormQH+RjYL8J
-         ETF/UIlTMDwR25xfU4Ol404PQyXvBOivN+Qm7MY8y4sftoSd0mlodvPQ785QEEA/gz
-         rU5RP4G6wsMboSBvz6N8CXg//EL47YiK86lw4mrI=
-Subject: FAILED: patch "[PATCH] scsi: lpfc: Rework MIB Rx Monitor debug info logic" failed to apply to 5.15-stable tree
-To:     jsmart2021@gmail.com, justin.tee@broadcom.com,
-        martin.petersen@oracle.com, stable@vger.kernel.org
+        b=cr/YCX44UpCHsWzR0T/pC4eFv04KRghnEhf9t49AOmYTXInyNNDQ6MczOX8439zOE
+         gTRk/+Ei1eIbKD/pLdAn3UiTt0EjmqFoiuN4mTndXbG8OeBfSAu0miRQ5+fQndaj0U
+         A9OG/td5quaX4Omds8uyg6onT3oIhI0ls62LmLkE=
+Subject: FAILED: patch "[PATCH] scsi: qedf: Populate sysfs attributes for vport" failed to apply to 5.4-stable tree
+To:     skashyap@marvell.com, guazhang@redhat.com, jmeneghi@redhat.com,
+        martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:23:00 +0200
-Message-ID: <166591938017738@kroah.com>
+Date:   Sun, 16 Oct 2022 13:38:35 +0200
+Message-ID: <16659203153170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,16 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-bd269188ea94 ("scsi: lpfc: Rework MIB Rx Monitor debug info logic")
-a6269f837045 ("scsi: lpfc: Adjust CMF total bytes and rxmonitor")
-d5ac69b332d8 ("scsi: lpfc: Adjust bytes received vales during cmf timer interval")
+592642e6b11e ("scsi: qedf: Populate sysfs attributes for vport")
 
 thanks,
 
@@ -65,533 +63,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bd269188ea94e40ab002cad7b0df8f12b8f0de54 Mon Sep 17 00:00:00 2001
-From: James Smart <jsmart2021@gmail.com>
-Date: Thu, 18 Aug 2022 18:17:32 -0700
-Subject: [PATCH] scsi: lpfc: Rework MIB Rx Monitor debug info logic
+From 592642e6b11e620e4b43189f8072752429fc8dc3 Mon Sep 17 00:00:00 2001
+From: Saurav Kashyap <skashyap@marvell.com>
+Date: Mon, 19 Sep 2022 06:44:34 -0700
+Subject: [PATCH] scsi: qedf: Populate sysfs attributes for vport
 
-The kernel test robot reported the following sparse warning:
+Few vport parameters were displayed by systool as 'Unknown' or 'NULL'.
+Copy speed, supported_speed, frame_size and update port_type for NPIV port.
 
-arch/arm64/include/asm/cmpxchg.h:88:1: sparse: sparse: cast truncates
-   bits from constant value (369 becomes 69)
-
-On arm64, atomic_xchg only works on 8-bit byte fields.  Thus, the macro
-usage of LPFC_RXMONITOR_TABLE_IN_USE can be unintentionally truncated
-leading to all logic involving the LPFC_RXMONITOR_TABLE_IN_USE macro to not
-work properly.
-
-Replace the Rx Table atomic_t indexing logic with a new
-lpfc_rx_info_monitor structure that holds a circular ring buffer.  For
-locking semantics, a spinlock_t is used.
-
-Link: https://lore.kernel.org/r/20220819011736.14141-4-jsmart2021@gmail.com
-Fixes: 17b27ac59224 ("scsi: lpfc: Add rx monitoring statistics")
-Cc: <stable@vger.kernel.org> # v5.15+
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20220919134434.3513-1-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Reviewed-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
-index e6a083d098a1..11a05f2c88c4 100644
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -1570,10 +1570,7 @@ struct lpfc_hba {
- 	u32 cgn_acqe_cnt;
- 
- 	/* RX monitor handling for CMF */
--	struct rxtable_entry *rxtable;  /* RX_monitor information */
--	atomic_t rxtable_idx_head;
--#define LPFC_RXMONITOR_TABLE_IN_USE     (LPFC_MAX_RXMONITOR_ENTRY + 73)
--	atomic_t rxtable_idx_tail;
-+	struct lpfc_rx_info_monitor *rx_monitor;
- 	atomic_t rx_max_read_cnt;       /* Maximum read bytes */
- 	uint64_t rx_block_cnt;
- 
-@@ -1622,7 +1619,7 @@ struct lpfc_hba {
- 
- #define LPFC_MAX_RXMONITOR_ENTRY	800
- #define LPFC_MAX_RXMONITOR_DUMP		32
--struct rxtable_entry {
-+struct rx_info_entry {
- 	uint64_t cmf_bytes;	/* Total no of read bytes for CMF_SYNC_WQE */
- 	uint64_t total_bytes;   /* Total no of read bytes requested */
- 	uint64_t rcv_bytes;     /* Total no of read bytes completed */
-@@ -1637,6 +1634,13 @@ struct rxtable_entry {
- 	uint32_t timer_interval;
- };
- 
-+struct lpfc_rx_info_monitor {
-+	struct rx_info_entry *ring; /* info organized in a circular buffer */
-+	u32 head_idx, tail_idx; /* index to head/tail of ring */
-+	spinlock_t lock; /* spinlock for ring */
-+	u32 entries; /* storing number entries/size of ring */
-+};
-+
- static inline struct Scsi_Host *
- lpfc_shost_from_vport(struct lpfc_vport *vport)
- {
-diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
-index bcad91204328..c8cac90240b9 100644
---- a/drivers/scsi/lpfc/lpfc_crtn.h
-+++ b/drivers/scsi/lpfc/lpfc_crtn.h
-@@ -92,6 +92,14 @@ void lpfc_cgn_dump_rxmonitor(struct lpfc_hba *phba);
- void lpfc_cgn_update_stat(struct lpfc_hba *phba, uint32_t dtag);
- void lpfc_unblock_requests(struct lpfc_hba *phba);
- void lpfc_block_requests(struct lpfc_hba *phba);
-+int lpfc_rx_monitor_create_ring(struct lpfc_rx_info_monitor *rx_monitor,
-+				u32 entries);
-+void lpfc_rx_monitor_destroy_ring(struct lpfc_rx_info_monitor *rx_monitor);
-+void lpfc_rx_monitor_record(struct lpfc_rx_info_monitor *rx_monitor,
-+			    struct rx_info_entry *entry);
-+u32 lpfc_rx_monitor_report(struct lpfc_hba *phba,
-+			   struct lpfc_rx_info_monitor *rx_monitor, char *buf,
-+			   u32 buf_len, u32 max_read_entries);
- 
- void lpfc_mbx_cmpl_local_config_link(struct lpfc_hba *, LPFC_MBOXQ_t *);
- void lpfc_mbx_cmpl_reg_login(struct lpfc_hba *, LPFC_MBOXQ_t *);
-diff --git a/drivers/scsi/lpfc/lpfc_debugfs.c b/drivers/scsi/lpfc/lpfc_debugfs.c
-index 5037ea09a810..e37b028eae5f 100644
---- a/drivers/scsi/lpfc/lpfc_debugfs.c
-+++ b/drivers/scsi/lpfc/lpfc_debugfs.c
-@@ -5531,7 +5531,7 @@ lpfc_rx_monitor_open(struct inode *inode, struct file *file)
- 	if (!debug)
- 		goto out;
- 
--	debug->buffer = vmalloc(MAX_DEBUGFS_RX_TABLE_SIZE);
-+	debug->buffer = vmalloc(MAX_DEBUGFS_RX_INFO_SIZE);
- 	if (!debug->buffer) {
- 		kfree(debug);
- 		goto out;
-@@ -5552,57 +5552,18 @@ lpfc_rx_monitor_read(struct file *file, char __user *buf, size_t nbytes,
- 	struct lpfc_rx_monitor_debug *debug = file->private_data;
- 	struct lpfc_hba *phba = (struct lpfc_hba *)debug->i_private;
- 	char *buffer = debug->buffer;
--	struct rxtable_entry *entry;
--	int i, len = 0, head, tail, last, start;
--
--	head = atomic_read(&phba->rxtable_idx_head);
--	while (head == LPFC_RXMONITOR_TABLE_IN_USE) {
--		/* Table is getting updated */
--		msleep(20);
--		head = atomic_read(&phba->rxtable_idx_head);
--	}
- 
--	tail = atomic_xchg(&phba->rxtable_idx_tail, head);
--	if (!phba->rxtable || head == tail) {
--		len += scnprintf(buffer + len, MAX_DEBUGFS_RX_TABLE_SIZE - len,
--				"Rxtable is empty\n");
--		goto out;
--	}
--	last = (head > tail) ?  head : LPFC_MAX_RXMONITOR_ENTRY;
--	start = tail;
--
--	len += scnprintf(buffer + len, MAX_DEBUGFS_RX_TABLE_SIZE - len,
--			"        MaxBPI    Tot_Data_CMF Tot_Data_Cmd "
--			"Tot_Data_Cmpl  Lat(us)  Avg_IO  Max_IO "
--			"Bsy IO_cnt Info BWutil(ms)\n");
--get_table:
--	for (i = start; i < last; i++) {
--		entry = &phba->rxtable[i];
--		len += scnprintf(buffer + len, MAX_DEBUGFS_RX_TABLE_SIZE - len,
--				"%3d:%12lld %12lld %12lld %12lld "
--				"%7lldus %8lld %7lld "
--				"%2d   %4d   %2d   %2d(%2d)\n",
--				i, entry->max_bytes_per_interval,
--				entry->cmf_bytes,
--				entry->total_bytes,
--				entry->rcv_bytes,
--				entry->avg_io_latency,
--				entry->avg_io_size,
--				entry->max_read_cnt,
--				entry->cmf_busy,
--				entry->io_cnt,
--				entry->cmf_info,
--				entry->timer_utilization,
--				entry->timer_interval);
-+	if (!phba->rx_monitor) {
-+		scnprintf(buffer, MAX_DEBUGFS_RX_INFO_SIZE,
-+			  "Rx Monitor Info is empty.\n");
-+	} else {
-+		lpfc_rx_monitor_report(phba, phba->rx_monitor, buffer,
-+				       MAX_DEBUGFS_RX_INFO_SIZE,
-+				       LPFC_MAX_RXMONITOR_ENTRY);
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 3d6b137314f3..cc6d9decf62c 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -1921,6 +1921,27 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 		fc_vport_setlink(vn_port);
  	}
  
--	if (head != last) {
--		start = 0;
--		last = head;
--		goto get_table;
--	}
--out:
--	return simple_read_from_buffer(buf, nbytes, ppos, buffer, len);
-+	return simple_read_from_buffer(buf, nbytes, ppos, buffer,
-+				       strlen(buffer));
- }
- 
- static int
-diff --git a/drivers/scsi/lpfc/lpfc_debugfs.h b/drivers/scsi/lpfc/lpfc_debugfs.h
-index 6dd361c1fd31..f71e5b6311ac 100644
---- a/drivers/scsi/lpfc/lpfc_debugfs.h
-+++ b/drivers/scsi/lpfc/lpfc_debugfs.h
-@@ -282,7 +282,7 @@ struct lpfc_idiag {
- 	void *ptr_private;
- };
- 
--#define MAX_DEBUGFS_RX_TABLE_SIZE	(128 * LPFC_MAX_RXMONITOR_ENTRY)
-+#define MAX_DEBUGFS_RX_INFO_SIZE	(128 * LPFC_MAX_RXMONITOR_ENTRY)
- struct lpfc_rx_monitor_debug {
- 	char *i_private;
- 	char *buffer;
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index c69c5a0979ec..460295b7c9fe 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -5569,38 +5569,12 @@ lpfc_async_link_speed_to_read_top(struct lpfc_hba *phba, uint8_t speed_code)
- void
- lpfc_cgn_dump_rxmonitor(struct lpfc_hba *phba)
- {
--	struct rxtable_entry *entry;
--	int cnt = 0, head, tail, last, start;
--
--	head = atomic_read(&phba->rxtable_idx_head);
--	tail = atomic_read(&phba->rxtable_idx_tail);
--	if (!phba->rxtable || head == tail) {
--		lpfc_printf_log(phba, KERN_ERR, LOG_CGN_MGMT,
--				"4411 Rxtable is empty\n");
--		return;
--	}
--	last = tail;
--	start = head;
--
--	/* Display the last LPFC_MAX_RXMONITOR_DUMP entries from the rxtable */
--	while (start != last) {
--		if (start)
--			start--;
--		else
--			start = LPFC_MAX_RXMONITOR_ENTRY - 1;
--		entry = &phba->rxtable[start];
-+	if (!phba->rx_monitor) {
- 		lpfc_printf_log(phba, KERN_INFO, LOG_CGN_MGMT,
--				"4410 %02d: MBPI %lld Xmit %lld Cmpl %lld "
--				"Lat %lld ASz %lld Info %02d BWUtil %d "
--				"Int %d slot %d\n",
--				cnt, entry->max_bytes_per_interval,
--				entry->total_bytes, entry->rcv_bytes,
--				entry->avg_io_latency, entry->avg_io_size,
--				entry->cmf_info, entry->timer_utilization,
--				entry->timer_interval, start);
--		cnt++;
--		if (cnt >= LPFC_MAX_RXMONITOR_DUMP)
--			return;
-+				"4411 Rx Monitor Info is empty.\n");
-+	} else {
-+		lpfc_rx_monitor_report(phba, phba->rx_monitor, NULL, 0,
-+				       LPFC_MAX_RXMONITOR_DUMP);
- 	}
- }
- 
-@@ -6007,9 +5981,8 @@ lpfc_cmf_timer(struct hrtimer *timer)
- {
- 	struct lpfc_hba *phba = container_of(timer, struct lpfc_hba,
- 					     cmf_timer);
--	struct rxtable_entry *entry;
-+	struct rx_info_entry entry;
- 	uint32_t io_cnt;
--	uint32_t head, tail;
- 	uint32_t busy, max_read;
- 	uint64_t total, rcv, lat, mbpi, extra, cnt;
- 	int timer_interval = LPFC_CMF_INTERVAL;
-@@ -6129,40 +6102,30 @@ lpfc_cmf_timer(struct hrtimer *timer)
- 	}
- 
- 	/* Save rxmonitor information for debug */
--	if (phba->rxtable) {
--		head = atomic_xchg(&phba->rxtable_idx_head,
--				   LPFC_RXMONITOR_TABLE_IN_USE);
--		entry = &phba->rxtable[head];
--		entry->total_bytes = total;
--		entry->cmf_bytes = total + extra;
--		entry->rcv_bytes = rcv;
--		entry->cmf_busy = busy;
--		entry->cmf_info = phba->cmf_active_info;
-+	if (phba->rx_monitor) {
-+		entry.total_bytes = total;
-+		entry.cmf_bytes = total + extra;
-+		entry.rcv_bytes = rcv;
-+		entry.cmf_busy = busy;
-+		entry.cmf_info = phba->cmf_active_info;
- 		if (io_cnt) {
--			entry->avg_io_latency = div_u64(lat, io_cnt);
--			entry->avg_io_size = div_u64(rcv, io_cnt);
-+			entry.avg_io_latency = div_u64(lat, io_cnt);
-+			entry.avg_io_size = div_u64(rcv, io_cnt);
- 		} else {
--			entry->avg_io_latency = 0;
--			entry->avg_io_size = 0;
-+			entry.avg_io_latency = 0;
-+			entry.avg_io_size = 0;
- 		}
--		entry->max_read_cnt = max_read;
--		entry->io_cnt = io_cnt;
--		entry->max_bytes_per_interval = mbpi;
-+		entry.max_read_cnt = max_read;
-+		entry.io_cnt = io_cnt;
-+		entry.max_bytes_per_interval = mbpi;
- 		if (phba->cmf_active_mode == LPFC_CFG_MANAGED)
--			entry->timer_utilization = phba->cmf_last_ts;
-+			entry.timer_utilization = phba->cmf_last_ts;
- 		else
--			entry->timer_utilization = ms;
--		entry->timer_interval = ms;
-+			entry.timer_utilization = ms;
-+		entry.timer_interval = ms;
- 		phba->cmf_last_ts = 0;
- 
--		/* Increment rxtable index */
--		head = (head + 1) % LPFC_MAX_RXMONITOR_ENTRY;
--		tail = atomic_read(&phba->rxtable_idx_tail);
--		if (head == tail) {
--			tail = (tail + 1) % LPFC_MAX_RXMONITOR_ENTRY;
--			atomic_set(&phba->rxtable_idx_tail, tail);
--		}
--		atomic_set(&phba->rxtable_idx_head, head);
-+		lpfc_rx_monitor_record(phba->rx_monitor, &entry);
- 	}
- 
- 	if (phba->cmf_active_mode == LPFC_CFG_MONITOR) {
-diff --git a/drivers/scsi/lpfc/lpfc_mem.c b/drivers/scsi/lpfc/lpfc_mem.c
-index 870e53b8f81d..5d36b3514864 100644
---- a/drivers/scsi/lpfc/lpfc_mem.c
-+++ b/drivers/scsi/lpfc/lpfc_mem.c
-@@ -344,9 +344,12 @@ lpfc_mem_free_all(struct lpfc_hba *phba)
- 		phba->cgn_i = NULL;
- 	}
- 
--	/* Free RX table */
--	kfree(phba->rxtable);
--	phba->rxtable = NULL;
-+	/* Free RX Monitor */
-+	if (phba->rx_monitor) {
-+		lpfc_rx_monitor_destroy_ring(phba->rx_monitor);
-+		kfree(phba->rx_monitor);
-+		phba->rx_monitor = NULL;
-+	}
- 
- 	/* Free the iocb lookup array */
- 	kfree(psli->iocbq_lookup);
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 608016725db9..55c9eb39ea19 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -7959,6 +7959,172 @@ static void lpfc_sli4_dip(struct lpfc_hba *phba)
- 	}
- }
- 
-+/**
-+ * lpfc_rx_monitor_create_ring - Initialize ring buffer for rx_monitor
-+ * @rx_monitor: Pointer to lpfc_rx_info_monitor object
-+ * @entries: Number of rx_info_entry objects to allocate in ring
-+ *
-+ * Return:
-+ * 0 - Success
-+ * ENOMEM - Failure to kmalloc
-+ **/
-+int lpfc_rx_monitor_create_ring(struct lpfc_rx_info_monitor *rx_monitor,
-+				u32 entries)
-+{
-+	rx_monitor->ring = kmalloc_array(entries, sizeof(struct rx_info_entry),
-+					 GFP_KERNEL);
-+	if (!rx_monitor->ring)
-+		return -ENOMEM;
++	/* Set symbolic node name */
++	if (base_qedf->pdev->device == QL45xxx)
++		snprintf(fc_host_symbolic_name(vn_port->host), 256,
++			 "Marvell FastLinQ 45xxx FCoE v%s", QEDF_VERSION);
 +
-+	rx_monitor->head_idx = 0;
-+	rx_monitor->tail_idx = 0;
-+	spin_lock_init(&rx_monitor->lock);
-+	rx_monitor->entries = entries;
++	if (base_qedf->pdev->device == QL41xxx)
++		snprintf(fc_host_symbolic_name(vn_port->host), 256,
++			 "Marvell FastLinQ 41xxx FCoE v%s", QEDF_VERSION);
 +
-+	return 0;
-+}
++	/* Set supported speed */
++	fc_host_supported_speeds(vn_port->host) = n_port->link_supported_speeds;
 +
-+/**
-+ * lpfc_rx_monitor_destroy_ring - Free ring buffer for rx_monitor
-+ * @rx_monitor: Pointer to lpfc_rx_info_monitor object
-+ **/
-+void lpfc_rx_monitor_destroy_ring(struct lpfc_rx_info_monitor *rx_monitor)
-+{
-+	spin_lock(&rx_monitor->lock);
-+	kfree(rx_monitor->ring);
-+	rx_monitor->ring = NULL;
-+	rx_monitor->entries = 0;
-+	rx_monitor->head_idx = 0;
-+	rx_monitor->tail_idx = 0;
-+	spin_unlock(&rx_monitor->lock);
-+}
++	/* Set speed */
++	vn_port->link_speed = n_port->link_speed;
 +
-+/**
-+ * lpfc_rx_monitor_record - Insert an entry into rx_monitor's ring
-+ * @rx_monitor: Pointer to lpfc_rx_info_monitor object
-+ * @entry: Pointer to rx_info_entry
-+ *
-+ * Used to insert an rx_info_entry into rx_monitor's ring.  Note that this is a
-+ * deep copy of rx_info_entry not a shallow copy of the rx_info_entry ptr.
-+ *
-+ * This is called from lpfc_cmf_timer, which is in timer/softirq context.
-+ *
-+ * In cases of old data overflow, we do a best effort of FIFO order.
-+ **/
-+void lpfc_rx_monitor_record(struct lpfc_rx_info_monitor *rx_monitor,
-+			    struct rx_info_entry *entry)
-+{
-+	struct rx_info_entry *ring = rx_monitor->ring;
-+	u32 *head_idx = &rx_monitor->head_idx;
-+	u32 *tail_idx = &rx_monitor->tail_idx;
-+	spinlock_t *ring_lock = &rx_monitor->lock;
-+	u32 ring_size = rx_monitor->entries;
++	/* Set port type */
++	fc_host_port_type(vn_port->host) = FC_PORTTYPE_NPIV;
 +
-+	spin_lock(ring_lock);
-+	memcpy(&ring[*tail_idx], entry, sizeof(*entry));
-+	*tail_idx = (*tail_idx + 1) % ring_size;
++	/* Set maxframe size */
++	fc_host_maxframe_size(vn_port->host) = n_port->mfs;
 +
-+	/* Best effort of FIFO saved data */
-+	if (*tail_idx == *head_idx)
-+		*head_idx = (*head_idx + 1) % ring_size;
-+
-+	spin_unlock(ring_lock);
-+}
-+
-+/**
-+ * lpfc_rx_monitor_report - Read out rx_monitor's ring
-+ * @phba: Pointer to lpfc_hba object
-+ * @rx_monitor: Pointer to lpfc_rx_info_monitor object
-+ * @buf: Pointer to char buffer that will contain rx monitor info data
-+ * @buf_len: Length buf including null char
-+ * @max_read_entries: Maximum number of entries to read out of ring
-+ *
-+ * Used to dump/read what's in rx_monitor's ring buffer.
-+ *
-+ * If buf is NULL || buf_len == 0, then it is implied that we want to log the
-+ * information to kmsg instead of filling out buf.
-+ *
-+ * Return:
-+ * Number of entries read out of the ring
-+ **/
-+u32 lpfc_rx_monitor_report(struct lpfc_hba *phba,
-+			   struct lpfc_rx_info_monitor *rx_monitor, char *buf,
-+			   u32 buf_len, u32 max_read_entries)
-+{
-+	struct rx_info_entry *ring = rx_monitor->ring;
-+	struct rx_info_entry *entry;
-+	u32 *head_idx = &rx_monitor->head_idx;
-+	u32 *tail_idx = &rx_monitor->tail_idx;
-+	spinlock_t *ring_lock = &rx_monitor->lock;
-+	u32 ring_size = rx_monitor->entries;
-+	u32 cnt = 0;
-+	char tmp[DBG_LOG_STR_SZ] = {0};
-+	bool log_to_kmsg = (!buf || !buf_len) ? true : false;
-+
-+	if (!log_to_kmsg) {
-+		/* clear the buffer to be sure */
-+		memset(buf, 0, buf_len);
-+
-+		scnprintf(buf, buf_len, "\t%-16s%-16s%-16s%-16s%-8s%-8s%-8s"
-+					"%-8s%-8s%-8s%-16s\n",
-+					"MaxBPI", "Tot_Data_CMF",
-+					"Tot_Data_Cmd", "Tot_Data_Cmpl",
-+					"Lat(us)", "Avg_IO", "Max_IO", "Bsy",
-+					"IO_cnt", "Info", "BWutil(ms)");
-+	}
-+
-+	/* Needs to be _bh because record is called from timer interrupt
-+	 * context
-+	 */
-+	spin_lock_bh(ring_lock);
-+	while (*head_idx != *tail_idx) {
-+		entry = &ring[*head_idx];
-+
-+		/* Read out this entry's data. */
-+		if (!log_to_kmsg) {
-+			/* If !log_to_kmsg, then store to buf. */
-+			scnprintf(tmp, sizeof(tmp),
-+				  "%03d:\t%-16llu%-16llu%-16llu%-16llu%-8llu"
-+				  "%-8llu%-8llu%-8u%-8u%-8u%u(%u)\n",
-+				  *head_idx, entry->max_bytes_per_interval,
-+				  entry->cmf_bytes, entry->total_bytes,
-+				  entry->rcv_bytes, entry->avg_io_latency,
-+				  entry->avg_io_size, entry->max_read_cnt,
-+				  entry->cmf_busy, entry->io_cnt,
-+				  entry->cmf_info, entry->timer_utilization,
-+				  entry->timer_interval);
-+
-+			/* Check for buffer overflow */
-+			if ((strlen(buf) + strlen(tmp)) >= buf_len)
-+				break;
-+
-+			/* Append entry's data to buffer */
-+			strlcat(buf, tmp, buf_len);
-+		} else {
-+			lpfc_printf_log(phba, KERN_INFO, LOG_CGN_MGMT,
-+					"4410 %02u: MBPI %llu Xmit %llu "
-+					"Cmpl %llu Lat %llu ASz %llu Info %02u "
-+					"BWUtil %u Int %u slot %u\n",
-+					cnt, entry->max_bytes_per_interval,
-+					entry->total_bytes, entry->rcv_bytes,
-+					entry->avg_io_latency,
-+					entry->avg_io_size, entry->cmf_info,
-+					entry->timer_utilization,
-+					entry->timer_interval, *head_idx);
-+		}
-+
-+		*head_idx = (*head_idx + 1) % ring_size;
-+
-+		/* Don't feed more than max_read_entries */
-+		cnt++;
-+		if (cnt >= max_read_entries)
-+			break;
-+	}
-+	spin_unlock_bh(ring_lock);
-+
-+	return cnt;
-+}
-+
- /**
-  * lpfc_cmf_setup - Initialize idle_stat tracking
-  * @phba: Pointer to HBA context object.
-@@ -8133,19 +8299,29 @@ lpfc_cmf_setup(struct lpfc_hba *phba)
- 	phba->cmf_interval_rate = LPFC_CMF_INTERVAL;
- 
- 	/* Allocate RX Monitor Buffer */
--	if (!phba->rxtable) {
--		phba->rxtable = kmalloc_array(LPFC_MAX_RXMONITOR_ENTRY,
--					      sizeof(struct rxtable_entry),
--					      GFP_KERNEL);
--		if (!phba->rxtable) {
-+	if (!phba->rx_monitor) {
-+		phba->rx_monitor = kzalloc(sizeof(*phba->rx_monitor),
-+					   GFP_KERNEL);
-+
-+		if (!phba->rx_monitor) {
- 			lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
- 					"2644 Failed to alloc memory "
- 					"for RX Monitor Buffer\n");
- 			return -ENOMEM;
- 		}
-+
-+		/* Instruct the rx_monitor object to instantiate its ring */
-+		if (lpfc_rx_monitor_create_ring(phba->rx_monitor,
-+						LPFC_MAX_RXMONITOR_ENTRY)) {
-+			kfree(phba->rx_monitor);
-+			phba->rx_monitor = NULL;
-+			lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
-+					"2645 Failed to alloc memory "
-+					"for RX Monitor's Ring\n");
-+			return -ENOMEM;
-+		}
- 	}
--	atomic_set(&phba->rxtable_idx_head, 0);
--	atomic_set(&phba->rxtable_idx_tail, 0);
-+
- 	return 0;
- }
+ 	QEDF_INFO(&(base_qedf->dbg_ctx), QEDF_LOG_NPIV, "vn_port=%p.\n",
+ 		   vn_port);
  
 
