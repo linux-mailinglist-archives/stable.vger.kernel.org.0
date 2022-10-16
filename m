@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05EB95FFEC3
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B025D5FFEC4
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbiJPLEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:04:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54458 "EHLO
+        id S229622AbiJPLEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:04:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJPLEF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DAFC33342
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:03 -0700 (PDT)
+        with ESMTP id S229600AbiJPLEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B0334703
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4380960A56
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32399C433D6;
-        Sun, 16 Oct 2022 11:04:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF154B80C82
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3352AC433D6;
+        Sun, 16 Oct 2022 11:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918242;
-        bh=mAnzNsp4GViRNRhg6JaSCD6ZJbylqVXRKH+HjJSOCXc=;
+        s=korg; t=1665918245;
+        bh=/4+mOVFoLbqpF8Dy7L4SRb/+ED38A/HJRxX/xuZL820=;
         h=Subject:To:Cc:From:Date:From;
-        b=niSeItGZmUlErCkfQWbGXWuwq4ldVucE/6ozwSpftD89IrqvQ+kVFA9dvQ1V+GeNP
-         zxXkC1bjzY1CllY+Zd4RtFQibooNLYjKvS01RrZC+JIByETlvnKJXdPH9cZI+swDFO
-         ZmXsE7ACadLrEfw1gzaiTskZk3Qv6EsRYh/1NFOg=
-Subject: FAILED: patch "[PATCH] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size" failed to apply to 5.10-stable tree
+        b=tr4mfZ/tiLlaYafjMnBBv9BrMI+Mwsosxdrz8snzaSPmpnbiM3zfq5Wx/7eTYR3t5
+         zGeRbXYCAQZ4GyuuLyuMewxrxzGWkYkZVdfVeEQfPHY8RzHG3nIwl6fcifBTJUR8I4
+         7vvYHQxOoYMRmaQuh9T5QCz9uuf1UJISwQNn2msU=
+Subject: FAILED: patch "[PATCH] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size" failed to apply to 5.4-stable tree
 To:     baolin.wang@linux.alibaba.com, akpm@linux-foundation.org,
         david@redhat.com, mike.kravetz@oracle.com,
         songmuchun@bytedance.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:04:46 +0200
-Message-ID: <1665918286240232@kroah.com>
+Date:   Sun, 16 Oct 2022 13:04:48 +0200
+Message-ID: <166591828864123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,6 +72,10 @@ a44f89dc6c5f ("mm/huge_memory.c: use helper function migration_entry_to_page()")
 374437a274e2 ("mm/pgtable-generic.c: optimize the VM_BUG_ON condition in pmdp_huge_clear_flush()")
 c045c72ccde3 ("mm/pgtable-generic.c: simplify the VM_BUG_ON condition in pmdp_huge_clear_flush()")
 013339df116c ("mm/rmap: always do TTU_IGNORE_ACCESS")
+336bf30eb765 ("hugetlbfs: fix anon huge page migration race")
+df3a57d1f607 ("mm: split out the non-present case from copy_one_pte()")
+ec0abae6dcdf ("mm/thp: fix __split_huge_pmd_locked() for migration PMD")
+6128763fc324 ("mm/migrate: remove unnecessary is_zone_device_page() check")
 
 thanks,
 
