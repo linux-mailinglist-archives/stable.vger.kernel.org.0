@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB79B5FFDA5
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 08:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C14CF5FFDAA
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 08:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbiJPGqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 02:46:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39240 "EHLO
+        id S229948AbiJPGqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 02:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiJPGqD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 02:46:03 -0400
+        with ESMTP id S229849AbiJPGqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 02:46:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396CC3AE5B;
-        Sat, 15 Oct 2022 23:45:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47CAF3B71B;
+        Sat, 15 Oct 2022 23:46:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25C52B80B77;
-        Sun, 16 Oct 2022 06:45:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BE2C433D7;
-        Sun, 16 Oct 2022 06:45:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E43AB80B65;
+        Sun, 16 Oct 2022 06:45:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6585CC4314A;
+        Sun, 16 Oct 2022 06:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665902753;
-        bh=OPUq4AaBA6cqzgAQsUxgbbuBNbAZzLY8pUyPprPooYQ=;
+        s=korg; t=1665902756;
+        bh=M6vEigbkIMDybP7BCXxNZ0YbyifLUWjivpBzJbcRlhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TrBWzdiiQogsYpzs5qRmXDMkEkcP0kEivjac3mPKa0gWoqch8OHf+wEk1wTgYWU3H
-         8LzYPICFHnfKcNBF1hoYB/p4XD5EO0eBwedAuZESJ4XnujQbLx5l4y69opLVi63VDA
-         ocCHf6Eb+taj7IAgSbmGzYoNwRHQTNjdXIwk+4yQ=
+        b=V1H07BliPDOux2/fxBQr+qy/cmkDBuFdRNE3UnJpCZbgnTIueY0b67vrKw3lLUo8f
+         u10oQk92fvdlJlcTLvpIfqgAWyU78cHkiGBntopDPfEBjEIwec8qbz4BbkizefNEGh
+         1aNpLfcVVlxmIdlyub4t0LrZBG6fzU6IUKBIih1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 3/4] wifi: mac80211: dont parse mbssid in assoc response
-Date:   Sun, 16 Oct 2022 08:46:25 +0200
-Message-Id: <20221016064454.438611868@linuxfoundation.org>
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 4/4] wifi: mac80211: fix MBSSID parsing use-after-free
+Date:   Sun, 16 Oct 2022 08:46:26 +0200
+Message-Id: <20221016064454.478100196@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221016064454.327821011@linuxfoundation.org>
 References: <20221016064454.327821011@linuxfoundation.org>
@@ -53,35 +55,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-This is simply not valid and simplifies the next commit.
-I'll make a separate patch for this in the current main
-tree as well.
+Commit ff05d4b45dd89b922578dac497dcabf57cf771c6 upstream.
+This is a different version of the commit, changed to store
+the non-transmitted profile in the elems, and freeing it in
+the few places where it's relevant, since that is only the
+case when the last argument for parsing (the non-tx BSSID)
+is non-NULL.
 
+When we parse a multi-BSSID element, we might point some
+element pointers into the allocated nontransmitted_profile.
+However, we free this before returning, causing UAF when the
+relevant pointers in the parsed elements are accessed.
+
+Fix this by not allocating the scratch buffer separately but
+as part of the returned structure instead, that way, there
+are no lifetime issues with it.
+
+The scratch buffer introduction as part of the returned data
+here is taken from MLO feature work done by Ilan.
+
+This fixes CVE-2022-42719.
+
+Fixes: 5023b14cf4df ("mac80211: support profile split between elements")
+Co-developed-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mlme.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/ieee80211_i.h |    2 ++
+ net/mac80211/mlme.c        |    6 +++++-
+ net/mac80211/scan.c        |    2 ++
+ net/mac80211/util.c        |    7 ++++++-
+ 4 files changed, 15 insertions(+), 2 deletions(-)
 
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1519,6 +1519,8 @@ struct ieee802_11_elems {
+ 	u8 country_elem_len;
+ 	u8 bssid_index_len;
+ 
++	void *nontx_profile;
++
+ 	/* whether a parse error occurred while retrieving these elements */
+ 	bool parse_error;
+ };
 --- a/net/mac80211/mlme.c
 +++ b/net/mac80211/mlme.c
-@@ -3224,7 +3224,7 @@ static bool ieee80211_assoc_success(stru
+@@ -3299,6 +3299,7 @@ static bool ieee80211_assoc_success(stru
+ 			sdata_info(sdata,
+ 				   "AP bug: VHT operation missing from AssocResp\n");
+ 		}
++		kfree(bss_elems.nontx_profile);
+ 	}
  
- 	pos = mgmt->u.assoc_resp.variable;
- 	ieee802_11_parse_elems(pos, len - (pos - (u8 *)mgmt), false, &elems,
--			       mgmt->bssid, assoc_data->bss->bssid);
-+			       mgmt->bssid, NULL);
+ 	/*
+@@ -3883,6 +3884,7 @@ static void ieee80211_rx_mgmt_beacon(str
+ 		ifmgd->assoc_data->timeout = jiffies;
+ 		ifmgd->assoc_data->timeout_started = true;
+ 		run_again(sdata, ifmgd->assoc_data->timeout);
++		kfree(elems.nontx_profile);
+ 		return;
+ 	}
  
- 	if (!elems.supp_rates) {
- 		sdata_info(sdata, "no SuppRates element in AssocResp\n");
-@@ -3576,7 +3576,7 @@ static void ieee80211_rx_mgmt_assoc_resp
+@@ -4050,7 +4052,7 @@ static void ieee80211_rx_mgmt_beacon(str
+ 		ieee80211_report_disconnect(sdata, deauth_buf,
+ 					    sizeof(deauth_buf), true,
+ 					    WLAN_REASON_DEAUTH_LEAVING);
+-		return;
++		goto free;
+ 	}
  
- 	pos = mgmt->u.assoc_resp.variable;
- 	ieee802_11_parse_elems(pos, len - (pos - (u8 *)mgmt), false, &elems,
--			       mgmt->bssid, assoc_data->bss->bssid);
-+			       mgmt->bssid, NULL);
+ 	if (sta && elems.opmode_notif)
+@@ -4065,6 +4067,8 @@ static void ieee80211_rx_mgmt_beacon(str
+ 					       elems.cisco_dtpc_elem);
  
- 	if (status_code == WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY &&
- 	    elems.timeout_int &&
+ 	ieee80211_bss_info_change_notify(sdata, changed);
++free:
++	kfree(elems.nontx_profile);
+ }
+ 
+ void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -216,6 +216,8 @@ ieee80211_bss_info_update(struct ieee802
+ 						rx_status, beacon);
+ 	}
+ 
++	kfree(elems.nontx_profile);
++
+ 	return bss;
+ }
+ 
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -1363,6 +1363,11 @@ u32 ieee802_11_parse_elems_crc(const u8
+ 			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
+ 					       nontransmitted_profile,
+ 					       nontransmitted_profile_len);
++		if (!nontransmitted_profile_len) {
++			nontransmitted_profile_len = 0;
++			kfree(nontransmitted_profile);
++			nontransmitted_profile = NULL;
++		}
+ 	}
+ 
+ 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
+@@ -1392,7 +1397,7 @@ u32 ieee802_11_parse_elems_crc(const u8
+ 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
+ 		elems->dtim_count = elems->bssid_index->dtim_count;
+ 
+-	kfree(nontransmitted_profile);
++	elems->nontx_profile = nontransmitted_profile;
+ 
+ 	return crc;
+ }
 
 
