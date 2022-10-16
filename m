@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69AB45FFEED
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CBB75FFEEE
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbiJPLRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:17:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57296 "EHLO
+        id S229725AbiJPLRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:17:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbiJPLRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:17:07 -0400
+        with ESMTP id S229727AbiJPLRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:17:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566F73685D
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:17:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F7903678E
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:17:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00F5DB80C82
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:17:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E2ACC433C1;
-        Sun, 16 Oct 2022 11:17:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4306AB80C82
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:17:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F92C43470;
+        Sun, 16 Oct 2022 11:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665919023;
-        bh=TEq2spATq3jMCIp+VEJJ74D/iJStm0389Lk/O6OEEg8=;
+        s=korg; t=1665919027;
+        bh=m4KWY93UReSoeG/RyjEnxvdyIdvUrs3O81tmhma88jU=;
         h=Subject:To:Cc:From:Date:From;
-        b=nbLuQ3nzvPCNHeku9cxLgSIPiIucUl17iVxHM+OiYDCho0Zq/UR6uHWNN+INCeBEn
-         GxTyvx1uSV7OgcBXdQIikVxPcFEEjkXHukRHzs3dxIz4Ep7ys4Oqd3uZtWUS4SRSnc
-         gRvzU2XTA6fPkbPnKKa3vITThSE1yscTgBMaooRY=
-Subject: FAILED: patch "[PATCH] serial: ar933x: Deassert Transmit Enable on ->rs485_config()" failed to apply to 5.19-stable tree
+        b=o6rjNeBM+dyiw0xmL7dQGCgDZVM107cn+gwcO2i+RvlyKp10qM13T7c2VYu/salwT
+         R3nxbiv/1ag/IrXx4VgksLOpdYcv6s3SyJnLYxoc7pcugGgrlwbi8OtkYWr+8kDlHZ
+         /+BoMqTJM+TaioP7LR5RQ8KX7rswOoCk8HsdxaUM=
+Subject: FAILED: patch "[PATCH] serial: ar933x: Deassert Transmit Enable on ->rs485_config()" failed to apply to 5.15-stable tree
 To:     lukas@wunner.de, daniel@makrotopia.org, gregkh@linuxfoundation.org,
         ilpo.jarvinen@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:17:48 +0200
-Message-ID: <1665919068129166@kroah.com>
+Date:   Sun, 16 Oct 2022 13:17:49 +0200
+Message-ID: <166591906918@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
