@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BF45FFE6B
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 11:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B48295FFE6C
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 11:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiJPJ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 05:28:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58260 "EHLO
+        id S229660AbiJPJ2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 05:28:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbiJPJ2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 05:28:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF35F37189
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 02:28:01 -0700 (PDT)
+        with ESMTP id S229619AbiJPJ2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 05:28:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D04F37192
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 02:28:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C8ADB80B67
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 09:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C56F0C433C1;
-        Sun, 16 Oct 2022 09:27:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EDA460023
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 09:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6F4C43470;
+        Sun, 16 Oct 2022 09:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665912479;
-        bh=7mcg4oNlfDyxWC+lvsKLKyK8LSdO6AI7beCftxAj4Ps=;
+        s=korg; t=1665912488;
+        bh=dq15e3UVCbV78eq8sWm20KADFiy429vKjM+ocrevzus=;
         h=Subject:To:Cc:From:Date:From;
-        b=Re1v7DvTR6kOQ9rNDxVm1xVeDtWgR6LapWsASXGKSZjUwNZh5aKD/xnn8yWc+PbRV
-         U+PVEf03wkVSLMSqbB8kDj4QzBgpzuptr6dTXlzmGUePEoFaFBbnCImOaSUhwAVFWT
-         3sATAp0FRIwBHSV5hiip1/JIWWk5mNUtGAIBeC7I=
-Subject: FAILED: patch "[PATCH] riscv: topology: fix default topology reporting" failed to apply to 5.10-stable tree
+        b=fH3tx3KUGWe72bfAxOxywuV2qhQIaaSGj+Rkhv3SHJOF0SPbgVBCDHDR5gL0d8Ehn
+         hvNbFy6Gb1igw2ugJMKXUwSdz3+mQfx0u5t7H7Gi3ASBAjP4mz/BZGGE4wj6vxP5Vl
+         t1y0Vaaf82/P9LfTSSy+6YREJDeadRLpsnRjrIT8=
+Subject: FAILED: patch "[PATCH] riscv: topology: fix default topology reporting" failed to apply to 5.4-stable tree
 To:     conor.dooley@microchip.com, Brice.Goglin@inria.fr,
         atishp@rivosinc.com, sudeep.holla@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 11:28:44 +0200
-Message-ID: <1665912524110156@kroah.com>
+Date:   Sun, 16 Oct 2022 11:28:46 +0200
+Message-ID: <16659125264751@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,7 @@ fbd92809997a ("riscv: topology: fix default topology reporting")
 4f0e8eef772e ("riscv: Add numa support for riscv64 platform")
 cbd34f4bb37d ("riscv: Separate memory init from paging init")
 00ab027a3b82 ("RISC-V: Add kernel image sections to the resource tree")
+270315b8235e ("Merge tag 'riscv-for-linus-5.10-mw0' of git://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux")
 
 thanks,
 
