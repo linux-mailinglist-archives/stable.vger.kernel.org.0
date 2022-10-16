@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2086000E5
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB2A6000E6
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbiJPPrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:47:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
+        id S229765AbiJPPrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:47:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229737AbiJPPrx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2666D33428
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:52 -0700 (PDT)
+        with ESMTP id S229737AbiJPPry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9A633428
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD2A8B80CA6
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F54EC433D6;
-        Sun, 16 Oct 2022 15:47:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BCA560B65
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D84DC433D6;
+        Sun, 16 Oct 2022 15:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935269;
-        bh=DzKGmSkLe1LYA2VKWHkg+XpPRIZyu0ZBytO9in4lTfU=;
+        s=korg; t=1665935272;
+        bh=H79bPqy0S2Vw3w0ykoiIHB/Km91hjdEaufVznTzIaSg=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZqMe+tsf23VGogyx/sk1YGIn+g2g4qra8e9Av/CvAkiabyKzJFUqL+CwxhPKnFEgs
-         1C+lF69UyWpNkfoyAHCTjRzNNdoQ9c8oMhondes2Yluyc3wVkC39a4otLegvFFFatR
-         LsmNkvvP+aQ0nbOFfjyA1IG8O4po8e5qmgqBWmjs=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Make an event request when pending an MTF nested" failed to apply to 5.19-stable tree
+        b=RLrXNBBvqFpRLu2AyMV/lyL6UB5ccNjDbPjrX7JdubeqC8GSy3mj/W+2iPx/uSj6M
+         GTER6sNEd0pxvjZ6SuwNDPRueEkBAMTDqpc3EFg3a1krV8xXZERz7vjOSTgXgy/wjh
+         ZXtDn87OdskFCWXpwNzg5Fek3CsnXw32rOQI0l0s=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Make an event request when pending an MTF nested" failed to apply to 5.15-stable tree
 To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:48:27 +0200
-Message-ID: <1665935307105110@kroah.com>
+Date:   Sun, 16 Oct 2022 17:48:28 +0200
+Message-ID: <166593530872183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -66,6 +66,12 @@ b9d44f9091ac ("KVM: nVMX: Prioritize TSS T-flag #DBs over Monitor Trap Flag")
 8d178f460772 ("KVM: nVMX: Treat General Detect #DB (DR7.GD=1) as fault-like")
 eba9799b5a6e ("KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS")
 2d61391270a3 ("KVM: x86: Differentiate Soft vs. Hard IRQs vs. reinjected in tracepoint")
+a61d7c5432ac ("KVM: x86: Trace re-injected exceptions")
+6ef88d6e36c2 ("KVM: SVM: Re-inject INT3/INTO instead of retrying the instruction")
+3741aec4c38f ("KVM: SVM: Stuff next_rip on emulated INT3 injection if NRIPS is supported")
+cd9e6da8048c ("KVM: SVM: Unwind "speculative" RIP advancement if INTn injection "fails"")
+00f08d99dd7d ("KVM: nSVM: Sync next_rip field from vmcb12 to vmcb02")
+b699da3dc279 ("Merge tag 'kvm-riscv-5.19-1' of https://github.com/kvm-riscv/linux into HEAD")
 
 thanks,
 
