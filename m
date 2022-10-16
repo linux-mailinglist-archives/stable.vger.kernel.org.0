@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 843985FFED7
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6EB25FFED8
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbiJPLKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
+        id S229635AbiJPLKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229661AbiJPLKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:10:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDE42EF4B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:10:06 -0700 (PDT)
+        with ESMTP id S229600AbiJPLKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:10:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 741AA2FFE8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:10:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E830ECE0B83
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8941AC433D6;
-        Sun, 16 Oct 2022 11:10:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F06A1B80B88
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59900C433D6;
+        Sun, 16 Oct 2022 11:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918603;
-        bh=7WXvqs8eW7IkTVulap2J2ZZKJ4qRQdMsNlNMlJdFG6Q=;
+        s=korg; t=1665918607;
+        bh=sQykx6TdTWFVVC79AjBIvoIPD23GTDqNTGPOKspS5ZM=;
         h=Subject:To:Cc:From:Date:From;
-        b=cqRnGbcDgHH7IzuIxqSTKQEIXg7D61qzRG28zmCEvlfj1vXR0TQzJ0UhUEoFN6ub5
-         UjOiT2LU3zPEFO3x87vCrvTsZduDPkOfZGsdGTjC29p9Y/yEGHoLO51FS9uniIKerw
-         Y07JTblwu8mas+lKDc9DPavJI0M4OCmpkK5Jg/vk=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Accommodate VMA splitting" failed to apply to 4.19-stable tree
+        b=ExB+bwOeCzsJz8HwsZqD2EpmoLxJtgQtbWd6j3Nj/8TqWXq7Ofl0j4SXV/Y9vXG/u
+         IELUt7g4GsV3BGbInR9X4X3O9YsujEkSRpMclYqxRhOISXxaF6paK8CfkRLYAhPIoL
+         auQSa/DHL2zln2wAhjBm321e8yCjZAjML+9x+qVU=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Accommodate VMA splitting" failed to apply to 4.14-stable tree
 To:     m.v.b@runbox.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:10:49 +0200
-Message-ID: <166591864939255@kroah.com>
+Date:   Sun, 16 Oct 2022 13:10:53 +0200
+Message-ID: <166591865360235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
