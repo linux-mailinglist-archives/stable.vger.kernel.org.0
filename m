@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B56956000E4
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA2086000E5
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiJPPrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:47:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
+        id S229739AbiJPPrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:47:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229768AbiJPPrq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:46 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A8D38699
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:43 -0700 (PDT)
+        with ESMTP id S229737AbiJPPrx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2666D33428
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 559C4CE0E02
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7708FC433D7;
-        Sun, 16 Oct 2022 15:47:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD2A8B80CA6
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F54EC433D6;
+        Sun, 16 Oct 2022 15:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935260;
-        bh=f+HGSM9mWzNMv485EqN+ce1PygsYQuEc+2qLlXGg4cc=;
+        s=korg; t=1665935269;
+        bh=DzKGmSkLe1LYA2VKWHkg+XpPRIZyu0ZBytO9in4lTfU=;
         h=Subject:To:Cc:From:Date:From;
-        b=z3AACW1R1yWZfmKAkUpghJgR9r4yMm7SZebcQTZxkSh4EREk4pJJEpPGcF9paq1/8
-         s+pYjE9i4wdUsNt9yIqfH82TUheVpD+hSa7h5IVX8nZEVrkIpW6PIz9PsKlPTd76oo
-         y58agYOnFKPwbpF1an27IWZYABbqEI3VO7/jvfMw=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Make an event request when pending an MTF nested" failed to apply to 6.0-stable tree
+        b=ZqMe+tsf23VGogyx/sk1YGIn+g2g4qra8e9Av/CvAkiabyKzJFUqL+CwxhPKnFEgs
+         1C+lF69UyWpNkfoyAHCTjRzNNdoQ9c8oMhondes2Yluyc3wVkC39a4otLegvFFFatR
+         LsmNkvvP+aQ0nbOFfjyA1IG8O4po8e5qmgqBWmjs=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Make an event request when pending an MTF nested" failed to apply to 5.19-stable tree
 To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 16 Oct 2022 17:48:27 +0200
-Message-ID: <16659353074972@kroah.com>
+Message-ID: <1665935307105110@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -65,6 +65,7 @@ d4963e319f1f ("KVM: x86: Make kvm_queued_exception a properly named, visible str
 b9d44f9091ac ("KVM: nVMX: Prioritize TSS T-flag #DBs over Monitor Trap Flag")
 8d178f460772 ("KVM: nVMX: Treat General Detect #DB (DR7.GD=1) as fault-like")
 eba9799b5a6e ("KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS")
+2d61391270a3 ("KVM: x86: Differentiate Soft vs. Hard IRQs vs. reinjected in tracepoint")
 
 thanks,
 
