@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E155FFEB1
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABBF35FFEB2
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbiJPKqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 06:46:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55488 "EHLO
+        id S229600AbiJPKrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 06:47:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbiJPKqJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:46:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417C913F51
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:46:06 -0700 (PDT)
+        with ESMTP id S229607AbiJPKrs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:47:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CBCC3CBD9
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:47:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3CB2B80C82
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:46:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D29C433C1;
-        Sun, 16 Oct 2022 10:46:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD2C260AF1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD63DC433C1;
+        Sun, 16 Oct 2022 10:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665917164;
-        bh=LMkC1Tg88Ywolh4NmOdKx577ymRHr2N/4orqBNiKWME=;
+        s=korg; t=1665917266;
+        bh=tOqSAqryYHtlPpiquVk0xsEvfjRFQI34K3tkOmK9RXg=;
         h=Subject:To:Cc:From:Date:From;
-        b=WfITtGiGClTHpm26Z1p4YorYPUnBM/P6fsvGZUw64zOyczZmc13dla5Z6kD9DSGeK
-         1YePS2zQDDUdWhlzpcb3KP1djDTcY9MeIk1Mdms0GySzlKt0TUgkUlZyV+5xCyESa1
-         y973Y08H2+pt3DsXi2tP24PGPd1CZN0TmKIb75gU=
-Subject: FAILED: patch "[PATCH] dmaengine: mxs: use platform_driver_register" failed to apply to 4.9-stable tree
-To:     dario.binacchi@amarulasolutions.com, michael@amarulasolutions.com,
-        s.hauer@pengutronix.de, vkoul@kernel.org
+        b=ODTeX3knC3uS8JTz9qAez43c1nF9DkrHSQo1n5lV6vyPKwqhlulGhl0dnA86rsK+l
+         CZcXQh1YtNpbHF3JdG07iiNH6LuxGv6Mc/o4w0jmtMgOgpQuORnPGjHcehiYBk8iR7
+         EZESHF+Peu7U3NdPjjWQJDE7/enWe5S6ijBFqwNM=
+Subject: FAILED: patch "[PATCH] arm64: mte: move register initialization to C" failed to apply to 5.15-stable tree
+To:     pcc@google.com, catalin.marinas@arm.com, eugenis@google.com,
+        lkp@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 12:46:37 +0200
-Message-ID: <16659171979866@kroah.com>
+Date:   Sun, 16 Oct 2022 12:48:31 +0200
+Message-ID: <166591731121085@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +48,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-26696d465716 ("dmaengine: mxs: use platform_driver_register")
-cc2afb0d4c7c ("dmaengine: mxs-dma: Remove the unused .id_table")
+973b9e373306 ("arm64: mte: move register initialization to C")
+e921da6bc7ca ("arm64/mm: Consolidate TCR_EL1 fields")
 
 thanks,
 
@@ -64,68 +64,229 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 26696d4657167112a1079f86cba1739765c1360e Mon Sep 17 00:00:00 2001
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Date: Wed, 21 Sep 2022 19:05:56 +0200
-Subject: [PATCH] dmaengine: mxs: use platform_driver_register
+From 973b9e37330656dec719ede508e4dc40e5c2d80c Mon Sep 17 00:00:00 2001
+From: Peter Collingbourne <pcc@google.com>
+Date: Thu, 15 Sep 2022 15:20:53 -0700
+Subject: [PATCH] arm64: mte: move register initialization to C
 
-Driver registration fails on SOC imx8mn as its supplier, the clock
-control module, is probed later than subsys initcall level. This driver
-uses platform_driver_probe which is not compatible with deferred probing
-and won't be probed again later if probe function fails due to clock not
-being available at that time.
+If FEAT_MTE2 is disabled via the arm64.nomte command line argument on a
+CPU that claims to support FEAT_MTE2, the kernel will use Tagged Normal
+in the MAIR. If we interpret arm64.nomte to mean that the CPU does not
+in fact implement FEAT_MTE2, setting the system register like this may
+lead to UNSPECIFIED behavior. Fix it by arranging for MAIR to be set
+in the C function cpu_enable_mte which is called based on the sanitized
+version of the system register.
 
-This patch replaces the use of platform_driver_probe with
-platform_driver_register which will allow probing the driver later again
-when the clock control module will be available.
+There is no need for the rest of the MTE-related system register
+initialization to happen from assembly, with the exception of TCR_EL1,
+which must be set to include at least TBI1 because the secondary CPUs
+access KASan-allocated data structures early. Therefore, make the TCR_EL1
+initialization unconditional and move the rest of the initialization to
+cpu_enable_mte so that we no longer have a dependency on the unsanitized
+ID register value.
 
-The __init annotation has been dropped because it is not compatible with
-deferred probing. The code is not executed once and its memory cannot be
-freed.
+Co-developed-by: Evgenii Stepanov <eugenis@google.com>
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Signed-off-by: Evgenii Stepanov <eugenis@google.com>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 3b714d24ef17 ("arm64: mte: CPU feature detection and initial sysreg configuration")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Link: https://lore.kernel.org/r/20220915222053.3484231-1-eugenis@google.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 
-Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: stable@vger.kernel.org
-
-Link: https://lore.kernel.org/r/20220921170556.1055962-1-dario.binacchi@amarulasolutions.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-
-diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-index 994fc4d2aca4..dc147cc2436e 100644
---- a/drivers/dma/mxs-dma.c
-+++ b/drivers/dma/mxs-dma.c
-@@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status(struct dma_chan *chan,
- 	return mxs_chan->status;
+diff --git a/arch/arm64/include/asm/mte.h b/arch/arm64/include/asm/mte.h
+index aa523591a44e..760c62f8e22f 100644
+--- a/arch/arm64/include/asm/mte.h
++++ b/arch/arm64/include/asm/mte.h
+@@ -42,7 +42,9 @@ void mte_sync_tags(pte_t old_pte, pte_t pte);
+ void mte_copy_page_tags(void *kto, const void *kfrom);
+ void mte_thread_init_user(void);
+ void mte_thread_switch(struct task_struct *next);
++void mte_cpu_setup(void);
+ void mte_suspend_enter(void);
++void mte_suspend_exit(void);
+ long set_mte_ctrl(struct task_struct *task, unsigned long arg);
+ long get_mte_ctrl(struct task_struct *task);
+ int mte_ptrace_copy_tags(struct task_struct *child, long request,
+@@ -72,6 +74,9 @@ static inline void mte_thread_switch(struct task_struct *next)
+ static inline void mte_suspend_enter(void)
+ {
+ }
++static inline void mte_suspend_exit(void)
++{
++}
+ static inline long set_mte_ctrl(struct task_struct *task, unsigned long arg)
+ {
+ 	return 0;
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index af4de817d712..d7a077b5ccd1 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -2034,7 +2034,8 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
+ static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
+ {
+ 	sysreg_clear_set(sctlr_el1, 0, SCTLR_ELx_ATA | SCTLR_EL1_ATA0);
+-	isb();
++
++	mte_cpu_setup();
+ 
+ 	/*
+ 	 * Clear the tags in the zero page. This needs to be done via the
+diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+index b2b730233274..aca88470fb69 100644
+--- a/arch/arm64/kernel/mte.c
++++ b/arch/arm64/kernel/mte.c
+@@ -285,6 +285,49 @@ void mte_thread_switch(struct task_struct *next)
+ 	mte_check_tfsr_el1();
  }
  
--static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
-+static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
++void mte_cpu_setup(void)
++{
++	u64 rgsr;
++
++	/*
++	 * CnP must be enabled only after the MAIR_EL1 register has been set
++	 * up. Inconsistent MAIR_EL1 between CPUs sharing the same TLB may
++	 * lead to the wrong memory type being used for a brief window during
++	 * CPU power-up.
++	 *
++	 * CnP is not a boot feature so MTE gets enabled before CnP, but let's
++	 * make sure that is the case.
++	 */
++	BUG_ON(read_sysreg(ttbr0_el1) & TTBR_CNP_BIT);
++	BUG_ON(read_sysreg(ttbr1_el1) & TTBR_CNP_BIT);
++
++	/* Normal Tagged memory type at the corresponding MAIR index */
++	sysreg_clear_set(mair_el1,
++			 MAIR_ATTRIDX(MAIR_ATTR_MASK, MT_NORMAL_TAGGED),
++			 MAIR_ATTRIDX(MAIR_ATTR_NORMAL_TAGGED,
++				      MT_NORMAL_TAGGED));
++
++	write_sysreg_s(KERNEL_GCR_EL1, SYS_GCR_EL1);
++
++	/*
++	 * If GCR_EL1.RRND=1 is implemented the same way as RRND=0, then
++	 * RGSR_EL1.SEED must be non-zero for IRG to produce
++	 * pseudorandom numbers. As RGSR_EL1 is UNKNOWN out of reset, we
++	 * must initialize it.
++	 */
++	rgsr = (read_sysreg(CNTVCT_EL0) & SYS_RGSR_EL1_SEED_MASK) <<
++	       SYS_RGSR_EL1_SEED_SHIFT;
++	if (rgsr == 0)
++		rgsr = 1 << SYS_RGSR_EL1_SEED_SHIFT;
++	write_sysreg_s(rgsr, SYS_RGSR_EL1);
++
++	/* clear any pending tag check faults in TFSR*_EL1 */
++	write_sysreg_s(0, SYS_TFSR_EL1);
++	write_sysreg_s(0, SYS_TFSRE0_EL1);
++
++	local_flush_tlb_all();
++}
++
+ void mte_suspend_enter(void)
  {
- 	int ret;
- 
-@@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(struct of_phandle_args *dma_spec,
- 				     ofdma->of_node);
+ 	if (!system_supports_mte())
+@@ -301,6 +344,14 @@ void mte_suspend_enter(void)
+ 	mte_check_tfsr_el1();
  }
  
--static int __init mxs_dma_probe(struct platform_device *pdev)
-+static int mxs_dma_probe(struct platform_device *pdev)
++void mte_suspend_exit(void)
++{
++	if (!system_supports_mte())
++		return;
++
++	mte_cpu_setup();
++}
++
+ long set_mte_ctrl(struct task_struct *task, unsigned long arg)
  {
- 	struct device_node *np = pdev->dev.of_node;
- 	const struct mxs_dma_type *dma_type;
-@@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_driver = {
- 		.name	= "mxs-dma",
- 		.of_match_table = mxs_dma_dt_ids,
- 	},
-+	.probe = mxs_dma_probe,
- };
+ 	u64 mte_ctrl = (~((arg & PR_MTE_TAG_MASK) >> PR_MTE_TAG_SHIFT) &
+diff --git a/arch/arm64/kernel/suspend.c b/arch/arm64/kernel/suspend.c
+index 9135fe0f3df5..8b02d310838f 100644
+--- a/arch/arm64/kernel/suspend.c
++++ b/arch/arm64/kernel/suspend.c
+@@ -43,6 +43,8 @@ void notrace __cpu_suspend_exit(void)
+ {
+ 	unsigned int cpu = smp_processor_id();
  
--static int __init mxs_dma_module_init(void)
--{
--	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
--}
--subsys_initcall(mxs_dma_module_init);
-+builtin_platform_driver(mxs_dma_driver);
++	mte_suspend_exit();
++
+ 	/*
+ 	 * We are resuming from reset with the idmap active in TTBR0_EL1.
+ 	 * We must uninstall the idmap and restore the expected MMU
+diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
+index 7837a69524c5..f38bccdd374a 100644
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -48,17 +48,19 @@
+ 
+ #ifdef CONFIG_KASAN_HW_TAGS
+ #define TCR_MTE_FLAGS TCR_TCMA1 | TCR_TBI1 | TCR_TBID1
+-#else
++#elif defined(CONFIG_ARM64_MTE)
+ /*
+  * The mte_zero_clear_page_tags() implementation uses DC GZVA, which relies on
+  * TBI being enabled at EL1.
+  */
+ #define TCR_MTE_FLAGS TCR_TBI1 | TCR_TBID1
++#else
++#define TCR_MTE_FLAGS 0
+ #endif
+ 
+ /*
+  * Default MAIR_EL1. MT_NORMAL_TAGGED is initially mapped as Normal memory and
+- * changed during __cpu_setup to Normal Tagged if the system supports MTE.
++ * changed during mte_cpu_setup to Normal Tagged if the system supports MTE.
+  */
+ #define MAIR_EL1_SET							\
+ 	(MAIR_ATTRIDX(MAIR_ATTR_DEVICE_nGnRnE, MT_DEVICE_nGnRnE) |	\
+@@ -426,46 +428,8 @@ SYM_FUNC_START(__cpu_setup)
+ 	mov_q	mair, MAIR_EL1_SET
+ 	mov_q	tcr, TCR_TxSZ(VA_BITS) | TCR_CACHE_FLAGS | TCR_SMP_FLAGS | \
+ 			TCR_TG_FLAGS | TCR_KASLR_FLAGS | TCR_ASID16 | \
+-			TCR_TBI0 | TCR_A1 | TCR_KASAN_SW_FLAGS
+-
+-#ifdef CONFIG_ARM64_MTE
+-	/*
+-	 * Update MAIR_EL1, GCR_EL1 and TFSR*_EL1 if MTE is supported
+-	 * (ID_AA64PFR1_EL1[11:8] > 1).
+-	 */
+-	mrs	x10, ID_AA64PFR1_EL1
+-	ubfx	x10, x10, #ID_AA64PFR1_MTE_SHIFT, #4
+-	cmp	x10, #ID_AA64PFR1_MTE
+-	b.lt	1f
+-
+-	/* Normal Tagged memory type at the corresponding MAIR index */
+-	mov	x10, #MAIR_ATTR_NORMAL_TAGGED
+-	bfi	mair, x10, #(8 *  MT_NORMAL_TAGGED), #8
++			TCR_TBI0 | TCR_A1 | TCR_KASAN_SW_FLAGS | TCR_MTE_FLAGS
+ 
+-	mov	x10, #KERNEL_GCR_EL1
+-	msr_s	SYS_GCR_EL1, x10
+-
+-	/*
+-	 * If GCR_EL1.RRND=1 is implemented the same way as RRND=0, then
+-	 * RGSR_EL1.SEED must be non-zero for IRG to produce
+-	 * pseudorandom numbers. As RGSR_EL1 is UNKNOWN out of reset, we
+-	 * must initialize it.
+-	 */
+-	mrs	x10, CNTVCT_EL0
+-	ands	x10, x10, #SYS_RGSR_EL1_SEED_MASK
+-	csinc	x10, x10, xzr, ne
+-	lsl	x10, x10, #SYS_RGSR_EL1_SEED_SHIFT
+-	msr_s	SYS_RGSR_EL1, x10
+-
+-	/* clear any pending tag check faults in TFSR*_EL1 */
+-	msr_s	SYS_TFSR_EL1, xzr
+-	msr_s	SYS_TFSRE0_EL1, xzr
+-
+-	/* set the TCR_EL1 bits */
+-	mov_q	x10, TCR_MTE_FLAGS
+-	orr	tcr, tcr, x10
+-1:
+-#endif
+ 	tcr_clear_errata_bits tcr, x9, x5
+ 
+ #ifdef CONFIG_ARM64_VA_BITS_52
 
