@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99AB5FFEC6
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D17075FFEC7
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbiJPLEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229583AbiJPLEe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 16 Oct 2022 07:04:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55784 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229660AbiJPLEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9AEDBC8B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:30 -0700 (PDT)
+        with ESMTP id S229694AbiJPLEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFB2D40
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72D83B80B91
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1E0C433D6;
-        Sun, 16 Oct 2022 11:04:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B02B60AF0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A49F9C433C1;
+        Sun, 16 Oct 2022 11:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918268;
-        bh=z1095dMciPlFIFOnNF/JI0As+wyDoIiCYRKpmgQaXq4=;
+        s=korg; t=1665918271;
+        bh=cH4V7xZNbo1AuehCiPBL3SS5X7TtTWKLMBXGLiho1NM=;
         h=Subject:To:Cc:From:Date:From;
-        b=ren6yDyhszYF30IauBqcu6PE0Hg6IUPMZDKfYJgQ/bTc7VPkWwef9PkXTA9wbNXoR
-         w+CJuOhV+tbkR2gx4djiAtS1vNbX9zHQOfAKqDyjQLLtMb9BeW2rGog4/eoQ9HXUSC
-         Px6du6WPvQcvFrRaVcmV8Bt3I19QJBZvS94h8z5M=
-Subject: FAILED: patch "[PATCH] mm: hugetlb: fix UAF in hugetlb_handle_userfault" failed to apply to 5.19-stable tree
+        b=z9R10jf3PPWBJianFSL1HRC5gdV0hIONVjG5v5d8sTs8mhcEOGJteyqLpm5utxraT
+         ZxUEDpbmyIGh0AjnO/vcZ2vb+z46G79NtAT5GnmAEmrBQNgkXLH2iscMXO1jyC877w
+         5g5mgY1k9lnnOp3zvH0p8CuL5NYuiIpSQ6S4y09U=
+Subject: FAILED: patch "[PATCH] mm: hugetlb: fix UAF in hugetlb_handle_userfault" failed to apply to 5.15-stable tree
 To:     liushixin2@huawei.com, akpm@linux-foundation.org, david@redhat.com,
         jhubbard@nvidia.com, liuzixian4@huawei.com,
         mike.kravetz@oracle.com, sidhartha.kumar@oracle.com,
@@ -36,8 +36,8 @@ To:     liushixin2@huawei.com, akpm@linux-foundation.org, david@redhat.com,
         wangkefeng.wang@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:05:11 +0200
-Message-ID: <16659183115074@kroah.com>
+Date:   Sun, 16 Oct 2022 13:05:13 +0200
+Message-ID: <166591831320326@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
