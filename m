@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A75976000D3
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1886000D2
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbiJPPpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229679AbiJPPpE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 16 Oct 2022 11:45:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbiJPPpC (ORCPT
+        with ESMTP id S229728AbiJPPpC (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:45:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E85BDFF7
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AEAD193EA
         for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:45:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3953FB80CCA
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:44:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86220C433D6;
-        Sun, 16 Oct 2022 15:44:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B3CF60B65
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:45:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31EA6C433C1;
+        Sun, 16 Oct 2022 15:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935097;
-        bh=8wsSW/uVMQnfPNGcCua9yaR5uSjhURSyambkkZn4X2s=;
+        s=korg; t=1665935100;
+        bh=lyEZzXFIM9LcCnCLXg6wl8aUUvEZNoRGDLb4MjGp/l0=;
         h=Subject:To:Cc:From:Date:From;
-        b=PYO061ITLRZ/zbP2UQrUuyeDexAknV/8Y9VMMq1vQZqfo8B47n2OAdexwlAX5tcsZ
-         lnWiyERgOb7hd21ME60Vc6npiAyFpEj7fpDC8A3fREh+M5NRLxmfxTdymPcwIBIdtD
-         kpEv0S1mmbsfkMFycvjQqknAFAYx4SJyn25UK/00=
-Subject: FAILED: patch "[PATCH] blk-wbt: call rq_qos_add() after wb_normal is initialized" failed to apply to 5.4-stable tree
+        b=k6CacIcLgANGqaOX9ou5Gg/wUUxR1sT+4qngMiYQ+kf4xgaOBtQc1uFAp66lmdtD0
+         jPTnva++0QI9iCJWh4LsWO8CbmTJpBOdlu6EQpBH1PedXZUM0E8aLlQckAg5CubtWY
+         M1aIHBDj11BFqaggh0PGOjiE2dNnAkiEBLTvMLRI=
+Subject: FAILED: patch "[PATCH] blk-wbt: call rq_qos_add() after wb_normal is initialized" failed to apply to 4.19-stable tree
 To:     yukuai3@huawei.com, axboe@kernel.dk, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:45:42 +0200
-Message-ID: <166593514272193@kroah.com>
+Date:   Sun, 16 Oct 2022 17:45:44 +0200
+Message-ID: <166593514419662@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,16 @@ Possible dependencies:
 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is initialized")
 5a20d073ec54 ("block: wbt: Remove unnecessary invoking of wbt_update_limits in wbt_init")
 4d89e1d112a9 ("blk-wbt: rename __wbt_update_limits to wbt_update_limits")
+9677a3e01f83 ("block/rq_qos: implement rq_qos_ops->queue_depth_changed()")
+d3e65ffff61c ("block/rq_qos: add rq_qos_merge()")
+14ccb66b3f58 ("block: remove the bi_phys_segments field in struct bio")
+f924cddebc90 ("block: remove blk_init_request_from_bio")
+0c8cf8c2a553 ("block: initialize the write priority in blk_rq_bio_prep")
+47cdee29ef9d ("block: move blk_exit_queue into __blk_release_queue")
+6869875fbc04 ("block: remove the bi_seg_{front,back}_size fields in struct bio")
+eded341c085b ("block: don't decrement nr_phys_segments for physically contigous segments")
+dcdca753c152 ("block: clean up __bio_add_pc_page a bit")
+5c61ee2cd586 ("Merge tag 'v5.1-rc6' into for-5.2/block")
 
 thanks,
 
