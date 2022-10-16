@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B025D5FFEC4
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CEA5FFEC5
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbiJPLEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:04:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
+        id S229577AbiJPLE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:04:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJPLEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B0334703
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:08 -0700 (PDT)
+        with ESMTP id S229600AbiJPLE1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F818FEE
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF154B80C82
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3352AC433D6;
-        Sun, 16 Oct 2022 11:04:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C161260AF0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C79FAC433D6;
+        Sun, 16 Oct 2022 11:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918245;
-        bh=/4+mOVFoLbqpF8Dy7L4SRb/+ED38A/HJRxX/xuZL820=;
+        s=korg; t=1665918264;
+        bh=putKKGFYajcuFN+Zkl2eNFHPSPrGgkKGdEd5grDHQZ0=;
         h=Subject:To:Cc:From:Date:From;
-        b=tr4mfZ/tiLlaYafjMnBBv9BrMI+Mwsosxdrz8snzaSPmpnbiM3zfq5Wx/7eTYR3t5
-         zGeRbXYCAQZ4GyuuLyuMewxrxzGWkYkZVdfVeEQfPHY8RzHG3nIwl6fcifBTJUR8I4
-         7vvYHQxOoYMRmaQuh9T5QCz9uuf1UJISwQNn2msU=
-Subject: FAILED: patch "[PATCH] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size" failed to apply to 5.4-stable tree
-To:     baolin.wang@linux.alibaba.com, akpm@linux-foundation.org,
-        david@redhat.com, mike.kravetz@oracle.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org
+        b=P7Y9viZ1H8spNUxnUVW1bJMNo3CSlS1bNKd+7QZ35vKrAc7FOc0LKbe8D6jBs7ziI
+         igYZWs0JDLWCLUSZoLCkOVy2xGAY1ImlO2ddfhuG+LwVNsxUzgZb7hLNQ+BfSFJIHK
+         wDyA4ydqhgYfufc7P9cw8UU8x7Kmxfv3Z2Fnc0B0=
+Subject: FAILED: patch "[PATCH] mm: hugetlb: fix UAF in hugetlb_handle_userfault" failed to apply to 6.0-stable tree
+To:     liushixin2@huawei.com, akpm@linux-foundation.org, david@redhat.com,
+        jhubbard@nvidia.com, liuzixian4@huawei.com,
+        mike.kravetz@oracle.com, sidhartha.kumar@oracle.com,
+        songmuchun@bytedance.com, stable@vger.kernel.org,
+        wangkefeng.wang@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:04:48 +0200
-Message-ID: <166591828864123@kroah.com>
+Date:   Sun, 16 Oct 2022 13:05:09 +0200
+Message-ID: <1665918309171248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,33 +51,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-fac35ba763ed ("mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page")
-ad1ac596e8a8 ("mm/migration: fix potential pte_unmap on an not mapped pte")
-4dd845b5a3e5 ("mm/swapops: rework swap entry manipulation code")
-af5cdaf82238 ("mm: remove special swap entry functions")
-b3807a91aca7 ("mm: page_vma_mapped_walk(): add a level of indentation")
-e2e1d4076c77 ("mm: page_vma_mapped_walk(): prettify PVMW_MIGRATION block")
-3306d3119cea ("mm: page_vma_mapped_walk(): use pmde for *pvmw->pmd")
-f003c03bd29e ("mm: page_vma_mapped_walk(): use page for pvmw->page")
-494334e43c16 ("mm/thp: fix vma_address() if virtual address below file offset")
-732ed55823fc ("mm/thp: try_to_unmap() use TTU_SYNC for safe splitting")
-99fa8a48203d ("mm/thp: fix __split_huge_pmd_locked() on shmem migration entry")
-ffc90cbb2970 ("mm, thp: use head page in __migration_entry_wait()")
-a44f89dc6c5f ("mm/huge_memory.c: use helper function migration_entry_to_page()")
-374437a274e2 ("mm/pgtable-generic.c: optimize the VM_BUG_ON condition in pmdp_huge_clear_flush()")
-c045c72ccde3 ("mm/pgtable-generic.c: simplify the VM_BUG_ON condition in pmdp_huge_clear_flush()")
-013339df116c ("mm/rmap: always do TTU_IGNORE_ACCESS")
-336bf30eb765 ("hugetlbfs: fix anon huge page migration race")
-df3a57d1f607 ("mm: split out the non-present case from copy_one_pte()")
-ec0abae6dcdf ("mm/thp: fix __split_huge_pmd_locked() for migration PMD")
-6128763fc324 ("mm/migrate: remove unnecessary is_zone_device_page() check")
+958f32ce832b ("mm: hugetlb: fix UAF in hugetlb_handle_userfault")
+40549ba8f8e0 ("hugetlb: use new vma_lock for pmd sharing synchronization")
+378397ccb8e5 ("hugetlb: create hugetlb_unmap_file_folio to unmap single file folio")
+8d9bfb260814 ("hugetlb: add vma based lock for pmd sharing")
+12710fd69634 ("hugetlb: rename vma_shareable() and refactor code")
+c86272287bc6 ("hugetlb: create remove_inode_single_folio to remove single file folio")
+7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
+3a47c54f09c4 ("hugetlbfs: revert use i_mmap_rwsem for more pmd sharing synchronization")
+188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
+5e6b1bf1b5c3 ("hugetlb: remove meaningless BUG_ON(huge_pte_none())")
+3a5497a2dae3 ("mm/hugetlb: fix missing call to restore_reserve_on_error()")
 
 thanks,
 
@@ -83,171 +76,153 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fac35ba763ed07ba93154c95ffc0c4a55023707f Mon Sep 17 00:00:00 2001
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-Date: Thu, 1 Sep 2022 18:41:31 +0800
-Subject: [PATCH] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size
- hugetlb page
+From 958f32ce832ba781ac20e11bb2d12a9352ea28fc Mon Sep 17 00:00:00 2001
+From: Liu Shixin <liushixin2@huawei.com>
+Date: Fri, 23 Sep 2022 12:21:13 +0800
+Subject: [PATCH] mm: hugetlb: fix UAF in hugetlb_handle_userfault
 
-On some architectures (like ARM64), it can support CONT-PTE/PMD size
-hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
+The vma_lock and hugetlb_fault_mutex are dropped before handling userfault
+and reacquire them again after handle_userfault(), but reacquire the
+vma_lock could lead to UAF[1,2] due to the following race,
 
-So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-the correct lock, which is mm->page_table_lock.
+hugetlb_fault
+  hugetlb_no_page
+    /*unlock vma_lock */
+    hugetlb_handle_userfault
+      handle_userfault
+        /* unlock mm->mmap_lock*/
+                                           vm_mmap_pgoff
+                                             do_mmap
+                                               mmap_region
+                                                 munmap_vma_range
+                                                   /* clean old vma */
+        /* lock vma_lock again  <--- UAF */
+    /* unlock vma_lock */
 
-That means the pte entry of the CONT-PTE size hugetlb under current pte
-lock is unstable in follow_page_pte(), we can continue to migrate or
-poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-potential race issues, even though they are under the 'pte lock'.
+Since the vma_lock will unlock immediately after
+hugetlb_handle_userfault(), let's drop the unneeded lock and unlock in
+hugetlb_handle_userfault() to fix the issue.
 
-For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-page by move_pages() syscall under the lock, however antoher thread B can
-migrate the CONT-PTE hugetlb page at the same time, which will cause
-thread A to get an incorrect page, if thread A also wants to do page
-migration, then data inconsistency error occurs.
-
-Moreover we have the same issue for CONT-PMD size hugetlb in
-follow_huge_pmd().
-
-To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-get the correct pte entry lock to make the pte entry stable.
-
-Mike said:
-
-Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-refactor find_num_contig()").  Patch series "Support for contiguous pte
-hugepages", v4.  However, I do not believe these code paths were
-executed until migration support was added with 5480280d3f2d ("arm64/mm:
-enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-with 5480280d3f2d for the Fixes: targe.
-
-Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
+[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
+[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
+Link: https://lkml.kernel.org/r/20220923042113.137273-1-liushixin2@huawei.com
+Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
+Reported-by: Liu Zixian <liuzixian4@huawei.com>
 Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
+Cc: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+Cc: <stable@vger.kernel.org>	[4.14+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 3ec981a0d8b3..67c88b82fc32 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -207,8 +207,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
- struct page *follow_huge_pd(struct vm_area_struct *vma,
- 			    unsigned long address, hugepd_t hpd,
- 			    int flags, int pdshift);
--struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--				pmd_t *pmd, int flags);
-+struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
-+				 int flags);
- struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
- 				pud_t *pud, int flags);
- struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -312,8 +312,8 @@ static inline struct page *follow_huge_pd(struct vm_area_struct *vma,
- 	return NULL;
- }
- 
--static inline struct page *follow_huge_pmd(struct mm_struct *mm,
--				unsigned long address, pmd_t *pmd, int flags)
-+static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
-+				unsigned long address, int flags)
- {
- 	return NULL;
- }
-diff --git a/mm/gup.c b/mm/gup.c
-index 00926abb4426..251cb6a10bc0 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -530,6 +530,18 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
- 		return ERR_PTR(-EINVAL);
-+
-+	/*
-+	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
-+	 * ARM64 architecture.
-+	 */
-+	if (is_vm_hugetlb_page(vma)) {
-+		page = follow_huge_pmd_pte(vma, address, flags);
-+		if (page)
-+			return page;
-+		return no_page_table(vma, flags);
-+	}
-+
- retry:
- 	if (unlikely(pmd_bad(*pmd)))
- 		return no_page_table(vma, flags);
-@@ -662,7 +674,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
- 	if (pmd_none(pmdval))
- 		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
--		page = follow_huge_pmd(mm, address, pmd, flags);
-+		page = follow_huge_pmd_pte(vma, address, flags);
- 		if (page)
- 			return page;
- 		return no_page_table(vma, flags);
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 0bdfc7e1c933..9564bf817e6a 100644
+index 2182134216f0..3c1316ad54b5 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -6946,12 +6946,13 @@ follow_huge_pd(struct vm_area_struct *vma,
- }
- 
- struct page * __weak
--follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--		pmd_t *pmd, int flags)
-+follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
+@@ -5489,7 +5489,6 @@ static inline vm_fault_t hugetlb_handle_userfault(struct vm_area_struct *vma,
+ 						  unsigned long addr,
+ 						  unsigned long reason)
  {
-+	struct hstate *h = hstate_vma(vma);
-+	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page = NULL;
- 	spinlock_t *ptl;
--	pte_t pte;
-+	pte_t *ptep, pte;
+-	vm_fault_t ret;
+ 	u32 hash;
+ 	struct vm_fault vmf = {
+ 		.vma = vma,
+@@ -5507,18 +5506,14 @@ static inline vm_fault_t hugetlb_handle_userfault(struct vm_area_struct *vma,
+ 	};
  
  	/*
- 	 * FOLL_PIN is not supported for follow_page(). Ordinary GUP goes via
-@@ -6961,17 +6962,15 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 		return NULL;
+-	 * vma_lock and hugetlb_fault_mutex must be
+-	 * dropped before handling userfault.  Reacquire
+-	 * after handling fault to make calling code simpler.
++	 * vma_lock and hugetlb_fault_mutex must be dropped before handling
++	 * userfault. Also mmap_lock could be dropped due to handling
++	 * userfault, any vma operation should be careful from here.
+ 	 */
+ 	hugetlb_vma_unlock_read(vma);
+ 	hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+-	ret = handle_userfault(&vmf, reason);
+-	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+-	hugetlb_vma_lock_read(vma);
+-
+-	return ret;
++	return handle_userfault(&vmf, reason);
+ }
  
- retry:
--	ptl = pmd_lockptr(mm, pmd);
--	spin_lock(ptl);
--	/*
--	 * make sure that the address range covered by this pmd is not
--	 * unmapped from other threads.
--	 */
--	if (!pmd_huge(*pmd))
--		goto out;
--	pte = huge_ptep_get((pte_t *)pmd);
-+	ptep = huge_pte_offset(mm, address, huge_page_size(h));
-+	if (!ptep)
-+		return NULL;
-+
-+	ptl = huge_pte_lock(h, mm, ptep);
-+	pte = huge_ptep_get(ptep);
- 	if (pte_present(pte)) {
--		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
-+		page = pte_page(pte) +
-+			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		/*
- 		 * try_grab_page() should always succeed here, because: a) we
- 		 * hold the pmd (ptl) lock, and b) we've just checked that the
-@@ -6987,7 +6986,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait_huge((pte_t *)pmd, ptl);
-+			__migration_entry_wait_huge(ptep, ptl);
- 			goto retry;
+ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+@@ -5536,6 +5531,7 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+ 	spinlock_t *ptl;
+ 	unsigned long haddr = address & huge_page_mask(h);
+ 	bool new_page, new_pagecache_page = false;
++	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 
+ 	/*
+ 	 * Currently, we are forced to kill the process in the event the
+@@ -5546,7 +5542,7 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+ 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
+ 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
+ 			   current->pid);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -5560,12 +5556,10 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+ 		if (idx >= size)
+ 			goto out;
+ 		/* Check for page in userfault range */
+-		if (userfaultfd_missing(vma)) {
+-			ret = hugetlb_handle_userfault(vma, mapping, idx,
++		if (userfaultfd_missing(vma))
++			return hugetlb_handle_userfault(vma, mapping, idx,
+ 						       flags, haddr, address,
+ 						       VM_UFFD_MISSING);
+-			goto out;
+-		}
+ 
+ 		page = alloc_huge_page(vma, haddr, 0);
+ 		if (IS_ERR(page)) {
+@@ -5631,10 +5625,9 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+ 		if (userfaultfd_minor(vma)) {
+ 			unlock_page(page);
+ 			put_page(page);
+-			ret = hugetlb_handle_userfault(vma, mapping, idx,
++			return hugetlb_handle_userfault(vma, mapping, idx,
+ 						       flags, haddr, address,
+ 						       VM_UFFD_MINOR);
+-			goto out;
  		}
- 		/*
+ 	}
+ 
+@@ -5692,6 +5685,8 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+ 
+ 	unlock_page(page);
+ out:
++	hugetlb_vma_unlock_read(vma);
++	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 	return ret;
+ 
+ backout:
+@@ -5789,11 +5784,13 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+ 
+ 	entry = huge_ptep_get(ptep);
+ 	/* PTE markers should be handled the same way as none pte */
+-	if (huge_pte_none_mostly(entry)) {
+-		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
++	if (huge_pte_none_mostly(entry))
++		/*
++		 * hugetlb_no_page will drop vma lock and hugetlb fault
++		 * mutex internally, which make us return immediately.
++		 */
++		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
+ 				      entry, flags);
+-		goto out_mutex;
+-	}
+ 
+ 	ret = 0;
+ 
 
