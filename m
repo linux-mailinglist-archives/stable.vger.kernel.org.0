@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC3D5FFF1A
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835C15FFF1D
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbiJPMYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 08:24:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
+        id S229729AbiJPMZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 08:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbiJPMYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:24:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB8AFAE5
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:24:33 -0700 (PDT)
+        with ESMTP id S229681AbiJPMZp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:25:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD6EB3609D
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:25:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E7A0B80B49
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71BFC433D6;
-        Sun, 16 Oct 2022 12:24:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C0FDB80B88
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:25:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8DCBC433C1;
+        Sun, 16 Oct 2022 12:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665923071;
-        bh=DEFja8wkUuoE64Lpbote2pYWjJVhDMBPE8xiCvnaQ9k=;
+        s=korg; t=1665923142;
+        bh=LmD48N4U3mbTElbEaFf7wY2mFzq/wq4yqVZfKXBuChQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=RHUNdl/zrbGK/Ug8Ldz5wjrX+6hTDQ7QtoGfo1LFDaA5LEYedsz+IjKjDrWqWcpZO
-         YhWhfbKyZIHbkHPTrC7ihG3WbApG1O1ucJtvslqHOJpslKUegrbFyzmnmWnXmRJxDX
-         PUJNK+rKP2wtZxfdxWNVYwBH1QtjLpTvL1esC7kA=
-Subject: FAILED: patch "[PATCH] btrfs: enhance unsupported compat RO flags handling" failed to apply to 4.9-stable tree
-To:     wqu@suse.com, dsterba@suse.com, nborisov@suse.com
+        b=SJLtV+BviUHGnJVGkpWh44keLtBS1ezVb+jaLJ2E++qur+/tll+CEhb1WHFZhIDFy
+         yhzhx0px4VFV5upXFiPzJSjqhMvWaWTP+HN0A99OqW+ZBT3a0Ob7h0nlewesmXCdpF
+         KBZvIoG0KBQfi5WmLZsq2eZae0w29/bH2u/3IlbA=
+Subject: FAILED: patch "[PATCH] btrfs: set generation before calling btrfs_clean_tree_block" failed to apply to 5.10-stable tree
+To:     penguin-kernel@I-love.SAKURA.ne.jp, dsterba@suse.com,
+        syzbot+fba8e2116a12609b6c59@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 14:25:07 +0200
-Message-ID: <1665923107172110@kroah.com>
+Date:   Sun, 16 Oct 2022 14:26:28 +0200
+Message-ID: <16659231886032@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +48,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-81d5d61454c3 ("btrfs: enhance unsupported compat RO flags handling")
-dfe8aec4520b ("btrfs: add a btrfs_block_group_root() helper")
-b6e9f16c5fda ("btrfs: replace open coded while loop with proper construct")
-42437a6386ff ("btrfs: introduce mount option rescue=ignorebadroots")
-68319c18cb21 ("btrfs: show rescue=usebackuproot in /proc/mounts")
-ab0b4a3ebf14 ("btrfs: add a helper to print out rescue= options")
-ceafe3cc3992 ("btrfs: sysfs: export supported rescue= mount options")
-334c16d82cfe ("btrfs: push the NODATASUM check into btrfs_lookup_bio_sums")
-d70bf7484f72 ("btrfs: unify the ro checking for mount options")
-7573df5547c0 ("btrfs: sysfs: export supported send stream version")
-3ef3959b29c4 ("btrfs: don't show full path of bind mounts in subvol=")
-74ef00185eb8 ("btrfs: introduce "rescue=" mount option")
-e3ba67a108ff ("btrfs: factor out reading of bg from find_frist_block_group")
-89d7da9bc592 ("btrfs: get mapping tree directly from fsinfo in find_first_block_group")
-c730ae0c6bb3 ("btrfs: convert comments to fallthrough annotations")
-aeb935a45581 ("btrfs: don't set SHAREABLE flag for data reloc tree")
-92a7cc425223 ("btrfs: rename BTRFS_ROOT_REF_COWS to BTRFS_ROOT_SHAREABLE")
-3be4d8efe3cf ("btrfs: block-group: rename write_one_cache_group()")
-97f4728af888 ("btrfs: block-group: refactor how we insert a block group item")
-7357623a7f4b ("btrfs: block-group: refactor how we delete one block group item")
+cbddcc4fa344 ("btrfs: set generation before calling btrfs_clean_tree_block in btrfs_init_new_buffer")
+b40130b23ca4 ("btrfs: fix lockdep splat with reloc root extent buffers")
+0a27a0474d14 ("btrfs: move lockdep class helpers to locking.c")
+b4be6aefa73c ("btrfs: do not start relocation until in progress drops are done")
+fdfbf020664b ("btrfs: rework async transaction committing")
+54230013d41f ("btrfs: get rid of root->orphan_cleanup_state")
+ae5d29d4e70a ("btrfs: inline wait_current_trans_commit_start in its caller")
+32cc4f8759e1 ("btrfs: sink wait_for_unblock parameter to async commit")
+e9306ad4ef5c ("btrfs: more graceful errors/warnings on 32bit systems when reaching limits")
+bc03f39ec3c1 ("btrfs: use a bit to track the existence of tree mod log users")
+406808ab2f0b ("btrfs: use booleans where appropriate for the tree mod log functions")
+f3a84ccd28d0 ("btrfs: move the tree mod log code into its own file")
+dbcc7d57bffc ("btrfs: fix race when cloning extent buffer during rewind of an old root")
+cac06d843f25 ("btrfs: introduce the skeleton of btrfs_subpage structure")
+2f96e40212d4 ("btrfs: fix possible free space tree corruption with online conversion")
+1aaac38c83a2 ("btrfs: don't allow tree block to cross page boundary for subpage support")
+948462294577 ("btrfs: keep sb cache_generation consistent with space_cache")
+8b228324a8ce ("btrfs: clear free space tree on ro->rw remount")
+8cd2908846d1 ("btrfs: clear oneshot options on mount and remount")
+5011139a4718 ("btrfs: create free space tree on ro->rw remount")
 
 thanks,
 
@@ -81,85 +82,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 81d5d61454c365718655cfc87d8200c84e25d596 Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Tue, 9 Aug 2022 13:02:16 +0800
-Subject: [PATCH] btrfs: enhance unsupported compat RO flags handling
+From cbddcc4fa3443fe8cfb2ff8e210deb1f6a0eea38 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date: Tue, 20 Sep 2022 22:43:51 +0900
+Subject: [PATCH] btrfs: set generation before calling btrfs_clean_tree_block
+ in btrfs_init_new_buffer
 
-Currently there are two corner cases not handling compat RO flags
-correctly:
+syzbot is reporting uninit-value in btrfs_clean_tree_block() [1], for
+commit bc877d285ca3dba2 ("btrfs: Deduplicate extent_buffer init code")
+missed that btrfs_set_header_generation() in btrfs_init_new_buffer() must
+not be moved to after clean_tree_block() because clean_tree_block() is
+calling btrfs_header_generation() since commit 55c69072d6bd5be1 ("Btrfs:
+Fix extent_buffer usage when nodesize != leafsize").
 
-- Remount
-  We can still mount the fs RO with compat RO flags, then remount it RW.
-  We should not allow any write into a fs with unsupported RO flags.
+Since memzero_extent_buffer() will reset "struct btrfs_header" part, we
+can't move btrfs_set_header_generation() to before memzero_extent_buffer().
+Just re-add btrfs_set_header_generation() before btrfs_clean_tree_block().
 
-- Still try to search block group items
-  In fact, behavior/on-disk format change to extent tree should not
-  need a full incompat flag.
-
-  And since we can ensure fs with unsupported RO flags never got any
-  writes (with above case fixed), then we can even skip block group
-  items search at mount time.
-
-This patch will enhance the unsupported RO compat flags by:
-
-- Reject read-write remount if there are unsupported RO compat flags
-
-- Go dummy block group items directly for unsupported RO compat flags
-  In fact, only changes to chunk/subvolume/root/csum trees should go
-  incompat flags.
-
-The latter part should allow future change to extent tree to be compat
-RO flags.
-
-Thus this patch also needs to be backported to all stable trees.
-
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Link: https://syzkaller.appspot.com/bug?extid=fba8e2116a12609b6c59 [1]
+Reported-by: syzbot <syzbot+fba8e2116a12609b6c59@syzkaller.appspotmail.com>
+Fixes: bc877d285ca3dba2 ("btrfs: Deduplicate extent_buffer init code")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 53c44c52cb79..e7b5a54c8258 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2164,7 +2164,16 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
- 	int need_clear = 0;
- 	u64 cache_gen;
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index ae94be318a0f..cd2d36580f1a 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4890,6 +4890,9 @@ btrfs_init_new_buffer(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 	    !test_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &root->state))
+ 		lockdep_owner = BTRFS_FS_TREE_OBJECTID;
  
--	if (!root)
-+	/*
-+	 * Either no extent root (with ibadroots rescue option) or we have
-+	 * unsupported RO options. The fs can never be mounted read-write, so no
-+	 * need to waste time searching block group items.
-+	 *
-+	 * This also allows new extent tree related changes to be RO compat,
-+	 * no need for a full incompat flag.
-+	 */
-+	if (!root || (btrfs_super_compat_ro_flags(info->super_copy) &
-+		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
- 		return fill_dummy_bgs(info);
- 
- 	key.objectid = 0;
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 7291e9d67e92..eb0ae7e396ef 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2117,6 +2117,15 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
- 			ret = -EINVAL;
- 			goto restore;
- 		}
-+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
-+			btrfs_err(fs_info,
-+		"can not remount read-write due to unsupported optional flags 0x%llx",
-+				btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+				~BTRFS_FEATURE_COMPAT_RO_SUPP);
-+			ret = -EINVAL;
-+			goto restore;
-+		}
- 		if (fs_info->fs_devices->rw_devices == 0) {
- 			ret = -EACCES;
- 			goto restore;
++	/* btrfs_clean_tree_block() accesses generation field. */
++	btrfs_set_header_generation(buf, trans->transid);
++
+ 	/*
+ 	 * This needs to stay, because we could allocate a freed block from an
+ 	 * old tree into a new tree, so we need to make sure this new block is
 
