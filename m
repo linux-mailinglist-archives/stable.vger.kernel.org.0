@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6E1D6000C1
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2AA6000C2
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiJPPhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        id S229815AbiJPPhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229815AbiJPPhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:37:06 -0400
+        with ESMTP id S229763AbiJPPhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:37:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0702CDC3
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:37:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2FC425E94
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:37:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0DE160B8B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:37:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7BD4C433D6;
-        Sun, 16 Oct 2022 15:37:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6293B60BFC
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEF3C433C1;
+        Sun, 16 Oct 2022 15:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665934624;
-        bh=l5Rb2g1wHkwOiWmJxTmXqDGXTih2iOi1jnsVFPnsqUE=;
+        s=korg; t=1665934639;
+        bh=8OE3qgm8TYo0ezJ9ab6OyCZaoSLsV3EVfo2W9ahbb60=;
         h=Subject:To:Cc:From:Date:From;
-        b=zpNhDOQJMxLZM2nD9QbgiUacaZD/hzQNJv8O0yQwabobrUTn6CTzLxb1IrASDWAI7
-         oRwlhIKqmoqZrwKvuNulEW1ir0a6CfCJ2eLvU/uU4tjWnNouRKgPWWEY455+PhgDq3
-         tIw0FJAnhn+/+ddv0iYI0xklG/AnnCzeuMwha8dg=
-Subject: FAILED: patch "[PATCH] tracing: Disable interrupt or preemption before acquiring" failed to apply to 5.4-stable tree
-To:     longman@redhat.com, boqun.feng@gmail.com, mingo@redhat.com,
-        peterz@infradead.org, rostedt@goodmis.org, will@kernel.org
+        b=WABPZRvy/7XlmIRjrp+Rs3iYF/TReh4q7lB4NVG9b/34z8QrFq0WMf9D0J/QtTrVY
+         jWYppqf+zGYg0p2BpZ8PkU4GxHaNat6uytAKJgyLl3kYU76DMqvpm7tHZNtXiNmlSS
+         RrC8WNnUAUy8GUi2qjtg88j8L8qFAifZC3sgc2SQ=
+Subject: FAILED: patch "[PATCH] tracing: Add ioctl() to force ring buffer waiters to wake up" failed to apply to 5.4-stable tree
+To:     rostedt@goodmis.org, akpm@linux-foundation.org, mingo@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:37:50 +0200
-Message-ID: <166593467012288@kroah.com>
+Date:   Sun, 16 Oct 2022 17:38:05 +0200
+Message-ID: <166593468586200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,7 +54,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-c0a581d7126c ("tracing: Disable interrupt or preemption before acquiring arch_spinlock_t")
+01b2a5217173 ("tracing: Add ioctl() to force ring buffer waiters to wake up")
 
 thanks,
 
@@ -63,158 +62,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c0a581d7126c0bbc96163276f585fd7b4e4d8d0e Mon Sep 17 00:00:00 2001
-From: Waiman Long <longman@redhat.com>
-Date: Thu, 22 Sep 2022 10:56:22 -0400
-Subject: [PATCH] tracing: Disable interrupt or preemption before acquiring
- arch_spinlock_t
+From 01b2a52171735c6eea80ee2f355f32bea6c41418 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Thu, 29 Sep 2022 09:50:29 -0400
+Subject: [PATCH] tracing: Add ioctl() to force ring buffer waiters to wake up
 
-It was found that some tracing functions in kernel/trace/trace.c acquire
-an arch_spinlock_t with preemption and irqs enabled. An example is the
-tracing_saved_cmdlines_size_read() function which intermittently causes
-a "BUG: using smp_processor_id() in preemptible" warning when the LTP
-read_all_proc test is run.
+If a process is waiting on the ring buffer for data, there currently isn't
+a clean way to force it to wake up. Add an ioctl call that will force any
+tasks that are waiting on the trace_pipe_raw file to wake up.
 
-That can be problematic in case preemption happens after acquiring the
-lock. Add the necessary preemption or interrupt disabling code in the
-appropriate places before acquiring an arch_spinlock_t.
+Link: https://lkml.kernel.org/r/20220929095029.117f913f@gandalf.local.home
 
-The convention here is to disable preemption for trace_cmdline_lock and
-interupt for max_lock.
-
-Link: https://lkml.kernel.org/r/20220922145622.1744826-1-longman@redhat.com
-
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
 Cc: stable@vger.kernel.org
-Fixes: a35873a0993b ("tracing: Add conditional snapshot")
-Fixes: 939c7a4f04fc ("tracing: Introduce saved_cmdlines_size file")
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Waiman Long <longman@redhat.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: e30f53aad2202 ("tracing: Do not busy wait in buffer splice")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index d3005279165d..aed7ea6e6045 100644
+index e101b0764b39..58afc83afc9d 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -1193,12 +1193,14 @@ void *tracing_cond_snapshot_data(struct trace_array *tr)
- {
- 	void *cond_data = NULL;
- 
-+	local_irq_disable();
- 	arch_spin_lock(&tr->max_lock);
- 
- 	if (tr->cond_snapshot)
- 		cond_data = tr->cond_snapshot->cond_data;
- 
- 	arch_spin_unlock(&tr->max_lock);
-+	local_irq_enable();
- 
- 	return cond_data;
- }
-@@ -1334,9 +1336,11 @@ int tracing_snapshot_cond_enable(struct trace_array *tr, void *cond_data,
- 		goto fail_unlock;
- 	}
- 
-+	local_irq_disable();
- 	arch_spin_lock(&tr->max_lock);
- 	tr->cond_snapshot = cond_snapshot;
- 	arch_spin_unlock(&tr->max_lock);
-+	local_irq_enable();
- 
- 	mutex_unlock(&trace_types_lock);
- 
-@@ -1363,6 +1367,7 @@ int tracing_snapshot_cond_disable(struct trace_array *tr)
- {
- 	int ret = 0;
- 
-+	local_irq_disable();
- 	arch_spin_lock(&tr->max_lock);
- 
- 	if (!tr->cond_snapshot)
-@@ -1373,6 +1378,7 @@ int tracing_snapshot_cond_disable(struct trace_array *tr)
- 	}
- 
- 	arch_spin_unlock(&tr->max_lock);
-+	local_irq_enable();
- 
+@@ -8349,12 +8349,34 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
  	return ret;
  }
-@@ -2200,6 +2206,11 @@ static size_t tgid_map_max;
  
- #define SAVED_CMDLINES_DEFAULT 128
- #define NO_CMDLINE_MAP UINT_MAX
-+/*
-+ * Preemption must be disabled before acquiring trace_cmdline_lock.
-+ * The various trace_arrays' max_lock must be acquired in a context
-+ * where interrupt is disabled.
-+ */
- static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
- struct saved_cmdlines_buffer {
- 	unsigned map_pid_to_cmdline[PID_MAX_DEFAULT+1];
-@@ -2412,7 +2423,11 @@ static int trace_save_cmdline(struct task_struct *tsk)
- 	 * the lock, but we also don't want to spin
- 	 * nor do we want to disable interrupts,
- 	 * so if we miss here, then better luck next time.
-+	 *
-+	 * This is called within the scheduler and wake up, so interrupts
-+	 * had better been disabled and run queue lock been held.
- 	 */
-+	lockdep_assert_preemption_disabled();
- 	if (!arch_spin_trylock(&trace_cmdline_lock))
- 		return 0;
- 
-@@ -5890,9 +5905,11 @@ tracing_saved_cmdlines_size_read(struct file *filp, char __user *ubuf,
- 	char buf[64];
- 	int r;
- 
-+	preempt_disable();
- 	arch_spin_lock(&trace_cmdline_lock);
- 	r = scnprintf(buf, sizeof(buf), "%u\n", savedcmd->cmdline_num);
- 	arch_spin_unlock(&trace_cmdline_lock);
-+	preempt_enable();
- 
- 	return simple_read_from_buffer(ubuf, cnt, ppos, buf, r);
- }
-@@ -5917,10 +5934,12 @@ static int tracing_resize_saved_cmdlines(unsigned int val)
- 		return -ENOMEM;
- 	}
- 
-+	preempt_disable();
- 	arch_spin_lock(&trace_cmdline_lock);
- 	savedcmd_temp = savedcmd;
- 	savedcmd = s;
- 	arch_spin_unlock(&trace_cmdline_lock);
-+	preempt_enable();
- 	free_saved_cmdlines_buffer(savedcmd_temp);
- 
- 	return 0;
-@@ -6373,10 +6392,12 @@ int tracing_set_tracer(struct trace_array *tr, const char *buf)
- 
- #ifdef CONFIG_TRACER_SNAPSHOT
- 	if (t->use_max_tr) {
-+		local_irq_disable();
- 		arch_spin_lock(&tr->max_lock);
- 		if (tr->cond_snapshot)
- 			ret = -EBUSY;
- 		arch_spin_unlock(&tr->max_lock);
-+		local_irq_enable();
- 		if (ret)
- 			goto out;
- 	}
-@@ -7436,10 +7457,12 @@ tracing_snapshot_write(struct file *filp, const char __user *ubuf, size_t cnt,
- 		goto out;
- 	}
- 
-+	local_irq_disable();
- 	arch_spin_lock(&tr->max_lock);
- 	if (tr->cond_snapshot)
- 		ret = -EBUSY;
- 	arch_spin_unlock(&tr->max_lock);
-+	local_irq_enable();
- 	if (ret)
- 		goto out;
++/* An ioctl call with cmd 0 to the ring buffer file will wake up all waiters */
++static long tracing_buffers_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct ftrace_buffer_info *info = file->private_data;
++	struct trace_iterator *iter = &info->iter;
++
++	if (cmd)
++		return -ENOIOCTLCMD;
++
++	mutex_lock(&trace_types_lock);
++
++	iter->wait_index++;
++	/* Make sure the waiters see the new wait_index */
++	smp_wmb();
++
++	ring_buffer_wake_waiters(iter->array_buffer->buffer, iter->cpu_file);
++
++	mutex_unlock(&trace_types_lock);
++	return 0;
++}
++
+ static const struct file_operations tracing_buffers_fops = {
+ 	.open		= tracing_buffers_open,
+ 	.read		= tracing_buffers_read,
+ 	.poll		= tracing_buffers_poll,
+ 	.release	= tracing_buffers_release,
+ 	.splice_read	= tracing_buffers_splice_read,
++	.unlocked_ioctl = tracing_buffers_ioctl,
+ 	.llseek		= no_llseek,
+ };
  
 
