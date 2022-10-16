@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B6F5FFDE5
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 754E25FFDE7
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbiJPHbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:31:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
+        id S229583AbiJPHbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:31:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJPHbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:31:13 -0400
+        with ESMTP id S229653AbiJPHbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:31:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82AD8386A1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:31:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA8F2386A8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:31:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E96A60ADE
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:31:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340CEC433D6;
-        Sun, 16 Oct 2022 07:31:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6943A60A53
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:31:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C246C433B5;
+        Sun, 16 Oct 2022 07:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665905471;
-        bh=Tt2h6spd1fbZw04hk2iRyZDFNVeHZ703H5SAABrEVzA=;
+        s=korg; t=1665905475;
+        bh=EFb5O1OylpOFCKFjNnMrSlEDNMGbnyAivvagL3opKlQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=cbXy6iUnOodjmZWojHL+Pf8eCbfAA81DQ2gQguigladMPGeNQK7YBF53pzLfPDBDd
-         O2nlcSbFatXL3Kv1higHpR9lSsjo34YLHlIgopu+LZqH3swr+WlYtdKk8HusTlMHDJ
-         GGXGzLbqexnwDwKi1L4kH2zZOJYxSyelxQJkGkSM=
-Subject: FAILED: patch "[PATCH] fs: dlm: fix invalid derefence of sb_lvbptr" failed to apply to 4.14-stable tree
+        b=cltmlZbsI34XCHWh3RSPmqvnnafQxHA9U0Sa6AvZAwn1Ai3EuQ7Bg8RZ+/PP2liOE
+         lTsD8tqSWzNOSPw+m1UAXZwER55XT1wsvYcJnrF4sxY+TIbOQG9xXE3RcIvwj69WEL
+         Wd2aR8iNUy+nlXNutZxRrB3OdbCjv0pisbFsKYWs=
+Subject: FAILED: patch "[PATCH] fs: dlm: fix invalid derefence of sb_lvbptr" failed to apply to 4.9-stable tree
 To:     aahringo@redhat.com, teigland@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:31:54 +0200
-Message-ID: <16659055147183@kroah.com>
+Date:   Sun, 16 Oct 2022 09:31:56 +0200
+Message-ID: <1665905516245126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
