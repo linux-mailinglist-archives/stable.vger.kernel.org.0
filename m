@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C96415FFD9F
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 08:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8519F5FFDA8
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 08:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbiJPGpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 02:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
+        id S229762AbiJPGqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 02:46:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229811AbiJPGpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 02:45:46 -0400
+        with ESMTP id S229838AbiJPGqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 02:46:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80B23640B;
-        Sat, 15 Oct 2022 23:45:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42D153AE6A;
+        Sat, 15 Oct 2022 23:46:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1471B8085D;
-        Sun, 16 Oct 2022 06:45:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 193FBC433C1;
-        Sun, 16 Oct 2022 06:45:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8DBFB80B76;
+        Sun, 16 Oct 2022 06:46:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB11CC433D7;
+        Sun, 16 Oct 2022 06:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665902742;
-        bh=0ZJ2LFMzVXl5F47JimqShryDmS3PyF4FnsQtVAmloX8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8uK9pJz9Mojebeda5EB5gQS0gbyHdswywKTz7bTgFvYWctziushWr+MeuXRKinm2
-         yz1/3pNGF0TCzJmlbyo+9KI4wNoEN2s+bOghHjoUii6Zu1Rat8cPZqPK4ufjhPKfzk
-         A9ZhNUSV6euxA9AiEVp7uLa2L6OXdlWwsZqS3Y8w=
+        s=korg; t=1665902759;
+        bh=7Ni+Ve70qPYhiPukKOhbsWMHgHZdGpsSJvXLWznV+NI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iVrBWQoN2re4ldke6Pa03pLhiqYwhCwpEFUssNx+1HnTUvfaYByYyfKokAsu09x14
+         R/54bq//YnrWtpnhw+g05ZPcGqPGwz1z16q8pX0o/zI5y011MTQNj4M9vGzhYZbGm7
+         CQEbDVOXxceVtn+w25vr1nmQQ/PlQifL7Tsb2keM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 4/4] wifi: mac80211: fix MBSSID parsing use-after-free
-Date:   Sun, 16 Oct 2022 08:46:14 +0200
-Message-Id: <20221016064454.521268644@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+Subject: [PATCH 5.4 0/4] 5.4.219-rc1 review
+Date:   Sun, 16 Oct 2022 08:46:22 +0200
+Message-Id: <20221016064454.327821011@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20221016064454.382206984@linuxfoundation.org>
-References: <20221016064454.382206984@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.219-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.219-rc1
+X-KernelTest-Deadline: 2022-10-18T06:44+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,122 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+This is the start of the stable review cycle for the 5.4.219 release.
+There are 4 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Commit ff05d4b45dd89b922578dac497dcabf57cf771c6 upstream.
-This is a different version of the commit, changed to store
-the non-transmitted profile in the elems, and freeing it in
-the few places where it's relevant, since that is only the
-case when the last argument for parsing (the non-tx BSSID)
-is non-NULL.
+Responses should be made by Tue, 18 Oct 2022 06:44:46 +0000.
+Anything received after that time might be too late.
 
-When we parse a multi-BSSID element, we might point some
-element pointers into the allocated nontransmitted_profile.
-However, we free this before returning, causing UAF when the
-relevant pointers in the parsed elements are accessed.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.219-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Fix this by not allocating the scratch buffer separately but
-as part of the returned structure instead, that way, there
-are no lifetime issues with it.
+thanks,
 
-The scratch buffer introduction as part of the returned data
-here is taken from MLO feature work done by Ilan.
+greg k-h
 
-This fixes CVE-2022-42719.
+-------------
+Pseudo-Shortlog of commits:
 
-Fixes: 5023b14cf4df ("mac80211: support profile split between elements")
-Co-developed-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mac80211/ieee80211_i.h |    2 ++
- net/mac80211/mlme.c        |    6 +++++-
- net/mac80211/scan.c        |    2 ++
- net/mac80211/util.c        |    7 ++++++-
- 4 files changed, 15 insertions(+), 2 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.219-rc1
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1551,6 +1551,8 @@ struct ieee802_11_elems {
- 	u8 country_elem_len;
- 	u8 bssid_index_len;
- 
-+	void *nontx_profile;
-+
- 	/* whether a parse error occurred while retrieving these elements */
- 	bool parse_error;
- };
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -3394,6 +3394,7 @@ static bool ieee80211_assoc_success(stru
- 			sdata_info(sdata,
- 				   "AP bug: VHT operation missing from AssocResp\n");
- 		}
-+		kfree(bss_elems.nontx_profile);
- 	}
- 
- 	/*
-@@ -4045,6 +4046,7 @@ static void ieee80211_rx_mgmt_beacon(str
- 		ifmgd->assoc_data->timeout = jiffies;
- 		ifmgd->assoc_data->timeout_started = true;
- 		run_again(sdata, ifmgd->assoc_data->timeout);
-+		kfree(elems.nontx_profile);
- 		return;
- 	}
- 
-@@ -4222,7 +4224,7 @@ static void ieee80211_rx_mgmt_beacon(str
- 		ieee80211_report_disconnect(sdata, deauth_buf,
- 					    sizeof(deauth_buf), true,
- 					    WLAN_REASON_DEAUTH_LEAVING);
--		return;
-+		goto free;
- 	}
- 
- 	if (sta && elems.opmode_notif)
-@@ -4237,6 +4239,8 @@ static void ieee80211_rx_mgmt_beacon(str
- 					       elems.cisco_dtpc_elem);
- 
- 	ieee80211_bss_info_change_notify(sdata, changed);
-+free:
-+	kfree(elems.nontx_profile);
- }
- 
- void ieee80211_sta_rx_queued_ext(struct ieee80211_sub_if_data *sdata,
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -227,6 +227,8 @@ ieee80211_bss_info_update(struct ieee802
- 						rx_status, beacon);
- 	}
- 
-+	kfree(elems.nontx_profile);
-+
- 	return bss;
- }
- 
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1483,6 +1483,11 @@ u32 ieee802_11_parse_elems_crc(const u8
- 			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
- 					       nontransmitted_profile,
- 					       nontransmitted_profile_len);
-+		if (!nontransmitted_profile_len) {
-+			nontransmitted_profile_len = 0;
-+			kfree(nontransmitted_profile);
-+			nontransmitted_profile = NULL;
-+		}
- 	}
- 
- 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
-@@ -1512,7 +1517,7 @@ u32 ieee802_11_parse_elems_crc(const u8
- 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
- 		elems->dtim_count = elems->bssid_index->dtim_count;
- 
--	kfree(nontransmitted_profile);
-+	elems->nontx_profile = nontransmitted_profile;
- 
- 	return crc;
- }
+Johannes Berg <johannes.berg@intel.com>
+    wifi: mac80211: fix MBSSID parsing use-after-free
+
+Johannes Berg <johannes.berg@intel.com>
+    wifi: mac80211: don't parse mbssid in assoc response
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: mlme: find auth challenge directly
+
+Sasha Levin <sashal@kernel.org>
+    Revert "fs: check FMODE_LSEEK to control internal pipe splicing"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                   |  4 ++--
+ fs/splice.c                | 10 ++++++----
+ net/mac80211/ieee80211_i.h |  4 ++--
+ net/mac80211/mlme.c        | 21 +++++++++++++--------
+ net/mac80211/scan.c        |  2 ++
+ net/mac80211/util.c        | 11 ++++++-----
+ 6 files changed, 31 insertions(+), 21 deletions(-)
 
 
