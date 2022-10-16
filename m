@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E7F05FFEC0
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6ED5FFEC2
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229766AbiJPKxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 06:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38692 "EHLO
+        id S229594AbiJPLEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:04:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiJPKxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:53:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863812DA81
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:53:19 -0700 (PDT)
+        with ESMTP id S229577AbiJPLEA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4C333342
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:03:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EAACB80B48
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:53:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE9FC433D7;
-        Sun, 16 Oct 2022 10:53:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B6E260A56
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:03:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 374EFC433C1;
+        Sun, 16 Oct 2022 11:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665917597;
-        bh=k4j31yZChgfHAKzWArd240uw2UmEmXgnqKjanDtaeEs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zzpbXyA6pfTzuXJ3fhqCYjLtAete0lvkaI3vSnC4isHy77s1xmZyLF/rkBMFNbm5H
-         ktDyNHnLSBr5UcESMfuxp+2PNsrkZm0djgyE5+T4FrWOiPHoZYfZXlkKE3xkmu1ZrA
-         UD8UPTQD9+G+NS0qqjIaoBxhLPUBgEV4cA7QLLrc=
-Date:   Sun, 16 Oct 2022 12:53:44 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Khazhismel Kumykov <khazhy@chromium.org>
-Cc:     stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Khazhismel Kumykov <khazhy@google.com>
-Subject: Re: [PATCH v5.10] block: fix inflight statistics of part0
-Message-ID: <Y0viuMAaGVdR3hTW@kroah.com>
-References: <20221013215603.2841286-1-khazhy@google.com>
+        s=korg; t=1665918238;
+        bh=FEP5MHiMl/j0Gr1EyextlP+NwQ0NO/p1OZ2iOd1Q+No=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Qym/eBWMmXLqCnd0SmB2qdLBbYDxe82aLrDlQVMDZZ8NYyWYm3X5CLhF8uHOfCjGS
+         C5Uunxmozi5j0Y8EFgR6/iv+ngJo96zbinE/0nXElwsE2/820M9/Xh0Y9GIS4BV66h
+         tzXnE7XZRsapt+pm1AqcC2HTHCf7diUGjvSQ/DUM=
+Subject: FAILED: patch "[PATCH] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size" failed to apply to 5.15-stable tree
+To:     baolin.wang@linux.alibaba.com, akpm@linux-foundation.org,
+        david@redhat.com, mike.kravetz@oracle.com,
+        songmuchun@bytedance.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 16 Oct 2022 13:04:44 +0200
+Message-ID: <1665918284111132@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221013215603.2841286-1-khazhy@google.com>
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -51,58 +48,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 02:56:03PM -0700, Khazhismel Kumykov wrote:
-> From: Jeffle Xu <jefflexu@linux.alibaba.com>
-> 
-> [ Upstream commit b0d97557ebfc9d5ba5f2939339a9fdd267abafeb ]
-> 
-> The inflight of partition 0 doesn't include inflight IOs to all
-> sub-partitions, since currently mq calculates inflight of specific
-> partition by simply camparing the value of the partition pointer.
-> 
-> Thus the following case is possible:
-> 
-> $ cat /sys/block/vda/inflight
->        0        0
-> $ cat /sys/block/vda/vda1/inflight
->        0      128
-> 
-> While single queue device (on a previous version, e.g. v3.10) has no
-> this issue:
-> 
-> $cat /sys/block/sda/sda3/inflight
->        0       33
-> $cat /sys/block/sda/inflight
->        0       33
-> 
-> Partition 0 should be specially handled since it represents the whole
-> disk. This issue is introduced since commit bf0ddaba65dd ("blk-mq: fix
-> sysfs inflight counter").
-> 
-> Besides, this patch can also fix the inflight statistics of part 0 in
-> /proc/diskstats. Before this patch, the inflight statistics of part 0
-> doesn't include that of sub partitions. (I have marked the 'inflight'
-> field with asterisk.)
-> 
-> $cat /proc/diskstats
->  259       0 nvme0n1 45974469 0 367814768 6445794 1 0 1 0 *0* 111062 6445794 0 0 0 0 0 0
->  259       2 nvme0n1p1 45974058 0 367797952 6445727 0 0 0 0 *33* 111001 6445727 0 0 0 0 0 0
-> 
-> This is introduced since commit f299b7c7a9de ("blk-mq: provide internal
-> in-flight variant").
-> 
-> Fixes: bf0ddaba65dd ("blk-mq: fix sysfs inflight counter")
-> Fixes: f299b7c7a9de ("blk-mq: provide internal in-flight variant")
-> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> [axboe: adapt for 5.11 partition change]
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> [khazhy: adapt for 5.10 partition]
-> Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-> ---
->  block/blk-mq.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Now queued up, thanks.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+fac35ba763ed ("mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page")
+ad1ac596e8a8 ("mm/migration: fix potential pte_unmap on an not mapped pte")
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From fac35ba763ed07ba93154c95ffc0c4a55023707f Mon Sep 17 00:00:00 2001
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
+Date: Thu, 1 Sep 2022 18:41:31 +0800
+Subject: [PATCH] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size
+ hugetlb page
+
+On some architectures (like ARM64), it can support CONT-PTE/PMD size
+hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
+1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
+
+So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
+use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
+hugetlb in follow_page_pte().  However this pte entry lock is incorrect
+for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
+the correct lock, which is mm->page_table_lock.
+
+That means the pte entry of the CONT-PTE size hugetlb under current pte
+lock is unstable in follow_page_pte(), we can continue to migrate or
+poison the pte entry of the CONT-PTE size hugetlb, which can cause some
+potential race issues, even though they are under the 'pte lock'.
+
+For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
+page by move_pages() syscall under the lock, however antoher thread B can
+migrate the CONT-PTE hugetlb page at the same time, which will cause
+thread A to get an incorrect page, if thread A also wants to do page
+migration, then data inconsistency error occurs.
+
+Moreover we have the same issue for CONT-PMD size hugetlb in
+follow_huge_pmd().
+
+To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
+to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
+get the correct pte entry lock to make the pte entry stable.
+
+Mike said:
+
+Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
+refactor find_num_contig()").  Patch series "Support for contiguous pte
+hugepages", v4.  However, I do not believe these code paths were
+executed until migration support was added with 5480280d3f2d ("arm64/mm:
+enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
+with 5480280d3f2d for the Fixes: targe.
+
+Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
+Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
+Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index 3ec981a0d8b3..67c88b82fc32 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -207,8 +207,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
+ struct page *follow_huge_pd(struct vm_area_struct *vma,
+ 			    unsigned long address, hugepd_t hpd,
+ 			    int flags, int pdshift);
+-struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+-				pmd_t *pmd, int flags);
++struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
++				 int flags);
+ struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
+ 				pud_t *pud, int flags);
+ struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
+@@ -312,8 +312,8 @@ static inline struct page *follow_huge_pd(struct vm_area_struct *vma,
+ 	return NULL;
+ }
+ 
+-static inline struct page *follow_huge_pmd(struct mm_struct *mm,
+-				unsigned long address, pmd_t *pmd, int flags)
++static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
++				unsigned long address, int flags)
+ {
+ 	return NULL;
+ }
+diff --git a/mm/gup.c b/mm/gup.c
+index 00926abb4426..251cb6a10bc0 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -530,6 +530,18 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+ 			 (FOLL_PIN | FOLL_GET)))
+ 		return ERR_PTR(-EINVAL);
++
++	/*
++	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
++	 * ARM64 architecture.
++	 */
++	if (is_vm_hugetlb_page(vma)) {
++		page = follow_huge_pmd_pte(vma, address, flags);
++		if (page)
++			return page;
++		return no_page_table(vma, flags);
++	}
++
+ retry:
+ 	if (unlikely(pmd_bad(*pmd)))
+ 		return no_page_table(vma, flags);
+@@ -662,7 +674,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
+ 	if (pmd_none(pmdval))
+ 		return no_page_table(vma, flags);
+ 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
+-		page = follow_huge_pmd(mm, address, pmd, flags);
++		page = follow_huge_pmd_pte(vma, address, flags);
+ 		if (page)
+ 			return page;
+ 		return no_page_table(vma, flags);
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 0bdfc7e1c933..9564bf817e6a 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -6946,12 +6946,13 @@ follow_huge_pd(struct vm_area_struct *vma,
+ }
+ 
+ struct page * __weak
+-follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+-		pmd_t *pmd, int flags)
++follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
+ {
++	struct hstate *h = hstate_vma(vma);
++	struct mm_struct *mm = vma->vm_mm;
+ 	struct page *page = NULL;
+ 	spinlock_t *ptl;
+-	pte_t pte;
++	pte_t *ptep, pte;
+ 
+ 	/*
+ 	 * FOLL_PIN is not supported for follow_page(). Ordinary GUP goes via
+@@ -6961,17 +6962,15 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+ 		return NULL;
+ 
+ retry:
+-	ptl = pmd_lockptr(mm, pmd);
+-	spin_lock(ptl);
+-	/*
+-	 * make sure that the address range covered by this pmd is not
+-	 * unmapped from other threads.
+-	 */
+-	if (!pmd_huge(*pmd))
+-		goto out;
+-	pte = huge_ptep_get((pte_t *)pmd);
++	ptep = huge_pte_offset(mm, address, huge_page_size(h));
++	if (!ptep)
++		return NULL;
++
++	ptl = huge_pte_lock(h, mm, ptep);
++	pte = huge_ptep_get(ptep);
+ 	if (pte_present(pte)) {
+-		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
++		page = pte_page(pte) +
++			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
+ 		/*
+ 		 * try_grab_page() should always succeed here, because: a) we
+ 		 * hold the pmd (ptl) lock, and b) we've just checked that the
+@@ -6987,7 +6986,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+ 	} else {
+ 		if (is_hugetlb_entry_migration(pte)) {
+ 			spin_unlock(ptl);
+-			__migration_entry_wait_huge((pte_t *)pmd, ptl);
++			__migration_entry_wait_huge(ptep, ptl);
+ 			goto retry;
+ 		}
+ 		/*
+
