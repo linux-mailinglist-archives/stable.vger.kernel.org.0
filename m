@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF2D600091
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0404600092
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiJPPVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50370 "EHLO
+        id S229832AbiJPPVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:21:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229832AbiJPPVf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:21:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D7237181
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:21:33 -0700 (PDT)
+        with ESMTP id S229748AbiJPPVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:21:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8552FB4B9
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:21:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 861B460BA8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93F79C433D6;
-        Sun, 16 Oct 2022 15:21:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23AC060BA8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:21:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6ABC433D6;
+        Sun, 16 Oct 2022 15:21:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665933693;
-        bh=9ENP+2+INFAjU4jsx1FJRlmqr8VmtC0SmzYWYDXOzTI=;
+        s=korg; t=1665933699;
+        bh=6DyMz4dMGJ8U0u0N502RJhLEFa9D8fX2s1ijlij9EbE=;
         h=Subject:To:Cc:From:Date:From;
-        b=Rsq+me3pXk+DUGYlEHixc4Cia2JRzQRiCcL0sJfx8K2AkizmkuyZ5sd1pAD+RwJqD
-         A3rnbffXvxgybiDTqsX3XEkWVHkdYkOtxxsQvoYhTlOZRj31xhAPNJit+8/Rdsma0o
-         Uq5GxTywMLzNmoN9rm3jedKL6AWFbpMhOzrQK6d4=
-Subject: FAILED: patch "[PATCH] tracing: Wake up ring buffer waiters on closing of the file" failed to apply to 4.9-stable tree
-To:     rostedt@goodmis.org, akpm@linux-foundation.org, mingo@kernel.org
+        b=muQ1J76aMdL2BQvT7/zH7aBgp9zZ18DMjMG2nEwqsbeW9Yp8R5xVyufNbglhhhpzt
+         E9nTW6XC9bby1qILnwgklbOUpVVaS4xZnt9k/FhFAz+s3YcqgvmfCF5+wL6keS0uH2
+         QK9WHU/ApH5TchkFLGSwSC3yElG1ZOWcCpBb9HNA=
+Subject: FAILED: patch "[PATCH] tracing: Wake up waiters when tracing is disabled" failed to apply to 5.10-stable tree
+To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:22:10 +0200
-Message-ID: <166593373024633@kroah.com>
+Date:   Sun, 16 Oct 2022 17:22:25 +0200
+Message-ID: <1665933745170186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,24 +47,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+2b0fd9a59b79 ("tracing: Wake up waiters when tracing is disabled")
 f3ddb74ad079 ("tracing: Wake up ring buffer waiters on closing of the file")
 efbbdaa22bb7 ("tracing: Show real address for trace event arguments")
-8e99cf91b99b ("tracing: Do not allocate buffer in trace_find_next_entry() in atomic")
-ff895103a84a ("tracing: Save off entry when peeking at next entry")
-03329f993978 ("tracing: Add tracefs file buffer_percentage")
-2c2b0a78b373 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
-2c1ea60b195d ("tracing: Add timestamp_mode trace file")
-00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
-ecf927000ce3 ("ring_buffer_poll_wait() return value used as return value of ->poll()")
-065e63f95143 ("tracing: Only have rmmod clear buffers that its events were active in")
-dc8d387210e3 ("tracing: Update Documentation/trace/ftrace.txt")
 
 thanks,
 
@@ -72,78 +64,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f3ddb74ad0790030c9592229fb14d8c451f4e9a8 Mon Sep 17 00:00:00 2001
+From 2b0fd9a59b7990c161fa1cb7b79edb22847c87c2 Mon Sep 17 00:00:00 2001
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Tue, 27 Sep 2022 19:15:27 -0400
-Subject: [PATCH] tracing: Wake up ring buffer waiters on closing of the file
+Date: Wed, 28 Sep 2022 18:22:20 -0400
+Subject: [PATCH] tracing: Wake up waiters when tracing is disabled
 
-When the file that represents the ring buffer is closed, there may be
-waiters waiting on more input from the ring buffer. Call
-ring_buffer_wake_waiters() to wake up any waiters when the file is
-closed.
-
-Link: https://lkml.kernel.org/r/20220927231825.182416969@goodmis.org
+When tracing is disabled, there's no reason that waiters should stay
+waiting, wake them up, otherwise tasks get stuck when they should be
+flushing the buffers.
 
 Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
 Fixes: e30f53aad2202 ("tracing: Do not busy wait in buffer splice")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/include/linux/trace_events.h b/include/linux/trace_events.h
-index 8401dec93c15..20749bd9db71 100644
---- a/include/linux/trace_events.h
-+++ b/include/linux/trace_events.h
-@@ -92,6 +92,7 @@ struct trace_iterator {
- 	unsigned int		temp_size;
- 	char			*fmt;	/* modified format holder */
- 	unsigned int		fmt_size;
-+	long			wait_index;
- 
- 	/* trace_seq for __print_flags() and __print_symbolic() etc. */
- 	struct trace_seq	tmp_seq;
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index aed7ea6e6045..e101b0764b39 100644
+index 58afc83afc9d..bb5597c6bfc1 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -8160,6 +8160,12 @@ static int tracing_buffers_release(struct inode *inode, struct file *file)
- 
- 	__trace_array_put(iter->tr);
- 
-+	iter->wait_index++;
-+	/* Make sure the waiters see the new wait_index */
-+	smp_wmb();
-+
-+	ring_buffer_wake_waiters(iter->array_buffer->buffer, iter->cpu_file);
-+
- 	if (info->spare)
- 		ring_buffer_free_read_page(iter->array_buffer->buffer,
- 					   info->spare_cpu, info->spare);
-@@ -8313,6 +8319,8 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
- 
- 	/* did we read anything? */
- 	if (!spd.nr_pages) {
-+		long wait_index;
-+
+@@ -8334,6 +8334,10 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
  		if (ret)
  			goto out;
  
-@@ -8320,10 +8328,17 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
- 		if ((file->f_flags & O_NONBLOCK) || (flags & SPLICE_F_NONBLOCK))
- 			goto out;
- 
-+		wait_index = READ_ONCE(iter->wait_index);
-+
- 		ret = wait_on_pipe(iter, iter->tr->buffer_percent);
- 		if (ret)
- 			goto out;
- 
-+		/* Make sure we see the new wait_index */
-+		smp_rmb();
-+		if (wait_index != iter->wait_index)
++		/* No need to wait after waking up when tracing is off */
++		if (!tracer_tracing_is_on(iter->tr))
 +			goto out;
 +
- 		goto again;
+ 		/* Make sure we see the new wait_index */
+ 		smp_rmb();
+ 		if (wait_index != iter->wait_index)
+@@ -9065,6 +9069,8 @@ rb_simple_write(struct file *filp, const char __user *ubuf,
+ 			tracer_tracing_off(tr);
+ 			if (tr->current_trace->stop)
+ 				tr->current_trace->stop(tr);
++			/* Wake up any waiters */
++			ring_buffer_wake_waiters(buffer, RING_BUFFER_ALL_CPUS);
+ 		}
+ 		mutex_unlock(&trace_types_lock);
  	}
- 
 
