@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F58600099
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982C660009A
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbiJPPXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
+        id S229894AbiJPPXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbiJPPXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:23:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1473371AD
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:23:00 -0700 (PDT)
+        with ESMTP id S229928AbiJPPXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:23:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1AD936BCD
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:23:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D81260B82
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81489C433D6;
-        Sun, 16 Oct 2022 15:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E72EB80CB3
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC49BC433D6;
+        Sun, 16 Oct 2022 15:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665933779;
-        bh=k/VlczFkSK2HzwsAHq6Sj3pqYTKGvHdNs9RBf2Ek/2g=;
+        s=korg; t=1665933790;
+        bh=tUEn8CVhswDJl7lR4RIWCSzioIrLKZEoM1X41Dda0Ds=;
         h=Subject:To:Cc:From:Date:From;
-        b=ebo/KOfQDiglNVp/k/00ij3bB5Hf5v5lVYDSO1Ptc/dYZDCujZeXRgBOi/rnFeTSf
-         TFANFlm4GcybCOBb1phVXnIc5ZuUAMsB4UWvnW+otrWnWjodCz5M4JgHIagTr68RgN
-         DyAZ/Uuw7fRuLGoIZ5zpQhtestr2/wQYrcwHkFbo=
-Subject: FAILED: patch "[PATCH] tracing: Do not free snapshot if tracer is on cmdline" failed to apply to 5.4-stable tree
+        b=EMaAXdfYeFHVo6MvBcw+JYJrCwaWbB2DL7FJu5+h9FeLQsTdvITZDrSAlvScP9+jC
+         2WDdgQwEa6ZhV/NKnDJHt56/lxmc21NQVZ1qiJQ0BHCCPPVwsTEyzoStTiLHXvwYoh
+         ZhUsaWylPAL5CGp01wpLz9KN0fycO6MRFEocUAdE=
+Subject: FAILED: patch "[PATCH] tracing: Do not free snapshot if tracer is on cmdline" failed to apply to 4.19-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org,
         mhiramat@kernel.org, zwisler@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:23:45 +0200
-Message-ID: <1665933825232129@kroah.com>
+Date:   Sun, 16 Oct 2022 17:23:51 +0200
+Message-ID: <1665933831192106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,7 @@ Possible dependencies:
 
 a541a9559bb0 ("tracing: Do not free snapshot if tracer is on cmdline")
 f4b0d318097e ("tracing: Simplify conditional compilation code in tracing_set_tracer()")
+7440172974e8 ("tracing: Replace synchronize_sched() and call_rcu_sched()")
 
 thanks,
 
