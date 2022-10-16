@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7525FFEE4
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9A35FFEE5
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbiJPLQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:16:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
+        id S229694AbiJPLQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:16:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiJPLQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:16:09 -0400
+        with ESMTP id S229579AbiJPLQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:16:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3CF357E8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:16:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9378357E8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90383B8015B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:16:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2253C433C1;
-        Sun, 16 Oct 2022 11:16:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DA2CB80B91
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAFF0C433C1;
+        Sun, 16 Oct 2022 11:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918965;
-        bh=Tq5vb5E20y1EMW/TiThUTeZ5IzY8fo75Uxn4r0QJY6Q=;
+        s=korg; t=1665918974;
+        bh=CO7hO20a4iAm8xljGBKsyuUE0aN9m6wUdAs8I2i4GZg=;
         h=Subject:To:Cc:From:Date:From;
-        b=r/qcQluYHiyAmQL618xaQxQZkK3uPZXJ3La79gqMwlKR+G44016k7MHvG+9n15AXX
-         d0VXrBvvLmzx6Rqyu/K2llLqVI80I270YM2tRYO8KxpYtUfqlNPemyEArHlAisOCts
-         xyAHKcTbEt9LGZGSxvb0cwWwojiC8lE74WuCWeSc=
-Subject: FAILED: patch "[PATCH] serial: stm32: Deassert Transmit Enable on ->rs485_config()" failed to apply to 5.15-stable tree
+        b=0RKDqQUeW9vy4oET8HhEKZedGfqSCQrEK/FCs57EcZ/ihIu9ZCGpV2GUg9KF86JB8
+         Q+qVf4iU+6Svc8RIhDveBYo2xbvCfPc4wM+KKTfaLTnj5Ew5VnMa0b7X5rIqQhIn5M
+         oj4L8f8kOzJqSvoATMLhtuC8NlmmPgbx4KiGZ31E=
+Subject: FAILED: patch "[PATCH] serial: stm32: Deassert Transmit Enable on ->rs485_config()" failed to apply to 5.10-stable tree
 To:     lukas@wunner.de, gregkh@linuxfoundation.org,
         ilpo.jarvinen@linux.intel.com, marex@denx.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:16:51 +0200
-Message-ID: <16659190111050@kroah.com>
+Date:   Sun, 16 Oct 2022 13:16:52 +0200
+Message-ID: <16659190125234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,6 +62,17 @@ d7c76716169d ("serial: stm32: Use TC interrupt to deassert GPIO RTS in RS485 mod
 2a3bcfe03725 ("serial: stm32: fix flow control transfer in DMA mode")
 33bb2f6ac308 ("serial: stm32: rework RX over DMA")
 cc58d0a3f0a4 ("serial: stm32: re-introduce an irq flag condition in usart_receive_chars")
+2aa1bbb21f26 ("serial: stm32: add FIFO threshold configuration")
+cea37afd28f1 ("serial: stm32: defer sysrq processing")
+e359b4411c28 ("serial: stm32: fix threaded interrupt handling")
+3d530017bef1 ("serial: stm32: update wakeup IRQ management")
+3db1d52466dc ("serial: stm32: fix tx_empty condition")
+12761869f0ef ("serial: stm32: fix wake-up flag handling")
+ad7676812437 ("serial: stm32: fix a deadlock condition with wakeup event")
+25a8e7611da5 ("serial: stm32: fix TX and RX FIFO thresholds")
+f4518a8a75f5 ("serial: stm32: fix startup by enabling usart for reception")
+87fd0741d6dc ("serial: stm32: fix probe and remove order for dma")
+a99163e9e708 ("Merge tag 'devicetree-for-5.12' of git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux")
 
 thanks,
 
